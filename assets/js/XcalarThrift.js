@@ -1602,6 +1602,7 @@ function XcalarGetDatasetUsers(dsName) {
         return (deferred.promise());
     }
 
+    dsName = parseDS(dsName);
     xcalarListDatasetUsers(tHandle, dsName)
     .then(function(listDatasetUsersOutput) {
         deferred.resolve(listDatasetUsersOutput.user); // Array of users

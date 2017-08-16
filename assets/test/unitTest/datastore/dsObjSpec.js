@@ -671,6 +671,23 @@ describe("DSObj Test", function() {
 
             DS.remove = oldFunc;
         });
+
+        it("should click .getInfo to get ds info", function() {
+            var oldFunc = DSInfoModal.show;
+            var test = false;
+            DSInfoModal.show = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".getInfo");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            oldFunc = DSInfoModal.show;
+        });
     });
 
     describe("Create Selection Test", function() {

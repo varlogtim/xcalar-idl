@@ -3729,6 +3729,88 @@ html.microsoft {
     }
 }
 
+#dsInfoModal {
+    .size(@width: 200px, @height: 200px);
+
+    .modalHeader {
+        .size(@height: 25px);
+        background-color: @color-bg-select-blue;
+
+        .text {
+            font-size: 14px;
+            line-height: 25px;
+        }
+
+        .close {
+            top: 2px;
+
+            .icon {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .modalMain {
+        padding: 0;
+        .font(@size: 12px, @color: @color-font-greyish-brown, @align: center);
+        .size(@height: ~"calc(100% - 25px)");
+
+        .infoSection {
+            .size(100%, 100%);
+            .position(relative);
+
+            .section {
+                .size(@height: 25px);
+                line-height: 25px;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
+
+                &.user {
+                    border-bottom: none;
+                    .size(@height: ~"calc(100% - 50px)");
+
+                    .content {
+                        overflow-y: auto;
+                        padding-bottom: 5px;
+
+                        li:not(:first-child) {
+                            line-height: 20px;
+                        }
+                    }
+                }
+
+                > div {
+                    .size(@height: 100%);
+                    float: left;
+                    padding: 0 8px;
+
+                    &.label {
+                        .size(@width: 110px);
+                        text-align: right;
+                    }
+
+                    &.content {
+                        .size(@width: ~"calc(100% - 110px)");
+                        text-align: left;
+                        background-color: @color-bg-white-seven;
+                        .textOverflowOneLine;
+
+                        .animatedEllipsis {
+                            > div {
+                                margin-left: 1px;
+                            }
+                        }
+
+                        li {
+                            .textOverflowOneLine;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 .ui-draggable-dragging {
     .cursor-grabbing;
 

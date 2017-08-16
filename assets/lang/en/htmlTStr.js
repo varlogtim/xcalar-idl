@@ -467,7 +467,9 @@ module.exports = {
         "Retry": "Retry",
         "RetryPoint": "Please try to import data with different parameters (for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
-        "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created.",
+        "DSInfo": "Dataset Infomation",
+        "UsedBy": "Used By"
     },
 
     // keep in sync with the FileProtocol in enums.js

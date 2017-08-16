@@ -479,6 +479,7 @@ window.xcManager = (function(xcManager, $) {
         AboutModal.setup();
         FileInfoModal.setup();
         PreviewFileModal.setup();
+        DSInfoModal.setup();
     }
 
     function setupUserArea() {

@@ -1518,6 +1518,13 @@ window.DS = (function ($, DS) {
             }
             DS.remove($gridView.find(".grid-unit.selected"));
         });
+
+        $gridMenu.on("mouseup", ".getInfo", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            DSInfoModal.show($gridMenu.data("dsid"));
+        });
     }
 
     function focsueOnTracker() {
