@@ -694,6 +694,7 @@ window.DS = (function ($, DS) {
         var deferred = jQuery.Deferred();
         var title;
         var msg;
+        var isAlert = false;
 
         if ($grids.length > 1) {
             // delete multiple ds/folder
@@ -701,18 +702,22 @@ window.DS = (function ($, DS) {
             msg = DSTStr.DelMultipleDS;
         } else {
             var $grid = $grids.eq(0);
+            var txId = $grid.data("txid");
             var dsId = $grid.data("dsid");
             var dsObj = DS.getDSObj(dsId);
+            var dsName = dsObj.getName();
 
             if (dsObj.beFolder()) {
                 // skip folder case
                 return PromiseHelper.resolve();
-            }
-
-            var txId = $grid.data("txid");
-            var dsName = dsObj.getName();
-
-            if (txId != null) {
+            } else if (!dsObj.isEditable()) {
+                // when remove ds
+                title = AlertTStr.NoDel;
+                msg = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                    "ds": dsName
+                });
+                isAlert = true;
+            } else if (txId != null) {
                 // cancel case
                 title = DSTStr.CancalPoint;
                 msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {
@@ -731,7 +736,8 @@ window.DS = (function ($, DS) {
             "title": title,
             "msg": msg,
             "onConfirm": deferred.resolve,
-            "onCancel": deferred.reject
+            "onCancel": deferred.reject,
+            "isAlert": isAlert
         });
 
         return deferred.promise();
