@@ -1141,7 +1141,7 @@ window.Dag = (function($, Dag) {
         var newRight = expandIconRight -
                            ((group.length - numHiddenTags) * Dag.tableWidth) +
                            Math.round(0.11 * Dag.tableWidth);
-                $expandIcon.css('right', newRight);
+        $expandIcon.css('right', newRight);
     }
 
     function collapseGroupHelper(group, node, $dagWrap, horzShift, storedInfo) {
@@ -1440,7 +1440,7 @@ window.Dag = (function($, Dag) {
         curColName = getRenamedColName(curColName, node);
         var parentNode;
         var parentName;
-        var tableName;
+        // var tableName;
         var isEmpty;
         var found = false;
         // look through the parent tables

@@ -249,7 +249,7 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
 
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
-    var parentChildMap;
+    // var parentChildMap;
     var node;
 
     if (!otherTableName) {
@@ -306,7 +306,7 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
             var t2hasReadyState = true;
             var indexInput1;
             var indexInput2;
-            var parentChildMap;
+            // var parentChildMap;
 
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
                 indexInput1 = na1.node[0].input.indexInput;

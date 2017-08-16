@@ -181,10 +181,10 @@ window.DagPanel = (function($, DagPanel) {
                 var blob = canvas.msToBlob();
                 var name = tableName + '.png';
                 success = window.navigator.msSaveBlob(blob, name);
-                deferred.resolve();
+                deferred.resolve(success);
             } else {
                 downloadImage(canvas, tableName);
-                deferred.resolve();
+                deferred.resolve(success);
             }
             $dagWrap.find('canvas').eq(1).remove();
         })

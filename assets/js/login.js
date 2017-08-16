@@ -45,7 +45,7 @@ $(document).ready(function() {
         $("#loginNameBox").val(lastUsername);
     }
 
-    $("#waadLoginForm").submit(function(event) {
+    $("#waadLoginForm").submit(function() {
         if (typeof waadConfig === "undefined") {
             alert("waadConfig not set. Contact your system administrator.");
         } else {

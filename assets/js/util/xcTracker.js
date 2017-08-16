@@ -1,4 +1,4 @@
-window.xcTracker = (function(xcTracker, $) {
+window.xcTracker = (function(xcTracker) {
     var cache = "";
 
     xcTracker.commit = function() {
@@ -68,4 +68,4 @@ window.xcTracker = (function(xcTracker, $) {
     /* End Of Unit Test Only */
 
     return xcTracker;
-}({}, jQuery));
+}({}));

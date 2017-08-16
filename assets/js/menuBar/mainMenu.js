@@ -1,7 +1,7 @@
 window.MainMenu = (function($, MainMenu) {
     var $menuBar; // $("#menuBar");
     var $mainMenu; // $("#mainMenu");
-    var menuAction;
+    // var menuAction;
     var isMenuOpen = false;
     var menuAnimCheckers = [];
     var closedOffset = 65; // in pixels, how much the panels are horizonally
@@ -359,7 +359,7 @@ window.MainMenu = (function($, MainMenu) {
                     QueryManager.scrollToFocused();
                 }
                 break;
-        case ("dataflowTab"):
+            case ("dataflowTab"):
                 $("#dataflowPanel").addClass("active");
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");

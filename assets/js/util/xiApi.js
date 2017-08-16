@@ -1,4 +1,4 @@
-window.XIApi = (function(XIApi, $) {
+window.XIApi = (function(XIApi) {
     var aggOps = null;
 
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
@@ -900,6 +900,15 @@ window.XIApi = (function(XIApi, $) {
             rCols = gTables[rTableId].tableCols;
         }
 
+        var deferred1;
+        var deferred2;
+        var lNewName;
+        var rNewName;
+        var lColName;
+        var rColName;
+        var lString;
+        var rString;
+
         if (len === 1) {// single join
             if (!lCasts[0] && !rCasts[0]) {
                 deferred.resolve({
@@ -910,16 +919,9 @@ window.XIApi = (function(XIApi, $) {
                     "tempTables": tempTables
                 });
             } else {
-                var deferred1;
-                var deferred2;
-                var lNewName;
-                var rNewName;
-                var lColName;
-                var rColName;
                 if (lCasts[0]) {
                     lNewName = getNewTableName(lTableName);
-                    var lString = xcHelper.castStrHelper(lColNames[0],
-                                                         lCasts[0]);
+                    lString = xcHelper.castStrHelper(lColNames[0], lCasts[0]);
                     lColName = xcHelper.randName("leftJoinCol");
                     deferred1 = XcalarMap(lColName, lString, lTableName,
                                           lNewName, txId);
@@ -930,8 +932,7 @@ window.XIApi = (function(XIApi, $) {
                 }
                 if (rCasts[0]) {
                     rNewName = getNewTableName(rTableName);
-                    var rString = xcHelper.castStrHelper(rColNames[0],
-                                                         rCasts[0]);
+                    rString = xcHelper.castStrHelper(rColNames[0], rCasts[0]);
                     rColName = xcHelper.randName("rightJoinCol");
                     deferred2 = XcalarMap(rColName, rString, rTableName,
                                           rNewName, txId);
@@ -967,22 +968,19 @@ window.XIApi = (function(XIApi, $) {
             }
         } else {
             // multi join
-
-            var lNewName = getNewTableName(lTableName);
+            lNewName = getNewTableName(lTableName);
             var lCastColNames = xcHelper.getJoinCastStrings(lColNames, lCasts);
-            var lString = xcHelper.getMultiJoinMapString(lCastColNames);
-            var lColName = xcHelper.randName("leftJoinCol");
+            lString = xcHelper.getMultiJoinMapString(lCastColNames);
+            lColName = xcHelper.randName("leftJoinCol");
 
             // right cols
-            var rNewName = getNewTableName(rTableName);
+            rNewName = getNewTableName(rTableName);
             var rCastColNames = xcHelper.getJoinCastStrings(rColNames, rCasts);
-            var rString = xcHelper.getMultiJoinMapString(rCastColNames);
-            var rColName = xcHelper.randName("rightJoinCol");
+            rString = xcHelper.getMultiJoinMapString(rCastColNames);
+            rColName = xcHelper.randName("rightJoinCol");
 
-            var deferred1 = XcalarMap(lColName, lString,
-                                      lTableName, lNewName, txId);
-            var deferred2 = XcalarMap(rColName, rString,
-                                      rTableName, rNewName, txId);
+            deferred1 = XcalarMap(lColName, lString, lTableName, lNewName, txId);
+            deferred2 = XcalarMap(rColName, rString, rTableName, rNewName, txId);
 
             PromiseHelper.when(deferred1, deferred2)
             .then(function() {
@@ -1814,4 +1812,4 @@ window.XIApi = (function(XIApi, $) {
     }
 
     return (XIApi);
-}({}, jQuery));
+}({}));

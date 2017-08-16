@@ -48,8 +48,8 @@ window.TableList = (function($, TableList) {
         });
 
         // focus on table
-        $("#activeTableListSection").on("click", ".tableListBox .tableName",
-                                                                function() {
+        var $activeLists = $("#activeTableListSection");
+        $activeLists.on("click", ".tableListBox .tableName", function() {
             if ($(this).closest('.hiddenWS').length) {
                 return;
             }
@@ -211,7 +211,7 @@ window.TableList = (function($, TableList) {
         $tableListSections.on("click", ".sortOption", function() {
             var type = $(this).data("sort");
             var $section = $(this).closest(".tableListSection");
-            if  ($section.data("sort") === type) {
+            if ($section.data("sort") === type) {
                 return;
             } else {
                 $section.data("sort", type);
@@ -615,7 +615,7 @@ window.TableList = (function($, TableList) {
         }
     };
 
-    TableList.reorderTable = function(tableId, srcIndex, desIndex) {
+    TableList.reorderTable = function(tableId) {
         // currently just reprinting whole list
         if ($("#activeTableListSection").hasClass("sortedByWS")) {
             TableList.addTables([gTables[tableId]], IsActive.Active);
@@ -1166,7 +1166,8 @@ window.TableList = (function($, TableList) {
 
             var tableName = table.getName();
             var tableId = table.getId();
-            var wsId = WSManager.getWSFromTable(tableId);
+
+            wsId = WSManager.getWSFromTable(tableId);
             var wsInfo;
 
             if (wsId == null) {
@@ -1392,8 +1393,8 @@ window.TableList = (function($, TableList) {
 
             backConstsList.sort(sortConst);
 
-            for (var name in frontConsts) {
-                allConsts.push(frontConsts[name]);
+            for (var constantName in frontConsts) {
+                allConsts.push(frontConsts[constantName]);
             }
             allConsts.sort(sortConst);
             allConsts = allConsts.concat(backConstsList);

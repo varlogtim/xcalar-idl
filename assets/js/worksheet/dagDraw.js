@@ -1704,7 +1704,7 @@ window.DagDraw = (function($, DagDraw) {
 
             // draw any additional curves if more than 2 parents
             if (numParents > 2) {
-                 drawExtraCurves(parents, tableX - 102, tableY, ctx,
+                drawExtraCurves(parents, tableX - 102, tableY, ctx,
                                  canvasWidth);
             }
         }
@@ -1773,7 +1773,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     // for tables that have more than 2 parents
-    function drawExtraCurves(parents,  x1, y1, ctx, canvasWidth) {
+    function drawExtraCurves(parents, x1, y1, ctx, canvasWidth) {
         for (var i = 2; i < parents.length; i++) {
             var parent = parents[i];
             var x2 = canvasWidth - parent.value.display.x + smallTableWidth;

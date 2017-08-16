@@ -838,11 +838,11 @@ window.Admin = (function($, Admin) {
             "title": title,
             "msg": msg,
             "onConfirm": function() {
-                if(alertMsg) {
+                if (alertMsg) {
                     var alertOption = {
                         "title": title,
                         "message": alertMsg
-                    }
+                    };
                     XcSocket.sendMessage("adminAlert", alertOption);
                 }
                 $("#initialLoadScreen").show();

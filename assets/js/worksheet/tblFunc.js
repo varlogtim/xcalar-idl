@@ -570,7 +570,7 @@ window.TblFunc = (function(TblFunc, $) {
             }
         }
 
-        TableList.reorderTable(tableId, srcIndex, desIndex);
+        TableList.reorderTable(tableId);
 
         if (moveHtml) {
             xcHelper.centerFocusedTable(tableId);

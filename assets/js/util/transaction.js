@@ -1,4 +1,4 @@
-window.Transaction = (function(Transaction, $) {
+window.Transaction = (function(Transaction) {
     var txCache = {};
     var canceledTxCache = {};
     var disabledCancels = {};
@@ -381,4 +381,4 @@ window.Transaction = (function(Transaction, $) {
 
 
     return (Transaction);
-}({}, jQuery));
+}({}));

@@ -204,7 +204,7 @@ window.DFCard = (function($, DFCard) {
         };
 
         return retData;
-    }
+    };
 
     function addParamToRetina(name, val) {
         var $row = $retLists.find(".unfilled:first");
@@ -1241,7 +1241,7 @@ window.DFCard = (function($, DFCard) {
             }
         }
 
-        function alertBeforeRunDF(hasSysParam, isToActiveSession) {
+        function alertBeforeRunDF(hasSysParam) {
             if (!hasSysParam) {
                 return PromiseHelper.resolve();
             }

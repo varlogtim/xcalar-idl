@@ -383,8 +383,7 @@ window.DFCreateView = (function($, DFCreateView) {
         })
         .fail(function(error) {
             if (error === "duplicate name") {
-                xcHelper.validate([
-                {
+                xcHelper.validate([{
                     "$ele": $newNameInput,
                     "error": ErrTStr.DFConflict,
                     "check": function() {
