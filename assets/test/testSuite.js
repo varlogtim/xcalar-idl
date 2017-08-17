@@ -1464,19 +1464,16 @@ window.TestSuite = (function($, TestSuite) {
         var $retPopup = $dfViz.find(".retPopUp");
         paramName = "param" + randInt();  // globals in the module
 
-        $retTab.trigger(fakeEvent.mousedown);
-        $retPopup.find(".newParam").val(paramName);
-        $retPopup.find(".addParam").click();
-        $retTab.trigger(fakeEvent.mousedown);
         $("#dfParamModal .draggableParams.systemParams").addClass("hint");
-
         // Add parameter to export
         var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
                      '"]');
         $df.find(".dagTable.export").click();
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
         var $dfParamModal = $("#dfParamModal");
-
+        $dfParamModal.find(".addParam").click();
+        $dfParamModal.find(".newParam").val(paramName);
+        $dfParamModal.find(".newParam").focus().focusout();
         checkExists("#dfParamModal .draggableParams.systemParams:not(.hint)")
         .then(function() {
             $dfParamModal.find(".editableRow .defaultParam").click();

@@ -10,7 +10,7 @@ window.DFCard = (function($, DFCard) {
     var xdpMode = XcalarMode.Mod;
     var retinaCheckInterval = 2000;
     var retinasInProgress = {};
-
+    var hasChange = false;
     var retinaTrLen = 5;
     var retinaTr = '<div class="row unfilled">' +
                         '<div class="cell paramNameWrap textOverflowOneLine">' +
@@ -25,7 +25,7 @@ window.DFCard = (function($, DFCard) {
                                 '<i class="icon xi-ckbox-selected fa-15"></i>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="cell paramActionWrap">' +
+                         '<div class="cell paramActionWrap">' +
                             '<i class="paramDelete icon xi-close fa-15 xc-action">' +
                             '</i>' +
                         '</div>' +
@@ -240,8 +240,8 @@ window.DFCard = (function($, DFCard) {
         if ($retLists.find(".row").length < retinaTrLen) {
             $retLists.append(retinaTr);
         }
-
         df.removeParameter(paramName);
+        hasChange = true;
     }
 
     function setupRetinaTab() {
@@ -272,124 +272,30 @@ window.DFCard = (function($, DFCard) {
             var $tab = $(this);
             if ($tab.hasClass('active')) {
                 // close it tab
-                saveParam(currentDataflow);
                 closeRetTab();
                 $tab.removeClass('active');
+                return false;
             } else {
                 // open tab
                 DFCard.updateRetinaTab(DFCard.getCurrentDF());
                 $tab.addClass('active');
-                focusOnFirstInvalidValue(currentDataflow);
-
-                $("#container").on("mousedown.retTab", function(event) {
-                    var $target = $(event.target);
-                    if ($target.closest('#statusBox').length
-                        || $target.closest('.retPopUp').length
-                        || $target.closest('.retTab').length) {
-                        event.stopPropagation();
-                        return;
-                    } else {
-                        saveParam(currentDataflow);
-                        closeRetTab();
-                        $("#container").off("mousedown.retTab");
-                    }
-                });
+                return false;
             }
         });
 
-        $retTabSection.on('click', '.checkbox', function() {
-            var $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            saveParam(currentDataflow);
-            StatusBox.forceHide();
-            if ($checkbox.hasClass("checked")) {
-                // remove value from input if click on "no value" box
-                $checkbox.closest(".row").find(".paramVal").val("");
-                $checkbox.closest(".row").find(".paramVal").blur();
-            }
-        });
-
-        $retTabSection.on("input", ".paramVal", function() {
-            // remove "no value" check if the input has text
-            $(this).closest(".row").find(".checkbox").removeClass("checked");
-        });
-
-        $retTabSection.on("keypress", ".paramVal", function(event) {
-            if (event.which === keyCode.Enter) {
-                saveParam(currentDataflow);
-                focusOnFirstInvalidValue(currentDataflow);
+        $("#container").on("mousedown", function(event) {
+            var $target = $(event.target);
+            if ($retTabSection.find(".retTab").hasClass("active")
+            && !$target.closest('.retTab').length) {
+                closeRetTab();
+                $("#container").off("mousedown.retTab");
+                return;
             }
         });
 
         $retTabSection[0].oncontextmenu = function(e) {
             e.preventDefault();
         };
-
-        $retTabSection.on('keyup', '.newParam', function(event){
-            event.preventDefault();
-            if (event.which !== keyCode.Enter) {
-                return;
-            }
-            var $btn = $(this).siblings('.addParam');
-            $btn.click();
-        });
-
-        // create new parameters to retina
-        $retTabSection.on('click', '.addParam', function(event) {
-            event.stopPropagation();
-            var $btn = $(this).blur();
-            var $input = $btn.prev('.newParam');
-            var paramName = $input.val().trim();
-
-            var isValid = xcHelper.validate([
-                {
-                    "$ele": $input
-                },
-                {
-                    "$ele": $input,
-                    "error": ErrTStr.NoSpecialCharOrSpace,
-                    "check": function() {
-                        return !xcHelper.checkNamePattern("param", "check",
-                            paramName);
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return;
-            }
-
-            // Check name conflict
-            var isNameConflict = false;
-            $retLists.find(".row:not(.unfilled)").each(function(index, row) {
-                var name = $(row).find(".paramName").html();
-                if (paramName === name) {
-                    isNameConflict = true;
-                    return false; // exit loop
-                }
-            });
-
-            var text;
-            if (isNameConflict) {
-                text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
-                    "name": paramName
-                });
-                StatusBox.show(text, $input);
-                return;
-            }
-            if (systemParams.hasOwnProperty(paramName)) {
-                text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
-                    "name": paramName
-                });
-                StatusBox.show(text, $input);
-                return;
-            }
-
-            DF.getDataflow(currentDataflow).addParameter(paramName);
-
-            addParamToRetina(paramName);
-            $input.val("");
-        });
 
         // delete retina para
         $retTabSection.on("click", ".paramDelete", function(event) {
@@ -484,7 +390,7 @@ window.DFCard = (function($, DFCard) {
                     "msg": DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
-                        $dfCard.find('.retTabSection .retTab').trigger('mousedown');
+                        $dfCard.find('.retTabSection .retTab').trigger('click');
                     }
                 });
             }
@@ -1540,65 +1446,11 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.refresh($(elem));
     }
 
-    function saveParam(dataflowName) {
-        var df = DF.getDataflow(dataflowName);
-        var paramMapInUsed = df.paramMapInUsed;
-        var paramMap = df.paramMap;
-        var checkRes = paramValueCheck(dataflowName);
-        var toUpdate = checkRes.toUpdate;
-        var usedParamHasChange = false;
-        for (var name in toUpdate) {
-            if (paramMap[name] !== toUpdate[name]) {
-                paramMap[name] = toUpdate[name];
-                if (paramMapInUsed[name]) {
-                    usedParamHasChange = true;
-                }
-            }
-        }
-        if (usedParamHasChange) {
-            if (DF.hasSchedule(dataflowName) && (!checkRes.hasInvalidRow)) {
-                DF.updateScheduleForDataflow(dataflowName);
-            }
-            DF.commitAndBroadCast(dataflowName);
-        }
-    }
-
-    function focusOnFirstInvalidValue(dataflowName) {
-        StatusBox.forceHide();
-        var checkRes = paramValueCheck(dataflowName);
-        if (checkRes.hasInvalidRow) {
-            StatusBox.show(ErrTStr.NoEmptyOrCheck,
-                checkRes.firstInvalidVal, false, {'side': 'left'});
-            $(checkRes.firstInvalidVal).focus();
-        }
-    }
-
-    function paramValueCheck(dataflowName) {
-        var df = DF.getDataflow(dataflowName);
-        var paramMapInUsed = df.paramMapInUsed;
-        var hasInvalidRow = false;
-        var firstInvalidVal = null;
-        var toUpdate = {};
-        var checkRes = {};
-        $("#retLists").find(".row:not(.unfilled)").each(function() {
-            var $row = $(this);
-            var name = $row.find(".paramName").text();
-            var val = $.trim($row.find(".paramVal").val());
-            var check = $row.find(".checkbox").hasClass("checked");
-            if (val === "" && (!check) && paramMapInUsed[name] &&
-                (!hasInvalidRow)) {
-                hasInvalidRow = true;
-                firstInvalidVal = $row.find(".paramVal");
-            }
-            toUpdate[name] = (val === "") ? (check ? "" : null) : val;
-        });
-        checkRes.hasInvalidRow = hasInvalidRow;
-        checkRes.firstInvalidVal = firstInvalidVal;
-        checkRes.toUpdate = toUpdate;
-        return checkRes;
-    }
-
     function closeRetTab() {
+        if (hasChange) {
+            hasChange = false;
+            DF.commitAndBroadCast(currentDataflow);
+        }
         $retTabSection.find(".retTab").removeClass("active");
         StatusBox.forceHide();
     }

@@ -654,7 +654,9 @@ DFTStr = {
 "RefreshMsg": "当前数据流已被其他用户更改",
 "AddValues": "赋值",
 "ParamNoValue": "请为当前数据流使用的所有参数赋值",
-"CannotParam": "如果导出成Xcalar表，则无法参数化"
+"CannotParam": "如果导出成Xcalar表，则无法参数化",
+'NewParam': '新建参数',
+'EnterNewParam': '请在此处输入新参数'
 };
 DSTStr = {
 'UnknownUser': '未知用户',

@@ -5,13 +5,13 @@ window.DFParamModal = (function($, DFParamModal){
     var $advancedOpts;
     var type;   // dataStore, filter, or export
 
-    var validParams = [];
     var modalHelper;
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
     var defaultParam;
     var $optsSelector;
     var xdpMode;
+    var hasChange = false;
 
     var paramListTrLen = 3;
     var trTemplate =
@@ -86,13 +86,100 @@ window.DFParamModal = (function($, DFParamModal){
             $(this).closest(".row").find(".checkbox").removeClass("checked");
         });
 
-        $dfParamModal.on('keypress', '.editableParamDiv', function(event) {
+        $dfParamModal.on('keydown', '.editableParamDiv', function(event) {
             return (event.which !== keyCode.Enter);
         });
 
         $dfParamModal.on("click", ".editableTable .defaultParam", function() {
             setParamDivToDefault($(this).siblings("input"));
         });
+
+        $dfParamModal.on("click", ".addParam", function() {
+            $dfParamModal.find(".addParam").hide();
+            $dfParamModal.find(".newParam").show();
+            $dfParamModal.find(".newParam").focus();
+        });
+
+        $dfParamModal.on("blur", ".newParam", function() {
+            addNewParam();
+            return false;
+        });
+
+        $dfParamModal.on("keydown", ".newParam", function(event) {
+            if (event.which === keyCode.Enter) {
+                $dfParamModal.find(".newParam").focusout();
+                return false;
+            }
+        });
+
+        $dfParamModal.on("click", ".deleteParam", function(event) {
+            var $toDelete = $(this).closest(".draggableDiv").find(".value");
+            var toDeleteName = $($toDelete).text();
+            var retName = $dfParamModal.data("df");
+            var df = DF.getDataflow(retName);
+            if (df.paramMapInUsed[toDeleteName]) {
+                StatusBox.show(ErrTStr.InUsedNoDelete,
+                    $(this), false, {'side': 'right'});
+                return false;
+            }
+            df.removeParameter(toDeleteName);
+            $(this).closest(".draggableDiv").remove();
+            hasChange = true;
+        });
+
+        function addNewParam() {
+            if ($dfParamModal.find(".newParam:visible").length === 0) {
+                return;
+            }
+            var $input = $dfParamModal.find('.newParam');
+            var paramName = $input.val().trim();
+            var retName = $dfParamModal.data("df");
+            var df = DF.getDataflow(retName);
+
+            if (paramName === "") {
+                $dfParamModal.find(".newParam").hide();
+                $dfParamModal.find(".addParam").show();
+            }
+            var isValid = xcHelper.validate([
+                {
+                    "$ele": $input
+                },
+                {
+                    "$ele": $input,
+                    "error": ErrTStr.NoSpecialCharOrSpace,
+                    "check": function() {
+                        return !xcHelper.checkNamePattern("param", "check",
+                            paramName);
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return;
+            }
+            var text;
+            if (df.paramMap.hasOwnProperty(paramName)) {
+                text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                    "name": paramName
+                });
+                StatusBox.show(text, $input);
+                return;
+            }
+            if (systemParams.hasOwnProperty(paramName)) {
+                text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+                    "name": paramName
+                });
+                StatusBox.show(text, $input);
+                return;
+            }
+            df.addParameter(paramName);
+            var newParam = generateDraggableParams(paramName);
+            $(newParam).insertBefore($dfParamModal.find(".inputSection"));
+            $input.val("");
+            $dfParamModal.find(".newParam").hide();
+            $dfParamModal.find(".addParam").show();
+            hasChange = true;
+        }
 
         var checkInputTimeout;
         $dfParamModal.on("input", ".editableParamDiv", function() {
@@ -171,25 +258,25 @@ window.DFParamModal = (function($, DFParamModal){
             setupInputText(paramValue, info);
             $("#dfParamModal .editableRow .defaultParam").click();
             var draggableInputs = "";
-            validParams = [];
             DF.getDataflow(dfName).parameters.forEach(function(paramName) {
                 if (!systemParams.hasOwnProperty(paramName)) {
                     draggableInputs += generateDraggableParams(paramName);
-                    validParams.push(paramName);
                 }
             });
 
-            if (draggableInputs === "") {
-                draggableInputs = DFTStr.AddParamHint;
-                $dfParamModal.find('.draggableParams.currParams')
-                                .addClass("hint")
-                                .html(draggableInputs);
-            } else {
-                $dfParamModal.find('.draggableParams.currParams')
-                                .removeClass("hint")
-                                .html(draggableInputs);
-            }
-
+            var createNewParam = '<div class="inputSection">'+
+                                 '<input class="newParam" type="text" placeholder="' +
+                                  DFTStr.EnterNewParam +
+                                 '"style="display:none" spellcheck="false">'+
+                                 '<div class="btn btn-icon addParam">' +
+                                 '<i class="icon xi-plus"></i>' +
+                                 '<div class="message">'+
+                                 DFTStr.NewParam +
+                                 '</div>'+
+                                 '</div>' +
+                                 '</div>';
+            $dfParamModal.find('.draggableParams.currParams')
+                         .html(draggableInputs + createNewParam);
             draggableInputs = "";
             for (var key in systemParams) {
                 draggableInputs += generateDraggableParams(key);
@@ -325,7 +412,6 @@ window.DFParamModal = (function($, DFParamModal){
         var newVal = firstPart + $draggableParam.text() + secondPart;
         $dropTargParent.text(newVal);
         $dropTargParent.parent().siblings('input').val(newVal);
-
         checkInputForParam($dropTargParent.parent().siblings('input'));
     };
 
@@ -899,12 +985,12 @@ window.DFParamModal = (function($, DFParamModal){
                 return ($(this).text() === param);
             });
             if (!$paramFound.length) {
-                if (validParams.indexOf(param) !== -1) {
+                if (systemParams.hasOwnProperty(param)) {
+                    addParamToLists(param, CommonTxtTstr.DefaultVal, true);
+                } else {
                     var df = DF.getDataflow(DFCard.getCurrentDF());
                     var paramVal = df.getParameter(param);
                     addParamToLists(param, paramVal, false);
-                } else if (systemParams.hasOwnProperty(param)) {
-                    addParamToLists(param, CommonTxtTstr.DefaultVal, true);
                 }
             }
         }
@@ -1117,6 +1203,7 @@ window.DFParamModal = (function($, DFParamModal){
             .then(function() {
                 // show success message??
                 DF.commitAndBroadCast(retName);
+                hasChange = false;
                 var successMsg;
                 if (params.length) {
                     successMsg = SuccessTStr.OperationParameterized;
@@ -1273,7 +1360,7 @@ window.DFParamModal = (function($, DFParamModal){
             } else if (paramType == null) {
                 deferred.reject("currently not supported");
             } else {
-                closeDFParamModal();
+                closeDFParamModal(true);
                 XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues)
                 .then(function() {
                     return XcalarGetRetina(retName);
@@ -1562,12 +1649,20 @@ window.DFParamModal = (function($, DFParamModal){
                     '<span class="delim"><</span>' +
                     '<span class="value">' + paramName + '</span>' +
                     '<span class="delim">></span>' +
+                    '<i class="icon xi-close deleteParam"></i>' +
                 '</div>';
 
         return (html);
     }
 
-    function closeDFParamModal() {
+    function closeDFParamModal(noCommit) {
+        if (!noCommit) {
+            if (hasChange) {
+                hasChange = false;
+                var retName = $dfParamModal.data("df");
+                DF.commitAndBroadCast(retName);
+            }
+        }
         modalHelper.clear();
         $editableRow.empty();
         $dfParamModal.find('.draggableParams').empty();
