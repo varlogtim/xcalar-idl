@@ -662,7 +662,9 @@ window.DS = (function ($, DS) {
                 focusOnForm();
             }
 
-            Transaction.done(txId);
+            Transaction.done(txId, {
+                "noSql": options.noSql
+            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -747,11 +749,33 @@ window.DS = (function ($, DS) {
     }
 
     function hideUnlistableDS(dsSet) {
+        var currentUser = XcSupport.getUser();
         for (var dsId in dsSet) {
+            var dsObj = DS.getDSObj(dsId);
             var $grid = DS.getGrid(dsId);
-            $grid.hide();
+            if (dsObj.getUser() === currentUser) {
+                // when it's the currentUser's ds, can try to delete it
+                // tryRemoveUnlistableDS($grid, dsObj);
+            } else {
+                $grid.hide();
+            }
         }
     }
+
+    // function tryRemoveUnlistableDS($grid, dsObj) {
+    //     var dsName = dsObj.getFullName();
+    //     XcalarGetDatasetUsers(dsName)
+    //     .then(function(users) {
+    //         if (users == null || users.length === 0) {
+    //             console.info("remove mark for deletion ds");
+    //             // when no one use it
+    //             delDSHelper($grid, dsObj, {
+    //                 "noAlert": true,
+    //                 "noSql": true
+    //             });
+    //         }
+    //     });
+    // }
 
     function destroyDataset(dsName, txId) {
         var deferred = jQuery.Deferred();
