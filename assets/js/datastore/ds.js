@@ -196,6 +196,9 @@ window.DS = (function ($, DS) {
         // folder do not show anything
         if ($grid.hasClass("folder")) {
             return PromiseHelper.resolve();
+        } else if ($grid.hasClass("unlistable")) {
+            DSTable.showError(dsId, ErrTStr.MakrForDel, true);
+            return PromiseHelper.resolve();
         }
 
         var isLoading;

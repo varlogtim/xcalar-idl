@@ -222,6 +222,7 @@ ErrTStr = {
 'NoBucketOnStr': '列类型是字符串，不能进入范围。',
 'ParamInUse': '无法删除，此参数正在使用中。',
 'MVFolderConflict': '无法移动，名称与目标文件夹中的文件冲突',
+'MakrForDel': '无法预览标记为被删除的数据集',
 'TimeExpire': '请选择未来的某个时刻。',
 'LongFileName': '文件名太长，请使用少于255个字符。',
 'LargeFile': '文件太大请打破较小的文件（<10mb）。',

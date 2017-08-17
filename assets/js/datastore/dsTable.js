@@ -20,7 +20,7 @@ window.DSTable = (function($, DSTable) {
         setupSampleTable();
     };
 
-    DSTable.showError = function(dsId, error) {
+    DSTable.showError = function(dsId, error, isFetchError) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // error case
@@ -30,7 +30,7 @@ window.DSTable = (function($, DSTable) {
         updateTableInfo(dsObj, true); // isLoading = true, no async call
         // hide carts
         DSCart.switchToCart(null);
-        setupViewAfterError(error);
+        setupViewAfterError(error, isFetchError);
     };
 
     DSTable.show = function(dsId, isLoading) {

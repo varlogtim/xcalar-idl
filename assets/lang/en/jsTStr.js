@@ -243,6 +243,7 @@ ErrTStr = {
     'ParamInUse': 'Cannot delete, this parameter is in use.',
     'MVFolderConflict': 'Cannot move, name conflicts with files in target ' +
                         'folder',
+    'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'TimeExpire': 'Please choose a time that is in the future.',
     'LongFileName': 'File Name is too long, please use less than 255 chars.',
     'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
