@@ -958,7 +958,7 @@ window.xcHelper = (function($, xcHelper) {
     // Converts the timestamp from seconds to Days Hours Minutes Seconds
     xcHelper.timeStampConvertSeconds = function(timeInSeconds) {
         var days = Math.floor(timeInSeconds / (24 * 60 * 60));
-        timeInSeconds -= days * 25 * 60 * 60;
+        timeInSeconds -= days * 24 * 60 * 60;
         var hours = Math.floor(timeInSeconds / (60 * 60));
         timeInSeconds -= hours * 60 * 60;
         var minutes = Math.floor(timeInSeconds / 60);
@@ -983,12 +983,18 @@ window.xcHelper = (function($, xcHelper) {
      * @param  {boolean} unitSeparated true if want return an array of
      *                                 [int size, string unit]
      */
-    xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
+    xcHelper.sizeTranslator = function(size, unitSeparated, convertTo, options) {
         if (size == null) {
             return null;
         }
+        options = options || {};
+        var unit;
+        if (options.base2) {
+            unit = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+        } else {
+            unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        }
 
-        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
         var end   = unit.length - 2;
 
@@ -1017,13 +1023,19 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.textToBytesTranslator = function(numText) {
+    xcHelper.textToBytesTranslator = function(numText, options) {
         // accepts parameters in the form of "23GB" or "56.2 mb"
         // and converts them to bytes
         if (!numText) {
             return "";
         }
-        var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        options = options || {};
+        var units;
+        if (options.base2) {
+            units = ["B", "KIB", "MIB", "GIB", "TIB", "PIB"];
+        } else {
+            units  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        }
         var num = parseFloat(numText);
         var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();
         var index = units.indexOf(text);

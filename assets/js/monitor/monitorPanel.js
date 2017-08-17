@@ -296,24 +296,26 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function updateDonutMidText(selector, num, duration, index) {
         var $sizeType = $(selector).next();
         var type = $sizeType.text();
-
+        var sizeOption = {base2: true};
         d3.select(selector)
             .transition()
             .duration(duration)
             .tween("text", function() {
                 var startNum = this.textContent;
-                var size = xcHelper.sizeTranslator(num, true);
+                var size = xcHelper.sizeTranslator(num, true, null, sizeOption);
                 var i;
 
                 if (index > 1) {
-                    startNum = xcHelper.textToBytesTranslator(startNum + type);
+                    startNum = xcHelper.textToBytesTranslator(startNum + type,
+                                                              sizeOption);
                     i = d3.interpolate(startNum, num);
                 } else {
                     i = d3.interpolate(startNum, size[0]);
                 }
 
                 return (function(t) {
-                    var size = xcHelper.sizeTranslator(i(t), true);
+                    var size = xcHelper.sizeTranslator(i(t), true, null,
+                                                        sizeOption);
                     num = parseFloat(size[0]).toFixed(1);
                     if (num >= 10 || index < ramIndex) {
                         num = Math.round(num);
@@ -347,46 +349,58 @@ window.MonitorPanel = (function($, MonitorPanel) {
                             '</li>';
             }
         } else {
-            var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
-            var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
-
+            var sizeOption = {base2: true};
+            var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true, null,
+                                                    sizeOption);
+            var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true, null,
+                                                    sizeOption);
+            var separator = "";
             if (index === 4) {
                 $statsSection.find('.statsHeadingBar .totNum')
-                             .text(sumTotal[0] + sumTotal[1] + "ps");
+                             .text(sumTotal[0] + " " + sumTotal[1] + "/s");
                 $statsSection.find('.statsHeadingBar .avgNum')
-                             .text(sumUsed[0] + sumUsed[1] + "ps");
+                             .text(sumUsed[0] + " " + sumUsed[1] + "/s");
+                separator = "&nbsp;";
             } else {
                 $statsSection.find('.statsHeadingBar .totNum')
-                             .text(sumTotal[0] + sumTotal[1]);
+                             .text(sumTotal[0] + " " + sumTotal[1]);
                 $statsSection.find('.statsHeadingBar .avgNum')
-                             .text(sumUsed[0] + sumUsed[1]);
+                             .text(sumUsed[0] + " " + sumUsed[1]);
+                separator = "/";
             }
 
             for (var i = 0; i < numNodes; i++) {
-                var total = xcHelper.sizeTranslator(stats.tot[i], true);
-                var used = xcHelper.sizeTranslator(stats.used[i], true);
+                var total = xcHelper.sizeTranslator(stats.tot[i], true, null,
+                                                        sizeOption);
+                var used = xcHelper.sizeTranslator(stats.used[i], true, null,
+                                                        sizeOption);
                 var usedUnits;
                 var totalUnits;
 
                 if (index === 4) {
-                    usedUnits = used[1] + "ps";
-                    totalUnits = total[1] + "ps";
+                    usedUnits = used[1] + "/s";
+                    totalUnits = total[1] + "/s";
                 } else {
                     usedUnits = used[1];
                     totalUnits = total[1];
                 }
 
                 listHTML += '<li>' +
-                                '<span class="name">' +
-                                    'Node ' + i +
-                                '</span>' +
-                                '<span class="totalSize">' +
-                                    total[0] + totalUnits +
-                                '</span>' +
-                                '<span class="userSize">' +
-                                    used[0] + usedUnits +
-                                '/</span>' +
-                            '</li>';
+                        '<div class="name">' +
+                            'Node ' + i +
+                        '</div>' +
+                        '<div class="values">' +
+                            '<span class="userSize">' +
+                                used[0] + " " + usedUnits +
+                            '</span>' +
+                            '<span class="separator">&nbsp;' + separator +
+                                                    '&nbsp;</span>' +
+                            '<span class="totalSize">' +
+                                total[0] + " " + totalUnits +
+                            '</span>' +
+                        '</div>' +
+                    '</li>';
+
             }
         }
         $statsSection.find('ul').html(listHTML);

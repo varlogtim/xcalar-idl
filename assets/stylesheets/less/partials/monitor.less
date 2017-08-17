@@ -643,11 +643,11 @@
         .bottomSection {
             .flex-display();
             .flex-wrap(wrap);
-            margin-right: 60px;
+            margin-right: 34px;
             margin-left: 200px;
 
             .donutSection {
-                .flex(1 0 164px);
+                .flex(1 0 172px);
                 .size(@height: 100%, @min-height: 200px);
                 position: relative;
 
@@ -690,13 +690,13 @@
                             .nomargin-padding;
                             margin: 0 auto;
                             &.network {
-                                width: 90px;
+                                width: 115px;
                                 margin: 0;
                             }
                         }
 
                         .userSize {
-                            .font(@size: 20px, @weight: 500, @line-height: 36px);
+                            .font(@size: 18px, @weight: 500, @line-height: 36px);
                             margin-right: -9px;
 
                             .unit {
@@ -753,29 +753,33 @@
                         }
                     }
                 }
-
-                &.cpuDonut.usrMode {
-                    #donut0 {
-                        .donutInfo {
+                &.cpuDonut {
+                    .donutInfo {
+                        top: 34px;
+                    }
+                    &.usrMode {
+                        #donut0 {
+                            .donutInfo {
+                                display: none;
+                            }
+                            svg {
+                                opacity: 0.5;
+                            }
+                        }
+                        #donut1 {
+                            .donutInfo {
+                                display: block;
+                            }
+                            svg {
+                                opacity:  1;
+                            }
+                        }
+                        #donutStats0 {
                             display: none;
                         }
-                        svg {
-                            opacity: 0.5;
-                        }
-                    }
-                    #donut1 {
-                        .donutInfo {
+                        #donutStats1 {
                             display: block;
                         }
-                        svg {
-                            opacity:  1;
-                        }
-                    }
-                    #donutStats0 {
-                        display: none;
-                    }
-                    #donutStats1 {
-                        display: block;
                     }
                 }
 
@@ -795,7 +799,7 @@
 
                     .donutInfo {
                         display: none;
-                        top: 36px;
+                        top: 40px;
                     }
                     svg {
                         opacity: 0.5;
@@ -902,9 +906,9 @@
 
                 #donut4 {
                     .font(@color: @color-bg-graph-three);
-                    width: 90px;
+                    width: 115px;
                     .donutInfo {
-                        width: 90px;
+                        width: 115px;
                         text-align: right;
                     }
                     .network {
@@ -922,12 +926,13 @@
                         background-color: @color-bg-graph-three;
                         .userSize {
                             padding-right: 4px !important;
+                            margin-right: 4px;
                         }
                     }
                 }
 
                 .statsSection {
-                    width: 160px;
+                    width: 170px;
                     margin: 0 auto;
                     .statsTopHeading {
                         .font(@weight: 600, @size: 12px);
@@ -979,7 +984,7 @@
                     }
 
                     .userSize {
-                        .size(@width: 70px, @height: 100%);
+                        .size(@height: 100%);
                         text-align: right;
                         float: right;
                         display: inline-block;
@@ -1013,6 +1018,11 @@
                                 .name {
                                     color: @color-font-navy;
                                     font-weight: bold;
+                                    float: left;
+                                }
+
+                                .values {
+                                    float: right;
                                 }
 
                                 .statsNum {
@@ -1021,12 +1031,18 @@
                                 }
                                 .userSize {
                                     padding-right: 0px;
-                                    width: auto;
                                     color: @color-font-navy;
+                                    float: none;
+                                    word-spacing: -1px;
                                 }
                                 .totalSize {
                                     margin-right: 0px;
                                     color: @color-font-navy;
+                                    float: none;
+                                    word-spacing: -1px;
+                                }
+                                .separator {
+                                    letter-spacing: -1px;
                                 }
                             }
                         }
