@@ -124,6 +124,8 @@ window.SQLCompiler = (function(SQLCompiler, $) {
         "expressions.Sentences": null,
         "expressions.IsNotNull": "exists",
     };
+    var xcSQLObj;
+
     function assert(st) {
         if (!st) {
             debugger;
@@ -162,6 +164,7 @@ window.SQLCompiler = (function(SQLCompiler, $) {
     };
 
     SQLCompiler.compile = function(jsonArray) {
+        xcSQLObj = new SQLApi();
         var tree = SQLCompiler.genTree(undefined, jsonArray);
         var promiseArray = [];
         function traverseAndPushDown(node) {
@@ -207,7 +210,8 @@ window.SQLCompiler = (function(SQLCompiler, $) {
                 }
                 treeNode.xccli = ret.cli;
                 deferred.resolve();
-            });
+            })
+            .fail(deferred.reject);
             return deferred.promise();
         }
 
@@ -235,7 +239,6 @@ window.SQLCompiler = (function(SQLCompiler, $) {
         // resolved already 
         assert(node.children.length === 1);
         tableName = node.children[0].newTableName;
-        var deferred = jQuery.Deferred();
         // Find columns to project
         var columns = [];
         for (var i = 0; i<node.value.projectList.length; i++) {
@@ -244,14 +247,8 @@ window.SQLCompiler = (function(SQLCompiler, $) {
             var colName = colNameStruct.name;
             columns.push(colName);
         }
-        var xcSQLObj = new SQLApi();
-        xcSQLObj.project(columns, tableName)
-        .then(function(newTableName) {
-            var retStruct = {"cli": xcSQLObj.run()};
-            retStruct.newTableName = newTableName;
-            deferred.resolve(retStruct);
-        });
-        return deferred.promise();
+        
+        return xcSQLObj.project(columns, tableName);
     }
 
     function pushDownFilter(node) {
@@ -312,17 +309,11 @@ window.SQLCompiler = (function(SQLCompiler, $) {
             }
             return genFilterStringRecur(SQLCompiler.genTree(undefined, condArray.slice(0)));
         }
-        var deferred = jQuery.Deferred();
+
         var filterString = genFilterString(node.value.condition);
         var tableName = node.children[0].newTableName;
-        var xcSQLObj = new SQLApi();
-        xcSQLObj.filter(filterString, tableName)
-        .then(function(newTableName) {
-            var retStruct = {"cli": xcSQLObj.run()};
-            retStruct.newTableName = newTableName;
-            deferred.resolve(retStruct);
-        });
-        return deferred.promise();
+
+        return xcSQLObj.filter(filterString, tableName);
     }
 
     function pushDownJoin(node) {
@@ -397,56 +388,9 @@ window.SQLCompiler = (function(SQLCompiler, $) {
                 console.error("Join Type not supported");
                 break;
         }
-
-        var deferred = jQuery.Deferred();
-        var xcSQLObj = new SQLApi();
-        xcSQLObj.join(joinType, lTableInfo, rTableInfo)
-        .then(function(newTableName) {
-            var retStruct = {"cli": xcSQLObj.run()};
-            retStruct.newTableName = newTableName;
-            deferred.resolve(retStruct);
-        });
-        return deferred.promise();
+        
+        return xcSQLObj.join(joinType, lTableInfo, rTableInfo);
     }
 
     return SQLCompiler;
 }({}, jQuery));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

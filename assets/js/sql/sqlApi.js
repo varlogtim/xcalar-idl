@@ -1,16 +1,18 @@
 window.SQLApi = (function() {
     function SQLApi() {
-        var txId = Transaction.start({
-            "operation": "SQL Simulate",
-            "simulate": true
-        });
-        this.txId = txId;
         return this;
-    };
+    }
 
     SQLApi.prototype = {
-        run: function() {
-            var txId = this.txId;
+        _start: function() {
+            var txId = Transaction.start({
+                "operation": "SQL Simulate",
+                "simulate": true
+            });
+            return txId;
+        },
+
+        _end: function(txId) {
             var query = Transaction.done(txId, {
                 "noNotification": true,
                 "noSql": true
@@ -19,24 +21,173 @@ window.SQLApi = (function() {
             return query;
         },
 
+        _getColType: function(typeId) {
+            // XXX TODO generalize it with setImmediateType()
+            if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
+                // error case
+                console.error("Invalid typeId");
+                return null;
+            }
+
+            switch (typeId) {
+                case DfFieldTypeT.DfUnknown:
+                    return ColumnType.unknown;
+                case DfFieldTypeT.DfString:
+                    return ColumnType.string;
+                case DfFieldTypeT.DfInt32:
+                case DfFieldTypeT.DfInt64:
+                case DfFieldTypeT.DfUInt32:
+                case DfFieldTypeT.DfUInt32:
+                    return ColumnType.integer;
+                case DfFieldTypeT.DfFloat32:
+                case DfFieldTypeT.DfFloat64:
+                    return ColumnType.float;
+                case DfFieldTypeT.DfBoolean:
+                    return ColumnType.boolean;
+                case DfFieldTypeT.DfMixed:
+                    return ColumnType.mixed;
+                case DfFieldTypeT.DfFatptr:
+                    return null;
+                default:
+                    return null;
+            }
+        },
+
+        _getQueryTableCols: function(tableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+
+            XcalarGetTableMeta(tableName)
+            .then(function(tableMeta) {
+                if (tableMeta == null || tableMeta.valueAttrs == null) {
+                    deferred.resolve([]);
+                    return;
+                }
+
+                var valueAttrs = tableMeta.valueAttrs || [];
+                var progCols = [];
+                // XXX TODO: translate valueAttr.type to the type
+                valueAttrs.forEach(function(valueAttr) {
+                    var name = valueAttr.name;
+                    var type = self._getColType(valueAttr.type);
+                    // assume all is immediates
+                    progCols.push(ColManager.newPullCol(name, name, type));
+                });
+                progCols.push(ColManager.newDATACol());
+                deferred.resolve(progCols);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
+        run: function(query, tableName) {
+            var deferred = jQuery.Deferred();
+            var txId = Transaction.start({
+                "operation": "Execute SQL"
+            });
+            var queryName = xcHelper.randName("sql");
+            var worksheet = WSManager.getActiveWS();
+            var self = this;
+
+            XIApi.query(txId, queryName, query)
+            .then(function() {
+                return self._getQueryTableCols(tableName);
+            })
+            .then(function(tableCols) {
+                return TblManager.refreshTable([tableName], tableCols,
+                                            null, worksheet, txId);
+            })
+            .then(function() {
+                Transaction.done(txId, {
+                    "msgTable": xcHelper.getTableId(tableName)
+                    // XXX TODO: add sql
+                });
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Transaction.fail(txId, {
+                    "failMsg": "Execute SQL faild",
+                    "error": error
+                });
+                deferred.reject(error);
+            });
+
+            return deferred.promise();
+        },
+
         // newTableName is operation
         filter: function(fltStr, tableName, newTableName) {
-            return XIApi.filter(this.txId, fltStr, tableName, newTableName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.filter(txId, fltStr, tableName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
         // dstAggName is optional and can be left blank (will autogenerate)
         aggregate: function(aggOp, colName, tableName, dstAggName) {
-            var txId = this.txId;
-            return XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName)
+            .then(function(val, finalDstDagName) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "val": val,
+                    "newTableName": finalDstDagName,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         sort: function(order, colName, tableName, newTableName) {
-            var txId = this.txId;
-            return XIApi.sort(txId, order, colName, tableName, newTableName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.sort(txId, order, colName, tableName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         map: function(mapStr, tableName, newColName, newTableName) {
-            var txId = this.txId;
-            return XIApi.map(txId, mapStr, tableName, newColName, newTableName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.map(txId, mapStr, tableName, newColName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         /*
@@ -68,11 +219,17 @@ window.SQLApi = (function() {
         */
         join: function(joinType, lTableInfo, rTableInfo, options) {
             var deferred = jQuery.Deferred();
-            var txId = this.txId;
+            var self = this;
+            var txId = self._start();
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
             .then(function(dstTable, dstCols) {
-                deferred.resolve(dstTable);
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": dstTable,
+                    "newColumns": dstCols,
+                    "cli": cli
+                });
             })
             .fail(deferred.reject);
 
@@ -90,7 +247,10 @@ window.SQLApi = (function() {
          *  clean: true/false, if set true, will remove intermediate tables
          */
         groupBy: function(operator, groupByCols, aggColName, tableName, newColName, options) {
-            var txId = this.txId;
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
             options = options || {};
             options.icvMode = false;
             var gbArgs = [{
@@ -98,7 +258,20 @@ window.SQLApi = (function() {
                 aggColName: aggColName,
                 newColName: newColName
             }];
-            return XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options);
+
+            XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
+            .then(function(finalTable, finalCols, renamedGroupByCols) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "newColumns": finalCols,
+                    "renamedColumns": renamedGroupByCols,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         /*
@@ -107,12 +280,39 @@ window.SQLApi = (function() {
             newTableName(optional): new table's name
         */
         project: function(columns, tableName, newTableName) {
-            return XIApi.project(this.txId, columns, tableName, newTableName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.project(txId, columns, tableName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         genRowNum: function(tableName, newColName, newTableName) {
-            var txId = this.txId;
-            return XIApi.genRowNum(txId, tableName, newColName, newTableName);
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.genRowNum(txId, tableName, newColName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         // dstAggName is optional and can be left blank (will autogenerate)

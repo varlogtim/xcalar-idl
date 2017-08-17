@@ -2,8 +2,14 @@ window.SQLEditor = (function(SQLEditor, $) {
     var editor;
 
     SQLEditor.setup = function() {
-        // setupEditor();
-        // addEventListeners();
+        setupEditor();
+        addEventListeners();
+
+        // XXX demo use
+        var showSQLPanel = false;
+        if (!showSQLPanel) {
+            $("#sqlTab").hide();
+        }
     };
 
     SQLEditor.getEditor = function() {
