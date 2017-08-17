@@ -376,7 +376,9 @@ function getPath(filePath, fileName) {
 
 function getNodeId() {
     var deferredOut = jQuery.Deferred();
-    var command = "/opt/xcalar/bin/xcalarctl status";
+    var defaultXcalarctl = process.env.XLRDIR ?
+    process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
+    var command = defaultXcalarctl + " status";
     var reg = /^Node\sID:\s([0-9]+)$/;
     var lineData = "";
     var out = cp.exec(command);
