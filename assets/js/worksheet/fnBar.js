@@ -649,7 +649,10 @@ window.FnBar = (function(FnBar, $) {
         var fnBarVal = editor.getValue().trim();
         var $colInput = $lastColInput;
 
-        if (!$colInput || !$colInput.length) {
+        if (!$colInput || !$colInput.closest("body").length) {
+            // $colInput.length could return a number  even if it's no longer
+            // in the DOM so check for body
+            $lastColInput = null;
             deferred.reject();
             return deferred.promise();
         }
@@ -725,7 +728,6 @@ window.FnBar = (function(FnBar, $) {
                     var innerDeferred = jQuery.Deferred();
                     ColManager.execCol(operation, newFuncStr, tableId, colNum)
                     .then(function(ret) {
-
                         if (ret === "update") {
                             TblManager.updateHeaderAndListInfo(tableId);
                             KVStore.commit();

@@ -231,7 +231,6 @@ window.TblManager = (function($, TblManager) {
             $xcTableWrap.removeClass("building");
             $("#dagWrap-" + tableId).removeClass("building");
             afterBuild(tableId, options);
-
             if ($('#mainFrame').hasClass('empty')) {
                 // first time to create table
                 $('#mainFrame').removeClass('empty');
@@ -1814,7 +1813,7 @@ window.TblManager = (function($, TblManager) {
         var lastRowNum = xcHelper.parseRowNum($lastRow);
         table.currentRowNumber = lastRowNum + 1;
         if (options.selectCol != null &&
-            $('.xcTable th.selectedCell').length === 0)
+            $('.xcTableWrap:not(.tableToRemove) th.selectedCell').length === 0)
         {
             if (typeof options.selectCol === "object") {
                 $table.find('th.col' + options.selectCol[0] +
