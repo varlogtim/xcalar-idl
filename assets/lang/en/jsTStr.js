@@ -397,7 +397,7 @@ SuccessTStr = {
     "SubmitTicket": "Ticket Submitted!",
     "Target": "Target Added!",
     "RetrieveLogs": "Logs Retrieved!",
-    "RmDF": "Batch DF Successfully Removed!",
+    "RmDF": "Batch Dataflow Successfully Removed!",
     "RmSched": "Schedule Successfully Deleted!",
     "PauseSched": "Schedule Successfully Paused!",
     "ResumeSched": "Schedule Successfully Resumed!",
@@ -418,7 +418,7 @@ FailTStr = {
     "Profile": "Saving Profile Image Failed.",
     "ProfileStats": "Generate Statistics Failed.",
     "SaveSettings": "Saving Settings Failed.",
-    "RmDF": "Remove Batch DF Failed.",
+    "RmDF": "Remove Batch Dataflow Failed.",
     "RmSched": "Delete Schedule Failed.!"
 };
 
@@ -760,7 +760,7 @@ DFTStr = {
     'RunDFInstr': 'Please pay attention to the following warning(s) for running batch dataflow:',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran dataflow!',
-    'RunFail': 'Run DF Failed',
+    'RunFail': 'Run Dataflow Failed',
     'Running': 'Running batch dataflow',
     'Scheduled': 'Scheduled',
     'TooLarge': 'Dataflow image exceeds viewable limit.',
