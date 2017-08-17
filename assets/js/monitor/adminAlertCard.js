@@ -30,11 +30,13 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
             }
         });
         // click cancel or close button
-        $card.on("click", ".close, .cancel", function() {
+        $card.on("click", ".close", function() {
             event.stopPropagation();
             closeCard();
         });
-
+        $card.on("click", ".clear", function() {
+            clear();
+        })
         // click send button
         $card.on("click", ".confirm", function() {
             submitForm();

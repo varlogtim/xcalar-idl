@@ -293,7 +293,8 @@ module.exports = {
         "seconds": "秒",
         "InBeta": "测试版本",
         "Hostname": "主机名",
-        "WS": "Worksheet"
+        "WS": "Worksheet",
+        "SEND": "发送"
     },
     "dataflow": {
         "DataflowTitle": "批量数据流",
