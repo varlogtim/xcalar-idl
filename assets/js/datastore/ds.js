@@ -743,6 +743,13 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
+    function hideUnlistableDS(dsSet) {
+        for (var dsId in dsSet) {
+            var $grid = DS.getGrid(dsId);
+            $grid.hide();
+        }
+    }
+
     function destroyDataset(dsName, txId) {
         var deferred = jQuery.Deferred();
 
@@ -1132,8 +1139,10 @@ window.DS = (function ($, DS) {
                         $grid.find(".gridIcon").removeClass("xi_data")
                         .addClass("xi-data-warning-1");
                     }
+                    delete unlistableDS[fullDSName];
                 }
             }
+            hideUnlistableDS(unlistableDS);
         })
         .fail(function(error) {
             console.error("check unlistable ds fails!", error);

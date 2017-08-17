@@ -10,8 +10,6 @@ describe("DSInfoModal Test", function() {
         ds = DS.addCurrentUserDS(testName, "CSV", "testPath");
         dsId = ds.getId();
         oldGetDSUsers = XcalarGetDatasetUsers;
-
-        
     });
 
     it("should show the ds info with used by info", function(done) {
