@@ -486,6 +486,8 @@ window.Admin = (function($, Admin) {
         $("#configSupportStatus").click(getStatus);
 
         $('#configLicense').click(LicenseModal.show);
+
+        $("#logFlush").click(flushLog);
     }
 
     function parseStrIntoUserList(value) {
@@ -802,6 +804,27 @@ window.Admin = (function($, Admin) {
         })
         .always(function() {
             $('#configSupportStatus').removeClass('unavailable');
+        });
+    }
+
+    function flushLog() {
+        var btns = [{
+                "name": AlertTStr.CONFIRM,
+                func: function() {
+                    XcalarLogLevelSet(9, 1)
+                    .then(function() {
+                        xcHelper.showSuccess(SuccessTStr.FlushLog);
+                    })
+                    .fail(function(err) {
+                        xcHelper.showFail(FailTStr.FlushLog);
+                    });
+                }
+            }];
+        Alert.show({
+            "title": MonitorTStr.FlushLog,
+            "msg": MonitorTStr.FlushLogMsg,
+            "isAlert": true,
+            "buttons": btns
         });
     }
 

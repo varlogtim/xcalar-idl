@@ -411,7 +411,8 @@ SuccessTStr = {
     "ExtEnable": "Extension Successfully Enabled!",
     "ExtDisable": "Extension Successfully Disabled!",
     "Profile": "Profile Image Saved Successfully!",
-    "BundleUploaded": "Bundle generated! Uploaded: "
+    "BundleUploaded": "Bundle generated! Uploaded: ",
+    "FlushLog": "Flush Log Successfully!"
 };
 
 FailTStr = {
@@ -419,7 +420,8 @@ FailTStr = {
     "ProfileStats": "Generate Statistics Failed.",
     "SaveSettings": "Saving Settings Failed.",
     "RmDF": "Remove Batch Dataflow Failed.",
-    "RmSched": "Delete Schedule Failed.!"
+    "RmSched": "Delete Schedule Failed.!",
+    "FlushLog": "Flush Log Failed!"
 };
 
 ThriftTStr = {
@@ -696,7 +698,9 @@ MonitorTStr = {
     'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?',
     'RestartAlertMsg': 'The administrator has restarted the cluster.',
     'StopAlertMsg': 'The administrator has stopped the cluster.',
-    'AdminAlert': 'Admin Alert'
+    'AdminAlert': 'Admin Alert',
+    'FlushLog': 'Flush Log',
+    'FlushLogMsg': 'Are you sure you want to flush Xcalar Log?'
 };
 
 SchedTStr = {

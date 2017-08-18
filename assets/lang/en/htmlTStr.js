@@ -441,7 +441,8 @@ module.exports = {
         "XDB": "XDB",
         "AdminAlert": "Admin Alert",
         "AdminAlertInstruc": "Send an alert to all other users as an administrator",
-        "AlertMessageTitle": "Alert Message:"
+        "AlertMessageTitle": "Alert Message:",
+        "LogFlush": "Log Flush"
     },
 
     "supportTicket": {

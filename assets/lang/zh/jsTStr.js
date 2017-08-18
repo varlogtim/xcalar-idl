@@ -367,14 +367,16 @@ SuccessTStr = {
 "ExtEnable": '成功启用扩展！',
 "ExtDisable": '成功禁用扩展！',
 "Profile": '数据剖面图图片保存成功！',
-"BundleUploaded": '支持捆绑包生成成功，上载：'
+"BundleUploaded": '支持捆绑包生成成功，上载：',
+"FlushLog": "强制刷新日志成功!"
 };
 FailTStr = {
 "Profile": '保存数据剖面图图像失败。',
 "ProfileStats": '生成统计失败。',
 "SaveSettings": '保存设置失败。',
 "RmDF": "删除批量数据流失败。",
-"RmSched": "删除调度器失败"
+"RmSched": "删除调度器失败",
+"FlushLog": "强制刷新日志失败!"
 };
 ThriftTStr = {
 'CCNBEErr': '连接错误',
@@ -585,7 +587,9 @@ MonitorTStr = {
 'SwitchUserMsg': '您确定要以<username>登录Xcalar吗？',
 'RestartAlertMsg': '管理员重启了集群',
 'StopAlertMsg': '管理员停止了集群',
-'AdminAlert': '管理员提醒'
+'AdminAlert': '管理员提醒',
+"FlushLog": "强制刷新日志",
+"FlushLogMsg": "您确定要强制刷新日志吗？"
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',
