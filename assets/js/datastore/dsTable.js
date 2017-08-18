@@ -82,7 +82,6 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
-
             deferred.resolve();
         })
         .fail(function(error) {

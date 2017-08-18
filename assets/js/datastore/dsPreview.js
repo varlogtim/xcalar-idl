@@ -792,37 +792,13 @@ window.DSPreview = (function($, DSPreview) {
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, loadURL, quote, skipRows, isRecur, isRegex, previewSize);
 
-        // XXX temp fix to preserve CSV header order
-        var headers = null;
-        if (format !== formatMap.JSON) {
-            headers = getColumnHeaders();
-        }
-
+        var headers = getColumnHeaders();
         cacheUDF(udfModule, udfFunc);
 
         var colLen = 0;
         if (toCreateTable) {
             colLen = $previewTable.find("th:not(.rowNumHead)").length;
         }
-
-        // function noQuoteAlertHelper() {
-        //     if (quote.length === 1) {
-        //         return PromiseHelper.resolve();
-        //     }
-
-        //     var innerDeferred = jQuery.Deferred();
-        //     Alert.show({
-        //         "title": DSFormTStr.NoQuoteWarn,
-        //         "msg": DSFormTStr.NoQuoteWarnMsg,
-        //         "onConfirm": innerDeferred.resolve,
-        //         "onCancel": function() {
-        //             xcHelper.enableSubmit($form.find('.confirm'));
-        //             innerDeferred.reject();
-        //         }
-        //     });
-
-        //     return innerDeferred.promise();
-        // }
 
         function tooManyColAlertHelper() {
             if (colLen < gMaxColToPull) {
@@ -847,8 +823,13 @@ window.DSPreview = (function($, DSPreview) {
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
-        tooManyColAlertHelper()
+        invalidHeaderDetection(headers)
         .then(function() {
+            return tooManyColAlertHelper();
+        })
+        .then(function() {
+            // XXX temp fix to preserve CSV header order
+            headers = (format !== formatMap.JSON) ? headers : null;
             var pointArgs = {
                 "name": dsName,
                 "format": format,
@@ -2853,6 +2834,49 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return xcSuggest.detectHeader(parsedRows);
+    }
+
+    function invalidHeaderDetection(headers) {
+        if (headers == null) {
+            return PromiseHelper.resolve();
+        }
+
+        var invalidHeaders = headers.filter(xcHelper.hasInvalidCharInCol)
+                                    .map(invalidHeadersConversion);
+
+        if (invalidHeaders.length === 0) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        var msg = xcHelper.replaceMsg(DSTStr.DetectInvalidColMsg, {
+            "cols": '<span id="invalidColAlert">' +
+                        invalidHeaders.join(",") +
+                    '</span>'
+        });
+
+        Alert.show({
+            "title": DSTStr.DetectInvalidCol,
+            "instr": DSTStr.DetectInvalidColInstr,
+            "msgTemplate": msg,
+            "onConfirm": deferred.resolve,
+            "onCancel": function() {
+                xcHelper.enableSubmit($form.find(".confirm"));
+                deferred.reject();
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function invalidHeadersConversion(header) {
+        return '<span>' +
+                    Array.from(header).map(function(ch) {
+                        return xcHelper.hasInvalidCharInCol(ch)
+                               ? '<b class="highlight">' + ch + '</b>'
+                               : ch;
+                    }).join("") +
+                '</span>';
     }
 
     /* Unit Test Only */

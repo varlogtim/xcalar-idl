@@ -710,7 +710,10 @@ DSTStr = {
 'DelMultipleDS': '您确定要删除选中的数据集、文件夹吗?',
 'FailDelFolder': '删除文件夹\"<folder>\"失败: 非空文件夹',
 'FailDelDS': '删除数据集\"<ds>\"失败: <error>',
-'FailCancelDS': '取消导入数据集\"<ds>\"失败: <error>'
+'FailCancelDS': '取消导入数据集\"<ds>\"失败: <error>',
+'DetectInvalidCol': '数据集列名包含无效字符',
+'DetectInvalidColInstr': '在处理数据时，无效列名可能会导致结果出错。 建议提前处理其中的无效字符。',
+'DetectInvalidColMsg': '以下列名包含无效字符: <cols>。您确定要继续吗?'
 };
 DSFormTStr = {
 'Pattern': '模式',
