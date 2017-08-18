@@ -601,6 +601,7 @@ window.DagPanel = (function($, DagPanel) {
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
             xcMenu.addKeyboardNavigation($menu);
+            $dagTable.addClass("selected");
         });
     }
 
@@ -892,7 +893,9 @@ window.DagPanel = (function($, DagPanel) {
         $menu.removeClass('leftColMenu');
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
-        $menu.show();
+        xcMenu.show($menu, function() {
+             $dagTable.removeClass("selected");
+        });
         var rightBoundary = $(window).width() - 5;
 
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {

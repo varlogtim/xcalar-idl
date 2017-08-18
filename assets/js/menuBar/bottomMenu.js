@@ -218,8 +218,10 @@ window.BottomMenu = (function($, BottomMenu) {
 
         if ($menuPanel.hasClass("open") && $section.hasClass("active")) {
             // section is active, close right side bar
-            if (!$menuPanel.hasClass("poppedOut")) {
+            if ($menuPanel.hasClass("poppedOut")) {
                 // disable closing if popped out
+                return;
+            } else {
                 closeMenu();
             }
         } else {

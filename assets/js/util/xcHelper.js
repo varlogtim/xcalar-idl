@@ -3702,7 +3702,7 @@ window.xcHelper = (function($, xcHelper) {
             return;
         }
 
-        $(".menu:visible").hide();
+        xcMenu.close();
 
         // case that should open the menu (note that colNum = 0 may make it false!)
         if (options.colNum != null && options.colNum > -1) {

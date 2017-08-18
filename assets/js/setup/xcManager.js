@@ -825,7 +825,7 @@ window.xcManager = (function(xcManager, $) {
 
         $(window).resize(function(event) {
             if (!resizing) {
-                $('.menu').hide();
+                xcMenu.close();
                 $('#dagScrollBarWrap').hide();
                 resizing = true;
                 var $modal = $('.modalContainer:visible');
@@ -894,7 +894,7 @@ window.xcManager = (function(xcManager, $) {
                 if ($(this).hasClass('scrollLocked')) {
                     scrollPrevented = true;
                 } else {
-                    $('.menu').hide();
+                    xcMenu.close();
                 }
 
                 xcMenu.removeKeyboardNavigation();
@@ -942,9 +942,7 @@ window.xcManager = (function(xcManager, $) {
                             $target.closest('.clickable').length > 0 ||
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
-                $('.menu').hide();
-                xcMenu.removeKeyboardNavigation();
-
+                xcMenu.close();
                 if ($target.attr('id') !== 'mainFrame') {
                     TblManager.unHighlightCells();
                 }
@@ -1054,8 +1052,7 @@ window.xcManager = (function(xcManager, $) {
         });
 
         $(window).blur(function() {
-            $('.menu').hide();
-            xcMenu.removeKeyboardNavigation();
+            xcMenu.close();
             StatusBox.forceHide();
         });
 
@@ -1255,8 +1252,7 @@ window.xcManager = (function(xcManager, $) {
                     return true;
                 }
 
-                $(".menu").hide();
-                xcMenu.removeKeyboardNavigation();
+                xcMenu.close();
                 gMouseEvents.setMouseDownTarget(null);
                 $rowInput.val(rowToGo).trigger(fakeEvent.enter);
 
@@ -1279,8 +1275,7 @@ window.xcManager = (function(xcManager, $) {
                 !$('input:focus').length) {
 
                 event.preventDefault();
-                $('.menu').hide();
-                xcMenu.removeKeyboardNavigation();
+                xcMenu.close();
                 TblManager.unHighlightCells();
 
                 if (event.which === keyCode.Z) {

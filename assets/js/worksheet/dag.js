@@ -313,8 +313,7 @@ window.Dag = (function($, Dag) {
         $imageWrap.scrollLeft(scrollLeft);
 
         xcTooltip.hideAll();
-        $('.menu').hide();
-        xcMenu.removeKeyboardNavigation();
+        xcMenu.close();
     };
 
     Dag.expandAll = function($dagWrap) {
@@ -591,11 +590,15 @@ window.Dag = (function($, Dag) {
         $schema.find(".content").addClass("prettyJson").html(html);
         $schema.addClass("active");
         xcTooltip.hideAll();
+        setTimeout(function() { // closing menu causes table to be deselected
+            $dagTable.addClass("selected");
+        });
 
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
                 $(event.target).closest('#dagScrollBarWrap').length === 0) {
                 hideSchema();
+                $dagTable.removeClass("selected");
             }
         });
 
@@ -688,11 +691,15 @@ window.Dag = (function($, Dag) {
         $schema.find(".content").html(html);
         $schema.addClass("active");
         xcTooltip.hideAll();
+        setTimeout(function() { // closing menu causes table to be deselected
+            $dagTable.addClass("selected");
+        });
 
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
                 $(event.target).closest('#dagScrollBarWrap').length === 0) {
                 hideSchema();
+                $dagTable.removeClass("selected");
             }
         });
 
@@ -1370,8 +1377,7 @@ window.Dag = (function($, Dag) {
                     return;
                 }
                 if ($('.menu').is(':visible')) {
-                    $('.menu').hide();
-                    xcMenu.removeKeyboardNavigation();
+                    xcMenu.close();
                 }
                 vertScrolling = true;
                 winHeight = $(window).height();
@@ -1401,8 +1407,7 @@ window.Dag = (function($, Dag) {
                 winHeight = $(window).height();
                 DagPanel.setScrollBarId(winHeight);
                 if ($('.menu').is(':visible')) {
-                    $('.menu').hide();
-                    xcMenu.removeKeyboardNavigation();
+                    xcMenu.close();
                 }
             }
             clearInterval(horzScrollingTimeout);

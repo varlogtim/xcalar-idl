@@ -1,6 +1,9 @@
 window.xcMenu = (function(xcMenu, $) {
     // adds default menu behaviors to menus passed in as arguments
     // behaviors include highlighting lis on hover, opening submenus on hover
+
+    var closeCallback;
+
     // options:
     //  keepOpen: if set true, main menu will not close when click the li
     xcMenu.add = function($mainMenu, options) {
@@ -227,9 +230,77 @@ window.xcMenu = (function(xcMenu, $) {
         }
     };
 
-    xcMenu.close = function($menu) {
-        $menu.hide();
+    xcMenu.show = function($menu, callback) {
         xcMenu.removeKeyboardNavigation();
+        $(document).off(".xcMenu");
+        $(window).off(".xcMenu");
+        $("#mainFrame").off(".xcMenu");
+        if (closeCallback && typeof closeCallback === "function") {
+            closeCallback();
+            closeCallback = null;
+        }
+
+        closeCallback = callback;
+        $menu.show();
+
+        $(document).on("mousedown.xcMenu", function(event) {
+            var $target = $(event.target);
+            gMouseEvents.setMouseDownTarget($target);
+            var clickable = $target.closest('.menu').length > 0 ||
+                            $target.closest('.clickable').length > 0 ||
+                            $target.hasClass("highlightBox");
+            if (!clickable && $target.closest('.dropdownBox').length === 0) {
+                xcMenu.close($menu);
+            }
+        });
+
+        $(window).on("blur.xcMenu", function() {
+            xcMenu.close($menu);
+        });
+
+        var mainFrameScrolling = false;
+        var mainFrameScrollTimer;
+        $("#mainFrame").on("scroll.xcMenu", function() {
+            if (!mainFrameScrolling) {
+                mainFrameScrolling = true;
+                xcMenu.close($menu);
+            }
+
+            clearTimeout(mainFrameScrollTimer);
+            mainFrameScrollTimer = setTimeout(function() {
+                mainFrameScrolling = false;
+            }, 300);
+        });
+
+        var winResizeTimer;
+        var resizing = false;
+        $(window).on("resize.xcMenu", function(event) {
+            if (!resizing) {
+                resizing = true;
+                xcMenu.close($menu);
+            }
+            clearTimeout(winResizeTimer);
+            winResizeTimer = setTimeout(function() {
+                resizing = false;
+            }, 300);
+        });
+    };
+
+    xcMenu.close = function($menu) {
+        if (!$menu) {
+            $(".menu").hide();
+        } else {
+            $menu.hide();
+        }
+
+        xcMenu.removeKeyboardNavigation();
+        $(document).off(".xcMenu");
+        $(window).off(".xcMenu");
+        $("#mainFrame").off(".xcMenu");
+        if (closeCallback && typeof closeCallback === "function") {
+            closeCallback();
+            closeCallback = null;
+        }
     };
 
     // options:
