@@ -131,7 +131,9 @@ window.SQLApi = (function() {
             })
             .then(function(tableCols) {
                 return TblManager.refreshTable([tableName], tableCols,
-                                            null, worksheet, txId);
+                                            null, worksheet, txId, {
+                                                "focusWorkspace": true
+                                            });
             })
             .then(function() {
                 Transaction.done(txId, {
