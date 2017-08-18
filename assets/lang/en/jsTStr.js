@@ -71,6 +71,7 @@ TooltipTStr = {
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
     'UnhideWS': 'Unhide worksheet',
+    'LockedTable': 'Table is locked',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',
     'CloseQG': 'Click to hide dataflow graph',

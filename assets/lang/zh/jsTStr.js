@@ -69,6 +69,7 @@ TooltipTStr = {
 'NoUndoNoOp': '没有可供撤消的操作',
 'NoRedo': '没有可供重做的操作',
 'UnhideWS': '取消隐藏工作表',
+'LockedTable': '表被锁定，无法删除',
 'LockedTableUndo': '表锁定时无法执行撤消操作',
 'LockedTableRedo': '表锁定时无法执行重做操作',
 'CloseQG': '点击此处,隐藏数据流图',

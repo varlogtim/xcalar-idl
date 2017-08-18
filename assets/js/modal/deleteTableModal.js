@@ -83,6 +83,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             sortTableList(tableList[tableType], tableType, sortKey);
             restoreCheckedTables(cachedTables, tableType);
         });
+
+        $modal.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
     };
 
     DeleteTableModal.show = function() {
@@ -455,14 +459,32 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 size = xcHelper.sizeTranslator(tableSizeMap[tableName]);
             }
 
+            var checkbox;
+            if (table.isNoDelete()) {
+                checkbox = '<div class="lockIcon" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-container="#deleteTableModal" ' +
+                            'data-placement="top" ' +
+                            'data-title="' + TooltipTStr.LockedTable + '" ' +
+                            '></div>';
+            } else {
+                checkbox = '<div class="checkboxSection">' +
+                                '<div class="checkbox">' +
+                                    '<i class="icon xi-ckbox-empty"></i>' +
+                                    '<i class="icon xi-ckbox-selected"></i>' +
+                                '</div>' +
+                            '</div>';
+            }
+
             html += '<div class="grid-unit">' +
-                        '<div class="checkboxSection">' +
-                            '<div class="checkbox">' +
-                                '<i class="icon xi-ckbox-empty"></i>' +
-                                '<i class="icon xi-ckbox-selected"></i>' +
-                            '</div>' +
+                        checkbox +
+                        '<div class="name tooltipOverflow" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-container="#deleteTableModal" ' +
+                        'data-placement="top" ' +
+                        'data-title="' + tableName + '">' +
+                            tableName +
                         '</div>' +
-                        '<div class="name">' + tableName + '</div>' +
                         '<div>' + size + '</div>' +
                         '<div>' + date + '</div>' +
                     '</div>';
