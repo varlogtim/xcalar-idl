@@ -2,11 +2,14 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     var $configCard;
     var $placeholder;
     var paramsCache = {};
+    var formHelper;
 
     MonitorConfig.setup = function() {
         $configCard = $('#configCard');
         $placeholder = $configCard.find('.placeholder');
         setupListeners();
+        formHelper = new FormHelper($configCard, {noEsc: true,
+                                                  noTabFocus: true})
     };
 
     // updateOnly will not wipe out new rows
@@ -17,15 +20,12 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             var params = res.parameter;
             for (var i = 0; i < params.length; i++) {
                 // making default sample size a user setting
-                if (params[i].paramName !== "DsDefaultSampleSize") {
+                if (params[i].paramName.toLowerCase() !==
+                    "dsdefaultsamplesize") {
+                    // XXX there is a backend error that case this
+                    // should remove it after the fix
                     var paramName = params[i].paramName.toLowerCase();
-                    if (paramsCache.hasOwnProperty(paramName)) {
-                        // XXX there is a backend error that case this
-                        // should remove it after the fix
-                        console.error("error case");
-                    } else {
-                        paramsCache[paramName] = params[i];
-                    }
+                    paramsCache[paramName] = params[i];
                 }
             }
 
@@ -228,9 +228,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 return false;
             }
 
-            var pName = paramObj.paramName;
-            needRestart = needRestart || paramObj.restartRequired;
-
             if (!newVal.length) {
                 errorFound = {
                     input: $newValInput,
@@ -238,8 +235,13 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 };
                 return false;
             }
-            rows.push($row);
-            promises.push(XcalarSetConfigParams(pName, newVal));
+
+            if (newVal !== paramObj.paramValue) {
+                var pName = paramObj.paramName;
+                needRestart = needRestart || paramObj.restartRequired;
+                rows.push($row);
+                promises.push(XcalarSetConfigParams(pName, newVal));
+            }
         });
 
         if (errorFound) {
@@ -248,6 +250,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
 
         if (promises.length) {
+            formHelper.disableSubmit();
             PromiseHelper.when.apply(window, promises)
             .then(function() {
                 if (needRestart) {
@@ -271,8 +274,13 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 MonitorConfig.refreshParams()
                 .then(function() {
                     updateParamInputs(rows);
+                })
+                .always(function() {
+                    formHelper.enableSubmit();
                 });
             });
+        } else {
+            xcHelper.showSuccess(SuccessTStr.SaveParam);
         }
     }
 
@@ -290,11 +298,11 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
         // xx not sure how to show all the errored rows if multiple
         var paramName = $errorRow.find('.paramName').val();
-        var currVal = $errorRow.find('.curVal').val();
+        var newVal = $errorRow.find('.newVal').val();
         errorMsg += '<br/>' + xcHelper.replaceMsg(
         MonitorTStr.ParamConfigFailMsg, {
             name: paramName,
-            value: currVal
+            value: newVal
         });
         Alert.error(MonitorTStr.ParamConfigFailed, errorMsg, {
             msgTemplate: errorMsg
