@@ -1002,7 +1002,7 @@ window.xcHelper = (function($, xcHelper) {
         return dateString;
     };
 
-    // assigned unit is a unit (MB, GB etc) that you want to convert to
+    // convertTo is a unit (MB, GB etc) that you want to convert to
     /**
      * @param  {boolean} unitSeparated true if want return an array of
      *                                 [int size, string unit]
@@ -1016,7 +1016,7 @@ window.xcHelper = (function($, xcHelper) {
         if (options.base2) {
             unit = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
         } else {
-            unit = ["B", "KB", "MB", "GB", "TB", "PB"];
+            unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
 
         var start = 0;
@@ -1043,7 +1043,11 @@ window.xcHelper = (function($, xcHelper) {
         if (unitSeparated) {
             return ([size, unit[start]]);
         } else {
-            return (size + unit[start]);
+            var space = "";
+            if (options.space) {
+                space = " ";
+            }
+            return (size + space + unit[start]);
         }
     };
 
@@ -1058,7 +1062,7 @@ window.xcHelper = (function($, xcHelper) {
         if (options.base2) {
             units = ["B", "KIB", "MIB", "GIB", "TIB", "PIB"];
         } else {
-            units = ["B", "KB", "MB", "GB", "TB", "PB"];
+            units  = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
         var num = parseFloat(numText);
         var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();
@@ -3894,14 +3898,9 @@ window.xcHelper = (function($, xcHelper) {
                 if (gTables[tableId].isNoDelete()) {
                     xcHelper.disableMenuItem($("#tableMenu .deleteTable"),
                                     {"title": TooltipTStr.CannotDropLocked});
-                    $subMenu.find(".removeNoDelete").show();
-                    $subMenu.find(".addNoDelete").hide();
                 } else {
                     xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
-                    $subMenu.find(".removeNoDelete").hide();
-                    $subMenu.find(".addNoDelete").show();
                 }
-                TblMenu.showDagAndTableOptions($subMenu, tableId);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

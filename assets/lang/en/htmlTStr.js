@@ -408,7 +408,7 @@ module.exports = {
         "Monitor": "Monitor",
         "Monitors": "Monitors",
         "Statistics": "Statistics",
-        "DisplaySettings": "Display Settings",
+        "DisplaySettings": "Graph Display Settings",
         "NETWORK": "NETWORK",
         "NewVal": "New Value", // in jststr
         "NRecv": "Bytes Recv",
@@ -457,7 +457,13 @@ module.exports = {
         "AdminAlertInstruc": "Send an alert to all other users as an administrator",
         "AlertMessageTitle": "Alert Message:",
         "LogFlush": "Log Flush",
-        "RestartRequired": "Restart Required"
+        "RestartRequired": "Restart Required",
+        "FreeRAM": "Free Ram",
+        "FreeXDB": "Free XDB",
+        "OtherUsers": "Other Users",
+        "YourTables": "Your Tables",
+        "Datasets": "Datasets",
+        "AmountUsed": "Amount Used"
     },
 
     "supportTicket": {

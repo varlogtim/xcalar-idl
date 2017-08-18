@@ -677,7 +677,13 @@ module.exports = {
         "AdminAlertInstruc": "以管理员身份向其他用户发送提醒消息",
         "AlertMessageTitle": "提醒消息：",
         "LogFlush": "强制刷新日志",
-        "RestartRequired": "Restart Required"
+        "RestartRequired": "Restart Required",
+        "FreeRAM": "Free Ram",
+        "FreeXDB": "Free XDB",
+        "OtherUsers": "Other Users",
+        "YourTables": "Your Tables",
+        "Datasets": "Datasets",
+        "AmountUsed": "Amount Used"
     },
     "opsView": {
         "AddAnotherColumn": "添加另一列",

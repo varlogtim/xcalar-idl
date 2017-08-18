@@ -282,13 +282,18 @@ window.MainMenu = (function($, MainMenu) {
                 }, 100);
 
                 // call this before open/close menu to get current panel size
-                panelSwitchingHandler($curTab, lastTabId);
+                if (lastTabId === "workspaceTab") {
+                    panelSwitchingHandler($curTab, lastTabId);
+                }
 
                 var noAnim = true;
                 if ($curTab.hasClass("mainMenuOpen")) {
                     openMenu($curTab, noAnim);
                 } else {
                     closeMenu($curTab, noAnim);
+                }
+                if (lastTabId !== "workspaceTab") {
+                    panelSwitchingHandler($curTab, lastTabId);
                 }
                 xcHelper.hideSuccessBox();
             }

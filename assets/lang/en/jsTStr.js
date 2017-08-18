@@ -705,6 +705,11 @@ MonitorTStr = {
     'YouAreUsing': 'You are using Xcalar as ',
     "Restart": "Restart Xcalar",
     "RestartMsg": "Please restart Xcalar to apply the change",
+    "FreeRAM": "Free Ram",
+    "FreeXDB": "Free XDB",
+    "OtherUsers": "Other Users",
+    "YourTables": "Your Tables",
+    "Datasets": "Datasets",
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

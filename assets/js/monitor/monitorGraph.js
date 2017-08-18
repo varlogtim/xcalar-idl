@@ -4,12 +4,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var height = 210;
     var yAxis;
     var yScale;
-    var datasets;
+    var datasets = [];
     var xGridVals;
     var svg;
     var graphCycle;
-    var numGraphs = 4;
-    var ramIndex = 2; // the index of the ram or memUsed donut
+    var memIndex = 0; // the index of the ram or memUsed donut
+    var swapIndex = 1;
+    var cpuIndex = 2;
 
     var pointsPerGrid = 10;
     var shiftWidth = xGridWidth / pointsPerGrid;
@@ -23,33 +24,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var timeStamp;
     var failCount = 0;
     var curIteration = 0;
+    var tableUsage = 0;
 
     MonitorGraph.setup = function() {
-        var $monitorPanel = $('#monitorPanel');
-        $monitorPanel.find('.graphSwitch').click(function() {
-            var $switch = $(this);
-            var index = $(this).parent().index();
-            $switch.toggleClass("on");
-            if (index === 0) {
-                $monitorPanel.find(".graphSection").toggleClass("hideCPU");
-            } else {
-                $monitorPanel.find(".graphSection").toggleClass("hideRam");
-            }
-
-            // move graphs in front of others
-            if ($switch.hasClass("on")) {
-                var graphIndex1 = index * 2;
-                var graphIndex2 = graphIndex1 + 1;
-
-                var $graph1 = $monitorPanel.find('.line' + graphIndex1 +
-                                                 ', .area' + graphIndex1);
-                var $graph2 = $monitorPanel.find('.line' + graphIndex2 +
-                                                 ', .area' + graphIndex2);
-                $monitorPanel.find('.mainSvg').children()
-                                              .append($graph1, $graph2);
-            }
-        });
-
         $('#graph').on('click', '.area', function() {
             var $area = $(this);
             var $line = $(this).prev();
@@ -61,20 +38,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
             }
 
             // move graphs in front of others
-            $('.mainSvg').children().append($line, $area);
+            $('#graph .mainSvg').children().append($line, $area);
         });
     };
 
     MonitorGraph.start = function() {
-        datasets = [];
-        for (var i = 0; i < numGraphs; i++) {
-            datasets.push([0]);
-        }
-
+        datasets = [[0], [0], [0]];
         setupLabelsPathsAndScales();
 
         setTimeout(function() {
-            //XX Hack - the graph refuses to move unless I change more
+            // XXX Hack - the graph refuses to move unless I change more
             // of its attributes
             var rand = Math.random() * 0.1;
             svgWrap.attr("height", height + rand);
@@ -88,9 +61,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var $graph = $('#graph');
         $graph.find('svg').remove();
         $graph.find('.xLabels').empty();
-        $('#rightYAxis').empty();
+        $('#memYAxis').empty();
         curIteration++;
         clearTimeout(graphCycle);
+        datasets = [];
     };
 
     MonitorGraph.stop = function() {
@@ -172,27 +146,43 @@ window.MonitorGraph = (function($, MonitorGraph) {
         $("#graphTime").text(date + " " + donutTime);
 
         var numNodes;
-        var apiTopResult;
         var prevIteration = curIteration;
+        var promise;
+        var oldData;
+        // only update memusage if first time, scren is visible, or interval is
+        // infrequent
+        if ($("#monitor-system").is(":visible") || firstTime ||
+            intervalTime > 19999) {
+            promise = XcalarGetMemoryUsage(userIdName, userIdUnique);
+        } else {
+            promise = PromiseHelper.resolve(tableUsage);
+            oldData = true;
+        }
 
-        XcalarApiTop()
-        .then(function(result) {
+        promise
+        .then(function(userMemory) {
+            if (!oldData) {
+                tableUsage = getTableUsage(userMemory.userMemory.sessionMemory);
+            }
+
+            return XcalarApiTop();
+        })
+        .then(function(apiTopResult) {
             $("#upTime").text(xcHelper.timeStampConvertSeconds(
-                result.topOutputPerNode[0].uptimeInSeconds));
+                apiTopResult.topOutputPerNode[0].uptimeInSeconds));
             if (prevIteration !== curIteration) {
                 return deferred.resolve();
             }
-            apiTopResult = result;
-            numNodes = result.numNodes;
+            numNodes = apiTopResult.numNodes;
             if (!numNodes) {
                 return deferred.reject();
             }
-            var allStats = processNodeStats(apiTopResult, numNodes);
+            var allStats = processNodeStats(apiTopResult, tableUsage, numNodes);
             updateGraph(allStats, numNodes);
-            MonitorPanel.updateDonuts(allStats, numNodes);
+            MonitorDonuts.update(allStats);
             failCount = 0;
             toggleErrorScreen();
-            XcSupport.detectMemoryUsage(result);
+            XcSupport.detectMemoryUsage(apiTopResult);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -209,7 +199,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         count++;
 
         setTimeout(function() {
-            //XX Hack - the graph refuses to move unless I change more
+            // XXX Hack - the graph refuses to move unless I change more
             // of its attributes
             var rand = Math.random() * 0.1;
             svgWrap.attr("height", height + rand);
@@ -218,86 +208,121 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return deferred.promise();
     }
 
-    function processNodeStats(apiTopResult, numNodes) {
+    function getTableUsage(sessions) {
+        var bytes = 0;
+        for (var i = 0; i < sessions.length; i++) {
+            var tables = sessions[i].tableMemory;
+            for (var j = 0; j < tables.length; j++) {
+                bytes += tables[j].totalBytes;
+            }
+        }
+        return bytes;
+    }
+
+    function processNodeStats(apiTopResult, tableUsage, numNodes) {
         var StatsObj = function() {
-            this.used = [];
-            this.tot = [];
-            this.sumUsed = 0;
-            this.sumTot = 0;
+            this.used = 0;
+            this.total = 0;
+            this.nodes = [];
             return this;
         };
 
+
+        var mem = new StatsObj();
+        var swap = new StatsObj();
         var usrCpu = new StatsObj();
-        var childCpu = new StatsObj();
-        var ram = new StatsObj();
-        var xdb = new StatsObj();
-        var network = new StatsObj(); // For network, send is used, recv is tot
+        mem.datasetUsage = 0;
+        mem.xdbUsed = 0;
+        mem.xdbTotal = 0;
 
         for (var i = 0; i < numNodes; i++) {
             var node = apiTopResult.topOutputPerNode[i];
 
-            // childNodeCpu - inner donut
-            var childCpuPct = node.childrenCpuUsageInPercent;
-            childCpuPct = Math.round(childCpuPct * 100) / 100;
-            childCpu.used.push(childCpuPct);
-            childCpu.sumUsed += childCpuPct;
-            childCpu.sumTot += 100;
-
-            // usrNodeCpu - outer, primary donut
+            // usrNodeCpu
             var usrCpuPct = node.parentCpuUsageInPercent;
+            usrCpu.used += usrCpuPct;
+            usrCpu.total += 100;
             usrCpuPct = Math.round(usrCpuPct * 100) / 100;
-            usrCpu.used.push(usrCpuPct);
-            usrCpu.sumUsed += usrCpuPct;
-            usrCpu.sumTot += 100;
-
-            // 2 memory graphs
-            // memUsed - inner donut
-            var ramUsed = Math.round(node.totalAvailableMemInBytes *
-                                    (node.memUsageInPercent / 100));
-            var ramTot = node.totalAvailableMemInBytes;
-            ram.used.push(ramUsed);
-            ram.tot.push(ramTot);
-            ram.sumUsed += ramUsed;
-            ram.sumTot += ramTot;
+            usrCpu.nodes.push({
+                node: i,
+                used: usrCpuPct,
+                total: 100
+            });
 
             // xdb memory - outer, primary donut
-            var xdbUsed = node.xdbUsedBytes; // outer primary donut
-            var xdbTot = node.xdbTotalBytes;
-            xdb.used.push(xdbUsed);
-            xdb.tot.push(xdbTot);
-            xdb.sumUsed += xdbUsed;
-            xdb.sumTot += xdbTot;
+            var ramUsed = Math.round(node.totalAvailableMemInBytes *
+                                    (node.memUsageInPercent / 100));
 
-            // network
-            var networkUsed = node.networkSendInBytesPerSec;
-            var networkTot = node.networkRecvInBytesPerSec;
-            network.used.push(networkUsed);
-            network.tot.push(networkTot);
-            network.sumUsed += networkUsed;
-            network.sumTot += networkTot;
+            mem.datasetUsage += node.datasetUsedBytes;
+            mem.xdbUsed += node.xdbUsedBytes;
+            mem.xdbTotal += node.xdbTotalBytes;
+            mem.used += ramUsed;
+            mem.total += node.totalAvailableMemInBytes;
+
+            mem.nodes.push({
+                node: i,
+                xdbUsed: node.xdbUsedBytes,
+                xdbTotal: node.xdbTotalBytes,
+                used: ramUsed,
+                total: node.totalAvailableMemInBytes
+            });
+
+            // swap
+            swap.used += node.sysSwapUsedInBytes;
+            swap.total += node.sysSwapTotalInBytes;
+            swap.nodes.push({
+                node: i,
+                used: node.sysSwapUsedInBytes,
+                total: node.sysSwapTotalInBytes
+            });
         }
 
-        var allStats = [childCpu, usrCpu, ram, xdb, network];
+        usrCpu.used /= numNodes;
+        usrCpu.total /= numNodes;
+        mem.userTableUsage = tableUsage;
+        mem.otherTableUsage = mem.used - mem.userTableUsage - mem.datasetUsage;
+        mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
+        mem.free = mem.total - mem.used;
+
+        var allStats = [mem, swap, usrCpu];
+
+        // make sure no values exceed total
+        for (var i = 0; i < allStats.length; i++) {
+            if (i === cpuIndex) {
+                // cpu percentage may be over 100%
+                allStats[i].used = Math.min(allStats[i].used, 100);
+            } else {
+                for (var attr in allStats[i]) {
+                    if (attr !== "nodes" && attr !== "total") {
+                        allStats[i][attr] = Math.min(allStats[i][attr],
+                                                     allStats[i].total);
+                    }
+                }
+            }
+        }
         return (allStats);
     }
 
     function updateGraph(allStats, numNodes) {
         var unit;
-        // var largestMem = 0;
         var yMaxes = [];
         var yMax;
         var units = [];
-        for (var i = 0; i < numGraphs; i++) {
-            var xVal = allStats[i].sumUsed;
+        var sizeOption = {base2: true};
+        var memYMax = Math.max(allStats[memIndex].total, allStats[swapIndex].total);
+        var memYVal = xcHelper.sizeTranslator(memYMax, true, false, sizeOption);
 
-            if (i < ramIndex) { // cpu %
+        for (var i = 0; i < datasets.length; i++) {
+            var xVal = allStats[i].used;
+
+            if (i === cpuIndex) { // cpu %
                 xVal /= numNodes;
                 xVal = Math.min(100, xVal);
                 yMax = 100;
             } else { // memory
-                unit = xcHelper.sizeTranslator(allStats[i].sumTot, true)[1];
-                xVal = xcHelper.sizeTranslator(xVal, true, unit)[0];
-                yMax = xcHelper.sizeTranslator(allStats[i].sumTot, true)[0];
+                yMax = memYVal[0];
+                unit = memYVal[1];
+                xVal = xcHelper.sizeTranslator(xVal, true, unit, sizeOption)[0];
                 units.push(unit);
             }
             datasets[i].push(xVal);
@@ -306,7 +331,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         redraw(newWidth, gridRight, yMaxes, units);
 
-        $('.xLabelsWrap').width(newWidth);
+        $('#graph .xLabelsWrap').width(newWidth);
         svgWrap.attr("width", newWidth);
         newWidth += shiftWidth;
         gridRight += shiftWidth;
@@ -363,6 +388,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     function setupLabelsPathsAndScales() {
         var xAxis;
+        var $graph = $('#graph');
+        $graph.find('svg').remove();
 
         xGridVals = [];
         for (var i = 0; i < 300; i += 60) {
@@ -402,7 +429,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
            .attr("class", "y axis")
            .call(yAxis);
 
-        for (var i = 0; i < numGraphs; i++) {
+        for (var i = 0; i < datasets.length; i++) {
             var line = d3.svg.line()
                         .x(function(d, j) {
                             return (xScale(j));
@@ -434,49 +461,47 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }
     }
 
-    function drawRightYAxes(yMaxes, units) {
-        $("#rightYAxis").empty();
-        for (var i = 0; i < yMaxes.length; i++) {
-            var yMax = yMaxes[i];
-            var yScale = d3.scale.linear()
-                            .domain([0, yMax])
-                            .range([height, 0]);
+    function drawMemYAxes(yMax, unit) {
+        $("#memYAxis").empty();
+        var yScale = d3.scale.linear()
+                        .domain([0, yMax])
+                        .range([height, 0]);
 
-            var yAxisStart = yMax / 5;
-            var yAxisMax = yMax + 1;
-            var yAxisSteps = yMax / 5;
+        var yAxisStart = yMax / 5;
+        var yAxisMax = yMax + 1;
+        var yAxisSteps = yMax / 5;
 
-            var yAxis = d3.svg.axis()
-                            .scale(yScale)
-                            .orient("right")
-                            .innerTickSize(0)
-                            .tickValues(d3.range(yAxisStart, yAxisMax,
-                                                 yAxisSteps));
-            d3.select("#rightYAxis").append("div")
-                                    .attr("class", "rightYAxisWrap")
-                                    .append("svg")
-                                    .attr("width", 40)
-                                    .attr("height", height + 30)
-                                    .attr("class", "")
-                                    .append("g")
-                                    .attr("transform", "translate(-2,8)")
-                                    .call(yAxis);
-            $('#rightYAxis').find(".rightYAxisWrap").eq(i)
-                            .append('<span class="unit">0 (' + units[i] +
-                                    ')</span>')
-                            .append('<span class="type">XDB</span>');
-        }
+        var yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left")
+                        .innerTickSize(0)
+                        .tickValues(d3.range(yAxisStart, yAxisMax,
+                                             yAxisSteps));
+        d3.select("#memYAxis").append("div")
+                                .attr("class", "memYAxisWrap")
+                                .append("svg")
+                                .attr("width", 40)
+                                .attr("height", height + 30)
+                                .attr("class", "")
+                                .append("g")
+                                .attr("transform", "translate(28,8)")
+                                .call(yAxis);
+        $('#memYAxis').find(".memYAxisWrap")
+                        .append('<span class="unit">0 (' + unit +
+                                ')</span>')
+                        .append('<span class="type"><span>Xcalar Memory' +
+                                '</span> / <span>Swap</span></span>');
     }
 
     function redraw(newWidth, gridRight, yMaxes, units) {
         if (firstTime) {
-            var rightYMaxes = [yMaxes[ramIndex], yMaxes[ramIndex + 1]];
-            drawRightYAxes(rightYMaxes, units);
+            // var memYMax = Math.max(yMaxes[memIndex], yMaxes[swapIndex]);
+            // drawMemYAxes(memYMax, units[0]);
+            drawMemYAxes(yMaxes[memIndex], units[memIndex]);
             firstTime = false;
         }
 
-        for (var i = 0; i < numGraphs; i++) {
-
+        for (var i = 0; i < datasets.length; i++) {
             var tempYScale = d3.scale
                             .linear()
                             .domain([0, yMaxes[i]])

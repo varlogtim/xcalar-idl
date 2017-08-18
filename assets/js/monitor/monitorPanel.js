@@ -1,22 +1,17 @@
-// sets up monitor panel and donuts, not monitor graph
+// sets up monitor panel and system menubar
 window.MonitorPanel = (function($, MonitorPanel) {
     var isGenSub = false;
-    var diameter = 100; // for donuts
-    var donutThickness = 6;
-    var defDurationForD3Anim = 800;
     var graphIsActive = false;
     var $monitorPanel;
-    var ramIndex = 2; // the index of the ram or memUsed donut
 
     MonitorPanel.setup = function() {
         $monitorPanel = $("#monitor-system");
         MonitorGraph.setup();
+        MonitorDonuts.setup();
         QueryManager.setup();
         MonitorConfig.setup();
 
-        initializeDonuts();
         populateNodeInformation();
-
         setupViewToggling();
 
         $("#monitorMenu-sys").on("click", ".listInfo", function() {
@@ -36,44 +31,25 @@ window.MonitorPanel = (function($, MonitorPanel) {
             DeleteTableModal.show();
         });
 
-        $('.statsHeadingBar').click(function() {
-            if ($(this).hasClass('open')) {
-                $(this).removeClass('open')
-                       .next().children()
-                       .slideUp(200)
-                       .removeClass('open');
+        $("#monitorMenu-sys").find('.graphSwitch').click(function() {
+            var $switch = $(this);
+            var index = $(this).index();
+            $switch.find(".switch").toggleClass("on");
+            if (index === 1) {
+                $monitorPanel.find(".graphSection").toggleClass("hideSwap");
+            } else if (index === 2) {
+                $monitorPanel.find(".graphSection").toggleClass("hideCPU");
             } else {
-                $(this).addClass('open')
-                       .next().children()
-                       .slideDown(200)
-                       .addClass('open');
+                $monitorPanel.find(".graphSection").toggleClass("hideRam");
             }
-        });
 
-        $monitorPanel.find(".ramDonut .donut").click(function() {
-            var $donutSection = $(this).closest(".donutSection");
-            $donutSection.toggleClass("xdbMode");
-            $monitorPanel.find(".graphSection").toggleClass("xdbMode");
-            if ($donutSection.hasClass("xdbMode")) {
-                $monitorPanel.find(".graphSwitches .row").eq(1).find(".text")
-                             .text(MonitorTStr.XDB);
-            } else {
-                $monitorPanel.find(".graphSwitches .row").eq(1).find(".text")
-                             .text(MonitorTStr.RAM);
+            // move graphs in front of others
+            if ($switch.find(".switch").hasClass("on")) {
+                var $graph = $monitorPanel.find('.line' + index +
+                                                 ', .area' + index);
+                $monitorPanel.find('.mainSvg').children()
+                                              .append($graph, $graph);
             }
-        });
-
-        $monitorPanel.find(".cpuDonut .donut").click(function() {
-            var $donutSection = $(this).closest(".donutSection");
-            $donutSection.toggleClass("usrMode");
-            $monitorPanel.find(".graphSection").toggleClass("usrMode");
-            // if ($donutSection.hasClass("usrMode")) {
-            //     $monitorPanel.find(".graphSwitches .row").eq(0).find(".text")
-            //                  .text("CPU - Usrnode");
-            // } else {
-            //     $monitorPanel.find(".graphSwitches .row").eq(0).find(".text")
-            //                  .text("CPU - Childnode");
-            // }
         });
     };
 
@@ -90,34 +66,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     MonitorPanel.isGraphActive = function() {
         return (graphIsActive);
-    };
-
-    MonitorPanel.updateDonuts = function(allStats, numNodes) {
-        $('.donut').each(function(index) {
-            var el = this;
-            var used;
-            var total;
-
-            if (index < ramIndex) {
-                used = allStats[index].sumUsed / numNodes;
-                total = allStats[index].sumTot / numNodes;
-            } else {
-                used = allStats[index].sumUsed;
-                total = allStats[index].sumTot;
-            }
-            if (index === 4) {
-                updateDonutMidText('#donut4 .userSize .num',
-                                allStats[index].sumUsed,
-                                defDurationForD3Anim, index);
-
-                updateDonutMidText('#donut4 .totalSize .num',
-                                allStats[index].sumTot,
-                                defDurationForD3Anim, index);
-            } else {
-                updateOneDonut(el, index, used, total);
-            }
-            updateDonutStatsSection(el, index, allStats[index]);
-        });
     };
 
     function setupViewToggling() {
@@ -180,230 +128,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
             }
             $monitorPanel.find('.topBar .title:not(.wkbkTitle)').text(title);
         });
-    }
-
-    function initializeDonuts() {
-        var numDonuts = 4;
-        var radius = diameter / 2;
-        var outerDonutRadius = radius + donutThickness;
-        var arc = d3.svg.arc()
-                    .innerRadius(radius)
-                    .outerRadius(radius - donutThickness);
-        var outerArc = d3.svg.arc()
-                        .innerRadius(outerDonutRadius)
-                        .outerRadius(outerDonutRadius - donutThickness);
-        var pie = d3.layout.pie()
-                .sort(null);
-
-        var svg;
-
-        for (var i = 0; i < numDonuts; i++) {
-            if (i % 2) {
-                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
-                drawPath(svg, pie, outerArc);
-            } else {
-                svg = makeSvg("#donut" + i, diameter, radius);
-                drawPath(svg, pie, arc);
-            }
-        }
-        var smallRadius = radius - 2;
-        var outerSmallRadius = outerDonutRadius - 2;
-        arc = d3.svg.arc()
-                    .innerRadius(smallRadius)
-                    .outerRadius(smallRadius - (donutThickness - 3));
-        outerArc = d3.svg.arc()
-                    .innerRadius(outerSmallRadius)
-                    .outerRadius(outerSmallRadius - (donutThickness - 3));
-        for (var i = 0; i < numDonuts; i++) {
-            if (i % 2) {
-                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2),
-                                outerDonutRadius);
-                drawPath(svg, pie, outerArc);
-            } else {
-                svg = makeSvg("#donut" + i, diameter, radius);
-                drawPath(svg, pie, arc);
-            }
-        }
-
-        function makeSvg (selector, diam, rad) {
-            var svg = d3.select(selector).append("svg")
-                        .attr("width", diam)
-                        .attr("height", diam)
-                        .append("g")
-                        .attr("transform", "translate(" + rad + "," +
-                               rad + ") rotate(180, 0,0)");
-            return (svg);
-        }
-
-        function drawPath(svg, pie, arc2) {
-            var data = [0, 100];
-            svg.selectAll("path")
-                .data(pie(data))
-                .enter()
-                .append("path")
-                .attr("d", arc2)
-                .each(function(d) {
-                    this._current = d; // store the initial angles
-                });
-        }
-    }
-
-    function updateOneDonut(el, index, val, total) {
-        var duration = defDurationForD3Anim;
-        var pie = d3.layout.pie().sort(null);
-        var userSize = val;
-        if (index < ramIndex) { // cpu
-            val = Math.min(100, val); // cpu percentage may be over 100%
-        } else {
-            val = Math.min(val, total);
-        }
-
-        var data = [val, total - val];
-        var donut = d3.select(el);
-        var paths = donut.selectAll("path").data(pie(data));
-        var radius = diameter / 2;
-        var rad = radius;
-        if (index % 2) {
-            rad = radius + donutThickness;
-        }
-        var arc = d3.svg.arc()
-                    .innerRadius(rad)
-                    .outerRadius(rad - donutThickness);
-
-        paths.transition()
-             .duration(duration)
-             .attrTween("d", arcTween);
-
-
-        updateDonutMidText("#donut" + index + " .userSize .num", userSize,
-                            duration, index);
-
-        if (index > 1) {
-            updateDonutMidText('#donut' + index + ' .totalSize .num', total,
-                                duration, index);
-        }
-
-        function arcTween(a) {
-            var i = d3.interpolate(this._current, a);
-            this._current = i(0);
-            return (function(t) {
-                return (arc(i(t)));
-            });
-        }
-    }
-
-    // updates the large text in the middle of the donut
-    function updateDonutMidText(selector, num, duration, index) {
-        var $sizeType = $(selector).next();
-        var type = $sizeType.text();
-        var sizeOption = {base2: true};
-        d3.select(selector)
-            .transition()
-            .duration(duration)
-            .tween("text", function() {
-                var startNum = this.textContent;
-                var size = xcHelper.sizeTranslator(num, true, null, sizeOption);
-                var i;
-
-                if (index > 1) {
-                    startNum = xcHelper.textToBytesTranslator(startNum + type,
-                                                              sizeOption);
-                    i = d3.interpolate(startNum, num);
-                } else {
-                    i = d3.interpolate(startNum, size[0]);
-                }
-
-                return (function(t) {
-                    var size = xcHelper.sizeTranslator(i(t), true, null,
-                                                        sizeOption);
-                    num = parseFloat(size[0]).toFixed(1);
-                    if (num >= 10 || index < ramIndex) {
-                        num = Math.round(num);
-                    }
-                    if (index > 1) {
-                        $sizeType.html(size[1]);
-                    }
-                    this.textContent = num;
-                });
-            });
-    }
-
-    function updateDonutStatsSection(el, index, stats) {
-        //this is for the list of stats located below the donut
-        var numNodes = stats.used.length;
-        var $statsSection = $(el).next();
-        var listHTML = "";
-
-        if (index < ramIndex) {
-            var avgUsed = Math.round((stats.sumUsed / numNodes) * 100) / 100;
-            $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
-
-            for (var i = 0; i < numNodes; i++) {
-                listHTML += '<li>' +
-                                '<span class="name">' +
-                                    'Node ' + i +
-                                '</span>' +
-                                '<span class="statsNum">' +
-                                    stats.used[i] + '%' +
-                                '</span>' +
-                            '</li>';
-            }
-        } else {
-            var sizeOption = {base2: true};
-            var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true, null,
-                                                    sizeOption);
-            var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true, null,
-                                                    sizeOption);
-            var separator = "";
-            if (index === 4) {
-                $statsSection.find('.statsHeadingBar .totNum')
-                             .text(sumTotal[0] + " " + sumTotal[1] + "/s");
-                $statsSection.find('.statsHeadingBar .avgNum')
-                             .text(sumUsed[0] + " " + sumUsed[1] + "/s");
-                separator = "&nbsp;";
-            } else {
-                $statsSection.find('.statsHeadingBar .totNum')
-                             .text(sumTotal[0] + " " + sumTotal[1]);
-                $statsSection.find('.statsHeadingBar .avgNum')
-                             .text(sumUsed[0] + " " + sumUsed[1]);
-                separator = "/";
-            }
-
-            for (var i = 0; i < numNodes; i++) {
-                var total = xcHelper.sizeTranslator(stats.tot[i], true, null,
-                                                        sizeOption);
-                var used = xcHelper.sizeTranslator(stats.used[i], true, null,
-                                                        sizeOption);
-                var usedUnits;
-                var totalUnits;
-
-                if (index === 4) {
-                    usedUnits = used[1] + "/s";
-                    totalUnits = total[1] + "/s";
-                } else {
-                    usedUnits = used[1];
-                    totalUnits = total[1];
-                }
-
-                listHTML += '<li>' +
-                        '<div class="name">' +
-                            'Node ' + i +
-                        '</div>' +
-                        '<div class="values">' +
-                            '<span class="userSize">' +
-                                used[0] + " " + usedUnits +
-                            '</span>' +
-                            '<span class="separator">&nbsp;' + separator +
-                                                    '&nbsp;</span>' +
-                            '<span class="totalSize">' +
-                                total[0] + " " + totalUnits +
-                            '</span>' +
-                        '</div>' +
-                    '</li>';
-
-            }
-        }
-        $statsSection.find('ul').html(listHTML);
     }
 
     function populateNodeInformation() {

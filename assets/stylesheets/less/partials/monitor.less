@@ -38,14 +38,8 @@
         margin-bottom: 20px;
 
         li {
+            cursor: pointer;
            .text {
-                margin-left: 7px;
-            }
-        }
-
-
-        &.support {
-            li .text {
                 margin-left: 20px;
             }
         }
@@ -53,14 +47,6 @@
 
     .xc-switch, .xc-action {
         float: right;
-    }
-
-    #monitor-genSub {
-        cursor: pointer;
-    }
-
-    #monitor-delete {
-        cursor: pointer;
     }
 }
 
@@ -328,735 +314,747 @@
     }
 
     .cardMain {
-        padding-top: 10px;
+        padding-top: 20px;
         padding-bottom: 30px;
+    }
 
-        .topSection {
-            position: relative;
-            z-index: @topSection-zindex;
-            border-top: 1px solid @color-white;
+    .topSection {
+        position: relative;
+        z-index: @topSection-zindex;
+        border-top: 1px solid @color-white;
+    }
 
+    .graphSection {
+        .size(@width: ~"calc(100% - 40px)", @height: 270px);
+        .font(@color: @color-font-greyish-brown, @size: 11px);
+        padding-left: 65px;
+        padding-right: 95px;
+        display: inline-block;
+        float: left;
+        background-color: @color-white;
+        overflow: hidden;
+        position: relative;
 
-            .graphSwitchBox {
-                width: 150px;
-                float: left;
-                background-color: @color-bg-white-eight;
-                margin-left: 24px;
-                margin-top: 10px;
-                color: @color-font-dusk-blue;
-                font-size: 12px;
-                font-weight: 700;
-
-                .header {
-                    background-color: @color-bg-marine;
-                    color: @color-white;
-                    font-size: 14px;
-                    height: 36px;
-                    line-height: 36px;
-                    text-align: center;
-                }
-
-                .row {
-                    height: 26px;
-                }
-
-                .graphSwitches {
-                    padding: 12px 16px 6px 10px;
-
-                    .text {
-                        display: inline-block;
-                        float: left;
-                    }
-
-                    .graphSwitch {
-                        float: right;
-                        display: inline-block;
-                        cursor: pointer;
-                        .noSelection;
-
-                    }
-
-                    .icon {
-                        display: block;
-                        .size (@height: 65px, @width: 100%);
-                    }
-                }
+        &.hideRam {
+            .line0, .area0{
+                display: none !important;
             }
+        }
+        &.hideSwap {
+            .line1, .area1 {
+                display: none !important;
+            }
+        }
+        &.hideCPU {
+            .line2, .area2, .yAxis.right  {
+                display: none !important;
+            }
+        }
 
+        &.hideRam.hideSwap {
+            .yAxis.left  {
+                display: none !important;
+            }
+        }
 
-            .graphSection {
-                .size(@width: ~"calc(100% - 180px)", @height: 270px);
-                .font(@color: @color-font-greyish-brown, @size: 11px);
-                padding-left: 50px;
-                padding-right: 95px;
-                display: inline-block;
-                float: left;
-                background-color: @color-white;
-                overflow: hidden;
-                position: relative;
+        #graphWrap {
+            .size(@width: ~"calc(100% - 160px)", @height: 260px);
+            .position(absolute, @left: 94px);
+            z-index: 1;
+            overflow-x: scroll;
+            overflow-y: hidden;
 
-                &.usrMode {
-                    .line.line0 {
-                        display: none;
-                    }
-                    .line.line1 {
-                        display: block;
-                    }
-                    .area.area0 {
-                        display: none;
-                    }
-                    .area.area1 {
-                        display: block;
-                    }
+            &::-webkit-scrollbar-track {
+                border-radius: 20px;
+            }
+        }
+
+        #graphParts {
+            position: absolute;
+            width: 100%;
+
+            .yAxis {
+                .position(absolute, @top: 2px);
+                white-space: nowrap;
+                text-align: right;
+                margin-left: -8px;
+
+                span {
+                    display: block;
+                    .font(@size: 10px, @weight: 600);
+                    height: 42px;
+                    color: @color-font-greyish-brown;
                 }
 
-                &.xdbMode {
-                    .line.line2 {
-                        display: none;
-                    }
-                    .line.line3 {
-                        display: block;
-                    }
-                    .area.area2 {
-                        display: none;
-                    }
-                    .area.area3 {
-                        display: block;
-                    }
-                    .rightYAxisWrap:first-child {
-                        display: none;
-                    }
-                    .rightYAxisWrap:last-child {
-                        display: block;
-                    }
-                }
-                &.hideCPU {
-                    .line0, .area0, .line1, .area1, .yAxis.left  {
-                        display: none !important;
-                    }
-                }
-                &.hideRam {
-                    .line2, .line3, .area2, .area3, .yAxis.right {
-                        display: none !important;
-                    }
+                .type {
+                    font-weight: bold;
                 }
 
-                #graphWrap {
-                    .size(@width: ~"calc(100% - 160px)", @height: 260px);
-                    .position(absolute, @left: 79px);
-                    z-index: 1;
-                    overflow-x: scroll;
-                    overflow-y: hidden;
+                &.left {
+                    width: 30px;
+                    height: 210px;
 
-                    &::-webkit-scrollbar-track {
-                        border-radius: 20px;
+                    .unit {
+                        .position(absolute, @left: 0px, @bottom: -42px);
                     }
-                }
-
-                #graphParts {
-                    position: absolute;
-                    width: 100%;
-
-                    .yAxis {
-                        .position(absolute, @top: 2px);
+                    .type {
+                        .position(absolute, @bottom: -60px, @left: -40px);
                         white-space: nowrap;
-                        text-align: right;
-                        margin-left: -8px;
 
                         span {
-                            display: block;
-                            .font(@size: 10px, @weight: 600);
-                            height: 42px;
-                            color: @color-font-greyish-brown;
-                        }
+                            // float: left;
+                            display: inline;
+                            height: auto;
 
-                        &.right {
-                            right: 115px;
-                            text-align: left;
-                            height: 210px;
-
-                            .unit {
-                                .position(absolute, @bottom: -42px);
+                            &:first-child {
+                                color: @color-bg-graph-two;
                             }
-                            .type {
-                                .position(absolute, @bottom: -62px);
-                                display: none; // XXX temporarily hide
-                            }
-
-                            svg {
-                                top: 0px;
-                                stroke: none;
-                                fill: transparent;
-                                margin-left: -2px;
-
-                                text {
-                                    display: block;
-                                    fill: @color-font-greyish-brown;
-                                    .font(@size: 10px, @weight: 600);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                .rightYAxisWrap:last-child {
-                    display: none;
-                }
-
-                #graph {
-                    .size(@width: 100%, @height: 100%);
-                    z-index: 1;
-                    text-align: right;
-                    position: relative;
-                    .noSelection;
-
-                    .svgWrap {
-                        .size(@width: 100%, @height: 212px);
-                        position: relative;
-                    }
-
-                    .mainSvg {
-                        .position(relative, @top: 10px, @right: 0);
-                        background-color: @color-white;
-                        display: inline-block;
-                        overflow: hidden;
-                    }
-
-                    .separator {
-                        display: block;
-                        .size(@width: 100%, @height: 1px);
-                    }
-                    .xLabelsWrap {
-                        .position(relative, @top: 6px, @right: 0, @bottom: 6px);
-                        display: inline-block;
-                        white-space: nowrap;
-                        text-align: left;
-                        overflow: hidden;
-
-                        .spacer {
-                            .size(@width: 40px, @height: 1px);
-                            float: left;
-                            display: inline-block;
-                        }
-                        .xLabels {
-                            position: relative;
-                            display: inline-block;
-
-                            span {
-                                display: inline-block;
-                                top: 0px;
-                                width: 240px;
-                                .font(@size: 10px, @weight: 600);
-
-                            }
-                        }
-                    }
-                }
-
-                .graphBackground {
-                    .position(absolute, @left: 30px);
-                    .size(@width: ~"calc(100% - 170px)", @height: 210px);
-                    margin: 10px 0px 20px -1px;
-                    background-color: @color-white;
-                }
-
-                .axis {
-                    stroke: @color-black;
-                    &.x {
-                        stroke: @color-border-darkGray;
-                    }
-
-                    &.y {
-                        stroke: rgba(255,255,255, 0.2);
-                    }
-                }
-
-                line {
-                    stroke: #EEEEEE;
-                }
-
-                .line{
-                    fill: none;
-                    stroke-width: 2px;
-                    &.line0, &.line1 {
-                        stroke: @color-bg-graph-one;
-                    }
-                    &.line1 {
-                        display: none;
-                    }
-                    &.line2, &.line3 {
-                        stroke: @color-bg-graph-two;
-                    }
-                    &.line3 {
-                        display: none;
-                    }
-                }
-
-                .area {
-                    opacity: 0.75;
-                    stroke-width: 0;
-                    &.area0, &.area1 {
-                        fill: @color-bg-graph-one;
-                    }
-                    &.area1 {
-                        display: none;
-                    }
-                    &.area2, &.area3 {
-                        fill: @color-bg-graph-two;
-                    }
-                    &.area3 {
-                        display: none;
-                    }
-
-                    &.highlighted {
-                        opacity: 0.6;
-                    }
-                }
-
-                .graphText {
-                    .size(@width: 100%, @height: 80%);
-                    float: right;
-                    position: absolute;
-                    margin-top: 20px;
-                    z-index: 1;
-                    .sampleText {
-                        text-align: center;
-                        z-index: 5;
-                        .font(@size: 70px, @color: @color-white, @weight: bold);
-                        line-height: 110px;
-                        opacity: 0.15;
-                    }
-                }
-
-                #grids {
-                    overflow: hidden;
-                    position: absolute;
-                    .size(@width: 100%, @height: 220px);
-
-                    .gridSvg {
-                        .position(@top: 10px, @right: 0);
-                    }
-                }
-            }
-        }
-
-        .bottomSection {
-            .flex-display();
-            .flex-wrap(wrap);
-            margin-right: 34px;
-            margin-left: 200px;
-
-            .donutSection {
-                .flex(1 0 172px);
-                .size(@height: 100%, @min-height: 200px);
-                position: relative;
-
-                &> .icon {
-                    .size (@width: 75px, @height: 75px);
-                    .position(absolute, @top: 0, @right: 0);
-                    display: inline-block;
-                    z-index: 1;
-                }
-
-                .donut {
-                    .size (@height: 100px, @width: 100px);
-                    margin: 15px auto 5px;
-                    position: relative;
-
-                    .sampleText {
-                        .position(absolute, @top: 20px, @left: -40px);
-                        .font(@size: 44px, @color: black, @weight: bold);
-                        .transform(rotate(35deg));
-                        opacity: 0.15;
-                        z-index: 5;
-                    }
-
-                    .donutInfo {
-                        .size(@width: 100%);
-                        .position(absolute, @top: 30px);
-                        display: inline-block;
-                        text-align: center;
-                        z-index: 3;
-
-                        .unit {
-                            // .font(@size: 12px);
-                        }
-
-                        hr {
-                            width: 60px;
-                            border: none;
-                            border-top: 1px solid @color-border-monitor-label;
-                            display: block;
-                            .nomargin-padding;
-                            margin: 0 auto;
-                            &.network {
-                                width: 115px;
-                                margin: 0;
-                            }
-                        }
-
-                        .userSize {
-                            .font(@size: 18px, @weight: 500, @line-height: 36px);
-                            margin-right: -9px;
-
-                            .unit {
-                                position: relative;
-                            }
-
-                        }
-
-                        > .userSize {
-                            line-height: 25px;
-                            margin-right: -5px;
-                        }
-
-                        .totalSize {
-                            .font(@size: 12px, @weight: 600);
-                            margin-left: 8px;
-
-                            .unit {
-                                .font(@size: 11px);
-                            }
-                        }
-                        .network {
-                            .font(@size: 18px, @weight: 500) !important;
-                            .icon {
+                            &:last-child {
                                 color: @color-bg-graph-three;
                             }
-                            &.userSize, &.totalSize {
-                                i {
-                                    .position(absolute, @left: 0px);
-                                    &.xi-down {
-                                        padding-top: 5px;
-                                        padding-left: 1px;
-                                        padding-right: 10px;
-                                    }
-                                    &.xi-up {
-                                        padding-top: 5px;
-                                        padding-right: 10px;
-                                    }
-                                }
-                            }
                         }
                     }
 
-                    svg:first-of-type {
-                        z-index: 1;
-                        path:last-child {
-                            fill: rgba(0,0,0,0);
-                        }
-                    }
-
-                    svg:last-child {
-                        path {
-                            fill: @color-bg-graph-gray;
-                        }
-                    }
-                }
-                &.cpuDonut {
-                    .donutInfo {
-                        top: 34px;
-                    }
-                    &.usrMode {
-                        #donut0 {
-                            .donutInfo {
-                                display: none;
-                            }
-                            svg {
-                                opacity: 0.5;
-                            }
-                        }
-                        #donut1 {
-                            .donutInfo {
-                                display: block;
-                            }
-                            svg {
-                                opacity:  1;
-                            }
-                        }
-                        #donutStats0 {
-                            display: none;
-                        }
-                        #donutStats1 {
-                            display: block;
-                        }
-                    }
-                }
-
-                #donut0{
-                    svg:first-of-type {
-                        path:first-child {
-                            fill: @color-bg-graph-one;
-                        }
-                    }
-                }
-
-                #donut1 {
-                    width: 112px;
-                    height: 112px;
-                    .position(absolute, @top: -6px);
-                    .horizontal-align(absolute);
-
-                    .donutInfo {
-                        display: none;
-                        top: 40px;
-                    }
                     svg {
-                        opacity: 0.5;
-                    }
-                }
+                        left: 0px;
+                        top: 0px;
+                        stroke: none;
+                        fill: transparent;
 
-                #donut0, #donut1 {
-                    .font(@color: @color-bg-graph-one);
-                    cursor: pointer;
-
-                    svg:first-of-type {
-                        fill: @color-bg-graph-one;
-                    }
-                }
-
-                #donutStats1 {
-                    display: none;
-                }
-
-                #donutStats0, #donutStats1 {
-                    .statsTopHeading {
-                        .font(@color: @color-bg-graph-one);
-                        .user {
-                            font-size: 10px;
-                            margin-top: 2px;
-                        }
-                    }
-
-                    .statsHeadingBar {
-                        background-color: @color-bg-graph-one;
-                    }
-                }
-
-                &.ramDonut.xdbMode {
-                    #donut2 {
-                        .donutInfo {
-                            display: none;
-                        }
-                        svg {
-                            opacity: 0.5;
-                        }
-                    }
-                    #donut3 {
-                        .donutInfo {
+                        text {
                             display: block;
-                        }
-                        svg {
-                            opacity:  1;
-                        }
-                    }
-                    #donutStats2 {
-                        display: none;
-                    }
-                    #donutStats3 {
-                        display: block;
-                    }
-                }
-
-                #donut2{
-                    svg:first-of-type {
-                        path:first-child {
-                            fill: @color-bg-graph-two;
+                            fill: @color-font-greyish-brown;
+                            .font(@size: 10px, @weight: 600);
                         }
                     }
                 }
 
-                #donut3 {
-                    width: 112px;
-                    height: 112px;
-                    .position(absolute, @top: -6px);
-                    .horizontal-align(absolute);
-
-                    .donutInfo {
-                        display: none;
-                        top: 36px;
-                    }
-                    svg {
-                        opacity: 0.5;
+                &.right {
+                    right: 95px;
+                    text-align: left;
+                    .type {
+                        .position(absolute, @bottom: -20px, @left: 0px);
+                        color: @color-bg-graph-one;
                     }
                 }
+            }
+        }
 
-                #donut2, #donut3 {
-                    .font(@color: @color-bg-graph-two);
-                    cursor: pointer;
+        #graph {
+            .size(@width: 100%, @height: 100%);
+            z-index: 1;
+            text-align: right;
+            position: relative;
+            .noSelection;
 
-                    svg:first-of-type {
-                        fill: @color-bg-graph-two;
-                    }
+            .svgWrap {
+                .size(@width: 100%, @height: 212px);
+                position: relative;
+            }
+
+            .mainSvg {
+                .position(relative, @top: 10px, @right: 0);
+                // background-color: @color-white;
+                display: inline-block;
+                overflow: hidden;
+            }
+
+            .separator {
+                display: block;
+                .size(@width: 100%, @height: 1px);
+            }
+            .xLabelsWrap {
+                .position(relative, @top: 6px, @right: 0, @bottom: 6px);
+                display: inline-block;
+                white-space: nowrap;
+                text-align: left;
+                overflow: hidden;
+
+                .spacer {
+                    .size(@width: 40px, @height: 1px);
+                    float: left;
+                    display: inline-block;
                 }
+                .xLabels {
+                    position: relative;
+                    display: inline-block;
 
-                #donutStats3 {
-                    display: none;
-                }
-
-                #donutStats2, #donutStats3 {
-                    .statsTopHeading {
-                        .font(@color: @color-bg-graph-two);
-                    }
-
-                    .statsHeadingBar {
-                        background-color: @color-bg-graph-two;
-                    }
-                }
-
-                #donut4 {
-                    .font(@color: @color-bg-graph-three);
-                    width: 115px;
-                    .donutInfo {
-                        width: 115px;
-                        text-align: right;
-                    }
-                    .network {
-                        white-space: nowrap;
-                        margin-right: 0px;
-                    }
-                }
-
-                #donutStats4 {
-                    .statsTopHeading {
-                        .font(@color: @color-bg-graph-three);
-                    }
-
-                    .statsHeadingBar {
-                        background-color: @color-bg-graph-three;
-                        .userSize {
-                            padding-right: 4px !important;
-                            margin-right: 4px;
-                        }
-                    }
-                }
-
-                .statsSection {
-                    width: 170px;
-                    margin: 0 auto;
-                    .statsTopHeading {
-                        .font(@weight: 600, @size: 12px);
-                        .size(@height: 20px);
-                        margin: 0 auto;
-                        padding: 2px 0px 0px 0px;
-
-                        .global {
-                            float: left;
-                        }
-
-                        .user {
-                            float: right;
-                            font-size: 8px;
-                            margin-top: 4px;
-                        }
-                    }
-
-                    .statsHeadingBar {
-                        .font(@size: 12px, @color: @color-white, @line-height: 25px);
-                        .size(@width: 100%, @height: 26px);
-                        background-color: #f4f4f4;
-                        padding: 0 0 0 4px;
-                        margin: 0 auto;
-                        overflow: hidden;
-                        cursor: pointer;
-                        //
-                        .userSize {
-                            padding-right: 0px;
-                        }
-
-                        .title {
-                            float: left;
-                        }
-
-                        .num {
-                            float: right;
-                        }
-
-                        .divider {
-                            float: right;
-                        }
-
-                        .percent {
-                            float: right;
-                            display: inline-block;
-                            padding-right: 4px;
-                        }
-                    }
-
-                    .userSize {
-                        .size(@height: 100%);
-                        text-align: right;
-                        float: right;
+                    span {
                         display: inline-block;
-                        padding-right: 4px;
-                    }
-
-                    .totalSize {
-                        float: right;
-                        margin-right: 4px;
+                        top: 0px;
+                        width: 240px;
+                        .font(@size: 10px, @weight: 600);
 
                     }
+                }
+            }
+        }
 
-                    .listWrap {
-                        width: 100%;
-                        margin: 0 auto 5px auto;
-                        background-color: @color-bg-white-three;
+        .graphBackground {
+            .position(absolute, @left: 30px);
+            .size(@width: ~"calc(100% - 170px)", @height: 210px);
+            margin: 10px 0px 20px -1px;
+            background-color: @color-white;
+        }
 
-                        ul {
-                            width: 100%;
-                            margin: 0 auto;
-                            .clearfix;
+        .axis {
+            stroke: @color-black;
+            &.x {
+                stroke: @color-border-darkGray;
+            }
 
-                            li {
-                                .font(@size: 11px, @color: @color-text-midlightGray);
-                                .size(@width: 100%);
-                                padding: 6px;
-                                padding-right: 4px;
-                                float: right;
-                                overflow: hidden;
+            &.y {
+                stroke: rgba(255,255,255, 0.2);
+            }
+        }
 
-                                .name {
-                                    color: @color-font-navy;
-                                    font-weight: bold;
-                                    float: left;
-                                }
+        line {
+            stroke: #EEEEEE;
+        }
 
-                                .values {
-                                    float: right;
-                                }
+        .line{
+            fill: none;
+            stroke-width: 2px;
 
-                                .statsNum {
-                                    float: right;
-                                    color: @color-font-navy;
-                                }
-                                .userSize {
-                                    padding-right: 0px;
-                                    color: @color-font-navy;
-                                    float: none;
-                                    word-spacing: -1px;
-                                }
-                                .totalSize {
-                                    margin-right: 0px;
-                                    color: @color-font-navy;
-                                    float: none;
-                                    word-spacing: -1px;
-                                }
-                                .separator {
-                                    letter-spacing: -1px;
-                                }
+            &.line0 {
+                stroke: @color-bg-graph-two;
+            }
+             &.line1 {
+                stroke: @color-bg-graph-three;
+            }
+            &.line2 {
+                stroke: @color-bg-graph-one;
+            }
+        }
+
+        .area {
+            opacity: 0.75;
+            stroke-width: 0;
+            &.area0 {
+                fill: @color-bg-graph-two;
+            }
+            &.area1 {
+                fill: @color-bg-graph-three;
+            }
+            &.area2 {
+                fill: @color-bg-graph-one;
+            }
+
+            &.highlighted {
+                opacity: 0.6;
+            }
+        }
+
+        .graphText {
+            .size(@width: 100%, @height: 80%);
+            float: right;
+            position: absolute;
+            margin-top: 20px;
+            z-index: 1;
+            .sampleText {
+                text-align: center;
+                z-index: 5;
+                .font(@size: 70px, @color: @color-white, @weight: bold);
+                line-height: 110px;
+                opacity: 0.15;
+            }
+        }
+
+        #grids {
+            overflow: hidden;
+            position: absolute;
+            .size(@width: 100%, @height: 220px);
+
+            .gridSvg {
+                .position(@top: 10px, @right: 0);
+            }
+        }
+    }
+
+    .bottomSection {
+        .flex-display();
+        .flex-wrap(wrap);
+        margin-left: 40px;
+        margin-right: 40px;
+    }
+
+    .donutSection {
+        .flex(1 0 220px);
+        .size(@height: 100%, @min-height: 200px);
+        position: relative;
+
+        &> .icon {
+            .size (@width: 75px, @height: 75px);
+            .position(absolute, @top: 0, @right: 0);
+            display: inline-block;
+            z-index: 1;
+        }
+
+        .donut {
+            .size (@height: 110px, @width: 110px);
+            margin: 15px auto 5px;
+            position: relative;
+
+            .sampleText {
+                .position(absolute, @top: 20px, @left: -40px);
+                .font(@size: 44px, @color: black, @weight: bold);
+                .transform(rotate(35deg));
+                opacity: 0.15;
+                z-index: 5;
+            }
+
+            .donutInfo {
+                .size(@width: 100%);
+                .position(absolute, @top: 30px);
+                display: inline-block;
+                text-align: center;
+                z-index: 3;
+
+                hr {
+                    width: 60px;
+                    border: none;
+                    border-top: 1px solid @color-border-monitor-label;
+                    display: block;
+                    .nomargin-padding;
+                    margin: 0 auto;
+                    &.network {
+                        width: 115px;
+                        margin: 0;
+                    }
+                }
+
+                &.hidden {
+                    .userSize {
+                        visibility: hidden;
+                    }
+                    .pctSize {
+                        display: none;
+                    }
+                }
+
+                .userSize {
+                    .font(@size: 18px, @weight: 500, @line-height: 36px);
+                    margin-right: -9px;
+
+                    .unit {
+                        position: relative;
+                    }
+                }
+
+                > .userSize {
+                    line-height: 25px;
+                    margin-right: -4px;
+                }
+
+                .totalSize {
+                    .font(@size: 12px, @weight: 600);
+                    margin-left: 7px;
+
+                    .unit {
+                        .font(@size: 11px);
+                    }
+                }
+                .network {
+                    .font(@size: 18px, @weight: 500) !important;
+                    .icon {
+                        color: @color-bg-graph-three;
+                    }
+                    &.userSize, &.totalSize {
+                        i {
+                            .position(absolute, @left: 0px);
+                            &.xi-down {
+                                padding-top: 5px;
+                                padding-left: 1px;
+                                padding-right: 10px;
+                            }
+                            &.xi-up {
+                                padding-top: 5px;
+                                padding-right: 10px;
                             }
                         }
                     }
                 }
             }
+
+            svg:first-of-type {
+                z-index: 1;
+                path:last-child {
+                    fill: rgba(0,0,0,0);
+                }
+            }
+
+            svg:last-child {
+                path {
+                    fill: @color-bg-graph-gray;
+                }
+            }
+
+            .holeCover {
+               .size(90px, 90px);
+               .position(absolute, @top: 10px, @left: 10px);
+               background: @color-white;
+               z-index: 2;
+               border-radius: 100%;
+            }
+
+            svg {
+                overflow: visible;
+            }
+
+            path {
+                .transition(transform 0.2s);
+                &:hover, &.hover {
+                    .transform(scale(1.05));
+                    &:nth-child(5) {
+                        .transform(scale(1.05));
+                    }
+                }
+            }
         }
-    }
-    .c3-chart-arc path {
-        stroke: none;
-    }
-    .c3 line, .c3 path {
-        fill: none;
-        stroke: none;
+
+        &.ramDonut, &.swapDonut {
+            .flex-display;
+            .justify-content(center);
+
+
+            &.pctMode {
+                .pctSize {
+                    display: block;
+                    font-size: 18px;
+                    font-weight: 500;
+                    margin-top: 6px;
+                    margin-right: -5px;
+                }
+                .donutInfo {
+                    .userSize, .totalSize, hr {
+                        display: none;
+                    }
+                }
+                .statsSection .values {
+                    .userSize, .separator, .totalSize {
+                        display: none;
+                    }
+                    .pct {
+                        display: block;
+                        padding-right: 0px;
+                        color: @color-font-navy;
+                        float: none;
+                        word-spacing: -1px;
+                    }
+                }
+                .donutLegendInfo {
+                    .unitSize {
+                        display: none;
+                    }
+                    .pctSize {
+                        display: block;
+                    }
+                }
+            }
+
+            .donut {
+                .font(@color: @color-bg-graph-two);
+                cursor: pointer;
+
+                .donutInfo {
+                    top: 33px;
+                    width: 72px;
+                    margin-left: 19px;
+
+                    > span {
+                        white-space: nowrap;
+                    }
+                }
+
+                svg:first-of-type {
+                    path {
+                        &:first-child {
+                            fill: @color-arc-8;
+                        }
+                        &:nth-child(2) {
+                            fill: @color-arc-2;
+                        }
+                        &:nth-child(3) {
+                            fill: @color-arc-1;
+                        }
+                        &:nth-child(4) {
+                            fill: #cccccc;
+                        }
+                        &:nth-child(5) {
+                            fill: transparent;
+                            // fill: red;
+                            // .transform(scale(0.9))
+                        }
+                    }
+                }
+            }
+
+            .pctSize {
+                display: none;
+            }
+
+            .donutLegendInfo {
+                .position(absolute, @top: 33px);
+                width: 72px;
+                margin-left: 19px;
+                z-index: 3;
+                text-align: center;
+                font-size: 18px;
+                font-weight: 500;
+                line-height: 25px;
+
+                .unitSize {
+                    margin-right: -4px;
+                }
+            }
+
+            .legend {
+                font-size: 10px;
+                line-height: 16px;
+                .position(absolute, @top: 26px, @left: ~"calc(50% + 70px)");
+                // margin-left: 100px;
+                .key {
+                    .size(9px, 9px);
+                    float: left;
+                    display: block;
+                    margin-top: 4px;
+                    margin-right: 4px;
+                }
+
+                li {
+                    height: 16px;
+                    white-space: nowrap;
+                    &:hover {
+                        font-weight: bold;
+                    }
+                    &:nth-child(1) .key {
+                        background-color: @color-bg-graph-gray;
+                    }
+                    &:nth-child(2) .key {
+                        background-color: #cccccc;
+                    }
+                    &:nth-child(3) .key {
+                        background-color: @color-arc-3;
+                    }
+                    &:nth-child(4) .key {
+                        background-color: @color-arc-2;
+                    }
+                    &:nth-child(5) .key {
+                        background-color: @color-arc-8;
+                    }
+                }
+            }
+
+            .statsTopHeading {
+                .font(@color: @color-bg-graph-two);
+            }
+
+            .statsHeadingBar {
+                background-color: @color-bg-graph-two;
+            }
+            .bar {
+                background-color: @color-bg-graph-two;
+            }
+        }
+
+        &.ramDonut {
+            z-index: 1; // put it ahead of other donut sections for hovering
+        }
+
+        &.swapDonut {
+            .donut {
+                .font(@color: @color-bg-graph-three);
+                svg:first-of-type {
+                    path {
+                        &:first-child {
+                            fill: @color-arc-8;
+                        }
+                        &:nth-child(2) {
+                            fill: transparent;
+                        }
+                    }
+                }
+            }
+            .statsTopHeading {
+                .font(@color: @color-bg-graph-three);
+            }
+
+            .statsHeadingBar {
+                background-color: @color-bg-graph-three;
+            }
+            .bar {
+                background-color: @color-bg-graph-three;
+            }
+        }
+
+        &.cpuDonut {
+            .donutInfo {
+                top: 40px;
+            }
+            .donut {
+                .font(@color: @color-bg-graph-one);
+
+                svg:first-of-type {
+                    path:first-child {
+                        fill: @color-bg-graph-one;
+                    }
+                }
+            }
+
+            .statsTopHeading {
+                .font(@color: @color-bg-graph-one);
+                .user {
+                    font-size: 10px;
+                    margin-top: 2px;
+                }
+            }
+
+            .statsHeadingBar {
+                background-color: @color-bg-graph-one;
+            }
+
+            .bar {
+                background-color: @color-bg-graph-one;
+            }
+        }
+
+        .statsSection {
+            width: 180px;
+            margin: 0 auto;
+            .statsTopHeading {
+                .font(@weight: 600, @size: 12px);
+                .size(@height: 20px);
+                margin: 0 auto;
+                padding: 2px 0px 0px 0px;
+
+                .global {
+                    float: left;
+                }
+
+                .user {
+                    float: right;
+                    font-size: 8px;
+                    margin-top: 4px;
+                }
+            }
+
+            .statsHeadingBar {
+                .font(@size: 12px, @color: @color-white, @line-height: 25px);
+                .size(@width: 100%, @height: 26px);
+                padding: 0 0 0 4px;
+                margin: 0 auto;
+                overflow: hidden;
+                cursor: pointer;
+
+                .userSize {
+                    padding-right: 0px;
+                }
+
+                .title {
+                    float: left;
+                }
+
+                .num {
+                    float: right;
+                }
+
+                .divider {
+                    float: right;
+                }
+
+                .percent {
+                    float: right;
+                    display: inline-block;
+                    padding-right: 4px;
+                }
+            }
+
+            .userSize {
+                .size(@height: 100%);
+                text-align: right;
+                float: right;
+                display: inline-block;
+                padding-right: 4px;
+            }
+
+            .totalSize {
+                float: right;
+                margin-right: 4px;
+
+            }
+
+            .listWrap {
+                width: 100%;
+                margin: 0 auto 5px auto;
+                background-color: @color-bg-white-three;
+
+                ul {
+                    width: 100%;
+                    margin: 0 auto;
+                    .clearfix;
+
+                    li {
+                        .font(@size: 11px, @color: @color-text-midlightGray);
+                        .size(@width: 100%);
+                        padding: 6px;
+                        padding-right: 4px;
+                        float: right;
+                        overflow: hidden;
+                        position: relative;
+
+                        .name {
+                            color: @color-font-navy;
+                            font-weight: bold;
+                            float: left;
+                            position: relative;
+                        }
+
+                        .values {
+                            float: right;
+                            position: relative;
+                        }
+
+                        .statsNum {
+                            float: right;
+                            color: @color-font-navy;
+                            position: relative;
+                        }
+                        .userSize {
+                            padding-right: 0px;
+                            color: @color-font-navy;
+                            float: none;
+                            word-spacing: -1px;
+                        }
+                        .totalSize {
+                            margin-right: 0px;
+                            color: @color-font-navy;
+                            float: none;
+                            word-spacing: -1px;
+                        }
+                        .separator {
+                            letter-spacing: -1px;
+                        }
+                        .pct {
+                            display: none;
+                        }
+                        .bars {
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                            opacity: 0.4;
+                            z-index: 0;
+                            top: 0px;
+                            right: 0px;
+                            pointer-events: none;
+                        }
+                        .bar {
+                            height: inherit;
+                            float: right;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     svg {
