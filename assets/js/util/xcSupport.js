@@ -444,7 +444,8 @@ window.XcSupport = (function(XcSupport, $) {
         .then(function(ret) {
             var nodeArray = ret.queryGraph.node;
             for (var i = 0; i < nodeArray.length; i++) {
-                console.log(XcalarApisTStr[nodeArray[i].api] + ": " +
+                console.log(XcalarApisTStr[nodeArray[i].api] + " - " +
+                            nodeArray[i].name.name + ": " +
                             nodeArray[i].elapsed.milliseconds + "ms");
             }
         });
