@@ -1257,14 +1257,20 @@ window.XIApi = (function(XIApi) {
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
         var table = null;
+        var indexTable;
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
             console.warn("cannot find the table");
+        } else if (Transaction.isSimulate(txId)) {
+            indexTable = SQLApi.getIndexTable(tableName, colName);
+            if (indexTable != null) {
+                return PromiseHelper.resolve(indexTable, true, [], true);
+            }
         } else {
             table = gTables[tableId];
             tableCols = table.tableCols;
-            var indexTable = table.getIndexTable(colName);
+            indexTable = table.getIndexTable(colName);
             if (indexTable != null) {
                 // XXX Note: here the assume is if index table has meta,
                 // it should exists
@@ -1300,7 +1306,9 @@ window.XIApi = (function(XIApi) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
-                    if (table != null) {
+                    if (Transaction.isSimulate(txId)) {
+                        SQLApi.cacheIndexTable(tableName, colName, newTableName);
+                    } else if (table != null) {
                         table.setIndexTable(colName, newTableName);
                     }
 

@@ -1,7 +1,42 @@
 window.SQLApi = (function() {
+    var indexTableCache = {};
+    var reverseIndexMap = {};
+
     function SQLApi() {
         return this;
     }
+
+    // static function
+    SQLApi.cacheIndexTable = function(tableName, colName, indexTable) {
+        indexTableCache[tableName] = indexTableCache[tableName] || {};
+        indexTableCache[tableName][colName] = indexTable;
+        reverseIndexMap[indexTable] = {
+            "tableName": tableName,
+            "colName": colName
+        };
+    };
+
+    SQLApi.getIndexTable = function(tableName, colName) {
+        if (indexTableCache[tableName]) {
+            return indexTableCache[tableName][colName];
+        } else {
+            return null;
+        }
+    };
+
+    SQLApi.deleteIndexTable = function(indexTable) {
+        if (reverseIndexMap[indexTable]) {
+            var tableName = reverseIndexMap[indexTable].tableName;
+            var colName = reverseIndexMap[indexTable].colName;
+            delete indexTableCache[tableName][colName];
+            delete reverseIndexMap[indexTable];
+        }
+    };
+
+    SQLApi.clear = function() {
+        indexTableCache = {};
+        reverseIndexMap = {};
+    };
 
     SQLApi.prototype = {
         _start: function() {
@@ -307,6 +342,24 @@ window.SQLApi = (function() {
                 var cli = self._end(txId);
                 deferred.resolve({
                     "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
+        deleteTable: function(tableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.deleteTable(txId, tableName)
+            .then(function() {
+                SQLApi.deleteIndexTable(tableName);
+                var cli = self._end(txId);
+                deferred.resolve({
                     "cli": cli
                 });
             })
