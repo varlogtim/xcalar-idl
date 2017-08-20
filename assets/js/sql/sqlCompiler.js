@@ -153,7 +153,8 @@ window.SQLCompiler = (function() {
             var prefix = "XC_TABLENAME_";
             for (var i = 0; i < rdds.length; i++) {
                 if (rdds[i][0].name.indexOf(prefix) === 0) {
-                    this.newTableName = rdds[i][0].name.substring(prefix.length);
+                    this.newTableName = rdds[i][0].name.
+                                        substring(prefix.length);
                     break;
                 }
             }
@@ -219,33 +220,37 @@ window.SQLCompiler = (function() {
                 for (var i = 0; i < node.children.length; i++) {
                     traverseAndPushDown(node.children[i]);
                 }
-                if (node.value.class.indexOf("org.apache.spark.sql.catalyst.plans.logical.") === 0) {
+                if (node.value.class.indexOf(
+                    "org.apache.spark.sql.catalyst.plans.logical.") === 0) {
                     promiseArray.push(pushDown.bind(self, node));
                 }
             }
             function pushDown(treeNode) {
                 var deferred = jQuery.Deferred();
                 var retStruct;
-                switch(treeNode.value.class) {
-                    case("org.apache.spark.sql.catalyst.plans.logical.Project"):
+
+                var treeNodeClass = treeNode.value.class.substring(
+                    "org.apache.spark.sql.catalyst.plans.logical.".length);
+                switch(treeNodeClass) {
+                    case("Project"):
                         retStruct = self._pushDownProject(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.Filter"):
+                    case("Filter"):
                         retStruct = self._pushDownFilter(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.Join"):
+                    case("Join"):
                         retStruct = self._pushDownJoin(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.Sort"):
+                    case("Sort"):
                         retStruct = self._pushDownSort(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.Aggregate"):
+                    case("Aggregate"):
                         retStruct = self._pushDownAggregate(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.LocalLimit"):
+                    case("LocalLimit"):
                         retStruct = self._pushDownLocalLimit(treeNode);
                         break;
-                    case("org.apache.spark.sql.catalyst.plans.logical.GlobalLimit"):
+                    case("GlobalLimit"):
                         retStruct = self._pushDownGlobalLimit(treeNode);
                         break;
                     default:
@@ -267,7 +272,8 @@ window.SQLCompiler = (function() {
                 for (var i = 0; i < node.children.length; i++) {
                     getCli(node.children[i], cliArray);
                 }
-                if (node.value.class.indexOf("org.apache.spark.sql.catalyst.plans.logical.") === 0) {
+                if (node.value.class.indexOf(
+                    "org.apache.spark.sql.catalyst.plans.logical.") === 0) {
                     cliArray.push(node.xccli);
                 }
             }
@@ -300,7 +306,8 @@ window.SQLCompiler = (function() {
             var columns = [];
             for (var i = 0; i<node.value.projectList.length; i++) {
                 var colNameStruct = node.value.projectList[i][0];
-                assert(colNameStruct.class === "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+                assert(colNameStruct.class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
                 var colName = colNameStruct.name;
                 columns.push(colName);
             }
@@ -311,7 +318,8 @@ window.SQLCompiler = (function() {
             var self = this;
             assert(node.children.length === 1);
             var deferred = jQuery.Deferred();
-            var filterString = genEvalStringRecur(SQLCompiler.genTree(undefined, node.value.condition.slice(0)));
+            var filterString = genEvalStringRecur(SQLCompiler.genTree(undefined,
+                node.value.condition.slice(0)));
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.filter(filterString, tableName);
@@ -320,7 +328,8 @@ window.SQLCompiler = (function() {
         _pushDownJoin: function(node) {
             var self = this;
             // TODO: Test multi join
-            var condTree = SQLCompiler.genTree(undefined, node.value.condition.slice(0));
+            var condTree = SQLCompiler.genTree(undefined,
+                node.value.condition.slice(0));
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all the
             // way and when it's not AND, it must be an EQ (stop traversing subtree)
@@ -335,9 +344,11 @@ window.SQLCompiler = (function() {
             // Check AND conditions and take note of all the EQ subtrees
             var eqSubtrees = [];
             var andSubtrees = [];
-            if (condTree.value.class === "org.apache.spark.sql.catalyst.expressions.And") {
+            if (condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
-            } else if (condTree.value.class === "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+            } else if (condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                 eqSubtrees.push(condTree);
             } else {
                 // Can't do it :(
@@ -349,9 +360,11 @@ window.SQLCompiler = (function() {
                 var andTree = andSubtrees.shift();
                 assert(andTree.children.length === 2);
                 for (var i = 0; i < andTree.children.length; i++) {
-                    if (andTree.children[i].value.class === "org.apache.spark.sql.catalyst.expressions.And") {
+                    if (andTree.children[i].value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.And") {
                         andSubtrees.push(andTree.children[i]);
-                    } else if (andTree.children[i].value.class === "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                    } else if (andTree.children[i].value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         // Can't do it :(
@@ -390,19 +403,25 @@ window.SQLCompiler = (function() {
                     assert(!rightTableName);
                     leftTableName = tableOne;
                     rightTableName = tableTwo;
-                    if (node.children[0].newTableName.indexOf(leftTableName) === 0) {
+                    if (node.children[0].newTableName.indexOf(leftTableName)
+                        === 0) {
                         newLeftTableName = node.children[0].newTableName;
-                        assert(node.children[1].newTableName.indexOf(rightTableName) === 0);
+                        assert(node.children[1].newTableName.
+                            indexOf(rightTableName) === 0);
                         newRightTableName = node.children[1].newTableName;
                     } else {
-                        assert(node.children[1].newTableName.indexOf(leftTableName) === 0);
-                        assert(node.children[1].newTableName.indexOf(rightTableName) === 0);
+                        assert(node.children[1].newTableName.
+                            indexOf(leftTableName) === 0);
+                        assert(node.children[1].newTableName.
+                            indexOf(rightTableName) === 0);
                         newLeftTableName = node.children[1].newTableName;
                         newRightTableName = node.children[0].newTableName;
                     }
                 } else {
-                    if (!((leftTableName === tableOne && rightTableName === tableTwo) ||
-                        (leftTableName === tableTwo && rightTableName === tableOne))) {
+                    if (!((leftTableName === tableOne &&
+                           rightTableName === tableTwo) ||
+                          (leftTableName === tableTwo &&
+                           rightTableName === tableOne))) {
                         assert(0);
                         return deferred.resolve("Cannot do it;");
                     }
@@ -505,7 +524,8 @@ window.SQLCompiler = (function() {
     function genEvalStringRecur(condTree) {
         // Traverse and construct tree
         var outStr = "";
-        var opName = condTree.value.class.substring(condTree.value.class.indexOf("expressions."));
+        var opName = condTree.value.class.substring(
+            condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
             if (opName !== "expressions.Cast") {
                 outStr += opLookup[opName] + "(";
@@ -526,7 +546,8 @@ window.SQLCompiler = (function() {
                          endIdx + matches[4];
             }
         } else {
-            var parentOpName = condTree.parent.value.class.substring(condTree.value.class.indexOf("expressions."));
+            var parentOpName = condTree.parent.value.class.substring(
+                condTree.value.class.indexOf("expressions."));
             if (parentOpName === "expressions.Cast") {
                 switch (condTree.value.dataType) {
                     case ("double"):
@@ -548,10 +569,12 @@ window.SQLCompiler = (function() {
                         break;
                 }
             }
-            if (condTree.value.class === "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+            if (condTree.value.class ===
+               "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
                 outStr += condTree.value.name;
-            } else if (condTree.value.class === "org.apache.spark.sql.catalyst.expressions.Literal") {
+            } else if (condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string") {
                     outStr += '"' + condTree.value.value + '"';
                 } else {
@@ -566,7 +589,8 @@ window.SQLCompiler = (function() {
 
     function getTablesInSubtree(tree) {
         function getTablesRecur(subtree, tablesSeen) {
-            if (subtree.value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+            if (subtree.value.class ===
+                "org.apache.spark.sql.execution.LogicalRDD") {
                 if (!(subtree.newTableName in tablesSeen)) {
                     tablesSeen.push(subtree.newTableName);
                 }
@@ -582,7 +606,8 @@ window.SQLCompiler = (function() {
 
     function getQualifiersInSubtree(tree) {
         function getQualifiersRecur(subtree) {
-            if (subtree.value.class === "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+            if (subtree.value.class ===
+               "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 if (!(subtree.value.qualifier in tablesSeen)) {
                     tablesSeen.push(subtree.value.qualifier);
                 }
