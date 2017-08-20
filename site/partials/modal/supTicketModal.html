@@ -23,34 +23,63 @@
   <!-- Main Section -->
   <section class="modalMain">
     <div class="formRow">
-      <span class="label"><%= dicts.supportTicket.TypeIssue %>:</span>
+      <span class="label">1. <%= dicts.supportTicket.TypeIssue %>:</span>
       <div class="dropDownList yesclickable issueList">
-        <input class="text" type="text" spellcheck="false" disabled="disabled">
+        <input class="text" type="text" spellcheck="false" disabled="disabled" value="<%= dicts.common.New %>">
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
         <div class="list">
           <ul>
-            <li>Crash</li>
-            <li>Performance Issue</li>
-            <li>Other</li>
+            <li data-val="new"><%= dicts.common.New %></li>
+            <li data-val="existing"><%= dicts.common.Existing %></li>
           </ul>
             <div class="scrollArea top"><div class="arrow"></div></div>
             <div class="scrollArea bottom"><div class="arrow"></div></div>
         </div>
       </div>
     </div>
+  </section>
+  <section class="modalMain ticketIDSection closed">
+    <div class="formRow">
+      <span class="label">2. <%= dicts.monitor.SelectTicket %>:</span>
+    </div>
+    <div class="table">
+      <div class="tableHeader">
+        <div class="row">
+          <div class="th"><%= dicts.monitor.TicketID %></div>
+          <div class="th"><%= dicts.monitor.CreatedOn %></div>
+          <div class="th"><%= dicts.supportTicket.Comments %></div>
+        </div>
+      </div>
+      <div class="tableBody">
+        <div class="row">
+          <div class="td"></div>
+          <div class="td"></div>
+          <div class="td comments"></div>
+        </div>
+    </div>
+  </section>
+  <section class="modalSubMain commentSection">
     <div class="formRow genBundleRow">
-      <div class="checkboxSection" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
-        <div class="text"><%= dicts.supportTicket.GenSub %>?</div>
-        <div class="checkbox">
-          <i class="icon xi-ckbox-empty"></i>
-          <i class="icon xi-ckbox-selected"></i>
+      <span class="label">2. <%= dicts.supportTicket.AdditionalInfo %>:</span>
+      <div class="options">
+        <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+          <div class="text"><%= dicts.supportTicket.RegenBundle %>?</div>
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
+        </div>
+        <div class="checkboxSection miniDump inactive" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.MiniDumpTip %>">
+          <div class="text"><%= dicts.supportTicket.MiniDump %>:</div>
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
         </div>
       </div>
     </div>
-  </section>
-  <section class="modalSubMain">
     <div class="commentArea">
       <div class="text"><%= dicts.supportTicket.Comments %>:</div>
       <textarea class="xc-textArea"></textarea>

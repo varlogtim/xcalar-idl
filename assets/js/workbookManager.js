@@ -745,10 +745,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var username = XcSupport.getUser();
         var gUserKey = generateKey(username, "gUser", version);
         var gAuthKey = generateKey(username, "authentication", version);
+        var gTktKey = generateKey(username, "gTkt", version);
 
         return {
             "gUserKey": gUserKey,
-            "gAuthKey": gAuthKey
+            "gAuthKey": gAuthKey,
+            "gTktKey": gTktKey
         };
     }
 

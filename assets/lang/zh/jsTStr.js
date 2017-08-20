@@ -140,6 +140,7 @@ CommonTxtTstr = {
 'Default': 'default',
 'DefaultVal': '默认值',
 'RevertDefaultVal': '恢复为默认值',
+'Existing': 'Existing',
 'Exit': '出口',
 'GenTicket': '生成服务支持券',
 'HoldToDrag': '点击并按住拖动',
@@ -152,6 +153,7 @@ CommonTxtTstr = {
 'LogOut': '注销',
 'LogoutWarn': '您有未保存的更改，请保存, 否则您可能会失去现有的数据。',
 'NA': '本条目不适用',
+'New': 'New',
 'NEWCOLUMN': '新列',
 'NEXT': '下一步',
 'NumCol': '列数',
@@ -591,7 +593,10 @@ MonitorTStr = {
 'StopAlertMsg': '管理员停止了集群',
 'AdminAlert': '管理员提醒',
 "FlushLog": "强制刷新日志",
-"FlushLogMsg": "您确定要强制刷新日志吗？"
+"FlushLogMsg": "您确定要强制刷新日志吗？",
+"AdditionalInfo": "Additional (New) Information",
+"NoTickets": "No tickets found",
+"SelectExistingTicket": "Select an existing ticket"
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

@@ -115,6 +115,7 @@ describe("SupTicketModal Test", function() {
         it("should submit ticket", function(done) {
             var ticketObj = {
                 "type": "",
+                "ticketId": null,
                 "comment": "",
                 "xiLog": "",
                 "userIdName": "",
@@ -130,7 +131,7 @@ describe("SupTicketModal Test", function() {
             SupTicketModal.__testOnly__.submitTicket(ticketObj)
             .then(function(res) {
                 expect(res).to.be.an("object");
-                expect(Object.keys(res).length).to.equal(9);
+                expect(Object.keys(res).length).to.equal(10);
                 expect(res).to.have.property("topInfo")
                 .and.to.equal("test api top");
                 expect(res).to.have.property("license")
@@ -141,6 +142,9 @@ describe("SupTicketModal Test", function() {
                 expect(res).to.have.property("xiLog");
                 expect(res).to.have.property("version")
                 .and.to.be.an("object");
+                expect(res).to.have.property("ticketId")
+                .and.to.be.null;
+
                 done();
             })
             .fail(function() {
@@ -175,7 +179,7 @@ describe("SupTicketModal Test", function() {
             });
         });
 
-        it("should handle sumit form fail case", function(done) {
+        it("should handle submit form fail case", function(done) {
             XFTSupportTools.fileTicket = function() {
                 return PromiseHelper.reject("test");
             };
@@ -192,11 +196,17 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should submit form", function(done) {
+            $modal.removeClass("bundleError");
             XcalarSupportGenerate = function() {
                 return PromiseHelper.resolve();
             };
 
             XFTSupportTools.fileTicket = function() {
+                return PromiseHelper.resolve({logs:'{"ticketId":123}'});
+            };
+
+            var cachedKV = KVStore.append;
+            KVStore.append = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -209,6 +219,9 @@ describe("SupTicketModal Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                KVStore.append = cachedKV;
             });
         });
 

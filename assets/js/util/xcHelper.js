@@ -1247,7 +1247,10 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.optionButtonEvent = function($container, callback) {
+    // options:
+    //      deselectFromContainer: boolean, if true will deselect all radios
+    //      from $container instead of from nearest .radioButtonGroup
+    xcHelper.optionButtonEvent = function($container, callback, options) {
         $container.on("click", ".radioButton", function() {
             var $radioButton = $(this);
             if ($radioButton.hasClass("active") ||
@@ -1256,9 +1259,14 @@ window.xcHelper = (function($, xcHelper) {
             {
                 return;
             }
-
-            $radioButton.closest(".radioButtonGroup")
+            options = options || {};
+            if (options.deselectFromContainer) {
+                $container.find(".radioButton.active").removeClass("active");
+            } else {
+                $radioButton.closest(".radioButtonGroup")
                         .find(".radioButton.active").removeClass("active");
+            }
+
             $radioButton.addClass("active");
 
             var option = $radioButton.data("option");

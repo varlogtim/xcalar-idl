@@ -149,6 +149,7 @@ CommonTxtTstr = {
     'Default': 'default',
     'DefaultVal': 'Default value',
     'RevertDefaultVal': 'Revert to default value',
+    'Existing': 'Existing',
     'Exit': 'Exit',
     'GenTicket': 'Generate Ticket',
     'HoldToDrag': 'Click and hold to drag',
@@ -162,6 +163,7 @@ CommonTxtTstr = {
     'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
                 ' work.',
     'NA': 'N/A',
+    'New': 'New',
     'NEWCOLUMN': 'NEW COLUMN',
     'NEXT': 'NEXT',
     'NumCol': 'Number of columns',
@@ -702,7 +704,10 @@ MonitorTStr = {
     'StopAlertMsg': 'The administrator has stopped the cluster.',
     'AdminAlert': 'Admin Alert',
     'FlushLog': 'Flush Log',
-    'FlushLogMsg': 'Are you sure you want to flush Xcalar Log?'
+    'FlushLogMsg': 'Are you sure you want to flush Xcalar Log?',
+    "AdditionalInfo": "Additional (New) Information",
+    "NoTickets": "No tickets found",
+    "SelectExistingTicket": "Select an existing ticket"
 };
 
 SchedTStr = {

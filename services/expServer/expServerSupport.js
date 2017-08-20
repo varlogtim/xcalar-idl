@@ -569,28 +569,24 @@ function isValidEmail(emailAddress) {
 function submitTicket(contents) {
     var deferredOut = jQuery.Deferred();
 
-    var aws = require('aws-sdk');
-    aws.config.update({
-        accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
-        secretAccessKey: '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',
-        region: 'us-west-2'
-    });
-
-    var sns = new aws.SNS();
-    sns.publish({
-        Message: contents,
-        TopicArn: 'arn:aws:sns:us-west-2:559166403383:raw-zendesk-topic'
-    }, function (err, data) {
-        if (err) {
+    jQuery.ajax({
+        "type": "POST",
+        "data": contents,
+        "contentType": "application/json",
+        "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesk",
+        "cache": false,
+        success: function(data) {
+            xcConsole.log(data);
+            deferredOut.resolve({
+                "status": httpStatus.OK,
+                "logs": JSON.stringify(data)
+            });
+        },
+        error: function(err) {
             xcConsole.log(err);
             deferredOut.reject(err);
             return;
         }
-        xcConsole.log(data);
-        deferredOut.resolve({
-            "status": httpStatus.OK,
-            "logs": JSON.stringify(data)
-        });
     });
     return deferredOut.promise();
 }

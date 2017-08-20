@@ -33,6 +33,7 @@ module.exports = {
         "Details": "Details",
         "DS": "Dataset",
         "DontShow": "Don't show again",
+        "Existing": "Existing",
         "Exit": "Exit",
         "File": "File",
         "Header": "Header",
@@ -46,6 +47,7 @@ module.exports = {
         "Minimize": "Minimize",
         "NA": "N/A",
         "Name": "Name",
+        "New": "New",
         "NEW": "NEW",
         "NEXT": "NEXT",
         "Null": "Null",
@@ -377,6 +379,7 @@ module.exports = {
         "ConfigParam": "Configure Parameters",
         "ConfigParamName": "Config Parameter Name", // in jststr
         "CPU": "CPU",
+        "CreatedOn": "Created On",
         "CurVal": "Current Value", // in jststr
         "DeleteSelected": "Delete selected operations",
         "DeleteOptions": "Delete Options",
@@ -417,6 +420,7 @@ module.exports = {
         "ReleaseMem": "Release Memory",
         "RemoveOperation": "Remove operation",
         "RestartNode": "Restart Cluster",
+        "SelectTicket": "Select Ticket ID",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
         "SettingsInstr": "You can customize your environment using the options to the right. Any changes made will be applied across all workbooks.",
@@ -430,6 +434,7 @@ module.exports = {
         "StopNode": "Stop Cluster",
         "SYS": "SYSTEM",
         "Syst": "System",
+        "TicketID": "Ticket ID",
         "TotalTime": "Total Time",
         "Uninstall": "Uninstall",
         "UpdateLicense": "Update License",
@@ -457,7 +462,11 @@ module.exports = {
         "TypeIssue": "Type of issue",
         "Comments": "Comments",
         "GenTicketBtn": "GENERATE TICKET",
-        "GenBundleTip": "This will be slow and requires internet access"
+        "GenBundleTip": "This will be slow and requires internet access",
+        "AdditionalInfo": "Additional (New) Information",
+        "RegenBundle": "Regenerate Support Bundle",
+        "MiniDump": "Mini Dump",
+        "MiniDumpTip": "You must select Regenerate Support Bundle first"
     },
 
     "query": {

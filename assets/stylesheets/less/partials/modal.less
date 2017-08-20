@@ -3493,8 +3493,9 @@ html.microsoft {
     }
 
     &.downloadSuccess {
-        .modalInstruction, .modalMain, .btn.confirm, .btn.cancel, .commentArea {
-            display: none;
+        .modalInstruction, .modalMain, .btn.confirm, .btn.cancel, .commentArea,
+        .formRow {
+            display: none !important;
         }
         .downloadMsg {
             display: block;
@@ -3534,7 +3535,7 @@ html.microsoft {
     }
 
     .flex-direction(column);
-    .size(@width: 500px, @height: 400px, @min-width: 400px, @min-height: 400px);
+    .size(@width: 580px, @height: 560px, @min-width: 480px, @min-height: 560px);
 
     .modalHeader {
         text-align: left;
@@ -3544,6 +3545,7 @@ html.microsoft {
     }
     .modalInstruction {
         padding-left: @sidePadding;
+        .flex(0 0 56px);
         .text {
             font-size: @fontSize;
             .flex-display;
@@ -3552,28 +3554,26 @@ html.microsoft {
     }
     .modalMain {
         border-bottom: 1px solid @color-bg-pinkish-grey2;
+        padding: 20px @sidePadding;
     }
+
+    section.inactive {
+        opacity: 0.5;
+        background: @color-white;
+    }
+
     .formRow {
-        .flex(1 1 auto);
         .flex-display;
-        // height: 30px;
-        padding-bottom: 20px;
-        padding-top: 20px;
-        padding-left: @sidePadding;
-        padding-right: @sidePadding;
         font-size: @fontSize;
-        // font-weight: 700;
 
         .label {
             line-height: 30px;
-            width: 110px;
-            // font-weight: 700;
+            margin-right: 16px;
         }
         .dropDownList {
             max-width: 300px;
             width: ~"calc(100% - 110px)";
             float: right;
-
 
             .text {
                 width: ~"calc(100% - 30px)";
@@ -3590,13 +3590,188 @@ html.microsoft {
         }
 
         &.genBundleRow {
-            border-top: 1px solid @color-bg-pinkish-grey2;
+            .flex-display;
+            > .label {
+                .flex(0 0 auto);
+            }
+            .options {
+                .flex-display;
+                .flex(1 1 auto);
+                // .justify-content(space-around);
+                .flex-wrap(wrap);
+            }
+            .checkboxSection {
+                &:first-child {
+                    .flex(0 0 230px);
+                }
+                &.miniDump {
+                    &.inactive {
+                        opacity: @opacity-disabled;
+                    }
+                }
+            }
         }
     }
+
+    .ticketIDSection, .commentSection {
+        background: @color-table-header-gray;
+    }
+
+    .ticketIDSection {
+        .flex-display;
+        .flex-direction(column);
+        .flex(0 1 auto);
+        // max-height: ~"calc(100% - 200px)";
+        min-height: 140px;
+        .position(relative); // for refresh icon positioning
+
+        &.closed {
+            display: none;
+        }
+
+        &.expanded {
+            .tableBody {
+                 max-height: 250px;
+            }
+        }
+
+        &.fetching {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .formRow {
+            .flex(0 0 30px);
+        }
+    }
+
+    .table {
+        @rowHeight: 30px;
+
+        border: 1px solid @color-border-pinkish-grey2;
+        margin-top: 4px;
+        .flex-display;
+        .flex-direction(column);
+
+        .tableHeader {
+            background-color: @color-bg-white-gray;
+            font-size: 13px;
+            padding-right: 11px;
+            .row {
+                .flex-display;
+                height: @rowHeight;
+            }
+        }
+
+        .tableBody {
+            .flex(0 1 auto);
+            overflow-y: scroll;
+            max-height: 150px;
+            background: @color-white;
+            .text-selection;
+            .row {
+                &:nth-child(even) {
+                    background: @color-table-oddRow-gray;
+                }
+                font-size: 11px;
+            }
+        }
+
+        .row {
+
+            line-height: @rowHeight;
+
+            &.empty {
+                font-style: italic;
+                text-align: center;
+                color: @color-font-gray36;
+                border-top: 1px solid @color-border-pinkish-grey2;
+                .td {
+                    line-height: @rowHeight - 15px;
+                }
+            }
+            .innerRow {
+                .flex-display;
+                height: @rowHeight;
+            }
+        }
+        .th, .td {
+            .flex(0 1 130px);
+            min-width: 130px;
+            padding: 7px 4px 7px 14px;
+            line-height: @rowHeight - 14px;
+            border-left: 1px solid @color-border-pinkish-grey2;
+            &:first-child {
+                border-left: none;
+            }
+            &:last-child {
+                .flex(3 1 260px);
+                overflow-y: auto;
+            }
+        }
+        .radioButton {
+            font-size: 11px;
+            line-height: @rowHeight - 14px;
+            height: @rowHeight - 14px;
+            .radio {
+                margin-right: 0px;
+            }
+            .label {
+                .text-selection;
+                cursor: pointer;
+            }
+        }
+        .radioButtonGroup {
+            margin-left: -4px;
+        }
+
+        .comments {
+            padding: 0px;
+            cursor: pointer;
+            .text {
+                padding: 7px 0px 7px 14px;
+                float: left;
+                .size(@width: ~"calc(100% - 17px)");
+                height: 100%;
+                .textOverflowOneLine;
+            }
+            .expand {
+                cursor: pointer;
+                .size(@width: 16px);
+                text-align: center;
+                line-height: @rowHeight;
+                float: right;
+                .transform(rotate(180deg));
+                .icon {
+                    .position(relative, @top: -1px);
+                }
+            }
+        }
+
+        .innerRow.expanded {
+
+            height: auto;
+
+            .comments {
+                cursor: initial;
+                .text {
+                    white-space: normal;
+                }
+                .expand {
+                    .transform(rotate(0deg));
+                    .icon {
+                        top: 1px;
+
+                    }
+               }
+            }
+        }
+    }
+
     .modalSubMain {
         padding-left: @sidePadding;
         padding-right: @sidePadding;
-        .flex(1 1 auto);
+        .flex(1 0 auto);
         .flex-display;
         .flex-direction(column);
         font-size: @fontSize;
@@ -3606,13 +3781,13 @@ html.microsoft {
     .commentArea {
         .flex-display;
         .flex-direction(column);
-        .flex(1 1 auto);
+        .flex(1 0 auto);
     }
     .bundleArea, .downloadMsg {
         display: none;
     }
     .xc-textArea {
-        .flex(1 1 0px);
+        .flex(1 1 40px);
         margin-top: 10px;
         margin-bottom: 20px;
         font-size: @fontSize;
@@ -3620,6 +3795,7 @@ html.microsoft {
     .modalBottom {
         height: 70px;
         padding-right: @sidePadding - 10px;
+        .flex( 0 0 70px);
     }
     .btn.close, .btn.download, .altIcon, .errorText {
         display: none;

@@ -248,6 +248,7 @@ module.exports = {
         "Descrip": "描述",
         "Details": "细节",
         "DontShow": "不再显示",
+        "Existing": "Existing",
         "Exit": "退出",
         "File": "文件",
         "Generate": "生成",
@@ -599,6 +600,7 @@ module.exports = {
         "Config": "配置",
         "ConfigParam": "配置参数",
         "ConfigParamName": "配置参数名称",
+        "CreatedOn": "Created On",
         "CurVal": "当前值",
         "DeleteOptions": "删除选项",
         "DeleteSelected": "删除所选操作",
@@ -634,9 +636,11 @@ module.exports = {
         "ReleaseMem": "释放内存",
         "RemoveOperation": "删除操作",
         "RestartNode": "重启群集",
+        "SelectTicket": "Select Ticket ID",
         "SETTINGS": "设置",
         "SETUP": "建立",
         "SYS": "系统",
+        "TicketID": "Ticket ID",
         "Settings": "设置",
         "SettingsInstr": "您可以用右侧界面的修改XD配置。 修改将应用于所有工作簿",
         "Setup": "设置",
@@ -823,7 +827,11 @@ module.exports = {
         "GenSupInstr": "请填写下面的表格。",
         "GenSub": "生成支持票",
         "GenTicketBtn": "生成",
-        "TypeIssue": "问题类型"
+        "TypeIssue": "问题类型",
+        "AdditionalInfo": "Additional (New) Information",
+        "RegenBundle": "Regenerate Support Bundle",
+        "MiniDump": "Mini Dump",
+        "MiniDumpTip": "You must select Regenerate Support Bundle first"
     },
     "tutor": {
         "datastoreTut1": {
