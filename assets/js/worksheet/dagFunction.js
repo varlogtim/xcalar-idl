@@ -740,7 +740,14 @@ window.DagFunction = (function($, DagFunction) {
         } else {
             parentNames.push(node.struct.srcTable.tableName);
             if (node.numParents > 1) {
-                var parsedParents = parseAggFromEvalStr(node.struct.evalStr);
+                var parsedParents;
+                if (node.struct.evalStr) {
+                    parsedParents = parseAggFromEvalStr(node.struct.evalStr);
+                } else {
+                    // XXX probably need to dedup
+                    parsedParents =
+                        parseAggFromEvalStr(node.struct.evalStrs[0]);
+                }
                 for (var i = 0; i < parsedParents.length; i++) {
                     parentNames.push(parsedParents[i]);
                 }

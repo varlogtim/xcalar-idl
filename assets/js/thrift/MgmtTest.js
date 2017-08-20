@@ -3858,6 +3858,10 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testLogLevelGet(test) {
+        test.trivial(xcalarLogLevelGet(thriftHandle));
+    }
+
     function testFuncDriverRun(test) {
         xcalarApiStartFuncTest(thriftHandle, false, false, false, ["libhello::*"])
         .done(function(startFuncTestOutput) {
@@ -4092,6 +4096,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG 0", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testLogLevelGet, "loglevelget", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 

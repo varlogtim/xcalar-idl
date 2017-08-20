@@ -1620,7 +1620,7 @@ window.DagDraw = (function($, DagDraw) {
                     // XXX there is a "newFieldName" property that stores the name of
                     // the new column. Currently, we are not using or displaying
                     // the name of this new column anywhere.
-                    evalStr = value.evalStr;
+                    evalStr = value.evalStrs[0];
                     info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
                     info.text = evalStr;
                     info.tooltip = "Map: " + evalStr;
@@ -1688,7 +1688,7 @@ window.DagDraw = (function($, DagDraw) {
 
         switch (taggedOp) {
             case (SQLOps.SplitCol):
-                evalStr = value.evalStr;
+                evalStr = value.evalStrs[0];
                 info.text = evalStr;
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(','));
@@ -1702,7 +1702,7 @@ window.DagDraw = (function($, DagDraw) {
                 break;
             case (SQLOps.ChangeType):
                 var ancestors = getTaggedAncestors(node);
-                evalStr = value.evalStr;
+                evalStr = value.evalStrs[0];
                 info.text = evalStr;
                 if (ancestors.length) {
                     // multiple casts, show general info
@@ -1862,7 +1862,7 @@ window.DagDraw = (function($, DagDraw) {
     function parseConcatCols(node) {
         var cols = [];
         if (node.value.api === XcalarApisT.XcalarApiMap) {
-            var evalStr = node.value.struct.evalStr;
+            var evalStr = node.value.struct.evalStrs[0];
             if (evalStr.indexOf("\".Xc.\"") > -1 &&
                 evalStr.indexOf('concat') === 0) {
                 var func = {args: []};

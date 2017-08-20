@@ -4229,6 +4229,18 @@ function XcalarDemoFileDelete(fileName) {
     return (deferred.promise());
 }
 
+function XcalarLogLevelGet() {
+    var deferred = jQuery.Deferred();
+    xcalarLogLevelGet(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarLogLevelGet", error);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarLogLevelSet(loglevel, logFlush) {
     var deferred = jQuery.Deferred();
     xcalarLogLevelSet(tHandle, loglevel, logFlush)

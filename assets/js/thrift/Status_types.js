@@ -594,7 +594,9 @@ StatusT = {
   'StatusStreamPartialFailure' : 585,
   'StatusUnknownProcMemInfoFileFormat' : 586,
   'StatusApisWorkInvalidSignature' : 587,
-  'StatusApisWorkInvalidLength' : 588
+  'StatusApisWorkInvalidLength' : 588,
+  'StatusLMDBError' : 589,
+  'StatusXpuNoBufsToRecv' : 590
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1085,8 +1087,8 @@ StatusTStr = {0 : 'Success',
 486 : 'This user-defined function/application already exists. Delete before adding',
 487 : 'Too few parameters were passed to a user-defined function/application',
 488 : 'The reference count of the operation is incorrect',
-489 : 'Application name is invalid',
 490 : 'Application host type is invalid',
+489 : 'Application name is invalid',
 491 : 'Application is too large',
 492 : 'Transaction recovery context initialization error',
 493 : 'Transaction recovery context default status',
@@ -1184,5 +1186,7 @@ StatusTStr = {0 : 'Success',
 585 : 'Encountered partial failure in blob stream, cleaning up',
 586 : 'Encountered unknown format in /proc/meminfo',
 587 : 'API received has invalid signature',
-588 : 'API received has invalid length'
+588 : 'API received has invalid length',
+589 : 'LMDB Key/Value store error',
+590 : 'No buffers to receive on destination XPU'
 };

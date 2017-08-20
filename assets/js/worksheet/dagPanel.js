@@ -1214,7 +1214,7 @@ window.DagPanel = (function($, DagPanel) {
                     "tableName": origTableName,
                     "tableId": origTableId,
                     "fieldName": xcalarInput.newFieldName,
-                    "mapString": xcalarInput.evalStr,
+                    "mapString": xcalarInput.evalStrs[0],
                     "mapOptions": options
                 };
                 txId = Transaction.start({
@@ -1330,13 +1330,13 @@ window.DagPanel = (function($, DagPanel) {
                 if (idx > -1) {
                     newCols = xcHelper.mapColGenerate(idx,
                                              xcalarInput.newFieldName,
-                                             xcalarInput.evalStr,
+                                             xcalarInput.evalStrs[0],
                                              gTables[origTableId].tableCols,
                                              options);
                 } else {
                     newCols = xcHelper.mapColGenerate(1,
                                              xcalarInput.newFieldName,
-                                             xcalarInput.evalStr,
+                                             xcalarInput.evalStrs[0],
                                              gTables[origTableId].tableCols,
                                              {});
                 }

@@ -2031,8 +2031,9 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
     return (deferred.promise());
 };
 
-xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStr, srcTableName, dstTableName,
-                              newFieldName, icvMode) {
+xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
+                                                                 srcTableName, dstTableName,
+                                                                 newFieldNames, icvMode) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.mapInput = new XcalarApiMapInputT();
@@ -2040,12 +2041,25 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStr, srcTab
     workItem.input.mapInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiMap;
-    workItem.input.mapInput.evalStr = evalStr;
+
+    if (evalStrs.constructor === Array) {
+        workItem.input.mapInput.numEvals = evalStrs.length;
+        workItem.input.mapInput.evalStrs = evalStrs;
+    } else {
+        workItem.input.mapInput.numEvals = 1;
+        workItem.input.mapInput.evalStrs = [evalStrs];
+    }
+
+    if (newFieldNames.constructor === Array) {
+        workItem.input.mapInput.newFieldNames = newFieldNames;
+    } else {
+        workItem.input.mapInput.newFieldNames = [newFieldNames];
+    }
+
     workItem.input.mapInput.srcTable.tableName = srcTableName;
     workItem.input.mapInput.srcTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.mapInput.dstTable.tableName = dstTableName;
     workItem.input.mapInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.mapInput.newFieldName = newFieldName;
     workItem.input.mapInput.icvMode = icvMode;
     return (workItem);
 };
@@ -2054,13 +2068,13 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
     var deferred = jQuery.Deferred();
     if (verbose) {
         var mapInput = workItem.input.mapInput;
-        var newFieldName = mapInput.newFieldName;
-        var evalStr = mapInput.evalStr;
+        var newFieldNames = mapInput.newFieldNames;
+        var evalStrs = mapInput.evalStrs;
         var srcTableName = mapInput.srcTable.tableName;
         var dstTableName = mapInput.dstTable.tableName;
         var icvMode = mapInput.icvMode;
-        console.log("xcalarApiMapWithWorkItem(newFieldName = " + newFieldName +
-                    ", evalStr = " + evalStr + ", srcTableName = " +
+        console.log("xcalarApiMapWithWorkItem(newFieldNames = " + newFieldNames +
+                    ", evalStrs = " + evalStrs + ", srcTableName = " +
                     srcTableName + ", dstTableName = " + dstTableName +
                     ", icvMode = " + icvMode + ")");
     }
@@ -2088,18 +2102,19 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle, newFieldName, evalStr, srcTableName,
-                      dstTableName, icvMode) {
+xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
+                                                 newFieldNames, evalStrs, srcTableName,
+                                                 dstTableName, icvMode) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiMap(newFieldName = " + newFieldName +
-                    ", evalStr = " + evalStr + ", srcTableName = " +
+        console.log("xcalarApiMap(newFieldNames = " + newFieldNames +
+                    ", evalStrs = " + evalStrs + ", srcTableName = " +
                     srcTableName + ", dstTableName = " + dstTableName +
                     ", icvMode = " + icvMode + ")");
     }
 
-    var workItem = xcalarApiMapWorkItem(evalStr, srcTableName, dstTableName,
-                                        newFieldName, icvMode);
+    var workItem = xcalarApiMapWorkItem(evalStrs, srcTableName, dstTableName,
+                                        newFieldNames, icvMode);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result){
@@ -4296,6 +4311,42 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
     })
     .fail(function(error) {
         console.log("xcalarLogLevelSet() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarLogLevelGetWorkItem = runEntity.xcalarLogLevelGetWorkItem = function() {
+    var workItem = new WorkItem();
+
+    workItem.api = XcalarApisT.XcalarApiLogLevelGet;
+    return (workItem);
+};
+
+xcalarLogLevelGet = runEntity.xcalarLogLevelGet = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarLogLevelGet()");
+    }
+
+    var workItem = xcalarLogLevelGetWorkItem();
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var logLevelGetOutput = result.output.outputResult.logLevelGetOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status, log);
+        }
+        deferred.resolve(logLevelGetOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarLogLevelGet() caught exception:", error);
         deferred.reject(error);
     });
 
