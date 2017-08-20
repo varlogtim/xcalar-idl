@@ -2042,7 +2042,7 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
 
     workItem.api = XcalarApisT.XcalarApiMap;
 
-    if (evalStrs.constructor === Array) {
+    if (evalStrs && evalStrs.constructor === Array) {
         workItem.input.mapInput.numEvals = evalStrs.length;
         workItem.input.mapInput.evalStrs = evalStrs;
     } else {
@@ -2050,7 +2050,7 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
         workItem.input.mapInput.evalStrs = [evalStrs];
     }
 
-    if (newFieldNames.constructor === Array) {
+    if (newFieldNames && newFieldNames.constructor === Array) {
         workItem.input.mapInput.newFieldNames = newFieldNames;
     } else {
         workItem.input.mapInput.newFieldNames = [newFieldNames];

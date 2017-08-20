@@ -744,9 +744,8 @@ window.DagFunction = (function($, DagFunction) {
                 if (node.struct.evalStr) {
                     parsedParents = parseAggFromEvalStr(node.struct.evalStr);
                 } else {
-                    // XXX probably need to dedup
                     parsedParents =
-                        parseAggFromEvalStr(node.struct.evalStrs[0]);
+                        parseAggFromEvalStrs(node.struct.evalStrs);
                 }
                 for (var i = 0; i < parsedParents.length; i++) {
                     parentNames.push(parsedParents[i]);
@@ -807,6 +806,32 @@ window.DagFunction = (function($, DagFunction) {
             console.error("could not parse eval str", evalStr);
         }
         return tables;
+    }
+
+    function parseAggFromEvalStrs(evalStrs) {
+        var allTables = [];
+        var tablesMap = {};
+        if (!evalStrs) {
+            return allTables;
+        }
+        for (var i = 0; i < evalStrs.length; i++) {
+            var evalStr = evalStrs[i];
+            var func = {args: []};
+            var tables = [];
+            try {
+                ColManager.parseFuncString(evalStr, func);
+                tables = getAggNamesFromFunc(func);
+            } catch (err) {
+                console.error("could not parse eval str", evalStr);
+            }
+            for (var j = 0; j < tables.length; j++) {
+                tablesMap[tables] = true;
+            }
+        }
+        for (var table in tablesMap) {
+            allTables.push(table);
+        }
+        return allTables;
     }
 
     function getAggNamesFromFunc(func) {

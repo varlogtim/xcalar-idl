@@ -1196,24 +1196,28 @@ window.DagPanel = (function($, DagPanel) {
 
         xcalarInput.dstTable.tableName = newTableName;
         xcalarInput.icvMode = true;  // Turn on icv
-        var origColName = xcalarInput.newFieldName;
-        xcalarInput.newFieldName = origColName + "_er";
+
         // We want to skip all the checks, including all the indexes and stuff
         var $errMsgTarget = $tableIcon;
         var options;
         var sql;
         var txId;
         var idx;
+        var origColName;
         var scrollChecker = new ScollTableChecker();
 
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
+                origColNames = xcalarInput.newFieldNames;
+                for (var i = 0; i < origColNames.length; i++) {
+                    xcalarInput.newFieldNames[i] = origColNames[i] + "_er";
+                }
                 options = {"replaceColumn": true, "createNewTable": true};
                 sql = {
                     "operation": SQLOps.Map,
                     "tableName": origTableName,
                     "tableId": origTableId,
-                    "fieldName": xcalarInput.newFieldName,
+                    "fieldName": xcalarInput.newFieldNames[0],
                     "mapString": xcalarInput.evalStrs[0],
                     "mapOptions": options
                 };
@@ -1263,6 +1267,8 @@ window.DagPanel = (function($, DagPanel) {
                 });
                 break;
             case (XcalarApisT.XcalarApiGroupBy):
+                origColName = xcalarInput.newFieldName;
+                xcalarInput.newFieldName = origColName + "_er";
                 options = {"replaceColumn": true};
                 // XXX This is going to screw up replay
                 sql = {
@@ -1327,27 +1333,33 @@ window.DagPanel = (function($, DagPanel) {
             var newCols = [];
             if (origTableId in gTables) {
                 idx = gTables[origTableId].getColNumByBackName(origColName);
-                if (idx > -1) {
+                if (idx < 0) {
+                    idx = 1;
+                    options = {};
+                } else {
+                    options = {"selectCol": idx};
+                }
+                var prevCols = gTables[origTableId].tableCols;
+                if (op  === XcalarApisT.XcalarApiMap) {
+                    for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
+                        newCols = xcHelper.mapColGenerate(idx,
+                                             xcalarInput.newFieldNames[i],
+                                             xcalarInput.evalStrs[i],
+                                             prevCols,
+                                             options);
+                        prevCols = newCols;
+                    }
+                } else {
                     newCols = xcHelper.mapColGenerate(idx,
                                              xcalarInput.newFieldName,
-                                             xcalarInput.evalStrs[0],
-                                             gTables[origTableId].tableCols,
+                                             xcalarInput.evalStr,
+                                             prevCols,
                                              options);
-                } else {
-                    newCols = xcHelper.mapColGenerate(1,
-                                             xcalarInput.newFieldName,
-                                             xcalarInput.evalStrs[0],
-                                             gTables[origTableId].tableCols,
-                                             {});
+
                 }
+
             } else {
                 // Just leave the tableCols empty and let the user pull it
-            }
-
-            if (idx > -1) {
-                options = {"selectCol": idx};
-            } else {
-                options = {};
             }
 
             options.focusWorkspace = scrollChecker.checkScroll();
