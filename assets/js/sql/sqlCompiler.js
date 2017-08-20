@@ -442,10 +442,11 @@ window.SQLCompiler = (function() {
                     newLeftTableName = leftTableName + tableId;
                     var newColName = "XC_JOIN_COL_" + tableId.substring(3);
                     leftCols.push(newColName);
-                    mapArray.push((function(a, b, c, d) {
+                    mapArray.push((function(evalS, sourceTbl, nColName,
+                                            nTableName) {
                         var xcObj = this;
-                        return (xcObj.map(a, b,
-                            c, d)
+                        return (xcObj.map(evalS, sourceTbl, nColName,
+                                          nTableName)
                         .then(function(retStruct) {
                             cliArray.push(retStruct.cli);
                         }));
@@ -461,10 +462,11 @@ window.SQLCompiler = (function() {
                     newRightTableName = rightTableName + tableId;
                     var newColName = "XC_JOIN_COL_" + tableId.substring(3);
                     rightCols.push(newColName);
-                    mapArray.push((function(a, b, c, d) {
+                    mapArray.push((function(evalS, sourceTbl, nColName,
+                                            nTableName) {
                         var xcObj = this;
-                        return (xcObj.map(a, b,
-                            c, d)
+                        return (xcObj.map(evalS, sourceTbl, nColName,
+                                          nTableName)
                         .then(function(retStruct) {
                             cliArray.push(retStruct.cli);
                         }));
