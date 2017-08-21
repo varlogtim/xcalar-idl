@@ -286,7 +286,9 @@ window.FileBrowser = (function($, FileBrowser) {
                     return true;
                 }
 
-                var path = defaultPath + $(this).val();
+                var $input = $(this);
+                var currentVal = $input.val();
+                var path = defaultPath + currentVal;
 
                 if (key === keyCode.Enter) {
                     if (!path.endsWith("/")) {
@@ -298,7 +300,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
 
                 timer = setTimeout(function() {
-                    if (path.endsWith("/")) {
+                    if ($input.val() === currentVal && path.endsWith("/")) {
                         pathInput(path);
                     }
                 }, 400);
