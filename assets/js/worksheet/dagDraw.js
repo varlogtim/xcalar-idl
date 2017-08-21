@@ -1168,7 +1168,6 @@ window.DagDraw = (function($, DagDraw) {
                 tableTitleTip = tableTitle;
             }
         }
-        tableTitleTip += " " + dagInfo.tag;
 
         html += '<div class="dagTable ' + tableClasses + '" ' +
                     'data-tablename="' + tableName + '" ' +
@@ -1420,8 +1419,7 @@ window.DagDraw = (function($, DagDraw) {
             operation: "",
             tooltip: "",
             column: "",
-            state: DgDagStateTStr[node.value.state],
-            tag: node.value.tag
+            state: DgDagStateTStr[node.value.state]
         };
         var parentNames = node.getSourceNames(true);
         var taggedInfo;
@@ -1622,7 +1620,12 @@ window.DagDraw = (function($, DagDraw) {
                     // XXX there is a "newFieldName" property that stores the name of
                     // the new column. Currently, we are not using or displaying
                     // the name of this new column anywhere.
-                    evalStr = value.evalStrs[0];
+                    var evalStrs = value.evalStrs;
+                    evalStr = "";
+                    for (var i = 0; i < evalStrs.length; i++) {
+                        evalStr += evalStrs[i] + ", ";
+                    }
+                    evalStr = evalStr.slice(0, -2);
                     info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
                     info.text = evalStr;
                     info.tooltip = "Map: " + evalStr;

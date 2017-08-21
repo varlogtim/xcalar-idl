@@ -1665,7 +1665,6 @@ window.XIApi = (function(XIApi) {
             }
         }
 
-        // XXX Jerene: Okay this is really dumb, but we have to keep mapping
         var mapStrStarter = "cut(" + indexedColName + ", ";
         var tableCols = extractColGetColHelper(finalTableCols, 0);
 
@@ -1674,6 +1673,8 @@ window.XIApi = (function(XIApi) {
         var promises = [];
         var currTableName = groupbyTableName;
         var tempTables = [];
+        var mapStrs = [];
+        var colNames = [];
 
         for (var i = 0; i < numGroupByCols; i++) {
             var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
@@ -1687,27 +1688,31 @@ window.XIApi = (function(XIApi) {
                 mapStr = "bool(" + mapStr + ")";
             }
 
-            var newTableName = getNewTableName(currTableName);
-            var isLastTable = (i === groupByCols.length - 1);
             tableCols = extractColGetColHelper(finalTableCols, i + 1);
 
             var parsedName = xcHelper.parsePrefixColName(renamedGroupByCols[i])
                                                                         .name;
             parsedName = xcHelper.stripColName(parsedName);
-            var args = {
-                "colName": parsedName,
-                "mapString": mapStr,
-                "srcTableName": currTableName,
-                "newTableName": newTableName
-            };
 
-            promises.push(extracColMapHelper.bind(this, args, tableCols,
-                                                  isLastTable, txId));
-            tempTables.push(currTableName);
-            currTableName = newTableName;
+            mapStrs.push(mapStr);
+            colNames.push(parsedName);
+
+            if (i === 0) {
+                var newTableName = getNewTableName(currTableName);
+                tempTables.push(currTableName);
+                currTableName = newTableName;
+            }
         }
+        var args = {
+            "colNames": colNames,
+            "mapStrings": mapStrs,
+            "srcTableName": groupbyTableName,
+            "newTableName": newTableName
+        };
+
         var lastTableName = currTableName;
-        PromiseHelper.chain(promises)
+
+        extractColMapHelper(args, tableCols, txId)
         .then(function() {
             deferred.resolve(lastTableName, tempTables);
         })
@@ -1724,21 +1729,20 @@ window.XIApi = (function(XIApi) {
         return newCols;
     }
 
-    function extracColMapHelper(mapArgs, tableCols, isLastTable, txId) {
+    function extractColMapHelper(mapArgs, tableCols, txId) {
         var deferred = jQuery.Deferred();
 
-        var colName = mapArgs.colName;
-        var mapStr = mapArgs.mapString;
+        var colNames = mapArgs.colNames;
+        var mapStrs = mapArgs.mapStrings;
         var srcTableName = mapArgs.srcTableName;
         var newTableName = mapArgs.newTableName;
 
-        XcalarMap(colName, mapStr, srcTableName, newTableName, txId)
-        .then(function() {
-            if (!isLastTable) {
-                // the last table will set meta data in xcFunctions.groupBy
-                TblManager.setOrphanTableMeta(newTableName, tableCols);
-            }
+        if (!mapStrs.length) {
+            return PromiseHelper.resolve();
+        }
 
+        XcalarMap(colNames, mapStrs, srcTableName, newTableName, txId)
+        .then(function() {
             deferred.resolve();
         })
         .fail(deferred.reject);
