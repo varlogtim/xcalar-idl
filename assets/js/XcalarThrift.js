@@ -2052,23 +2052,34 @@ function XcalarMapWithInput(txId, inputStruct) {
     return deferred.promise();
 }
 
-function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
+function XcalarMap(newFieldNames, evalStrs, srcTablename, dstTablename,
                    txId, doNotUnsort, icvMode) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
-
     if (Transaction.checkCanceled(txId)) {
-        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
 
-    if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
-        deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
-        return (deferred.promise());
+    newFieldNames = (newFieldNames instanceof Array)
+                    ? newFieldNames
+                    : [newFieldNames];
+    evalStrs = (evalStrs instanceof Array)
+                ? evalStrs
+                : [evalStrs];
+    if (newFieldNames.length !== evalStrs.length) {
+        return PromiseHelper.reject(thriftLog("XcalarMap", "invalid args"));
     }
 
+    for (var i = 0, len = evalStrs.length; i < len; i++) {
+        if (evalStrs[i].length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+            return PromiseHelper.reject(thriftLog("XcalarMap",
+                                                  "Eval string too long"));
+        }
+    }
+
+    var deferred = jQuery.Deferred();
     var d;
     if (!doNotUnsort) {
         d = getUnsortedTableName(srcTablename, null, txId);
@@ -2082,14 +2093,14 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
                             .promise());
         }
-        var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
-                                            dstTablename, newFieldName,
+        var workItem = xcalarApiMapWorkItem(evalStrs, unsortedSrcTablename,
+                                            dstTablename, newFieldNames,
                                             icvMode);
         var def1;
         if (Transaction.isSimulate(txId)) {
             def1 = fakeApiCall();
         } else {
-            def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
+            def1 = xcalarApiMap(tHandle, newFieldNames, evalStrs,
                                 unsortedSrcTablename, dstTablename,
                                 icvMode);
         }

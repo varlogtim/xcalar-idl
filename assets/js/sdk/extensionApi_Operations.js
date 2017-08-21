@@ -139,12 +139,12 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        map: function(mapStr, tableName, newColName, newTableName) {
+        map: function(mapStrs, tableName, newColNames, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.map(txId, mapStr, tableName, newColName, newTableName)
+            XIApi.map(txId, mapStrs, tableName, newColNames, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);

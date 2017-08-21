@@ -325,10 +325,10 @@ window.XIApi = (function(XIApi) {
         return XIApi.sort(txId, order, colName, tableName, newTableName);
     };
 
-    XIApi.map = function(txId, mapStr, tableName, newColName, newTableName,
+    XIApi.map = function(txId, mapStrs, tableName, newColNames, newTableName,
                          icvMode) {
-        if (txId == null || mapStr == null ||
-            tableName == null || newColName == null)
+        if (txId == null || mapStrs == null ||
+            tableName == null || newColNames == null)
         {
             return PromiseHelper.reject("Invalid args in map");
         }
@@ -339,7 +339,7 @@ window.XIApi = (function(XIApi) {
             newTableName = getNewTableName(tableName);
         }
 
-        XcalarMap(newColName, mapStr, tableName, newTableName, txId, false,
+        XcalarMap(newColNames, mapStrs, tableName, newTableName, txId, false,
                   icvMode)
         .then(function() {
             deferred.resolve(newTableName);
