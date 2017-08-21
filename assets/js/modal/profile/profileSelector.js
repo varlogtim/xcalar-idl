@@ -195,6 +195,11 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         for (var i = 0; i < pieData.length; i++) {
             // initially set all indicies in array to false
             intersectsWithRect[i] = false;
+            if (pieData[i].data.section === "other") {
+                // XXX temp fix as "other" part's filter str is hard to built
+                continue;
+            }
+
             // checks if center of circle is selected
             if (left <= circleCenter[0] && right >= circleCenter[0] &&
                 top <= circleCenter[1] && bottom >= circleCenter[1]) {
