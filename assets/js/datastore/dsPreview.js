@@ -298,12 +298,13 @@ window.DSPreview = (function($, DSPreview) {
     function setupForm() {
         // setup udf
         $form.on("click", ".refreshPreview", function() {
-            $(this).blur();
+            var $btn = $(this).blur();
+            var changePattern = $btn.hasClass("changePattern");
             var format = loadArgs.getFormat();
             if (format == null) {
-                refreshPreview(false, true);
+                refreshPreview(false, true, changePattern);
             } else {
-                refreshPreview(true);
+                refreshPreview(true, false, changePattern);
             }
         });
 
@@ -1529,7 +1530,7 @@ window.DSPreview = (function($, DSPreview) {
         def
         .then(function() {
             var previewFile = loadArgs.getPreviewFile();
-            if (isFirstTime || previewFile == null) {
+            if (isFirstTime || previewFile == null || options.changePattern) {
                 return getURLToPreview(loadURL, isRecur, pattern, curPreviewId);
             } else {
                 return PromiseHelper.resolve(previewFile);
@@ -2056,12 +2057,12 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function refreshPreview(noDetect, skipFormatCheck) {
+    function refreshPreview(noDetect, skipFormatCheck, changePattern) {
         var formOptions = validateForm(skipFormatCheck);
         if (formOptions == null) {
             return;
         }
-
+        formOptions.changePattern = changePattern;
         clearPreviewTable(); // async remove the old ds
         return previewData(formOptions, noDetect);
     }
