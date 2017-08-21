@@ -954,7 +954,7 @@ window.DagDraw = (function($, DagDraw) {
                                                                  seen);
                     var leafDepth = branchDepth + node.value.display.depth;
                     for (var j = coors.length - 1; j >= 0; j--) {
-                        if (leafDepth > coors[j]) {
+                        if (leafDepth >= coors[j]) {
                             nextYCoor = j + 1;
                             break;
                         }

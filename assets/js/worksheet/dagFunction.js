@@ -740,12 +740,17 @@ window.DagFunction = (function($, DagFunction) {
         } else {
             parentNames.push(node.struct.srcTable.tableName);
             if (node.numParents > 1) {
-                var parsedParents;
+                var parsedParents = [];
                 if (node.struct.evalStr) {
                     parsedParents = parseAggFromEvalStr(node.struct.evalStr);
-                } else {
+                } else if (node.struct.evalStrs) {
                     parsedParents =
                         parseAggFromEvalStrs(node.struct.evalStrs);
+                } else if (node.struct.filterStr) {
+                    parsedParents = parseAggFromEvalStr(node.struct.filterStr);
+                } else {
+                    console.error("unexpected struct, could not find srsc tables");
+                    console.error(node.struct);
                 }
                 for (var i = 0; i < parsedParents.length; i++) {
                     parentNames.push(parsedParents[i]);
