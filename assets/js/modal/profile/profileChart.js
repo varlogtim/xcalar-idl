@@ -492,9 +492,10 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 var $section = $modal.find(".groupbyInfoSection");
                 var sectionWidth = $section.width();
                 var sectionHeight = $section.height();
-                var pieData = self._getPieData();
+                var pieData = self.getPieData();
                 var radius = (Math.min(sectionWidth, sectionHeight) / 2) * 0.9;
 
+                self._setRadius(radius);
                 // could change to only regenerate/color piechart if initial
                 $modal.find(".groupbyChart").empty();
 
@@ -512,7 +513,15 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 self._addTextToChart(chart, pieData, radius);
             },
 
-            _getPieData: function() {
+            getRadius: function() {
+                return this.radius;
+            },
+
+            _setRadius: function(radius) {
+                this.radius = radius;
+            },
+
+            getPieData: function() {
                 var options = this._getOptions();
                 var data = options.data;
                 var total = options.sum;
@@ -904,11 +913,11 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 break;
             default:
                 console.warn("unsupported chart!");
-                return;
+                return null;
         }
 
         chartBuilder.build();
-        return;
+        return chartBuilder;
     };
 
     /* end of ProfileChart Api */

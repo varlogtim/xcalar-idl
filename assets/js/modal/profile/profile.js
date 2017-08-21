@@ -47,11 +47,15 @@ window.Profile = (function($, Profile, d3) {
     var statsCol = null;
     var percentageLabel = false;
     var numRowsToFetch = defaultRowsToFetch;
-    var filterDragging = false;
     var chartType = "bar";
-    var radius;
+    var chartBuilder;
 
     Profile.setup = function() {
+        $modal = $("#profileModal");
+        $rangeSection = $modal.find(".rangeSection");
+        $rangeInput = $("#profile-range");
+        $skipInput = $("#profile-rowInput");
+
         ProfileEngine.setup({
             "sortMap": sortMap,
             "aggKeys": aggKeys,
@@ -60,10 +64,7 @@ window.Profile = (function($, Profile, d3) {
             "bucketColName": bucketColName
         });
 
-        $modal = $("#profileModal");
-        $rangeSection = $modal.find(".rangeSection");
-        $rangeInput = $("#profile-range");
-        $skipInput = $("#profile-rowInput");
+        ProfileSelector.setup($modal);
 
         modalHelper = new ModalHelper($modal, {
             "resizeCallback": resizeChart,
@@ -126,8 +127,8 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
 
-            if (filterDragging) {
-                filterDragging = false;
+            if (ProfileSelector.isOn()) {
+                ProfileSelector.off();
                 return;
             }
             percentageLabel = !percentageLabel;
@@ -149,11 +150,12 @@ window.Profile = (function($, Profile, d3) {
             if (event.which !== 1) {
                 return;
             }
-            if (chartType === "bar") {
-                createFilterSelection(event.pageX, event.pageY);
-            } else if (chartType === "pie") {
-                pieCreateFilterSelection(event.pageX, event.pageY);
-            }
+            ProfileSelector.new({
+                "chartBuilder": chartBuilder,
+                "x": event.pageX,
+                "y": event.pageY,
+                "type": chartType
+            });
         });
 
         // event on sort section
@@ -251,22 +253,12 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
             var $option = $(this);
-            if (chartType === "bar") {
-                if ($option.hasClass("filter")) {
-                    filterSelectedValues(FltOp.Filter);
-                } else if ($option.hasClass("exclude")) {
-                    filterSelectedValues(FltOp.Exclude);
-                } else {
-                    toggleFilterOption(true);
-                }
-            } else if (chartType === "pie") {
-                if ($option.hasClass("filter")) {
-                    pieFilterSelectedValues(FltOp.Filter);
-                } else if ($option.hasClass("exclude")) {
-                    pieFilterSelectedValues(FltOp.Exclude);
-                } else {
-                    pieToggleFilterOption(true);
-                }
+            if ($option.hasClass("filter")) {
+                filterSelectedValues(FltOp.Filter);
+            } else if ($option.hasClass("exclude")) {
+                filterSelectedValues(FltOp.Exclude);
+            } else {
+                ProfileSelector.clear();
             }
         });
 
@@ -492,7 +484,7 @@ window.Profile = (function($, Profile, d3) {
         $(document).off(".profileModal");
 
         numRowsToFetch = defaultRowsToFetch;
-        toggleFilterOption(true);
+        ProfileSelector.clear();
         resetRowsInfo();
         resetDecimalInput();
     }
@@ -861,7 +853,7 @@ window.Profile = (function($, Profile, d3) {
             resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
 
-        ProfileChart.build({
+        chartBuilder = ProfileChart.build({
             "data": groupByData,
             "type": chartType,
             "bucketSize": bucketNum,
@@ -877,395 +869,6 @@ window.Profile = (function($, Profile, d3) {
             "resize": resize,
             "resizeDelay": resizeDelay
         });
-    }
-
-    // returns the quadrant of the pie that a point lies in
-    function getCornerQuadrant(corner, circleCenter) {
-        if (corner[0] > circleCenter[0] && corner[1] < circleCenter[1]) {
-            return 1;
-        } else if (corner[0] > circleCenter[0] && corner[1] > circleCenter[1]) {
-            return 2;
-        } else if (corner[0] < circleCenter[0] && corner[1] > circleCenter[1]) {
-            return 3;
-        }
-        return 4;
-    }
-
-    // gets center of circle by calculating its position
-    // relative to the 'graphBox'
-    function getCenterOfCircle() {
-        var profileChart = $("#profile-chart").get(0).getBoundingClientRect();
-        var graphBox = $("#profileModal .groupbyChart").get(0).getBoundingClientRect();
-        var circleBox = $(".groupbyInfoSection").get(0).getBoundingClientRect();
-        var x = (circleBox.left - graphBox.left) + ((circleBox.right - circleBox.left) / 2);
-        var y = ((graphBox.bottom + graphBox.top) / 2) - profileChart.top;
-
-        return [x, y];
-    }
-
-    // main function for deciding which arcs are selected by the rectangle
-    function getSelectedArcs(bound, top, right, bottom, left, piedata) {
-        var topLeftCorner = [left, top];
-        var topRightCorner = [right, top];
-        var bottomLeftCorner = [left, bottom];
-        var bottomRightCorner = [right, bottom];
-        var rectDimensions = [top, bottom, left, right];
-        // var circleBox = $(".groupbyInfoSection").get(0).getBoundingClientRect();
-        var corners = [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner];
-        var circleCenter = getCenterOfCircle(bound);
-        var intersectsWithRect = [];
-
-        // initially set all indicies in array to false
-        for (var i = 0; i < piedata.length; i++) {
-            intersectsWithRect.push(false);
-        }
-        for (var i = 0; i < piedata.length; i++) {
-            // checks if center of circle is selected
-            if (left <= circleCenter[0] && right >= circleCenter[0] &&
-                top <= circleCenter[1] && bottom >= circleCenter[1]) {
-                intersectsWithRect[i] = true;
-                continue;
-            }
-            var sectorPointsIntersect = checkSectorLines(rectDimensions, piedata[i], circleCenter);
-            if (sectorPointsIntersect) {
-                intersectsWithRect[i] = true;
-                continue;
-            }
-            if (lineIsInArc(rectDimensions, circleCenter, piedata[i])) {
-                intersectsWithRect[i] = true;
-                continue;
-            }
-            for (var j = 0; j < corners.length; j++) {
-                if (pointLiesInArc(corners[j], circleCenter, piedata[i])) {
-                    intersectsWithRect[i] = true;
-                    break;
-                }
-            }
-        }
-        return intersectsWithRect;
-    }
-
-    // checks if/where the side of the selection box intersects with the piechart
-    function closestRectSideToCircle(rectDimensions, circleCenter) {
-        var topDistance = Math.abs(circleCenter[1] - rectDimensions[0]);
-        var bottomDistance = Math.abs(circleCenter[1] - rectDimensions[1]);
-        var leftDistance = Math.abs(circleCenter[0] - rectDimensions[2]);
-        var rightDistance = Math.abs(circleCenter[0] - rectDimensions[3]);
-        var cornerQuadrants = [getCornerQuadrant([rectDimensions[2], rectDimensions[0]], circleCenter),
-                               getCornerQuadrant([rectDimensions[3], rectDimensions[0]], circleCenter),
-                               getCornerQuadrant([rectDimensions[2], rectDimensions[1]], circleCenter),
-                               getCornerQuadrant([rectDimensions[3], rectDimensions[1]], circleCenter)];
-
-        if (rightDistance <= radius && cornerQuadrants[1] === 4 && cornerQuadrants[3] === 3) {
-            return 3 * Math.PI / 2;
-        } else if (leftDistance <= radius && cornerQuadrants[1] === 1 && cornerQuadrants[3] === 2) {
-            return Math.PI / 2;
-        } else if (topDistance <= radius && cornerQuadrants[0] === 3 && cornerQuadrants[1] === 2) {
-            return Math.PI;
-        } else if (bottomDistance <= radius && cornerQuadrants[2] === 4 && cornerQuadrants[3] === 1) {
-            return 2 * Math.PI;
-        }
-        return -1;
-    }
-
-    // returns true if a side of the rectangle (a line) intersects with the arc
-    function lineIsInArc(rectDimensions, circleCenter, currArc) {
-        var closestRectSide = closestRectSideToCircle(rectDimensions, circleCenter);
-
-        if (closestRectSide !== -1) {
-            if (currArc["startAngle"] <= closestRectSide && currArc["endAngle"] >= closestRectSide) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // checks if a point (corner of selection box) lies in an arc
-    function pointLiesInArc(corner, circleCenter, currArc) {
-        var quadrant = getCornerQuadrant(corner, circleCenter);
-        var xDistance = Math.abs(corner[0] - circleCenter[0]);
-        var yDistance = Math.abs(corner[1] - circleCenter[1]);
-        var distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
-        var calcAngle;
-        var actualAngle;
-
-        if (quadrant === 4) {
-            calcAngle = Math.abs(Math.atan(yDistance / xDistance));
-            actualAngle = calcAngle + (3 * Math.PI / 2);
-        } else if (quadrant === 3) {
-            calcAngle = Math.abs(Math.atan(xDistance / yDistance));
-            actualAngle = calcAngle + Math.PI;
-        } else if (quadrant === 2) {
-            calcAngle = Math.abs(Math.atan(yDistance / xDistance));
-            actualAngle = calcAngle + (Math.PI / 2);
-        } else {
-            calcAngle = Math.abs(Math.atan(xDistance / yDistance));
-            actualAngle = calcAngle;
-        }
-        if (distance <= radius && actualAngle >= currArc["startAngle"] &&
-            actualAngle <= currArc["endAngle"]) {
-            return true;
-        }
-        return false;
-    }
-
-    // returns the quadrant the 'currArc' is in
-    function getPointQuadrant(currArc) {
-        if (currArc >= 3 * Math.PI / 2) {
-            return 4;
-        } else if (currArc >= Math.PI) {
-            return 3;
-        } else if (currArc >= Math.PI / 2) {
-            return 2;
-        } else {
-            return 1;
-        }
-    }
-
-    // sets a points location to be relative to the location of the circle on the page
-    function accountForCircleCenter(point, currArc, circleCenter) {
-        var quad = getPointQuadrant(currArc);
-
-        if (quad === 1) {
-            point[0] = Math.abs(circleCenter[0] + point[0]);
-            point[1] = Math.abs(circleCenter[1] - point[1]);
-        } else if (quad === 2) {
-            point[0] += circleCenter[0];
-            point[1] += circleCenter[1];
-        } else if (quad === 3) {
-            point[0] = Math.abs(circleCenter[0] - point[0]);
-            point[1] = Math.abs(circleCenter[1] + point[1]);
-        } else {
-            point[0] = circleCenter[0] - point[0];
-            point[1] = circleCenter[1] - point[1];
-        }
-        return point;
-    }
-
-    // checks if selection box intersects with sector lines
-    function checkSectorLines(rectDimensions, currArc, circleCenter) {
-        var xPos1 = Math.abs(radius * Math.sin(currArc["startAngle"]));
-        var yPos1 = Math.abs(radius * Math.cos(currArc["startAngle"]));
-        var xPos2 = Math.abs(radius * Math.sin(currArc["endAngle"]));
-        var yPos2 = Math.abs(radius * Math.cos(currArc["endAngle"]));
-        var p1 = [xPos1, yPos1];
-        var p2 = [xPos2, yPos2];
-
-        p1 = accountForCircleCenter(p1, currArc["startAngle"], circleCenter);
-        p2 = accountForCircleCenter(p2, currArc["endAngle"], circleCenter);
-        if (checkAllLineIntersections(circleCenter, p1, p2, rectDimensions)) {
-            return true;
-        }
-        return false;
-    }
-
-    // checks possible line intersections between sector lines and selection box lines
-    function checkAllLineIntersections(circleCenter, p1, p2, rectDimensions) {
-        var topLeft = [rectDimensions[2], rectDimensions[0]];
-        var topRight = [rectDimensions[3], rectDimensions[0]];
-        var bottomLeft = [rectDimensions[2], rectDimensions[1]];
-        var bottomRight = [rectDimensions[3], rectDimensions[1]];
-
-        var rectLines = [
-            [topLeft, bottomLeft],
-            [topLeft, topRight],
-            [topRight, bottomRight],
-            [bottomLeft, bottomRight]
-        ];
-        for (var i = 0; i < rectLines.length; i++) {
-            if (lineSegmentsIntersect(circleCenter, p1, rectLines[i][0], rectLines[i][1]) ||
-                lineSegmentsIntersect(circleCenter, p2, rectLines[i][0], rectLines[i][1])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // checks if two line segments intersect
-    function lineSegmentsIntersect(p1, p2, p3, p4) {
-        var xDifference1 = p2[0] - p1[0];
-        var yDifference1 = p2[1] - p1[1];
-        var xDifference2 = p4[0] - p3[0];
-        var yDifference2 = p4[1] - p3[1];
-
-        var s = (-yDifference1 * (p1[0] - p3[0]) + xDifference1 * (p1[1] - p3[1])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
-        var t = (xDifference2 * (p1[1] - p3[1]) - yDifference2 * (p1[0] - p3[0])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
-
-        return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
-    }
-
-    function pieCreateFilterSelection(startX, startY) {
-        $("#profile-filterOption").fadeOut(200);
-        $modal.addClass("drawing")
-            .addClass("selecting");
-
-        return new RectSelction(startX, startY, {
-            "id": "profile-filterSelection",
-            "$container": $("#profile-chart"),
-            "onStart": function() {
-                filterDragging = true;
-            },
-            "onDraw": pieDrawFilterRect,
-            "onEnd": pieEndDrawFilterRect
-        });
-    }
-
-    function pieDrawFilterRect(bound, top, right, bottom, left) {
-        var chart = d3.select("#profile-chart .groupbyChart");
-        var arcsToSelect = getSelectedArcs(bound, top, right, bottom, left, getPieData(statsCol));
-        chart.selectAll(".area").each(function(d, i) {
-            var arc = d3.select(this);
-            if (arcsToSelect[i]) {
-                arc.classed("selecting", true);
-            } else {
-                arc.classed("selecting", false);
-            }
-        });
-    }
-
-    function pieEndDrawFilterRect() {
-        $modal.removeClass("drawing").removeClass("selecting");
-        var chart = d3.select("#profile-chart .groupbyChart");
-        var arcToSelect = chart.selectAll(".area.selecting");
-        var arcs = chart.selectAll(".area");
-        if (arcToSelect.size() === 0) {
-            arcs.each(function() {
-                d3.select(this)
-                    .classed("unselected", false)
-                    .classed("selected", false);
-            });
-        } else {
-            arcs.each(function() {
-                var arcs = d3.select(this);
-                if (arcs.classed("selecting")) {
-                    arcs.classed("selecting", false)
-                        .classed("unselected", false)
-                        .classed("selected", true);
-                } else if (!arcs.classed("selected")) {
-                    arcs.classed("unselected", true)
-                        .classed("selected", false);
-                }
-            });
-        }
-
-        // allow click event to occur before setting filterdrag to false
-        setTimeout(function() {
-            filterDragging = false;
-        }, 10);
-
-        pieToggleFilterOption();
-    }
-
-    function pieToggleFilterOption(isHidden) {
-        var $filterOption = $("#profile-filterOption");
-        var chart = d3.select("#profile-chart .groupbyChart");
-        var bars = chart.selectAll(".area.selected");
-        var barsSize = bars.size();
-
-        if (barsSize === 0) {
-            isHidden = true;
-        } else if (barsSize === 1) {
-            $filterOption.find(".filter .text").addClass("xc-hidden");
-            $filterOption.find(".single").removeClass("xc-hidden");
-        } else {
-            $filterOption.find(".filter .text").addClass("xc-hidden");
-            $filterOption.find(".plural").removeClass("xc-hidden");
-        }
-
-        if (isHidden) {
-            bars.each(function() {
-                d3.select(this)
-                .classed("selected", false)
-                .classed("unselected", false);
-            });
-            $filterOption.fadeOut(200);
-        } else {
-            var bound = $("#profile-chart").get(0).getBoundingClientRect();
-            var barBound;
-            bars.each(function(d, i) {
-                if (i === barsSize - 1) {
-                    barBound = this.getBoundingClientRect();
-                }
-            });
-
-            var right = bound.right - barBound.right;
-            var bottom = bound.bottom - barBound.bottom + 30;
-            var w = $filterOption.width();
-
-            if (w + 5 < right) {
-                // when can move right,
-                // move the option label as right as possible
-                right -= (w + 5);
-            }
-
-            $filterOption.css({
-                "right": right,
-                "bottom": bottom
-            }).show();
-        }
-    }
-
-    function pieFilterSelectedValues(operator) {
-        var noBucket = (bucketNum === 0) ? 1 : 0;
-        var noSort = (order === sortMap.origin);
-        var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
-        var bucketSize = tableInfo.bucketSize;
-        var xName = tableInfo.colName;
-        var uniqueVals = {};
-        var isExist = false;
-
-        var colName = statsCol.colName;
-        // in case close modal clear curTableId
-        var filterTableId = curTableId;
-        var isString = (statsCol.type === "string");
-        var chart = d3.select("#profile-chart .groupbyChart");
-        var prevRowNum;
-        var isContinuous = true;
-
-        chart.selectAll(".area.selected").each(function(d) {
-            var rowNum = d.data["rowNum"];
-            if (isNaN(rowNum)) {
-                console.error("invalid row num!");
-            } else {
-                if (d.type === "nullVal") {
-                    isExist = true;
-                } else {
-                    var val = d.data[xName];
-                    if (isString) {
-                        val = JSON.stringify(val);
-                    }
-
-                    uniqueVals[val] = true;
-                }
-
-                if (prevRowNum == null) {
-                    prevRowNum = rowNum;
-                } else if (isContinuous) {
-                    isContinuous = (rowNum - 1 === prevRowNum);
-                    prevRowNum = rowNum;
-                }
-            }
-        });
-
-        var options;
-        var isNumber = isTypeNumber(statsCol.type);
-        if (isNumber && noSort && isContinuous) {
-            // this suit for numbers
-            options = getNumFltOpt(operator, colName,
-                                    uniqueVals, isExist, bucketSize);
-        } else if (noBucket) {
-            options = xcHelper.getFilterOptions(operator, colName,
-                                                    uniqueVals, isExist);
-        } else {
-            options = getBucketFltOpt(operator, colName, uniqueVals,
-                                      isExist, bucketSize);
-        }
-
-        if (options != null) {
-            var colNum = gTables[filterTableId].getColNumByBackName(colName);
-            closeProfileModal();
-            xcFunction.filter(colNum, filterTableId, options);
-        }
     }
 
     function isNoBucket() {
@@ -1286,7 +889,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function getChart() {
-        return d3.select("#profile-chart .groupbyChart .barChart");
+        return d3.select("#profile-chart .groupbyChart");
     }
 
     function resizeChart() {
@@ -1502,7 +1105,7 @@ window.Profile = (function($, Profile, d3) {
         var curStatsCol = statsCol;
         ProfileEngine.fetchProfileData(rowPosition, rowsToFetch)
         .then(function(data) {
-            toggleFilterOption(true);
+            ProfileSelector.clear();
 
             groupByData = addNullValue(curStatsCol, data);
             buildGroupGraphs(curStatsCol, forceUpdate);
@@ -1583,7 +1186,7 @@ window.Profile = (function($, Profile, d3) {
         resetScrollBar();
         resetRowInput();
         resetSortInfo();
-        toggleFilterOption(true);
+        ProfileSelector.clear();
         resetRowsInfo();
     }
 
@@ -1854,123 +1457,6 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function createFilterSelection(startX, startY) {
-        $("#profile-filterOption").fadeOut(200);
-        $modal.addClass("drawing")
-                .addClass("selecting");
-
-        return new RectSelction(startX, startY, {
-            "id": "profile-filterSelection",
-            "$container": $("#profile-chart"),
-            "onStart": function() { filterDragging = true; },
-            "onDraw": drawFilterRect,
-            "onEnd": endDrawFilterRect
-        });
-    }
-
-    function drawFilterRect(bound, top, right, bottom, left) {
-        var chart = getChart();
-        chart.selectAll(".area").each(function() {
-            var barArea = this;
-            var barBound = barArea.getBoundingClientRect();
-            var barTop = barBound.top - bound.top;
-            var barLeft = barBound.left - bound.left;
-            var barRight = barBound.right - bound.left;
-            var bar = d3.select(this);
-            bar.classed("highlight", false);
-
-            if (bottom < barTop || right < barLeft || left > barRight) {
-                bar.classed("selecting", false);
-            } else {
-                bar.classed("selecting", true);
-            }
-        });
-    }
-
-    function endDrawFilterRect() {
-        $modal.removeClass("drawing").removeClass("selecting");
-        var chart = getChart();
-        var barToSelect = chart.selectAll(".area.selecting");
-        var barAreas = chart.selectAll(".area");
-        if (barToSelect.size() === 0) {
-            barAreas.each(function() {
-                d3.select(this)
-                .classed("unselected", false)
-                .classed("selected", false);
-            });
-        } else {
-            barAreas.each(function() {
-                var barArea = d3.select(this);
-                if (barArea.classed("selecting")) {
-                    barArea
-                    .classed("selecting", false)
-                    .classed("unselected", false)
-                    .classed("selected", true);
-                } else if (!barArea.classed("selected")) {
-                    barArea
-                    .classed("unselected", true)
-                    .classed("selected", false);
-                }
-            });
-        }
-
-        // allow click event to occur before setting filterdrag to false
-        setTimeout(function() {
-            filterDragging = false;
-        }, 10);
-
-        toggleFilterOption();
-    }
-
-    function toggleFilterOption(isHidden) {
-        var $filterOption = $("#profile-filterOption");
-        var chart = getChart();
-        var bars = chart.selectAll(".area.selected");
-        var barsSize = bars.size();
-
-        if (barsSize === 0) {
-            isHidden = true;
-        } else if (barsSize === 1) {
-            $filterOption.find(".filter .text").addClass("xc-hidden");
-            $filterOption.find(".single").removeClass("xc-hidden");
-        } else {
-            $filterOption.find(".filter .text").addClass("xc-hidden");
-            $filterOption.find(".plural").removeClass("xc-hidden");
-        }
-
-        if (isHidden) {
-            bars.each(function() {
-                d3.select(this)
-                .classed("selected", false)
-                .classed("unselected", false);
-            });
-            $filterOption.fadeOut(200);
-        } else {
-            var bound = $("#profile-chart").get(0).getBoundingClientRect();
-            var barBound;
-            bars.each(function(d, i) {
-                if (i === barsSize - 1) {
-                    barBound = this.getBoundingClientRect();
-                }
-            });
-
-            var right = bound.right - barBound.right;
-            var bottom = bound.bottom - barBound.bottom + 30;
-            var w = $filterOption.width();
-
-            if (w + 5 < right) {
-                // when can move right,
-                // move the option label as right as possible
-                right -= (w + 5);
-            }
-
-            $filterOption.css({
-                "right": right,
-                "bottom": bottom
-            }).show();
-        }
-    }
-
     function filterSelectedValues(operator) {
         var noBucket = (bucketNum === 0) ? 1 : 0;
         var noSort = (order === sortMap.origin);
@@ -1989,6 +1475,10 @@ window.Profile = (function($, Profile, d3) {
         var isContinuous = true;
 
         chart.selectAll(".area.selected").each(function(d) {
+            if (chartType === "pie") {
+                d = d.data;
+            }
+
             var rowNum = d.rowNum;
             if (isNaN(rowNum)) {
                 console.error("invalid row num!");
