@@ -35,7 +35,7 @@ window.AboutModal = (function($, AboutModal) {
 
         var licenseKey = XVM.getLicenseKey();
         var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
-        $modal.find(".mode .text").text(" - " + capitalize + " mode");
+        $modal.find(".mode .text").text(" - " + capitalize + " Cluster");
         $modal.find(".buildNumber .text").text(buildNumber);
         $modal.find(".frontVersion .text").text(frontVers);
         $modal.find(".backVersion .text").text(backVersion);

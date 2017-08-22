@@ -111,7 +111,7 @@ TooltipTStr = {
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
 "IcvSourceDropped": '子孙表被移除，完整性约束冲突异常表不可被创建',
-"OnlyInOpMode": '该功能仅在操作模式下可用',
+"OnlyInOpMode": '该功能仅在运行集群下可用',
 "ColumnAlreadyInt": '当前数据类型已经是整型',
 "ColumnAlreadyFloat": '当前数据类型已经是浮点型',
 "CannotDropLocked": '表锁定时无法执行删除操作',

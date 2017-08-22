@@ -40,7 +40,7 @@ describe("Datastore Module Test", function() {
         assert.isFalse($("#datastore-out-view").is(":visible"));
     });
 
-    it("Should check sample size in interactive mode", function() {
+    it("Should check sample size in modeling mode", function() {
         var oldFunc = XVM.getLicenseMode;
         var oldgMaxSampleSize = gMaxSampleSize;
         XVM.getLicenseMode = function() {
