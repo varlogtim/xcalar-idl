@@ -1637,11 +1637,101 @@ window.TblManager = (function($, TblManager) {
                     }
                 }
             }
+            if (tablesToReplace.length === 1) {
+                var oldTableId = xcHelper.getTableId(tablesToReplace[0]);
+                animateTableId(newTableId, oldTableId);
+            }
+
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function animateTableId(tableId, oldId) {
+        var $hashName = $("#xcTheadWrap-" + tableId).find(".hashName");
+        var oldText = $hashName.text();
+        var hashPart = "#" + tableId.substring(0, 2); // first 2 chars
+        var sCntStr = oldId.substring(2);
+        var eCntStr = tableId.substring(2);
+        var charCnts = splitCntChars(Array.from(sCntStr), Array.from(eCntStr));
+
+        $hashName.html(getHashAnimHtml(hashPart, charCnts));
+        animateCharCnt($hashName)
+        .then(function() {
+            $hashName.text(oldText);
+        });
+
+        function splitCntChars(sChars, eChars) {
+            var len = Math.max(sChars.length, eChars.length);
+            // padding empty string to chars to the end
+            sChars = sChars.concat(new Array(len - sChars.length).fill(""));
+            eChars = eChars.concat(new Array(len - eChars.length).fill(""));
+
+            var chars = sChars.map(function(sCh, i) {
+                var eCh = eChars[i];
+                var sNum = Number(sCh);
+                var eNum = Number(eCh);
+                var inc = (eNum > sNum) ? 1 : -1;
+                var res = [sCh];
+
+                while (sNum !== eNum) {
+                    sNum += inc;
+                    if (sNum === eNum) {
+                        res.push(eCh);
+                    } else {
+                        res.push(sNum + ""); // change to string
+                    }
+                }
+                return res;
+            });
+
+            return chars;
+        }
+
+        function getHashAnimHtml(hashPart, charCnts) {
+            return '<div class="hashPart">' + hashPart + '</div>' +
+                    '<div class="animWrap">' +
+                        '<div class="topPadding"></div>' +
+                        charCnts.map(function(chartCnt) {
+                            return '<div class="animPart">' +
+                                        chartCnt.map(function(ch) {
+                                            return '<div class="num">' +
+                                                        ch +
+                                                    '</div>';
+                                        }).join("") +
+                                    '</div>';
+                        }).join("") +
+                        '<div class="bottomPadding"></div>' +
+                    '</div>';
+        }
+
+        function animateCharCnt($section) {
+            var h = $section.height(); // 20px
+            var defs = [];
+
+            $section.find(".animPart").each(function(i) {
+                var $part = $(this);
+                var $nums = $part.find(".num");
+                var animTime = 500;
+                var delayFactor = 100;
+
+                if ($nums.length > 1) {
+                    var top = parseInt($part.css("top")) -
+                              h * ($nums.length - 1);
+                    var def = $part.animate({
+                        "top": top + "px"
+                    }, animTime)
+                    .delay(delayFactor * i)
+                    .promise();
+
+                    defs.push(def);
+                }
+            });
+
+            return PromiseHelper.when.apply(this, defs);
+        }
     }
 
     function setTableMeta(tableName, tableCols) {

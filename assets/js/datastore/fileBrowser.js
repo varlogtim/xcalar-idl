@@ -300,6 +300,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
 
                 timer = setTimeout(function() {
+                    // check if value has changed in timeout
                     if ($input.val() === currentVal && path.endsWith("/")) {
                         pathInput(path);
                     }

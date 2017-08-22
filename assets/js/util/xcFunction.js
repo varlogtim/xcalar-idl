@@ -927,7 +927,7 @@ window.xcFunction = (function($, xcFunction) {
             console.error("Rename Fails!". error);
 
             Transaction.fail(txId, {
-                "noAlert": noAlert,
+                // "noAlert": noAlert,
                 "error": error
             });
             deferred.reject(error);

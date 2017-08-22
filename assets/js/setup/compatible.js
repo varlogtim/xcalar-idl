@@ -160,6 +160,54 @@ window.Compatible = (function($, Compatible) {
             });
         }
 
+        if (!Array.prototype.fill) {
+            Object.defineProperty(Array.prototype, 'fill', {
+                enumerable: false,
+                writable: false,
+                configurable: false,
+                value: function(value) {
+
+                    // Steps 1-2.
+                    if (this == null) {
+                        throw new TypeError('this is null or not defined');
+                    }
+
+                    var O = Object(this);
+
+                    // Steps 3-5.
+                    var len = O.length >>> 0;
+
+                    // Steps 6-7.
+                    var start = arguments[1];
+                    var relativeStart = start >> 0;
+
+                    // Step 8.
+                    var k = relativeStart < 0 ?
+                    Math.max(len + relativeStart, 0) :
+                    Math.min(relativeStart, len);
+
+                    // Steps 9-10.
+                    var end = arguments[2];
+                    var relativeEnd = end === undefined ?
+                    len : end >> 0;
+
+                    // Step 11.
+                    var final = relativeEnd < 0 ?
+                    Math.max(len + relativeEnd, 0) :
+                    Math.min(relativeEnd, len);
+
+                    // Step 12.
+                    while (k < final) {
+                        O[k] = value;
+                        k++;
+                    }
+
+                    // Step 13.
+                    return O;
+                }
+            });
+        }
+
         if (!Array.prototype.includes) {
             Object.defineProperty(Array.prototype, "includes", {
                 enumerable: false,
@@ -196,55 +244,55 @@ window.Compatible = (function($, Compatible) {
                     return false;
                 }
             });
+        }
 
-            if (!String.prototype.repeat) {
-                Object.defineProperty(String.prototype, "repeat", {
-                    enumerable: false,
-                    writable: false,
-                    configurable: false,
-                    value: function(count) {
-                        'use strict';
-                        if (this == null) {
-                            throw ('can\'t convert ' + this + ' to object');
-                        }
-                        var str = '' + this;
-                        count = +count;
-                        if (count !== count) {
-                            count = 0;
-                        }
-                        if (count < 0) {
-                            throw ('repeat count must be non-negative');
-                        }
-                        if (count === Infinity) {
-                            throw ('repeat count must be less than infinity');
-                        }
-                        count = Math.floor(count);
-                        if (str.length === 0 || count === 0) {
-                            return '';
-                        }
-                        // Ensuring count is a 31-bit integer allows us to heavily optimize the
-                        // main part. But anyway, most current (August 2014) browsers can't handle
-                        // strings 1 << 28 chars or longer, so:
-                        if (str.length * count >= 1 << 28) {
-                            throw ('repeat count must not overflow maximum string size');
-                        }
-                        var rpt = '';
-                        for (;;) {
-                            if ((count & 1) === 1) {
-                                rpt += str;
-                            }
-                            count >>>= 1;
-                            if (count === 0) {
-                                break;
-                            }
-                            str += str;
-                        }
-                        // Could we try:
-                        // return Array(count + 1).join(this);
-                        return rpt;
+        if (!String.prototype.repeat) {
+            Object.defineProperty(String.prototype, "repeat", {
+                enumerable: false,
+                writable: false,
+                configurable: false,
+                value: function(count) {
+                    'use strict';
+                    if (this == null) {
+                        throw ('can\'t convert ' + this + ' to object');
                     }
-                });
-            }
+                    var str = '' + this;
+                    count = +count;
+                    if (count !== count) {
+                        count = 0;
+                    }
+                    if (count < 0) {
+                        throw ('repeat count must be non-negative');
+                    }
+                    if (count === Infinity) {
+                        throw ('repeat count must be less than infinity');
+                    }
+                    count = Math.floor(count);
+                    if (str.length === 0 || count === 0) {
+                        return '';
+                    }
+                    // Ensuring count is a 31-bit integer allows us to heavily optimize the
+                    // main part. But anyway, most current (August 2014) browsers can't handle
+                    // strings 1 << 28 chars or longer, so:
+                    if (str.length * count >= 1 << 28) {
+                        throw ('repeat count must not overflow maximum string size');
+                    }
+                    var rpt = '';
+                    for (;;) {
+                        if ((count & 1) === 1) {
+                            rpt += str;
+                        }
+                        count >>>= 1;
+                        if (count === 0) {
+                            break;
+                        }
+                        str += str;
+                    }
+                    // Could we try:
+                    // return Array(count + 1).join(this);
+                    return rpt;
+                }
+            });
         }
     }
 

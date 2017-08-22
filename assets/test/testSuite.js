@@ -603,7 +603,6 @@ window.TestSuite = (function($, TestSuite) {
                 TblManager.sortColumns(tableId, ColumnSortType.name, "forward");
             }
             var $header = $(header);
-            var hasName = $header.siblings(".hashName").text();
             var $prefix = $header.closest(".xcTableWrap")
                             .find(".xcTable .topHeader .prefix");
             var prefix = "";
@@ -615,7 +614,7 @@ window.TestSuite = (function($, TestSuite) {
                 }
             });
 
-            innerDeferred.resolve(tableName + hasName, prefix);
+            innerDeferred.resolve(tableName + "#" + tableId, prefix);
         })
         .fail(function() {
             console.error("could not create table");
