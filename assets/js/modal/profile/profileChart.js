@@ -114,7 +114,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                         this._formatNumber(lowerBound, isLogScale, decimalNum) +
                         "<br>";
             } else {
-                var upperBound = getUpperBound(d[xName], bucketSize);
+                var upperBound = this._getUpperBound(d[xName], bucketSize);
                 title = "Value: [" +
                         this._formatNumber(lowerBound, isLogScale, decimalNum) +
                         ", " +

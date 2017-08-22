@@ -1610,6 +1610,30 @@ window.Profile = (function($, Profile, d3) {
         };
     }
 
+    function getUpperBound(num, bucketSize) {
+        var isLogScale = (bucketSize < 0);
+        return getNumInScale(num + Math.abs(bucketSize), isLogScale);
+    }
+
+    function getLowerBound(num, bucketSize) {
+        var isLogScale = (bucketSize < 0);
+        return getNumInScale(num, isLogScale);
+    }
+
+    function getNumInScale(num, isLogScale) {
+        if (!isLogScale) {
+            return num;
+        }
+        // log scale;
+        if (num === 0) {
+            return 0;
+        }
+
+        var absNum = Math.abs(num);
+        absNum = Math.pow(10, absNum - 1);
+        return (num > 0) ? absNum : -absNum;
+    }
+
     function getNumFltOpt(operator, colName, uniqueVals, isExist, bucketSize) {
         // this suit for numbers that are unsorted by count
         var min = Number.MAX_VALUE;
