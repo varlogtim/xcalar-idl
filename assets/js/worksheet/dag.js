@@ -458,7 +458,7 @@ window.Dag = (function($, Dag) {
             $li.addClass('selected');
             var tableId   = $dagSchema.data('tableid');
             var $dagTable = $dagSchema.data('$dagTable');
-            var id        = parseInt($dagTable.data('index'));
+            var id        = $dagTable.data('index');
             var $dagWrap  = $dagTable.closest('.dagWrap');
             var idMap     = $dagWrap.data('allDagInfo').nodeIdMap;
             var node = idMap[id];

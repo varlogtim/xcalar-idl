@@ -275,6 +275,9 @@ window.MainMenu = (function($, MainMenu) {
                          .removeClass("noTransition");
                 }, 100);
 
+                // call this before open/close menu to get current panel size
+                panelSwitchingHandler($curTab, lastTabId);
+
                 var noAnim = true;
                 if ($curTab.hasClass("mainMenuOpen")) {
                     openMenu($curTab, noAnim);
@@ -282,8 +285,6 @@ window.MainMenu = (function($, MainMenu) {
                     closeMenu($curTab, noAnim);
                 }
                 xcHelper.hideSuccessBox();
-                panelSwitchingHandler($curTab, lastTabId);
-
             }
 
         });
