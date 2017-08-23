@@ -79,16 +79,13 @@ require("jsdom").env("", function(err, window) {
         if (data.indexOf("centos") > -1) {
             xcConsole.log("Operation System: CentOS");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
-        }
-        if (data.indexOf("ubuntu") > -1) {
+        } else if (data.indexOf("ubuntu") > -1) {
             xcConsole.log("Operation System: Ubuntu");
             ca = '/etc/ssl/certs/XcalarInc_RootCA.pem';
-        }
-        if (data.indexOf("red hat") > -1 || data.indexOf("redhat") > -1) {
+        } else if (data.indexOf("red hat") > -1 || data.indexOf("redhat") > -1) {
             xcConsole.log("Operation System: RHEL");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
-        }
-        if (data.indexOf("oracle linux") > -1) {
+        } else if (data.indexOf("oracle linux") > -1) {
             xcConsole.log("Operation System: Oracle Linux");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
         }

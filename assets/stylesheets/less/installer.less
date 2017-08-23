@@ -56,6 +56,11 @@ form {
 
 .container {
     height: ~"calc(100% - 240px)";
+    &.preConfig {
+        .noPreConfig {
+            display: none;
+        }
+    }
 }
 
 .outerWrap {
@@ -222,6 +227,7 @@ input:-webkit-autofill:focus {
 
     .title {
         font-weight: 500;
+        margin-top: 26px;
         .position(relative, @left: -50px);
         > div:not(.hint) {
             span {
@@ -247,8 +253,13 @@ input:-webkit-autofill:focus {
         span {
             display: inline-block;
             font-weight: 600;
+            min-height: 20px;
             &:first-child {
                 width: 78px;
+            }
+            &:not(:first-child) {
+                min-height: 20px;
+                width: ~"calc(100% - 90px)";
             }
         }
     }
@@ -363,7 +374,7 @@ input:-webkit-autofill:focus {
             z-index: 1;
             padding-top: 2px;
             margin-top: 14px;
-
+            .input-placeholder(@color-white);
             &::after {
                 content: "";
                 display: block;
@@ -420,8 +431,11 @@ input:-webkit-autofill:focus {
                 margin-top: 5px;
             }
         }
+        &.preConfigSection {
+            display: block;
+        }
 
-        &.nfsSection {
+        &.nfsSection, &.upgradeLicenseSection, &.preConfigSection, &.upgradeXcalarRootSection {
             height: auto;
             .label {
                 padding-left: 10px;
@@ -430,17 +444,6 @@ input:-webkit-autofill:focus {
             .nfsSubOption {
                 width: 100%;
                 height: 50px;
-            }
-            .radioButtonGroup {
-                display: inline !important;
-                .radioButton {
-                    margin-top: 20px !important;
-                    margin-bottom: 20px !important;
-                }
-            }
-            .nfsOption {
-                width: 100%;
-                height: 20px;
             }
             .customerNfsOptions, .readyNfsOptions {
                 display: none;
@@ -492,6 +495,10 @@ input:-webkit-autofill:focus {
 
                 &.header {
                     font-size: 15px;
+                }
+
+                &:not(.header) {
+                    max-height: 70px;
                 }
 
                 .bar {
@@ -569,6 +576,7 @@ input:-webkit-autofill:focus {
                 display: none;
             }
         }
+
         &.installationDirectorySection {
             position: relative;
             display: inline-block;
@@ -598,11 +606,18 @@ input:-webkit-autofill:focus {
                 margin-left: 0px;
             }
         }
+
+        &.serializationDirectorySection {
+            input {
+                margin-left: 125px !important;
+            }
+        }
         &.successSection {
             margin-top: 20px;
             display: none;
         }
         &.ldapSection {
+            .flex-direction(column);
             #ldapDep {
                 display: inline;
                 .ldapDepOption {
@@ -634,7 +649,35 @@ input:-webkit-autofill:focus {
                 margin-top: 10px;
                 margin-bottom: 10px;
             }
+            margin-top: 20px;
+        }
 
+        &.nfsSection, &.upgradeLicenseSection, &.preConfigSection, &.copyDataSection {
+            display: block;
+            .radioButtonGroup {
+                display: inline;
+                .radioButton {
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                }
+            }
+        }
+
+        &.discoverSection {
+            height: 70px;
+            .discoverWrapper {
+                height: 30px;
+                line-height: 30px;
+                width: 100%;
+                display: flex;
+                justify-content: flex-start;
+            }
+            .label {
+                margin-left: 20px;
+            }
+            .text {
+                margin-left: 15px;
+            }
         }
     }
 
@@ -704,6 +747,25 @@ input:-webkit-autofill:focus {
     #sharedStorageForm {
         &.lock {
             pointer-events: none;
+        }
+    }
+
+    .checkboxLine {
+        height: 40px;
+        overflow: hidden;
+        .checkbox, .label {
+            display: inline-block !important;
+            float: left !important;
+            line-height: 40px !important;
+            height: 40px !important;
+        }
+    }
+}
+
+#uninstallDiscoveryForm, #upgradeDiscoveryForm {
+    .hostnameSection {
+        input {
+            padding-left: 65px !important;
         }
     }
 }
@@ -991,4 +1053,30 @@ input:-webkit-autofill:focus {
     opacity: 0.3;
     top: 0;
     display: none;
+}
+
+#installerContainer {
+    &.tarball {
+        .noTarball {
+            display: none;
+        }
+    }
+
+    &.install {
+        .instruction .install {
+            display: block !important;
+        }
+    }
+
+    &.upgrade {
+        .instruction .upgrade {
+            display: block !important;
+        }
+    }
+
+    &.uninstall {
+        .instruction .uninstall {
+            display: block !important;
+        }
+    }
 }
