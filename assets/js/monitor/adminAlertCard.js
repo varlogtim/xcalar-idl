@@ -9,7 +9,8 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
     function submitForm() {
         var alertOption = {
             "title": MonitorTStr.AdminAlert,
-            "message": $card.find(".alert-msg").val()
+            "message": "From " + XcSupport.getUser() + " : " +
+                       $card.find(".alert-msg").val()
         };
         if (alertOption.message) {
             XcSocket.sendMessage("adminAlert", alertOption);
