@@ -1602,11 +1602,20 @@
         padding: 30px 2.5% 20px 2.5%;
     }
 
+    .configHeader {
+        .argWrap {
+            padding-left: 10px;
+            padding-right: 11px;
+        }
+        .curValWrap {
+            padding-left: 5px;
+        }
+    }
+
     .formRow {
         .flex-display;
-        .flex-wrap(wrap);
         position: relative;
-        padding: 10px;
+        padding: 2px 10px 2px 20px;
         overflow: hidden; // for animation
 
         &.animating {
@@ -1614,24 +1623,21 @@
                 height: 0px;
             }
         }
-        > .argWrap {
-            .flex(1 1 350px);
+
+        label {
+            box-sizing: border-box;
         }
 
         .removeRow {
             position: absolute;
             padding: 5px;
-            top: 16px;
+            top: 8px;
             left: -3px;
             z-index: 1;
             cursor: pointer;
-            // display: none;
             opacity: 0;
-            .transition(opacity 0s linear 0.2s);
 
-            &:hover {
-                opacity: @opacity-hover;
-            }
+
             .icon {
                 color: @color-font-darkGray;
             }
@@ -1639,7 +1645,10 @@
 
         &:hover {
             .removeRow {
-                opacity: @opacity-disabled;
+                opacity: @opacity-hint;
+                &:hover {
+                    opacity: @opacity-unhover;
+                }
             }
         }
 
@@ -1648,6 +1657,7 @@
             border: 1px dashed @color-border-darkGray;
             opacity: @opacity-disabled;
             cursor: pointer;
+            margin-top: 10px;
             .transition(opacity 0.1s);
             .argWrap {
                 pointer-events: none;
@@ -1665,45 +1675,86 @@
         }
 
         &.nameIsSet {
+            .paramNameWrap {
+                pointer-events: none;
+            }
             .paramName {
                 border: 0px;
                 background-color: white;
                 color: @color-font-select-blue;
             }
         }
-    }
 
-    .flexGroup {
-        .flex-display;
-        .flex(2 1  auto);
-        position: relative;
-
-        .defaultParam {
-            .position(absolute, @top: 5px, @right: 15px);
-            .size(30px, 30px);
-            line-height: 15px;
-            background-color: @color-bg-select-blue;
-            color: @color-white;
+        .xc-input {
+            padding-right: 6px;
         }
     }
 
+    .defaultParam {
+        .position(absolute, @right: 5px);
+        .size(30px, 30px);
+        line-height: 15px;
+        background-color: @color-bg-select-blue;
+        color: @color-white;
+    }
+
     .argWrap {
-        .flex(1 1 auto);
         .flex-display;
         height: 30px;
+        width: ~"calc(30% - 40px)";
         .transition(0.5s height);
         margin-bottom: 5px;
         margin-top: 5px;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-right: 5px;
         font-size: 13px;
+        position: relative;
+
+
+        &.paramNameWrap {
+            width: ~"calc(40% - 40px)";
+        }
+
+        &.curValWrap {
+            .xc-input {
+                padding-left:  5px;
+            }
+        }
+
+        &.newValWrap {
+            .text {
+                margin-left: -10px;
+            }
+        }
+
+        &.restartWrap {
+            width: 120px;
+            padding-left: 0px;
+            padding-right: 0px;
+            text-align: center;
+            .text {
+                width: 100%;
+            }
+
+            .xi-tick {
+                font-size: 12px;
+                width: 100%;
+                line-height: 30px;
+                color: @color-font-select-blue;
+                display: none;
+            }
+            &.restartRequired {
+                .xi-tick {
+                    display: block;
+                }
+            }
+        }
 
         .text {
             line-height: 30px;
             font-weight: 700;
+            .textOverflowOneLine;
         }
         .xc-input {
-            margin-left: 10px;
             width: 70px;
             .flex(1 1 70px);
             font-size: 13px;
@@ -1717,7 +1768,7 @@
             }
         }
         .newVal {
-            padding-right: 38px; // for refresh btn
+            padding-right: 34px; // for refresh btn
         }
 
 

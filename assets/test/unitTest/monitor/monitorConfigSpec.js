@@ -83,6 +83,8 @@ describe("MonitorConfig Test", function() {
             var $paramName = $configCard.find('.paramName').last();
             $paramName.closest(".formRow").removeClass("uneditable");
             $paramName.val("TestMode").trigger(fakeEvent.enter);
+            $paramName.closest(".formRow").removeClass("uneditable");
+            $configCard.find(".newVal").last().val("testVal");
 
             var cachedFn = XcalarSetConfigParams;
             var configCalled = false;
@@ -90,6 +92,7 @@ describe("MonitorConfig Test", function() {
                 configCalled = true;
                 return PromiseHelper.reject({});
             };
+
 
             $('#paramSettingsSave').click();
 

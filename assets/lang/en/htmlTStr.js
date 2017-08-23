@@ -444,7 +444,8 @@ module.exports = {
         "AdminAlert": "Admin Alert",
         "AdminAlertInstruc": "Send an alert to all other users as an administrator",
         "AlertMessageTitle": "Alert Message:",
-        "LogFlush": "Log Flush"
+        "LogFlush": "Log Flush",
+        "RestartRequired": "Restart Required"
     },
 
     "supportTicket": {

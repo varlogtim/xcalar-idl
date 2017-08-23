@@ -9,7 +9,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         $placeholder = $configCard.find('.placeholder');
         setupListeners();
         formHelper = new FormHelper($configCard, {noEsc: true,
-                                                  noTabFocus: true})
+                                                  noTabFocus: true});
     };
 
     // updateOnly will not wipe out new rows
@@ -209,7 +209,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         var rows = [];
         var needRestart = false;
 
-        $configCard.find('.formRow').each(function() {
+        $configCard.find('.configTable .formRow').each(function() {
             var $row = $(this);
             if ($row.hasClass('placeholder') || $row.hasClass('uneditable')) {
                 return true;
@@ -288,7 +288,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         var errorMsg = "";
         // var partialFail = false;
         var $errorRow = $();
-        for (var i = 0 ; i < args.length; i++) {
+        for (var i = 0; i < args.length; i++) {
             if (args[i].error) {
                 if (!errorMsg) {
                     errorMsg = args[i].error;
@@ -386,6 +386,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         var rowClassNames = "";
         var paramNameDisabledProp = "";
         var uneditable = false;
+        var restartClass = "";
         if (paramObj) {
             paramName = paramObj.paramName;
             curVal = paramObj.paramValue;
@@ -397,33 +398,29 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 rowClassNames += " uneditable";
                 uneditable = true;
             }
+            if (paramObj.restartRequired) {
+                restartClass = "restartRequired";
+            }
         } else {
             rowClassNames += " animating";
         }
-        var html = '<div class="formRow clearfix ' + rowClassNames + '">' +
+        var html = '<div class="formRow ' + rowClassNames + '">' +
                     '<div class="removeRow">' +
                         '<i class="icon xi-close fa-14"></i>' +
                     '</div>' +
-                  '<label class="argWrap">' +
-                    '<span class="text">' + MonitorTStr.ConfigParamName +
-                    ':</span>' +
+                  '<label class="argWrap paramNameWrap">' +
                     '<input type="text" class="xc-input paramName" ' +
                     'data-value="' + paramName + '" ' + paramNameDisabledProp +
                     ' value="' + paramName + '" spellcheck="false">' +
                   '</label>' +
-                  '<div class="flexGroup">' +
-                      '<label class="argWrap">' +
-                        '<span class="text">' + MonitorTStr.CurVal +
-                        ':</span>' +
-                        '<input type="text" readonly ' +
-                        'class="xc-input curVal readonly tooltipOverflow" ' +
-                        'value="' + curVal + '" spellcheck="false" ' +
-                        'data-toggle="tooltip" data-container="body" ' +
-                        'data-original-title="' + curVal + '">' +
-                      '</label>' +
-                      '<label class="argWrap">' +
-                        '<span class="text">' + MonitorTStr.NewVal +
-                        ':</span>';
+                  '<label class="argWrap curValWrap">' +
+                    '<input type="text" readonly ' +
+                    'class="xc-input curVal readonly tooltipOverflow" ' +
+                    'value="' + curVal + '" spellcheck="false" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'data-original-title="' + curVal + '">' +
+                  '</label>' +
+                  '<label class="argWrap">';
         if (uneditable) {
             html += '<input type="text" class="xc-input newVal readonly" ' +
                         'readonly value="' + newVal + '" ' +
@@ -436,8 +433,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     '" data-container="body" ' +
                     'value="' + newVal + '" spellcheck="false">';
         }
-
-        html += '</label>';
         if (!uneditable) {
             var defValTooltip = getDefaultTooltip(paramObj);
             html +=
@@ -447,10 +442,20 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     '<i class="icon xi-restore center fa-15"></i>' +
                 '</div>';
         }
-        html += '</div>' +
+        html += '</label>' +
+                '<label class="argWrap restartWrap ' + restartClass + '">' +
+                    '<i class="icon xi-tick"></i>' +
+                '</label>' +
+                '</div>' +
                 '</div>';
         return (html);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        MonitorConfig.__testOnly__ = {};
+    }
+    /* End Of Unit Test Only */
 
     return (MonitorConfig);
 }({}, jQuery));
