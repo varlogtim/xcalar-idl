@@ -1,8 +1,6 @@
 window.Log = (function($, Log) {
-    var $logButtons;      // $("#logButtonWrap");
     var $textarea;        // $("#log-TextArea");
     var $machineTextarea; // $("#log-MachineTextArea");
-    var $logMenu; // $("#logMenu");
 
     var $undo; // $("#undo");
     var $redo; // $("#redo");
@@ -37,106 +35,19 @@ window.Log = (function($, Log) {
     var infListMachine;
 
     Log.setup = function() {
-        $logButtons = $("#logButtonWrap");
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
-        $logMenu = $("#logMenu");
 
         $undo = $("#undo");
         $redo = $("#redo");
 
         initialize();
+        addEvents();
         // show human readabl Log as default
         $machineTextarea.hide();
 
-        // set up the log section
-        $logButtons.on("click", ".machineLog", function() {
-            $(this).removeClass("machineLog xi-android-dot")
-                    .addClass("humanLog xi-human-dot");
-            $machineTextarea.hide();
-            $textarea.show();
-            if (hasTriggerScrollToBottom) {
-                Log.scrollToBottom();
-                hasTriggerScrollToBottom = false;
-            }
-        });
-
-        $logButtons.on("click", ".humanLog", function() {
-            $(this).removeClass("humanLog xi-human-dot")
-                    .addClass("machineLog xi-android-dot");
-            $machineTextarea.show();
-            $textarea.hide();
-            if (hasTriggerScrollToBottom) {
-                Log.scrollToBottom();
-                hasTriggerScrollToBottom = false;
-            }
-        });
-
-        $logButtons.on("click", ".copyLog", function() {
-            copyLog();
-        });
-
-        $undo.click(function() {
-            if ($(this).hasClass("disabled")) {
-                return;
-            }
-
-            Log.undo();
-        });
-
-        $redo.click(function() {
-            if ($(this).hasClass("disabled")) {
-                return;
-            }
-
-            Log.redo();
-        });
-
-        $textarea.on("click", ".collapsed", function(event) {
-            if ($(event.target).closest(".title").length) {
-                return;
-            }
-            toggleLogSize($(this));
-        });
-
-        $textarea.on("click", ".title", function() {
-            toggleLogSize($(this).parent());
-        });
-
         infList = new InfList($textarea);
         infListMachine = new InfList($machineTextarea);
-
-        xcMenu.add($logMenu);
-        setupMenuActions();
-
-        $textarea.parent().contextmenu(function(event) {
-            var $target = $(event.target);
-            xcHelper.dropdownOpen($target, $logMenu, {
-                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "floating": true
-            });
-
-            if ($machineTextarea.is(":visible")) {
-                $logMenu.find(".expandAll, .collapseAll").hide();
-                return false;
-            } else {
-                $logMenu.find(".expandAll, .collapseAll").show();
-            }
-
-            if ($textarea.find(".collapsed").length) {
-                $logMenu.find(".expandAll").removeClass("unavailable");
-            } else {
-                $logMenu.find(".expandAll").addClass("unavailable");
-            }
-
-            if ($textarea.find(".expanded").length) {
-                $logMenu.find(".collapseAll").removeClass("unavailable");
-            } else {
-                $logMenu.find(".collapseAll").addClass("unavailable");
-            }
-
-            return false;
-        });
     };
 
     Log.hasUncommitChange = function() {
@@ -548,7 +459,8 @@ window.Log = (function($, Log) {
         errToCommit = "";
         logCache = {
             "logs": [],
-            "errors": []
+            "errors": [],
+            "version": XVM.getVersion()
         };
 
         // a quick reference
@@ -557,6 +469,65 @@ window.Log = (function($, Log) {
 
         isUndo = false;
         isRedo = false;
+    }
+
+    function addEvents() {
+        var $logButtons = $("#logButtonWrap");
+        // set up the log section
+        $logButtons.on("click", ".machineLog", function() {
+            $(this).removeClass("machineLog xi-android-dot")
+                    .addClass("humanLog xi-human-dot");
+            $machineTextarea.hide();
+            $textarea.show();
+            if (hasTriggerScrollToBottom) {
+                Log.scrollToBottom();
+                hasTriggerScrollToBottom = false;
+            }
+        });
+
+        $logButtons.on("click", ".humanLog", function() {
+            $(this).removeClass("humanLog xi-human-dot")
+                    .addClass("machineLog xi-android-dot");
+            $machineTextarea.show();
+            $textarea.hide();
+            if (hasTriggerScrollToBottom) {
+                Log.scrollToBottom();
+                hasTriggerScrollToBottom = false;
+            }
+        });
+
+        $logButtons.on("click", ".copyLog", function() {
+            copyLog();
+        });
+
+        $undo.click(function() {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+
+            Log.undo();
+        });
+
+        $redo.click(function() {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+
+            Log.redo();
+        });
+
+        $textarea.on("click", ".collapsed", function(event) {
+            if ($(event.target).closest(".title").length) {
+                return;
+            }
+            toggleLogSize($(this));
+        });
+
+        $textarea.on("click", ".title", function() {
+            toggleLogSize($(this).parent());
+        });
+
+        setupMenuActions();
     }
 
     function commitLogs() {
@@ -1085,6 +1056,8 @@ window.Log = (function($, Log) {
     }
 
     function setupMenuActions() {
+        var $logMenu = $("#logMenu");
+        xcMenu.add($logMenu);
         $logMenu.on("mouseup", "li", function(event) {
             if (event.which !== 1) {
                 return;
@@ -1112,6 +1085,35 @@ window.Log = (function($, Log) {
                     console.error("action not found");
                     break;
             }
+        });
+
+        $textarea.parent().contextmenu(function(event) {
+            var $target = $(event.target);
+            xcHelper.dropdownOpen($target, $logMenu, {
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "floating": true
+            });
+
+            if ($machineTextarea.is(":visible")) {
+                $logMenu.find(".expandAll, .collapseAll").hide();
+                return false;
+            } else {
+                $logMenu.find(".expandAll, .collapseAll").show();
+            }
+
+            if ($textarea.find(".collapsed").length) {
+                $logMenu.find(".expandAll").removeClass("unavailable");
+            } else {
+                $logMenu.find(".expandAll").addClass("unavailable");
+            }
+
+            if ($textarea.find(".expanded").length) {
+                $logMenu.find(".collapseAll").removeClass("unavailable");
+            } else {
+                $logMenu.find(".collapseAll").addClass("unavailable");
+            }
+
+            return false;
         });
     }
 

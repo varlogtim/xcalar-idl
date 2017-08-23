@@ -7,8 +7,8 @@ window.SQLEditor = (function(SQLEditor, $) {
 
         // XXX demo use
         var showSQLPanel = false;
-        if (!showSQLPanel) {
-            $("#sqlTab").hide();
+        if (showSQLPanel) {
+            $("#sqlTab").removeClass("xc-hiddeen");
         }
     };
 
