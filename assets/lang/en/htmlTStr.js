@@ -270,7 +270,8 @@ module.exports = {
 
     "workspaceBar": {
         "rowInput": "Skip to row",
-        "Skew": "Skew"
+        "Skew": "Skew",
+        "ClickToDetail": "Click to see details"
     },
 
     "UDF": {
@@ -612,6 +613,11 @@ module.exports = {
         "TableName": "Table Name",
         "Progress": "Progress",
         "BackToProfile": "Back To Profile"
+    },
+
+    "skewInfoModal": {
+        "Title": "Table Data Distribution in Cluster",
+        "instr": "This graph shows the distribution of the table’s data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please visit"
     },
 
     "dataflow": {

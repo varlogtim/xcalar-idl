@@ -1,0 +1,45 @@
+<!-- Skew Info Modal -->
+<div id="skewInfoModal" class="modalContainer">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.skewInfoModal.Title %></span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close" data-container="body" data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- Instruction Section -->
+  <section class="modalInstruction">
+    <i class="icon xi-info-circle fa-18"></i>
+    <div class="text"><%= dicts.skewInfoModal.instr %>: <a href="https://university.xcalar.com/confluence/ARTICLENAME" target="_blank">https://university.xcalar.com/confluence/ARTICLENAME</a></div>
+  </section>
+  <!-- Info Section -->
+  <section class="modalTopMain">
+    <div class="tableName">
+      <span><%= dicts.aggModal.TableName %>:</span>
+      <span class="text"></span>
+    </div>
+    <div class="size">
+      <span><%= dicts.common.Size %>:</span>
+      <span class="text"></span>
+    </div>
+    <div class="totalRows">
+      <span><%= dicts.queryGraph.numRows %>:</span>
+      <span class="text"></span>
+    </div>
+    <div class="skew">
+      <span><%= dicts.workspaceBar.Skew %>:</span>
+      <span class="text"></span>
+    </div>
+  </section>
+  <!-- Main Section -->
+  <section class="modalMain">
+    <svg class="chart"></svg>
+  </section>
+</div>
+<!-- End Of Skew Info Modal -->

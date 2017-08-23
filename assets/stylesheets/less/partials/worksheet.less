@@ -655,9 +655,14 @@ ul.CodeMirror-hints {
     border-left: 1px solid @color-border-warmGray;
     border-right: none;
     .position(relative);
+    cursor: pointer;
 
     &:not(.active) {
         display: none;
+    }
+
+    label, .text {
+        cursor: pointer;
     }
 
     .text {

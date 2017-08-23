@@ -184,7 +184,8 @@ CommonTxtTstr = {
     'deleting': 'deleting',
     'ClickToExpand': 'Click to expand',
     'time': 'time',
-    'rows': 'rows'
+    'rows': 'rows',
+    'percentage': 'percentage'
 };
 
 ErrTStr = {

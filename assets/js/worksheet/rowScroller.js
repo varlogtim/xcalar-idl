@@ -99,6 +99,8 @@ window.RowScroller = (function($, RowScroller) {
             xcHelper.centerFocusedTable($tableWrap, false,
                                                 {onlyIfOffScreen: true});
         });
+
+        setupSkewInfo();
     };
 
     RowScroller.setSizerHeight = function(tableId) {
@@ -594,6 +596,12 @@ window.RowScroller = (function($, RowScroller) {
             // try to position the scrollbar to the proper row again
             setTimeout(positionScrollToRow, 1);
         }
+    }
+
+    function setupSkewInfo() {
+        $("#skewInfoArea").click(function() {
+            SkewInfoModal.show(gActiveTableId);
+        });
     }
 
     function updateSkew(skew) {

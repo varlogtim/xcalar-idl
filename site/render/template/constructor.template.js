@@ -849,13 +849,17 @@
                 return colContents;
             },
 
+            getRowDistribution: function() {
+                return this.backTableMeta.metas.map(function(meta) {
+                    return meta.numRows;
+                });
+            },
+
             _setSkewness: function() {
                 // skew = 1/n * sum( ((xi - avg)/sd)^2 )
                 // sd = sqrt(sum(xi - avg) / (n - 1))
                 var skewness = null;
-                var rows = this.backTableMeta.metas.map(function(meta) {
-                    return meta.numRows;
-                });
+                var rows = this.getRowDistribution();
                 var len = rows.length;
                 var even = 1 / len;
                 var total = rows.reduce(function(sum, value) {
@@ -876,6 +880,16 @@
 
             getSkewness: function() {
                 return this.skewness;
+            },
+
+            getSize: function() {
+                var sizes = this.backTableMeta.metas.map(function(meta) {
+                    return meta.size;
+                });
+                var totalSize = sizes.reduce(function(sum, value) {
+                    return sum + value;
+                }, 0);
+                return totalSize;
             },
 
             <%}%>

@@ -1521,7 +1521,8 @@ describe("Persistent Constructor Test", function() {
                         "name": "xcalarRecordNum",
                         "type": DfFieldTypeT.DfUInt64,
                         "valueArrayIndex": 2
-                    }]
+                    }],
+                    "metas": [{"numRows": 1}]
                 });
             };
 
@@ -1705,6 +1706,52 @@ describe("Persistent Constructor Test", function() {
 
             table.removeIndexTable("testCol");
             expect(table.getIndexTable("testCol")).to.be.undefined;
+        });
+
+        it("should get row distributon", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "isLocked": false
+            });
+
+            table.backTableMeta = {
+                "metas": [{ "numRows": 1 }, { "numRows": 2 }]
+            };
+
+            var res = table.getRowDistribution();
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal(1);
+            expect(res[1]).to.equal(2);
+        });
+
+        it("should get and set skew", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "isLocked": false
+            });
+
+            table.backTableMeta = {
+                "metas": [{ "numRows": 0 }, { "numRows": 100 }]
+            };
+
+            table._setSkewness();
+            expect(table.getSkewness()).to.equal(100);
+        });
+
+        it("should get size", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "isLocked": false
+            });
+
+            table.backTableMeta = {
+                "metas": [{ "size": 1 }, { "size": 2,}]
+            };
+
+            expect(table.getSize()).to.equal(3);
         });
     });
 

@@ -174,7 +174,8 @@ CommonTxtTstr = {
 'deleting': '删除中',
 'ClickToExpand': '点击展开',
 'time': '时间',
-'rows': '行数'
+'rows': '行数',
+'percentage': '百分比'
 };
 ErrTStr = {
 'Error': '错误',

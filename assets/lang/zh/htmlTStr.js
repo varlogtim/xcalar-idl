@@ -188,6 +188,10 @@ module.exports = {
         "Progress": "进度",
         "header": "快速聚合"
     },
+    "skewInfoModal": {
+        "Title": "表数据分布",
+        "instr": "图标显示了表数据在集群节点中的分布情况。分布偏差可能会影响集群的性能. 详细信息请点击"
+    },
     "bottomMenu": {
         "Find": "查找",
         "Help": "帮助",
@@ -857,7 +861,8 @@ module.exports = {
     },
     "workspaceBar": {
         "rowInput": "跳转行",
-        "Skew": "数据偏差"
+        "Skew": "数据偏差",
+        "ClickToDetail": "点击查看详细信息"
     },
     "ws": {
         "ActiveList": "激活表",
