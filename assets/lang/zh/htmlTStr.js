@@ -4,7 +4,8 @@ module.exports = {
         "hdfs": "hdfs://",
         "nfs": "file:///",
         "s3": "s3://",
-        "mapR": "mapr://"
+        "mapR": "mapr://",
+        "azblob": "azblob://"
     },
     "MenuTStr": {
         "AddCol": "插入1列",

@@ -149,7 +149,8 @@ var FileProtocol = {
     "hdfs": "hdfs://",
     "file": "localfile:///",
     "s3": "s3://",
-    "mapR": "mapr://"
+    "mapR": "mapr://",
+    "azblob": "azblob://"
 };
 
 var fakeEvent = {
