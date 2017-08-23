@@ -39,10 +39,6 @@ window.Alert = (function($, Alert){
     };
 
     Alert.show = function(options) {
-        // add id
-        var id = xcHelper.randName("alert");
-        $modal.data("id", id);
-
         options = options || {};
        /* options includes:
             title: title of the alert
@@ -84,12 +80,16 @@ window.Alert = (function($, Alert){
             $modalBg.show();
             $modalBg.addClass("locked");
             // alert modal is already opened and locked due to connection error
-            return id;
+            return $modal.data("id");
         } else if ($("#container").hasClass("supportOnly") &&
             options.lockScreen) {
             // do not show any more modals that lock the screen
-            return id;
+            return $modal.data("id");
         }
+
+        // add id
+        var id = xcHelper.randName("alert");
+        $modal.data("id", id);
 
         // call it here because alert.show() may be called when another alert is visible
         clean();
