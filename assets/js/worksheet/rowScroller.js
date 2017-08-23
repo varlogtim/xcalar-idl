@@ -401,12 +401,14 @@ window.RowScroller = (function($, RowScroller) {
         var inputWidth = 50;
         if (!gActiveTableId || $.isEmptyObject(table)) {
             $numPages.text("");
+            emptySkew();
         } else {
             var rowCount = table.resultSetCount;
             var num = xcHelper.numToStr(rowCount);
             $numPages.text("of " + num);
             var numDigits = ("" + rowCount).length;
             inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
+            updateSkew(table.getSkewness());
         }
         $rowInput.width(inputWidth);
     };
@@ -415,6 +417,7 @@ window.RowScroller = (function($, RowScroller) {
         $rowInput.val("").data("val", "");
         gActiveTableId = null;
         RowScroller.update();
+        emptySkew();
     };
 
     // for book mark tick
@@ -592,5 +595,41 @@ window.RowScroller = (function($, RowScroller) {
             setTimeout(positionScrollToRow, 1);
         }
     }
+
+    function updateSkew(skew) {
+        var $section = $("#skewInfoArea").addClass("active");
+        var $text = $section.find(".text");
+        if (skew == null) {
+            $text.text("--");
+            $text.css("color", "");
+        } else {
+            $text.text(skew);
+            $text.css("color", getSkyewColor(skew));
+        }
+    }
+
+    function getSkyewColor(skew) {
+        /*
+            0: hsl(104, 100%, 33)
+            25%: hsl(50, 100%, 33)
+            >= 50%: hsl(0, 100%, 33%)
+        */
+        var h = 104;
+        if (skew != null) {
+            if (skew <= 25) {
+                h = 104 - 54 / 25 * skew;
+            } else if (skew <= 50) {
+                h = 50 - 2 * (skew - 25);
+            } else {
+                h = 0;
+            }
+        }
+        return "hsl(" + h + ", 100%, 33%)";
+    }
+
+    function emptySkew() {
+        $("#skewInfoArea").removeClass("active").find(".text").text("");
+    }
+
     return (RowScroller);
 }(jQuery, {}));

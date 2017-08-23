@@ -301,7 +301,8 @@
             resultSetId: (string) result id
             icv: (string), icv table
             resultSetCount: (integer) total row num
-            backTableMeta: (obj) backTableMeta
+            backTableMeta: (obj) backTableMeta, not persistent
+            skewness: (num), not persistent
 
             keyName: (string, not persist) column on index
             resultSetMax: (integer, not persist) last row able to fetch
@@ -400,7 +401,7 @@
                     self.backTableMeta = tableMeta;
                     self.ordering = tableMeta.ordering;
                     self.keyName = xcHelper.getTableKeyFromMeta(tableMeta);
-
+                    self._setSkewness();
                     // update immediates
                     var valueAttrs = [];
                     if (tableMeta.valueAttrs != null) {
@@ -846,7 +847,37 @@
                 });
 
                 return colContents;
-            }
+            },
+
+            _setSkewness: function() {
+                // skew = 1/n * sum( ((xi - avg)/sd)^2 )
+                // sd = sqrt(sum(xi - avg) / (n - 1))
+                var skewness = null;
+                var rows = this.backTableMeta.metas.map(function(meta) {
+                    return meta.numRows;
+                });
+                var len = rows.length;
+                var even = 1 / len;
+                var total = rows.reduce(function(sum, value) {
+                    return sum + value;
+                }, 0);
+                // change to percantage
+                rows = rows.map(function(row) {
+                    return row / total;
+                });
+
+                skewness = rows.reduce(function(sum, value) {
+                    return sum + Math.abs(value - even);
+                }, 0);
+
+                skewness = Math.floor(skewness * 100);
+                this.skewness = skewness;
+            },
+
+            getSkewness: function() {
+                return this.skewness;
+            },
+
             <%}%>
         });
 
@@ -2763,7 +2794,7 @@
                 }
             },
 
-            getIndexTables: function(tableName) {
+            getIndexTables: function() {
                 return this.indexTables;
             },
 

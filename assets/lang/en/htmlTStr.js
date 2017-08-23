@@ -269,7 +269,8 @@ module.exports = {
     },
 
     "workspaceBar": {
-        "rowInput": "Skip to row"
+        "rowInput": "Skip to row",
+        "Skew": "Skew"
     },
 
     "UDF": {

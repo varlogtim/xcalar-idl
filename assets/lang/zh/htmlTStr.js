@@ -856,7 +856,8 @@ module.exports = {
         "welcomeXI": "欢迎使用<b>Xcalar Design</b>"
     },
     "workspaceBar": {
-        "rowInput": "跳转行"
+        "rowInput": "跳转行",
+        "Skew": "数据偏差"
     },
     "ws": {
         "ActiveList": "激活表",
