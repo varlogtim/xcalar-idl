@@ -1,17 +1,17 @@
 // module name must start with "UExt"
-window.UExtOperationalize = (function(UExtOperationalize) {
+window.UExtDerivedConversion = (function(UExtDerivedConversion) {
 
-    UExtOperationalize.buttons = [{
-        "buttonText": "Operationalize",
-        "fnName": "operationalize",
+    UExtDerivedConversion.buttons = [{
+        "buttonText": "Derived Field Conversion",
+        "fnName": "derivedConversion",
         "arrayOfFields": [],
     }];
 
-    UExtOperationalize.actionFn = function(functionName) {
+    UExtDerivedConversion.actionFn = function(functionName) {
 
         switch (functionName) {
-            case "operationalize":
-                return operationalize();
+            case "derivedConversion":
+                return convertToDerived();
             default:
                 return null;
         }
@@ -63,10 +63,10 @@ window.UExtOperationalize = (function(UExtOperationalize) {
     }
 
     /*
-    operationalize: Converts prefix fields to derived fields and removes object
+    convertToDerived: Converts prefix fields to derived fields and removes object
         and array fields from the given input table.
     */
-    function operationalize() {
+    function convertToDerived() {
         var ext = new XcSDK.Extension();
 
         ext.start = function() {
@@ -113,5 +113,5 @@ window.UExtOperationalize = (function(UExtOperationalize) {
         return ext;
     }
 
-    return UExtOperationalize;
+    return UExtDerivedConversion;
 }({}));
