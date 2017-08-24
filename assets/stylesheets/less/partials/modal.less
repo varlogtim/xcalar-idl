@@ -4064,11 +4064,11 @@ html.microsoft {
 
 /* Login Config Modal */
 #loginConfigModal {
-    .size(@width: auto, @height:auto);
+    .size(@width: 700px, @height:650px);
     .font(@size: 13px, @weight: 600);
     @rowHeight: 25px;
     @leftPadding: 20px;
-
+    .clearfix;
     bottom: auto;
     z-index: @z-index-modal;
 
@@ -4077,10 +4077,17 @@ html.microsoft {
     }
 
     .modalMain {
+        height: ~"calc(100% - 150px)";
+        overflow-y: auto;
+    }
+
+    .modalMainSection {
         vertical-align: middle;
         background-color: @color-white;
         padding: 10px;
-        border-bottom: 1px solid @color-border-pinkish-grey2;
+        &:not(:last-child) {
+            border-bottom: 1px solid @color-border-pinkish-grey2;
+        }
         .clearfix;
     }
 
@@ -4092,13 +4099,16 @@ html.microsoft {
         padding-left: @leftPadding;
     }
 
+    .optionSet {
+        position: relative;
+        top: -2px;
+    }
+
     .formRow {
         margin-bottom: 10px;
         margin-top: 10px;
-
+        width: 100%;
         .label {
-            .size(@width: auto);
-            margin-right: 10px;
             float: left;
             padding-left: @leftPadding;
             padding-right: 24px;
@@ -4108,7 +4118,7 @@ html.microsoft {
         }
 
         .xc-input {
-            .size(@width: 300px);
+            .size(@width: ~"calc(100% - 164px)");
             height: @rowHeight;
             line-height: @rowHeight;
         }
@@ -4123,7 +4133,19 @@ html.microsoft {
 
     .formBiRow {
         .formRow;
+        width: ~"calc(50% - 20px)";
         float: left;
+        .label {
+            .size(@width: 164px);
+        }
+        .clearfix;
+    }
+
+    .radioGroup {
+        border-bottom: 1px solid #EEEEEE;
+        padding-bottom: 5px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .radioButton {
@@ -4131,6 +4153,7 @@ html.microsoft {
     }
 
     .modalBottom {
+        border-top: 1px solid @color-border-pinkish-grey2;
         padding: 10px;
     }
 }

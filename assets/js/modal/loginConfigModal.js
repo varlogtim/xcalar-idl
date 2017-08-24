@@ -4,9 +4,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
 
     LoginConfigModal.setup = function() {
         $modal = $("#loginConfigModal");
-        modalHelper = new ModalHelper($modal, {
-            "noResize": true
-        });
+        modalHelper = new ModalHelper($modal, {});
 
         $modal.on("click", ".close, .cancel", closeModal);
         setupListeners();
