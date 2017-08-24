@@ -111,7 +111,8 @@ window.ProfileEngine = (function(ProfileEngine) {
                 "max": maxVal,
                 "sum": sumVal,
                 "table": finalTable,
-                "colName": colName
+                "colName": colName,
+                "bucketSize": 0
             });
 
             profileInfo.groupByInfo.isComplete = true;

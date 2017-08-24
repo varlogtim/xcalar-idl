@@ -2,7 +2,6 @@ window.ProfileSelector = (function(ProfileSelector, $) {
     var $modal;        // $("#profileModal");
     var filterDragging = false;
     var chartBuilder;
-    var chartType;
 
     ProfileSelector.setup = function($modelEle) {
         $modal = $modelEle;
@@ -11,7 +10,6 @@ window.ProfileSelector = (function(ProfileSelector, $) {
     ProfileSelector.new = function(options) {
         options = options || {};
         chartBuilder = options.chartBuilder;
-        chartType = options.type;
         createFilterSelection(options.x, options.y);
     };
 
@@ -26,7 +24,66 @@ window.ProfileSelector = (function(ProfileSelector, $) {
     ProfileSelector.clear = function() {
         toggleFilterOption(true);
         chartBuilder = null;
-        chartType = null;
+    };
+
+    ProfileSelector.filter = function(operator, profileInfo) {
+        var noBucket = chartBuilder.isNoBucket();
+        var noSort = !chartBuilder.isSorted();
+        var xName = chartBuilder.getXName();
+        var colName = profileInfo.colName;
+        var uniqueVals = {};
+        var isExist = false;
+        var isString = (profileInfo.type === "string");
+        var chartType = chartBuilder.getType();
+
+        var prevRowNum;
+        var isContinuous = true;
+        
+        
+
+        getChart().selectAll(".area.selected").each(function(d) {
+            if (chartType === "pie") {
+                d = d.data;
+            }
+
+            var rowNum = d.rowNum;
+            if (isNaN(rowNum)) {
+                console.error("invalid row num!");
+            } else {
+                if (d.type === "nullVal") {
+                    isExist = true;
+                } else {
+                    var val = d[xName];
+                    if (isString) {
+                        val = JSON.stringify(val);
+                    }
+
+                    uniqueVals[val] = true;
+                }
+
+                if (prevRowNum == null) {
+                    prevRowNum = rowNum;
+                } else if (isContinuous) {
+                    isContinuous = (rowNum - 1 === prevRowNum);
+                    prevRowNum = rowNum;
+                }
+            }
+        });
+
+        if (isTypeNumber(profileInfo.type) && noSort && isContinuous) {
+            // this suit for numbers
+            return getNumFltOpt(operator, colName, uniqueVals, isExist);
+        } else if (noBucket) {
+            return xcHelper.getFilterOptions(operator, colName,
+                                             uniqueVals, isExist);
+        } else {
+            return getBucketFltOpt(operator, colName, uniqueVals, isExist);
+        }
+
+        function isTypeNumber(type) {
+            // boolean is also a num in backend
+            return (type === "integer" || type === "float");
+        }
     };
 
     function getFilterOption() {
@@ -49,6 +106,7 @@ window.ProfileSelector = (function(ProfileSelector, $) {
 
     function drawFilterRect(bound, top, right, bottom, left) {
         var chart = getChart();
+        var chartType = chartBuilder.getType();
         var areasToSelect = getAreaToSelect(chartType, bound, top, right,
                                             bottom, left);
         chart.selectAll(".area").each(function(d, i) {
@@ -424,6 +482,162 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         var t = (xDifference2 * (p1[1] - p3[1]) - yDifference2 * (p1[0] - p3[0])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
 
         return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
+    }
+
+    function fltExist(operator, colName, fltStr) {
+        if (operator === FltOp.Filter) {
+            if (fltStr === "" || fltStr == null) {
+                fltStr = "not(exists(" + colName + "))";
+            } else {
+                fltStr = "or(" + fltStr + ", not(exists(" + colName + ")))";
+            }
+        } else if (operator === FltOp.Exclude) {
+            if (fltStr === "" || fltStr == null) {
+                fltStr = "exists(" + colName + ")";
+            } else {
+                fltStr = "and(" + fltStr + ", exists(" + colName + "))";
+            }
+        }
+
+        return fltStr;
+    }
+
+    function getBucketFltOpt(operator, colName, uniqueVals, isExist) {
+        var colVals = [];
+
+        for (var val in uniqueVals) {
+            colVals.push(Number(val));
+        }
+
+        var str = "";
+        var len = colVals.length;
+        var lowerBound;
+        var upperBound;
+        var i;
+
+        if (operator === FltOp.Filter) {
+            if (len > 0) {
+                for (i = 0; i < len - 1; i++) {
+                    lowerBound = chartBuilder.getLowerBound(colVals[i]);
+                    upperBound = chartBuilder.getUpperBound(colVals[i]);
+                    str += "or(and(ge(" + colName + ", " + lowerBound + "), " +
+                                  "lt(" + colName + ", " + upperBound + ")), ";
+                }
+
+                lowerBound = chartBuilder.getLowerBound(colVals[i]);
+                upperBound = chartBuilder.getUpperBound(colVals[i]);
+                str += "and(ge(" + colName + ", " + lowerBound + "), " +
+                           "lt(" + colName + ", " + upperBound + ")";
+
+                for (i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+        } else if (operator === FltOp.Exclude) {
+            if (len > 0) {
+                for (i = 0; i < len - 1; i++) {
+                    lowerBound = chartBuilder.getLowerBound(colVals[i]);
+                    upperBound = chartBuilder.getUpperBound(colVals[i]);
+                    str += "and(or(lt(" + colName + ", " + lowerBound + "), " +
+                                  "ge(" + colName + ", " + upperBound + ")), ";
+                }
+
+                lowerBound = chartBuilder.getLowerBound(colVals[i]);
+                upperBound = chartBuilder.getUpperBound(colVals[i]);
+                str += "or(lt(" + colName + ", " + lowerBound + "), " +
+                          "ge(" + colName + ", " + upperBound + ")";
+
+                for (i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+        } else {
+            console.error("error case");
+            return null;
+        }
+
+        if (isExist) {
+            if (len > 0) {
+                str = fltExist(operator, colName, str);
+            } else {
+                str = fltExist(operator, colName);
+            }
+        }
+
+        return {
+            "operator": operator,
+            "filterString": str
+        };
+    }
+
+    function getNumFltOpt(operator, colName, uniqueVals, isExist) {
+        // this suit for numbers that are unsorted by count
+        var min = Number.MAX_VALUE;
+        var max = -Number.MAX_VALUE;
+        var str = "";
+        var count = 0;
+        var bucketSize = chartBuilder.getBuckSize() || 0;
+
+        for (var val in uniqueVals) {
+            var num = Number(val);
+            var lowerBound = chartBuilder.getLowerBound(num);
+            var upperBound = chartBuilder.getUpperBound(num);
+            min = Math.min(lowerBound, min);
+            max = Math.max(upperBound, max);
+            count++;
+        }
+
+        if (bucketSize === 0) {
+            if (operator === FltOp.Filter) {
+                if (count > 1) {
+                    // [min, max]
+                    str = "and(ge(" + colName + ", " + min + "), " +
+                              "le(" + colName + ", " + max + "))";
+                } else if (count === 1) {
+                    str = "eq(" + colName + ", " + min + ")";
+                }
+            } else if (operator === FltOp.Exclude) {
+                if (count > 1) {
+                    // exclude [min, max]
+                    str = "or(lt(" + colName + ", " + min + "), " +
+                              "gt(" + colName + ", " + max + "))";
+                } else if (count === 1) {
+                    str = "neq(" + colName + ", " + min + ")";
+                }
+            } else {
+                return null;
+            }
+        } else {
+            // bucket case
+            if (operator === FltOp.Filter) {
+                if (count > 0) {
+                    // should be [min, max)
+                    str = "and(ge(" + colName + ", " + min + "), " +
+                              "lt(" + colName + ", " + max + "))";
+                }
+            } else if (operator === FltOp.Exclude) {
+                // should exclude [min, max)
+                if (count > 0) {
+                    str = "or(lt(" + colName + ", " + min + "), " +
+                              "ge(" + colName + ", " + max + "))";
+                }
+            } else {
+                return null;
+            }
+        }
+
+        if (isExist) {
+            if (count > 0) {
+                str = fltExist(operator, colName, str);
+            } else {
+                str = fltExist(operator, colName);
+            }
+        }
+
+        return {
+            "operator": operator,
+            "filterString": str
+        };
     }
 
     function getChart() {

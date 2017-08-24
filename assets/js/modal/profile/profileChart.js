@@ -66,18 +66,18 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
         _getXAxis: function(d, charLenToFit) {
             var options = this._getOptions();
-            var bucketSize = options.bucketSize;
-            var noBucket = this._isNoBucket(bucketSize);
-            var noSort = options.noSort;
-            var xName = options.xName;
+            var bucketSize = this.getBuckSize();
+            var noBucket = this.isNoBucket();
+            var sorted = this.isSorted();
+            var xName = this.getXName();
             var decimalNum = options.decimal;
 
             var isLogScale = (bucketSize < 0);
-            var lowerBound = this._getLowerBound(d[xName], bucketSize);
+            var lowerBound = this.getLowerBound(d[xName]);
             var name = this._formatNumber(lowerBound, isLogScale, decimalNum);
 
-            if (!noBucket && !noSort && d.type !== "nullVal") {
-                var upperBound = this._getUpperBound(d[xName], bucketSize);
+            if (!noBucket && sorted && d.type !== "nullVal") {
+                var upperBound = this.getUpperBound(d[xName]);
                 upperBound = this._formatNumber(upperBound, isLogScale, decimalNum);
                 name = name + "-" + upperBound;
             }
@@ -94,17 +94,17 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             // may have better way
             var options = this._getOptions();
             var nullCount = options.nullCount;
-            var bucketSize = options.bucketSize;
-            var noBucket = this._isNoBucket(bucketSize);
-            var xName = options.xName;
-            var yName = options.yName;
+            var bucketSize = this.getBuckSize();
+            var noBucket = this.isNoBucket();
+            var xName = this.getXName();
+            var yName = this.getYName();
             var sum = options.sum;
             var decimalNum = options.decimal;
             var percentageLabel = options.percentage;
 
             var title;
             var isLogScale = (bucketSize < 0);
-            var lowerBound = this._getLowerBound(d[xName], bucketSize);
+            var lowerBound = this.getLowerBound(d[xName]);
 
             if (d.section === "other") {
                 title = "Value: Other<br>";
@@ -114,7 +114,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                         this._formatNumber(lowerBound, isLogScale, decimalNum) +
                         "<br>";
             } else {
-                var upperBound = this._getUpperBound(d[xName], bucketSize);
+                var upperBound = this.getUpperBound(d[xName]);
                 title = "Value: [" +
                         this._formatNumber(lowerBound, isLogScale, decimalNum) +
                         ", " +
@@ -158,16 +158,6 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             return (num > 0) ? absNum : -absNum;
         },
 
-        _getLowerBound: function(num, bucketSize) {
-            var isLogScale = (bucketSize < 0);
-            return this._getNumInScale(num, isLogScale);
-        },
-
-        _getUpperBound: function(num, bucketSize) {
-            var isLogScale = (bucketSize < 0);
-            return this._getNumInScale(num + Math.abs(bucketSize), isLogScale);
-        },
-
         _formatNumber: function(num, isLogScale, decimal) {
             if (num == null) {
                 console.warn("cannot format empty or null value");
@@ -191,9 +181,42 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             return xcHelper.numToStr(num, 5);
         },
 
-        _isNoBucket: function(bucketSize) {
+        getType: function() {
+            return this.options.type;
+        },
+
+        getXName: function() {
+            return this.options.xName;
+        },
+
+        getYName: function() {
+            return this.options.yName;
+        },
+
+        getBuckSize: function() {
+            return this.options.bucketSize;
+        },
+
+        isSorted: function() {
+            return this.options.sorted;
+        },
+
+        isNoBucket: function() {
+            var bucketSize = this.getBuckSize();
             return (bucketSize === 0) ? 1 : 0;
-        }
+        },
+
+        getLowerBound: function(num) {
+            var bucketSize = this.getBuckSize();
+            var isLogScale = (bucketSize < 0);
+            return this._getNumInScale(num, isLogScale);
+        },
+
+        getUpperBound: function(num) {
+            var bucketSize = this.getBuckSize();
+            var isLogScale = (bucketSize < 0);
+            return this._getNumInScale(num + Math.abs(bucketSize), isLogScale);
+        },
     };
     /* end of abstract chart builder class */
 
@@ -212,16 +235,16 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 var initial = options.initial;
                 var resize = options.resize;
 
-                var xName = options.xName;
-                var yName = options.yName;
+                var xName = self.getXName();
+                var yName = self.getYName();
 
                 var nullCount = options.nullCount;
-                var bucketSize = options.bucketSize;
+                var bucketSize = self.getBuckSize();
 
                 var max = options.max;
 
-                var noSort = options.noSort;
-                var noBucket = self._isNoBucket(bucketSize);
+                var noSort = !self.isSorted();
+                var noBucket = self.isNoBucket();
 
                 var data = options.data;
 

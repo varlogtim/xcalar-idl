@@ -85,10 +85,11 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         var height = $svg.height() - margin.top - margin.bottom;
 
         var xDomain = data.map(function(d) {return d.node; });
+        var max = d3.max(data, function(d) { return d.row; });
         var x = d3.scale.ordinal().rangeBands([0, width], 0.5)
                 .domain(xDomain);
         var y = d3.scale.linear().rangeRound([height, 0])
-                .domain([0, d3.max(data, function(d) { return d.row; })]);
+                .domain([0, max]);
 
         var w = Math.min(x.rangeBand(), 70);
 
@@ -104,7 +105,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         var yAxis = d3.svg.axis()
             .scale(y)
             .orient("left")
-            .ticks(10, percentageLabel ? "%" : null);
+            .ticks(!percentageLabel && max <= 10 ? max : 10, percentageLabel ? "%" : null);
 
         var g = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -146,7 +147,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         d3.select($modal.find(".chart").get(0))
         .selectAll(".bar").each(function(d) {
             var row = percentageLabel
-                      ? (d.row * 100).toFixed(3) + "%"
+                      ? Math.round(d.row * 100 * 100) / 100 + "%" // 2 digits
                       : xcHelper.numToStr(d.row);
             $(this).tooltip({
                 trigger: "maunal",
