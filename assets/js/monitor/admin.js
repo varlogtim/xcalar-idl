@@ -809,17 +809,17 @@ window.Admin = (function($, Admin) {
 
     function flushLog() {
         var btns = [{
-                "name": AlertTStr.CONFIRM,
-                func: function() {
-                    XcalarLogLevelSet(9, 1)
-                    .then(function() {
-                        xcHelper.showSuccess(SuccessTStr.FlushLog);
-                    })
-                    .fail(function(err) {
-                        xcHelper.showFail(FailTStr.FlushLog);
-                    });
-                }
-            }];
+            "name": AlertTStr.CONFIRM,
+            func: function() {
+                XcalarLogLevelSet(9, 1)
+                .then(function() {
+                    xcHelper.showSuccess(SuccessTStr.FlushLog);
+                })
+                .fail(function() {
+                    xcHelper.showFail(FailTStr.FlushLog);
+                });
+            }
+        }];
         Alert.show({
             "title": MonitorTStr.FlushLog,
             "msg": MonitorTStr.FlushLogMsg,

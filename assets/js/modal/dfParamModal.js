@@ -9,7 +9,6 @@ window.DFParamModal = (function($, DFParamModal){
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
     var defaultParam;
-    var $optsSelector;
     var xdpMode;
     var hasChange = false;
 
@@ -43,7 +42,6 @@ window.DFParamModal = (function($, DFParamModal){
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfParamModal.find(".editableRow");
         $advancedOpts = $dfParamModal.find(".advancedOpts");
-        $optsSelector = $dfParamModal.find("optsSelector");
         xdpMode = XVM.getLicenseMode();
         modalHelper = new ModalHelper($dfParamModal, {
             resizeCallback: function() {
@@ -112,14 +110,15 @@ window.DFParamModal = (function($, DFParamModal){
             }
         });
 
-        $dfParamModal.on("click", ".deleteParam", function(event) {
+        $dfParamModal.on("click", ".deleteParam", function() {
             var $toDelete = $(this).closest(".draggableDiv").find(".value");
             var toDeleteName = $($toDelete).text();
             var retName = $dfParamModal.data("df");
             var df = DF.getDataflow(retName);
             if (df.paramMapInUsed[toDeleteName]) {
-                StatusBox.show(ErrTStr.InUsedNoDelete,
-                    $(this), false, {'side': 'right'});
+                StatusBox.show(ErrTStr.InUsedNoDelete, $(this), false, {
+                    'side': 'right'
+                });
                 return false;
             }
             df.removeParameter(toDeleteName);
@@ -198,7 +197,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
         });
 
-        $dfParamModal.on("click", ".advancedOpts .radioButton", function(event) {
+        $dfParamModal.on("click", ".advancedOpts .radioButton", function() {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
@@ -540,7 +539,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function exportSetup() {
-        var deferred = jQuery.Deferred();
         var $list = $dfParamModal.find('.tdWrapper.dropDownList');
 
         var dropdownHelper = new MenuHelper($list, {
@@ -662,7 +660,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 getParameterInputHTML(1, "medium-small", {export: true}) +
                             '</div>' +
                             '</div>';
-            advancedOpts =  '<div class="optionBox radioButtonGroup">' +
+            advancedOpts = '<div class="optionBox radioButtonGroup">' +
                                 '<div class="radioButton"' +
                                 ' data-option="default">' +
                                     '<div class="radio">' +
@@ -1053,7 +1051,7 @@ window.DFParamModal = (function($, DFParamModal){
         var dagNodeId = $dfParamModal.data("id");
         var retName = $dfParamModal.data("df");
         var radioButton = $dfParamModal.find(".radioButton.active");
-        if (radioButton.length == 1 && $(radioButton).data("option") === "import") {
+        if (radioButton.length === 1 && $(radioButton).data("option") === "import") {
             storeExportToTableNode();
         } else {
             storeOtherNodes();

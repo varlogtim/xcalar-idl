@@ -274,7 +274,7 @@ window.xcMenu = (function(xcMenu, $) {
 
         var winResizeTimer;
         var resizing = false;
-        $(window).on("resize.xcMenu", function(event) {
+        $(window).on("resize.xcMenu", function() {
             if (!resizing) {
                 resizing = true;
                 xcMenu.close($menu);

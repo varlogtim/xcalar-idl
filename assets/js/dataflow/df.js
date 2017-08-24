@@ -522,7 +522,7 @@ window.DF = (function($, DF) {
             df.newTableName = activeSessionOptions.newTableName;
             df.nameWithHash = df.newTableName + Authentication.getHashId();
         }
-    }
+    };
 
     DF.getAdvancedExportOption = function(dataflowName, withoutHashId) {
         var df = DF.getDataflow(dataflowName);

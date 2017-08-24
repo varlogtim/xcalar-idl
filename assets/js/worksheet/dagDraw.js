@@ -1009,9 +1009,9 @@ window.DagDraw = (function($, DagDraw) {
             var nodeId = $tableWrap.find(".dagTable").data("index");
             var node = nodeIdMap[nodeId];
             $tableWrap.css({
-                            "right": node.value.display.x,
-                            "top": node.value.display.y
-                        });
+                "right": node.value.display.x,
+                "top": node.value.display.y
+            });
             if (node.value.display.isCollapsible &&
                 !node.value.display.isChildHidden) {
                 var groupId = node.children[0].value.dagNodeId;

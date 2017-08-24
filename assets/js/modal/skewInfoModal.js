@@ -124,7 +124,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
             .call(yAxis)
         .append("text")
             .attr("y", 6)
-            .attr("dy", "-1em")
+            .attr("dy", "-1.2em")
             .attr("dx", "-2em")
             .text(percentageLabel ? CommonTxtTstr.percentage : CommonTxtTstr.rows);
 

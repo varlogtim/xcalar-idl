@@ -894,7 +894,7 @@ window.DagPanel = (function($, DagPanel) {
         $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         xcMenu.show($menu, function() {
-             $dagTable.removeClass("selected");
+            $dagTable.removeClass("selected");
         });
         var rightBoundary = $(window).width() - 5;
 
@@ -1340,7 +1340,7 @@ window.DagPanel = (function($, DagPanel) {
                     options = {"selectCol": idx};
                 }
                 var prevCols = gTables[origTableId].tableCols;
-                if (op  === XcalarApisT.XcalarApiMap) {
+                if (op === XcalarApisT.XcalarApiMap) {
                     for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
                         newCols = xcHelper.mapColGenerate(idx,
                                              xcalarInput.newFieldNames[i],

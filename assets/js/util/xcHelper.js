@@ -992,7 +992,7 @@ window.xcHelper = (function($, xcHelper) {
         if (options.base2) {
             unit = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
         } else {
-            unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
+            unit = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
 
         var start = 0;
@@ -1034,7 +1034,7 @@ window.xcHelper = (function($, xcHelper) {
         if (options.base2) {
             units = ["B", "KIB", "MIB", "GIB", "TIB", "PIB"];
         } else {
-            units  = ["B", "KB", "MB", "GB", "TB", "PB"];
+            units = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
         var num = parseFloat(numText);
         var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();

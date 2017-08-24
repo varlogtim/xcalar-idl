@@ -24,7 +24,7 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
         });
 
         $card.find(".alert-msg").on("input", function() {
-            if(!this.value) {
+            if (!this.value) {
                 $card.find(".confirm").addClass("btn-disabled");
             } else {
                 $card.find(".confirm").removeClass("btn-disabled");
@@ -37,14 +37,14 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
         });
         $card.on("click", ".clear", function() {
             clear();
-        })
+        });
         // click send button
         $card.on("click", ".confirm", function() {
             submitForm();
         });
         // press enter when input
         $card.find(".alert-msg").keypress(function(e) {
-            if(e.which == keyCode.Enter && !e.shiftKey) {
+            if (e.which === keyCode.Enter && !e.shiftKey) {
                 e.preventDefault();
                 submitForm();
             }

@@ -312,9 +312,9 @@ window.DagFunction = (function($, DagFunction) {
         })
         .then(function() {
             deferred.resolve({
-                                tagName: tagName,
-                                tables: tables
-                             });
+                tagName: tagName,
+                tables: tables
+            });
         })
         .fail(deferred.resolve);
 
