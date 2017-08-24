@@ -3603,7 +3603,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testSupportGenerate(test) {
 
         // Generate a mini bundle so as to not take a lot of time.
-        xcalarApiSupportGenerate(thriftHandle, true)
+        xcalarApiSupportGenerate(thriftHandle, true, 0)
         .done(function(output) {
             if (fs.exists(output.bundlePath)) {
                 fs.removeTree(output.bundlePath);

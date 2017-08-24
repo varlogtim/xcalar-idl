@@ -10247,9 +10247,13 @@ XcalarApiDeleteDhtInputT.prototype.write = function(output) {
 
 XcalarApiSupportGenerateInputT = function(args) {
   this.generateMiniBundle = null;
+  this.supportCaseId = null;
   if (args) {
     if (args.generateMiniBundle !== undefined) {
       this.generateMiniBundle = args.generateMiniBundle;
+    }
+    if (args.supportCaseId !== undefined) {
+      this.supportCaseId = args.supportCaseId;
     }
   }
 };
@@ -10274,9 +10278,13 @@ XcalarApiSupportGenerateInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.supportCaseId = input.readI64().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10291,6 +10299,11 @@ XcalarApiSupportGenerateInputT.prototype.write = function(output) {
   if (this.generateMiniBundle !== null && this.generateMiniBundle !== undefined) {
     output.writeFieldBegin('generateMiniBundle', Thrift.Type.BOOL, 1);
     output.writeBool(this.generateMiniBundle);
+    output.writeFieldEnd();
+  }
+  if (this.supportCaseId !== null && this.supportCaseId !== undefined) {
+    output.writeFieldBegin('supportCaseId', Thrift.Type.I64, 2);
+    output.writeI64(this.supportCaseId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -4081,12 +4081,12 @@ function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
     return deferred.promise();
 }
 
-function XcalarSupportGenerate() {
+function XcalarSupportGenerate(miniBundle, supportId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
-    xcalarApiSupportGenerate(tHandle)
+    xcalarApiSupportGenerate(tHandle, miniBundle, supportId)
     .then(function(ret) {
         xcHelper.showSuccess(SuccessTStr.BundleUploaded +
                              ret.supportBundleSent);

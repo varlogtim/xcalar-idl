@@ -9,12 +9,16 @@ XcalarOrderingT = {
   'XcalarOrderingUnordered' : 0,
   'XcalarOrderingAscending' : 3,
   'XcalarOrderingDescending' : 5,
+  'XcalarOrderingPartialAscending' : 11,
+  'XcalarOrderingPartialDescending' : 13,
   'XcalarOrderingRandom' : 16,
   'XcalarOrderingInvalid' : 195936478
 };
 XcalarOrderingTStr = {0 : 'Unordered',
 3 : 'Ascending',
 5 : 'Descending',
+11 : 'PartialAscending',
+13 : 'PartialDescending',
 16 : 'Random',
 195936478 : 'Invalid'
 };

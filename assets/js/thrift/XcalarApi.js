@@ -2042,7 +2042,7 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
 
     workItem.api = XcalarApisT.XcalarApiMap;
 
-    if (evalStrs && evalStrs.constructor === Array) {
+    if (evalStrs.constructor === Array) {
         workItem.input.mapInput.numEvals = evalStrs.length;
         workItem.input.mapInput.evalStrs = evalStrs;
     } else {
@@ -2050,7 +2050,7 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
         workItem.input.mapInput.evalStrs = [evalStrs];
     }
 
-    if (newFieldNames && newFieldNames.constructor === Array) {
+    if (newFieldNames.constructor === Array) {
         workItem.input.mapInput.newFieldNames = newFieldNames;
     } else {
         workItem.input.mapInput.newFieldNames = [newFieldNames];
@@ -3869,24 +3869,26 @@ xcalarApiDeleteDht = runEntity.xcalarApiDeleteDht = function(thriftHandle, dhtNa
     return (deferred.promise());
 };
 
-xcalarApiSupportGenerateWorkItem = runEntity.xcalarApiSupportGenerateWorkItem = function(generateMiniBundle) {
+xcalarApiSupportGenerateWorkItem = runEntity.xcalarApiSupportGenerateWorkItem = function(generateMiniBundle, supportCaseId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.supportGenerateInput = new XcalarApiSupportGenerateInputT();
 
     workItem.api = XcalarApisT.XcalarApiSupportGenerate;
     workItem.input.supportGenerateInput.generateMiniBundle = generateMiniBundle;
+    workItem.input.supportGenerateInput.supportCaseId = supportCaseId;
 
     return (workItem);
 };
 
-xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftHandle, generateMiniBundle) {
+xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftHandle, generateMiniBundle, supportCaseId) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSupportGenerate(): generateMiniBundle = " + generateMiniBundle);
+        console.log("xcalarApiSupportGenerate(): generateMiniBundle = " + generateMiniBundle +
+                    ", supportCaseId = " + supportCaseId);
     }
 
-    var workItem = xcalarApiSupportGenerateWorkItem(generateMiniBundle);
+    var workItem = xcalarApiSupportGenerateWorkItem(generateMiniBundle, supportCaseId);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
