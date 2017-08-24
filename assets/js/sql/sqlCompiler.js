@@ -444,7 +444,8 @@ window.SQLCompiler = (function() {
             var leftCols = [];
             var rightCols = [];
 
-            var mapArray = [];
+            var leftMapArray = [];
+            var rightMapArray = [];
             var xcSQLObj = new SQLApi();
             var cliArray = [];
 
@@ -476,91 +477,92 @@ window.SQLCompiler = (function() {
                 }
 
                 if (leftEvalStr.indexOf("(") > 0) {
-                    var tableId = Authentication.getHashId();
-                    var sourceLeftTableName = newLeftTableName;
-
-                    newLeftTableName = xcHelper.getTableName(leftTableName) +
-                                       tableId;
-                    var newColName = "XC_JOIN_COL_" + tableId.substring(3);
-                    leftCols.push(newColName);
-                    mapArray.push((function(evalS, sourceTbl, nColName,
-                                            nTableName) {
-                        var xcObj = this;
-                        return (xcObj.map(evalS, sourceTbl, nColName,
-                                          nTableName)
-                        .then(function(retStruct) {
-                            cliArray.push(retStruct.cli);
-                        }));
-                    }).bind(self.sqlObj, leftEvalStr, sourceLeftTableName,
-                            newColName, newLeftTableName));
+                    leftMapArray.push(leftEvalStr);
                 } else {
                     leftCols.push(leftEvalStr);
                 }
                 if (rightEvalStr.indexOf("(") > 0) {
-                    var tableId = Authentication.getHashId();
-                    var sourceRightTableName = newRightTableName;
-
-                    newRightTableName = xcHelper.getTableName(rightTableName) +
-                                        tableId;
-                    var newColName = "XC_JOIN_COL_" + tableId.substring(3);
-                    rightCols.push(newColName);
-                    mapArray.push((function(evalS, sourceTbl, nColName,
-                                            nTableName) {
-                        var xcObj = this;
-                        return (xcObj.map(evalS, sourceTbl, nColName,
-                                          nTableName)
-                        .then(function(retStruct) {
-                            cliArray.push(retStruct.cli);
-                        }));
-                    }).bind(self.sqlObj, rightEvalStr, sourceRightTableName,
-                            newColName, newRightTableName));
+                    rightMapArray.push(rightEvalStr);
                 } else {
                     rightCols.push(rightEvalStr);
                 }
             }
 
-            var lTableInfo = {};
-            lTableInfo.tableName = newLeftTableName;
-            lTableInfo.columns = leftCols;
-            lTableInfo.pulledColumns = [];
-            lTableInfo.rename = [];
-
-            var rTableInfo = {};
-            rTableInfo.tableName = newRightTableName;
-            rTableInfo.columns = rightCols;
-            rTableInfo.pulledColumns = [];
-            rTableInfo.rename = [];
-
-            var joinType;
-            switch (node.value.joinType.object) {
-                case ("org.apache.spark.sql.catalyst.plans.Inner$"):
-                    joinType = JoinOperatorT.InnerJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
-                    joinType = JoinOperatorT.LeftOuterJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
-                    joinType = JoinOperatorT.RightOuterJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
-                    joinType = JoinOperatorT.FullOuterJoin;
-                    break;
-                default:
-                    assert(0);
-                    console.error("Join Type not supported");
-                    break;
+            function handleMaps(mapStrArray, origTableName) {
+                var deferred = jQuery.Deferred();
+                if (mapStrArray.length === 0) {
+                    return deferred.resolve({newTableName: origTableName,
+                                             colNames: []});
+                }
+                var newColNames = [];
+                var tableId = xcHelper.getTableId(origTableName);
+                for (var i = 0; i < mapStrArray.length; i++) {
+                    newColNames.push("XC_JOIN_COL_" + tableId + "_" + i);
+                }
+                var newTableName = xcHelper.getTableName(origTableName) +
+                                   Authentication.getHashId();
+                self.sqlObj.map(mapStrArray, origTableName, newColNames,
+                    newTableName)
+                .then(function(ret) {
+                    ret.colNames = newColNames;
+                    deferred.resolve(ret);
+                });
+                return deferred.promise();
             }
 
             var deferred = jQuery.Deferred();
+            PromiseHelper.when(handleMaps(leftMapArray, newLeftTableName),
+                               handleMaps(rightMapArray, newRightTableName))
+            .then(function(retLeft, retRight) {
+                var lTableInfo = {};
+                lTableInfo.tableName = retLeft.newTableName;
+                lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
+                                                         leftCols);
+                lTableInfo.pulledColumns = [];
+                lTableInfo.rename = [];
 
-            PromiseHelper.chain(mapArray)
-            .then(function(retStruct) {
+                var rTableInfo = {};
+                rTableInfo.tableName = retRight.newTableName;
+                rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
+                                                         rightCols);
+                rTableInfo.pulledColumns = [];
+                rTableInfo.rename = [];
+
+                if (retLeft.cli) {
+                    cliArray.push(retLeft.cli);
+                }
+
+                if (retRight.cli) {
+                    cliArray.push(retRight.cli);
+                }
+
+                var joinType;
+                switch (node.value.joinType.object) {
+                    case ("org.apache.spark.sql.catalyst.plans.Inner$"):
+                        joinType = JoinOperatorT.InnerJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
+                        joinType = JoinOperatorT.LeftOuterJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
+                        joinType = JoinOperatorT.RightOuterJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
+                        joinType = JoinOperatorT.FullOuterJoin;
+                        break;
+                    default:
+                        assert(0);
+                        console.error("Join Type not supported");
+                        break;
+                }
+
                 return self.sqlObj.join(joinType, lTableInfo, rTableInfo);
             })
             .then(function(ret) {
                 ret.cli = cliArray.join("") + ret.cli;
                 deferred.resolve(ret);
             });
+
             return deferred.promise();
         }
     };

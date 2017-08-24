@@ -879,6 +879,22 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
+    // returns a new array that is the deduped union of the 2 arrays
+    xcHelper.arrayUnion = function(array1, array2) {
+        var unioned = [];
+        for (var i = 0; i < array1.length; i++) {
+            if (unioned.indexOf(array1[i]) === -1) {
+                unioned.push(array1[i]);
+            }
+        }
+        for (var i = 0; i < array2.length; i++) {
+            if (unioned.indexOf(array2[i]) === -1) {
+                unioned.push(array2[i]);
+            }
+        }
+        return unioned;
+    };
+
     // fomart is mm-dd-yyyy
     xcHelper.getDate = function(delimiter, d, timeStamp) {
         var date;
