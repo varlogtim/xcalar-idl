@@ -607,8 +607,8 @@ window.RowScroller = (function($, RowScroller) {
     function updateSkew(skew) {
         var $section = $("#skewInfoArea").addClass("active");
         var $text = $section.find(".text");
-        if (skew == null) {
-            $text.text("--");
+        if (skew == null || isNaN(skew)) {
+            $text.text("N/A");
             $text.css("color", "");
         } else {
             $text.text(skew);
