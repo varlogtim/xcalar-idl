@@ -605,7 +605,6 @@ window.Dag = (function($, Dag) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
                 $(event.target).closest('#dagScrollBarWrap').length === 0) {
                 hideSchema();
-                $dagTable.removeClass("selected");
             }
         });
 
@@ -706,7 +705,6 @@ window.Dag = (function($, Dag) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
                 $(event.target).closest('#dagScrollBarWrap').length === 0) {
                 hideSchema();
-                $dagTable.removeClass("selected");
             }
         });
 
@@ -1011,6 +1009,7 @@ window.Dag = (function($, Dag) {
     function hideSchema() {
         $('#dagSchema').removeClass("active");
         $(document).off('.hideDagSchema');
+        $("#dagPanel").find(".dagTable.selected").removeClass("selected");
     }
 
     function applyLockIfNeeded($dagWrap) {

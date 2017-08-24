@@ -397,6 +397,9 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function openMenu($curTab, noAnim) {
+        if (noAnim) {
+           $("#dagPanelContainer").addClass("noAnim");
+        }
         var id = $curTab.attr("id");
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
@@ -423,11 +426,19 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             menuAnimAlign = null;
         }
+        setTimeout(function () {
+            // timeout prevents flicker
+            $("#dagPanelContainer").removeClass("noAnim");
+        });
         return !noAnim;
     }
 
     // makeInactive is used in "noWorkbook" mode
     function closeMenu($curTab, noAnim, makeInactive) {
+        if (noAnim) {
+           $("#dagPanelContainer").addClass("noAnim");
+        }
+
         checkAnim(noAnim);
         $mainMenu.removeClass("open");
         $mainMenu.width(defaultWidth);
@@ -449,6 +460,10 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             menuAnimAlign = null;
         }
+        setTimeout(function () {
+            // timeout prevents flicker
+            $("#dagPanelContainer").removeClass("noAnim");
+        });
     }
 
     // turns off animation during open or close

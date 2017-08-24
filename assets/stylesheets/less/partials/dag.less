@@ -9,6 +9,9 @@
     .size(@width: ~"calc(100% - @{extraSpaceWidth})", @height: ~"calc(100% - @{extraSpaceHeight})");
     pointer-events: none;
     .transition(@time-menuAnim all); // for main menu opening
+    &.noAnim {
+        .transition(none);
+    }
 }
 
 
