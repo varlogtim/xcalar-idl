@@ -870,6 +870,15 @@ window.xcHelper = (function($, xcHelper) {
         return (num % 1 !== 0);
     };
 
+    xcHelper.arraySubset = function(subset, fullset) {
+        for (var i = 0; i < subset.length; i++) {
+            if (fullset.indexOf(subset[i]) === -1) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     // fomart is mm-dd-yyyy
     xcHelper.getDate = function(delimiter, d, timeStamp) {
         var date;

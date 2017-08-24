@@ -129,14 +129,14 @@ window.SQLCompiler = (function() {
         "expressions.IsNotNull": "exists",
     };
 
-    var tableLookup = {"customer": "customer#wV32",
+    var tableLookup = {"customer": "customer#EP342",
                        "lineitem": "lineitem#wV53",
                        "orders": "orders#wV64",
                        "partsupp": "partsupp#wV71",
-                       "supplier": "supplier#wV80",
+                       "supplier": "supplier#EP333",
                        "part": "part#wV91",
                        "region": "region#wV96",
-                       "nation": "nation#wV102"};
+                       "nation": "nation#EP325"};
 
     function assert(st) {
         if (!st) {
@@ -152,15 +152,20 @@ window.SQLCompiler = (function() {
             var rdds = value.output;
             var prefix = "XC_TABLENAME_";
             for (var i = 0; i < rdds.length; i++) {
-                if (rdds[i][0].name.indexOf(prefix) === 0) {
-                    this.newTableName = rdds[i][0].name.
-                                        substring(prefix.length);
+                var evalStr = genEvalStringRecur(SQLCompiler.genTree(undefined,
+                    rdds[i].slice(0)));
+                if (evalStr.indexOf("(") > 0) {
+                    debugger;
+                    console.info(rdds[i]);
+                }
+                if (evalStr.indexOf(prefix) === 0) {
+                    this.newTableName = evalStr.substring(prefix.length);
                     break;
                 }
             }
         }
         this.value = value;
-        this.parent = [];
+        this.parent;
         this.children = [];
         return (this);
     }
@@ -300,18 +305,61 @@ window.SQLCompiler = (function() {
             // Pre: Project must only have 1 child and its child should've been
             // resolved already
             var self = this;
+            var deferred = jQuery.Deferred();
             assert(node.children.length === 1);
-            tableName = node.children[0].newTableName;
+            var tableName = node.children[0].newTableName;
             // Find columns to project
             var columns = [];
+            var evalStrArray = [];
             for (var i = 0; i<node.value.projectList.length; i++) {
-                var colNameStruct = node.value.projectList[i][0];
-                assert(colNameStruct.class ===
+                var colNameStruct;
+                var colName;
+
+                if (node.value.projectList[i].length > 1 ) {
+                    assert(node.value.projectList[i][0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Alias");
+                    var evalStr = genEvalStringRecur(
+                        SQLCompiler.genTree(undefined,
+                        node.value.projectList[i].slice(1)));
+                    var newColName = node.value.projectList[i][0].name;
+                    evalStrArray.push({newColName: newColName,
+                                       evalStr: evalStr});
+                    colName = newColName;
+                } else {
+                    colNameStruct = node.value.projectList[i][0];
+                    assert(colNameStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                var colName = colNameStruct.name;
+                    colName = colNameStruct.name;
+
+                }
+
                 columns.push(colName);
             }
-            return self.sqlObj.project(columns, tableName);
+
+            if (evalStrArray.length > 0) {
+                var mapStrs = evalStrArray.map(function(o) {return o.evalStr;});
+                var newColNames = evalStrArray.map(function(o) {
+                    return o.newColName;
+                });
+                var newTableName = xcHelper.getTableName(tableName) +
+                               Authentication.getHashId();
+
+                var cli;
+                self.sqlObj.map(mapStrs, tableName, newColNames,
+                    newTableName)
+                .then(function(ret) {
+                    cli = ret.cli;
+                    return self.sqlObj.project(columns, newTableName);
+                })
+                .then(function(ret) {
+                    deferred.resolve({newTableName: newTableName,
+                                      cli: cli + ret.cli});
+                });
+            } else {
+                self.sqlObj.project(columns, tableName)
+                .then(deferred.resolve);
+            }
+            return deferred.promise();
         },
 
         _pushDownFilter: function(node) {
@@ -327,9 +375,11 @@ window.SQLCompiler = (function() {
 
         _pushDownJoin: function(node) {
             var self = this;
-            // TODO: Test multi join
+            assert(node.children.length === 2); // It's a join. So 2 kids only
+
             var condTree = SQLCompiler.genTree(undefined,
                 node.value.condition.slice(0));
+
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all the
             // way and when it's not AND, it must be an EQ (stop traversing subtree)
@@ -374,12 +424,22 @@ window.SQLCompiler = (function() {
                 }
             }
 
-            // Check all EQ subtrees and resolve the maps
-            var leftTableName;
-            var rightTableName;
+            // children[0] === leftTable
+            // children[1] === rightTable
+            // Get all columns in leftTable and rightTable because in the eval
+            // string, it can be in either order. For example:
+            // WHERE t1.col1 = t2.col2 and t2.col3 = t1.col4
+            var leftRDDCols = [];
+            var rightRDDCols = [];
+            getAllCols(node.children[0], leftRDDCols);
+            getAllCols(node.children[1], rightRDDCols);
 
-            var newLeftTableName;
-            var newRightTableName;
+            // Check all EQ subtrees and resolve the maps
+            var leftTableName = node.children[0].newTableName;
+            var rightTableName = node.children[1].newTableName;
+
+            var newLeftTableName = leftTableName;
+            var newRightTableName = rightTableName;
 
             var leftCols = [];
             var rightCols = [];
@@ -392,54 +452,35 @@ window.SQLCompiler = (function() {
                 var eqTree = eqSubtrees.shift();
                 assert(eqTree.children.length === 2);
 
-                var tableOne = getQualifiersInSubtree(eqTree.children[0]);
-                assert(tableOne.length === 1);
-                tableOne = tableOne[0];
-                var tableTwo = getQualifiersInSubtree(eqTree.children[1]);
-                assert(tableTwo.length === 1);
-                tableTwo = tableTwo[0];
+                var attributeReferencesOne = [];
+                var attributeReferencesTwo = [];
+                getAttributeReferences(eqTree.children[0],
+                                       attributeReferencesOne);
+                getAttributeReferences(eqTree.children[1],
+                                       attributeReferencesTwo);
 
-                if (!leftTableName) {
-                    assert(!rightTableName);
-                    leftTableName = tableOne;
-                    rightTableName = tableTwo;
-                    if (node.children[0].newTableName.indexOf(leftTableName)
-                        === 0) {
-                        newLeftTableName = node.children[0].newTableName;
-                        assert(node.children[1].newTableName.
-                            indexOf(rightTableName) === 0);
-                        newRightTableName = node.children[1].newTableName;
-                    } else {
-                        assert(node.children[1].newTableName.
-                            indexOf(leftTableName) === 0);
-                        assert(node.children[1].newTableName.
-                            indexOf(rightTableName) === 0);
-                        newLeftTableName = node.children[1].newTableName;
-                        newRightTableName = node.children[0].newTableName;
-                    }
-                } else {
-                    if (!((leftTableName === tableOne &&
-                           rightTableName === tableTwo) ||
-                          (leftTableName === tableTwo &&
-                           rightTableName === tableOne))) {
-                        assert(0);
-                        return deferred.resolve("Cannot do it;");
-                    }
-                }
-                var leftEvalStr;
-                var rightEvalStr;
-                if (leftTableName === tableOne) {
+                if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
+                    xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
+                {
                     leftEvalStr = genEvalStringRecur(eqTree.children[0]);
                     rightEvalStr = genEvalStringRecur(eqTree.children[1]);
-                } else {
+                } else if (xcHelper.arraySubset(attributeReferencesOne,
+                                                rightRDDCols) &&
+                           xcHelper.arraySubset(attributeReferencesTwo,
+                                                leftRDDCols)) {
                     leftEvalStr = genEvalStringRecur(eqTree.children[1]);
                     rightEvalStr = genEvalStringRecur(eqTree.children[0]);
+                } else {
+                    assert(0);
+                    console.error("can't do it :(");
                 }
+
                 if (leftEvalStr.indexOf("(") > 0) {
                     var tableId = Authentication.getHashId();
                     var sourceLeftTableName = newLeftTableName;
 
-                    newLeftTableName = leftTableName + tableId;
+                    newLeftTableName = xcHelper.getTableName(leftTableName) +
+                                       tableId;
                     var newColName = "XC_JOIN_COL_" + tableId.substring(3);
                     leftCols.push(newColName);
                     mapArray.push((function(evalS, sourceTbl, nColName,
@@ -459,7 +500,8 @@ window.SQLCompiler = (function() {
                     var tableId = Authentication.getHashId();
                     var sourceRightTableName = newRightTableName;
 
-                    newRightTableName = rightTableName + tableId;
+                    newRightTableName = xcHelper.getTableName(rightTableName) +
+                                        tableId;
                     var newColName = "XC_JOIN_COL_" + tableId.substring(3);
                     rightCols.push(newColName);
                     mapArray.push((function(evalS, sourceTbl, nColName,
@@ -548,27 +590,29 @@ window.SQLCompiler = (function() {
                          endIdx + matches[4];
             }
         } else {
-            var parentOpName = condTree.parent.value.class.substring(
-                condTree.value.class.indexOf("expressions."));
-            if (parentOpName === "expressions.Cast") {
-                switch (condTree.value.dataType) {
-                    case ("double"):
-                        outStr += "float(";
-                        break;
-                    case ("integer"):
-                        outStr += "int(";
-                        break;
-                    case ("boolean"):
-                        outStr += "bool(";
-                        break;
-                    case ("string"):
-                    case ("date"):
-                        outStr += "string(";
-                        break;
-                    default:
-                        assert(0);
-                        outStr += "string(";
-                        break;
+            if (condTree.parent) {
+                var parentOpName = condTree.parent.value.class.substring(
+                    condTree.value.class.indexOf("expressions."));
+                if (parentOpName === "expressions.Cast") {
+                    switch (condTree.value.dataType) {
+                        case ("double"):
+                            outStr += "float(";
+                            break;
+                        case ("integer"):
+                            outStr += "int(";
+                            break;
+                        case ("boolean"):
+                            outStr += "bool(";
+                            break;
+                        case ("string"):
+                        case ("date"):
+                            outStr += "string(";
+                            break;
+                        default:
+                            assert(0);
+                            outStr += "string(";
+                            break;
+                    }
                 }
             }
             if (condTree.value.class ===
@@ -622,5 +666,30 @@ window.SQLCompiler = (function() {
         getQualifiersRecur(tree);
         return tablesSeen;
     }
+
+    function getAllCols(treeNode, arr) {
+        if (treeNode.value.class ===
+            "org.apache.spark.sql.execution.LogicalRDD") {
+            for (var i = 0; i < treeNode.value.output.length; i++) {
+                arr.push(treeNode.value.output[i][0].name);
+            }
+        }
+        for (var i = 0; i < treeNode.children.length; i++) {
+            getAllCols(treeNode.children[i], arr);
+        }
+    }
+
+    function getAttributeReferences(treeNode, arr) {
+        if (treeNode.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+            if (arr.indexOf(treeNode.value.name) === -1) {
+                arr.push(treeNode.value.name);
+            }
+        }
+        for (var i = 0; i < treeNode.children.length; i++) {
+            getAttributeReferences(treeNode.children[i], arr);
+        }
+    }
+
     return SQLCompiler;
 }());
