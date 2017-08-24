@@ -488,6 +488,8 @@ window.Admin = (function($, Admin) {
         $('#configLicense').click(LicenseModal.show);
 
         $("#logFlush").click(flushLog);
+
+        $("#loginConfig").click(LoginConfigModal.show);
     }
 
     function parseStrIntoUserList(value) {

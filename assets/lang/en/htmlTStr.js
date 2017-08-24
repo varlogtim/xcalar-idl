@@ -392,6 +392,7 @@ module.exports = {
         "ip": "in progress",
         "LastCheckTime": "Last Check Time",
         "LicenseKey": "License Key",
+        "LoginConfig": "Login Configuration",
         "MemoryThresholdHint": "Percentage of memory used before warning to drop tables",
         "memoryUsage": "memory usage",
         "memThreshold": "MEMORY UTILIZATION THRESHOLD",
@@ -964,5 +965,35 @@ module.exports = {
         "description": "Description:",
         "errorMessage": "Error Message:",
         "showHide": "Show/Hide error log"
+    },
+
+    "loginConfig": {
+        "title": "Login Configuration",
+        "instructions": "Configure how users login to Xcalar",
+        "enableDefaultAdminUser": "Enable default admin user account",
+        "adminUsername": "Admin Username",
+        "adminPassword": "Admin Password",
+        "enableLdapAuth": "Enable Lightweight Directory Access Protocol (LDAP) Authentication",
+        "activeDirectory": "Active Directory (AD)",
+        "openLdap": "Open LDAP",
+        "ldapUrl": "LDAP URL",
+        "userDn": "User DN",
+        "searchFilter": "Search Filter",
+        "serverKeyFile": "Server Keyfile",
+        "enableTLS": "Enable Transportation Layer Security (TLS)",
+        "enableWAAD": "Enable Azure Active Directory (AAD) Authentication",
+        "tenant": "Tenant",
+        "clientId": "Client Id",
+        "waadInstructions": {
+            "title": "Here are the steps to enable AAD authentication with Xcalar:",
+            "step1": "Click on \"App Registrations\" in your AAD portal.",
+            "step2": "Click on \"New application registration\".",
+            "step3": "Under \"Name\", enter: Xcalar",
+            "step4": "Under \"Sign-on URL\", enter: ",
+            "step5": "Click on \"Create\". This will register Xcalar into your AAD.",
+            "step6": "Click on the newly registered app.",
+            "step7": "Copy the value under \"Application ID\" and enter it in <b>Client Id</b>.",
+            "step8": "Under <b>Tenant</b> enter the domain name of your AAD, e.g. contoso.com"
+        }
     }
 };

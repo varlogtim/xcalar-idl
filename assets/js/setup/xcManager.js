@@ -481,6 +481,7 @@ window.xcManager = (function(xcManager, $) {
         PreviewFileModal.setup();
         DSInfoModal.setup();
         SkewInfoModal.setup();
+        LoginConfigModal.setup();
     }
 
     function setupUserArea() {

@@ -1,0 +1,144 @@
+<!-- Login Configuration Modal -->
+<div id="loginConfigModal" class="modalContainer">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.loginConfig.title %></span>
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- Extension Modal Instruction -->
+  <section id="loginConfigInstruction" class="modalInstruction">
+    <div class="icon"></div>
+    <div class="text"><%= dicts.loginConfig.instructions %></div>
+  </section>
+  <!-- Default Admin User -->
+  <section class="modalMain">
+    <div class="loginSectionToggle optionSet formRow">
+      <div class="label"><%= dicts.loginConfig.enableDefaultAdminUser %></div>
+      <div class="optionSelector">
+        <div id="loginConfigEnableDefaultAdminUserBox" class="checkbox checked">
+          <i class="icon xi-ckbox-empty fa-13"></i>
+          <i class="icon xi-ckbox-selected fa-13"></i>
+        </div>
+      </div>
+    </div>
+    <div class="loginSectionBody optionSet">
+      <div class="formBiRow">
+        <div class="label"><%= dicts.loginConfig.adminUsername %></div>
+        <input id="loginConfigAdminUsername" type="text" class="xc-input">
+      </div>
+      <div class="formBiRow">
+        <div class="label"><%= dicts.loginConfig.adminPassword %></div>
+        <input id="loginConfigAdminPassword" type="password" class="xc-input">
+      </div>
+    </div>
+  </section>
+
+  <!-- LDAP Authentication -->
+  <section class="modalMain">
+    <div class="loginSectionToggle optionSet formRow">
+      <div class="label"><%= dicts.loginConfig.enableLdapAuth %></div>
+      <div class="optionSelector">
+        <div id="loginConfigEnableLdapAuth" class="checkbox checked">
+          <i class="icon xi-ckbox-empty fa-13"></i>
+          <i class="icon xi-ckbox-selected fa-13"></i>
+        </div>
+      </div>
+    </div>
+    <div class="loginSectionBody optionSet">
+      <div class="radioButtonGroup" id="ldapChoice">
+        <div class="radioButton" data-option="ad">
+          <div class="radio">
+            <i class="icon xi-radio-selected"></i>
+            <i class="icon xi-radio-empty"></i>
+          </div>
+          <div class="radioLabel"><%= dicts.loginConfig.activeDirectory %></div>
+        </div>
+
+        <div class="radioButton active" data-option="ldap">
+          <div class="radio">
+            <i class="icon xi-radio-selected"></i>
+            <i class="icon xi-radio-empty"></i>
+          </div>
+          <div class="radioLabel"><%= dicts.loginConfig.openLdap %></div>
+        </div>
+      </div>
+      <div class="clearfix">
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.ldapUrl %></div>
+          <input id="loginConfigLdapUrl" type="text" class="xc-input">
+        </div>
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.userDn %></div>
+          <input id="loginConfigLdapUserDn" type="text" class="xc-input">
+        </div>
+      </div>
+      <div class="clearfix">
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.searchFilter %></div>
+          <input id="loginConfigLdapSearchFilter" type="text" class="xc-input">
+        </div>
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.serverKeyFile %></div>
+          <input id="loginConfigLdapServerKeyFile" type="text" class="xc-input">
+        </div>
+      </div>
+      <div class="optionSet formRow">
+        <div class="label"><%= dicts.loginConfig.enableTLS %></div>
+        <div class="optionSelector">
+          <div id="loginConfigLdapEnableTLS" class="checkbox checked">
+            <i class="icon xi-ckbox-empty fa-13"></i>
+            <i class="icon xi-ckbox-selected fa-13"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAAD Authentication -->
+  <section class="modalMain">
+    <div class="loginSectionToggle optionSet formRow">
+      <div class="label"><%= dicts.loginConfig.enableWAAD %></div>
+      <div class="optionSelector">
+        <div id="loginConfigEnableWAAD" class="checkbox checked">
+          <i class="icon xi-ckbox-empty fa-13"></i>
+          <i class="icon xi-ckbox-selected fa-13"></i>
+        </div>
+      </div>
+    </div>
+    <div class="loginSectionBody optionSet">
+      <div class="longDescription">
+        <%= dicts.loginConfig.waadInstructions.title %>
+        <ol>
+          <li><%= dicts.loginConfig.waadInstructions.step1 %> </li>
+          <li><%= dicts.loginConfig.waadInstructions.step2 %></li>
+          <li><%= dicts.loginConfig.waadInstructions.step3 %></li>
+          <li><%= dicts.loginConfig.waadInstructions.step4 %><span id="loginConfigWAADSignOnUrl"></span></li>
+          <li><%= dicts.loginConfig.waadInstructions.step5 %></li>
+          <li><%= dicts.loginConfig.waadInstructions.step6 %></li>
+          <li><%= dicts.loginConfig.waadInstructions.step7 %></li>
+          <li><%= dicts.loginConfig.waadInstructions.step8 %></li>
+        </ol>
+      </div>
+      <div class="clearfix">
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.tenant %></div>
+          <input id="loginConfigWAADTenant" type="text" class="xc-input">
+        </div>
+        <div class="formBiRow">
+          <div class="label"><%= dicts.loginConfig.clientId %></div>
+          <input id="loginConfigWAADClientId" type="text" class="xc-input">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn confirm"><%= dicts.common.CONFIRMSAVE %></button>
+    <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
+  </section>
+</div>
+
+<!-- End of Login Configuration Modal -->

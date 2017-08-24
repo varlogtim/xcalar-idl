@@ -610,6 +610,7 @@ module.exports = {
         "Install": "安装",
         "LastCheckTime": "检测时间",
         "LicenseKey": "注册码",
+        "LoginConfig": "配置登录系统",
         "MemoryThresholdHint": "在出现内存警告之前的内存使用百分比",
         "memoryUsage": "内存使用",
         "Monitor": "监控",
@@ -893,5 +894,36 @@ module.exports = {
         "hide": "隐藏工作表",
         "sheet": "工作部",
         "unHideAll": "激活所有工作表"
+    },
+
+    "loginConfig": {
+        "title": "配置登录系统",
+        "instructions": "选择启用默认管理员帐号, 连接认证服务器, 或者连接 AAD",
+        "enableDefaultAdminUser": "启用默认管理员帐号",
+        "adminUsername": "用户名",
+        "adminPassword": "密码",
+        "enableLdapAuth": "连接认证服务器",
+        "activeDirectory": "活动目录 (AD)",
+        "openLdap": "轻型目录访问协议 (LDAP)",
+        "ldapUrl": "服务器位置",
+        "userDn": "用户 DN",
+        "searchFilter": "搜索过滤表达式",
+        "serverKeyFile": "密钥文件",
+        "enableTLS": "启用传输层安全协议 (TLS)",
+        "enableWAAD": "连接 Azure Active Directory (AAD)",
+        "tenant": "租用戶 (tenant)",
+        "clientId": "客户端 ID (client_id)",
+        "waadInstructions": {
+            "title": "按照以下步骤将Xcalar应用程序注册到 Azure Active Directory 租户:",
+            "step1": "登录到 Azure 门户. 在左侧导航窗格中, 依次选择\"更多服务\"和\"安全性 + 标识\"下的\"应用注册\".",
+            "step2": "选择\"新应用注册\".",
+            "step3": "请在\"应用名称\"中输入: Xcalar",
+            "step4": "请在\"登录 URL\"中输入: ",
+            "step5": "按照提示进行操作, 并创建新的应用程序.",
+            "step6": "选择刚创建的Xcalar应用程序.",
+            "step7": "此时，\"应用 ID\" 列为 GUID. 这就是Xcalar应用程序的客户端 ID. 回到此页, 并在<b>客户端 ID (client_id)</b>中输入该客户端 ID.",
+            "step8": "请在<b>租用戶 (tenant)</b>中输入您的 Azure Active Directory 租户, 例如 contoso.com"
+        }
+
     }
 }
