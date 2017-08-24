@@ -38,8 +38,6 @@ window.ProfileSelector = (function(ProfileSelector, $) {
 
         var prevRowNum;
         var isContinuous = true;
-        
-        
 
         getChart().selectAll(".area.selected").each(function(d) {
             if (chartType === "pie") {

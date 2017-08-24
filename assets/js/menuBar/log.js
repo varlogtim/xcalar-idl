@@ -870,7 +870,7 @@ window.Log = (function($, Log) {
         // the idea is: we use an id the mark the log and cli,
         // so all logs/clis before logCurosor's position should show
         // others should hide
-        var $logs = $($textarea.find(".ContentWrap").get().reverse());
+        var $logs = $($textarea.find(".logContentWrap").get().reverse());
         $logs.show();
         $logs.each(function() {
             var $log = $(this);
