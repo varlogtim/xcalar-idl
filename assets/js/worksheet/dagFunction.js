@@ -283,6 +283,7 @@ window.DagFunction = (function($, DagFunction) {
         Dag.focusDagForActiveTable(undefined, true);
     };
 
+
     // will always resolve
     // used after a transaction is complete and before constructing dag
     // finalTableId is optional

@@ -237,6 +237,119 @@ describe('TableMenu Test', function() {
                 DFCreateView.show = cachedFunc;
             });
 
+            describe("advanced", function() {
+                it('lockTable', function() {
+                    var cachedFunc = TblManager.makeTableNoDelete;
+                    var cachedFunc2 = Dag.makeTableNoDelete;
+                    var called = false;
+                    var called2 = false;
+                    TblManager.makeTableNoDelete = function(tName) {
+                        expect(tName).to.equal(tableName);
+                        called = true;
+                    };
+
+                    Dag.makeTableNoDelete = function(tName) {
+                        expect(tName).to.equal(tableName);
+                        called2 = true;
+                    };
+
+                    $tableSubMenu.find('.addNoDelete').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+
+                    $tableSubMenu.find('.addNoDelete').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+                    expect(called2).to.be.true;
+
+                    TblManager.makeTableNoDelete = cachedFunc;
+                    Dag.makeTableNoDelete = cachedFunc2;
+                });
+                it('unlockTable', function() {
+                    var cachedFunc = TblManager.removeTableNoDelete;
+                    var cachedFunc2 = Dag.removeNoDelete;
+                    var called = false;
+                    var called2 = false;
+                    TblManager.removeTableNoDelete = function(tId) {
+                        expect(tId).to.equal(tableId);
+                        called = true;
+                    };
+
+                    Dag.removeNoDelete = function(tId) {
+                        expect(tId).to.equal(tableId);
+                        called2 = true;
+                    };
+
+                    $tableSubMenu.find('.removeNoDelete').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+
+                    $tableSubMenu.find('.removeNoDelete').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+                    expect(called2).to.be.true;
+
+                    TblManager.removeTableNoDelete = cachedFunc;
+                    Dag.removeNoDelete = cachedFunc2;
+                });
+
+                it('genIcv', function() {
+                    var cachedFunc = Dag.generateIcvTable;
+                    var called = false;
+                    $tableSubMenu.find(".generateIcv").removeClass("unavailable");
+                    Dag.generateIcvTable = function(tId, tName) {
+                        expect(tId).to.equal(tableId);
+                        expect(tName).to.equal(tableName);
+                        called = true;
+                    };
+
+                    $tableSubMenu.find('.generateIcv').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+
+                    $tableSubMenu.find('.generateIcv').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    Dag.generateIcvTable = cachedFunc;
+                    $tableSubMenu.find(".generateIcv").addClass("unavailable");
+                });
+                it('complementTable', function() {
+                    var cachedFunc = Dag.generateComplementTable;
+                    var called = false;
+                    $tableSubMenu.find(".complementTable").removeClass("unavailable");
+                    Dag.generateComplementTable = function(tName) {
+                        expect(tName).to.equal(tableName);
+                        called = true;
+                    };
+
+                    $tableSubMenu.find('.complementTable').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+
+                    $tableSubMenu.find('.complementTable').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    Dag.generateComplementTable = cachedFunc;
+                    $tableSubMenu.find(".complementTable").addClass("unavailable");
+                });
+
+                it('skew details', function() {
+                    var cachedFunc = SkewInfoModal.show;
+                    var called = false;
+                    SkewInfoModal.show = function(tId) {
+                        expect(tId).to.equal(tableId);
+                        called = true;
+                    };
+
+                    $tableSubMenu.find('.skewDetails').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+
+                    $tableSubMenu.find('.skewDetails').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    SkewInfoModal.showe = cachedFunc;
+                });
+            });
+
             describe('exit op', function() {
                 it('aggregate', function() {
                     var cachedFunc = OperationsView.close;

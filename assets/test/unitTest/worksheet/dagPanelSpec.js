@@ -1111,10 +1111,14 @@ describe("Dag Panel Test", function() {
                 expect($menu.find("li.generateIcv").hasClass("unavailable"))
                 .to.be.false;
                 // $menu.find(".generateIcv").trigger(fakeEvent.mouseup);
-                DagPanel.__testOnly__.generateIcvTable(
-                    largeTable.$dagWrap.find(".tableName").text(),
+                Dag.generateIcvTable(
+                    largeTable.$dagWrap.data("id"),
                     $largeDagTable.data("tablename"),
                     $largeDagIcon)
+                .then(function() {
+                    // wait for icon's generating class to be removed in .always
+                    return UnitTest.timeoutPromise(1);
+                })
                 .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
@@ -1382,10 +1386,14 @@ describe("Dag Panel Test", function() {
                 expect($menu.find("li.generateIcv").hasClass("unavailable"))
                 .to.be.false;
 
-                DagPanel.__testOnly__.generateIcvTable(
-                    $icon.closest(".dagWrap").find(".tableName").text(),
+                Dag.generateIcvTable(
+                    $icon.closest(".dagWrap").data("id"),
                     $dagTable.data("tablename"),
                     $icon)
+                .then(function() {
+                    // wait for icon's generating class to be removed in .always
+                    return UnitTest.timeoutPromise(1);
+                })
                 .then(function() {
                     var $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
@@ -1458,7 +1466,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("complement table exists should work", function() {
-                var fn = DagPanel.__testOnly__.isComplementTableExists;
+                var fn = Dag.__testOnly__.isComplementTableExists;
                 var cachedFn = DagFunction.addTable;
                 var called = false;
                 DagFunction.addTable = function() {
@@ -1584,7 +1592,7 @@ describe("Dag Panel Test", function() {
 
             expect($dagWrap.find(".highlighted").length).to.equal(3);
             expect($dagWrap.find(".highlighted").last().data("index")).to.equal($dagWrap.find(".dagTable").eq(3).data("index"));
-            expect($dagWrap.find(".highlighted").first().data("index")).to.equal(parseInt(tree.parents[0].value.dagNodeId));
+            expect(parseInt($dagWrap.find(".highlighted").first().data("index"))).to.equal(parseInt(tree.parents[0].value.dagNodeId));
         });
 
         it("getSourceTables should work", function() {

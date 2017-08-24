@@ -34,6 +34,9 @@
     </li>
     <li class="corrAgg"><%= dicts.MenuTStr.QuickAgg %><span class="ellipsis">...</span></li>
     <li class="createDf"><%= dicts.MenuTStr.CreateDF %><span class="ellipsis">...</span></li>
+     <li class="advancedOptions parentMenu" data-submenu="advancedOptions">
+      Advanced Options
+    </li>
     <li class="exitExport exitOp" data-exittype="export">
       <%= dicts.MenuTStr.ExitExport %>
     </li>
@@ -129,6 +132,30 @@
     </li>
     <li class="sizeToFitAll">
       <%= dicts.MenuTStr.ResizeToAll %>
+    </li>
+    <div class="subMenuArea"></div>
+  </ul>
+  <ul class="advancedOptions">
+    <li class="addNoDelete" data-toggle="tooltip" data-placement="bottom"
+    data-container="body" data-original-title="<%= dicts.TooltipTStr.LockTable %>" data-delay="500">
+      <%= dicts.MenuTStr.LockTbl %>
+    </li>
+    <li class="removeNoDelete" data-toggle="tooltip" data-placement="bottom"
+    data-container="body" data-original-title="<%= dicts.TooltipTStr.AllowDelete %>">
+      <%= dicts.MenuTStr.UnlockTbl %>
+    </li>
+    <li class="generateIcv unavailable" data-toggle="tooltip"
+        data-placement="bottom" data-container="body"
+        data-original-title="<%= dicts.TooltipTStr.IcvRestriction %> ">
+      <%= dicts.MenuTStr.GenER %>
+    </li>
+    <li class="complementTable unavailable" data-toggle="tooltip"
+        data-placement="bottom" data-container="body"
+        data-original-title="">
+      <%= dicts.MenuTStr.ComplementTable %>
+    </li>
+    <li class="skewDetails">
+      <%= dicts.MenuTStr.Skew %><span class="ellipsis">...</span>
     </li>
     <div class="subMenuArea"></div>
   </ul>

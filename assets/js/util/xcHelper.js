@@ -3862,9 +3862,14 @@ window.xcHelper = (function($, xcHelper) {
                 if (gTables[tableId].isNoDelete()) {
                     xcHelper.disableMenuItem($("#tableMenu .deleteTable"),
                                     {"title": TooltipTStr.CannotDropLocked});
+                    $subMenu.find(".removeNoDelete").show();
+                    $subMenu.find(".addNoDelete").hide();
                 } else {
                     xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
+                    $subMenu.find(".removeNoDelete").hide();
+                    $subMenu.find(".addNoDelete").show();
                 }
+                TblMenu.showDagAndTableOptions($subMenu, tableId);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

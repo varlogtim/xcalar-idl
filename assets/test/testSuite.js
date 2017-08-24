@@ -636,7 +636,10 @@ window.TestSuite = (function($, TestSuite) {
             $("#dsForm-dsName").val(dsName);
             // auto detect should fill in the form
             $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
-
+            if ($("#alertModal").is(":visible") &&
+                $("#alertHeader").text().trim() === DSTStr.DetectInvalidCol) {
+                $("#alertModal").find(".confirm").click();
+            }
             var dsIcon = getDSIcon(dsName);
             return checkExists(dsIcon);
         })

@@ -12,6 +12,57 @@ window.TblMenu = (function(TblMenu, $) {
         }
     };
 
+    // show/hides menu items common to both table and dag menus
+    // must provide either tableId if it's a worksheet table or $dagTable
+    // if it's a dagTable
+    TblMenu.showDagAndTableOptions = function($menu, tableId, $dagTable) {
+        var $genIcvLi = $menu.find('.generateIcv');
+        var tableInfo = Dag.getTableInfo(tableId, $dagTable);
+        if (tableInfo.isIcv) {
+            xcHelper.disableMenuItem($genIcvLi, {
+                "title": TooltipTStr.AlreadyIcv
+            });
+        } else {
+            if (tableInfo.generatingIcv) {
+                xcHelper.disableMenuItem($genIcvLi, {
+                    "title": TooltipTStr.IcvGenerating
+                });
+            } else if (tableInfo.canBeIcv) {
+                if (tableInfo.hasDroppedParent) {
+                    xcHelper.disableMenuItem($genIcvLi, {
+                        "title": TooltipTStr.IcvSourceDropped
+                    });
+                } else {
+                    xcHelper.enableMenuItem($genIcvLi);
+                }
+            } else {
+                xcHelper.disableMenuItem($genIcvLi, {
+                    "title": TooltipTStr.IcvRestriction
+                });
+            }
+        }
+
+
+        var $complimentLi = $menu.find('.complementTable');
+        if (tableInfo.type === "filter") {
+            if (tableInfo.generatingComplement) {
+                xcHelper.disableMenuItem($complimentLi, {
+                    "title": TooltipTStr.generatingComplement
+                });
+            } else if (tableInfo.hasDroppedParent) {
+                xcHelper.disableMenuItem($complimentLi, {
+                    "title": TooltipTStr.ComplementSourceDropped
+                });
+            } else {
+                xcHelper.enableMenuItem($complimentLi);
+            }
+        } else {
+            xcHelper.disableMenuItem($complimentLi, {
+                "title": TooltipTStr.ComplementRestriction
+            });
+        }
+    };
+
     function addTableMenuActions() {
         var $tableMenu = $('#tableMenu');
         var $subMenu = $('#tableSubMenu');
@@ -292,6 +343,54 @@ window.TblMenu = (function(TblMenu, $) {
             setTimeout(function() {
                 TblManager.resizeColumns(tableId, resizeTo);
             }, 0);
+        });
+
+        $subMenu.find(".addNoDelete").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $tableMenu.data("tableId");
+            var tableName = gTables[tableId].getName();
+            Dag.makeTableNoDelete(tableName);
+            TblManager.makeTableNoDelete(tableName);
+        });
+
+        $subMenu.find(".removeNoDelete").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var tableId = $tableMenu.data("tableId");
+            Dag.removeNoDelete(tableId);
+            TblManager.removeTableNoDelete(tableId);
+        });
+
+        $subMenu.find(".generateIcv").mouseup(function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            var tableName = gTables[tableId].getName();
+            Dag.generateIcvTable(tableId, tableName);
+        });
+
+        $subMenu.find(".complementTable").mouseup(function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+
+            var tableId = $tableMenu.data('tableId');
+            var tableName = gTables[tableId].getName();
+            Dag.generateComplementTable(tableName);
+        });
+
+        $subMenu.find(".skewDetails").mouseup(function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+
+            var tableId = $tableMenu.data('tableId');
+            SkewInfoModal.show(tableId);
         });
     }
 
