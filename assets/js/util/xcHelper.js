@@ -736,7 +736,6 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
         var sizedTo;
-        var widthOption = {"defaultHeaderStyle": true};
 
         if (colNum > 0) {
             var cellWidth;
@@ -746,7 +745,7 @@ window.xcHelper = (function($, xcHelper) {
                 //     cellWidth = options.width;
                 // } else
                 if (options.resize) {
-                    cellWidth = xcHelper.getTextWidth($(), colName, widthOption);
+                    cellWidth = xcHelper.getDefaultColWidth(colName);
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }

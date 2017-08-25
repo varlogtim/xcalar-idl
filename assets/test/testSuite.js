@@ -773,7 +773,8 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart3_2() {
             console.log("start flightTestPart3_2", "map to get uniqueNum");
             var tableId = getFirstTableInWS(0);
-            trigOpModal(tableId, "ArrDelay_integer", "map")
+            // trigOpModal(tableId, "ArrDelay_integer", "map")
+            trigOpModal(tableId, "ArrDelay", "map")
             .then(function() {
                 var $section = $("#operationsView .opSection.map");
                 $section.find(".categoryMenu li[data-category='5']")
@@ -802,7 +803,8 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart4() {
             console.log("start flightTestPart4", "filter flight table");
             var tableId = getFirstTableInWS(0);
-            trigOpModal(tableId, "ArrDelay_integer", "filter")
+            // trigOpModal(tableId, "ArrDelay_integer", "filter")
+            trigOpModal(tableId, "ArrDelay", "filter")
             .then(function() {
                 var $section = $("#operationsView .opSection.filter");
                 $section.find(".functionsList input").val("gt")
@@ -950,7 +952,8 @@ window.TestSuite = (function($, TestSuite) {
                 // test input of the field
                 $section.find(".functionsList .functionsInput").val("avg")
                         .trigger(fakeEvent.enterKeydown);
-                $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
+                // $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
+                $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay");
                 $section.find(".colNameSection .arg").val("AvgDelay");
                 var newTableName = 'GB' + randInt();
                 $section.find('.newTableName').val(newTableName);
@@ -971,10 +974,11 @@ window.TestSuite = (function($, TestSuite) {
         // Aggregate
         function flightTestPart9() {
             console.log("start flightTestPart9",
-                        "aggregate the joined table on avg of ArrDelay_integer");
+                        "aggregate the joined table on avg of ArrDelay");
 
             var tableId = getFirstTableInWS(0);
-            trigOpModal(tableId, "ArrDelay_integer", "aggregate")
+            // trigOpModal(tableId, "ArrDelay_integer", "aggregate")
+            trigOpModal(tableId, "ArrDelay", "aggregate")
             .then(function() {
                 var $section = $("#operationsView .opSection.aggregate");
                 // XXX cannot trigger dropdown list for a bug
@@ -1081,7 +1085,8 @@ window.TestSuite = (function($, TestSuite) {
         var wsId = WSManager.getWSByIndex(1);
         var tableId = getFirstTableInWS(1);
         var newTableName;
-        trigOpModal(tableId, "ArrDelay_integer", "groupby")
+        // trigOpModal(tableId, "ArrDelay_integer", "groupby")
+        trigOpModal(tableId, "ArrDelay", "groupby")
         .then(function() {
             var $section = $("#operationsView .opSection.groupby");
             $section.find(".addGroupArg").click();
@@ -1104,7 +1109,8 @@ window.TestSuite = (function($, TestSuite) {
 
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
-            $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
+            // $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
+            $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay");
             newTableName = 'GB' + randInt();
             $section.find('.newTableName').val(newTableName);
             $("#operationsView .submit").click();
@@ -1147,8 +1153,10 @@ window.TestSuite = (function($, TestSuite) {
         $colMenu.mouseover();
         $colSubMenu.find(".changeDataType .type-integer")
                    .trigger(fakeEvent.mouseup);
+        // checkExists(".flexWrap.flex-mid" +
+        //             " input[value='" + col + "_integer']:eq(0)")
         checkExists(".flexWrap.flex-mid" +
-                    " input[value='" + col + "_integer']:eq(0)")
+                    " input[value='" + col + "']:eq(0)")
         .then(function() {
             if (tableId) {
                 return checkExists("#xcTable-" + tableId, null,
@@ -1210,11 +1218,13 @@ window.TestSuite = (function($, TestSuite) {
             var lCol2 = xcHelper.getPrefixColName(lPrefix, "teacher_id");
 
             $("#mainJoin .leftClause").eq(0).val(lCol1).change();
-            $("#mainJoin .rightClause").eq(0).val("DayofMonth_integer").change();
+            // $("#mainJoin .rightClause").eq(0).val("DayofMonth_integer").change();
+            $("#mainJoin .rightClause").eq(0).val("DayofMonth").change();
             // add another clause
             $("#mainJoin .placeholder .btn").click();
             $("#mainJoin .leftClause").eq(1).val(lCol2).change();
-            $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
+            // $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
+            $("#mainJoin .rightClause").eq(1).val("DayOfWeek").change();
 
             var lTableName = $("#joinLeftTableList").find(".text").val();
             var rTableName = $("#joinRightTableList").find(".text").val();
@@ -1290,8 +1300,10 @@ window.TestSuite = (function($, TestSuite) {
             $colMenu.mouseover();
             $colSubMenu.find(".changeDataType .type-integer")
                 .trigger(fakeEvent.mouseup);
+            // return (checkExists(".flexWrap.flex-mid" +
+            //                     " input[value='Month_integer']:eq(0)"));
             return (checkExists(".flexWrap.flex-mid" +
-                                " input[value='Month_integer']:eq(0)"));
+                                " input[value='Month']:eq(0)"));
         })
         .then(function() {
             return checkExists(("#xcTable-" + tableId), null, {notExist: true});
@@ -1306,8 +1318,10 @@ window.TestSuite = (function($, TestSuite) {
 
     function profileTest(deferred, testName, currentTestNumber) {
         var tableId = getFirstTableInWS(1);
+        // var $header = $("#xcTable-" + tableId +
+        //                 " .flexWrap.flex-mid input[value='Month_integer']");
         var $header = $("#xcTable-" + tableId +
-                        " .flexWrap.flex-mid input[value='Month_integer']");
+                        " .flexWrap.flex-mid input[value='Month']");
         $header.parent().parent().find(".flex-right .innerBox").click();
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
         checkExists([".modalHeader .text:contains('Profile')",

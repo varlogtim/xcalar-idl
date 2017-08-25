@@ -192,12 +192,16 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
+    /*
+        colTypeInfos:
+            colNum: column num
+            type: new type to change to
+     */
     ColManager.changeType = function(colTypeInfos, tableId) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(tableId);
         var table = gTables[tableId];
         var tableName = table.getName();
-        var curTableName = tableName;
 
         // filter out any invalid types
         for (var i = colTypeInfos.length - 1; i >=0 ; i--) {
@@ -209,8 +213,8 @@ window.ColManager = (function($, ColManager) {
                 colTypeInfos.splice(i, 1);
             }
         }
-        var numColInfos = colTypeInfos.length;
-        if (!numColInfos) {
+
+        if (!colTypeInfos.length) {
             return PromiseHelper.resolve(tableId);
         }
 
@@ -225,19 +229,54 @@ window.ColManager = (function($, ColManager) {
             "msg": StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType,
             "sql": sql,
-            "steps": numColInfos
+            "steps": -1
         });
 
         xcHelper.lockTable(tableId, txId);
 
-        var promises = [];
-        for (var i = 0; i < numColInfos; i++) {
-            promises.push(changeTypeHelper.bind(this, i));
-        }
+        var mapStrs = [];
+        var fieldNames = [];
+        var newTablCols = table.tableCols;
+        var colNums = [];
+        var newTableName;
 
-        PromiseHelper.chain(promises)
-        .then(function(newTableName) {
+        colTypeInfos.forEach(function(colTypeInfo) {
+            var colNum = colTypeInfo.colNum;
+            var colType = colTypeInfo.type;
+
+            var progCol = table.getCol(colNum);
+            var frontName = progCol.getFrontColName();
+            var backName = progCol.getBackColName();
+
+            var mapStr = xcHelper.castStrHelper(backName, colType);
+            // var fieldName = xcHelper.stripColName(frontName) + "_" + colType;
+            // fieldName = xcHelper.getUniqColName(tableId, fieldName);
+
+            // Note: it's intended to overwrite the column
+            var fieldName = xcHelper.stripColName(frontName);
+            mapStrs.push(mapStr);
+            fieldNames.push(fieldName);
+            colNums.push(colNum);
+
+            var mapOptions = {
+                "replaceColumn": true,
+                "resize": true,
+                "type": colType
+            };
+            newTablCols = xcHelper.mapColGenerate(colNum, fieldName, mapStr,
+                                                  newTablCols, mapOptions);
+        });
+
+        XIApi.map(txId, mapStrs, tableName, fieldNames)
+        .then(function(tableAfterMap) {
+            newTableName = tableAfterMap;
             sql.newTableName = newTableName;
+
+            var options = {"selectCol": colNums};
+            return TblManager.refreshTable([newTableName], newTablCols,
+                                        [tableName], worksheet, txId, options);
+        })
+        .then(function() {
             var newTableId = xcHelper.getTableId(newTableName);
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
@@ -253,71 +292,13 @@ window.ColManager = (function($, ColManager) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.ChangeTypeFailed,
-                "error": error
+                "error": error,
+                "sql": sql
             });
             deferred.reject(error);
         });
 
         return deferred.promise();
-
-        function changeTypeHelper(index) {
-            var innerDeferred = jQuery.Deferred();
-
-            var srcTable = curTableName;
-            var newTable;
-
-            var colInfo = colTypeInfos[index];
-            var colNum = colInfo.colNum;
-            var colType = colInfo.type;
-
-            var progCol = table.getCol(colNum);
-            var frontName = progCol.getFrontColName();
-            var backName = progCol.getBackColName();
-
-            var mapStr = xcHelper.castStrHelper(backName, colType);
-            var fieldName = xcHelper.stripColName(frontName) + "_" + colType;
-            // here use front col name to generate newColName
-            fieldName = xcHelper.getUniqColName(tableId, fieldName);
-
-            XIApi.map(txId, mapStr, srcTable, fieldName)
-            .then(function(tableAfterMap) {
-                newTable = tableAfterMap;
-
-                var mapOptions = {
-                    "replaceColumn": true,
-                    "resize": true,
-                    "type": colType
-                };
-                var srcTableId = xcHelper.getTableId(srcTable);
-                var srcTableCols = gTables[srcTableId].tableCols;
-
-                var newTablCols = xcHelper.mapColGenerate(colNum, fieldName,
-                                        mapStr, srcTableCols, mapOptions);
-
-                if (index !== numColInfos - 1) {
-                    TblManager.setOrphanTableMeta(newTable, newTablCols);
-                    return;
-                } else {
-                    var colNums = colTypeInfos.map(function(info) {
-                        return info.colNum;
-                    });
-                    var options = {
-                        "selectCol": colNums
-                    };
-
-                    return TblManager.refreshTable([newTable], newTablCols,
-                                                [tableName], worksheet, txId,
-                                                options);
-                }
-            })
-            .then(function() {
-                curTableName = newTable;
-                innerDeferred.resolve(newTable);
-            })
-            .fail(innerDeferred.reject);
-
-            return innerDeferred.promise();
-        }
     };
 
     // currently only works on 1 column at a time
@@ -393,7 +374,10 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
 
 
-            Transaction.done(txId, {"msgTable": newTableId});
+            Transaction.done(txId, {
+                "msgTable": newTableId,
+                "sql": sql
+            });
             // resolve will be used in testing
             deferred.resolve(newTableId);
         })
@@ -406,7 +390,8 @@ window.ColManager = (function($, ColManager) {
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.SplitColumnFailed,
-                    "error": error
+                    "error": error,
+                    "sql": sql
                 });
                 deferred.reject(error);
             }
