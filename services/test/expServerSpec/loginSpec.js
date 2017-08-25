@@ -29,7 +29,6 @@ describe('ExpServer Login Test', function() {
     var testCredArray;
     var testLdapConn;
     var testConfig;
-    var isSetup;
 
     // Test begins
     before(function() {
@@ -53,7 +52,7 @@ describe('ExpServer Login Test', function() {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../test").promise();
         };
-        login.setupLdapConfigs(isSetup)
+        login.setupLdapConfigs(true)
         .then(function(ret) {
             expect(ret).to.equal("setupLdapConfigs succeeds");
             done();
@@ -67,7 +66,7 @@ describe('ExpServer Login Test', function() {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("testError").promise();
         };
-        login.setupLdapConfigs(isSetup)
+        login.setupLdapConfigs(true)
         .then(function() {
             done("fail");
         })
@@ -194,13 +193,21 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('Router shoud work', function(done) {
-        login.fakeLoginAuthentication();
+    it('Router should work with login action', function(done) {
+        testCredArray = {
+            xiusername: "sPerson1@gmail.com",
+            xipassword: "Welcome1"
+        };
+
         var expectedRetMsg = {
             "status": 200,
-            "logs": "Fake response login!"
+            "firstName": testCredArray["xiusername"],
+            "isAdmin": false,
+            "isSupporter": false,
+            "isValid": false,
+            "mail": testCredArray["xiusername"]
         };
-        postRequest("POST", "/login")
+        postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
             expect(ret).to.deep.equal(expectedRetMsg);
             done();
@@ -210,19 +217,124 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('Router shoud fail when error', function(done) {
-        login.fakeLoginAuthentication();
-        var successRetMsg = {
-            "status": 200,
-            "logs": "Fake response login!"
-        };
+    it('Router should fail with invalid endpoint', function(done) {
         postRequest("POST", "/invalidUrl")
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).not.to.deep.equal(successRetMsg);
+            expect(error["status"]).to.deep.equal(404);
             done();
+        });
+    });
+
+    it('Router should fail with setWaadConfig action and bogus waadConfig', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve("../../test").promise();
+        };
+
+        var credArray = {
+            bogus: "bogus"
+        };
+
+        var expectedRetMsg = {
+            "status": 200,
+            "success": false,
+            "error": "Invalid WaadConfig provided"
+        };
+
+        postRequest("POST", "/login/waadConfig/set", credArray)
+        .then(function(ret) {
+            expect(ret).to.deep.equal(expectedRetMsg);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should fail with setWaadConfig action and invalid directory', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve("../../doesnotexist").promise();
+        };
+
+        var credArray = {
+            waadEnabled: true,
+            tenant: "legitLookingTenant",
+            clientId: "legitLookingClient"
+        };
+
+        postRequest("POST", "/login/waadConfig/set", credArray)
+        .then(function(ret) {
+            expect(ret["error"]).to.have.string("Failed to write");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should work with proper setWaadConfig action and getWaadConfig action', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+        };
+
+        var setArray = {
+            waadEnabled: true,
+            tenant: Math.floor(Math.random() * 1000).toString(),
+            clientId: Math.floor(Math.random() * 1000).toString()
+        };
+
+        postRequest("POST", "/login/waadConfig/set", setArray)
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "success": true,
+                "status": 200
+            }
+
+            expect(ret).to.deep.equal(expectedRetMsg)
+
+            return (postRequest("POST", "/login/waadConfig/get"));
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "waadEnabled": true,
+                "status": 200,
+                "tenant": setArray["tenant"],
+                "clientId": setArray["clientId"]
+            };
+            expect(ret).to.deep.equal(expectedRetMsg);
+
+            // Now disable waad
+            setArray["waadEnabled"] = false;
+            return (postRequest("POST", "/login/waadConfig/set", setArray));
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "success": true,
+                "status": 200
+            };
+
+            expect(ret).to.deep.equal(expectedRetMsg)
+            return (postRequest("POST", "/login/waadConfig/get"));
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "waadEnabled": false,
+                "status": 200,
+                "tenant": setArray["tenant"],
+                "clientId": setArray["clientId"]
+            };
+
+            expect(ret).to.deep.equal(expectedRetMsg)
+            done();
+        })
+        .fail(function(ret) {
+            var foo = {
+                "bogus": "bogus"
+            }
+            expect(ret).to.deep.equal(foo)
+            done("fail");
         });
     });
 });
