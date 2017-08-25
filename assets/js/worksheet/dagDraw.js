@@ -413,7 +413,7 @@ window.DagDraw = (function($, DagDraw) {
 
         if ($dagTable.hasClass('dataStore')) {
             tableImage = dImage;
-            iconLeft -= 2;
+            iconLeft -= 6;
             iconTop -= 4;
             maxWidth = 120;
             x = left - 42;
@@ -1561,9 +1561,17 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('indexInput'):
-                    info.type = "sort";
                     info.column = value.keyName;
-                    if (value.ordering !== XcalarOrderingT.XcalarOrderingUnordered) {
+                    if (!value.source.isTable) {
+                        info.tooltip = "Created Table";
+                        info.type = "createTable";
+                        info.column = "";
+                        info.text = "indexed on " + value.keyName;
+                    } else if (value.ordering ===
+                            XcalarOrderingT.XcalarOrderingAscending ||
+                        value.ordering ===
+                                   XcalarOrderingT.XcalarOrderingDescending) {
+                        info.type = "sort";
                         var order = "";
                         if (value.ordering ===
                             XcalarOrderingT.XcalarOrderingAscending) {
@@ -1583,14 +1591,8 @@ window.DagDraw = (function($, DagDraw) {
                         }
                         info.text = "sorted " + order + "on " + value.keyName;
                     } else {
-                        if (value.source.isTable) {
-                            info.tooltip = "Indexed by " + value.keyName;
-                            info.type = "index";
-                        } else {
-                            info.tooltip = "Created Table";
-                            info.type = "createTable";
-                            info.column = "";
-                        }
+                        info.tooltip = "Indexed by " + value.keyName;
+                        info.type = "index";
                         info.text = "indexed on " + value.keyName;
                     }
                     info.opText = info.column;
@@ -1948,6 +1950,10 @@ window.DagDraw = (function($, DagDraw) {
         var upperParentX = canvasWidth - upperParent.value.display.x;
         var upperParentY = upperParent.value.display.y + dagTableHeight / 2;
         var curvedLineCoor;
+        var parentOffset = 0;
+        if (upperParent.value.api === XcalarApisT.XcalarApiBulkLoad) {
+            parentOffset += 3;
+        }
 
         // line from table to operation
         drawLine(ctx, tableX, tableY, tableX - 50, tableY);
@@ -1960,7 +1966,7 @@ window.DagDraw = (function($, DagDraw) {
             curvedLineCoor = {
                 x1: tableX - 140,
                 y1: tableY,
-                x2: upperParentX + (smallTableWidth / 2), // middle of blue table
+                x2: upperParentX + (smallTableWidth / 2) + parentOffset, // middle of blue table
                 y2: upperParentY
             };
             drawCurve(ctx, curvedLineCoor, true);
