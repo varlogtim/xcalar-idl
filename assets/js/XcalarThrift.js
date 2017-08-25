@@ -2029,7 +2029,7 @@ function XcalarMapWithInput(txId, inputStruct) {
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    var workItem = xcalarApiMapWorkItem();
+    var workItem = xcalarApiMapWorkItem([""], null, null, [""]);
     workItem.input.mapInput = inputStruct;
 
     var def1;
