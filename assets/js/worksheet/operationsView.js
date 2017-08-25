@@ -3144,8 +3144,12 @@ window.OperationsView = (function($, OperationsView) {
         colTypeInfos = colTypeInfos || [];
         var gbArgs = [];
         var groupByCols = [];
+        var gbCol;
         for (var i = 0; i < args[0].length - 2; i++) {
-            groupByCols.push(args[0][i].trim());
+            gbCol = args[0][i].trim();
+            if (groupByCols.indexOf(gbCol) === -1) {
+                groupByCols.push(gbCol);
+            }
         }
 
         var operatorsFound = {};
@@ -3155,10 +3159,11 @@ window.OperationsView = (function($, OperationsView) {
             var aggCol = args[i][aggColIndex];
 
             // avoid duplicate operator-aggCol pairs
-            if (operatorsFound[operators[i] + aggCol]) {
+            // using # as delimiter
+            if (operatorsFound[operators[i] + "#" + aggCol]) {
                 continue;
             }
-            operatorsFound[operators[i] + aggCol] = true;
+            operatorsFound[operators[i] + "#" + aggCol] = true;
 
             colTypeInfo = colTypeInfos[i] || [];
             jQuery.each(colTypeInfo, function(index, colInfo) {
