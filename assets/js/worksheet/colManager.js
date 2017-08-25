@@ -326,54 +326,161 @@ window.ColManager = (function($, ColManager) {
         // when do replay, this flag is null, so no alert
         // since we assume user want to replay it.
         var deferred = jQuery.Deferred();
-        var splitWithDelimIndex = null;
-        var userNumColToGet = numColToGet;
+        var splitAll = (numColToGet == null);
+        var numNewCols = null;
 
-        var worksheet   = WSManager.getActiveWS();
-        var table       = gTables[tableId];
-        var tableName   = table.tableName;
-        var tableCols   = table.tableCols;
-        var newColNum   = colNum;
-        var colName     = tableCols[colNum - 1].name;
-        var backColName = tableCols[colNum - 1].getBackColName();
+        var worksheet = WSManager.getActiveWS();
+        var table = gTables[tableId];
+        var tableName = table.getName();
+        var progCol = table.getCol(colNum);
+        var backColName = progCol.getBackColName();
 
-        var tableNamePart = tableName.split("#")[0];
-        var newTableNames = [];
-        var newFieldNames = [];
+        var newTableName;
+        var newFieldNames;
+        var mapStrs;
+
+        var sql = {
+            "operation": SQLOps.SplitCol,
+            "tableName": tableName,
+            "tableId": tableId,
+            "colNum": colNum,
+            "delimiter": delimiter,
+            "numColToGet": numColToGet,
+            "htmlExclude": ['numColToGet']
+        };
 
         var txId = Transaction.start({
             "msg": StatusMessageTStr.SplitColumn,
             "operation": SQLOps.SplitCol,
+            "sql": sql,
             "steps": -1
         });
 
         xcHelper.lockTable(tableId, txId);
 
-        getSplitNumHelper()
-        .then(function(colToSplit, delimIndex) {
-            numColToGet = colToSplit;
-            splitWithDelimIndex = delimIndex;
+        getSplitNumHelper(numColToGet, splitAll)
+        .then(function(colNumToSplit) {
+            numNewCols = colNumToSplit;
+            sql.numNewCols = colNumToSplit;
 
-            // index starts with 1 to make the code easier,
-            // since the xdf cut(col, index, delim)'s index also stars with 1
-            var i;
-            for (i = 1; i <= numColToGet; i++) {
-                newTableNames[i] = tableNamePart + Authentication.getHashId();
+            newFieldNames = getSplitColNames(progCol.getFrontColName());
+            mapStrs = getSplitStrs();
+            return XIApi.map(txId, mapStrs, tableName, newFieldNames);
+        })
+        .then(function(tableAfterMap) {
+            newTableName = tableAfterMap;
+            sql.newTableName = newTableName;
+
+            var newColNums = [];
+            var newColNum = colNum;
+            var newProgCols = table.tableCols;
+            var mapColOptions = {type: ColumnType.string};
+            for (var i = 0; i < numNewCols; i++) {
+                newProgCols = xcHelper.mapColGenerate(++newColNum,
+                                        newFieldNames[i], mapStrs[i],
+                                        newProgCols, mapColOptions);
+                newColNums.push(newColNum);
             }
 
-            // Check duplication
-            var tryCount  = 0;
-            var colPrefix = colName + "-split";
+            var refreshOpts = {selectCol: newColNums};
+            return TblManager.refreshTable([newTableName], newProgCols,
+                                    [tableName], worksheet, txId, refreshOpts);
+        })
+        .then(function() {
+            var newTableId = xcHelper.getTableId(newTableName);
+            // map do not change stats of the table
+            Profile.copy(tableId, newTableId);
+            xcHelper.unlockTable(tableId);
 
-            i = 1;
-            while (i <= numColToGet && tryCount <= 50) {
+
+            Transaction.done(txId, {"msgTable": newTableId});
+            // resolve will be used in testing
+            deferred.resolve(newTableId);
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+
+            if (error === SQLType.Cancel) {
+                Transaction.cancel(txId);
+                deferred.resolve();
+            } else {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.SplitColumnFailed,
+                    "error": error
+                });
+                deferred.reject(error);
+            }
+
+        });
+
+        return deferred.promise();
+
+        function getSplitNumHelper(userNumColToGet, toSplitAll) {
+            if (!toSplitAll) {
+                // have an extra column for the rest of string
+                // and the delim index should be userNumColToGet
+                return alertHelper(userNumColToGet + 1);
+            }
+
+            var innerDeferred = jQuery.Deferred();
+            var mapStr = 'countChar(' + backColName + ', "' + delimiter + '")';
+            var fieldName = xcHelper.randName("mappedCol");
+            var newTableName = null;
+
+            XIApi.map(txId, mapStr, tableName, fieldName)
+            .then(function(tableAfterMap) {
+                newTableName = tableAfterMap;
+                return XIApi.aggregate(txId, AggrOp.MaxInteger,
+                                       fieldName, newTableName);
+            })
+            .then(function(value) {
+                XIApi.deleteTable(txId, newTableName);
+                // Note that the splitColNum should be charCountNum + 1
+                return alertHelper(value + 1);
+            })
+            .then(innerDeferred.resolve)
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function alertHelper(numToSplit, numDelim) {
+            var innerDeferred = jQuery.Deferred();
+            if (isAlertOn && numToSplit > 15) {
+                var msg = xcHelper.replaceMsg(ColTStr.SplitColWarnMsg, {
+                    "num": numToSplit
+                });
+
+                Alert.show({
+                    "title": ColTStr.SplitColWarn,
+                    "msg": msg,
+                    "onConfirm": function() {
+                        innerDeferred.resolve(numToSplit, numDelim);
+                    },
+                    "onCancel": function() {
+                        innerDeferred.reject(SQLType.Cancel);
+                    }
+                });
+            } else {
+                innerDeferred.resolve(numToSplit, numDelim);
+            }
+            return innerDeferred.promise();
+        }
+
+        function getSplitColNames(colName) {
+            // Check duplication
+            var tryCount = 0;
+            var colPrefix = colName + "-split";
+            var i = 0;
+            var newFieldNames = [];
+            while (i < numNewCols && tryCount <= 50) {
                 ++tryCount;
 
-                for (i = 1; i <= numColToGet; i++) {
-                    if (i === numColToGet && splitWithDelimIndex != null) {
+                for (i = 0; i < numNewCols; i++) {
+                    if (i === (numNewCols - 1) && !splitAll) {
                         newFieldNames[i] = colPrefix + "-rest";
                     } else {
-                        newFieldNames[i] = colPrefix + "-" + i;
+                        newFieldNames[i] = colPrefix + "-" + (i + 1);
                     }
 
                     if (table.hasCol(newFieldNames[i], "")) {
@@ -386,175 +493,27 @@ window.ColManager = (function($, ColManager) {
 
             if (tryCount > 50) {
                 console.warn("Too much try, overwrite origin col name!");
-                for (i = 1; i <= numColToGet; i++) {
+                for (i = 0; i < numNewCols; i++) {
                     newFieldNames[i] = colName + "-split" + i;
                 }
             }
+            return newFieldNames;
+        }
 
-            // do this so that it's easy to get parent table in splitColHelper()
-            newTableNames[0] = tableName;
-
-            var promises = [];
-            for (i = 1; i <= numColToGet; i++) {
-                promises.push(splitColHelper.bind(this, i));
-            }
-
-            return PromiseHelper.chain(promises);
-        })
-        .then(function(newTableId) {
-            // map do not change stats of the table
-            Profile.copy(tableId, newTableId);
-            xcHelper.unlockTable(tableId);
-
-            var sql = {
-                "operation": SQLOps.SplitCol,
-                "tableName": tableName,
-                "tableId": tableId,
-                "newTableName": newTableNames[numColToGet],
-                "colNum": colNum,
-                "delimiter": delimiter,
-                "numColToGet": userNumColToGet,
-                "numNewCols": numColToGet,
-                "htmlExclude": ['numColToGet']
-            };
-
-            Transaction.done(txId, {
-                "msgTable": newTableId,
-                "sql": sql
-            });
-            // resolve will be used in testing
-            deferred.resolve(newTableId);
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-
-            var sql = {
-                "operation": SQLOps.SplitCol,
-                "tableName": tableName,
-                "tableId": tableId,
-                "newTableName": newTableNames[numColToGet],
-                "colNum": colNum,
-                "delimiter": delimiter,
-                "numColToGet": userNumColToGet,
-                "numNewCols": numColToGet,
-                "htmlExclude": ['numColToGet']
-            };
-
-            if (error === SQLType.Cancel) {
-                Transaction.cancel(txId, {"sql": sql});
-                deferred.resolve();
-            } else {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.SplitColumnFailed,
-                    "error": error,
-                    "sql": sql
-                });
-                deferred.reject(error);
-            }
-
-        });
-
-        return deferred.promise();
-
-        function splitColHelper(index) {
-            var innerDeferred = jQuery.Deferred();
-
-            var mapString;
-            if (index === numColToGet && splitWithDelimIndex != null) {
-                mapString = 'default:splitWithDelim(' + backColName + ', ' +
-                            splitWithDelimIndex + ', "' + delimiter + '")';
-            } else {
-                mapString = 'cut(' + backColName + ', ' + index + ', "' +
-                            delimiter + '")';
-            }
-
-            var curTableName = newTableNames[index - 1];
-            var newTableName = newTableNames[index];
-            var fieldName = xcHelper.stripColName(newFieldNames[index]);
-            var newTableId = xcHelper.getTableId(newTableName);
-
-            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
-            .then(function() {
-                var curTableId   = xcHelper.getTableId(curTableName);
-                var curTableCols = gTables[curTableId].tableCols;
-                var mapColOptions = {type: ColumnType.string};
-                var newTableCols = xcHelper.mapColGenerate(++newColNum,
-                                        fieldName, mapString, curTableCols,
-                                        mapColOptions);
-                if (index < numColToGet) {
-                    TblManager.setOrphanTableMeta(newTableName, newTableCols);
-                    return PromiseHelper.resolve(null);
+        function getSplitStrs() {
+            var mapStrs = [];
+            for (var i = 0; i < numNewCols; i++) {
+                var mapStr;
+                if (i === (numNewCols - 1) && !splitAll) {
+                    mapStr = 'default:splitWithDelim(' + backColName + ', ' +
+                              i + ', "' + delimiter + '")';
                 } else {
-                    var newColNums = [];
-                    for (var i = 0; i < numColToGet; i++) {
-                        newColNums.push(newColNum - i);
-                    }
-                    var options = {
-                        selectCol: newColNums
-                    };
-                    return TblManager.refreshTable([newTableName], newTableCols,
-                                                [tableName], worksheet, txId,
-                                                options);
+                    mapStr = 'cut(' + backColName + ', ' + (i + 1) + ', "' +
+                             delimiter + '")';
                 }
-            })
-            .then(function() {
-                innerDeferred.resolve(newTableId);
-            })
-            .fail(innerDeferred.reject);
-
-            return (innerDeferred.promise());
-        }
-
-        function getSplitNumHelper() {
-            var innerDeferred = jQuery.Deferred();
-
-            if (numColToGet != null) {
-                // have an extra column for the rest of string
-                // and the delim index should be numColToGet
-                alertHelper(numColToGet + 1, numColToGet, innerDeferred);
-                return (innerDeferred.promise());
+                mapStrs[i] = mapStr;
             }
-
-            var mapString = 'countChar(' + backColName + ', "' +
-                                delimiter + '")';
-            var fieldName = xcHelper.randName("mappedCol");
-            var curTableName = tableName;
-            var newTableName = ".tempMap." + tableNamePart +
-                                Authentication.getHashId();
-
-            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
-            .then(function() {
-                return XIApi.aggregate(txId, AggrOp.MaxInteger, fieldName, newTableName);
-            })
-            .then(function(value) {
-                XIApi.deleteTable(txId, newTableName);
-                // Note that the splitColNum should be charCountNum + 1
-                alertHelper(value + 1, null, innerDeferred);
-            })
-            .fail(innerDeferred.reject);
-
-            return (innerDeferred.promise());
-        }
-
-        function alertHelper(numToSplit, numDelim, curDeferred) {
-            if (isAlertOn && numToSplit > 15) {
-                var msg = xcHelper.replaceMsg(ColTStr.SplitColWarnMsg, {
-                    "num": numToSplit
-                });
-
-                Alert.show({
-                    "title": ColTStr.SplitColWarn,
-                    "msg": msg,
-                    "onConfirm": function() {
-                        curDeferred.resolve(numToSplit, numDelim);
-                    },
-                    "onCancel": function() {
-                        curDeferred.reject(SQLType.Cancel);
-                    }
-                });
-            } else {
-                curDeferred.resolve(numToSplit, numDelim);
-            }
+            return mapStrs;
         }
     };
 

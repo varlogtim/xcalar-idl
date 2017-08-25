@@ -1664,6 +1664,7 @@ window.TblManager = (function($, TblManager) {
         });
 
         function splitCntChars(sChars, eChars) {
+            var eLen = eChars.length;
             var len = Math.max(sChars.length, eChars.length);
             // padding empty string to chars to the end
             sChars = sChars.concat(new Array(len - sChars.length).fill(""));
@@ -1686,7 +1687,8 @@ window.TblManager = (function($, TblManager) {
                 }
                 return res;
             });
-
+            // chars need to be the same len as eChars
+            chars.splice(eLen);
             return chars;
         }
 
