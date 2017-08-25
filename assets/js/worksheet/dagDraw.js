@@ -1425,7 +1425,7 @@ window.DagDraw = (function($, DagDraw) {
         var taggedInfo;
         if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
             node.value.tags.length === 1) {
-            taggedInfo = setTaggedOpInfo(info, value, node);
+            taggedInfo = setTaggedOpInfo(info, value, node, parentNames);
         } else {
             info.operation = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
             info.operation = info.operation.slice(0, info.operation.length - 5);
@@ -1596,6 +1596,9 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('joinInput'):
+                    var srcCols = getJoinSrcCols(node);
+                    var lSrcCols = srcCols.left;
+                    var rSrcCols = srcCols.right;
 
                     info.text = JoinOperatorTStr[value.joinType];
 
@@ -1612,7 +1615,13 @@ window.DagDraw = (function($, DagDraw) {
 
                     info.tooltip = joinText + " Join between table &quot;" +
                                    parentNames[0] + "&quot; and table &quot;" +
-                                   parentNames[1] + "&quot;";
+                                   parentNames[1] + "&quot; where ";
+                    for (var i = 0; i < lSrcCols.length; i++) {
+                        if (i > 0) {
+                            info.tooltip += ", " ;
+                        }
+                        info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
+                    }
                     info.column = parentNames[0] + ", " + parentNames[1];
                     info.opText = info.column;
                     break;
@@ -1685,7 +1694,7 @@ window.DagDraw = (function($, DagDraw) {
         return (info);
     }
 
-    function setTaggedOpInfo(info, value, node) {
+    function setTaggedOpInfo(info, value, node, parentNames) {
         var taggedOp = getOpFromTag(node.value.tags[0]);
         var opFound = true;
         var evalStr;
@@ -1782,6 +1791,62 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
+    function getJoinSrcCols(node) {
+        var lSrcCols = [];
+        var rSrcCols = [];
+        var groupLeaves = getGroupLeaves(node);
+        for (var i = 0; i < groupLeaves.length; i++) {
+            if (groupLeaves[i].value.api === XcalarApisT.XcalarApiMap) {
+                if (i === 0) {
+                    lSrcCols = parseConcatCols(groupLeaves[i]);
+                } else {
+                    rSrcCols = parseConcatCols(groupLeaves[i]);
+                }
+            } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiIndex) {
+                if (i === 0) {
+                    lSrcCols.push(groupLeaves[i].value.struct.keyName);
+                } else {
+                    rSrcCols.push(groupLeaves[i].value.struct.keyName);
+                }
+            } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiJoin) {
+                if (i === 0) {
+                    lSrcCols.push(getSrcIndex(groupLeaves[i].parents[i]));
+                } else {
+                    rSrcCols.push(getSrcIndex(groupLeaves[i].parents[i]));
+                }
+            }
+        }
+
+        return {left: lSrcCols, right: rSrcCols};
+
+        function getSrcIndex(node) {
+            if (node.value.api === XcalarApisT.XcalarApiIndex) {
+                return node.value.struct.keyName;
+            } else {
+                return getSrcIndex(node.parents[0]);
+            }
+        }
+    }
+
+    // made only for join, gets leaves within a tagged group
+    function getGroupLeaves(node) {
+        var tag = node.value.tags[0];
+        var leaves = [];
+        getLeaves(node);
+
+        function getLeaves(node) {
+            for (var i = 0; i < node.parents.length; i++) {
+                var parentNode = node.parents[i];
+                if (tag && parentNode.value.tags[0] === tag) {
+                    getLeaves(parentNode);
+                } else {
+                    leaves.push(node);
+                }
+            }
+        }
+        return leaves;
+    }
+
     function getGroupedOnText(node) {
         var text = "";
         var numParents = node.value.numParents;
@@ -1864,6 +1929,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     // used only for parsing concated col names used for multi group by
+    // and maps within multijoin
     function parseConcatCols(node) {
         var cols = [];
         if (node.value.api === XcalarApisT.XcalarApiMap) {
