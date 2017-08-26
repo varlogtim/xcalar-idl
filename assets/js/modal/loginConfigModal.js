@@ -1,6 +1,7 @@
 window.LoginConfigModal = (function($, LoginConfigModal) {
     var $modal;  // $("#loginConfigModal");
     var modalHelper;
+    var waadConfig;
 
     LoginConfigModal.setup = function() {
         $modal = $("#loginConfigModal");
@@ -13,8 +14,19 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         $("#loginConfigWAADSignOnUrl").text(signOnUrl);
     };
 
-    LoginConfigModal.show = function() {
+    LoginConfigModal.show = function(waadConfigIn) {
+        waadConfig = waadConfigIn;
         modalHelper.setup();
+
+        if (waadConfigIn !== null) {
+            if (waadConfig.waadEnabled) {
+                $("#loginConfigEnableWAAD").find(".checkbox").addClass("checked");
+                $("#loginConfigEnableWAAD").next().removeClass("xc-hidden");
+            }
+
+            $("#loginConfigWAADTenant").val(waadConfig.tenant);
+            $("#loginConfigWAADClientId").val(waadConfig.clientId);
+        }
     };
 
     function setupListeners() {
@@ -39,8 +51,24 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         });
     };
 
+    function submitWaadConfig() {
+        var waadEnabled = $("#loginConfigEnableWAAD").find(".checkbox").hasClass("checked");
+        var tenant = $("#loginConfigWAADTenant").val();
+        var clientId = $("#loginConfigWAADClientId").val();
+        return setWaadConfig(hostname, waadEnabled, tenant, clientId); 
+    }
+
     function submitForm() {
-        closeModal();
+        submitWaadConfig()
+        .then(function() {
+            xcHelper.showSuccess(SuccessTStr.LoginConfigSaved);
+        })
+        .fail(function() {
+            xcHelper.showFail(FailTStr.LoginConfigSaveFailed);
+        })
+        .always(function() {
+            closeModal();
+        });
     };
 
     function closeModal() {

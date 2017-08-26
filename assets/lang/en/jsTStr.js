@@ -418,7 +418,8 @@ SuccessTStr = {
     "ExtDisable": "Extension Successfully Disabled!",
     "Profile": "Profile Image Saved Successfully!",
     "BundleUploaded": "Bundle generated! Uploaded: ",
-    "FlushLog": "Flush Log Successfully!"
+    "FlushLog": "Flush Log Successfully!",
+    "LoginConfigSaved": "Login configuration saved successfully!"
 };
 
 FailTStr = {
@@ -427,7 +428,8 @@ FailTStr = {
     "SaveSettings": "Saving Settings Failed.",
     "RmDF": "Remove Batch Dataflow Failed.",
     "RmSched": "Delete Schedule Failed.!",
-    "FlushLog": "Flush Log Failed!"
+    "FlushLog": "Flush Log Failed!",
+    "LoginConfigSaveFailed": "Login configuration was not saved successfully."
 };
 
 ThriftTStr = {

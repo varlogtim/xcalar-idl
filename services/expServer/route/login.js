@@ -490,7 +490,6 @@ router.post('/login', function(req, res) {
 });
 
 router.post('/login/waadConfig/get', function(req, res) {
-    var credArray = req.body;
     getWaadConfig()
     .always(function(message) {
         res.status(message.status).send(message);

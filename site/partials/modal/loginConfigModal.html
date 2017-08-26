@@ -14,17 +14,17 @@
   </section>
   <div class="modalMain">
     <!-- Default Admin User -->
-    <section class="modalMainSection">
+    <section class="modalMainSection xc-hidden">
       <div class="loginSectionToggle optionSet formRow">
         <div class="label"><%= dicts.loginConfig.enableDefaultAdminUser %></div>
         <div class="optionSelector">
-          <div id="loginConfigEnableDefaultAdminUserBox" class="checkbox checked">
+          <div id="loginConfigEnableDefaultAdminUserBox" class="checkbox">
             <i class="icon xi-ckbox-empty fa-13"></i>
             <i class="icon xi-ckbox-selected fa-13"></i>
           </div>
         </div>
       </div>
-      <div class="loginSectionBody optionSet">
+      <div class="loginSectionBody optionSet xc-hidden">
         <div class="formBiRow">
           <div class="label"><%= dicts.loginConfig.adminUsername %></div>
           <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
@@ -39,17 +39,17 @@
     </section>
 
     <!-- LDAP Authentication -->
-    <section class="modalMainSection">
+    <section class="modalMainSection xc-hidden">
       <div class="loginSectionToggle optionSet formRow">
         <div class="label"><%= dicts.loginConfig.enableLdapAuth %></div>
         <div class="optionSelector">
-          <div id="loginConfigEnableLdapAuth" class="checkbox checked">
+          <div id="loginConfigEnableLdapAuth" class="checkbox">
             <i class="icon xi-ckbox-empty fa-13"></i>
             <i class="icon xi-ckbox-selected fa-13"></i>
           </div>
         </div>
       </div>
-      <div class="loginSectionBody optionSet">
+      <div class="loginSectionBody optionSet xc-hidden">
         <div class="radioButtonGroup" id="ldapChoice">
           <div class="radioButton" data-option="ad">
             <div class="radio">
@@ -90,7 +90,7 @@
         <div class="optionSet formRow">
           <div class="label"><%= dicts.loginConfig.enableTLS %></div>
           <div class="optionSelector">
-            <div id="loginConfigLdapEnableTLS" class="checkbox checked">
+            <div id="loginConfigLdapEnableTLS" class="checkbox">
               <i class="icon xi-ckbox-empty fa-13"></i>
               <i class="icon xi-ckbox-selected fa-13"></i>
             </div>
@@ -101,16 +101,16 @@
 
     <!-- WAAD Authentication -->
     <section class="modalMainSection">
-      <div class="loginSectionToggle optionSet formRow">
+      <div class="loginSectionToggle optionSet formRow" id="loginConfigEnableWAAD">
         <div class="label"><%= dicts.loginConfig.enableWAAD %></div>
         <div class="optionSelector">
-          <div id="loginConfigEnableWAAD" class="checkbox checked">
+          <div class="checkbox">
             <i class="icon xi-ckbox-empty fa-13"></i>
             <i class="icon xi-ckbox-selected fa-13"></i>
           </div>
         </div>
       </div>
-      <div class="loginSectionBody optionSet">
+      <div class="loginSectionBody optionSet xc-hidden">
         <div class="longDescription">
           <%= dicts.loginConfig.waadInstructions.title %>
           <ol>

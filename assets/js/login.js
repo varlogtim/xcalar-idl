@@ -6,16 +6,18 @@ if (xcLocalStorage.getItem("noSplashLogin") === "true") {
 }
 
 var waadAuthContext;
-var waadLoggedIn = false;
 
 $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
     setupHostName();
 
-    waadSetup();
+    waadSetup()
+    .then(function(waadLoggedIn) {
+        if (!waadLoggedIn) {
+            return;
+        }
 
-    if (waadLoggedIn) {
         var user = waadAuthContext.getCachedUser();
         if (user.profile.hasOwnProperty("admin") &&
             user.profile["admin"] === "true")
@@ -28,7 +30,7 @@ $(document).ready(function() {
         xcSessionStorage.setItem("xcalar-username", user.userName);
         window.location = paths.indexAbsolute;
         return;
-    }
+    });
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true") {
         setTimeout(function() {
@@ -46,8 +48,8 @@ $(document).ready(function() {
     }
 
     $("#waadLoginForm").submit(function() {
-        if (typeof waadConfig === "undefined") {
-            alert("waadConfig not set. Contact your system administrator.");
+        if (typeof waadEnabled === "undefined" || !waadEnabled) {
+            alert("Windows Azure AD authentication is disabled. Contact your system administrator.");
         } else {
             waadAuthContext.login();
         }
@@ -148,23 +150,35 @@ $(document).ready(function() {
     });
 
     function waadSetup() {
-        if (typeof waadConfig === "undefined") {
-            return;
-        }
+        var deferred = jQuery.Deferred();
 
-        waadAuthContext = new AuthenticationContext(waadConfig);
+        getWaadConfig(hostname)
+        .then(function(waadConfig) {
+            if (!waadConfig["waadEnabled"]) {
+                deferred.reject();
+                return;
+            }
 
-        // Check For & Handle Redirect From AAD After Login
-        var isCallback = waadAuthContext.isCallback(window.location.hash);
-        waadAuthContext.handleWindowCallback();
-        if (waadAuthContext.getLoginError()) {
-            alert(waadAuthContext.getLoginError());
-        }
+            waadAuthContext = new AuthenticationContext(waadConfig);
 
-        if (isCallback && !waadAuthContext.getLoginError()) {
-            // This means we logged in successfully
-            waadLoggedIn = true;
-        }
+            // Check For & Handle Redirect From AAD After Login
+            var isCallback = waadAuthContext.isCallback(window.location.hash);
+            waadAuthContext.handleWindowCallback();
+            if (waadAuthContext.getLoginError()) {
+                alert(waadAuthContext.getLoginError());
+            }
+
+            if (isCallback && !waadAuthContext.getLoginError()) {
+                // This means we logged in successfully
+                deferred.resolve(true);
+            } else {
+                $("#waadLoginForm").removeClass("xc-hidden");
+                deferred.resolve(false);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function showSplashScreen() {
@@ -203,7 +217,7 @@ $(document).ready(function() {
             hostname = window.location.href;
             // remove path
             var path = "/" + paths.login;
-            if (hostname.endsWith(path)) {
+            if (hostname.lastIndexOf(path) > -1) {
                 var index = hostname.lastIndexOf(path);
                 hostname = hostname.substring(0, index);
             }

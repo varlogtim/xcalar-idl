@@ -489,7 +489,7 @@ window.Admin = (function($, Admin) {
 
         $("#logFlush").click(flushLog);
 
-        $("#loginConfig").click(LoginConfigModal.show);
+        $("#loginConfig").click(showLoginConfig);
     }
 
     function parseStrIntoUserList(value) {
@@ -921,6 +921,22 @@ window.Admin = (function($, Admin) {
         }
 
         Alert.error(title, msg);
+    }
+
+    function showLoginConfig() {
+        var waadConfig = null;
+        $('#loginConfig').addClass('unavailable');
+        getWaadConfig(hostname)
+        .then(function(waadConfigIn) {
+            waadConfig = waadConfigIn;
+        })
+        .fail(function(error) {
+            console.log("showLoginConfig: " + error);
+        })
+        .always(function() {
+            $('#loginConfig').removeClass('unavailable');
+            LoginConfigModal.show(waadConfig);
+        });
     }
 
       /* Unit Test Only */

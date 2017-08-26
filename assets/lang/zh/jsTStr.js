@@ -374,16 +374,20 @@ SuccessTStr = {
 "ExtDisable": '成功禁用扩展！',
 "Profile": '数据剖面图图片保存成功！',
 "BundleUploaded": '支持捆绑包生成成功，上载：',
-"FlushLog": "强制刷新日志成功!"
+"FlushLog": "强制刷新日志成功!",
+"LoginConfigSaved": "登录系统设置保存成功！"
 };
+
 FailTStr = {
 "Profile": '保存数据剖面图图像失败。',
 "ProfileStats": '生成统计失败。',
 "SaveSettings": '保存设置失败。',
 "RmDF": "删除批量数据流失败。",
 "RmSched": "删除调度器失败",
-"FlushLog": "强制刷新日志失败!"
+"FlushLog": "强制刷新日志失败!",
+"LoginConfigSaveFailed": "保存登录系统设置失败。"
 };
+
 ThriftTStr = {
 'CCNBEErr': '连接错误',
 'CCNBE': '连接无法建立。',
