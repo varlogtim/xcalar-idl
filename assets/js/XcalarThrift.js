@@ -49,11 +49,11 @@ function thriftLog() {
         }
         var type = typeof errRes;
         var thriftError = {};
-        var error;
-        var status;        // Error from other thriftLog output or caused by Xcalar operation fails
-        var log;           // Exist with xcalarStatus
-        var httpStatus;    // Error caused by http connection fails
-        var output;
+        var error = null;
+        var status = null;      // Error from other thriftLog output or caused by Xcalar operation fails
+        var log = null;         // Exist with xcalarStatus
+        var httpStatus = null;  // Error caused by http connection fails
+        var output = null;
 
         if (type === "number") {
             // case that didn't handled in xcalarApi.js
@@ -72,7 +72,8 @@ function thriftLog() {
         }
 
         if (status == null && httpStatus == null && error == null) {
-            console.log("not an error");
+            // console.log("not an error");
+            // not an error
             continue;
         }
 
@@ -1066,6 +1067,71 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     return deferred.promise();
 }
 
+// function XcalarLockDataset(dsName) {
+//     if ([null, undefined].indexOf(tHandle) !== -1) {
+//         return PromiseHelper.resolve(null);
+//     }
+
+//     var deferred = jQuery.Deferred();
+//     dsName = parseDS(dsName);
+//     xcalarLockDataset(tHandle, dsName)
+//     .then(deferred.resolve)
+//     .fail(function(error) {
+//         var thriftError = thriftLog("XcalarLockDataset", error);
+//         deferred.reject(thriftError);
+//     });
+
+//     return deferred.promise();
+// }
+
+function XcalarUnlockDataset(dsName, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    dsName = parseDS(dsName);
+
+    var deferred = jQuery.Deferred();
+    var srcType = SourceTypeT.SrcDataset;
+    var workItem = xcalarDeleteDagNodesWorkItem(dsName, srcType);
+    var def1;
+    if (txId != null && Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarDeleteDagNodes(tHandle, dsName, srcType);
+    }
+
+    var def2 = XcalarGetQuery(workItem);
+    def2.then(function(query) {
+        if (txId != null) {
+            Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop",
+                                    query);
+        }
+    });
+
+    jQuery.when(def1, def2)
+    .then(function(delDagNodesRes, query) {
+        // txId may be null if performing a
+        // deletion not triggered by the user (i.e. clean up)
+        if (txId != null) {
+            Transaction.log(txId, query, dsName + "drop",
+                            delDagNodesRes.timeElapsed);
+        }
+        deferred.resolve();
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarUnlockDataset", error1, error2);
+        if (thriftError.status === StatusT.StatusDagNodeNotFound) {
+            // this error is allowed
+            deferred.resolve();
+        } else {
+            deferred.reject(thriftError);
+        }
+    });
+
+    return deferred.promise();
+}
+
 function XcalarDestroyDataset(dsName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1081,7 +1147,7 @@ function XcalarDestroyDataset(dsName, txId) {
 
     releaseAllResultsets()
     .then(function() {
-        return deleteDagNodeHelper();
+        return XcalarUnlockDataset(dsNameBeforeParse, txId);
     })
     .then(function() {
         return xcalarApiDeleteDatasets(tHandle, dsName);
@@ -1099,49 +1165,6 @@ function XcalarDestroyDataset(dsName, txId) {
     });
 
     return deferred.promise();
-
-    function deleteDagNodeHelper() {
-        var innerDeferred = jQuery.Deferred();
-        var workItem = xcalarDeleteDagNodesWorkItem(dsName,
-                                                SourceTypeT.SrcDataset);
-        var def1;
-        if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
-        } else {
-            def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-        }
-
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop",
-                                      query);
-        });
-
-        jQuery.when(def1, def2)
-        .then(function(delDagNodesRes, query) {
-            // txId may be null if performing a
-            // deletion not triggered by the user (i.e. clean up)
-            if (txId != null) {
-                Transaction.log(txId, query, dsName + "drop",
-                                delDagNodesRes.timeElapsed);
-            }
-            innerDeferred.resolve();
-        })
-        .fail(function(error1, error2) {
-            if (typeof error1 === "object" &&
-                error1.xcalarStatus === StatusT.StatusDagNodeNotFound) {
-                // this error is allowed
-                innerDeferred.resolve();
-            } else {
-                // if (typeof error2 !== "number") {
-                //     error2 = null;
-                // }
-                innerDeferred.reject(error1, error2);
-            }
-        });
-
-        return innerDeferred.promise();
-    }
 
     function releaseAllResultsets() {
         // always resolve to continue the deletion

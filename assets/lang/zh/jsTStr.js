@@ -705,6 +705,8 @@ DSTStr = {
 'Unlistable': '数据集被标记为删除',
 'DelDSConfirm': '您确定要删除数据集<ds>吗？',
 'DelUneditable': '\"<ds>\"不可修改，无法删除',
+'DelLockedDS': '\"<ds>\" 被锁, 无法删除',
+'DSUsed': '数据集正被以下用户使用: <users>',
 'CancelPointMsg': '您确定要取消指向数据集<ds>吗？',
 'LoadErr': '错误：<error>',
 'LoadErrFile': '错误文件：<file>',
@@ -720,6 +722,8 @@ DSTStr = {
 'FailDelFolder': '删除文件夹\"<folder>\"失败: 非空文件夹',
 'FailDelDS': '删除数据集\"<ds>\"失败: <error>',
 'FailCancelDS': '取消导入数据集\"<ds>\"失败: <error>',
+'FailLockDS': '锁数据集\"<ds>\"失败: <error>',
+'FailUnlockDS': '解锁数据集\"<ds>\"失败: <error>',
 'DetectInvalidCol': '数据集列名包含无效字符',
 'DetectInvalidColInstr': '在处理数据时，无效列名可能会导致结果出错。 建议提前处理其中的无效字符。',
 'DetectInvalidColMsg': '以下列名包含无效字符: <cols>。您确定要继续吗?'

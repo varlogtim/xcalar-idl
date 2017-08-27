@@ -831,9 +831,13 @@ DSTStr = {
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
     'DelUneditable': '\"<ds>\" is uneditable, cannot delete',
+    'DelLockedDS': '\"<ds>\" is locked, cannot delete',
     'FailDelFolder': 'Delete folder \"<folder>\" failed: Non-empty folder',
+    'DSUsed': 'dataset is being used by users: <users>',
     'FailDelDS': 'Delete dataset \"<ds>\" failed: <error>',
     'FailCancelDS': 'Cancel importing dataset \"<ds>\" failed: <error>',
+    'FailLockDS': 'Lock dataset \"<ds>\" failed: <error>',
+    'FailUnlockDS': 'Unlock dataset \"<ds>\" failed: <error>',
     'CancelPointMsg': 'Are you sure you want to cancel pointing dataset <ds> ?',
     'LoadErr': 'Error: <error>',
     'LoadErrFile': 'Error File: <file>',

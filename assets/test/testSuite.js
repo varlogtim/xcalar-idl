@@ -515,8 +515,13 @@ window.TestSuite = (function($, TestSuite) {
 
             testDS.forEach(function(ds) {
                 var $grid = DS.getGridByName(ds);
-                DS.remove($grid);
-                $("#alertModal .confirm").click();
+                var dsId = $grid.data("dsid");
+                $grid.find(".action.unlock").click();
+                checkExists(getUnLockDSIcon(ds))
+                .then(function() {
+                    DS.remove($grid);
+                    $("#alertModal .confirm").click();
+                });
             });
 
             setTimeout(function() {
@@ -556,6 +561,11 @@ window.TestSuite = (function($, TestSuite) {
     function getFinishDSIcon(dsName) {
         return '#dsListSection .grid-unit[data-dsname="' +
                             dsName + '"]:not(.inactive.fetching)';
+    }
+
+    function getUnLockDSIcon(dsName) {
+        return '#dsListSection .grid-unit[data-dsname="' +
+                            dsName + '"]:not(.locked)';
     }
 
     // sorted: boolean to sort columns A-Z

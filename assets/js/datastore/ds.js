@@ -117,26 +117,24 @@ window.DS = (function ($, DS) {
         return ds;
     };
 
-    DS.addCurrentUserDS = function(fullDSName, format, path, unlistable) {
+    DS.addCurrentUserDS = function(fullDSName, options) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
-
-        return createDS({
+        options = $.extend({}, options, {
             "id": fullDSName, // user the fulldsname as a unique id
             "name": dsName,
             "user": user,
             "fullName": fullDSName,
             "uneditable": false,
-            "isFolder": false,
-            "format": format,
-            "path": path,
-            "unlistable": unlistable
+            "isFolder": false
         });
+
+        return createDS(options);
     };
 
     // refresh a new dataset and add it to grid view
-    DS.addOtherUserDS = function(fullDSName, format, path, unlistable) {
+    DS.addOtherUserDS = function(fullDSName, options) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
@@ -166,18 +164,16 @@ window.DS = (function ($, DS) {
             });
         }
 
-        return createDS({
+        options = $.extend({}, options, {
             "id": fullDSName, // user the fulldsname as a unique id
             "name": dsName,
             "user": user,
             "fullName": fullDSName,
             "uneditable": true,
             "isFolder": false,
-            "format": format,
-            "path": path,
             "parentId": userFolderObj.getId(),
-            "unlistable": unlistable
         });
+        return createDS(options);
     };
 
     DS.focusOn = function($grid) {
@@ -457,6 +453,7 @@ window.DS = (function ($, DS) {
                                 xcHelper.wrapDSName(options.name);
             // for dataset, use it's full name as id
             options.id = options.id || options.fullName;
+            options.locked = options.locked;
         }
         var dsObj = new DSObj(options);
         dsObj.addToParent();
@@ -563,7 +560,9 @@ window.DS = (function ($, DS) {
                     });
                 }
             }
-
+            dsObj.lock();
+            $grid.addClass("locked");
+            UserSettings.logChange();
             var msgOptions = {
                 "newDataSet": true,
                 "dataSetId": dsObj.getId()
@@ -645,7 +644,10 @@ window.DS = (function ($, DS) {
             "steps": 1
         });
 
-        dsObj.release()
+        checkDSUse(dsName)
+        .then(function() {
+            return dsObj.release();
+        })
         .then(function() {
             return destroyDataset(dsName, txId);
         })
@@ -663,7 +665,8 @@ window.DS = (function ($, DS) {
             }
 
             Transaction.done(txId, {
-                "noSql": options.noSql
+                "noSql": options.noSql,
+                "noCommit": true
             });
             deferred.resolve();
         })
@@ -687,6 +690,32 @@ window.DS = (function ($, DS) {
             });
             deferred.reject(error);
         });
+
+        return deferred.promise();
+    }
+
+    function checkDSUse(dsName) {
+        var deferred = jQuery.Deferred();
+        var currentUser = XcSupport.getUser();
+
+        XcalarGetDatasetUsers(dsName)
+        .then(function(users) {
+            var otherUsers = [];
+            users.forEach(function(user) {
+                if (currentUser !== user.userId.userIdName) {
+                    otherUsers.push(currentUser);
+                }
+            });
+            if (otherUsers.length > 0) {
+                var error = xcHelper.replaceMsg(DSTStr.DSUsed, {
+                    "users": addOtherUserDS.join(",")
+                });
+                deferred.reject(error);
+            } else {
+                deferred.resolve();
+            }
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -715,10 +744,9 @@ window.DS = (function ($, DS) {
             if (dsObj.beFolder()) {
                 // skip folder case
                 return PromiseHelper.resolve();
-            } else if (!dsObj.isEditable()) {
-                // when remove ds
+            } else if (dsObj.isLocked()) {
                 title = AlertTStr.NoDel;
-                msg = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                msg = xcHelper.replaceMsg(DSTStr.DelLockedDS, {
                     "ds": dsName
                 });
                 isAlert = true;
@@ -823,6 +851,9 @@ window.DS = (function ($, DS) {
 
             if (datasets.length) {
                 // when has delete datsets
+                UserSettings.logChange();
+                KVStore.commit();
+
                 XcSupport.memoryCheck(true);
             }
 
@@ -838,17 +869,22 @@ window.DS = (function ($, DS) {
         var dsName = dsObj.getName();
         var err;
 
-        if (!dsObj.isEditable()) {
-            // delete uneditable folder/ds
-            err = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+        if (dsObj.isLocked()) {
+            // delete locked ds
+            err = xcHelper.replaceMsg(DSTStr.DelLockedDS, {
                 "ds": dsName
             });
             failures.push(err);
-
             return PromiseHelper.resolve();
         } else if (dsObj.beFolder()) {
             // delete folder
-            if (!removeFolderRecursive(dsId)) {
+            if (!dsObj.isEditable()) {
+                // delete uneditable folder/ds
+                err = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                    "ds": dsName
+                });
+                failures.push(err);
+            } else if (!removeFolderRecursive(dsId)) {
                 err = xcHelper.replaceMsg(DSTStr.FailDelFolder, {
                     "folder": dsName
                 });
@@ -1004,6 +1040,7 @@ window.DS = (function ($, DS) {
         var searchHash = {};
         var userPrefix = xcHelper.getUserPrefix();
         var unlistableDS = {};
+        var uneditableDS = {};
 
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
@@ -1071,6 +1108,13 @@ window.DS = (function ($, DS) {
             if (obj.uneditable) {
                 // skip the restore of uneditable ds,
                 // it will be handled by DS.addOtherUserDS()
+                if (obj.isFolder) {
+                    if (obj.eles != null) {
+                        $.merge(cache, obj.eles);
+                    }
+                } else {
+                    uneditableDS[obj.fullName] = obj;
+                }
                 continue;
             }
 
@@ -1089,7 +1133,6 @@ window.DS = (function ($, DS) {
                     // restore a ds
                     ds = searchHash[obj.fullName];
                     format = parseDSFormat(ds);
-
                     obj = $.extend(obj, {
                         "format": format,
                         "path": ds.url,
@@ -1113,16 +1156,21 @@ window.DS = (function ($, DS) {
             ds = searchHash[dsName];
 
             if (ds != null) {
+                var options = uneditableDS[dsName];
                 format = parseDSFormat(ds);
-
+                options = $.extend({}, options, {
+                    "format": format,
+                    "path": ds.url,
+                    "unlistable": !ds.isListable
+                });
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
                     // and lose the folder meta
                     // should change when we support user scope session
-                    DS.addCurrentUserDS(ds.name, format, ds.url, !ds.isListable);
+                    DS.addCurrentUserDS(ds.name, options);
                 } else {
                     // only when other user's ds is listable, show it
-                    DS.addOtherUserDS(ds.name, format, ds.url, !ds.isListable);
+                    DS.addOtherUserDS(ds.name, options);
                 }
             }
         }
@@ -1298,6 +1346,20 @@ window.DS = (function ($, DS) {
             return false;
         });
 
+        $gridView.on("click", ".grid-unit .lock", function() {
+            var $grid = $(this).closest(".grid-unit");
+            lockDS($grid.data("dsid"));
+            // stop event propogation
+            return false;
+        });
+
+        $gridView.on("click", ".grid-unit .unlock", function() {
+            var $grid = $(this).closest(".grid-unit");
+            unlockDS($grid.data("dsid"));
+            // stop event propogation
+            return false;
+        });
+
         $gridView.on("click", ".grid-unit .edit", function() {
             var $grid = $(this).closest(".grid-unit");
             focusDSHelper($grid);
@@ -1391,6 +1453,10 @@ window.DS = (function ($, DS) {
                         classes += " folderOpts";
                     } else {
                         classes += " dsOpts";
+
+                        if (dsObj.isLocked()) {
+                            classes += " dsLock";
+                        }
                     }
 
                     if ($grid.hasClass("unlistable")) {
@@ -1446,8 +1512,10 @@ window.DS = (function ($, DS) {
         $gridView.find(".grid-unit:visible").each(function() {
             var grid = this;
             var $grid = $(grid);
-            if ($grid.hasClass("uneditable") || $grid.hasClass("noAction")) {
-                // skip uneditable grid
+            if ($grid.hasClass("uneditable") && $grid.hasClass("folder")
+                || $grid.hasClass("noAction"))
+            {
+                // skip uneditable folder
                 return;
             }
 
@@ -1560,6 +1628,20 @@ window.DS = (function ($, DS) {
                 return;
             }
             DSInfoModal.show($gridMenu.data("dsid"));
+        });
+
+        $gridMenu.on("mouseup", ".lockDS", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            lockDS($gridMenu.data("dsid"));
+        });
+
+        $gridMenu.on("mouseup", ".unlockDS", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            unlockDS($gridMenu.data("dsid"));
         });
     }
 
@@ -1743,13 +1825,14 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="icon xi-trash delete fa-15"></i>' +
-                '<i class="icon xi-edit edit fa-15"></i>' +
+                '<i class="action icon xi-trash delete fa-15"></i>' +
+                '<i class="action icon xi-edit edit fa-15"></i>' +
             '</div>';
         } else {
             // when it's a dataset
             html =
-            '<div class="ds grid-unit" ' +
+            '<div class="ds grid-unit ' +
+            (dsObj.isLocked() ? 'locked' : "") + '" ' +
                 'draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
@@ -1774,7 +1857,10 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="icon xi-trash delete fa-15"></i>' +
+                '<i class="action icon xi-trash delete fa-15"></i>' +
+                '<i class="action icon xi-lock lock fa-15"></i>' +
+                '<i class="action icon xi-unlock unlock fa-15"></i>' +
+                (dsObj.isLocked() ? '<div class="lockIcon"></div>' : "") +
             '</div>';
         }
 
@@ -1803,7 +1889,8 @@ window.DS = (function ($, DS) {
         } else {
             // when it's a dataset
             html =
-            '<div class="ds grid-unit uneditable" ' +
+            '<div class="ds grid-unit uneditable ' +
+            (dsObj.isLocked() ? 'locked' : "") + '" ' +
                 ' data-user="' + dsObj.getUser() + '"' +
                 ' data-dsname="' + name + '"' +
                 ' data-dsId="' + id + '"' +
@@ -1813,7 +1900,10 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="icon xi-trash delete fa-15"></i>' +
+                '<i class="action icon xi-trash delete fa-15"></i>' +
+                '<i class="action icon xi-lock lock fa-15"></i>' +
+                '<i class="action icon xi-unlock unlock fa-15"></i>' +
+                (dsObj.isLocked() ? '<div class="lockIcon"></div>' : "") +
             '</div>';
         }
 
@@ -1842,6 +1932,68 @@ window.DS = (function ($, DS) {
 
     function cleanDSSelect() {
         $gridView.find(".selected").removeClass("selected");
+    }
+
+    function lockDS(dsId) {
+        var deferred = jQuery.Deferred();
+        var dsObj = DS.getDSObj(dsId);
+        var fullDSName = dsObj.getFullName();
+        var lockHelper = function() {
+            dsObj.lock();
+            DS.getGrid(dsId).addClass("locked");
+            // XXX Note: this is a temp solution, after backend support
+            // we don't need to do it
+            UserSettings.logChange();
+            KVStore.commit();
+        };
+
+        XcalarLockDataset(fullDSName)
+        .then(function() {
+            lockHelper();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (error.status === StatusT.StatusDatasetAlreadyLocked) {
+                // if it's an older version that we don't have lock meta
+                // may run into here
+                lockHelper();
+                deferred.resolve();
+            } else {
+                var errorMsg = xcHelper.replaceMsg(DSTStr.FailLockDS, {
+                    "ds": dsObj.getName(),
+                    "error": error.error
+                });
+                Alert.error(AlertTStr.Error, errorMsg);
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function unlockDS(dsId) {
+        var deferred = jQuery.Deferred();
+        var dsObj = DS.getDSObj(dsId);
+        var fullDSName = dsObj.getFullName();
+
+        XcalarUnlockDataset(fullDSName)
+        .then(function() {
+            dsObj.unlock();
+            DS.getGrid(dsId).removeClass("locked");
+            UserSettings.logChange();
+            KVStore.commit();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            var errorMsg = xcHelper.replaceMsg(DSTStr.FailUnlockDS, {
+                "ds": dsObj.getName(),
+                "error": error.error
+            });
+            Alert.error(AlertTStr.Error, errorMsg);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     /*** Drag and Drop API ***/
@@ -2056,6 +2208,8 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.getDropTarget = getDropTarget;
         DS.__testOnly__.setDropTraget = setDropTraget;
         DS.__testOnly__.resetDropTarget = resetDropTarget;
+        DS.__testOnly__.lockDS = lockDS;
+        DS.__testOnly__.unlockDS = unlockDS;
     }
     /* End Of Unit Test Only */
 

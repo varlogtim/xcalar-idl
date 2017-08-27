@@ -2691,7 +2691,7 @@ table.datasetTable {
                     text-align: center;
                 }
 
-                .edit, .delete {
+                .action {
                     display: none;
                     .size(@width: 25px, @height: 100%);
                     float: right;
@@ -2701,6 +2701,12 @@ table.datasetTable {
                         display: inline-block;
                         .vertical-align;
                     }
+                }
+
+                .lockIcon {
+                    .position(absolute, @top: 0px, @right: 7px);
+                    .size(17px, 20px);
+                    .image("../../images/dagIcons/lock-white.png", 50%, 50%);
                 }
             }
 
@@ -2811,8 +2817,20 @@ table.datasetTable {
 
                 .grid-unit {
                     &:hover {
-                        .edit, .delete {
+                        .edit {
                             display: inline-block;
+                        }
+
+                        &:not(.locked) {
+                            .delete, .lock {
+                                display: inline-block;
+                            }
+                        }
+
+                        &.locked {
+                            .unlock {
+                                display: inline-block;
+                            }
                         }
                     }
                     > .waitingIcon {
@@ -2825,6 +2843,12 @@ table.datasetTable {
 
                     .gridIcon {
                         font-size: 15px;
+                    }
+
+                    .lockIcon {
+                        .position(absolute, @top: 5px, @left: 20px);
+                        .size(12px, 12px);
+                        background-size: 12px 12px;
                     }
                 }
 
@@ -2928,6 +2952,27 @@ table.datasetTable {
     &.dsOpts {
         .dsOpt {
             display: block;
+
+            &.unlockDS {
+                display: none;
+            }
+        }
+
+        &.dsLock {
+            .dsOpt {
+                &.lockDS {
+                    display: none;
+                }
+
+                &.unlockDS {
+                    display: block;
+                }
+
+                &.delete {
+                    pointer-events: none;
+                    opacity: @opacity-disabled;
+                }
+            }
         }
     }
     &.folderOpts {

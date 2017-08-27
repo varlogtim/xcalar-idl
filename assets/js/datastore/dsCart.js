@@ -270,6 +270,12 @@ window.DSCart = (function($, DSCart) {
                                             [], worksheet, txId, options);
         })
         .then(function() {
+            // lock dataset
+            if (!dsObj.isLocked()) {
+                DS.getGrid(cartId).addClass("locked");
+                dsObj.lock();
+                UserSettings.logChange();
+            }
             // this will be saved later
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(endTableName),

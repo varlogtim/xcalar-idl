@@ -1781,7 +1781,8 @@
             displayFormat (string) displayed format in ds table(Excel...)
 
             new attr:
-                udfQuery: (object), extra udf args
+                udfQuery: (object), extra udf args,
+                locked: (boolean), is dataset locked or not
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1790,6 +1791,10 @@
             if (<%= checkFunc %>(options)) {
                 if (options.udfQuery) {
                     self.udfQuery = options.udfQuery;
+                }
+
+                if (options.locked != null) {
+                    self.locked = options.locked;
                 }
             }
             return self;
@@ -1975,6 +1980,24 @@
 
             isEditable: function() {
                 return !this.uneditable;
+            },
+
+            lock: function() {
+                if (!this.locked) {
+                    this.locked = true;
+                    var $grid = DS.getGrid(this.getId());
+                    $grid.append('<div class="lockIcon"></div>');
+                }
+            },
+
+            unlock: function() {
+                this.locked = false;
+                var $grid = DS.getGrid(this.getId());
+                $grid.find(".lockIcon").remove();
+            },
+
+            isLocked: function() {
+                return this.locked || false;
             },
 
             makeResultSet: function() {

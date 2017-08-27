@@ -189,6 +189,8 @@ module.exports = {
         "HideTbl": "Minimize table",
         "Join": "Join",
         "LockTbl": "Lock table",
+        "LockDS": "Lock dataset",
+        "UnlockDS": "Unlock dataset",
         "Map": "Map",
         "Move": "Move",
         "MoveLeft": "Move table left",

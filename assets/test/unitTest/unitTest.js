@@ -234,8 +234,12 @@ window.UnitTest = (function(UnitTest, $) {
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
 
-        DS.__testOnly__.delDSHelper($grid, dsObj, {"failToShow": true})
-        .always(function() {
+        DS.__testOnly__.unlockDS(dsId)
+        .then(function() {
+            return DS.__testOnly__.delDSHelper($grid, dsObj, {"failToShow": true});
+        })
+        .then(deferred.resolve)
+        .fail(function() {
             // now seems we have issue to delete ds because of ref count,
             // this should be reolsved with now backend way to hanld ds
             deferred.resolve();

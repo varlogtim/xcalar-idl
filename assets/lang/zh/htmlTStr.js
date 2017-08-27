@@ -62,6 +62,8 @@ module.exports = {
         "HideTbl": "最小化表",
         "Join": "连接",
         "LockTbl": "锁表",
+        "LockDS": "锁数据集",
+        "UnlockDS": "解锁数据集",
         "MVWS": "移动到工作表",
         "Map": "映射",
         "MaximizeCol": "最大化列",

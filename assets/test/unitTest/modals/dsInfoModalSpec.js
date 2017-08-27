@@ -7,7 +7,10 @@ describe("DSInfoModal Test", function() {
     before(function() {
         $modal = $("#dsInfoModal");
         var testName = xcHelper.randName("testUser.testDS");
-        ds = DS.addCurrentUserDS(testName, "CSV", "testPath");
+        ds = DS.addCurrentUserDS(testName, {
+            "format": "CSV",
+            "path": "testPath"
+        });
         dsId = ds.getId();
         oldGetDSUsers = XcalarGetDatasetUsers;
     });

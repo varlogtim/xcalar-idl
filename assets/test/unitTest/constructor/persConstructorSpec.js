@@ -1913,7 +1913,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(currentVersion);
         });
 
-        it("Should have 25 attributes for ds", function() {
+        it("Should have 26 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
@@ -1924,11 +1924,12 @@ describe("Persistent Constructor Test", function() {
                 "path": "file:///netstore/datasets/gdelt/",
                 "format": "CSV",
                 "pattern": "abc.csv",
-                "numEntries": 1000
+                "numEntries": 1000,
+                "locked": true
             });
 
             expect(dsObj).to.be.instanceof(DSObj);
-            expect(Object.keys(dsObj).length).to.equal(25);
+            expect(Object.keys(dsObj).length).to.equal(26);
             expect(dsObj).to.have.property("version")
             .and.to.equal(currentVersion);
         });
@@ -2413,7 +2414,6 @@ describe("Persistent Constructor Test", function() {
             });
         });
 
-
         it("Should preserve order", function() {
             // XXX temp fix to preserve CSV header order
             var dsObj = new DSObj({
@@ -2446,6 +2446,38 @@ describe("Persistent Constructor Test", function() {
             expect(res[0]).to.equal("b");
             expect(res[1]).to.equal("c");
             expect(res[2]).to.equal("e");
+        });
+
+        it("should lock/unlock ds", function() {
+            var oldFunc = DS.getGrid;
+            var $grid = $('<div></div>');
+            DS.getGrid = function() {
+                return $grid;
+            };
+            var dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false
+            });
+
+            expect(dsObj.isLocked()).to.be.false;
+            // lock
+            dsObj.lock();
+            expect(dsObj.isLocked()).to.be.true;
+            expect($grid.find(".lockIcon").length).to.equal(1);
+
+            // lock again should do nothing
+            dsObj.lock();
+            expect($grid.find(".lockIcon").length).to.equal(1);
+
+            // unlock
+            dsObj.unlock();
+            expect(dsObj.isLocked()).to.be.false;
+            expect($grid.find(".lockIcon").length).to.equal(0);
+
+            DS.getGrid = oldFunc;
         });
 
         describe("Fetch data test", function() {
