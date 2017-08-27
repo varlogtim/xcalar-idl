@@ -327,7 +327,8 @@ var SQLOps = {
 var XcalarMode = {
     Oper: "operational",
     Mod: "modeling",
-    Demo: "demo"
+    Demo: "demo",
+    Unlic: "unlicensed",
 };
 
 var MLSetting = {

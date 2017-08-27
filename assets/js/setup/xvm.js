@@ -108,16 +108,53 @@ window.XVM = (function(XVM) {
         return deferred.promise();
     };
 
+    function showInvalidLicenseAlert(err) {
+        Alert.show({title: "License Error",
+                    isAlert: true,
+                    msg: err + "\nPlease contact your administrator to " +
+                               "acquire a new license key."});
+    }
+
     XVM.checkVersionAndLicense = function() {
         var deferred = jQuery.Deferred();
 
         var def1 = XcalarGetLicense();
         var def2 = XVM.checkVersion();
-        PromiseHelper
-        .when(def1, def2)
-        .then(function(licKey, versionMatch) {
-            var passed = false;
-            var err;
+
+        var err;
+
+        var passed = true;
+
+        XVM.checkVersion()
+        .then(function(versionMatch) {
+            try {
+                if (!versionMatch) {
+                     err = {"error": ThriftTStr.Update};
+                     passed = false;
+                }
+            } catch (error) {
+                // code may go here if thrift changes
+                err = {"error": ThriftTStr.Update};
+                console.error(error);
+                passed = false;
+            }
+            if (passed) {
+                return XcalarGetLicense();
+            } else {
+                deferred.reject(err);
+            }
+        }, function(ret) {
+            passed = false;
+            if (ret && ret.status === StatusT.StatusSessionUsrAlreadyExists) {
+                deferred.reject(ret);
+            } else {
+                deferred.reject({error: ThriftTStr.CCNBE});
+            }
+        })
+        .then(function(licKey) {
+            if (!passed) {
+                return;
+            }
             try {
                 if (typeof(licKey) === "string") {
                     // This is an error. Otherwise it will be an object
@@ -145,34 +182,31 @@ window.XVM = (function(XVM) {
                 }
                 numNodes = licKey.nodeCount;
                 numUsers = licKey.userCount;
-                if (!versionMatch) {
-                    err = {"error": ThriftTStr.Update};
-                } else if (licKey.expired) {
+                if (licKey.expired) {
                     console.log(licKey);
                     var error = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
                         "date": licenseKey
                     });
                     err = {"error": error};
-                } else {
-                    passed = true;
+                    passed = false;
                 }
             } catch (error) {
                 // code may go here if thrift changes
                 err = {"error": ThriftTStr.Update};
                 console.error(error);
+                passed = false;
             }
             if (passed) {
                 deferred.resolve();
             } else {
-                deferred.reject(err);
+                showInvalidLicenseAlert(err.error);
+                deferred.resolve();
             }
-        })
-        .fail(function(ret) {
-            if (ret && ret.status === StatusT.StatusSessionUsrAlreadyExists) {
-                deferred.reject(ret);
-            } else {
-                deferred.reject({error: ThriftTStr.CCNBE});
-            }
+        }, function(err) {
+            licenseKey = "Unlicensed";
+            licenseMode = XcalarMode.Unlic;
+            showInvalidLicenseAlert(err.error);
+            deferred.resolve();
         });
 
         return (deferred.promise());
