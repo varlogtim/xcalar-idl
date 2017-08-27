@@ -390,8 +390,15 @@ window.TestSuite = (function($, TestSuite) {
                 clearInterval(interval);
                 deferred.resolve(true);
             } else if (timeElapsed >= timeLimit) {
+                var found;
+                if (notExist) {
+                    found = "found";
+                } else {
+                    found = "not found";
+                }
                 var error = "time limit of " + timeLimit +
-                            "ms exceeded in function: " + caller;
+                            "ms exceeded in function: " + caller +
+                            "; element " + elemSelectors[0] + " " + found;
                 clearInterval(interval);
                 if (!optional) {
                     console.log(elemSelectors, options);
@@ -1352,7 +1359,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         checkExists("#aggModal-corr[data-state='finished']",
-                    20000, {"asserts": [".aggTableField:contains('-0.4')"]})
+                    null, {"asserts": [".aggTableField:contains('-0.4')"]})
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
@@ -1365,7 +1372,7 @@ window.TestSuite = (function($, TestSuite) {
     // via toggle of tabs
     function aggTest(deferred, testName, currentTestNumber) {
         $("#aggTab").click();
-        checkExists(".spinny", null, {notExist: true})
+        checkExists("#aggModal .spinny", null, {notExist: true})
         .then(function() {
             assert($(".aggTableField:contains('4574')"));
             assert($(".aggTableField:contains('334')"));
@@ -1438,12 +1445,20 @@ window.TestSuite = (function($, TestSuite) {
         $section.find("li .text:contains('teacher_id')")
                 .siblings(".checkbox").click();
         $section.find(".confirm").click();
-        // got to scheduler panel
-        $("#dataflowTab").click();
 
-        var selector = "#dfMenu .dataFlowGroup .listBox " +
-                        ".groupName:contains('" + dfName + "')";
-        checkExists(selector)
+        var selector;
+
+        checkExists("#menuBar.animating", null, {notExist: true})
+        .then(function() {
+            // got to scheduler panel
+            $("#dataflowTab").click();
+            return checkExists(".dfList.disabled", null, {notExist: true});
+        })
+        .then(function() {
+            selector = "#dfMenu .dataFlowGroup .listBox " +
+                            ".groupName:contains('" + dfName + "')";
+            return checkExists(selector);
+        })
         .then(function() {
             // focus on that df
             $(selector).click();

@@ -811,7 +811,7 @@ window.Dag = (function($, Dag) {
             $dagTable = $("#dagWrap-" + tableId).find(".dagTable").first();
         }
         if (!$dagTable.length) {
-            return null;
+            return tableInfo;
         }
 
         tableInfo.type = $dagTable.siblings(".actionType").data("type");

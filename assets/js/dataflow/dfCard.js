@@ -63,6 +63,12 @@ window.DFCard = (function($, DFCard) {
             DF.setLastCreatedDF(dataflowName);
             return;
         }
+
+        if (DFCard.getDFListItem(dataflowName).length) {
+            // GUI-9672 happens when df list is refreshed during an add DF
+            // operation
+            return;
+        }
         var html = getDFListItemHtml(dataflowName);
         var $listItems = $listSection.find(".groupName");
         var added = false;
