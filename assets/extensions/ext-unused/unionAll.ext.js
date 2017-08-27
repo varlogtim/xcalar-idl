@@ -35,24 +35,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
     function unionAll() {
         var ext = new XcSDK.Extension();
 
-        function dropTable(tableName) {
-            var deferred = jQuery.Deferred();
-            XIApi.deleteTableAndMeta(ext.txId, tableName)
-            .then(function() {
-                Dag.makeInactive(tableName, true);
-                var i = ext.newTables.findIndex(function(table) {
-                    return table.getName() === tableName;
-                });
-                ext.newTables.splice(i, 1);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
         ext.beforeStart = function() {
-
             var self = this;
             var args = self.getArgs();
             var tableOne = ext.getTriggerTable();
@@ -118,91 +101,72 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             return XcSDK.Promise.resolve();
         };
 
-
-        function combineColumns(ext, errMapConditionArgs, tableOneName) {
+        function combineColumns(ext, totalCols, tableOneName, joinedTableName) {
             // this merges a single pair of columns from each table after the
             // join statement.
-
             var deferred = XcSDK.Promise.deferred();
 
-            var currTable = ext.getTable(errMapConditionArgs.tableToUse);
-            // table 1 column
-            var currCol = currTable.tableCols[errMapConditionArgs.cnt];
-            // length of both tables is equal to the threshold attribute
-            // the corresponding column of the second table is thus at an
-            // interval of threshold indices
-            var secondCol = currTable.tableCols[errMapConditionArgs.cnt +
-                errMapConditionArgs.threshold]; // corresponding table 2 column
+            var currTable = ext.getTable(joinedTableName);
+            var currTableCols = currTable.getColsAsArray();
 
-            var currColName = currCol.backName;
-            var secondColName = secondCol.backName;
-            // if prefix field, this converts to a derived field name format
-            var newColName = currColName.replace('::', '_');
-            if (newColName === currColName) {
-                // is derived field, strip the '_x'
-                newColName = newColName.slice(0, newColName.length - 2);
-            } else {
-                // is prefix field, make sure our new name is unique
-                newColName = ext.createUniqueCol(tableOneName, newColName,
-                    true);
-            }
-            var fnToUse;
+            // tableOne and tableTwo's col len is totalCols (include DATA),
+            // joinedTable's col len is 2totalCols, in which
+            // 0 to totalCols - 2 is tableOneCols (exculde DATA)
+            // totalCols - 1 to 2totalCols - 2  is tableTwoCols (exclude DATA),
+            // 2totoalCols -1 is DATA col
+            var tableOneCols = currTableCols.slice(0, totalCols - 1);
+            var tableTwoCols = currTableCols.slice(totalCols - 1,
+                                                   currTableCols.length - 1);
 
-            // choose the conditional depending on the data point
-            if (currCol.getType() === 'string') {
-                fnToUse = 'ifStr';
-            } else {
-                fnToUse = 'if';
-            }
+            var mapStrs = [];
+            var fieldNames = [];
+
+            tableOneCols.forEach(function(firstCol, index) {
+                var secondCol = tableTwoCols[index];
+
+                var firstColName = firstCol.getName();
+                var secondColName = secondCol.getName();
+
+                // if prefix field, this converts to a derived field name format
+                var newColName = firstColName.replace("::", "_");
+                if (newColName === firstColName) {
+                    // is derived field, strip the '_x'
+                    newColName = newColName.slice(0, newColName.length - 2);
+                } else {
+                    // is prefix field, make sure our new name is unique
+                    newColName = ext.createUniqueCol(tableOneName, newColName,
+                                true);
+                }
+
+                // choose the conditional depending on the data point
+                var fnToUse = (firstCol.getType() === "string") ? "ifStr" : "if";
+                // if exists(colA) => return colA else colB
+                // colA and colB occupy unique rows, this merges them to form a
+                // new complete column with no blanks
+                var mapStr = fnToUse + '(' + 'exists(' + firstColName +
+                             '), ' + firstColName + ', ' + secondColName + ')';
+                mapStrs.push(mapStr);
+                fieldNames.push(newColName);
+            });
 
             var tableToResolve;
-
-            // if exists(colA) => return colA else colB
-            // colA and colB occupy unique rows, this merges them to form a
-            // new complete column with no blanks
-            var mapStr = fnToUse + '(' + 'exists(' + currColName +
-                '), ' + currColName + ', ' + secondColName + ')';
-
-            ext.map(mapStr, currTable.getName(), newColName)
+            ext.map(mapStrs, joinedTableName, fieldNames)
             .then(function(tableAfterMap) {
                 tableToResolve = tableAfterMap;
                 // drop table before map to conserve memory
-                if (ext.dropTable) {
-                    return ext.dropTable(currTable.getName());
-                } else {
-                    return dropTable(currTable.getName());
-                }
+                return ext.dropTable(joinedTableName);
             })
             .then(function() {
-                var colToAdd = new XcSDK.Column(newColName);
-                var newTable = ext.getTable(tableToResolve);
-                newTable.addCol(colToAdd);
-                //keep track of the latest table so we can modify it
-                errMapConditionArgs.tableToUse = tableToResolve;
-                // the new column will eventually be projected
-                errMapConditionArgs.colsToProject.push(newColName);
-                deferred.resolve(tableToResolve);
+                deferred.resolve(tableToResolve, fieldNames);
             })
             .fail(deferred.reject);
-
-            errMapConditionArgs.cnt++;
 
             return deferred.promise();
 
         }
 
         ext.start = function() {
-
             var deferred = XcSDK.Promise.deferred();
-
-            // struct to hold opaque arguments in the promise while loop
-            var errMapConditionArgs = {
-                'threshold': 0,
-                'cnt': 0,
-                'tableToUse': '', //keeps track of the table we are updating
-                'colsToProject': [] // columns to project in final table
-            };
-
 
             // JS convention, rename this to self in case of scoping issue
             var self = this;
@@ -212,6 +176,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             var tableOneName = tableOne.getName();
             var tableTwo = args.tableTwo;
             var tableTwoName = tableTwo.getName();
+
             var tableOneColNames = tableOne.getColNamesAsArray();
             var tableTwoColNames = tableTwo.getColNamesAsArray();
 
@@ -239,6 +204,8 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             // generate row numbers for table two
             var tableTwoPromise = ext.genRowNum(tableTwoName, tmpRowColTwo,
                     ext.createTempTableName());
+
+            var finalColNames;
 
             XcSDK.Promise.when(tableOnePromise, tableTwoPromise)
             .then(function(numRowsOne, tableTwoRowNum) {
@@ -298,7 +265,6 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                     "rename": renameMapOne
                 };
 
-
                 var rightTableInfo = {
                     "tableName": tableTwoUniqueRowNum,
                     "columns": rowColTwo,
@@ -308,43 +274,37 @@ window.UExtUnionAll = (function(UExtUnionAll) {
 
                 //can allow the user to enter whether to keep tables
                 var options = {
-                    "clean": true
+                    "clean": true,
+                    "newTableName": ext.createTempTableName()
                 };
 
                 return ext.join(XcSDK.Enums.JoinType.FullOuterJoin,
-                    leftTableInfo, rightTableInfo, options);
+                                leftTableInfo, rightTableInfo, options);
             })
             .then(function(tableAfterJoin) {
-                // exclude 'DATA' column
-                errMapConditionArgs.threshold = totalCols - 1;
-                errMapConditionArgs.tableToUse = tableAfterJoin;
-                var stopCondition =
-                    "args[1].cnt >= args[1].threshold";
-                return XcSDK.Promise.while(combineColumns, [ext,
-                    errMapConditionArgs, tableOneName], stopCondition,
-                    errMapConditionArgs);
+                return combineColumns(ext, totalCols, tableOneName, tableAfterJoin);
             })
-            .then(function() {
+            .then(function(tableAfterMap, fieldNames) {
+                finalColNames = fieldNames;
                 // can allow the user to enter optional argument for table name
                 var finalTableName;
                 if (args.finalTableName) {
                     finalTableName = ext.createTableName(null, null,
-                        args.finalTableName);
+                                                        args.finalTableName);
                 } else {
                     finalTableName = ext.createTableName(null, null,
-                        ext.tableNameRoot + '_union_' + tableTwoName);
+                                                        ext.tableNameRoot +
+                                                        '_union_' +
+                                                        tableTwoName);
                 }
-                return ext.project(errMapConditionArgs.colsToProject,
-                    errMapConditionArgs.tableToUse, finalTableName);
+                return ext.project(finalColNames, tableAfterMap, finalTableName);
             })
             .then(function(tableAfterProject) {
                 var table = ext.getTable(tableAfterProject);
                 table.deleteAllCols();
-                for (var i = 0; i < errMapConditionArgs.threshold; i++) {
-                    var colName = errMapConditionArgs.colsToProject[i];
-                    var col = new XcSDK.Column(colName);
-                    table.addCol(col);
-                }
+                finalColNames.forEach(function(colName) {
+                    table.addCol(new XcSDK.Column(colName));
+                });
                 return table.addToWorksheet();
             })
             .then(deferred.resolve)
