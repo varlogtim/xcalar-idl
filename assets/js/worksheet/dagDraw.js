@@ -1460,85 +1460,7 @@ window.DagDraw = (function($, DagDraw) {
                     delete loadInfo.dagNodeId;
                     break;
                 case ('filterInput'):
-                    var filterStr = value.filterStr;
-                    parenIndex = filterStr.indexOf("(");
-                    var abbrFilterType = filterStr.slice(0, parenIndex);
-
-                    info.type = "filter" + abbrFilterType;
-                    info.text = filterStr;
-                    filterType = "";
-                    var filterTypeMap = {
-                        "gt": "greater than",
-                        "ge": "reater than or equal to",
-                        "eq": "equal to",
-                        "lt": "less than",
-                        "le": "less than or equal to",
-                        "regex": "regex",
-                        "like": "like",
-                        "not": "not"
-                    };
-
-                    if (filterTypeMap[abbrFilterType]) {
-                        var filteredOn = filterStr.slice(parenIndex + 1,
-                                                         filterStr.indexOf(','));
-                        filterType = filterTypeMap[abbrFilterType];
-                        var filterValue = filterStr.slice(filterStr.indexOf(',') + 2,
-                                                          filterStr.lastIndexOf(')'));
-
-                        info.column = filteredOn;
-                        if (filterType === "regex") {
-                            info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                           "&quot; using regex: &quot;" +
-                                           filterValue + "&quot; on " +
-                                           filteredOn + ".";
-                        } else if (filterType === "not") {
-                            filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
-                            filterValue = filterValue
-                                            .slice(0, filterValue.lastIndexOf(')'));
-                            info.column = filteredOn;
-                            if (filteredOn.indexOf(")") > -1) {
-                                info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                           "&quot; where " + filteredOn +
-                                           " is " + filterType + " " +
-                                           filterValue + ".";
-                            } else {
-                                commaIndex = filterStr.indexOf(',');
-                                if (commaIndex !== -1) {
-                                    info.column = filterStr
-                                                  .slice(parenIndex + 1, commaIndex)
-                                                  .trim();
-                                } else {
-                                    info.column = filterStr
-                                                  .slice(parenIndex + 1,
-                                                         filterStr.lastIndexOf(')'))
-                                                  .trim();
-                                }
-                                info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                                "&quot;: " + filterStr;
-                            }
-
-                        } else {
-                            info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                           "&quot; where " + filteredOn +
-                                           " is " + filterType + " " +
-                                           filterValue + ".";
-                        }
-                    } else {
-                        commaIndex = filterStr.indexOf(',');
-                        if (commaIndex !== -1) {
-                            info.column = filterStr
-                                          .slice(parenIndex + 1, commaIndex)
-                                          .trim();
-                        } else {
-                            info.column = filterStr
-                                          .slice(parenIndex + 1,
-                                                 filterStr.lastIndexOf(')'))
-                                          .trim();
-                        }
-                        info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                        "&quot;: " + filterStr;
-                    }
-                    info.opText = info.column;
+                    info = getFilterInfo(info, value.filterStr, parentNames);
                     break;
                 case ('groupByInput'):
                     var sampleStr = "";
@@ -1845,6 +1767,96 @@ window.DagDraw = (function($, DagDraw) {
             }
         }
         return leaves;
+    }
+
+    function getFilterInfo(info, filterStr, parentNames) {
+        var parenIndex = filterStr.indexOf("(");
+        var abbrFilterType = filterStr.slice(0, parenIndex);
+
+        info.type = "filter" + abbrFilterType;
+        info.text = filterStr;
+        filterType = "";
+        var filterTypeMap = {
+            "gt": "greater than",
+            "ge": "reater than or equal to",
+            "eq": "equal to",
+            "lt": "less than",
+            "le": "less than or equal to",
+            "regex": "regex",
+            "like": "like",
+            "not": "not"
+        };
+        if (parenIndex !== filterStr.lastIndexOf("(")) {
+            // nested args, use general filterstr for tooltip
+             info.column = filterStr
+                              .slice(parenIndex + 1,
+                                     filterStr.lastIndexOf(')'))
+                              .trim();
+            info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                            "&quot;: " + filterStr;
+        } else if (filterTypeMap[abbrFilterType]) {
+            var filteredOn = filterStr.slice(parenIndex + 1,
+                                             filterStr.indexOf(','));
+            filterType = filterTypeMap[abbrFilterType];
+            var filterValue = filterStr.slice(filterStr.indexOf(',') + 2,
+                                              filterStr.lastIndexOf(')'));
+
+            info.column = filteredOn;
+            if (filterType === "regex") {
+                info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                               "&quot; using regex: &quot;" +
+                               filterValue + "&quot; on " +
+                               filteredOn + ".";
+            } else if (filterType === "not") {
+                filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
+                filterValue = filterValue
+                                .slice(0, filterValue.lastIndexOf(')'));
+                info.column = filteredOn;
+                if (filteredOn.indexOf(")") > -1) {
+                    info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                               "&quot; where " + filteredOn +
+                               " is " + filterType + " " +
+                               filterValue + ".";
+                } else {
+                    commaIndex = filterStr.indexOf(',');
+                    if (commaIndex !== -1) {
+                        info.column = filterStr
+                                      .slice(parenIndex + 1, commaIndex)
+                                      .trim();
+                    } else {
+                        info.column = filterStr
+                                      .slice(parenIndex + 1,
+                                             filterStr.lastIndexOf(')'))
+                                      .trim();
+                    }
+                    info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                                    "&quot;: " + filterStr;
+                }
+
+            } else {
+                info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                               "&quot; where " + filteredOn +
+                               " is " + filterType + " " +
+                               filterValue + ".";
+            }
+        } else {
+            commaIndex = filterStr.indexOf(',');
+            if (commaIndex !== -1) {
+                info.column = filterStr
+                              .slice(parenIndex + 1, commaIndex)
+                              .trim();
+            } else {
+                info.column = filterStr
+                              .slice(parenIndex + 1,
+                                     filterStr.lastIndexOf(')'))
+                              .trim();
+            }
+            info.tooltip = "Filtered table &quot;" + parentNames[0] +
+                            "&quot;: " + filterStr;
+        }
+        info.opText = info.column;
+        return info;
+
     }
 
     function getGroupedOnText(node) {

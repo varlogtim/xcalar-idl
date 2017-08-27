@@ -239,6 +239,10 @@ window.MainMenu = (function($, MainMenu) {
             var $curTab = $(this);
             var $target = $(event.target);
 
+            resolveMenuAnim();
+            $menuBar.removeClass("animating");
+            clickable = true;
+
             if ($curTab.hasClass("active")) {
                 var hasAnim = false;
                 if ($target.closest(".mainTab").length) {
