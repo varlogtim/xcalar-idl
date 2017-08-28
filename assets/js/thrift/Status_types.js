@@ -597,7 +597,8 @@ StatusT = {
   'StatusApisWorkInvalidLength' : 588,
   'StatusLMDBError' : 589,
   'StatusXpuNoBufsToRecv' : 590,
-  'StatusJoinInvalidOrdering' : 591
+  'StatusJoinInvalidOrdering' : 591,
+  'StatusDatasetAlreadyLocked' : 592
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1190,5 +1191,6 @@ StatusTStr = {0 : 'Success',
 588 : 'API received has invalid length',
 589 : 'LMDB Key/Value store error',
 590 : 'No buffers to receive on destination XPU',
-591 : 'Invalid ordering for Join'
+591 : 'Invalid ordering for Join',
+592 : 'Dataset is already locked'
 };

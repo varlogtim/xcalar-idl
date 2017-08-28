@@ -12829,6 +12829,59 @@ XcalarApiListDatasetUsersInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiLockDatasetInputT = function(args) {
+  this.datasetName = null;
+  if (args) {
+    if (args.datasetName !== undefined) {
+      this.datasetName = args.datasetName;
+    }
+  }
+};
+XcalarApiLockDatasetInputT.prototype = {};
+XcalarApiLockDatasetInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.datasetName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiLockDatasetInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiLockDatasetInputT');
+  if (this.datasetName !== null && this.datasetName !== undefined) {
+    output.writeFieldBegin('datasetName', Thrift.Type.STRING, 1);
+    output.writeString(this.datasetName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -12906,6 +12959,7 @@ XcalarApiInputT = function(args) {
   this.tagDagNodesInput = null;
   this.commentDagNodesInput = null;
   this.listDatasetUsersInput = null;
+  this.lockDatasetInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -13134,6 +13188,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.listDatasetUsersInput !== undefined) {
       this.listDatasetUsersInput = args.listDatasetUsersInput;
+    }
+    if (args.lockDatasetInput !== undefined) {
+      this.lockDatasetInput = args.lockDatasetInput;
     }
   }
 };
@@ -13759,6 +13816,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 80:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.lockDatasetInput = new XcalarApiLockDatasetInputT();
+        this.lockDatasetInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -14148,6 +14213,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.listDatasetUsersInput !== null && this.listDatasetUsersInput !== undefined) {
     output.writeFieldBegin('listDatasetUsersInput', Thrift.Type.STRUCT, 79);
     this.listDatasetUsersInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.lockDatasetInput !== null && this.lockDatasetInput !== undefined) {
+    output.writeFieldBegin('lockDatasetInput', Thrift.Type.STRUCT, 80);
+    this.lockDatasetInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -437,8 +437,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                     ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
                     ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                     ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
-                // All currently require restart
-                test.assert(getConfigParamsOutput.parameter[ii].restartRequired === true);
                 // Check one of them.
                 if (getConfigParamsOutput.parameter[ii].paramName == "TotalSystemMemory") {
                     test.assert(getConfigParamsOutput.parameter[ii].changeable === false);
@@ -448,7 +446,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -533,7 +531,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             });
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -562,7 +560,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -598,7 +596,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -637,7 +635,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -716,7 +714,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -758,20 +756,26 @@ PromiseHelper = (function(PromiseHelper, $) {
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json", "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json",
+                   "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .then(function(result) {
             test.fail("load succeeded when it should have failed");
         })
-        .fail(function(status, result) {
-            printResult(result);
-            loadOutput = result;
-            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'";
+        .fail(function(failStruct) {
+            if (!failStruct || typeof(failStruct) !== "object") {
+                test.fail("Fail struct type is wrong");
+            }
+            var loadOutput = failStruct.output;
+            var errStr = "line: 2 column: 1 position: 10892 error: " +
+                         "end of file expected near '{'";
             var errFile = qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
                 loadOutput.errorFile == errFile) {
                 test.pass();
             } else {
-                test.fail("errorString: \"" + loadOutput.errorString + "\" should be: \"" + errStr + "\" errorFile: \"" + loadOutput.errorFile + "\" should be: \"" + errFile);
+                test.fail("errorString: \"" + loadOutput.errorString +
+                          "\" should be: \"" + errStr + "\" errorFile: \"" +
+                          loadOutput.errorFile + "\" should be: \"" + errFile);
             }
         });
     }
@@ -814,7 +818,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -888,6 +892,45 @@ PromiseHelper = (function(PromiseHelper, $) {
         .fail(test.fail);
     }
 
+    function testLockDataset(test) {
+        var datasetName = ".XcalarDS.yelp";
+        var testLockSession = "mgmtdTestLockSession" + (new Date().getTime());
+
+        // Start a new session
+        xcalarApiSessionNew(thriftHandle, testLockSession, false, "")
+        .then(function() {
+            return xcalarApiSessionSwitch(thriftHandle, testLockSession, undefined, false);
+        })
+        .then(function() {
+            return xcalarLockDataset(thriftHandle, datasetName);
+        })
+        .then(function() {
+            return xcalarListDatasetUsers(thriftHandle, datasetName);
+        })
+        .then(function(listDatasetUsersOutput) {
+            printResult(listDatasetUsersOutput);
+
+            // Put back original session
+            return xcalarApiSessionSwitch(thriftHandle, session2, undefined, false);
+        })
+        .then(function() {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
+    function testLockAlreadyLockedDataset(test) {
+        var datasetName = ".XcalarDS.yelp";
+        xcalarLockDataset(thriftHandle, datasetName)
+        .then(function() {
+            test.fail("Locking dataset should have failed.");
+        })
+        .fail(function(reason) {
+            test.pass();
+        });
+    }
 
     function testIndexDatasetIntSync(test) {
         test.trivial(xcalarIndexDataset(thriftHandle,
@@ -1216,7 +1259,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     .fail(function(reason) {
                         failed = true;
                         raceFailedReason += "Aggregate failed. Server " +
-                                            "returned: " + StatusTStr[reason];
+                                            "returned: " + StatusTStr[reason.xcalarStatus];
                     })
                     .always(function() {
                         totalCompleted++;
@@ -1242,7 +1285,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     .fail(function(reason) {
                         failed = true;
                         raceFailedReason = "Group by failed. Server returned: "
-                                           + StatusTStr[reason];
+                                           + StatusTStr[reason.xcalarStatus];
                         totalCompleted++;
                         if (totalCompleted == numIndexes) {
                             test.assert(!failed, "", raceFiledReason);
@@ -1329,7 +1372,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     function anonymousFn(reason) {
                         raceFailedReason +=
                                       "Failed to aggregate. Server returned: " +
-                                             StatusTStr[reason];
+                                             StatusTStr[reason.xcalarStatus];
                         failed = true;
                         aggDoneFn(null, key);
                     }
@@ -1351,7 +1394,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 )
                 .fail(function(reason) {
                     raceFailedReason += "Failed to index. Server returned: " +
-                                        StatusTStr[reason];
+                                        StatusTStr[reason.xcalarStatus];
                     failed = true;
                     indexDoneFn(null);
                 });
@@ -1372,13 +1415,13 @@ PromiseHelper = (function(PromiseHelper, $) {
                 .done(startRace)
                 .fail(function(reason) {
                     reason = "Failed to cast. Server returned: " +
-                                  StatusTStr[reason];
+                                  StatusTStr[reason.xcalarStatus];
                     test.fail(reason);
                 });
             })
             .fail(function(reason) {
                 reason = "Index failed. Server returned: " +
-                             StatusTStr[reason];
+                             StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             });
         }
@@ -1401,19 +1444,19 @@ PromiseHelper = (function(PromiseHelper, $) {
                     })
                     .fail(function(reason) {
                         reason = "Failed to join. Server returned: " +
-                                     StatusTStr[reason];
+                                     StatusTStr[reason.xcalarStatus];
                         test.fail(reason);
                     });
                 })
                 .fail(function(reason) {
                     reason = "Failed to index. Server returned: " +
-                                 StatusTStr[reason];
+                                 StatusTStr[reason.xcalarStatus];
                     test.fail(reason);
                 });
             })
             .fail(function(reason) {
                 reason = "Failed to index. Server returned: " +
-                             StatusTStr[reason];
+                             StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             });
         }
@@ -1438,12 +1481,12 @@ PromiseHelper = (function(PromiseHelper, $) {
             })
             .fail(function(reason) {
                 reason = "Failed to load. Server returned: " +
-                         StatusTStr[reason];
+                         StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             });
         })
         .fail(function(reason) {
-            reason = "Failed to load. Server returned: " + StatusTStr[reason];
+            reason = "Failed to load. Server returned: " + StatusTStr[reason.xcalarStatus];
             test.fail(reason);
         });
     }
@@ -1793,7 +1836,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 })();
             })
             .fail(function(reason) {
-                if (reason == StatusT.StatusOperationHasFinished) {
+                if (reason.xcalarStatus === StatusT.StatusOperationHasFinished) {
                     // We try again
                     xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
                                          SourceTypeT.SrcTable)
@@ -1807,10 +1850,10 @@ PromiseHelper = (function(PromiseHelper, $) {
                         }
                     })
                     .fail(function(reason) {
-                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason.xcalarStatus]);
                     });
                 } else {
-                    test.fail("status: " + StatusTStr[reason]);
+                    test.fail("status: " + StatusTStr[reason.xcalarStatus]);
                 }
             });
         }
@@ -1922,7 +1965,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 })();
             })
             .fail(function(reason) {
-                if (reason == StatusT.StatusOperationHasFinished) {
+                if (reason.xcalarStatus === StatusT.StatusOperationHasFinished) {
                     // We try again
                     xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
                                          SourceTypeT.SrcTable)
@@ -1936,10 +1979,10 @@ PromiseHelper = (function(PromiseHelper, $) {
                         }
                     })
                     .fail(function(reason) {
-                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason.xcalarStatus]);
                     });
                 } else {
-                    test.fail("status: " + StatusTStr[reason]);
+                    test.fail("status: " + StatusTStr[reason.xcalarStatus]);
                 }
             });
         }
@@ -2122,8 +2165,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
         .fail(function(reason) {
             // Don't fail if this test has been run before
-            if (reason != StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason]);
+            if (reason.xcalarStatus !== StatusT.StatusExTargetAlreadyExists) {
+                test.fail(StatusTStr[reason.xcalarStatus]);
             } else {
                 test.pass();
             }
@@ -2143,17 +2186,17 @@ PromiseHelper = (function(PromiseHelper, $) {
         xcalarAddExportTarget(thriftHandle, target)
         .fail(function(reason) {
             // Don't fail if this test has been run before
-            if (reason != StatusT.StatusExTargetAlreadyExists) {
-                test.fail(StatusTStr[reason]);
+            if (reason.xcalarStatus != StatusT.StatusExTargetAlreadyExists) {
+                test.fail(StatusTStr[reason.xcalarStatus]);
             }
         }).always(function() {
             xcalarRemoveExportTarget(thriftHandle, target.hdr)
-            .then(function(status) {
-                printResult(status);
+            .then(function(result) {
+                printResult(result.xcalarStatus);
                 test.pass();
             })
-            .fail(function(reason) {
-                test.fail(StatusTStr[reason]);
+            .fail(function(result) {
+                test.fail(StatusTStr[result.xcalarStatus]);
             });
         });
     }
@@ -2201,7 +2244,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -2251,7 +2294,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     }
                 })
                 .fail(function(reason) {
-                    test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                    test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason.xcalarStatus]);
                 });
             }
 
@@ -2269,10 +2312,10 @@ PromiseHelper = (function(PromiseHelper, $) {
                 }
             })
             .fail(function(reason) {
-                if (reason == StatusT.StatusCanceled) {
+                if (reason.xcalarStatus === StatusT.StatusCanceled) {
                     test.pass();
                 } else {
-                    test.fail("Export failed with reason: " + StatusTStr[reason]);
+                    test.fail("Export failed with reason: " + StatusTStr[reason.xcalarStatus]);
                 }
             });
 
@@ -2305,7 +2348,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                            DfFieldTypeT.DfInt64)
         .then(exportAndCancel)
         .fail(function(reason) {
-            test.fail("Index of reviews dataset failed with: " + StatusTStr[reason] +  " (" + reason + ")");
+            test.fail("Index of reviews dataset failed with: " + StatusTStr[reason.xcalarStatus] +  " (" + reason + ")");
         });
     }
 
@@ -2348,7 +2391,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -2375,10 +2418,10 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            if (reason === StatusT.StatusRetinaAlreadyExists) {
+            if (reason.xcalarStatus === StatusT.StatusRetinaAlreadyExists) {
                 innerDeferred = xcalarApiDeleteRetina(thriftHandle, retinaName);
             } else {
-                reason = "makeRetina failed with status: " + StatusTStr[reason];
+                reason = "makeRetina failed with status: " + StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             }
         });
@@ -2393,7 +2436,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 test.pass();
             })
             .fail(function(reason) {
-                reason = "makeRetina failed with status: " + StatusTStr[reason];
+                reason = "makeRetina failed with status: " + StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             });
         }
@@ -2673,7 +2716,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 retinaAndCancel(listExportTargetsOutput);
             })
             .fail(function(reason) {
-                if (reason == StatusT.StatusCanceled) {
+                if (reason.xcalarStatus === StatusT.StatusCanceled) {
                     xcalarQueryState(thriftHandle, retinaName)
                     .then(function(result) {
                         var qrStateOutput = result;
@@ -2687,11 +2730,11 @@ PromiseHelper = (function(PromiseHelper, $) {
                     .fail(function(status) {
                         test.fail(StatusTStr[status]);
                     });
-                } else if (reason == StatusT.StatusQrQueryInUse) {
+                } else if (reason.xcalarStatus === StatusT.StatusQrQueryInUse) {
                     console.log("Retina did not get the chance to run.  Trying again");
                     retinaAndCancel(listExportTargetsOutput);
                 } else {
-                    test.fail("ExecuteRetina failed with reason: " + StatusTStr[reason]);
+                    test.fail("ExecuteRetina failed with reason: " + StatusTStr[reason.xcalarStatus]);
                 }
             });
 
@@ -2762,7 +2805,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                         xcalarApiDeleteRetina(thriftHandle, listRetinasOutput.retinaDescs[ii].retinaName)
                         .done(makeDeleteOneRetina(ii + 1))
                         .fail(function(reason) {
-                            test.fail("Error while deleting " + listRetinasOutput.retinaDescs[ii].retinaName + ": " + StatusTStr[reason] + " (" + reason + ")");
+                            test.fail("Error while deleting " + listRetinasOutput.retinaDescs[ii].retinaName + ": " + StatusTStr[reason.xcalarStatus] + " (" + reason + ")");
                         });
                     }
                 });
@@ -2831,10 +2874,10 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason === StatusT.StatusEvalStringTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
                 test.pass();
             } else {
-                reason = "Map returned status " + StatusTStr[reason] + " (" + reason + ")";
+                reason = "Map returned status " + StatusTStr[reason.xcalarStatus] + " (" + reason + ")";
                 test.fail(reason);
             }
         });
@@ -2853,7 +2896,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.fail(reason);
         })
         .fail(function(reason) {
-            if (reason === StatusT.StatusEvalStringTooLong) {
+            if (reason.xcalarStatus === StatusT.StatusEvalStringTooLong) {
                 test.pass();
             } else {
                 test.fail(reason);
@@ -2903,7 +2946,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.fail("Expected failure with scope XcalarApiKeyScopeUser.");
         })
         .fail(function(reason) {
-            if (reason != StatusT.StatusUnimpl) {
+            if (reason.xcalarStatus !== StatusT.StatusUnimpl) {
                 test.fail(reason);
             }
             xcalarKeyAddOrReplace(thriftHandle, 666, "foo", "foobar", false)
@@ -2911,7 +2954,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 test.fail("Expected failure given invalid scope.");
             })
             .fail(function(reason) {
-                if (reason == StatusT.StatusInval) {
+                if (reason.xcalarStatus === StatusT.StatusInval) {
                     test.pass();
                 } else {
                     test.fail(reason);
@@ -3132,11 +3175,11 @@ PromiseHelper = (function(PromiseHelper, $) {
                     });
                 })
                 .fail(function(reason) {
-                    test.fail(StatusTStr[reason]);
+                    test.fail(StatusTStr[reason.xcalarStatus]);
                 });
             });
         }, function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3384,7 +3427,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                         test.pass();
                     })
                     .fail(function(reason) {
-                        test.fail(StatusTStr[reason]);
+                        test.fail(StatusTStr[reason.xcalarStatus]);
                     });
                 } else {
                     var reason = "status = " + status;
@@ -3582,7 +3625,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 test.pass();
             })
             .fail(function(reason) {
-                test.fail(StatusTStr[reason]);
+                test.fail(StatusTStr[reason.xcalarStatus]);
             });
         } else {
             console.log("Skipping test because this test depends on testPyExecOnLoad\n");
@@ -3614,7 +3657,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3676,7 +3719,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3726,7 +3769,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             });
         })
         .fail(function(reason) {
-            test.fail("Import retina failed with status: " + StatusTStr[reason] +
+            test.fail("Import retina failed with status: " + StatusTStr[reason.xcalarStatus] +
                       "(" + reason + ")");
         });
 
@@ -3752,7 +3795,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             doTestImportRetina(test, "testExportRetina", retinaPath);
         })
         .fail(function(reason) {
-            test.fail("Export retina failed with status: " + StatusTStr[reason] +
+            test.fail("Export retina failed with status: " + StatusTStr[reason.xcalarStatus] +
                       "(" + reason + ")");
         });
     }
@@ -3795,7 +3838,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3830,7 +3873,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3853,7 +3896,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail("List functional tests failed with status: " + StatusTStr[reason] +
+            test.fail("List functional tests failed with status: " + StatusTStr[reason.xcalarStatus] +
                       " (" + reason + ")");
         });
     }
@@ -3882,7 +3925,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail("Run funtional tests failed with status: " + StatusTStr[reason] +
+            test.fail("Run funtional tests failed with status: " + StatusTStr[reason.xcalarStatus] +
                       " (" + reason + ")");
         });
     }
@@ -3957,6 +4000,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLockAlreadyLockedDataset, "lock already locked dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");

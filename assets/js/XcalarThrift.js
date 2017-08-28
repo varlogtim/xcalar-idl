@@ -796,6 +796,23 @@ function XcalarLoad(url, format, datasetName, options, txId) {
     }
 }
 
+function XcalarLockDataset(dsName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+
+    xcalarLockDataset(tHandle, dsName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarLockDataset", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
+
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
