@@ -310,12 +310,12 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         getNumRows: function(tableName, options) {
+            options = options || {};
             var deferred = jQuery.Deferred();
             var self = this;
-            var useConstant = options.useConstant;
             var isTempConstant = false;
+            var useConstant = options.useConstant;
 
-            options = options || {};
             options.txId = this.txId;
 
             if (useConstant && options.constantName == null) {
