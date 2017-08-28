@@ -638,7 +638,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#filePath").val(url);
         $("#dsForm-path").find(".confirm").click(); // go to the next step
 
-        checkExists(check, 20000)
+        checkExists(check)
         .then(function() {
             $("#dsForm-dsName").val(dsName);
             // auto detect should fill in the form
@@ -845,7 +845,7 @@ window.TestSuite = (function($, TestSuite) {
                                    ".text:contains('Duplicate Module'), " +
                                    "#alertContent:visible .text:contains" +
                                    "('UDF Module currently in use')",
-                                   3000, {optional: true,
+                                   null, {optional: true,
                                           noDilute: true});
             })
             .then(function(found) {
@@ -1153,9 +1153,8 @@ window.TestSuite = (function($, TestSuite) {
         $colMenu.mouseover();
         $colSubMenu.find(".changeDataType .type-integer")
                    .trigger(fakeEvent.mouseup);
-        // checkExists(".flexWrap.flex-mid" +
-        //             " input[value='" + col + "_integer']:eq(0)")
-        checkExists(".flexWrap.flex-mid" +
+
+        checkExists(".type-integer .flexWrap.flex-mid" +
                     " input[value='" + col + "']:eq(0)")
         .then(function() {
             if (tableId) {
@@ -1234,7 +1233,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#joinTableNameInput").val(newName);
             $("#joinTables").click();
             return checkExists(".xcTableWrap .tableName[value*='" +
-                                newName + "']", 30000);
+                                newName + "']");
         })
         .then(function() {
             return checkExists("#xcTable-" + oldTableId, null,
@@ -1300,9 +1299,8 @@ window.TestSuite = (function($, TestSuite) {
             $colMenu.mouseover();
             $colSubMenu.find(".changeDataType .type-integer")
                 .trigger(fakeEvent.mouseup);
-            // return (checkExists(".flexWrap.flex-mid" +
-            //                     " input[value='Month_integer']:eq(0)"));
-            return (checkExists(".flexWrap.flex-mid" +
+
+            return (checkExists(".type-integer .flexWrap.flex-mid" +
                                 " input[value='Month']:eq(0)"));
         })
         .then(function() {
@@ -1325,7 +1323,7 @@ window.TestSuite = (function($, TestSuite) {
         $header.parent().parent().find(".flex-right .innerBox").click();
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
         checkExists([".modalHeader .text:contains('Profile')",
-                     "#profileModal[data-state='finished']"], 30000,
+                     "#profileModal[data-state='finished']"], null,
                      {"asserts": [".barChart .area .xlabel:contains('205')"]})
         .then(function() {
             assert($(".barChart .area").length === 8);
@@ -1735,7 +1733,7 @@ window.TestSuite = (function($, TestSuite) {
         TestSuite.add(multiJoinTest, "MultiJoinTest",
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(columnRenameTest, "ColumnRenameTest",
-                      defaultTimeout, TestCaseDisabled);
+                      defaultTimeout, TestCaseDisabled); // disabled
         TestSuite.add(tableRenameTest, "TableRenameTest",
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(profileTest, "ProfileTest",
@@ -1745,7 +1743,7 @@ window.TestSuite = (function($, TestSuite) {
         TestSuite.add(aggTest, "QuickAggregateTest",
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(schedTest, "ScheduleTest",
-                      defaultTimeout, TestCaseDisabled);
+                      defaultTimeout, TestCaseDisabled); // disabled
         TestSuite.add(dfTest, "DFTest",
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(retinaTest, "RetinaTest",
@@ -1760,9 +1758,9 @@ window.TestSuite = (function($, TestSuite) {
         TestSuite.add(cancelRetinaTest, "CancelRetinaTest",
                       defaultTimeout, retinaEnabled);
         TestSuite.add(deleteRetinaTest, "DeleteRetinaTest",
-                      defaultTimeout, TestCaseDisabled);
+                      defaultTimeout, TestCaseDisabled); // disabled
         TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
-                      defaultTimeout, TestCaseDisabled);
+                      defaultTimeout, TestCaseDisabled); // disabled
         TestSuite.add(jsonModalTest, "JsonModalTest",
                       defaultTimeout, TestCaseEnabled);
     }
