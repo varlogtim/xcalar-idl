@@ -424,7 +424,6 @@ window.DFCreateView = (function($, DFCreateView) {
         $("#xcTable-" + tableId).off(".columnPicker");
         $("#xcTable-" + tableId).find('.modalHighlighted')
                                 .removeClass('modalHighlighted');
-        formHelper.hideView();
 
         $newNameInput.val("");
         $(document).off('keypress.DFView');
@@ -432,6 +431,7 @@ window.DFCreateView = (function($, DFCreateView) {
         focusedListNum = null;
         $curDagWrap = null;
         formHelper.clear();
+        formHelper.hideView();
         exportHelper.clear();
     }
 

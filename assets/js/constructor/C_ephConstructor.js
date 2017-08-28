@@ -1834,9 +1834,16 @@ FormHelper.prototype = {
     },
 
     hideView: function() {
+        var ignoreClose = false;
+        if (!this.$form.is(":visible")) {
+            // do not close the left panel if we've navigated away
+            ignoreClose = true;
+        }
+
         this.$form.addClass('xc-hidden');
         if (this.mainMenuState != null) {
-            MainMenu.restoreState(this.mainMenuState);
+
+            MainMenu.restoreState(this.mainMenuState, ignoreClose);
             this.mainMenuState = null;
         }
     },

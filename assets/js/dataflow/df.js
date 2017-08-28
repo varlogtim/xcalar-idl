@@ -191,13 +191,12 @@ window.DF = (function($, DF) {
             isUpload = options.isUpload;
         }
         var deferred = jQuery.Deferred();
-        dataflows[dataflowName] = dataflow;
 
         var innerDef;
         if (isUpload) {
             innerDef = PromiseHelper.resolve();
         } else {
-            innerDef = createRetina(dataflowName, expTableName);
+            innerDef = createRetina(dataflowName, dataflow, expTableName);
         }
 
         innerDef
@@ -205,9 +204,10 @@ window.DF = (function($, DF) {
             return XcalarGetRetina(dataflowName);
         })
         .then(function(retInfo) {
+            dataflows[dataflowName] = dataflow;
             updateDFInfo(retInfo);
             if (isUpload) {
-                addColumns(dataflowName, retInfo);
+                addColumns(dataflowName);
             }
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
@@ -216,10 +216,7 @@ window.DF = (function($, DF) {
             XcSocket.sendMessage("refreshDataflow", dataflowName);
             deferred.resolve();
         })
-        .fail(function(error) {
-            delete dataflows[dataflowName];
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -387,10 +384,8 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
-    function createRetina(retName, tableName) {
-        var df = dataflows[retName];
+    function createRetina(retName, df, tableName) {
         var columns = [];
-
         var tableArray = [];
 
         df.columns.forEach(function(colInfo) {

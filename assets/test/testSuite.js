@@ -1462,12 +1462,9 @@ window.TestSuite = (function($, TestSuite) {
 
         var selector;
 
-        checkExists("#menuBar.animating", null, {notExist: true})
-        .then(function() {
-            // got to scheduler panel
-            $("#dataflowTab").click();
-            return checkExists(".dfList.disabled", null, {notExist: true});
-        })
+        $("#dataflowTab").click();
+
+        checkExists(".dfList.disabled", null, {notExist: true})
         .then(function() {
             selector = "#dfMenu .dataFlowGroup .listBox " +
                             ".groupName:contains('" + dfName + "')";

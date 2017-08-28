@@ -11,7 +11,7 @@ window.DataflowPanel = (function($, DataflowPanel) {
 
     DataflowPanel.refresh = function(dataflowName) {
         var activeDataflow = DFCard.getActiveDF();
-        $("#dfMenu .refreshBtn").click();
+        DFCard.refresh();
         if (activeDataflow !== dataflowName) {
             // change is not on current dataflow
             return;

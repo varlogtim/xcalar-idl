@@ -113,6 +113,36 @@ window.DFCard = (function($, DFCard) {
         return activeGroupName;
     };
 
+    DFCard.refresh = function() {
+        $dfMenu.addClass("disabled");
+        var $refreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
+        var startTime = Date.now();
+
+        KVStore.getEmataInfo()
+        .then(function(eMeta) {
+            var ephMetaInfos;
+            try {
+                ephMetaInfos = new EMetaConstructor(eMeta);
+            } catch (error) {
+                return PromiseHelper.resolve();
+            }
+            if (ephMetaInfos) {
+                return DF.refresh(ephMetaInfos.getDFMeta());
+            }
+        })
+        .always(function() {
+            $dfMenu.removeClass("disabled");
+            // XXX might be better to use a refreshIcon constructor to track
+            // this
+            var spinTime = Math.max(1500 - (Date.now() - startTime), 0);
+            setTimeout(function() {
+                $refreshIcon.fadeOut(100, function() {
+                    $refreshIcon.remove();
+                });
+            }, spinTime);
+        });
+    };
+
     DFCard.refreshDFList = function(clear, noFocus) {
         if (clear) {
             $dfCard.find('.cardMain').empty();
@@ -291,8 +321,8 @@ window.DFCard = (function($, DFCard) {
 
         $("#container").on("mousedown", function(event) {
             var $target = $(event.target);
-            if ($retTabSection.find(".retTab").hasClass("active")
-            && !$target.closest('.retTab').length) {
+            if ($retTabSection.find(".retTab").hasClass("active") &&
+                !$target.closest('.retTab').length) {
                 closeRetTab();
                 $("#container").off("mousedown.retTab");
                 return;
@@ -319,35 +349,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function addListeners() {
-        $dfMenu.on('click', '.refreshBtn', function() {
-            $dfMenu.addClass("disabled");
-            var $refreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
-            var startTime = Date.now();
-
-            KVStore.getEmataInfo()
-            .then(function(eMeta) {
-                var ephMetaInfos;
-                try {
-                    ephMetaInfos = new EMetaConstructor(eMeta);
-                } catch (error) {
-                    return PromiseHelper.resolve();
-                }
-                if (ephMetaInfos) {
-                    return DF.refresh(ephMetaInfos.getDFMeta());
-                }
-            })
-            .always(function() {
-                $dfMenu.removeClass("disabled");
-                // XXX might be better to use a refreshIcon constructor to track
-                // this
-                var spinTime = Math.max(1500 - (Date.now() - startTime), 0);
-                setTimeout(function() {
-                    $refreshIcon.fadeOut(100, function() {
-                        $refreshIcon.remove();
-                    });
-                }, spinTime);
-            });
-        });
+        $dfMenu.on('click', '.refreshBtn', DFCard.refresh);
 
         $listSection.on('click', '.dataFlowGroup', function() {
             var $df = $(this);

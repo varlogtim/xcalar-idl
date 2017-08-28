@@ -134,10 +134,12 @@ window.MainMenu = (function($, MainMenu) {
     };
 
     // xx currently only supporting form views in the worksheet panel
-    MainMenu.restoreState = function(prevState) {
+    MainMenu.restoreState = function(prevState, ignoreClose) {
         // ignoreRestoreState is temporarily set when mainMenu tab is clicked
         // and form is open
-        if (!ignoreRestoreState) {
+        // ignoreClose will be true if different menu tab has been clicked
+        // and form is no longer visible
+        if (!ignoreRestoreState && !ignoreClose) {
             var noAnim;
             if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
                 BottomMenu.openSection(prevState.$activeBottomSection.index());
