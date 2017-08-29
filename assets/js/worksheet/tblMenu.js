@@ -149,6 +149,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ("dataflow"):
                     DFCreateView.close();
                     break;
+                case ("sort"):
+                    SortView.close();
+                    break;
                 default:
                     break;
             }
@@ -733,18 +736,46 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var colNums;
             var tableId = $colMenu.data('tableId');
-            sortColumn(colNum, tableId, SortDirection.Forward);
+
+            if ($(this).closest(".multiSort").length) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
+            sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
         });
 
         $subMenu.on('mouseup', 'li.revSort', function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var colNums;
             var tableId = $colMenu.data('tableId');
-            sortColumn(colNum, tableId, SortDirection.Backward);
+
+            if ($(this).closest(".multiSort").length) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
+            sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
+        });
+
+        $subMenu.on('mouseup', '.sortView', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var colNums;
+            var tableId = $colMenu.data('tableId');
+
+            if ($(this).closest(".multiSort").length) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
+
+            SortView.show(colNums, tableId);
         });
 
         $colMenu.on('mouseup', '.join', function(event) {
@@ -771,16 +802,14 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             var func = $li.data('func');
             var colNums;
-            var options = {};
 
             if ($li.hasClass('multiGroupby')) {
-                options.multiGroupby = true;
                 colNums = $colMenu.data('columns');
             } else {
                 colNums = [$colMenu.data('colNum')];
             }
 
-            OperationsView.show(tableId, colNums, func, options);
+            OperationsView.show(tableId, colNums, func);
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
@@ -1011,6 +1040,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ("dataflow"):
                     DFCreateView.close();
                     break;
+                case ("sort"):
+                    SortView.close();
+                    break;
                 default:
                     break;
             }
@@ -1035,12 +1067,25 @@ window.TblMenu = (function(TblMenu, $) {
         });
     }
 
-    function sortColumn(colNum, tableId, order) {
-        var progCol = gTables[tableId].tableCols[colNum - 1];
+    function sortColumn(colNums, tableId, order) {
+        var colInfo = [];
+         for (var i = 0; i < colNums.length; i++) {
+            colInfo.push({
+                colNum: colNums[i],
+                order: order,
+                typeToCast: null
+            });
+        }
+
+        if (colNums.length > 1) {
+            return xcFunction.sort(tableId, colInfo);
+        }
+        var colNum = colNums[0];
+        var progCol = gTables[tableId].getCol(colNum);
         var type = progCol.getType();
 
         if (type !== "string") {
-            return xcFunction.sort(colNum, tableId, order);
+            return xcFunction.sort(tableId, colInfo);
         }
 
         var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
@@ -1067,7 +1112,7 @@ window.TblMenu = (function(TblMenu, $) {
                 "buttons": [{
                     "name": IndexTStr.NoCast,
                     "func": function() {
-                        xcFunction.sort(colNum, tableId, order)
+                        xcFunction.sort(tableId, colInfo)
                         .then(deferred.resolve)
                         .fail(deferred.reject);
                     }
@@ -1075,7 +1120,8 @@ window.TblMenu = (function(TblMenu, $) {
                 {
                     "name": IndexTStr.CastToNum,
                     "func": function() {
-                        xcFunction.sort(colNum, tableId, order, suggType)
+                        colInfo[0].typeToCast = suggType;
+                        xcFunction.sort(tableId, colInfo)
                         .then(deferred.resolve)
                         .fail(deferred.reject);
                     }
@@ -1084,7 +1130,7 @@ window.TblMenu = (function(TblMenu, $) {
             });
             return deferred.promise();
         } else {
-            return xcFunction.sort(colNum, tableId, order);
+            return xcFunction.sort(tableId, colInfo);
         }
     }
 

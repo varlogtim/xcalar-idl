@@ -394,7 +394,7 @@ window.Replay = (function($, Replay) {
         argsMap = {};
         // DS.point()
         argsMap[SQLOps.DSPoint] = ["pointArgs", "options"];
-        argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
+        argsMap[SQLOps.Sort] = ["colNum", "colInfo"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
         argsMap[SQLOps.Map] = ["colNum", "tableId", "fieldName",

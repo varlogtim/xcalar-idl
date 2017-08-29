@@ -1814,7 +1814,7 @@
     }
 }
 
-#smartCastView {
+#smartCastView, #sortView {
     .buttonSection {
         padding-top: 12px;
         .size(258px, 60px);
@@ -1845,6 +1845,15 @@
 
             .tableContent {
                 display: none;
+            }
+        }
+
+        .clear {
+            text-align: right;
+            color: @color-font-select-blue;
+            margin-right: 10px;
+            .icon {
+                .position(relative, @top: 3px);
             }
         }
 
@@ -1893,12 +1902,12 @@
                 cursor: pointer;
             }
 
-            &.colType {
+            &.colType, &.colOrder {
                 padding: 0 0 0 10px;
                 cursor: pointer;
                 color: @color-font-select-blue;
 
-                &.initialType {
+                &.initialType, &.initialOrder {
                     color: @color-font-gray36;
                 }
 
@@ -1930,11 +1939,12 @@
             }
         }
 
-        #castMenu {
+        #castMenu, #sortViewMenu {
             border-top: 1px solid @color-border-pinkish-grey2;
             li {
                 background-color: @color-white;
                 color: @color-font-select-blue;
+                padding-left: 10px;
 
                 &:hover {
                     background-color: @color-bg-light-blue-grey;
@@ -1961,6 +1971,18 @@
 
             &.string {
                 .string {
+                    color: @color-font-gray36;
+                }
+            }
+
+            &.ascending {
+                .ascending {
+                    color: @color-font-gray36;
+                }
+            }
+
+            &.descending {
+                .descending {
                     color: @color-font-gray36;
                 }
             }

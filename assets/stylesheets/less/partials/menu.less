@@ -17,7 +17,7 @@
         text-align: center;
     }
 
-    .textAlign, .sort, .changeFormat, .typeList, .resize {
+    .textAlign, .sort, .multiSort, .changeFormat, .typeList, .resize {
         .xi-tick {
             float: right;
             margin-right: 2px;
@@ -78,8 +78,6 @@
     &.sortedDesc .revSort .xi-tick {
         display: block;
     }
-
-
 
     &.format-percent {
         .changeFormat {
@@ -417,7 +415,7 @@
         font-size: 14px;
     }
 
-    .sort .fasjIcon {
+    .sort .fasjIcon, .multiSort .fasjIcon {
         font-size: 16px;
         margin-left: -3px;
         margin-top: -1px;
@@ -451,7 +449,7 @@
         }
     }
 
-    .sort, .aggregate, .groupBy, .filter {
+    .sort, .aggregate, .groupBy, .filter, .multiSort {
         span {
             .size(@width: 24px, @height: 16px);
             float: left;
@@ -459,7 +457,7 @@
         }
     }
 
-    .sort {
+    .sort, .multiSort {
         // indexed column cannot sort
         .indexedColumn & {
             display: none;
@@ -472,7 +470,10 @@
 
         .revSort .icon {
             .position(relative, @top: 3px);
-            margin-right: 5px;
+        }
+        .sortUp, .sortDown {
+            left: -5px;
+            margin-right: 3px;
         }
 
         .tooltip {
@@ -543,7 +544,8 @@
     &.type-multiColumn {
         .multiColumn {
             &.hideColumns, &.minimizeColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions, &.multiGroupby, &.multiJoin, &.corrAgg {
+            &.resizeColumns, &.extensions, &.multiGroupby, &.multiJoin, &.corrAgg,
+            &.multiSort {
                 display: list-item !important;
                 li {
                     display: list-item !important;
@@ -581,7 +583,7 @@
         }
         &.type-object, &.type-newColumn, &.childOfArray, &.type-array,
         &.type-undefined {
-            .multiGroupby, .multiJoin {
+            .multiGroupby, .multiJoin, .multiSort {
                 display: none !important;
             }
         }
@@ -816,6 +818,14 @@
             }
         }
     }
+    &.sortViewState {
+        #colMenu, #tableMenu {
+            .exitSort {
+                display: list-item !important;
+            }
+        }
+    }
+
 }
 
 //scrollable list styling

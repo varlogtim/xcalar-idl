@@ -1615,6 +1615,8 @@ function FormHelper($form, options) {
     this.id = $form.attr("id");
     this.state = null;
     this.mainMenuState = null;
+    this.openTime = null;
+    this.isFormOpen = false;
 
     this.__init();
 
@@ -1818,6 +1820,8 @@ FormHelper.prototype = {
     },
 
     showView: function() {
+        this.isFormOpen = true;
+        this.openTime = Date.now();
         this.mainMenuState = MainMenu.getState();
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         this.$form.removeClass("xc-hidden");
@@ -1834,6 +1838,7 @@ FormHelper.prototype = {
     },
 
     hideView: function() {
+        this.isFormOpen = false;
         var ignoreClose = false;
         if (!this.$form.is(":visible")) {
             // do not close the left panel if we've navigated away
@@ -2043,6 +2048,14 @@ FormHelper.prototype = {
 
     listHighlight: function($input, event, isArgInput) {
         return xcHelper.listHighlight($input, event, isArgInput);
+    },
+
+    getOpenTime: function() {
+        return this.openTime;
+    },
+
+    isOpen: function() {
+        return this.isFormOpen;
     }
 };
 /* End of FormHelper */

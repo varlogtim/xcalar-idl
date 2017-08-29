@@ -279,7 +279,9 @@ ErrTStr = {
                       'retry.',
     'UserCanceled': 'User Canceled',
     'NoColumns': 'No Columns Selected',
-    'NoCast': 'No columns to cast.',
+    'NoCast': 'No columns selected to cast.',
+    'NoSort': 'No columns selected to sort on.',
+    'NoSortChange': 'Please select at least one column to sort on.',
     'NoTypeChange': 'Please change at least one column\'s type to apply the cast.',
     'IcvFailed': 'Failed to generate erroneous rows (ER) table',
     'IcvAlt': 'Failed to generate erroneous rows (ER) table. Please use map ' +

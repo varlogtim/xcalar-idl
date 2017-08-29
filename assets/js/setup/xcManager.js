@@ -476,6 +476,7 @@ window.xcManager = (function(xcManager, $) {
         DFCreateView.setup();
         DFParamModal.setup();
         SmartCastView.setup();
+        SortView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();
         LicenseModal.setup();

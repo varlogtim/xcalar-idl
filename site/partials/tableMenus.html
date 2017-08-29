@@ -46,6 +46,9 @@
     <li class="exitDataflow exitOp" data-exittype="dataflow">
       <%= dicts.MenuTStr.ExitDF %>
     </li>
+    <li class="exitSort exitOp" data-exittype="sort">
+      Exit Sort
+    </li>
     <li class="exitAggregate exitOp" data-exittype="aggregate">
       <%= dicts.MenuTStr.ExitAggregate %>
     </li>
@@ -256,6 +259,10 @@
       <%= dicts.MenuTStr.ChangeType %>
     </li>
     <div class="multiColumn divider functionsDivider"></div>
+    <li class="multiColumn multiSort parentMenu" data-submenu="multiSort">
+       <i class="icon xi-sort fasjIcon"></i>
+      <%= dicts.MenuTStr.Sort %>
+    </li>
     <li class="multiColumn corrAgg">
       <i class="icon xi-corr-coeff fasjIcon"></i>
       <%= dicts.MenuTStr.QuickAgg %><span class="ellipsis">...</span>
@@ -294,6 +301,9 @@
     </li>
     <li class="exitDataflow exitOp" data-exittype="dataflow">
       <%= dicts.MenuTStr.ExitDF %>
+    </li>
+    <li class="exitSort exitOp" data-exittype="sort">
+      Exit Sort
     </li>
   </ul>
   <div class="scrollArea top">
@@ -424,6 +434,9 @@
       <i class="icon blue xi-arrowtail-down fa-15 sortDown"></i><%= dicts.MenuTStr.SortDesc %>
       <i class="icon xi-tick fa-11 blue"></i>
     </li>
+     <li class="sortView">
+      Advanced<span class="ellipsis">...</span>
+    </li>
   </ul>
   <ul class="multiTextAlign">
     <li class="textAlign leftAlign">
@@ -492,6 +505,19 @@
       </div>
     </li>
   <% }) %>
+  </ul>
+  <ul class="multiSort">
+    <li class="sort">
+      <i class="icon blue xi-arrowtail-up fa-15 sortUp"></i><%= dicts.MenuTStr.SortAsc %>
+      <i class="icon xi-tick fa-11 blue"></i>
+    </li>
+    <li class="revSort">
+      <i class="icon blue xi-arrowtail-down fa-15 sortDown"></i><%= dicts.MenuTStr.SortDesc %>
+      <i class="icon xi-tick fa-11 blue"></i>
+    </li>
+     <li class="sortView">
+      Advanced<span class="ellipsis">...</span>
+    </li>
   </ul>
   <div class="subMenuArea"></div>
   <div class="scrollArea top">

@@ -802,6 +802,15 @@ module.exports = {
         "NoCast": "No columns to cast"
     },
 
+    "sortView": {
+        "SORT": "SORT",
+        "instr": "Select one or multiple columns to sort your table on by selecting the columns from the current table.",
+        "colInstrHeader": "Select Columns to Sort On",
+        "colInstrText": "To sort on a column, first select the column in the table. You will see a row appended for the column. Next click on the drop down and select the sort order. To remove a column from being sorted on, click on the column in the table to deselect it. You can jump to the column by clicking on the column name in the table.",
+        "order": "Order",
+        "NoSort": "No columns selected"
+    },
+
     "opsView": {
         "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",

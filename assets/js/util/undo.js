@@ -38,15 +38,29 @@ window.Undo = (function($, Undo) {
         return (TblManager.sendTableToUndone(tableId, {'remove': true}));
     };
 
-    undoFuncs[SQLOps.Sort] = function(options) {
+    undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
+        var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
         };
-        return (TblManager.refreshTable([options.tableName], null,
+        var sortOptions = options.options || {};
+        TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, null, refreshOptions));
+                                       worksheet, null, refreshOptions)
+        .then(function() {
+            if (isMostRecent && sortOptions.formOpenTime) {
+                // XXX need to change to colNums plural once multisort is ready
+                SortView.show([options.colNum], options.tableId, {
+                    "restore": true,
+                    "restoreTime": sortOptions.formOpenTime
+                });
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     };
 
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {

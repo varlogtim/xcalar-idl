@@ -207,39 +207,54 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // sort table column
-    xcFunction.sort = function(colNum, tableId, order, typeToCast) {
+    // options:
+    //      formOpenTime: number
+    xcFunction.sort = function(tableId, colInfo, options) {
         var deferred = jQuery.Deferred();
-
+        options = options || {};
         var table = gTables[tableId];
         var tableName = table.getName();
         var tableCols = table.tableCols;
-        var progCol = tableCols[colNum - 1];
-        var backColName = progCol.getBackColName();
-        var frontColName = progCol.getFrontColName(true);
+        var keys = [];
+        var colNums = [];
+        var orders = [];
 
-        var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
-        var xcOrder;
+        for (var i = 0; i < colInfo.length; i++) {
+            var progCol = table.getCol(colInfo[i].colNum);
 
-        if (order === SortDirection.Backward) {
-            xcOrder = XcalarOrderingT.XcalarOrderingDescending;
-        } else {
-            xcOrder = XcalarOrderingT.XcalarOrderingAscending;
+            keys.push(progCol.getFrontColName(true));
+            colNums.push(colInfo[i].colNum);
+            orders.push(colInfo[i].order);
         }
+
+        // XXX fix this
+        var direction = (orders[0] === XcalarOrderingT.XcalarOrderingAscending) ? "ASC" : "DESC";
+
 
         var worksheet = WSManager.getWSFromTable(tableId);
         var sql = {
             "operation": SQLOps.Sort,
             "tableName": tableName,
             "tableId": tableId,
-            "key": frontColName,
-            "colNum": colNum,
-            "order": order,
+            "keys": keys,
+            "colNums": colNums,
+            "orders": orders,
             "direction": direction,
-            "sorted": true
+            "sorted": true,
+            "options": options,
+            "colInfo": colInfo,
+            "htmlExclude": ["options", "colInfo"]
         };
-        var steps = typeToCast ? 2 : 1;
+        // var steps = typeToCast ? 2 : 1;
+        var steps = -1;
+        var msg;
+        if (colInfo.length > 1) {
+            msg = StatusMessageTStr.Sort + " multiple columns";
+        } else {
+            msg = StatusMessageTStr.Sort + " " + keys[0];
+        }
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.Sort + " " + frontColName,
+            "msg": msg,
             "operation": SQLOps.Sort,
             "sql": sql,
             "steps": steps
@@ -257,11 +272,16 @@ window.xcFunction = (function($, xcFunction) {
         typeCastHelper()
         .then(function(tableToSort, colToSort, newTableCols) {
             finalTableCols = newTableCols;
-            return XIApi.sort(txId, xcOrder, colToSort, tableToSort);
+            if (colInfo.length === 1) {
+                return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
+            } else {
+                return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
+                return XIApi.multiSort(txId, colInfo, tableName);
+            }
         })
         .then(function(sortTableName) {
             finalTableName = sortTableName;
-            var options = {"selectCol": colNum};
+            var options = {"selectCol": colNums};
             // sort will filter out KNF, so it change the profile
             return TblManager.refreshTable([finalTableName], finalTableCols,
                                             [tableName], worksheet, txId,
@@ -288,15 +308,9 @@ window.xcFunction = (function($, xcFunction) {
 
             if (sorted) {
                 Transaction.cancel(txId);
-                var textOrder;
-                if (order === SortDirection.Forward) {
-                    textOrder = "ascending";
-                } else {
-                    textOrder = "descending";
-                }
 
                 var mgs = xcHelper.replaceMsg(IndexTStr.SortedErr, {
-                    "order": textOrder
+                    "order": XcalarOrderingTStr[orders[0]].toLowerCase() // XXX fix this
                 });
                 Alert.error(IndexTStr.Sorted, mgs);
             } else if (error.error === SQLType.Cancel) {
@@ -314,7 +328,10 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
 
         function typeCastHelper() {
-            if (typeToCast == null) {
+            var typeToCast = colInfo[0].typeToCast;
+            var progCol = table.getCol(colNums[0]);
+            var backColName = progCol.getBackColName();
+            if (colInfo.length > 1 || typeToCast == null) {
                 return PromiseHelper.resolve(tableName, backColName, tableCols);
             }
 
@@ -332,7 +349,7 @@ window.xcFunction = (function($, xcFunction) {
                     "replaceColumn": true,
                     "resize": true
                 };
-                var mapTablCols = xcHelper.mapColGenerate(colNum, mapColName,
+                var mapTablCols = xcHelper.mapColGenerate(colNums[0], mapColName,
                                         mapString, tableCols, mapOptions);
                 innerDeferred.resolve(mapTableName, mapColName, mapTablCols);
             })

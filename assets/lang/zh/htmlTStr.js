@@ -808,6 +808,14 @@ module.exports = {
         "instr": "将列从一种类型转换为另一种类型。您也可以单击进行自动类型探测。",
         "newType": "新类型"
     },
+    "sortView": {
+        "SORT": "SORT",
+        "instr": "Select one or multiple columns to sort your table on by selecting the columns from the current table.",
+        "colInstrHeader": "Select Columns to Sort On",
+        "colInstrText": "To sort on a column, first select the column in the table. You will see a row appended for the column. Next click on the drop down and select the sort order. To remove a column from being sorted on, click on the column in the table to deselect it. You can jump to the column by clicking on the column name in the table.",
+        "order": "Order",
+        "NoSort": "No columns selected"
+    },
     "statistics": {
         "Average": "平均值",
         "Count": "计数",

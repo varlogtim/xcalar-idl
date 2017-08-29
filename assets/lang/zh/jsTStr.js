@@ -257,6 +257,8 @@ ErrTStr = {
 'UserCanceled': '用户已取消',
 'NoColumns': '未选择列',
 'NoCast': '不存在可供转换的列。',
+'NoSort': 'No columns selected to sort on.',
+'NoSortChange': 'Please select at least one column to sort on.',
 'NoTypeChange': '请更改至少一列的类型以应用该转换。',
 'IcvFailed': '无法生成完整性约束冲突异常表',
 'IcvAlt': '无法生成完整性约束冲突异常表仅适用于映射和分组',

@@ -22,8 +22,8 @@ describe('TableMenu Test', function() {
             tableName = tName;
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
-
-            xcFunction.sort(10, tableId, SortDirection.Forward)
+            var colInfo = [{colNum: 1, order: XcalarOrderingT.XcalarOrderingAscending}];
+            xcFunction.sort(tableId, colInfo)
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
@@ -1380,17 +1380,17 @@ describe('TableMenu Test', function() {
             it('sort', function() {
                 var cachedFunc = xcFunction.sort;
                 var called = false;
-                xcFunction.sort = function(colNum, tId, order) {
-                    expect(colNum).to.equal(12);
+                xcFunction.sort = function(tId, colInfo) {
+                    expect(colInfo[0].colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
-                    expect(order).to.equal(SortDirection.Forward);
+                    expect(colInfo[0].order).to.equal(XcalarOrderingT.XcalarOrderingAscending);
                     called = true;
                 };
 
-                $colSubMenu.find('li.sort').trigger(rightMouseup);
+                $colSubMenu.find('li.sort').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('li.sort').trigger(fakeEvent.mouseup);
+                $colSubMenu.find('li.sort').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 xcFunction.sort = cachedFunc;
@@ -1399,17 +1399,17 @@ describe('TableMenu Test', function() {
             it('revSort', function() {
                 var cachedFunc = xcFunction.sort;
                 var called = false;
-                xcFunction.sort = function(colNum, tId, order) {
-                    expect(colNum).to.equal(12);
+                xcFunction.sort = function(tId, colInfo) {
+                    expect(colInfo[0].colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
-                    expect(order).to.equal(SortDirection.Backward);
+                    expect(colInfo[0].order).to.equal(XcalarOrderingT.XcalarOrderingDescending);
                     called = true;
                 };
 
-                $colSubMenu.find('li.revSort').trigger(rightMouseup);
+                $colSubMenu.find('li.revSort').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('li.revSort').trigger(fakeEvent.mouseup);
+                $colSubMenu.find('li.revSort').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 xcFunction.sort = cachedFunc;
@@ -1590,7 +1590,13 @@ describe('TableMenu Test', function() {
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(6);
                 expect(tId).to.equal(tableId);
-                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'mixVal, ' + cellText + ')' );
+                var fltStr;
+                if (cellText === "FNF") {
+                    fltStr = 'not(exists(' + prefix + gPrefixSign + '))' ;
+                } else {
+                    fltStr = 'eq(' + prefix + gPrefixSign + 'mixVal, ' + JSON.stringify(cellText) + ')'
+                }
+                expect(options.filterString).to.equal(fltStr);
                 expect(options.operator).to.equal("Filter");
                 called = true;
             };

@@ -73,21 +73,25 @@ window.Repeat = (function($, Repeat) {
     //                                     options.worksheet));
     // };
 
-    // only sort 1 column
     repeatFuncs[SQLOps.Sort] = function(options, colNums, tableId) {
-        if (colNums.length !== 1) {
-            return PromiseHelper.resolve(null);
-        }
-        var progCol = gTables[tableId].getCol(colNums[0]);
-        var type = progCol.getType();
         var validTypes = [ColumnType.boolean, ColumnType.float,
                           ColumnType.integer, ColumnType.number,
                           ColumnType.string];
-        if (validTypes.indexOf(type) === -1) {
-            return PromiseHelper.resolve(null);
+        var order = options.orders[0];
+        for (var i = 0; i < colNums.length; i++) {
+            var progCol = gTables[tableId].getCol(colNums[i]);
+            var type = progCol.getType();
+            if (validTypes.indexOf(type) === -1) {
+                return PromiseHelper.resolve(null);
+            }
+            if (options.orders[i] !== order) {
+                // only allow repeating of 1 order, not mixed orders
+                console.log("nope");
+                return PromiseHelper.resolve(null);
+            }
         }
-
-        return TblMenu.sortColumn(colNums[0], tableId, options.order);
+        // XXX return if columns have different orders
+        return TblMenu.sortColumn(colNums, tableId, order);
     };
 
     // repeatFuncs[SQLOps.Filter] = function(options) {
