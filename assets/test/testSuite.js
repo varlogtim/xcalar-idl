@@ -7,7 +7,7 @@ window.TestSuite = (function($, TestSuite) {
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
     var defaultTimeout = 600000; // 10min
-    var defaultCheckTimeout = 1260000; // 2min
+    var defaultCheckTimeout = 120000; // 2min
     var slowInternetFactor = gLongTestSuite || 1;
                         // Change this to 2, 3, etc if you have a slow
                         // internet
