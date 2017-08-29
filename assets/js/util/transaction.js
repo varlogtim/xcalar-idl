@@ -184,7 +184,7 @@ window.Transaction = (function(Transaction) {
     };
 
     Transaction.isSimulate = function(txId) {
-        return !Number.isInteger(txId);
+        return (txId && !Number.isInteger(txId));
     };
 
     Transaction.cancel = function(txId, options) {

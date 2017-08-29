@@ -4321,7 +4321,7 @@ xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLe
 
     workItem.api = XcalarApisT.XcalarApiLogLevelSet;
     workItem.input.logLevelSetInput.logLevel = logLevel;
-    workItem.input.logLevelSetInput.logFlush = logFlush;
+    workItem.input.logLevelSetInput.logFlushLevel = logFlush;
     return (workItem);
 };
 

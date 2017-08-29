@@ -275,7 +275,7 @@ window.xcFunction = (function($, xcFunction) {
             if (colInfo.length === 1) {
                 return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
             } else {
-                return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
+                //return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
                 return XIApi.multiSort(txId, colInfo, tableName);
             }
         })
@@ -331,7 +331,9 @@ window.xcFunction = (function($, xcFunction) {
             var typeToCast = colInfo[0].typeToCast;
             var progCol = table.getCol(colNums[0]);
             var backColName = progCol.getBackColName();
-            if (colInfo.length > 1 || typeToCast == null) {
+            if (colInfo.length > 1) {
+                return PromiseHelper.resolve(tableName, colInfo, tableCols);
+            } else if (typeToCast == null) {
                 return PromiseHelper.resolve(tableName, backColName, tableCols);
             }
 

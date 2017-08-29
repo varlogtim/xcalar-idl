@@ -190,6 +190,7 @@ window.SortView = (function($, SortView) {
             var options = {
                 "formOpenTime": formHelper.getOpenTime()
             };
+
             xcFunction.sort(curTableId, colInfos, options);
             SortView.close();
         } else {

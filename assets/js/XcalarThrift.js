@@ -1335,6 +1335,52 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
     return deferred.promise();
 }
 
+function XcalarDeleteConstants(constantPattern, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+    var workItem = xcalarDeleteDagNodesWorkItem(constantPattern,
+                                                SourceTypeT.SrcConstant);
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarDeleteDagNodes(tHandle, constantPattern,
+                                    SourceTypeT.SrcConstant);
+    }
+
+    var def2 = XcalarGetQuery(workItem);
+
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'drop constants', constantPattern +
+                                  "drop", query);
+    });
+
+    PromiseHelper.when(def1, def2)
+    .then(function(ret1, ret2) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            if (txId != null) {
+                Transaction.log(txId, ret2, constantPattern + "drop",
+                                ret1.timeElapsed);
+            }
+            deferred.resolve(ret1);
+        }
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarDeleteConstants", error1, error2);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
+
 function forceDeleteTable(tableName, txId) {
     var deferred = jQuery.Deferred();
     XcalarGetTableMeta(tableName)

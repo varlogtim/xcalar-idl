@@ -127,16 +127,22 @@ window.SQLCompiler = (function() {
         "expressions.FormatNumber": null,
         "expressions.Sentences": null,
         "expressions.IsNotNull": "exists",
+        "expressions.aggregate.Sum": "sum",
+        "expressions.aggregate.Count": "count",
+        "expressions.aggregate.Max": "max",
+        "expressions.aggregate.Min": "min",
+        "expressions.aggregate.Average": "avg",
+        "expressions.aggregate.CentralMomentAgg": null,
+        "expressions.aggregate.Corr": null,
+        "expressions.aggregate.CountMinSketchAgg": null,
+        "expressions.aggregate.Covariance": null,
+        "expressions.aggregate.First": null,
+        "expressions.aggregate.HyperLogLogPlusPlus": null,
+        "expressions.aggregate.Last": null,
+        "expressions.aggregate.Percentile": null,
+        "expressions.aggregate.PivotFirst": null,
+        "expressions.aggregate.AggregateExpression": null
     };
-
-    var tableLookup = {"customer": "customer#EP342",
-                       "lineitem": "lineitem#wV53",
-                       "orders": "orders#wV64",
-                       "partsupp": "partsupp#wV71",
-                       "supplier": "supplier#EP333",
-                       "part": "part#wV91",
-                       "region": "region#wV96",
-                       "nation": "nation#EP325"};
 
     function assert(st) {
         if (!st) {
@@ -311,30 +317,8 @@ window.SQLCompiler = (function() {
             // Find columns to project
             var columns = [];
             var evalStrArray = [];
-            for (var i = 0; i<node.value.projectList.length; i++) {
-                var colNameStruct;
-                var colName;
 
-                if (node.value.projectList[i].length > 1 ) {
-                    assert(node.value.projectList[i][0].class ===
-                    "org.apache.spark.sql.catalyst.expressions.Alias");
-                    var evalStr = genEvalStringRecur(
-                        SQLCompiler.genTree(undefined,
-                        node.value.projectList[i].slice(1)));
-                    var newColName = node.value.projectList[i][0].name;
-                    evalStrArray.push({newColName: newColName,
-                                       evalStr: evalStr});
-                    colName = newColName;
-                } else {
-                    colNameStruct = node.value.projectList[i][0];
-                    assert(colNameStruct.class ===
-                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                    colName = colNameStruct.name;
-
-                }
-
-                columns.push(colName);
-            }
+            genMapArray(node.value.projectList, columns, evalStrArray);
 
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {return o.evalStr;});
@@ -365,12 +349,93 @@ window.SQLCompiler = (function() {
         _pushDownFilter: function(node) {
             var self = this;
             assert(node.children.length === 1);
-            var deferred = jQuery.Deferred();
             var filterString = genEvalStringRecur(SQLCompiler.genTree(undefined,
                 node.value.condition.slice(0)));
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.filter(filterString, tableName);
+        },
+
+        _pushDownSort: function(node) {
+            var self = this;
+            assert(node.children.length === 1);
+            function genSortStruct(orderArray) {
+                var sortColsAndOrder = [];
+                for (var i = 0; i < orderArray.length; i++) {
+                    var order = orderArray[i][0].direction.object;
+                    assert(orderArray[i][0].class ===
+                        "org.apache.spark.sql.catalyst.expressions.SortOrder");
+                    order = order.substring(order.lastIndexOf(".") + 1);
+                    if (order === "Ascending$") {
+                        order = XcalarOrderingT.XcalarOrderingAscending;
+                    } else if (order === "Descending$") {
+                        order = XcalarOrderingT.XcalarOrderingDescending;
+                    } else {
+                        console.error("Unexpected sort order");
+                        assert(0);
+                    }
+                    assert(orderArray[i][1].class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+                    var colName = orderArray[i][1].name;
+
+                    var type = orderArray[i][1].dataType;
+                    switch (type) {
+                        case ("integer"):
+                        case ("boolean"):
+                        case ("string"):
+                            break;
+                        case ("double"):
+                            type = "float";
+                            break;
+                        case ("date"):
+                            type = "string";
+                            break;
+                        default:
+                            assert(0);
+                            type = "string";
+                            break;
+                    }
+
+                    sortColsAndOrder.push({name: colName,
+                                           type: type,
+                                           order: order});
+                }
+                return sortColsAndOrder;
+            }
+            var sortColsAndOrder = genSortStruct(node.value.order);
+            var tableName = node.children[0].newTableName;
+
+            if (sortColsAndOrder.length > 1) {
+                return self.sqlObj.multiSort(sortColsAndOrder, tableName);
+            } else {
+                var order = sortColsAndOrder[0].order;
+                var colName = sortColsAndOrder[0].colName;
+                return self.sqlObj.sort(order, colName, tableName);
+            }
+        },
+
+        _pushDownAggregate: function(node) {
+            var self = this;
+            assert(node.children.length === 1);
+            var tableName = node.children[0].newTableName;
+
+            var gbCols = [];
+            var gbEvalStrArray = [];
+            genMapArray(node.value.groupingExpressions, gbCols, gbEvalStrArray);
+            assert(gbEvalStrArray.length === 0); // XXX TODO
+
+            var columns = [];
+            var evalStrArray = [];
+
+            genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
+                        {operator: true});
+            for (var i = 0; i < evalStrArray.length; i++) {
+                evalStrArray[i].aggColName = evalStrArray[i].evalStr;
+                delete evalStrArray[i].evalStr;
+            }
+            // TODO Handle case where it's COL1 AS COL2
+            // This will result in evalStrArray[i] having undefined as operator
+            return self.sqlObj.groupBy(gbCols, evalStrArray, tableName);
         },
 
         _pushDownJoin: function(node) {
@@ -567,22 +632,32 @@ window.SQLCompiler = (function() {
         }
     };
 
-    function genEvalStringRecur(condTree) {
+    function genEvalStringRecur(condTree, acc) {
         // Traverse and construct tree
         var outStr = "";
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
-            if (opName !== "expressions.Cast") {
+            if (opName !== "expressions.Cast" &&
+                opName.indexOf(".aggregate.") === -1) {
                 outStr += opLookup[opName] + "(";
-            } // For Cast, we only add the operator on the child
+            } else {
+                if (opName.indexOf(".aggregate.") > -1 &&
+                    opName !== "expressions.aggregate.AggregateExpression") {
+                    acc.operator = opLookup[opName];
+                }
+            }
+            // For Cast, we only add the operator on the child
+            // We will ignore Aggregate Expression
             for (var i = 0; i < condTree.value["num-children"]; i++) {
-                outStr += genEvalStringRecur(condTree.children[i]);
+                outStr += genEvalStringRecur(condTree.children[i], acc);
                 if (i < condTree.value["num-children"] -1) {
                     outStr += ",";
                 }
             }
-            outStr += ")";
+            if (opName.indexOf(".aggregate.") === -1) {
+                outStr += ")";
+            }
             if (opName === "expressions.Substring") {
                 // They use substr instead of substring. We must convert
                 var regex = /(.*substring\(.*,)(\d*),(\d*)(\))/;
@@ -633,6 +708,37 @@ window.SQLCompiler = (function() {
             assert(condTree.value["num-children"] === 0);
         }
         return outStr;
+    }
+
+    function genMapArray(evalList, columns, evalStrArray, options) {
+        for (var i = 0; i<evalList.length; i++) {
+            var colNameStruct;
+            var colName;
+            if (evalList[i].length > 1) {
+                assert(evalList[i][0].class ===
+                "org.apache.spark.sql.catalyst.expressions.Alias");
+                var acc = {};
+                var evalStr = genEvalStringRecur(
+                    SQLCompiler.genTree(undefined,
+                    evalList[i].slice(1)), acc);
+                var newColName = evalList[i][0].name;
+                var retStruct = {newColName: newColName,
+                                 evalStr: evalStr};
+                colName = newColName;
+                if (options && options.operator) {
+                    retStruct.operator = acc.operator;
+                }
+                evalStrArray.push(retStruct);
+            } else {
+                colNameStruct = evalList[i][0];
+                assert(colNameStruct.class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+                colName = colNameStruct.name;
+
+            }
+
+            columns.push(colName);
+        }
     }
 
     function getTablesInSubtree(tree) {

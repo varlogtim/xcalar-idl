@@ -209,6 +209,24 @@ window.SQLApi = (function() {
             return deferred.promise();
         },
 
+        multiSort: function(sortColsAndOrder, tableName, newTableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.multiSort(txId, sortColsAndOrder, tableName, newTableName)
+            .then(function(finalTable) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": finalTable,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
         map: function(mapStr, tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
@@ -283,18 +301,14 @@ window.SQLApi = (function() {
          *  newTableName: string, dst table name, optional
          *  clean: true/false, if set true, will remove intermediate tables
          */
-        groupBy: function(operator, groupByCols, aggColName, tableName, newColName, options) {
+        groupBy: function(groupByCols, gbArgs, tableName, options) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self._start();
 
             options = options || {};
             options.icvMode = false;
-            var gbArgs = [{
-                operator: operator,
-                aggColName: aggColName,
-                newColName: newColName
-            }];
+            options.isIncSample = true;
 
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(finalTable, finalCols, renamedGroupByCols) {

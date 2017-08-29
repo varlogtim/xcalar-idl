@@ -283,6 +283,222 @@ window.XIApi = (function(XIApi) {
         return checkTableIndex(colToIndex, tableName, txId, true);
     };
 
+    XIApi.multiSort = function(txId, sortColsAndOrder, tableName, newTableName)
+    {
+        var tableId = xcHelper.getTableId(tableName);
+        for (var i = 0; i < sortColsAndOrder.length; i++) {
+            if (!sortColsAndOrder[i].type) {
+                var progCol = gTables[tableId].
+                              tableCols[sortColsAndOrder[i].colNum-1];
+                sortColsAndOrder[i].name = progCol.backName;
+                sortColsAndOrder[i].type = progCol.type;
+                if (progCol.type === "number") {
+                    sortColsAndOrder[i].type = "float";
+                }
+            }
+        }
+
+        if (txId == null || sortColsAndOrder == null || tableName == null ||
+            !(sortColsAndOrder instanceof Array) ||
+            (sortColsAndOrder.length < 2)) {
+            return PromiseHelper.reject("Invalid args in multisort");
+        }
+
+        var fromTableName = tableName;
+        var curTableName = tableName;
+        var modifiedCols = [];
+
+        function modifyColumn(colName, colType, order, index) {
+            var deferred = jQuery.Deferred();
+            var maxIntAggVarName;
+
+            if (colType === "string") {
+                if (order === XcalarOrderingT.XcalarOrderingAscending) {
+                    modifiedCols[index] = colName;
+                    deferred.resolve(curTableName);
+                } else {
+                    fromTableName = curTableName;
+                    curTableName = xcHelper.getTableName(fromTableName) +
+                                   Authentication.getHashId();
+                    // XXX Check for already sorted
+                    XcalarIndexFromTable(fromTableName, colName, curTableName,
+                                         order, txId)
+                    .then(function() {
+                        var tableId = Authentication.getHashId();
+                        fromTableName = curTableName;
+                        curTableName = xcHelper.getTableName(fromTableName) +
+                                       tableId;
+                        colName = "XC_SORT_CONCAT_RT_COL_" +
+                                  xcHelper.getTableId(fromTableName) + "_" +
+                                  index;
+                        return XcalarGenRowNum(fromTableName, curTableName,
+                                               colName, txId);
+                    })
+                    .then(function() {
+                        tableId = xcHelper.getTableId(curTableName);
+                        maxIntAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
+                                           "_maxInteger";
+                        return XcalarAggregate("maxInteger(" + colName + ")",
+                                                 maxIntAggVarName,
+                                                 curTableName, txId);
+                    })
+                    .then(function() {
+                        fromTableName = curTableName;
+                        tableId = Authentication.getHashId();
+                        curTableName = xcHelper.getTableName(fromTableName) +
+                                       tableId;
+                        var mapStr =
+                                'concat(repeat("0",int(sub(len(string(^' +
+                                maxIntAggVarName + ')), len(string(' + colName +
+                                '))))),string(' + colName + '))';
+                        colName = "XC_SORT_COL_" +
+                                  xcHelper.getTableId(fromTableName) + "_" +
+                                  index;
+                        return XcalarMap(colName, mapStr, fromTableName,
+                                         curTableName, txId);
+                    })
+                    .then(function() {
+                        modifiedCols[index] = colName;
+                        deferred.resolve(curTableName);
+                    })
+                    .fail(deferred.reject);
+                }
+            } else if (colType === "boolean") {
+                fromTableName = curTableName;
+                var tableId = Authentication.getHashId();
+                curTableName = xcHelper.getTableName(fromTableName) +
+                               tableId;
+
+                var mapStr = "string(int(";
+                if (order === XcalarOrderingTStr.Ascending) {
+                    mapStr += colName;
+                } else {
+                    mapStr += "add(1, mult(-1," + colName + "))";
+                }
+                mapStr += "))";
+
+                colName = "XC_SORT_COL_" + xcHelper.getTableId(fromTableName) +
+                          "_" + index;
+                XcalarMap(colName, mapStr, fromTableName, curTableName, txId)
+                .then(function() {
+                    modifiedCols[index] = colName;
+                    deferred.resolve(curTableName);
+                })
+                .fail(deferred.reject);
+            } else {
+                // for numbers, add a constant to make everything non-negative and
+                // zero-pad according to largest number to sort.
+
+                var tableId = xcHelper.getTableId(fromTableName);
+                var maxAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
+                                    "_max";
+                var minAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
+                                    "_min";
+
+                var maxPromise = XcalarAggregate("max(" + colName + ")",
+                                                 maxAggVarName,
+                                                 fromTableName, txId);
+                var minPromise = XcalarAggregate("min(" + colName + ")",
+                                                 minAggVarName,
+                                                 fromTableName, txId);
+                maxAggVarName = "^" + maxAggVarName;
+                minAggVarName = "^" + minAggVarName;
+                var inside;
+                var actualString;
+                if (order === XcalarOrderingT.XcalarOrderingAscending) {
+                    inside = "sub(" + maxAggVarName + "," + minAggVarName + ")";
+                    actualString = colName;
+                } else {
+                    inside = "sub(mult(-1," + minAggVarName + "),mult(-1," +
+                             maxAggVarName + "))";
+                    actualString = "add(mult(-1," + colName + ")," + maxAggVarName + ")";
+                }
+                var maxPadding = 'repeat("0", len(cut(string(' + inside +
+                              '),1,".")))';
+
+                var curNumDigits = 'len(cut(string(sub(' + actualString + ',' +
+                                  minAggVarName + ')),1,"."))';
+
+                var mapStr = 'concat(substring(' + maxPadding + ',' + curNumDigits +
+                             ',0),string(sub(' + actualString + ',' + minAggVarName + ')))';
+
+                colName = "XC_SORT_COL_" + tableId + "_" + index;
+                fromTableName = curTableName;
+                curTableName = xcHelper.getTableName(curTableName) +
+                               Authentication.getHashId();
+                PromiseHelper.when(maxPromise, minPromise)
+                .then(function() {
+                    return XcalarMap(colName, mapStr, fromTableName,
+                                     curTableName, txId);
+                })
+                .then(function() {
+                    modifiedCols[index] = colName;
+                    deferred.resolve(curTableName);
+                })
+                .fail(deferred.reject);
+            }
+            return deferred.promise();
+        }
+
+        var self = this;
+        var deferred = jQuery.Deferred();
+
+        var promises = [];
+        for (var i = 0; i < sortColsAndOrder.length; i++) {
+            promises.push(
+                function(colName, colType, order, index) {
+                    return modifyColumn(colName, colType, order, index);
+                }.bind(self, sortColsAndOrder[i].name, sortColsAndOrder[i].type,
+                       sortColsAndOrder[i].order, i));
+        }
+
+        var concatTableName;
+        var concatColName;
+        PromiseHelper.chain(promises)
+        .then(function(finalTableName) {
+            // We are done normalizing every column.
+            // ModifiedCols[i] contains the normalized column name for column i
+            var concatMapStr = "";
+            var lastIndex = modifiedCols.length - 1;
+
+            // tab - low ascii value
+            var colDelimeter = '\t\txc\t';
+
+            for (var i = 0; i < lastIndex; i++) {
+                var currName = modifiedCols[i];
+                concatMapStr += "concat(" + currName + ", " + 'concat("' +
+                                colDelimeter + '", ';
+            }
+            var endStr = ")".repeat(2*lastIndex);
+            concatMapStr += modifiedCols[lastIndex] + endStr;
+
+            concatTableName = getNewTableName(finalTableName);
+
+            concatColName = "XC_SORT_CONCAT_" +
+                            xcHelper.getTableId(finalTableName);
+            return XcalarMap(concatColName, concatMapStr, finalTableName,
+                             concatTableName, txId);
+        })
+        .then(function() {
+            if (!isValidTableName(newTableName)) {
+                newTableName = getNewTableName(tableName);
+            }
+            return XcalarIndexFromTable(concatTableName, concatColName,
+                                        newTableName,
+                                        XcalarOrderingT.XcalarOrderingAscending,
+                                        txId);
+        })
+        .then(function() {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject)
+        .always(function() {
+            return XcalarDeleteConstants("XC_SORT_COL_" + tableId + "_*", txId);
+        });
+
+        return deferred.promise();
+    };
+
     XIApi.sort = function(txId, order, colName, tableName, newTableName) {
         if (txId == null || order == null || colName == null ||
             tableName == null || !(order in XcalarOrderingTStr))
@@ -519,9 +735,10 @@ window.XIApi = (function(XIApi) {
             groupByCols = [groupByCols];
         }
 
-        if (groupByCols.length < 1) {
-            return PromiseHelper.reject("Invalid args in groupby");
-        }
+        // 0 cols is a special case of 'multiGroupBy'
+        // if (groupByCols.length < 1) {
+        //     return PromiseHelper.reject("Invalid args in groupby");
+        // }
 
         var deferred = jQuery.Deferred();
 
@@ -529,7 +746,7 @@ window.XIApi = (function(XIApi) {
         var indexedTable;
         var indexedColName;
         var finalTable;
-        var isMultiGroupby = (groupByCols.length > 1);
+        var isMultiGroupby = (groupByCols.length !== 1);
         var unstrippedIndexedColName;
         var renamedGroupByCols = [];
 
@@ -1332,7 +1549,7 @@ window.XIApi = (function(XIApi) {
     }
 
     function concatGroupByCols(txId, tableName, groupByCols) {
-        if (groupByCols.length <= 1) {
+        if (groupByCols.length === 1) {
             return PromiseHelper.resolve(groupByCols[0], tableName, []);
         }
 
@@ -1349,7 +1566,12 @@ window.XIApi = (function(XIApi) {
             tableCols = table.tableCols;
         }
 
-        var mapStr = xcHelper.getMultiJoinMapString(groupByCols);
+        var mapStr;
+        if (groupByCols.length === 0) {
+            mapStr = "int(1)";
+        } else {
+            mapStr = xcHelper.getMultiJoinMapString(groupByCols);
+        }
         var groupByField = xcHelper.randName("multiGroupBy");
 
         XIApi.map(txId, mapStr, tableName, groupByField)
