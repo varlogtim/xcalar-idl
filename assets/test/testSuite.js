@@ -6,7 +6,7 @@ window.TestSuite = (function($, TestSuite) {
 
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
-    var defaultTimeout = 600000; // 10min
+    var defaultTimeout = 720000; // 12min
     var defaultCheckTimeout = 120000; // 2min
     var slowInternetFactor = gLongTestSuite || 1;
                         // Change this to 2, 3, etc if you have a slow
@@ -1336,7 +1336,7 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".barChart .area .xlabel:contains('153')").length > 0);
             assert($(".barChart .area .xlabel:contains('272')").length > 0);
             $("#profileModal .genAgg").click();
-            return checkExists("#profileModal .genAgg:not(:visible)", 30000);
+            return checkExists("#profileModal .genAgg:not(:visible)");
         })
         .then(function() {
             assert($("#profileModal .infoSection .min").eq(0).text() ===
@@ -1351,7 +1351,7 @@ window.TestSuite = (function($, TestSuite) {
                     Number(12).toLocaleString());
 
             $("#profileModal .sortSection .asc").click();
-            return checkExists("#profileModal[data-state='finished']", 30000, {
+            return checkExists("#profileModal[data-state='finished']", null, {
                 "asserts": [".barChart .area:first-child .xlabel:contains('134')"]
             });
         })
@@ -1634,7 +1634,7 @@ window.TestSuite = (function($, TestSuite) {
             // table in use
             return checkExists("#dfMenu .dataFlowGroup .listBox " +
                                ".groupName:contains('" + dfName + "')",
-                               3000, {notExist: true,
+                               null, {notExist: true,
                                       optional: true});
         })
         .then(function() {
