@@ -6,10 +6,11 @@ require("jsdom").env("", function(err, window) {
     }
     jQuery = require("jquery")(window);
 });
-var path = require('path');
-var fs = require('fs');
-var ldap = require('ldapjs');
-var express = require('express');
+const path = require('path');
+const fs = require('fs');
+const ldap = require('ldapjs');
+const express = require('express');
+const crypto = require('crypto');
 var router = express.Router();
 var ssf = require('../supportStatusFile.js');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
@@ -25,6 +26,10 @@ var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
 var ldapConfig;
 var trustedCerts;
+
+var defaultAdminConfigRelPath = "/config/defaultAdmin.json";
+var defaultAdminFieldsRequired = [ "username", "password", "email", "defaultAdminEnabled" ];
+
 
 var users = new Map();
 var globalLoginId = 0;
@@ -83,6 +88,98 @@ UserInformation.prototype = {
     }
 };
 
+function checkFilePerms(defaultAdminConfigPath) {
+    var deferred = jQuery.Deferred();
+
+    fs.stat(defaultAdminConfigPath, function(error, stat) {
+        if (error) {
+            return deferred.reject("Could not stat " + defaultAdminConfigPath).promise();
+        }
+
+        if ((stat.mode & 0777) !== 0600) {
+            return deferred.reject("File permissions for " + defaultAdminConfigPath + " are wrong (" + (stat.mode & 0777).toString(8) + " instead of " + 0600.toString(8) + ")").promise();
+        }
+
+        deferred.resolve();
+    });
+
+    return deferred.promise();
+}
+
+function setDefaultAdmin(defaultAdminConfigIn) {
+    var deferred = jQuery.Deferred();
+    var defaultAdminConfigPath;
+    var defaultAdminConfig = {};
+    var message = { "status": httpStatus.OK, "success": false };
+
+    try {
+        for (var ii = 0; ii < defaultAdminFieldsRequired.length; ii++) {
+            if (!(defaultAdminConfigIn.hasOwnProperty(defaultAdminFieldsRequired[ii]))) {
+                throw "Invalid adminConfig provided";
+            }
+            defaultAdminConfig[defaultAdminFieldsRequired[ii]] = defaultAdminConfigIn[defaultAdminFieldsRequired[ii]];
+        }
+    } catch (error) {
+        message.error = error
+        return deferred.reject(message).promise();
+    }
+
+    support.getXlrRoot()
+    .then(function(xlrRoot) {
+        defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
+        defaultAdminConfig.password = crypto.createHmac("sha256", "xcalar-salt").update(defaultAdminConfig.password).digest("hex");
+
+        return (writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0600}));
+    })
+    .then(function() {
+        message.success = true;
+        deferred.resolve(message);
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
+
+function getDefaultAdmin() {
+    var deferred = jQuery.Deferred();
+    var defaultAdminConfigPath;
+    var message = { "status": httpStatus.OK, "defaultAdminEnabled": false };
+    var defaultAdminConfig;
+
+    support.getXlrRoot()
+    .then(function(xlrRoot) {
+        defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
+        // First, make sure we're the only user that can read/write the file
+        return checkFilePerms(defaultAdminConfigPath);
+    })
+    .then(function() {
+        try {
+            delete require.cache[require.resolve(defaultAdminConfigPath)];
+            defaultAdminConfig = require(defaultAdminConfigPath);
+        } catch (error) {
+            return jQuery.Deferred().reject("Error reading " + defaultAdminConfigPath + ": " + error).promise();
+        }
+
+        for (var ii = 0; ii < defaultAdminFieldsRequired.length; ii++) {
+            if (!(defaultAdminConfig.hasOwnProperty(defaultAdminFieldsRequired[ii]))) {
+                return jQuery.Deferred().reject(defaultAdminConfigPath + " is corrupted").promise();
+            }
+        }
+
+        defaultAdminConfig.status = message.status;
+        deferred.resolve(defaultAdminConfig);
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
+
 function getWaadConfig() {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "waadEnabled": false };
@@ -95,16 +192,12 @@ function getWaadConfig() {
             delete require.cache[require.resolve(waadConfigPath)]
             waadConfig = require(waadConfigPath);
         } catch (error) {
-            message.error = "Error reading " + waadConfigPath + ": " + error
-            deferred.reject(message);
-            return;
+            return jQuery.Deferred().reject("Error reading " + waadConfigPath + ": " + error).promise();
         }
 
         for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
             if (!(waadConfig.hasOwnProperty(waadFieldsRequired[ii]))) {
-                message.error = "waadConfig.json is corrupted";
-                deferred.reject(message);
-                return;
+                return jQuery.Deferred.reject(waadConfigPath + " is corrupted").promise();
             }
         }
 
@@ -162,29 +255,24 @@ function makeFileCopy(filePath) {
     return deferred.promise();
 }
 
-function writeToFile(filePath, waadConfigIn) {
+function writeToFile(filePath, fileContents, fileOptions) {
     var deferred = jQuery.Deferred();
-    var waadConfig = {};
-    try {
-        for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
-            if (!(waadConfigIn.hasOwnProperty(waadFieldsRequired[ii]))) {
-                throw new Error("Invalid WaadConfig provided!");
-            }
-            waadConfig[waadFieldsRequired[ii]] = waadConfigIn[waadFieldsRequired[ii]];
-        }
-    } catch (error) {
-        deferred.reject("Invalid WaadConfig provided");
-        return deferred.promise();
-    }
 
-    fs.writeFile(filePath, JSON.stringify(waadConfig), function (err) {
+    function callback(err) {
         if (err) {
             deferred.reject("Failed to write to " + filePath);
-            return;
+            return deferred.promise();
         }
 
+        console.log("Successfully wrote " + JSON.stringify(fileContents) + " to " + filePath)
         deferred.resolve();
-    });
+    }
+
+    if (fileOptions == null) {
+        fs.writeFile(filePath, JSON.stringify(fileContents), callback);
+    } else {
+        fs.writeFile(filePath, JSON.stringify(fileContents), fileOptions, callback);
+    }
 
     return deferred.promise();
 }
@@ -193,6 +281,7 @@ function setWaadConfig(waadConfigIn) {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "success": false }
     var waadConfigPath;
+    var waadConfig = {};
 
     support.getXlrRoot()
     .then(function(xlrRoot) {
@@ -201,7 +290,18 @@ function setWaadConfig(waadConfigIn) {
         return (makeFileCopy(waadConfigPath));
     })
     .then(function() {
-        return (writeToFile(waadConfigPath, waadConfigIn));
+        try {
+            for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
+                if (!(waadConfigIn.hasOwnProperty(waadFieldsRequired[ii]))) {
+                    throw "Invalid WaadConfig provided"
+                }
+                waadConfig[waadFieldsRequired[ii]] = waadConfigIn[waadFieldsRequired[ii]];
+            }
+        } catch (error) {
+            return jQuery.Deferred().reject(error).promise();
+        }
+
+        return (writeToFile(waadConfigPath, waadConfig, null));
     })
     .then(function() {
         message.success = true;
@@ -243,79 +343,76 @@ function setupLdapConfigs(forceSetup) {
 
 function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     var deferred = jQuery.Deferred();
-    if (!credArray || !(credArray.hasOwnProperty("xiusername"))
-        || !(credArray.hasOwnProperty("xipassword"))) {
-        deferred.reject("setLdapConnection fails");
-    } else {
-        // Save the information of current user into a HashTable
-        var currentUser = new UserInformation();
-        currentUser.setLoginId(loginId);
-        users.set(loginId, currentUser);
 
-        // Configure parameters to connect to LDAP
-        ldapConn.username = credArray.xiusername;
-        ldapConn.password = credArray.xipassword;
+    // Save the information of current user into a HashTable
+    var currentUser = new UserInformation();
+    currentUser.setLoginId(loginId);
+    users.set(loginId, currentUser);
 
-        ldapConn.client_url = ldapConfig.ldap_uri.endsWith('/')
-                                        ? ldapConfig.ldap_uri
-                                        : ldapConfig.ldap_uri+'/';
+    // Configure parameters to connect to LDAP
+    ldapConn.username = credArray.xiusername;
+    ldapConn.password = credArray.xipassword;
 
-        ldapConn.userDN = ldapConfig.userDN;
-        ldapConn.searchFilter = ldapConfig.searchFilter;
-        ldapConn.activeDir = (ldapConfig.activeDir === 'true');
-        ldapConn.useTLS = (ldapConfig.useTLS === 'true');
+    ldapConn.client_url = ldapConfig.ldap_uri.endsWith('/')
+                                    ? ldapConfig.ldap_uri
+                                    : ldapConfig.ldap_uri+'/';
 
-        ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup"))
-                                        ? ldapConfig.adUserGroup
-                                        : "Xce User";
+    ldapConn.userDN = ldapConfig.userDN;
+    ldapConn.searchFilter = ldapConfig.searchFilter;
+    ldapConn.activeDir = (ldapConfig.activeDir === 'true');
+    ldapConn.useTLS = (ldapConfig.useTLS === 'true');
 
-        ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup"))
-                                        ? ldapConfig.adAdminGroup
-                                        : "Xce Admin";
+    ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup"))
+                                    ? ldapConfig.adUserGroup
+                                    : "Xce User";
 
-        ldapConn.client = ldap.createClient({
-            url: ldapConn.client_url,
-            timeout: 10000,
-            connectTimeout: 20000
-        });
-        if ((ldapConn.activeDir) && (ldapConfig.hasOwnProperty("adDomain")) &&
-            (ldapConn.username.indexOf("@") <= -1)) {
-            ldapConn.username = ldapConn.username + "@" + ldapConfig.adDomain;
-        }
-        var searchFilter = (ldapConn.searchFilter !== "")
-                         ? ldapConn.searchFilter.replace('%username%',ldapConn.username)
-                         : undefined;
+    ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup"))
+                                    ? ldapConfig.adAdminGroup
+                                    : "Xce Admin";
 
-        var activeDir = ldapConn.activeDir ? ['cn','mail','memberOf'] : ['cn','mail','employeeType'];
-
-        ldapConn.searchOpts = {
-            filter: searchFilter,
-            scope: 'sub',
-            attributes: activeDir
-        };
-        if (!ldapConn.activeDir) {
-            ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
-            ldapConn.username = ldapConn.userDN;
-        }
-        // Use TLS Protocol
-        if (ldapConn.useTLS) {
-            var tlsOpts = {
-                cert: trustedCerts,
-                rejectUnauthorized: strictSecurity
-            };
-            xcConsole.log("Starting TLS...");
-            ldapConn.client.starttls(tlsOpts, [], function(err) {
-                if (err) {
-                    xcConsole.log("Failure: TLS start " + err.message);
-                    deferred.reject("setLdapConnection fails");
-                } else {
-                    deferred.resolve('setLdapConnection succeeds');
-                }
-            });
-        } else {
-            deferred.resolve('setLdapConnection succeeds');
-        }
+    ldapConn.client = ldap.createClient({
+        url: ldapConn.client_url,
+        timeout: 10000,
+        connectTimeout: 20000
+    });
+    if ((ldapConn.activeDir) && (ldapConfig.hasOwnProperty("adDomain")) &&
+        (ldapConn.username.indexOf("@") <= -1)) {
+        ldapConn.username = ldapConn.username + "@" + ldapConfig.adDomain;
     }
+    var searchFilter = (ldapConn.searchFilter !== "")
+                     ? ldapConn.searchFilter.replace('%username%',ldapConn.username)
+                     : undefined;
+
+    var activeDir = ldapConn.activeDir ? ['cn','mail','memberOf'] : ['cn','mail','employeeType'];
+
+    ldapConn.searchOpts = {
+        filter: searchFilter,
+        scope: 'sub',
+        attributes: activeDir
+    };
+    if (!ldapConn.activeDir) {
+        ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
+        ldapConn.username = ldapConn.userDN;
+    }
+    // Use TLS Protocol
+    if (ldapConn.useTLS) {
+        var tlsOpts = {
+            cert: trustedCerts,
+            rejectUnauthorized: strictSecurity
+        };
+        xcConsole.log("Starting TLS...");
+        ldapConn.client.starttls(tlsOpts, [], function(err) {
+            if (err) {
+                xcConsole.log("Failure: TLS start " + err.message);
+                deferred.reject("setLdapConnection fails");
+            } else {
+                deferred.resolve('setLdapConnection succeeds');
+            }
+        });
+    } else {
+        deferred.resolve('setLdapConnection succeeds');
+    }
+
     return deferred.promise();
 }
 
@@ -406,15 +503,14 @@ function prepareResponse(loginId, activeDir) {
         } else {
             var isAdmin = user.isAdmin();
             var isSupporter = user.isSupporter();
-            var message = {
-                "status": httpStatus.OK,
+            var userInfo = {
                 "firstName ": user.firstName,
                 "mail": user.mail,
                 "isValid": true,
                 "isAdmin": isAdmin,
                 "isSupporter": isSupporter
             };
-            deferred.resolve(message);
+            deferred.resolve(userInfo);
         }
     } else {
         xcConsole.log("Failure: No matching user data found in LDAP directory");
@@ -425,7 +521,8 @@ function prepareResponse(loginId, activeDir) {
 function increaseLoginId() {
     globalLoginId++;
 }
-function loginAuthentication(credArray) {
+
+function ldapLogin(credArray) {
     var deferred = jQuery.Deferred();
     // Ldap configuration
     var ldapConn = {};
@@ -444,20 +541,78 @@ function loginAuthentication(credArray) {
     .then(function(message) {
         deferred.resolve(message);
     })
-    .fail(function() {
+    .fail(function(errorMsg) {
         if (ldapConn.hasBind) {
             ldapConn.client.unbind();
         }
-        var message = {
-            "status": httpStatus.OK,
-            "firstName": credArray.xiusername,
-            "mail": credArray.xiusername,
-            "isValid": false,
-            "isAdmin": false,
-            "isSupporter": false
-        };
-        deferred.reject(message);
+        deferred.reject(errorMsg);
     });
+
+    return deferred.promise();
+}
+
+function loginAuthentication(credArray) {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "isValid": false };
+
+    if (!credArray || !(credArray.hasOwnProperty("xiusername"))
+        || !(credArray.hasOwnProperty("xipassword"))) {
+        message.error = "Invalid login request provided";
+        return deferred.reject(message).promise();
+    }
+
+    // Check if defaultAdmin is turned on
+    getDefaultAdmin()
+    .then(function(defaultAdminConfig) {
+        if (!defaultAdminConfig.defaultAdminEnabled) {
+            // Default admin not enabled. Try LDAP
+            return jQuery.Deferred().reject().promise();
+        }
+
+        var hmac = crypto.createHmac("sha256", "xcalar-salt").update(credArray.xipassword).digest("hex");
+
+        if (credArray.xiusername === defaultAdminConfig.username &&
+            hmac === defaultAdminConfig.password) {
+
+            // Successfully authenticated as defaultAdmin
+            var userInfo = {
+                "firstName": "Administrator",
+                "mail": defaultAdminConfig.email,
+                "isValid": true,
+                "isAdmin": true,
+                "isSupporter": false,
+            };
+
+            return jQuery.Deferred().resolve(userInfo).promise();
+        } else {
+            // Fall through to LDAP
+            return jQuery.Deferred().reject().promise();
+        }
+
+    })
+    .then(
+        // Successfully authenticated as default admin. Fall through
+        function(userInfo) {
+            return userInfo;
+        },
+
+        // Did not authenticate as default admin, either because
+        // getDefaultAdmin() failed, or credArray.defaultAdminEnabled is false
+        // or credArray.xiusername/xipassword is wrong
+        function() {
+            return ldapLogin(credArray);
+        }
+    )
+    .then(function(userInfo) {
+        // We've authenticated successfully with either ldap or default admin
+        userInfo.status = message.status;
+        deferred.resolve(userInfo)
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.reject(message)
+    });
+
     return deferred.promise();
 }
 
@@ -504,6 +659,23 @@ router.post('/login/waadConfig/set', function(req, res) {
     });
 });
 
+router.post('/login/defaultAdmin/get', function(req, res) {
+    getDefaultAdmin()
+    .always(function(message) {
+        // Don't return password
+        delete message.password
+        res.status(message.status).send(message);
+    }
+    );
+});
+
+router.post('/login/defaultAdmin/set', function(req, res) {
+    var credArray = req.body;
+    setDefaultAdmin(credArray)
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+});
 
 // Below part is only for Unit Test
 function fakeSetupLdapConfigs() {

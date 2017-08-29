@@ -1,6 +1,8 @@
 describe('ExpServer Login Test', function() {
     // Test setup
     var expect = require('chai').expect;
+    const path = require('path');
+    const fs = require('fs');
 
     require('jquery');
 
@@ -87,14 +89,14 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('login.setLdapConnection should fail when error', function(done) {
+    it('login.loginAuthentication should fail when error', function(done) {
         testCredArray = {};
-        login.setLdapConnection(testCredArray, testLdapConn, testConfig, testLoginId)
+        login.loginAuthentication(testCredArray)
         .then(function() {
             done("fail");
         })
-        .fail(function(error) {
-            expect(error).to.equal("setLdapConnection fails");
+        .fail(function(message) {
+            expect(message.error).to.equal("Invalid login request provided");
             done();
         });
     });
@@ -128,7 +130,7 @@ describe('ExpServer Login Test', function() {
     it('login.prepareResponse should work', function(done) {
         login.prepareResponse(testLoginId, testLdapConn.activeDir)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.isValid).to.be.true;
             done();
         })
         .fail(function() {
@@ -148,21 +150,11 @@ describe('ExpServer Login Test', function() {
     });
 
     it('login.loginAuthentication should work', function(done) {
-        login.fakeSetupLdapConfigs();
-        login.fakeSetLdapConnection();
-        login.fakeLdapAuthentication();
-        login.fakePrepareResponse();
-        login.loginAuthentication(testCredArray)
-        .then(function(ret) {
-            expect(ret.isValid).to.be.true;
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        });
-    });
+        testCredArray = { "xiusername": "foo", "xipassword": "bar" };
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+        };
 
-    it('login.loginAuthentication should work', function(done) {
         login.fakeSetupLdapConfigs();
         login.fakeSetLdapConnection();
         login.fakeLdapAuthentication();
@@ -172,12 +164,13 @@ describe('ExpServer Login Test', function() {
             expect(ret.isValid).to.be.true;
             done();
         })
-        .fail(function() {
-            done("fail");
+        .fail(function(message) {
+            done("fail: " + JSON.stringify(message));
         });
     });
 
     it('login.loginAuthentication should fail when error', function(done) {
+        testCredArray = { "xiusername": "nobody", "xipassword": "wrong" };
         var shouldReject = true;
         login.fakeSetupLdapConfigs();
         login.fakeSetLdapConnection();
@@ -201,11 +194,7 @@ describe('ExpServer Login Test', function() {
 
         var expectedRetMsg = {
             "status": 200,
-            "firstName": testCredArray["xiusername"],
-            "isAdmin": false,
-            "isSupporter": false,
             "isValid": false,
-            "mail": testCredArray["xiusername"]
         };
         postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
@@ -266,7 +255,7 @@ describe('ExpServer Login Test', function() {
 
         postRequest("POST", "/login/waadConfig/set", credArray)
         .then(function(ret) {
-            expect(ret["error"]).to.have.string("Failed to write");
+            expect(ret.error).to.have.string("Failed to write");
             done();
         })
         .fail(function() {
@@ -336,5 +325,185 @@ describe('ExpServer Login Test', function() {
             expect(ret).to.deep.equal(foo)
             done("fail");
         });
+    });
+
+    it('Router should fail with setDefaultAdmin action and invalid input', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(path.join(__dirname, "../../test")).promise();
+        };
+
+        var testInput = {
+            "bogus": "bogus"
+        };
+
+        var expectedRetMsg = {
+            "status": 200,
+            "success": false,
+            "error": "Invalid adminConfig provided"
+        };
+
+        postRequest("POST", "/login/defaultAdmin/set", testInput)
+        .then(function(ret) {
+            expect(ret).to.deep.equal(expectedRetMsg);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should fail with setDefaultAdmin action and invalid directory', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve("../../doesnotexist").promise();
+        };
+
+        var testInput = {
+            "username": "foo",
+            "password": "bar",
+            "email": "foo@bar.com",
+            "defaultAdminEnabled": true
+        };
+
+        postRequest("POST", "/login/defaultAdmin/set", testInput)
+        .then(function(ret) {
+            expect(ret.error).to.have.string("Failed to write");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should fail with getDefaultAdmin action with wrong permissions', function(done) {
+        configDir = path.join(__dirname, "../../test");
+        configPath = path.join(configDir, "./config/defaultAdmin.json");
+        try {
+            fs.unlinkSync(configPath);
+        } catch (error) {
+            // Ignore errors
+        }
+
+        var testInput = {
+            "username": "foo",
+            "password": "bar",
+            "email": "foo@bar.com",
+            "defaultAdminEnabled": true
+        };
+
+        fs.writeFileSync(configPath, JSON.stringify(testInput));
+
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(path.join(configDir)).promise();
+        };
+
+        postRequest("POST", "/login/defaultAdmin/get", testInput)
+        .then(function(ret) {
+            expect(ret.error).to.have.string("File permissions for");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should work with setDefaultAdmin action', function(done) {
+        configDir = path.join(__dirname, "../../test");
+        configPath = path.join(configDir, "./config/defaultAdmin.json");
+
+        try {
+            fs.unlinkSync(configPath);
+        } catch (error) {
+            // Ignore errors
+        }
+
+        var testInput = {
+            "username": "foo",
+            "password": "bar",
+            "email": "foo@bar.com",
+            "defaultAdminEnabled": true
+        };
+
+        fs.writeFileSync(configPath, JSON.stringify(testInput), {"mode": 0600});
+
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(path.join(configDir)).promise();
+        };
+
+        postRequest("POST", "/login/defaultAdmin/set", testInput)
+        .then(function(ret) {
+            expect(ret.success).to.be.true;
+
+            // Make sure we can login
+            var testCredArray = {
+                xiusername: testInput.username,
+                xipassword: testInput.password
+            };
+
+            return (postRequest("POST", "/login", testCredArray));
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "status": 200,
+                "firstName": "Administrator",
+                "isAdmin": true,
+                "isSupporter": false,
+                "isValid": true,
+                "mail": testInput.email,
+            };
+
+            expect(ret).to.deep.equal(expectedRetMsg);
+
+            // Make sure we can't log in with a fake password
+            var testCredArray = {
+                xiusername: testInput.username,
+                xipassword: "wrong"
+            };
+
+            return (postRequest("POST", "/login", testCredArray))
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "status": 200,
+                "isValid": false,
+            };
+
+            expect(ret).to.deep.equal(expectedRetMsg);
+
+            // Now make sure we can disable defaultAdmin
+            testInput.defaultAdminEnabled = false;
+            return (postRequest("POST", "/login/defaultAdmin/set", testInput));
+        })
+        .then(function(ret) {
+            expect(ret.success).to.be.true;
+
+            // And we should not be able to login
+            var testCredArray = {
+                xiusername: testInput.username,
+                xipassword: testInput.password
+            };
+
+            return (postRequest("POST", "/login", testCredArray));
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "status": 200,
+                "isValid": false
+            };
+
+            expect(ret).to.deep.equal(expectedRetMsg);
+
+            // And finally ensure our password is not revealed
+            return (postRequest("POST", "/login/defaultAdmin/get"))
+        })
+        .then(function(ret) {
+            expect(ret).to.not.have.property("password");
+            expect(ret.username).to.equal(testInput.username);
+            expect(ret.password).to.not.equal(testInput.password);
+            done();
+        })
+        .fail(function(error) {
+            done("fail: " + JSON.stringify(error));
+        });
+
     });
 });
