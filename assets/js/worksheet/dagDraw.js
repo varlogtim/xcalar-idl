@@ -47,6 +47,19 @@ window.DagDraw = (function($, DagDraw) {
             }
         }
 
+        var exportNodes =[];
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].api === XcalarApisT.XcalarApiExport) {
+                if (exportNodes.indexOf(nodes[i].dagNodeId) === -1) {
+                    exportNodes.push(nodes[i].dagNodeId);
+                }
+            }
+        }
+        var hasMultipleExport = exportNodes.length > 1;
+        if (hasMultipleExport) {
+            hasError = true;
+        }
+
         var initialY = 0.2;
         var storedInfo = {
             x: 0,
