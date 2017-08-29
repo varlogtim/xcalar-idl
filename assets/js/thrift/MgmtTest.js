@@ -3205,6 +3205,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
                 console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
                 console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
+                console.log("\tdatasetUsedBytes: ", topOutput.topOutputPerNode[ii].datasetUsedBytes);
                 console.log("\n\n");
             }
             test.pass();

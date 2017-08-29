@@ -20989,6 +20989,7 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.sysSwapUsedInBytes = null;
   this.sysSwapTotalInBytes = null;
   this.uptimeInSeconds = null;
+  this.datasetUsedBytes = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -21034,6 +21035,9 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.uptimeInSeconds !== undefined) {
       this.uptimeInSeconds = args.uptimeInSeconds;
+    }
+    if (args.datasetUsedBytes !== undefined) {
+      this.datasetUsedBytes = args.datasetUsedBytes;
     }
   }
 };
@@ -21156,6 +21160,13 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 16:
+      if (ftype == Thrift.Type.I64) {
+        this.datasetUsedBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -21240,6 +21251,11 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.uptimeInSeconds !== null && this.uptimeInSeconds !== undefined) {
     output.writeFieldBegin('uptimeInSeconds', Thrift.Type.I64, 15);
     output.writeI64(this.uptimeInSeconds);
+    output.writeFieldEnd();
+  }
+  if (this.datasetUsedBytes !== null && this.datasetUsedBytes !== undefined) {
+    output.writeFieldBegin('datasetUsedBytes', Thrift.Type.I64, 16);
+    output.writeI64(this.datasetUsedBytes);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -32065,9 +32081,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 223968022
+  'XcalarApiVersionSignature' : 59263032
 };
-XcalarApiVersionTStr = {223968022 : 'd597b16c6dd1dcd061dc8cf1a0d043bf'
+XcalarApiVersionTStr = {59263032 : '3884838e2d8c3e6e51b976156367a169'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -39841,6 +39857,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
                 console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
                 console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
+                console.log("\tdatasetUsedBytes: ", topOutput.topOutputPerNode[ii].datasetUsedBytes);
                 console.log("\n\n");
             }
             test.pass();

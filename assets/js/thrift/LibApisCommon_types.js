@@ -8702,6 +8702,7 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.sysSwapUsedInBytes = null;
   this.sysSwapTotalInBytes = null;
   this.uptimeInSeconds = null;
+  this.datasetUsedBytes = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -8747,6 +8748,9 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.uptimeInSeconds !== undefined) {
       this.uptimeInSeconds = args.uptimeInSeconds;
+    }
+    if (args.datasetUsedBytes !== undefined) {
+      this.datasetUsedBytes = args.datasetUsedBytes;
     }
   }
 };
@@ -8869,6 +8873,13 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 16:
+      if (ftype == Thrift.Type.I64) {
+        this.datasetUsedBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -8953,6 +8964,11 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.uptimeInSeconds !== null && this.uptimeInSeconds !== undefined) {
     output.writeFieldBegin('uptimeInSeconds', Thrift.Type.I64, 15);
     output.writeI64(this.uptimeInSeconds);
+    output.writeFieldEnd();
+  }
+  if (this.datasetUsedBytes !== null && this.datasetUsedBytes !== undefined) {
+    output.writeFieldBegin('datasetUsedBytes', Thrift.Type.I64, 16);
+    output.writeI64(this.datasetUsedBytes);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
