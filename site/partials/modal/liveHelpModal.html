@@ -1,0 +1,42 @@
+<div id="liveHelpModal" class="modalContainer noWinResize">
+  <header class="modalHeader">
+    <div class="headerBtn sendEmail">
+      <i class="icon xi-alert"></i>
+    </div>
+    <div class="title"><%= dicts.liveHelp.Title %></div>
+    <div class="headerBtn minimize">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <div class="modalContent">
+    <div class="modalInstruction reqConn">
+        <span class="text"><%= dicts.liveHelp.Instruction %></span>
+    </div>
+    <div class="reqConn">
+      <div class="row">
+        <span class="text"><%= dicts.liveHelp.Name %></span>
+        <input class="xc-input name" type="text">
+      </div>
+      <div class="row">
+        <span class="text"><%= dicts.liveHelp.Email %></span>
+        <input class="xc-input email" type="Email">
+      </div>
+      <div class="row">
+        <span class="text emailInfo">This email address will be used to receive copy of chat messages</span>
+      </div>
+    </div>
+    <div class="chatBox">
+      <section class="chatMsg">
+      </section>
+      <div class="sendArea">
+        <textarea class="sendMsg" placeholder="Type message here and press enter to send"></textarea>
+      </div>
+    </div>
+    <div class="bottom reqConn">
+      <button type="button" class="btn reqConnBtn btn-disabled"><%= dicts.common.START %></button>
+    </div>
+  </div>
+</div>

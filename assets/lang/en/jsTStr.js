@@ -462,7 +462,15 @@ AlertTStr = {
                      'previously distrupted or concurrent initialization. ' +
                      'You can choose to retry and wait a little longer, or ' +
                      'you can force the current initialization to overwrite ' +
-                     'any concurrent / previously disrupted initialization.'
+                     'any concurrent / previously disrupted initialization.',
+    'LeaveConMsg': 'You are about to leave the conversation. Please confirm: ' +
+                   '<a href="#">YES</a>',
+    "SuppLeft": "It seems that our support is disconnected.",
+    "WaitChat": "Searching for an available Xcalar agent...",
+    "StartChat": "You are now connected to Agent ",
+    "EmailSent": "Success! All messages have been sent to your email address.",
+    "EmailFunc": "You can click the left top button at anytime to send a " +
+                 "copy of all messages to your email address."
 };
 
 ErrorMessageTStr = {

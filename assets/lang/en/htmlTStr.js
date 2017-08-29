@@ -127,7 +127,8 @@ module.exports = {
         "Logs": "Logs",
         "About": "About",
         "Help": "Help",
-        "HelpDocs": "Help docs"
+        "HelpDocs": "Help docs",
+        "LiveHelp": "Live Help"
     },
 
     "MenuTStr": {
@@ -1009,5 +1010,13 @@ module.exports = {
             "step7": "Copy the value under \"Application ID\" and enter it in <b>Client Id</b>.",
             "step8": "Under <b>Tenant</b> enter the domain name of your AAD, e.g. contoso.com"
         }
+    },
+
+    "liveHelp": {
+        "Title": "Live Help",
+        "Instruction": "Welcome! Please enter the information below before " +
+                       "we can help you.",
+        "Name": "Name:",
+        "Email": "Email:"
     }
 };

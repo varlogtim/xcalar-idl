@@ -272,7 +272,11 @@ window.xcManager = (function(xcManager, $) {
 
     xcManager.removeUnloadPrompt = function() {
         window.onbeforeunload = function() {}; // Do not enable prompt
-        window.onunload = function() {}; // do not call unload again
+        window.onunload = function() {
+            // do not call unload again, but keep auto-sending email for liveHelp
+            // auto-send check is then implemented in liveHelpModal.js
+            LiveHelpModal.autoSendEmail();
+        };
     };
 
     function oneTimeSetup() {
@@ -482,6 +486,7 @@ window.xcManager = (function(xcManager, $) {
         DSInfoModal.setup();
         SkewInfoModal.setup();
         LoginConfigModal.setup();
+        LiveHelpModal.setup();
     }
 
     function setupUserArea() {
@@ -533,7 +538,12 @@ window.xcManager = (function(xcManager, $) {
             }
 
         });
-
+        $menu.on("mouseup", ".liveHelp", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            LiveHelpModal.show();
+        });
         $("#logout").mouseup(function(event) {
             if (event.which !== 1) {
                 return;
@@ -815,6 +825,9 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
         };
+        window.onunload = function() {
+            LiveHelpModal.autoSendEmail();
+        };
 
         var winResizeTimer;
         var resizing = false;
@@ -831,7 +844,7 @@ window.xcManager = (function(xcManager, $) {
                 $('#dagScrollBarWrap').hide();
                 resizing = true;
                 var $modal = $('.modalContainer:visible');
-                if ($modal.length) {
+                if ($modal.length && !$modal.hasClass("noWinResize")) {
                     modalSpecs = {
                         $modal: $modal,
                         top: $modal.offset().top,
