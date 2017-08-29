@@ -831,11 +831,10 @@ window.DagFunction = (function($, DagFunction) {
                 console.error("could not parse eval str", evalStr);
             }
             for (var j = 0; j < tables.length; j++) {
-                tablesMap[tables] = true;
+                if (allTables.indexOf(tables[j]) === -1) {
+                    allTables.push(tables[j]);
+                }
             }
-        }
-        for (var table in tablesMap) {
-            allTables.push(table);
         }
         return allTables;
     }

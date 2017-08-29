@@ -7,7 +7,7 @@ window.TestSuite = (function($, TestSuite) {
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
     var defaultTimeout = 600000; // 10min
-    var defaultCheckTimeout = 60000; // 1min
+    var defaultCheckTimeout = 1260000; // 2min
     var slowInternetFactor = gLongTestSuite || 1;
                         // Change this to 2, 3, etc if you have a slow
                         // internet
@@ -1684,8 +1684,11 @@ window.TestSuite = (function($, TestSuite) {
         $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
         $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
         $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
-        checkExists(['#jsonModal .jsonWrap:eq(0)',
-                    '#jsonModal .jsonWrap:eq(1)'])
+        checkExists('.xcTable:visible')
+        .then(function() {
+            return checkExists(['#jsonModal .jsonWrap:eq(0)',
+                    '#jsonModal .jsonWrap:eq(1)']);
+        })
         .then(function() {
             // compare matches on 2 data browser columns
             $jsonModal.find('.compareIcon').eq(0).trigger(fakeEvent.click);
