@@ -88,21 +88,6 @@ describe("Profile Test", function() {
     });
 
     describe("Profile SVG Test", function() {
-        it("getNumInScale should work", function() {
-            var getNumInScale = Profile.__testOnly__.getNumInScale;
-            var res = getNumInScale(1);
-            expect(res).to.equal(1);
-            // case 2
-            res = getNumInScale(0, true);
-            expect(res).to.equal(0);
-            // case 3
-            res = getNumInScale(2, true);
-            expect(res).to.equal(10);
-            // case 4
-            res = getNumInScale(-2, true);
-            expect(res).to.equal(-10);
-        });
-
         it("addNullValue should work", function() {
             var addNullValue = Profile.__testOnly__.addNullValue;
             var data = [];
@@ -119,34 +104,6 @@ describe("Profile Test", function() {
                 }
             }, data);
             expect(data.length).to.equal(1);
-        });
-
-        it("formatNumber should work", function() {
-            var formatNumber = Profile.__testOnly__.formatNumber;
-            var res = formatNumber(null);
-            expect(res).to.equal("");
-            // case 2
-            res = formatNumber("1");
-            expect(res).to.equal("\"1\"");
-            // case 3
-            res = formatNumber(true);
-            expect(res).to.equal(true);
-            // case 4
-            var obj = {};
-            res = formatNumber(obj);
-            expect(res).to.equal(obj);
-            // case 5
-            res = formatNumber(1);
-            expect(res).to.equal("1");
-            // case 6
-            res = formatNumber(1, true);
-            expect(res).to.equal(1);
-            // case 7
-            res = formatNumber(2, true);
-            expect(res).to.equal("2e+0");
-            // case 8
-            res = formatNumber(1, false, 2);
-            expect(res).to.equal("1.00");
         });
 
         it("Should hover on bar area", function() {

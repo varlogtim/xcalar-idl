@@ -853,7 +853,7 @@ window.Profile = (function($, Profile, d3) {
             resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
 
-        chartBuilder = ProfileChart.build({
+        chartBuilder = ProfileChart.new({
             "data": groupByData,
             "type": chartType,
             "bucketSize": bucketNum,
@@ -869,6 +869,7 @@ window.Profile = (function($, Profile, d3) {
             "resize": resize,
             "resizeDelay": resizeDelay
         });
+        chartBuilder.build();
     }
 
     function getYName() {
@@ -1539,9 +1540,7 @@ window.Profile = (function($, Profile, d3) {
         // Profile.__testOnly__.fltExist = fltExist;
         // Profile.__testOnly__.getBucketFltOpt = getBucketFltOpt;
         // Profile.__testOnly__.getNumFltOpt = getNumFltOpt;
-        // Profile.__testOnly__.getNumInScale = getNumInScale;
-        // Profile.__testOnly__.addNullValue = addNullValue;
-        // Profile.__testOnly__.formatNumber = formatNumber;
+        Profile.__testOnly__.addNullValue = addNullValue;
     }
     /* End Of Unit Test Only */
 

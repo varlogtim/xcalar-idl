@@ -203,7 +203,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
         isNoBucket: function() {
             var bucketSize = this.getBuckSize();
-            return (bucketSize === 0) ? 1 : 0;
+            return (bucketSize === 0);
         },
 
         getLowerBound: function(num) {
@@ -922,7 +922,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
     /* pie chart builder class */
 
     /* ProfileChart Api */
-    ProfileChart.build = function(options) {
+    ProfileChart.new = function(options) {
         options = options || {};
         var chartType = options.type;
         var chartBuilder;
@@ -938,11 +938,8 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 console.warn("unsupported chart!");
                 return null;
         }
-
-        chartBuilder.build();
         return chartBuilder;
     };
-
     /* end of ProfileChart Api */
 
     return ProfileChart;
