@@ -714,11 +714,37 @@ function readInstallerLog() {
     return deferred.promise();
 }
 
-function unitTest() {
+// Below part is only for unit test
+function fakeExecuteCommand() {
+    executeCommand = function(command) {
+        return jQuery.Deferred().resolve(command + " succeeds").promise();
+    }
+}
+function fakeReadHostsFromFile() {
+    readHostsFromFile = function() {
+        return jQuery.Deferred().resolve(["bellman.int.xcalar.com"]).promise();
+    }
+}
+function fakeSendCommandToSlaves() {
+    sendCommandToSlaves = function() {
+        return jQuery.Deferred().resolve().promise();
+    }
+}
+function fakeGetXlrRoot() {
+    getXlrRoot = function() {
+        return jQuery.Deferred().resolve("../test").promise();
+    };
+}
+if (process.env.NODE_ENV === "test") {
+    exports.sendCommandToSlaves = sendCommandToSlaves;
     exports.generateLogs = generateLogs;
-    exports.isUnderBasePath = isUnderBasePath;
-    exports.isComplete = isComplete;
-    exports.readHostsFromFile = readHostsFromFile;
+    exports.isValidEmail = isValidEmail;
+    exports.generateLastMonitorMap = generateLastMonitorMap;
+    // Fake functions
+    exports.fakeExecuteCommand = fakeExecuteCommand;
+    exports.fakeReadHostsFromFile = fakeReadHostsFromFile;
+    exports.fakeSendCommandToSlaves = fakeSendCommandToSlaves;
+    exports.fakeGetXlrRoot = fakeGetXlrRoot;
 }
 
 exports.getXlrRoot = getXlrRoot;
@@ -730,5 +756,4 @@ exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
-exports.unitTest = unitTest;
 exports.getMatchedHosts = getMatchedHosts;
