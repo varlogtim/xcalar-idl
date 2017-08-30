@@ -76,20 +76,33 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         .fail(function(error) {
             if (runTest && error === WKBKTStr.NoWkbk || createWorkbookOnly) {
                 autoCreateWorkbook()
-                .then(function() {
-                    deferred.resolve();
-                })
+                .then(deferred.resolve)
                 .fail(function(err) {
+                    err = wrapFailError(err);
                     reportResults(err);
                     deferred.reject(err);
                 });
             } else {
+                error = wrapFailError(error);
                 reportResults(error);
                 deferred.reject(error);
             }
         });
         return deferred.promise();
     };
+
+    function wrapFailError(error) {
+        if (typeof error !== "object") {
+            error = {"error": error};
+        }
+        if (error.fail == null) {
+            error.fail = 1;
+        }
+        if (error.pass == null) {
+            error.pass = 0;
+        }
+        return error;
+    }
 
     function heartBeat() {
         var connectionCheck = true;
@@ -151,7 +164,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 count++;
                 if (count > 10) {
                     clearInterval(wbInterval);
-                    deferred.reject();
+                    deferred.reject("creeate workbook timeout");
                 }
             }
         }, 300);
@@ -172,7 +185,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 count++;
                 if (count > 10) {
                     clearInterval(wbInterval);
-                    deferred.reject();
+                    deferred.reject("active workbook time out");
                 }
             }
         }, 300);
@@ -181,6 +194,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoRunTestSuite() {
+        var deferred = jQuery.Deferred();
         var params = getUrlParameters();
         var delay = Number(params.timeout);
 
@@ -196,22 +210,23 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            var deferred = jQuery.Deferred();
+            var def;
             if (whichTest === "demo") {
-                deferred = DemoTestSuite.run();
+                def = DemoTestSuite.run();
             } else {
-                deferred = TestSuite.run(animation, clean, noPopup, mode, false,
+                def = TestSuite.run(animation, clean, noPopup, mode, false,
                                          timeDilation);
             }
-            deferred
+            def
             .then(function(res) {
                 console.info(res);
                 reportResults(res);
+                deferred.resolve();
             })
-            .fail(function() {
-                console.log("fail");
-            });
+            .fail(deferred.reject);
         }, delay);
+
+        return deferred.promise();
     }
 
     function autoRunUndoTest() {
