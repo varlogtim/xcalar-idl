@@ -642,5 +642,17 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         return d3.select("#profile-chart .groupbyChart");
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        ProfileSelector.__testOnly__ = {};
+        ProfileSelector.__testOnly__.setChartBuilder = function(builder) {
+            chartBuilder = builder;
+        };
+        ProfileSelector.__testOnly__.fltExist = fltExist;
+        ProfileSelector.__testOnly__.getBucketFltOpt = getBucketFltOpt;
+        ProfileSelector.__testOnly__.getNumFltOpt = getNumFltOpt;
+    }
+    /* End Of Unit Test Only */
+
     return ProfileSelector;
 }({}, jQuery));

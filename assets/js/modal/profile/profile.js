@@ -1533,13 +1533,9 @@ window.Profile = (function($, Profile, d3) {
         // Profile.__testOnly__.getResultSetId = function() {
         //     return resultSetId;
         // };
-        // Profile.__testOnly__.getStatsCol = function() {
-        //     return statsCol;
-        // };
-
-        // Profile.__testOnly__.fltExist = fltExist;
-        // Profile.__testOnly__.getBucketFltOpt = getBucketFltOpt;
-        // Profile.__testOnly__.getNumFltOpt = getNumFltOpt;
+        Profile.__testOnly__.getStatsCol = function() {
+            return statsCol;
+        };
         Profile.__testOnly__.addNullValue = addNullValue;
     }
     /* End Of Unit Test Only */
