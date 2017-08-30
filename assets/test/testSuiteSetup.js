@@ -72,20 +72,20 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 return autoCreateWorkbook();
             }
         })
-        .then(function() {
-            deferred.resolve();
-        })
+        .then(deferred.resolve)
         .fail(function(error) {
             if (runTest && error === WKBKTStr.NoWkbk || createWorkbookOnly) {
                 autoCreateWorkbook()
                 .then(function() {
                     deferred.resolve();
                 })
-                .fail(function() {
-                    deferred.reject();
+                .fail(function(err) {
+                    reportResults(err);
+                    deferred.reject(err);
                 });
             } else {
-                deferred.reject();
+                reportResults(error);
+                deferred.reject(error);
             }
         });
         return deferred.promise();
