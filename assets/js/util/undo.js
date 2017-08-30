@@ -126,7 +126,7 @@ window.Undo = (function($, Undo) {
         var joinOptions = options.options || {};
         if (joinOptions.keepTables) {
             var tableId = xcHelper.getTableId(options.newTableName);
-            return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+            return (TblManager.sendTableToUndone(tableId, {'remove': true}));
         }
 
         var currTableId = xcHelper.getTableId(options.newTableName);

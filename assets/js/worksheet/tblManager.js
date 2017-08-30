@@ -292,6 +292,7 @@ window.TblManager = (function($, TblManager) {
         });
 
         gTables[tableId] = table;
+        TableList.addToOrphanList(tableName);
 
         return table;
     };
@@ -456,8 +457,6 @@ window.TblManager = (function($, TblManager) {
         })
         .fail(deferred.reject);
 
-
-
         return deferred.promise();
     };
 
@@ -509,6 +508,7 @@ window.TblManager = (function($, TblManager) {
 
         // disallow dragging if only 1 table in worksheet
         TblFunc.checkTableDraggable();
+        TableList.addToOrphanList(table.getName());
     }
 
     // XXX consider passing in table names instead of tableIds to simplify

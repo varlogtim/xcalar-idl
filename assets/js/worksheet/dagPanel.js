@@ -570,6 +570,9 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel[0].oncontextmenu = function(e) {
             var $target = $(e.target);
             var $dagWrap = $target.closest('.dagWrap');
+            if ($dagWrap.hasClass("invalid") || $dagWrap.hasClass("error")) {
+                return;
+            }
 
             $target = $(e.target).closest('.dagTable');
             if ($target.length) {

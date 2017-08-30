@@ -966,6 +966,40 @@ window.TableList = (function($, TableList) {
         return deferred.promise();
     };
 
+    TableList.addToOrphanList = function(tableName) {
+        focusedListNum = null;
+        // clear the search bar
+        searchHelper.clearSearch(function() {
+            clearTableListFilter($("#orphanedTableListSection"));
+        });
+        if (gOrphanTables.indexOf(tableName) === -1) {
+            gOrphanTables.push(tableName);
+        }
+        var $list = $("#orphanedTablesList");
+        var html = getOrphanListLiHtml(tableName);
+        var $lis = $list.find("li");
+        if ($lis.filter(function() {
+                return $(this).data("tablename") === tableName;
+            }).length) {
+            return;
+        }
+        var found = false;
+        $($lis.get().reverse()).each(function() {
+            var curTableName = $(this).data("tablename");
+            if (xcHelper.sortVals(tableName, curTableName) > 0) {
+                $(this).after(html);
+                found = true;
+                return false;
+            }
+        });
+        if (!found) {
+            $list.prepend(html);
+        }
+
+        $("#orphanedTableList-search").show();
+        $("#orphanedTableListSection").removeClass('empty');
+    };
+
     function getListWrap(tableType) {
         var $listWrap;
         if (tableType === TableType.Orphan) {
@@ -989,6 +1023,7 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     }
 
+    // moves orphaned table from temp list to worksheet
     function addOrphanedTable(tableName, destWS) {
         var deferred = jQuery.Deferred();
 
@@ -1034,8 +1069,6 @@ window.TableList = (function($, TableList) {
 
             return deferred.promise();
         }
-
-
 
         function renameOrphanIfNeeded() {
             var innerDeferred = jQuery.Deferred();
@@ -1285,43 +1318,10 @@ window.TableList = (function($, TableList) {
         var html = "";
         for (var i = 0; i < tables.length; i++) {
             var tableName = tables[i];
+            html += getOrphanListLiHtml(tableName);
             if (canceledTables[tableName]) { // do not show canceled tables
                 numTables--;
-                continue;
             }
-            var liClass = "";
-            var tableId = xcHelper.getTableId(tableName);
-            var tableNameTip = tableName;
-            if (gTables[tableId] &&
-                gTables[tableId].getType() === TableType.Undone) {
-                liClass += TableType.Undone;
-                tableNameTip = xcHelper.replaceMsg(TooltipTStr.UndoTableTip, {
-                    "name": tableName
-                });
-            }
-            if (lockedTables[tableId]) {
-                liClass += " locked";
-            }
-            html += '<li class="clearfix tableInfo ' + liClass + '" ' +
-                    'data-id="' + tableId + '"' +
-                    'data-tablename="' + tableName + '">' +
-                        '<div class="tableListBox xc-expand-list">' +
-                            '<span class="addTableBtn" data-toggle="tooltip" ' +
-                        ' data-container="body"' +
-                        ' data-original-title="' + CommonTxtTstr.ClickSelect +
-                        '">' +
-                                '<i class="icon xi_table fa-18"></i>' +
-                                '<i class="icon xi-ckbox-empty fa-18"></i>' +
-                                '<i class="icon xi-tick fa-11"></i>' +
-                            '</span>' +
-                            '<span data-original-title="' + tableNameTip + '" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="top" data-container="body" ' +
-                                'class="tableName textOverflow">' +
-                                tableName +
-                            '</span>' +
-                        '</div>' +
-                     '</li>';
         }
 
         $("#orphanedTablesList").html(html);
@@ -1332,6 +1332,47 @@ window.TableList = (function($, TableList) {
             $("#orphanedTableList-search").hide();
             $("#orphanedTableListSection").addClass('empty');
         }
+    }
+
+    function getOrphanListLiHtml(tableName) {
+        var html = "";
+        if (canceledTables[tableName]) { // do not show canceled tables
+            return html;
+        }
+        var liClass = "";
+        var tableId = xcHelper.getTableId(tableName);
+        var tableNameTip = tableName;
+        if (gTables[tableId] &&
+            gTables[tableId].getType() === TableType.Undone) {
+            liClass += TableType.Undone;
+            tableNameTip = xcHelper.replaceMsg(TooltipTStr.UndoTableTip, {
+                "name": tableName
+            });
+        }
+        if (lockedTables[tableId]) {
+            liClass += " locked";
+        }
+        html += '<li class="clearfix tableInfo ' + liClass + '" ' +
+                'data-id="' + tableId + '"' +
+                'data-tablename="' + tableName + '">' +
+                    '<div class="tableListBox xc-expand-list">' +
+                        '<span class="addTableBtn" data-toggle="tooltip" ' +
+                    ' data-container="body"' +
+                    ' data-original-title="' + CommonTxtTstr.ClickSelect +
+                    '">' +
+                            '<i class="icon xi_table fa-18"></i>' +
+                            '<i class="icon xi-ckbox-empty fa-18"></i>' +
+                            '<i class="icon xi-tick fa-11"></i>' +
+                        '</span>' +
+                        '<span data-original-title="' + tableNameTip + '" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" data-container="body" ' +
+                            'class="tableName textOverflow">' +
+                            tableName +
+                        '</span>' +
+                    '</div>' +
+                 '</li>';
+        return html;
     }
 
     function generateConstList(firstTime) {

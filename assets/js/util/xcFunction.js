@@ -655,6 +655,7 @@ window.xcFunction = (function($, xcFunction) {
                 return colName;
             });
 
+            // need to store previous table meta in case of new col names
             TblManager.setOrphanTableMeta(nTable, nCols);
 
             var lTableInfo = {
