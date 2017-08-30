@@ -87,24 +87,20 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return readRetinaFromFile(file, retName);
         })
         .then(function(overwriteUDF) {
-            DF.addDataflow(retName, new Dataflow(retName), null, {
-                "isUpload": true,
-                "noClick": true
-            });
-            var df = DF.getDataflow(retName);
-
-            xcHelper.showSuccess(SuccessTStr.Upload);
             UDF.refreshWithoutClearing(overwriteUDF);
             XcSocket.sendMessage("refreshUDFWithoutClear", overwriteUDF);
-            closeCard();
-            // Click on the newly uploaded dataflow
-            return df.updateParamMapInUsed();
+            return (DF.addDataflow(retName, new Dataflow(retName), null, {
+                "isUpload": true,
+                "noClick": true
+            }));
         })
         .then(function() {
-            $("#dfMenu .groupName:contains('" + retName + "')")
-            .closest(".dataFlowGroup").click();
-            deferred.resolve();
+            xcHelper.showSuccess(SuccessTStr.Upload);
+            closeCard();
+            var df = DF.getDataflow(retName);
+            return df.updateParamMapInUsed();
         })
+        .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
             clearTimeout(timer);
