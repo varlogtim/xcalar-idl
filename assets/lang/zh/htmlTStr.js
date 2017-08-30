@@ -182,7 +182,8 @@ module.exports = {
         "searchUser": "搜索用户",
         "logFolder": "文件路径:",
         "logName": "文件名:",
-        "lastNRow": "读取最新日志行数:"
+        "lastNRow": "读取最新日志行数:",
+        "hostnamePattern": "主机名称正则表达式:"
     },
     "aggModal": {
         "BackToProfile": "返回数据概况",

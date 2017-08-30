@@ -149,9 +149,17 @@ router.post("/service/ticket", function(req, res) {
     });
 });
 
+router.get("/matchedHost", function(req, res) {
+    xcConsole.log("Find matched Hosts");
+    support.getMatchedHosts(req.query)
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+});
+
 router.get("/service/logs", function(req, res) {
     xcConsole.log("Fetching Recent Logs as Master");
-    support.masterExecuteAction("GET", "/service/logs/slave", req.query)
+    support.masterExecuteAction("GET", "/service/logs/slave", req.query, true)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -232,34 +240,34 @@ function unitTest() {
 // Below part is only for Unit Test
 function fakeMasterExecuteAction() {
     support.masterExecuteAction = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 function fakeSlaveExecuteAction() {
     support.slaveExecuteAction = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 
 function fakeRemoveSessionFiles() {
     support.removeSessionFiles = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 function fakeRemoveSHM() {
     support.removeSHM = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 function fakeGetLicense() {
     support.getLicense = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 function fakeSubmitTicket() {
     support.submitTicket = function() {
-        return jQuery.Deferred().resolve({status:200}).promise();
-    }
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
 }
 if (process.env.NODE_ENV === "test") {
     exports.convertToBase64 = convertToBase64;

@@ -553,6 +553,7 @@ MonitorTStr = {
 "NewVal": '新值',
 'ClusterStatus': '集群状态',
 'Ext': '扩展',
+'GetHostsFail': '无法匹配主机',
 'GetLogsFail': '无法获取日志',
 'GetStatusFail': '无法获得状态',
 'Monitor': '监控',

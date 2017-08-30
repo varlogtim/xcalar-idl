@@ -1464,119 +1464,209 @@
 #monitorLogCard {
     min-width: 520px;
     max-height: ~"calc(100% - 46px)";
-    // display: block !important;
     .cardMain {
-        padding: 20px;
+        overflow: hidden;
+        padding: 30px 0px !important;
     }
-    .formRow {
+    .inputSection {
         .flex-display;
         .justify-content(space-between);
-        // .flex-wrap(wrap);
-        min-width: 600px;
-        .formGroup {
-            .flex(0 1 auto);
+        box-sizing: border-box;
+        min-width: 480px;
+        flex-wrap: wrap;
+        margin-left: 60px;
+        margin-right: 60px;
+    }
+    .column {
+        width: 50%;
+        display: flex;
+        margin-bottom: 20px;
+        justify-content: flex-end;
+        align-items: center;
+        .inputWrap {
             .flex-display;
-            margin-bottom: 5px;
-            margin-top: 5px;
-            padding-right: 20px;
+            width: ~"calc(100% - 153px)";
+            min-width: 130px;
+        }
+        .text {
+            font-weight: 600;
+            min-width: 80px;
+            width: 138px;
+        }
+        .xc-input {
+            width: 120px;
+            margin-left: 10px;
+            .flex(1 1 70px);
             font-size: 13px;
-
-            .inputWrap {
-                .flex-display;
+            &[type="number"] {
+                width:  80px;
             }
-            .text {
-                padding-top: 6px;
-                font-weight: 700;
+        }
+
+        &.buttons {
+            .streamBtns {
+                margin-left: 10px;
                 margin-right: 10px;
+                min-width: 90px;
             }
-            .xc-input {
-                width: 120px;
-                .flex(1 1 70px);
-                font-size: 13px;
-                &[type="number"] {
-                    width:  80px;
-                }
-            }
-            &.recentLogsGroup {
-                width: ~"calc(100% - 170px)";
-                min-width: 115px;
-            }
-        }
-        label {
-            .flex-display;
-            .flex-wrap(wrap);
-            .text {
-                margin-bottom: 3px;
-                min-width: 115px;
-            }
-            .inputWrap {
-                // margin-top: 6px;
-                width: ~"calc(100% - 125px)";
-                min-width: 110px;
-            }
-            margin-left: 15px;
-            width: 33%;
-        }
-        .streamBtns {
-            // height: 80px;
-            .flex-display;
-            .align-items(center);
-            padding-right: 0px;
             .btn {
-                width: 180px;
-                &.stopStream {
-                    display: none;
-                    background-color: @color-error-border-light;
-                    &:hover {
-                        background-color: @color-bg-red-hover;
-                    }
-                }
-            }
-            &.streaming {
-                .btn {
-                    &.startStream {
-                        display: none;
-                    }
-                    &.stopStream {
-                        display: block;
-                    }
-                }
+                min-width: 90px;
             }
         }
-
+        &.lastRow {
+            .text {
+                margin-left: 30px;
+            }
+        }
+    }
+    .tabSection {
+        background-color: @color-bg-white-three;
+        height: 35px;
+        width: 100%;
+        border-bottom: solid 1px @color-border-pinkish-grey2;
+        &.withTabs {
+            .leftEnd {
+                border-right: none !important;
+            }
+        }
+        .tabWrapper {
+            .size(@height: 100%);
+            margin-left: 40px;
+            margin-right: 40px;
+            border: none;
+            border-right: none;
+            display: flex;
+            .tabAreaWrapper {
+                display: flex;
+                overflow: hidden;
+                width: ~"calc(100% - 48px)";
+                border-top: solid 1px @color-border-pinkish-grey2;
+            }
+            .tabArea {
+                .size(@width: 100%, @height: 100%);
+                display: flex;
+            }
+            .end {
+                .size(@height: 100%, @width: 24px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .icon {
+                    color: @color-font-greyish-brown;
+                }
+                &.rightEnd {
+                    .icon {
+                        transform: rotate(180deg);
+                    }
+                }
+            }
+            .tab {
+                .size(@height: 100%, @width: 50px);
+                min-width: 50px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 11px;
+                font-weight: bold;
+                text-align: center;
+                color: @color-font-greyish-brown;
+                opacity: 0.5;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                position: relative;
+                .tabLabel {
+                    .size(@width: 100%);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .tabClose {
+                    .size(@height: 10px, @width: 100%);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    justify-content: flex-start;
+                    color: @color-font-greyish-brown;
+                    opacity: 0.5;
+                    position: absolute;
+                }
+                &.focus {
+                    background-color: @color-white;
+                    opacity: 1.0;
+                    border-top-left-radius: 10px;
+                }
+                &.error {
+                    .tabLabel {
+                        color: @color-error-border;
+                    }
+                    opacity: 1.0;
+                }
+            }
+            .tab {
+                border: solid 1px @color-border-pinkish-grey2;
+                &:last-child {
+                    border-right: solid 1px @color-border-pinkish-grey2;
+                }
+                border-top: none;
+                border-right: none;
+                border-bottom: none;
+            }
+            .end {
+                border: solid 1px @color-border-pinkish-grey2;
+                border-bottom: none;
+            }
+        }
     }
 
-    .cardSubMain {
+    .streamBtns {
         .flex-display;
-        .flex-direction(column);
+        .align-items(center);
+        padding-right: 0px;
+        .btn {
+            width: 180px;
+            &.stopStream {
+                display: none;
+                background-color: @color-error-border-light;
+                &:hover {
+                    background-color: @color-bg-red-hover;
+                }
+            }
+        }
+        &.streaming {
+            .btn {
+                &.startStream {
+                    display: none;
+                }
+                &.stopStream {
+                    display: block;
+                }
+            }
+        }
+    }
+
+    .logSection {
+        .flex-display;
+        margin-left: 57px;
+        margin-right: 57px;
+        margin-top: 25px;
+        height: 200px;
+        min-height: 160px;
+        background-color: @color-table-evenRow-gray;
         overflow: hidden;
-        border-top: 1px solid @color-bg-pinkish-grey2;
-        padding: 20px;
         .content {
-            .size(@width: 100%, @height: ~"calc(100% - 32px)", @min-height: 80px);
-            .flex(1 1 auto);
-            border: 1px solid @color-border-white-five-darker;
+            margin: 0px;
+            padding: 20px;
+            background-color: @color-table-evenRow-gray;
+            .size(@width: 100%);
+            white-space: pre-wrap;
             overflow: auto;
-            background-color: @color-bg-white-three;
-            padding-bottom: 20px;
+            user-select: text;
         }
         .msgRow {
-            background-color: @color-white;
-            border-bottom: 1px solid @color-bg-white-five;
-            padding: 2px 4px;
-            min-height: 22px;
-            line-height: 18px;
-            white-space: pre-wrap;
-            &:hover {
-                background-color: @color-bg-white-three;
+            &.error {
+                color: @color-error-border;
             }
-        }
-    }
-
-    .cardBottom {
-        padding: 0px 20px;
-        &:after {
-            content: "";
         }
     }
 }

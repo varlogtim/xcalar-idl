@@ -53,10 +53,69 @@ var networkFactor = 5;
 var monitorFactor = 0.005;
 var tailUsers = new Map();
 
+function getMatchedHosts(query) {
+    var deferred = jQuery.Deferred();
+    var hostFile = process.env.XCE_CONFIG ?
+                   process.env.XCE_CONFIG : defaultHostsFile;
+    var matchHosts = [];
+    var matchNodeIds = [];
+    var retMsg = {};
+    readHostsFromFile(hostFile)
+    .then(function(hosts, nodeIds) {
+        if (query.hostnamePattern === "") {
+            retMsg = {
+                "status": httpStatus.OK,
+                "matchHosts": hosts,
+                "matchNodeIds": nodeIds
+            };
+            deferred.resolve(retMsg);
+        } else {
+            try {
+                for (var i = 0; i < hosts.length; i++) {
+                    var reg = new RegExp(query.hostnamePattern);
+                    if (reg.exec(hosts[i]) || reg.exec(nodeIds[i])) {
+                        matchHosts.push(hosts[i]);
+                        matchNodeIds.push(nodeIds[i]);
+                    }
+                }
+                retMsg = {
+                    "status": httpStatus.OK,
+                    "matchHosts": matchHosts,
+                    "matchNodeIds": matchNodeIds
+                };
+                deferred.resolve(retMsg);
+            } catch (err) {
+                xcConsole.log(err);
+                retMsg = {
+                    // No matter what error happens, the master
+                    // should return return a 404 uniformly
+                    "status": httpStatus.NotFound,
+                    "matchHosts": [],
+                    "matchNodeIds": []
+                };
+                deferred.reject(retMsg);
+            }
+        }
+    })
+    .fail(function(err) {
+        xcConsole.log(err);
+        retMsg = {
+            // No matter what error happens, the master
+            // should return return a 404 uniformly
+            "status": httpStatus.NotFound,
+            "matchHosts": [],
+            "matchNodeIds": []
+        };
+        deferred.reject(retMsg);
+    });
+    return deferred.promise();
+}
+
 // Get all the Hosts from file
 function readHostsFromFile(hostFile) {
     var deferred = jQuery.Deferred();
     var hosts = [];
+    var nodeIds = [];
 
     fs.readFile(hostFile, "utf8", function(err, hostData) {
         if (err) {
@@ -68,33 +127,38 @@ function readHostsFromFile(hostFile) {
             var re = /Node\.([0-9]+)\.IpAddr=(.*)/g;
             var matches = re.exec(str);
             if (matches && matches.length >= 3) {
+                nodeIds.push(matches[1]);
                 hosts.push(matches[2]);
             }
         }
-        deferred.resolve(hosts);
+        deferred.resolve(hosts, nodeIds);
     });
     return deferred.promise();
 }
 
-function masterExecuteAction(action, slaveUrl, content) {
+function masterExecuteAction(action, slaveUrl, content, withGivenHost) {
     var deferredOut = jQuery.Deferred();
     function readHosts() {
         var deferred = jQuery.Deferred();
-        var hostFile = process.env.XCE_CONFIG ?
-                        process.env.XCE_CONFIG : defaultHostsFile;
-        readHostsFromFile(hostFile)
-        .then(function(hosts) {
-            deferred.resolve(hosts);
-        })
-        .fail(function(err) {
-            var retMsg = {
-                // No matter what error happens, the master
-                // should return return a 404 uniformly
-                "status": httpStatus.NotFound,
-                "logs": JSON.stringify(err)
-            };
-            deferred.reject(retMsg);
-        });
+        if (withGivenHost) {
+            deferred.resolve(content.hosts);
+        } else {
+            var hostFile = process.env.XCE_CONFIG ?
+                            process.env.XCE_CONFIG : defaultHostsFile;
+            readHostsFromFile(hostFile)
+            .then(function(hosts, nodeIds) {
+                deferred.resolve(hosts);
+            })
+            .fail(function(err) {
+                var retMsg = {
+                    // No matter what error happens, the master
+                    // should return return a 404 uniformly
+                    "status": httpStatus.NotFound,
+                    "logs": JSON.stringify(err)
+                };
+                deferred.reject(retMsg);
+            });
+        }
         return deferred.promise();
     }
 
@@ -102,33 +166,46 @@ function masterExecuteAction(action, slaveUrl, content) {
     .then(function(hosts) {
         var deferred = jQuery.Deferred();
         var retMsg;
-        var logs;
         sendCommandToSlaves(action, slaveUrl, content, hosts)
         .then(function(results) {
-            logs = generateLogs(action, slaveUrl, results);
-            retMsg = {
-                // If every child node return with status 200, then master should
-                // return a 200 code
-                "status": httpStatus.OK,
-                "logs": logs
-            };
-            if (slaveUrl === "/service/logs/slave" && action === "GET" &&
-                content.isMonitoring === "true") {
-                retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
+            if (slaveUrl === "/service/logs/slave") {
+                retMsg = {
+                    // If every child node return with status 200, then master should
+                    // return a 200 code
+                    "status": httpStatus.OK,
+                    "results": results
+                };
+                if (content.isMonitoring === "true") {
+                    retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
+                }
+            } else {
+                retMsg = {
+                    // If every child node return with status 200, then master should
+                    // return a 200 code
+                    "status": httpStatus.OK,
+                    "logs": generateLogs(action, slaveUrl, results)
+                };
             }
             deferred.resolve(retMsg);
         })
         .fail(function(results) {
-            logs = generateLogs(action, slaveUrl, results);
-            retMsg = {
-                // If some child nodes do not return with status 200, then master
-                // should return return a 404 uniformly
-                "status": httpStatus.NotFound,
-                "logs": logs
-            };
-            if (slaveUrl === "/service/logs/slave" && action === "GET" &&
-                content.isMonitoring === "true") {
-                retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
+            if (slaveUrl === "/service/logs/slave") {
+                retMsg = {
+                    // If every child node return with status 200, then master should
+                    // return a 200 code
+                    "status": httpStatus.OK,
+                    "results": results
+                };
+                if (content.isMonitoring === "true") {
+                    retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
+                }
+            } else {
+                retMsg = {
+                    // If every child node return with status 200, then master should
+                    // return a 200 code
+                    "status": httpStatus.OK,
+                    "logs": generateLogs(action, slaveUrl, results)
+                };
             }
             deferred.reject(retMsg);
         });
@@ -654,3 +731,4 @@ exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
 exports.unitTest = unitTest;
+exports.getMatchedHosts = getMatchedHosts;

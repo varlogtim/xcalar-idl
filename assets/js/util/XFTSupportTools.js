@@ -6,21 +6,31 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     var timeout = timeoutBase * expendFactor * expendFactor * 2;
     var lastMonitorMap = {};
 
+    XFTSupportTools.getMatchHosts = function(hostnamePattern) {
+        var action = "GET";
+        var url = "/matchedHost";
+        var content = {
+            "hostnamePattern": hostnamePattern
+        };
+        return sendRequest(action, url, content);
+    };
+
     XFTSupportTools.getRecentLogs = function(requireLineNum, filePath,
-        fileName) {
+        fileName, hosts) {
         var action = "GET";
         var url = "/service/logs";
         var content = {
             "requireLineNum": requireLineNum,
             "isMonitoring": false,
             "filePath": filePath,
-            "fileName": fileName
+            "fileName": fileName,
+            "hosts": Object.keys(hosts)
         };
         return sendRequest(action, url, content);
     };
 
     // pass in callbacks to get triggered upon each post return
-    XFTSupportTools.monitorLogs = function(filePath, fileName, errCallback, successCallback) {
+    XFTSupportTools.monitorLogs = function(filePath, fileName, hosts, errCallback, successCallback) {
         clearInterval(monitorIntervalId);
         monitorIntervalId = setInterval(getLog, 2000);
         getLog();
@@ -34,7 +44,8 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
                     "lastMonitorMap": JSON.stringify(lastMonitorMap),
                     "isMonitoring": true,
                     "filePath": filePath,
-                    "fileName": fileName
+                    "fileName": fileName,
+                    "hosts": Object.keys(hosts)
                 };
                 sendRequest(action, url, content)
                 .then(function(ret) {

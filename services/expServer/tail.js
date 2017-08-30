@@ -33,7 +33,7 @@ function tailLog(requireLineNum, filePath, fileName) {
         if (!isLogNumValid(requireLineNum)) {
             var retMsg = {
                 "status": httpStatus.BadRequest, // Bad Request
-                "logs": "Please enter a non-negative number less than 500"
+                "error": "Please enter a non-negative number less than 500"
             };
             deferred.reject(retMsg);
         } else {
@@ -50,8 +50,8 @@ function tailLog(requireLineNum, filePath, fileName) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
-                "status": httpStatus.OK,
-                "logs": "Empty File"
+                "status": httpStatus.InternalServerError, // Server Internal error
+                "error": "Empty File"
             };
             // reject doesn't means that the status can't be 200, it means that
             // we already know the result and do not need to pass parameters
@@ -62,7 +62,7 @@ function tailLog(requireLineNum, filePath, fileName) {
                 if (err) {
                     var retMsg = {
                         "status": httpStatus.InternalServerError, // Server Internal error
-                        "logs": "fail to open the file: " + err.message
+                        "error": "fail to open the file: " + err.message
                     };
                     deferred.reject(retMsg);
                 } else {
@@ -94,7 +94,7 @@ function tailLog(requireLineNum, filePath, fileName) {
                     if (err) {
                         var retMsg = {
                             "status": httpStatus.Forbidden,
-                            "logs": "fail to read the file: " + err.message
+                            "error": "fail to read the file: " + err.message
                         };
                         deferred.reject(retMsg);
                     } else {
@@ -162,8 +162,8 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
-                "status": httpStatus.OK,
-                "logs": "Empty File"
+                "status": httpStatus.InternalServerError, // Server Internal error
+                "error": "Empty File"
             };
             // reject doesn't means that the status can't be 200, it means that
             // we already know the result and do not need to pass parameters
@@ -174,7 +174,7 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
                 if (err) {
                     var retMsg = {
                         "status": httpStatus.Forbidden,
-                        "logs": "fail to open the file: " + err.message
+                        "error": "fail to open the file: " + err.message
                     };
                     deferred.reject(retMsg);
                 } else {
@@ -194,7 +194,7 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
                     if (err) {
                         var retMsg = {
                             "status": httpStatus.Forbidden,
-                            "logs": "fail to read the file: " + err.message
+                            "error": "fail to read the file: " + err.message
                         };
                         deferred.reject(retMsg);
                     }
@@ -349,7 +349,7 @@ function getPath(filePath, fileName) {
                 var retMsg = {
                     // Server Internal error
                     "status": httpStatus.InternalServerError,
-                    "logs": "Can not get the Node ID " + err
+                    "error": "Can not get the Node ID " + err
                 };
                 deferred.reject(retMsg);
             });
@@ -420,14 +420,14 @@ function readFileStat(currFile) {
             retMsg = {
                 // Server Internal error
                 "status": httpStatus.InternalServerError,
-                "logs": "Fail to read file stat" + err
+                "error": "Fail to read file stat " + err
             };
             deferred.reject(retMsg);
         } else if (stat.size === 0) {
             retMsg = {
                 // Server Internal error
                 "status": httpStatus.InternalServerError,
-                "logs": "File " + currFile + " is empty."
+                "error": "File " + currFile + " is empty."
             };
             deferred.reject(retMsg);
         } else {
