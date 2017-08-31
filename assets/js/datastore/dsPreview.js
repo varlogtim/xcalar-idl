@@ -176,6 +176,7 @@ window.DSPreview = (function($, DSPreview) {
     DSPreview.show = function(options, fromFormCard, dsId, restore) {
         xcHelper.enableSubmit($form.find(".confirm"));
         DSForm.switchView(DSForm.View.Preview);
+        resetPreviewFile();
 
         if (dsId != null) {
             $previewCard.data("dsid", dsId);
@@ -1744,6 +1745,14 @@ window.DSPreview = (function($, DSPreview) {
              // when it's a single file or udf
             $ele.addClass("xc-hidden");
         }
+    }
+
+    function resetPreviewFile() {
+        var $file = $("#preview-file");
+        var $ele = $("#preview-changeFile").add($file);
+        $file.find(".text").text();
+        $ele.addClass("xc-hidden");
+
     }
 
     function previewFileSelect(isParseMode) {
