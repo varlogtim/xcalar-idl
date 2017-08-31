@@ -421,7 +421,6 @@ SuccessTStr = {
     "Profile": "Profile Image Saved Successfully!",
     "BundleUploaded": "Bundle generated! Uploaded: ",
     "FlushLog": "Flush Log Successfully!",
-    "LoginConfigSaved": "Login configuration saved successfully!"
 };
 
 FailTStr = {
@@ -431,7 +430,6 @@ FailTStr = {
     "RmDF": "Remove Batch Dataflow Failed.",
     "RmSched": "Delete Schedule Failed.!",
     "FlushLog": "Flush Log Failed!",
-    "LoginConfigSaveFailed": "Login configuration was not saved successfully."
 };
 
 ThriftTStr = {
@@ -1123,3 +1121,11 @@ SQLTStr = {
     "TextAlign": "Text Align",
     "UnHideWS": "Unhide Worksheet"
 };
+
+LoginConfigTStr = {
+    "LoginConfigSavedSuccess": "Login configuration saved successfully!",
+    "PasswordMismatch": "The passwords entered did not match!",
+    "EmptyPasswordError": "You need to enter a password!",
+    "EmptyUsernameError": "You need to enter a username!",
+    "EmptyEmailError": "You need to enter a email!"
+}

@@ -14,26 +14,40 @@
   </section>
   <div class="modalMain">
     <!-- Default Admin User -->
-    <section class="modalMainSection xc-hidden">
-      <div class="loginSectionToggle optionSet formRow">
+    <section class="modalMainSection">
+      <div class="loginSectionToggle optionSet formRow" id="loginConfigEnableDefaultAdmin">
         <div class="label"><%= dicts.loginConfig.enableDefaultAdminUser %></div>
         <div class="optionSelector">
-          <div id="loginConfigEnableDefaultAdminUserBox" class="checkbox">
+          <div class="checkbox">
             <i class="icon xi-ckbox-empty fa-13"></i>
             <i class="icon xi-ckbox-selected fa-13"></i>
           </div>
         </div>
       </div>
       <div class="loginSectionBody optionSet xc-hidden">
-        <div class="formBiRow">
-          <div class="label"><%= dicts.loginConfig.adminUsername %></div>
-          <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
-          <input name="fake" id="loginConfigAdminUsername" type="text" class="xc-input" autocomplete="off">
+        <div class="clearfix">
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adminUsername %></div>
+            <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
+            <input name="fake" id="loginConfigAdminUsername" type="text" class="xc-input" autocomplete="off">
+          </div>
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adminEmail %></div>
+            <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
+            <input name="fake" id="loginConfigAdminEmail" type="text" class="xc-input" autocomplete="off">
+          </div>
         </div>
-        <div class="formBiRow">
-          <div class="label"><%= dicts.loginConfig.adminPassword %></div>
-          <input type="password" name="fake" style="display:none"> <!-- Stop autofill -->
-          <input name="fake" id="loginConfigAdminPassword" type="password" class="xc-input" autocomplete="off">
+        <div class="clearfix">
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adminPassword %></div>
+            <input type="password" name="fake" style="display:none"> <!-- Stop autofill -->
+            <input name="fake" id="loginConfigAdminPassword" type="password" class="xc-input" autocomplete="off">
+          </div>
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adminConfirmPassword %></div>
+            <input type="password" name="fake" style="display:none"> <!-- Stop autofill -->
+            <input name="fake" id="loginConfigAdminConfirmPassword" type="password" class="xc-input" autocomplete="off">
+          </div>
         </div>
       </div>
     </section>

@@ -1318,8 +1318,14 @@ window.xcManager = (function(xcManager, $) {
         var waadAuthContext;
         var waadConfig = getWaadConfigFromLocalStorage()
         if (waadConfig != null) {
-            waadAuthContext = new AuthenticationContext(waadConfig);
-            waadUser = waadAuthContext.getCachedUser();
+            try {
+                waadAuthContext = new AuthenticationContext(waadConfig);
+                waadUser = waadAuthContext.getCachedUser();
+            } catch (error) {
+                // Not via WAAD authentication.
+                // XXX We really should be remembering if we logged in via
+                // WAAD instead of relying on this hack
+            }
         }
 
         if (waadUser != null) {

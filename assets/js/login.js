@@ -159,7 +159,12 @@ $(document).ready(function() {
                 return;
             }
 
-            waadAuthContext = new AuthenticationContext(waadConfig);
+            try {
+                waadAuthContext = new AuthenticationContext(waadConfig);
+            } catch (error) {
+                deferred.reject();
+                return;
+            }
 
             // Check For & Handle Redirect From AAD After Login
             var isCallback = waadAuthContext.isCallback(window.location.hash);

@@ -377,7 +377,6 @@ SuccessTStr = {
 "Profile": '数据剖面图图片保存成功！',
 "BundleUploaded": '支持捆绑包生成成功，上载：',
 "FlushLog": "强制刷新日志成功!",
-"LoginConfigSaved": "登录系统设置保存成功！"
 };
 
 FailTStr = {
@@ -387,7 +386,6 @@ FailTStr = {
 "RmDF": "删除批量数据流失败。",
 "RmSched": "删除调度器失败",
 "FlushLog": "强制刷新日志失败!",
-"LoginConfigSaveFailed": "保存登录系统设置失败。"
 };
 
 ThriftTStr = {
@@ -966,3 +964,12 @@ SQLTStr = {
     "TextAlign": "Text Align",
     "UnHideWS": "Unhide Worksheet"
 };
+
+LoginConfigTStr = {
+    "LoginConfigSavedSuccess": "登录系统设置保存成功！",
+    "PasswordMismatch": "您输入的密码不匹配",
+    "EmptyPasswordError": "您需要输入密码",
+    "EmptyUsernameError": "您需要输入用户名",
+    "EmptyEmailError": "您需要输入邮件"
+}
+

@@ -925,17 +925,33 @@ window.Admin = (function($, Admin) {
 
     function showLoginConfig() {
         var waadConfig = null;
+        var defaultAdminConfig = null;
+
         $('#loginConfig').addClass('unavailable');
         getWaadConfig(hostname)
-        .then(function(waadConfigIn) {
-            waadConfig = waadConfigIn;
-        })
-        .fail(function(error) {
-            console.log("showLoginConfig: " + error);
-        })
+        .then(
+            function(waadConfigIn) {
+                waadConfig = waadConfigIn;
+                return (getDefaultAdminConfig(hostname));
+            },
+
+            function(error) {
+                console.log("getWaadConfig failed: " + error);
+                return (getDefaultAdminConfig(hostname));
+            }
+        )
+        .then(
+            function(defaultAdminConfigIn) {
+                defaultAdminConfig = defaultAdminConfigIn;
+            },
+
+            function(error) {
+                console.log("getDefaultAdminConfig failed: " + error);
+            }
+        )
         .always(function() {
             $('#loginConfig').removeClass('unavailable');
-            LoginConfigModal.show(waadConfig);
+            LoginConfigModal.show(waadConfig, defaultAdminConfig);
         });
     }
 
