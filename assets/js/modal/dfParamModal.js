@@ -204,22 +204,35 @@ window.DFParamModal = (function($, DFParamModal){
             if ($('#dfViz').hasClass("hasUnexpectedNode")) {
                 return showUnexpectedNodeTip(this);
             }
-            $(this).closest(".radioButtonGroup").find(".radioButton").removeClass("active");
-            $(this).closest(".radioButton").addClass("active");
-            var $input = $dfParamModal.find(".innerEditableRow.filename input");
-            if ($(this).closest(".radioButton").data("option") === "default") {
+            var $radioButton = $(this).closest(".radioButton");
+            $radioButton.siblings().removeClass("active");
+            $radioButton.addClass("active");
+
+            var $section = $dfParamModal.find(".innerEditableRow.filename");
+            var $input = $section.find("input");
+            var $label = $section.find(".static");
+
+            // toggle the input val between two options
+            var currentVal = $input.val();
+            $input.val($input.data("cache") || "");
+            $input.data("cache", currentVal);
+
+            if ($radioButton.data("option") === "default") {
                 $dfParamModal.removeClass("import").addClass("default");
-                $dfParamModal.find(".innerEditableRow.filename .static").text("Export As:");
+                $label.text(DFTStr.ExportTo + ":");
                 checkInputForParam($input);
             } else {
                 $dfParamModal.removeClass("default").addClass("import");
-                $dfParamModal.find(".innerEditableRow.filename .static").text("Export As Table:");
-                var retName = $dfParamModal.data("df");
-                var df = DF.getDataflow(retName);
-                if (df && df.activeSession) {
-                    $($input).val(df.newTableName);
-                } else {
-                    $($input).val("");
+                $label.text(DFTStr.ExportToTable + ":");
+
+                if (!$input.hasClass("touched")) {
+                    // first time set the naame table
+                    var retName = $dfParamModal.data("df");
+                    var df = DF.getDataflow(retName);
+                    if (df && df.activeSession) {
+                        $input.val(df.newTableName);
+                    }
+                    $input.addClass("touched");
                 }
                 $paramLists.empty();
                 fillUpRows();
@@ -1647,7 +1660,9 @@ window.DFParamModal = (function($, DFParamModal){
                     '<span class="delim"><</span>' +
                     '<span class="value">' + paramName + '</span>' +
                     '<span class="delim">></span>' +
-                    '<i class="icon xi-close deleteParam"></i>' +
+                    (systemParams.hasOwnProperty(paramName)
+                    ? ""
+                    : '<i class="icon xi-close deleteParam"></i>') +
                 '</div>';
 
         return (html);

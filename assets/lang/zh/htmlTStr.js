@@ -664,7 +664,6 @@ module.exports = {
         "Users": "用户",
         "VIEWOUTPUT": "查看结果",
         "VirtualNode": "虚拟节点",
-        "XDB": "DB",
         "commitInterval": "自动保存间隔",
         "enableFile": "启用协议file://",
         "graphInterval": "监控图刷新间隔",
@@ -677,13 +676,13 @@ module.exports = {
         "AdminAlertInstruc": "以管理员身份向其他用户发送提醒消息",
         "AlertMessageTitle": "提醒消息：",
         "LogFlush": "强制刷新日志",
-        "RestartRequired": "Restart Required",
-        "FreeRAM": "Free Ram",
-        "FreeXDB": "Free XDB",
-        "OtherUsers": "Other Users",
-        "YourTables": "Your Tables",
-        "Datasets": "Datasets",
-        "AmountUsed": "Amount Used"
+        "RestartRequired": "需要重启",
+        "FreeRAM": "未使用的内存",
+        "FreeXcalarMem": "未使用的Xcalar内存",
+        "OtherUsers": "其他用户",
+        "YourTables": "表",
+        "Datasets": "数据集",
+        "AmountUsed": "使用"
     },
     "opsView": {
         "AddAnotherColumn": "添加另一列",

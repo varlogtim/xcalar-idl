@@ -3076,6 +3076,12 @@ html.microsoft {
             font-size: 13px;
             float: left;
 
+            &:hover {
+                .deleteParam {
+                    display: block;
+                }
+            }
+
             .icon {
                 display: inline-block;
                 float: left;
@@ -3090,11 +3096,12 @@ html.microsoft {
             .deleteParam {
                 font-size: 10px;
                 opacity: 0.7;
-                marigin-right: 0px;
-                position: absolute;
-                margin-right: 0px;
-                margin-top: -2px;
-                border-radius: 50%;
+                .position(absolute, @top: -1px, @right: -3px);
+                display: none;
+
+                &:hover {
+                    opacity: 1;
+                }
             }
         }
         &.currParams {

@@ -259,7 +259,7 @@ window.Alert = (function($, Alert){
             $alertContent.find(".text").empty().text(msg);
         }
 
-        if (options.detail != null) {
+        if (options.detail != null && options.detail !== "") {
             $modal.addClass("hasDetail");
             $("#alertDetail").removeClass("expand")
                              .find(".detailContent").text(options.detail);

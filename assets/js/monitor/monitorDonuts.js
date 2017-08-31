@@ -175,7 +175,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
         if (index === memIndex) {
             var tooltips = [MonitorTStr.Datasets, MonitorTStr.OtherUsers,
-                            MonitorTStr.YourTables, MonitorTStr.FreeXDB,
+                            MonitorTStr.YourTables, MonitorTStr.FreeXcalarMem,
                             MonitorTStr.FreeRAM];
             $("#donut" + memIndex).find("svg").first().find("path").each(function(i) {
                 xcTooltip.add($(this), {
