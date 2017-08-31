@@ -455,7 +455,29 @@ function getCurrentTime() {
                        ':' + minute + ':' + second + '"';
     return formatedDate;
 }
-
+// Below part is only for unit test
+function fakeGetNodeId() {
+    getNodeId = function() {
+        return jQuery.Deferred().resolve(0).promise();
+    }
+}
+function fakeGetPath() {
+    getPath = function(filePath, fileName) {
+        var logPath = "Invalid Path";
+        var stat = {stat:"success"};
+        return jQuery.Deferred().resolve(logPath, stat).promise();
+    }
+}
+if (process.env.NODE_ENV === "test") {
+    exports.isLogNumValid = isLogNumValid;
+    exports.getPath = getPath;
+    exports.readFileStat = readFileStat;
+    exports.getCurrentTime = getCurrentTime;
+    exports.sinceLastMonitorLog = sinceLastMonitorLog;
+    // Fake functions
+    exports.fakeGetNodeId = fakeGetNodeId;
+    exports.fakeGetPath = fakeGetPath;
+}
 exports.tailLog = tailLog;
 exports.monitorLog = monitorLog;
 // exports.tailJournal = tailJournal;
