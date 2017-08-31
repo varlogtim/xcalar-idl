@@ -489,8 +489,7 @@ window.TblManager = (function($, TblManager) {
 
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
-            $('#rowInput').val("").data("val", "");
-            $('#numPages').empty();
+            RowScroller.empty();
         }
 
         if ($('.xcTableWrap:not(.inActive').length === 0) {
@@ -1772,9 +1771,8 @@ window.TblManager = (function($, TblManager) {
         $("#xcTableWrap-" + tableId).remove();
         Dag.destruct(tableId);
         if (gActiveTableId === tableId) {
-            $('#rowInput').val("").data("val", "");
-            $('#numPages').empty();
             gActiveTableId = null;
+            RowScroller.empty();
         }
     }
 
