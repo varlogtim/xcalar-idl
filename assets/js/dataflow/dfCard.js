@@ -664,7 +664,8 @@ window.DFCard = (function($, DFCard) {
             selector = '.export .dagTableIcon';
         } else {
             selector = '.dataStoreIcon, ' +
-                        '.export .dagTableIcon, .actionType.filter';
+                        '.export .dagTableIcon, ' +
+                        '.actionType.filter .actionTypeWrap';
         }
 
         var $icons = $dfCard.find(selector).filter(function() {

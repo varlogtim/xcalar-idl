@@ -184,7 +184,7 @@ window.Dag = (function($, Dag) {
         });
 
         $dagOpText.text(newTableName);
-        var $actionTypes = $dagOpText.closest('.actionType');
+        var $actionTypes = $dagOpText.closest('.actionTypeWrap');
         $actionTypes.each(function() {
             var tooltipText = $(this).attr('data-original-title');
             var newText;
@@ -295,12 +295,19 @@ window.Dag = (function($, Dag) {
         var dagNodeId = $dagOperation.data("id");
         nodeIdMap[dagNodeId].value.display.tagCollapsed = !expand;
 
+        var $groupTables = $dagOperation.parent();
+        // if (expand) {
+        //     $groupTables.addClass("tagDiscovered tagGlowing");
+        // }
+
         for (var i = 0; i < group.length; i++) {
             var nodeId = group[i];
-            var $dagTable = $dagWrap.find('.dagTable[data-index="' + nodeId +
-                                            '"]').parent();
+            var $dagTable = Dag.getTableIcon($dagWrap, nodeId).parent();
+
             if (expand) {
-                $dagTable.removeClass("tagHidden");
+                $groupTables = $groupTables.add($dagTable);
+                $dagTable.removeClass("tagHidden")
+                         .addClass("tagDiscovered tagGlowing");
             } else {
                 $dagTable.addClass("tagHidden");
             }
@@ -321,6 +328,21 @@ window.Dag = (function($, Dag) {
 
         xcTooltip.hideAll();
         xcMenu.close();
+        if (expand) {
+            var discoverTimeout;
+            var glowTimeout = setTimeout(function() {
+                $groupTables.removeClass("tagGlowing");
+                discoverTimeout = setTimeout(function() {
+                    $groupTables.removeClass("tagDiscovered");
+                }, 4000);
+                $dagOperation.data('discoverTimeout', discoverTimeout);
+            }, 2000);
+
+            clearTimeout($dagOperation.data("glowTimeout"));
+            clearTimeout($dagOperation.data("discoverTimeout"));
+            $dagOperation.data("glowTimeout", glowTimeout);
+        }
+
     };
 
     Dag.expandAll = function($dagWrap) {
@@ -340,7 +362,7 @@ window.Dag = (function($, Dag) {
         var $expandWrap;
 
         // move the tables
-        expandShiftTables(tree, $dagImage);
+        expandShiftTables(tree, $dagWrap);
 
         // move the group outlines and icons
         for (var i in groups) {
@@ -405,7 +427,7 @@ window.Dag = (function($, Dag) {
         var $dagTableWrap;
         var tooltip;
 
-        collapseShiftTables(tree, $dagImage);
+        collapseShiftTables(tree, $dagWrap);
 
         $dagImage.find('.dagTable.dataStore').parent().removeClass('hidden');
 
@@ -436,8 +458,8 @@ window.Dag = (function($, Dag) {
             for (var j = 0; j < group.length; j++) {
                 node = group[j];
                 node.value.display.isHidden = true;
-                $dagTableWrap = $dagImage.find('.dagTable[data-index="' +
-                                                node.value.dagNodeId + '"]').parent();
+                $dagTableWrap = Dag.getTableIcon($dagWrap, node.value.dagNodeId)
+                                    .parent();
                 $dagTableWrap.addClass('hidden');
             }
         }
@@ -802,6 +824,29 @@ window.Dag = (function($, Dag) {
             Dag.toggleTaggedGroup($dagWrap, $(this));
         });
 
+        $dagWrap.on("mouseenter", ".groupTagIcon", function(event) {
+            var $icon = $(this);
+            if ($icon.closest(".actionType").hasClass("collapsed")) {
+                return;
+            }
+            var tagId = $icon.data("tagid");
+            var dagInfo = $icon.closest(".dagWrap").data("allDagInfo");
+            var tagGroup = dagInfo.tagGroups[tagId].group;
+            for (var i = 0; i < tagGroup.length; i++) {
+                var nodeId = tagGroup[i];
+                var $dagTable = Dag.getTableIcon($dagWrap, nodeId);
+                $dagTable.closest(".dagTableWrap").addClass("tagHighlighted");
+            }
+        });
+
+        $dagWrap.on("mouseleave", ".groupTagIcon", function() {
+            var $icon = $(this);
+            if ($icon.closest(".actionType").hasClass("collapsed")) {
+                return;
+            }
+            $dagWrap.find(".tagHighlighted").removeClass("tagHighlighted");
+        });
+
         dagScrollListeners($dagWrap.find('.dagImageWrap'));
     };
 
@@ -839,6 +884,10 @@ window.Dag = (function($, Dag) {
             }
         }
         return false;
+    };
+
+    Dag.getTableIcon = function($dagWrap, nodeId) {
+        return $dagWrap.find('.dagTable[data-index=' + nodeId + ']');
     };
 
     function prettify(loadInfo) {
@@ -1071,8 +1120,7 @@ window.Dag = (function($, Dag) {
         var $collapsedTables = $();
         for (var i = 0; i < numGroupNodes; i++) {
             $collapsedTables = $collapsedTables.add(
-                        $dagImage.find('.dagTable[data-index=' +
-                                        group[i].value.dagNodeId + ']')
+                         Dag.getTableIcon($dagWrap, group[i].value.dagNodeId)
                         .parent());
         }
 
@@ -1123,8 +1171,7 @@ window.Dag = (function($, Dag) {
         storedInfo.seen[node.value.dagNodeId] = true;
         var groupIndex = group.indexOf(node);
         var nodeX = node.value.display.x;
-        var $dagTable = $dagWrap.find('.dagTable[data-index=' +
-                                        node.value.dagNodeId + ']');
+        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
         if (groupIndex > -1) {
             $dagTable.parent().removeClass('hidden').addClass('discovered glowing');
             node.value.display.isHidden = false;
@@ -1258,8 +1305,8 @@ window.Dag = (function($, Dag) {
         storedInfo.seen[node.value.dagNodeId] = true;
         var groupIndex = group.indexOf(node);
         var nodeX = node.value.display.x;
-        var $dagTable = $dagWrap.find('.dagTable[data-index=' +
-                                        node.value.dagNodeId + ']');
+        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
+
         // node is part of the collapsing group
         if (groupIndex > -1) {
             $dagTable.parent().addClass('hidden');
@@ -1323,27 +1370,28 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    function expandShiftTables(node, $dagImage) {
+    function expandShiftTables(node, $dagWrap) {
         node.value.display.isHidden = false;
         if (node.value.display.x !==
             node.value.display.expandedDepth * Dag.tableWidth) {
             node.value.display.depth = node.value.display.expandedDepth;
             node.value.display.x = node.value.display.expandedDepth *
                                    Dag.tableWidth;
-            $dagImage.find('.dagTable[data-index="' + node.value.dagNodeId + '"]')
-                     .parent()
-                     .css('right', node.value.display.x).removeClass('hidden');
+            Dag.getTableIcon($dagWrap, node.value.dagNodeId).parent()
+                                         .css('right', node.value.display.x)
+                                         .removeClass('hidden');
 
         }
         for (var i = 0; i < node.parents.length; i++) {
-            expandShiftTables(node.parents[i], $dagImage);
+            expandShiftTables(node.parents[i], $dagWrap);
         }
     }
 
-    function collapseShiftTables(node, $dagImage) {
+    function collapseShiftTables(node, $dagWrap) {
         var newX;
         if (node.value.display.hiddenLeader) {
-            newX = (node.value.display.condensedDepth + Dag.condenseOffset) * Dag.tableWidth;
+            newX = (node.value.display.condensedDepth + Dag.condenseOffset) *
+                                                            Dag.tableWidth;
         } else {
             newX = node.value.display.condensedDepth * Dag.tableWidth;
         }
@@ -1351,12 +1399,12 @@ window.Dag = (function($, Dag) {
         if (node.value.display.x !== newX) {
             node.value.display.x = newX;
             node.value.display.depth = node.value.display.condensedDepth;
-            $dagTableWrap = $dagImage.find('.dagTable[data-index="' +
-                                        node.value.dagNodeId + '"]').parent();
+            $dagTableWrap = Dag.getTableIcon($dagWrap, node.value.dagNodeId)
+                                .parent();
             $dagTableWrap.css('right', node.value.display.x);
         }
         for (var i = 0; i < node.parents.length; i++) {
-            collapseShiftTables(node.parents[i], $dagImage);
+            collapseShiftTables(node.parents[i], $dagWrap);
         }
     }
 
@@ -1623,8 +1671,8 @@ window.Dag = (function($, Dag) {
                 }
             } else if (parentNode.value.numParents) {
                 // gTable doesn't exist so we move on to its parent
-                var $dagTable = $dagWrap.find('.dagTable[data-index="' +
-                                            parentNode.value.dagNodeId + '"]');
+                var $dagTable = Dag.getTableIcon($dagWrap,
+                                                 parentNode.value.dagNodeId);
                 if ($dagTable.hasClass('Dropped')) {
                     var newOrigNode = origNode;
                     if (prevFound) {
@@ -1710,8 +1758,7 @@ window.Dag = (function($, Dag) {
     }
 
     function highlightColumnSource($dagWrap, node) {
-        var $dagTable = $dagWrap.find('.dagTable[data-index="' +
-                                        node.value.dagNodeId + '"]');
+        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
         $dagTable.addClass("highlighted");
 
         // XX showing column name on each table is disabled

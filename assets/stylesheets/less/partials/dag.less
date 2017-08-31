@@ -267,6 +267,7 @@ html.firefox, html.microsoft {
     top: 7px;
     background-color: @color-white;
     .rounded(3px);
+    .transition(box-shadow 0.3s);
 }
 
 .dagTable {
@@ -313,6 +314,7 @@ html.firefox, html.microsoft {
     border: 1px solid @color-bg-pinkish-grey;
     .rounded;
     overflow: hidden;
+    .transition(0.3s box-shadow);
 }
 
 .dagWrap {
@@ -398,7 +400,6 @@ html.firefox, html.microsoft {
             .icon {
                 font-size: 22px;
             }
-
         }
     }
 
@@ -449,6 +450,30 @@ html.firefox, html.microsoft {
         }
         &.tagHidden {
             display: none;
+        }
+
+        &.tagHighlighted {
+            .dagTableIcon, .dataStoreIcon {
+                box-shadow: 0px 0px 8px 2px @color-dag-glowing;
+            }
+            .actionTypeWrap {
+                box-shadow: 0px 0px 6px 1px @color-dag-glowing;
+            }
+        }
+         &.tagDiscovered {
+            .actionTypeWrap, .dagTableIcon, .dataStoreIcon {
+                .transition(all 3s);
+                box-shadow: none;
+            }
+
+            &.tagGlowing {
+                .dagTableIcon, .dataStoreIcon {
+                    box-shadow: 0px 0px 15px 4px @color-dag-glowing;
+                }
+                .actionTypeWrap {
+                    box-shadow: 0px 0px 8px 2px @color-dag-glowing;
+                }
+            }
         }
     }
 
@@ -697,15 +722,33 @@ html.firefox, html.microsoft {
 
         &.tagHeader {
             cursor: pointer;
-            &.collapsed {
-                .actionTypeWrap {
-                    border: 1px solid @color-bg-select-blue;
+
+            .actionTypeWrap {
+                border: 1px solid @color-bg-select-blue;
+            }
+
+            .groupTagIcon {
+                .size(18px, 18px);
+                .position(absolute, @top: -3px, @left: 109px);
+                line-height: 18px;
+                font-size: 12px;
+                color: @color-bg-select-blue;
+                z-index: 1; // so ::after is in front of .actionType
+
+                // provides a white background for the ellipsis dots
+                &::after {
+                    .size(10px, 10px);
+                    .position(absolute, @top: 4px, @left: 5px);
+                    content: "";
+                    background: @color-white;
+                    border-radius: 100%;
+                    z-index: -1;
                 }
             }
 
             &.expanded {
-                .actionTypeWrap {
-                    border: 1px solid @color-bg-pinkish-grey;
+                .groupTagIcon {
+                    .transform(rotate(90deg));
                 }
             }
         }
@@ -755,6 +798,7 @@ html.firefox, html.microsoft {
                 height: 38px;
                 width: 106px;
                 .paramMixin;
+                pointer-events: none;
             }
             &.hasParam:after {
                 .hasParamMixin;

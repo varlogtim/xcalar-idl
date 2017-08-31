@@ -168,7 +168,7 @@ window.DagDraw = (function($, DagDraw) {
         var width = storedInfo.depth * Dag.tableWidth - 150;
         var height = yCoors.length * dagTableOuterHeight + 30;
         repositionAllNodes($dagWrap, dagInfo.nodeIdMap, storedInfo);
-        refreshNodeInfo($dagWrap, node);
+        refreshNodeInfo($dagWrap, node, dagInfo);
         // another option is to redrawDagNodee
         // dagImageHtml += drawDagNode(tree, storedInfo, {});
 
@@ -272,11 +272,17 @@ window.DagDraw = (function($, DagDraw) {
                     var $expandIcon = $(this);
                     var top = Math.floor($expandIcon.position().top);
                     var left = Math.floor($expandIcon.position().left);
-                    drawExpandIconToCanvas($expandIcon, ctx, top, left, expandImage);
+                    drawExpandIconToCanvas(ctx, top, left, expandImage);
                 });
 
                 PromiseHelper.when.apply(window, promises)
                 .then(function() {
+                    $dagWrap.find('.tagHeader.collapsed').each(function() {
+                        var $wrap = $(this).parent();
+                        var top = Math.floor($wrap.position().top) + 50;
+                        var left = Math.floor($wrap.position().left) +  148;
+                        ctx.drawImage(expandImage, left, top, 12, 12);
+                    });
                     $(canvas).hide();
                     deferred.resolve();
                 })
@@ -539,7 +545,7 @@ window.DagDraw = (function($, DagDraw) {
         return (deferred.promise());
     }
 
-    function drawExpandIconToCanvas($expandIcon, ctx, top, left, img) {
+    function drawExpandIconToCanvas(ctx, top, left, img) {
         ctx.drawImage(img, left + 35, top + 53);
         ctx.beginPath();
         ctx.lineWidth = strokeWidth;
@@ -849,8 +855,9 @@ window.DagDraw = (function($, DagDraw) {
     // adjust positions of nodes so that descendents will never be to the left
     // of their ancestors
     function adjustNodePositions(node, storedInfo) {
-        for (var i = 0; i < node.parents.length; i++) {
-            var parent = node.parents[i];
+        var parents = node.getVisibleParents();
+        for (var i = 0; i < parents.length; i++) {
+            var parent = parents[i];
             if (!node.value.display.isHidden &&
                 !node.value.display.isHiddenTag &&
                 node.value.display.depth > parent.value.display.depth - 1) {
@@ -973,7 +980,7 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function refreshNodeInfo($dagWrap, node) {
+    function refreshNodeInfo($dagWrap, node, generalInfo) {
         var $operation = $dagWrap.find('.actionType[data-id="' +
                                             node.value.dagNodeId + '"]');
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
@@ -986,18 +993,34 @@ window.DagDraw = (function($, DagDraw) {
             operation = "Create Table";
         }
         var classes = "actionType dropdownBox tagHeader " + info.opType;
+        var tagIconTip;
+        var tagId = xcHelper.getTableId(node.value.tag);
+        var tagName = getOpFromTag(node.value.tag);
+        var tagGroup = generalInfo.tagGroups[tagId].group;
+        var numInGroup = tagGroup.length + 1; // include self + 1
         if (node.value.display.tagCollapsed) {
             classes += " collapsed ";
+            tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
+                            {number: numInGroup,
+                             op: tagName[0].toUpperCase() + tagName.slice(1)
+                            });
         } else {
             classes += " expanded ";
+            tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
+                            {number: numInGroup,
+                             op: tagName[0].toUpperCase() + tagName.slice(1)
+                            });
         }
+
         $operation.attr("class", classes);
         $operation.data("type", operation);
         $operation.data("info", info.text);
         $operation.data("column", info.column);
-        xcTooltip.changeText($operation, info.tooltip, true);
+        xcTooltip.changeText($operation.find(".actionTypeWrap"),
+                             info.tooltip, true);
+        xcTooltip.changeText($operation.find(".groupTagIcon"), tagIconTip, true);
         $operation.find(".dagIcon").attr("class", "dagIcon " + operation + " " +
-                                        info.type)
+                                        info.tooltip)
                                 .html(getIconHtml(info.opType, info));
         $operation.find(".typeTitle").text(operation);
         $operation.find(".opInfoText").text(info.opText);
@@ -1095,7 +1118,7 @@ window.DagDraw = (function($, DagDraw) {
             outerClasses += "tagHidden tagged ";
         }
 
-        var dagOpHtml = getDagOperationHtml(node, dagInfo);
+        var dagOpHtml = getDagOperationHtml(node, dagInfo, storedInfo);
         html += '<div class="dagTableWrap clearfix ' + outerClasses + '" ' +
                         'style="top:' + top + 'px;' +
                         'right: ' + right + 'px;">' +
@@ -1196,7 +1219,7 @@ window.DagDraw = (function($, DagDraw) {
         return (html);
     }
 
-    function getDagOperationHtml(node, info) {
+    function getDagOperationHtml(node, info, generalInfo) {
         var originHTML = "";
         var numParents = node.value.numParents;
         if (!numParents) {
@@ -1207,6 +1230,7 @@ window.DagDraw = (function($, DagDraw) {
         var operation = info.operation;
         var classes = "";
         var dataAttr = "";
+        var groupTagIcon = "";
 
         var resultTableName = node.value.name;
         if (info.type === "sort") {
@@ -1216,12 +1240,29 @@ window.DagDraw = (function($, DagDraw) {
         }
         if (node.value.display.tagHeader) {
             classes += " tagHeader ";
+            var tagIconTip;
+            var tagId = xcHelper.getTableId(node.value.tag);
+            var tagName = getOpFromTag(node.value.tag);
+            var tagGroup = generalInfo.tagGroups[tagId].group;
+            var numInGroup = tagGroup.length + 1; // include self + 1
             if (node.value.display.tagCollapsed) {
                 classes += " collapsed ";
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
+                            {number: numInGroup,
+                             op: tagName[0].toUpperCase() + tagName.slice(1)
+                            });
             } else {
                 classes += " expanded ";
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
+                            {number: numInGroup,
+                             op: tagName[0].toUpperCase() + tagName.slice(1)
+                            });
             }
             dataAttr += " data-tag='" + node.value.tags[0] + "' ";
+            groupTagIcon += '<i data-tagid="' + tagId + '" data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" data-original-title="' + tagIconTip + '" ' +
+                            'class="icon xi-ellipsis-h-circle groupTagIcon">' +
+                            '</i>';
         }
 
         classes += " " + info.opType + " ";
@@ -1232,10 +1273,11 @@ window.DagDraw = (function($, DagDraw) {
                     'data-info="' + info.text + '" ' +
                     'data-column="' + info.column + '" ' +
                     'data-table="' + resultTableName + '"' +
-                    'data-id="' + node.value.dagNodeId + '" ' +
-                    'data-toggle="tooltip" data-placement="top" ' +
-                    'data-container="body" title="' + info.tooltip + '">' +
-                        '<div class="actionTypeWrap" >' +
+                    'data-id="' + node.value.dagNodeId + '">' +
+                        '<div class="actionTypeWrap" ' +
+                        'data-toggle="tooltip" data-placement="top" ' +
+                        'data-container="body" data-original-title="' +
+                        info.tooltip + '"' +'>' +
                             '<div class="dagIcon ' + operation + ' ' +
                                 info.type + '">' +
                                 getIconHtml(info.opType, info) +
@@ -1243,6 +1285,7 @@ window.DagDraw = (function($, DagDraw) {
                             '<span class="typeTitle">' + operation + '</span>' +
                             '<span class="opInfoText">' + opText + '</span>' +
                         '</div>' +
+                        groupTagIcon +
                     '</div>';
 
         return (originHTML);

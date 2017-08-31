@@ -2459,10 +2459,10 @@
                 } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
                 {
                     if (noParams) {
-                        $tableNode.find(".parentsTitle")
+                        $tableNode.find(".opInfoText")
                                   .text($tableNode.data("column"));
                     } else {
-                        $tableNode.find(".parentsTitle")
+                        $tableNode.find(".opInfoText")
                                   .text("<Parameterized>");
                     }
                 }

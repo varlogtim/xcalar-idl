@@ -19,7 +19,7 @@ window.DagFunction = (function($, DagFunction) {
                     if (parentNode.value.display.isHiddenTag ||
                         parentNode.value.display.isHidden) {
                         search(parentNode);
-                    } else {
+                    } else {// may produce duplicate parents on purpose
                         parents.push(parentNode);
                     }
                 }
@@ -48,7 +48,8 @@ window.DagFunction = (function($, DagFunction) {
         }
     };
 
-    var TreeValue = function(api, struct, dagNodeId, inputName, name, numParents, tag, state) {
+    var TreeValue = function(api, struct, dagNodeId, inputName, name,
+                             numParents, tag, state) {
         this.api = api;
         this.struct = struct;
         this.dagNodeId = dagNodeId;
@@ -288,7 +289,6 @@ window.DagFunction = (function($, DagFunction) {
     // used after a transaction is complete and before constructing dag
     // finalTableId is optional
     DagFunction.tagNodes = function(txId, finalTableId) {
-        return PromiseHelper.resolve(); // temporarily disabling tagging
         var deferred = jQuery.Deferred();
         var tables = QueryManager.getAllDstTables(txId, true);
 

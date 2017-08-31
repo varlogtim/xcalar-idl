@@ -616,8 +616,7 @@ window.DagPanel = (function($, DagPanel) {
         var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
         for (var i = 0; i < node.parents.length; i++) {
             var parentId = node.parents[i].value.dagNodeId;
-            var $parentTable = $dagWrap.find('.dagTable[data-index="' +
-                                                parentId + '"]');
+            var $parentTable = Dag.getTableIcon($dagWrap, parentId);
             if ($parentTable.hasClass(droppedClass)) {
                 return true;
             }
