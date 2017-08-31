@@ -7,6 +7,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     var timer;
     var supportLeft;
     var socket;
+    var connected = false;
     // A flag which controls whether to display this modal or not
     var flag = true;
     // Initial setup
@@ -23,13 +24,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         userName = XcSupport.getFullUsername();
         addModalEvents();
-        // Consider reading url from config files later
-        var url = "ec2-52-37-245-88.us-west-2.compute.amazonaws.com:12124";
-        var options = {
-            "reconnectionAttempts": 50
-        };
-        socket = io.connect(url, options);
-        addSocketEvent();
     };
     // Three steps for user to connect to liveHelp:
     // 1. Request a connection
@@ -45,20 +39,27 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         }
     };
     // Request a connection to the support
-    function requestConn(autoSend, supportLeft) {
-        if (!autoSend) {
-            // If this request is caused by a disconnection from support, show instruction
+    function requestConn(autoResend, supportLeft) {
+        if (!autoResend) {
+            // If the client is not connected to socket yet
+            if(!connected) {
+                // Consider reading url from config files later
+                var url = "ec2-52-37-245-88.us-west-2.compute.amazonaws.com:12124";
+                socket = io.connect(url);
+                addSocketEvent();
+            }
+            // If this connection request is caused by a support disconnected
+            // show instruction
             if (supportLeft) {
                 appendMsg(AlertTStr.SuppLeft, "sysMsg");
             }
             appendMsg(AlertTStr.EmailFunc, "sysMsg");
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
-        if (socket.connected == false) {
-            socket.connect();
+        if(connected) {
+            // Send the request to socket
+            socket.emit("liveHelpConn", userName);
         }
-        // Send the request to socket
-        socket.emit("liveHelpConn", userName);
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
@@ -124,15 +125,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             $modal.find(".userMsg, .supportMsg").each(function(i,e) {
                 content += $(e).text() + "\n";
             })
-            var mailOpts = {
-                from: 'support@xcalar.com',
-                to: dest,
-                subject: 'Support Chat History for ' + fullName,
-                text: content
+            if (content) {
+                var mailOpts = {
+                    from: 'support@xcalar.com',
+                    to: dest,
+                    subject: 'Support Chat History for ' + fullName,
+                    text: content
+                }
+                socket.emit("sendEmail", mailOpts, function() {
+                    appendMsg(AlertTStr.EmailSent, "sysMsg");
+                });
             }
-            socket.emit("sendEmail", mailOpts, function() {
-                appendMsg(AlertTStr.EmailSent, "sysMsg");
-            });
         }
     }
     function addModalEvents() {
@@ -237,7 +240,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function closeModal() {
         // Auto-send email when user leaves
         LiveHelpModal.autoSendEmail();
-        socket.io.disconnect();
+        socket.disconnect();
+        connected = false;
         $modal.find(".reqConn").show();
         $modal.find(".chatMsg").html("");
         clearInput();
@@ -245,6 +249,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         modalHelper.clear();
     }
     function addSocketEvent() {
+        socket.on("connect", function() {
+            connected = true;
+        });
         // For user, simply append message
         socket.on("liveHelpMsg", function(message) {
             appendMsg(message.content, "supportMsg");
