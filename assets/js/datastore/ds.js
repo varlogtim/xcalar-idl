@@ -702,13 +702,14 @@ window.DS = (function ($, DS) {
         .then(function(users) {
             var otherUsers = [];
             users.forEach(function(user) {
-                if (currentUser !== user.userId.userIdName) {
-                    otherUsers.push(currentUser);
+                var name = user.userId.userIdName;
+                if (currentUser !== name) {
+                    otherUsers.push(name);
                 }
             });
             if (otherUsers.length > 0) {
                 var error = xcHelper.replaceMsg(DSTStr.DSUsed, {
-                    "users": addOtherUserDS.join(",")
+                    "users": otherUsers.join(",")
                 });
                 deferred.reject(error);
             } else {
