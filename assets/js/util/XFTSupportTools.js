@@ -49,7 +49,6 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
                 };
                 sendRequest(action, url, content)
                 .then(function(ret) {
-                    console.info(ret);
                     lastReturnSucc = true;
                     if (monitorIntervalId !== undefined) {
                         setLastMonitors(ret.updatedLastMonitorMap);

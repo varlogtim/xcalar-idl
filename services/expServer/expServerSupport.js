@@ -140,21 +140,38 @@ function masterExecuteAction(action, slaveUrl, content, withGivenHost) {
     var deferredOut = jQuery.Deferred();
     function readHosts() {
         var deferred = jQuery.Deferred();
+        var retMsg;
         if (withGivenHost) {
-            deferred.resolve(content.hosts);
+            if (!content || !content.hosts || content.hosts.length === 0) {
+                retMsg = {
+                    "status": httpStatus.NotFound,
+                    "error": "Not hosts can be found on this cluster!"
+                };
+                deferred.reject(retMsg);
+            } else {
+                deferred.resolve(content.hosts);
+            }
         } else {
             var hostFile = process.env.XCE_CONFIG ?
                             process.env.XCE_CONFIG : defaultHostsFile;
             readHostsFromFile(hostFile)
             .then(function(hosts, nodeIds) {
-                deferred.resolve(hosts);
+                if (hosts.length === 0) {
+                    retMsg = {
+                        "status": httpStatus.NotFound,
+                        "error": "Not hosts can be found on this cluster!"
+                    };
+                    deferred.reject(retMsg);
+                } else {
+                    deferred.resolve(hosts);
+                }
             })
             .fail(function(err) {
-                var retMsg = {
+                retMsg = {
                     // No matter what error happens, the master
                     // should return return a 404 uniformly
                     "status": httpStatus.NotFound,
-                    "logs": JSON.stringify(err)
+                    "error": JSON.stringify(err)
                 };
                 deferred.reject(retMsg);
             });

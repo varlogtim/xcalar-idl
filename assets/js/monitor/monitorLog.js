@@ -19,8 +19,16 @@ window.MonitorLog = (function(MonitorLog, $) {
         $logCard.hide();
     };
 
+    MonitorLog.adjustTabNumber = function() {
+        if ($logCard.is(":visible") && $logCard.find(".tab").length > 0) {
+            arrowStatusCheck();
+        }
+    }
 
     function addTabs() {
+        if ($.isEmptyObject(hosts)) {
+            return;
+        }
         var html = "";
         var $tabArea = $logCard.find('.tabArea');
         var keys = Object.keys(hosts);
@@ -45,6 +53,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         if ($tabs.length > 0) {
             focusTab($tabs.eq(0));
         }
+        arrowStatusCheck();
     }
 
     function focusTab($tab) {
@@ -57,6 +66,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function closeTab($tab) {
+        xcTooltip.hideAll();
         if ($tab.hasClass("focus")) {
             if ($tab.next().length !== 0) {
                 focusTab($tab.next());
@@ -68,6 +78,7 @@ window.MonitorLog = (function(MonitorLog, $) {
             }
         }
         deleteTab($tab);
+        arrowStatusCheck();
 
         function deleteTab($tab) {
             var host = $tab.data("original-title");
@@ -93,31 +104,61 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function scrollToRight() {
-        // 1 is the left border width
+        var checkPosition = tabAreaPositionCheck();
+        if (checkPosition.canRight) {
+            $logCard.find(".tabArea").offset({"left": checkPosition.nextRightStart});
+            arrowStatusCheck();
+        }
+    }
+
+    function scrollToLeft() {
+        var checkPosition = tabAreaPositionCheck();
+        if (checkPosition.canLeft) {
+            $logCard.find(".tabArea").offset({"left": checkPosition.nextLeftStart});
+            arrowStatusCheck();
+        }
+    }
+
+    function arrowStatusCheck() {
+        var checkPosition = tabAreaPositionCheck();
+        if (checkPosition.canLeft) {
+            $logCard.find(".leftEnd").removeClass("xc-disabled");
+        } else {
+            $logCard.find(".leftEnd").addClass("xc-disabled");
+        }
+
+        if (checkPosition.canRight) {
+            $logCard.find(".rightEnd").removeClass("xc-disabled");
+        } else {
+            $logCard.find(".rightEnd").addClass("xc-disabled");
+        }
+    }
+
+    function tabAreaPositionCheck() {
+        var res = {};
         var beginPosition = $logCard.find(".leftEnd").offset().left
                             + $logCard.find(".leftEnd").width() + 1;
         var totalLength = $logCard.find(".tab").length * tabLength;
         var visibleLength = $logCard.find(".tabArea").width();
         var pageLength = Math.floor(visibleLength / tabLength) * tabLength;
         var currentPosition = $logCard.find(".tabArea").offset().left;
-        // 1 is the right border width
         if (Math.abs(currentPosition - beginPosition) + pageLength < totalLength) {
-            $logCard.find(".tabArea").offset({"left": currentPosition - pageLength});
-        }
-    }
-
-    function scrollToLeft() {
-        var beginPosition = $logCard.find(".leftEnd").offset().left
-                            + $logCard.find(".leftEnd").width() + 1;
-        var visibleLength = $logCard.find(".tabArea").width();
-        var pageLength = Math.floor(visibleLength / tabLength) * tabLength;
-        var leftMost = beginPosition;
-        var currentPosition = $logCard.find(".tabArea").offset().left;
-        if (currentPosition + pageLength > leftMost) {
-            $logCard.find(".tabArea").offset({"left": leftMost});
+            res.canRight = true;
+            res.nextRightStart = currentPosition - pageLength;
         } else {
-            $logCard.find(".tabArea").offset({"left": currentPosition + pageLength});
+            res.canRight = false;
         }
+        if (currentPosition !== beginPosition) {
+            res.canLeft = true;
+            if (currentPosition + pageLength >= beginPosition) {
+                res.nextLeftStart = beginPosition;
+            } else {
+                res.nextLeftStart = currentPosition + pageLength;
+            }
+        } else {
+            res.canLeft = false;
+        }
+        return res;
     }
 
     function addListeners() {
@@ -127,19 +168,10 @@ window.MonitorLog = (function(MonitorLog, $) {
                 getRecentLogs();
             }
         });
+
         $logCard.find(".getRecentLogs").click(function() {
             getRecentLogs();
         });
-
-        // $logCard.find(".removeSessGroup").find(".xc-input")
-        // .on("keydown", function(event) {
-        //     if (event.which === keyCode.Enter) {
-        //         removeSessionFiles();
-        //     }
-        // });
-        // $logCard.find(".removeSessionFiles").click(function() {
-        //     removeSessionFiles();
-        // });
 
         $logCard.on("click", ".streamBtns .btn", function() {
             if ($(this).parent().hasClass("xc-disabled")) {
@@ -268,45 +300,6 @@ window.MonitorLog = (function(MonitorLog, $) {
         return filePath;
     }
 
-    // function removeSessionFiles() {
-    //     var $inputGroup = $logCard.find(".removeSessGroup");
-    //     var $input = $inputGroup.find(".xc-input");
-    //     var val = $input.val().trim();
-    //     $input.blur();
-
-    //     var isValid = xcHelper.validate([
-    //         {
-    //             "$ele": $input // check if it"s empty
-    //         }
-    //     ]);
-
-    //     if (!isValid) {
-    //         return;
-    //     }
-
-    //     $inputGroup.addClass("xc-disabled");
-
-    //     XFTSupportTools.removeSessionFiles(val)
-    //     .then(function() {
-    //         xcHelper.showSuccess(SuccessTStr.RmSession);
-    //     })
-    //     .fail(function(err) {
-    //         var msg;
-    //         if (err.error.statusText === "error") {
-    //             msg = ErrTStr.Unknown;
-    //         } else {
-    //             msg = err.error.statusText;
-    //         }
-    //         if (!msg) {
-    //             msg = ErrTStr.Unknown;
-    //         }
-    //         Alert.error(MonitorTStr.RemoveSessionFail, msg);
-    //     })
-    //     .always(function() {
-    //         $inputGroup.removeClass("xc-disabled");
-    //     });
-    // }
-
     function startMonitorLog() {
         var $streamBtns = $logCard.find(".streamBtns");
         $("#monitorLogCard .inputSection .xc-input").prop('disabled', true);
@@ -373,13 +366,22 @@ window.MonitorLog = (function(MonitorLog, $) {
             if (hosts[host]) {
                 var result = results[host];
                 if (result.status === 200) {
-                    logs[host] += '<div class="msgRow">' + result.logs + '</div>';
-                } else {
-                    if ((logs[host]).indexOf(result.error) === -1) {
-                        logs[host] += '<div class="msgRow error">' + result.error +
-                                      '</div>';
-                        hasError[host] = true;
+                    if (result.logs) {
+                        logs[host] += '<div class="msgRow">' + result.logs + '</div>';
                     }
+                } else {
+                    if (result.error) {
+                        if ((logs[host]).indexOf(result.error) === -1) {
+                            logs[host] += '<div class="msgRow error">' + result.error +
+                                          '</div>';
+                        }
+                    } else {
+                        if ((logs[host]).indexOf(MonitorTStr.GetLogsFail) === -1) {
+                            logs[host] += '<div class="msgRow error">' + MonitorTStr.GetLogsFail +
+                                          '</div>';
+                        }
+                    }
+                    hasError[host] = true;
                     $tab = getTabByHostName(host);
                     if ($tab) {
                         $tab.addClass("error");
@@ -393,12 +395,21 @@ window.MonitorLog = (function(MonitorLog, $) {
         var host = $logCard.find(".tab.focus").data("original-title");
         var result = results[host];
         if (result.status === 200) {
-            $logCard.find(".content")
-            .append('<div class="msgRow">' + result.logs + '</div>');
-        } else {
-            if ((logs[host]).indexOf(result.error) === -1) {
+            if (result.logs) {
                 $logCard.find(".content")
-                .append('<div class="msgRow error">' + result.error + '</div>');
+                .append('<div class="msgRow">' + result.logs + '</div>');
+            }
+        } else {
+            if (result.error) {
+                if ((logs[host]).indexOf(result.error) === -1) {
+                    $logCard.find(".content")
+                    .append('<div class="msgRow error">' + result.error + '</div>');
+                }
+            } else {
+                if ((logs[host]).indexOf(MonitorTStr.GetLogsFail) === -1) {
+                    $logCard.find(".content")
+                    .append('<div class="msgRow error">' + MonitorTStr.GetLogsFail + '</div>');
+                }
             }
         }
     }

@@ -883,10 +883,10 @@ window.xcManager = (function(xcManager, $) {
                     xcHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
+                MonitorLog.adjustTabNumber();
             }
             resizing = false;
         }
-
 
         // using this to keep window from scrolling on dragdrop
         $(window).scroll(function() {

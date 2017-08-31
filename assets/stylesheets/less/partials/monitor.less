@@ -1588,6 +1588,9 @@
                     color: @color-font-greyish-brown;
                     opacity: 0.5;
                     position: absolute;
+                    .icon {
+                        display: none;
+                    }
                 }
                 &.focus {
                     background-color: @color-white;
@@ -1599,6 +1602,13 @@
                         color: @color-error-border;
                     }
                     opacity: 1.0;
+                }
+                &:hover {
+                    .tabClose {
+                        .icon {
+                            display: block;
+                        }
+                    }
                 }
             }
             .tab {
