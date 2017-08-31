@@ -797,23 +797,6 @@ function XcalarLoad(url, format, datasetName, options, txId) {
     }
 }
 
-function XcalarLockDataset(dsName) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    var deferred = jQuery.Deferred();
-
-    xcalarLockDataset(tHandle, dsName)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarLockDataset", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-}
-
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1067,22 +1050,22 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     return deferred.promise();
 }
 
-// function XcalarLockDataset(dsName) {
-//     if ([null, undefined].indexOf(tHandle) !== -1) {
-//         return PromiseHelper.resolve(null);
-//     }
+function XcalarLockDataset(dsName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
 
-//     var deferred = jQuery.Deferred();
-//     dsName = parseDS(dsName);
-//     xcalarLockDataset(tHandle, dsName)
-//     .then(deferred.resolve)
-//     .fail(function(error) {
-//         var thriftError = thriftLog("XcalarLockDataset", error);
-//         deferred.reject(thriftError);
-//     });
+    var deferred = jQuery.Deferred();
+    dsName = parseDS(dsName);
+    xcalarLockDataset(tHandle, dsName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarLockDataset", error);
+        deferred.reject(thriftError);
+    });
 
-//     return deferred.promise();
-// }
+    return deferred.promise();
+}
 
 function XcalarUnlockDataset(dsName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
