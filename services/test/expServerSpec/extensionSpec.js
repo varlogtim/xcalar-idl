@@ -349,16 +349,4 @@ describe('ExpServer Extension Test', function() {
         });
     });
 
-    it('Publish router shoud work', function(done) {
-        extension.fakeUploadContent();
-        postRequest("POST", "/extension/publish", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        });
-    });
-
 });

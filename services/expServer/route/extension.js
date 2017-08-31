@@ -459,7 +459,7 @@ router.get("/extension/listPackage", function(req, res) {
     .then(function(data) {
         return res.send(data);
     })
-    .fail(function() {
+    .fail(function(error) {
         return res.send({"status": Status.Error, "error": error});
     });
 });
@@ -469,7 +469,13 @@ Will fix in the next version.
 */
 router.post("/extension/publish", function(req, res) {
     xcConsole.log("Uploading content");
-    upload.uploadContent(req, res);
+    upload.uploadContent(req, res)
+    .then(function(data) {
+        res.send({"status": Status.Ok, "data": data});
+    })
+    .fail(function(error) {
+        res.send({"status": Status.Error, "error": error});
+    });
 });
 // End of marketplace calls
 
@@ -519,11 +525,6 @@ function fakeFetchAllExtensions() {
         return jQuery.Deferred().resolve({"status": Status.Ok}).promise();
     };
 }
-function fakeUploadContent() {
-    upload.uploadContent = function(req, res) {
-        res.send({"status": Status.Ok});
-    };
-}
 if (process.env.NODE_ENV === "test") {
     exports.writeTarGz = writeTarGz;
     exports.writeTarGzWithCleanup = writeTarGzWithCleanup;
@@ -544,7 +545,6 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeProcessItem = fakeProcessItem;
     exports.fakeGetExtensionFiles = fakeGetExtensionFiles;
     exports.fakeFetchAllExtensions = fakeFetchAllExtensions;
-    exports.fakeUploadContent = fakeUploadContent;
 }
 // Export router
 exports.router = router;

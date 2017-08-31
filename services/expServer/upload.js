@@ -52,6 +52,7 @@ function writeFilePromise(filePath, data) {
 }
 
 function uploadContent(req, res) {
+    var deferred = jQuery.Deferred();
     var awsTmp = require('aws-sdk');
     var s3Tmp = new awsTmp.S3({
         "accessKeyId": "AKIAIMI35A6P3BFJTDEQ",
@@ -61,18 +62,18 @@ function uploadContent(req, res) {
     var tmpPrefix = "/tmp/app" + getRandomInt(0, 1000) + "/";
     deleteFolderRecursive(tmpPrefix);
     xcConsole.log("Deleted local " + tmpPrefix);
+    var name = req.body.name;
+    var version = req.body.version;
+    var jsFileText = req.body.jsFileText;
+    var jsFilePath = req.body.jsFilePath;
+    var jsFileName = name + '.ext.js';
+    var jsFileObj = req.body.jsFileObj;
+    var pyFileText = req.body.pyFileText;
+    var pyFilePath = req.body.pyFilePath;
+    var pyFileName = name + '.ext.py';
+    var pyFileObj = req.body.pyFileObj;
     create(tmpPrefix)
     .then(function() {
-        var name = req.body.name;
-        var version = req.body.version;
-        var jsFileText = req.body.jsFileText;
-        var jsFilePath = req.body.jsFilePath;
-        var jsFileName = name + '.ext.js';
-        var jsFileObj = req.body.jsFileObj;
-        var pyFileText = req.body.pyFileText;
-        var pyFilePath = req.body.pyFilePath;
-        var pyFileName = name + '.ext.py';
-        var pyFileObj = req.body.pyFileObj;
 
         var jsPromise;
         var pyPromise;
@@ -92,20 +93,21 @@ function uploadContent(req, res) {
             pyPromise = execPromise(copyPyFile);
         }
 
-        jQuery.when(jsPromise, pyPromise)
-        .then(function() {
-            return gzipAndUpload(name, version, tmpPrefix, s3Tmp);
-        })
-        .then(function() {
-            return uploadMeta(req, res, s3Tmp);
-        })
-        .then(function(data) {
-            res.send({"Data": data, "status": Status.Ok});
-        })
-        .fail(function(errObj) {
-            res.send(errObj);
-        });
+        return jQuery.when(jsPromise, pyPromise);
+    })
+    .then(function() {
+        return gzipAndUpload(name, version, tmpPrefix, s3Tmp);
+    })
+    .then(function() {
+        return uploadMeta(req, res, s3Tmp);
+    })
+    .then(function(data) {
+        deferred.resolve(data);
+    })
+    .fail(function(error) {
+        deferred.reject(error);
     });
+    return deferred.promise();
 }
 
 function gzipAndUpload(name, version, tmpPrefix, s3Tmp) {
@@ -239,6 +241,46 @@ function upload(file, content, s3Tmp) {
         }
     });
     return deferred.promise();
+}
+// Below part is only for unit test
+function fakeUpload() {
+    upload = function(file, content, s3Tmp) {
+        return jQuery.Deferred().resolve().promise();
+    }
+}
+function fakeCreate() {
+    create = function() {
+        return jQuery.Deferred().resolve().promise();
+    }
+}
+function fakeGzipAndUpload() {
+    gzipAndUpload = function() {
+        return jQuery.Deferred().resolve().promise();
+    }
+}
+function fakeUploadMeta() {
+    uploadMeta = function() {
+        return jQuery.Deferred().resolve("upload success").promise();
+    }
+}
+function fakeUploadContent() {
+    this.uploadContent = function(req, res) {
+        return jQuery.Deferred().resolve("success").promise();
+    };
+}
+if (process.env.NODE_ENV === "test") {
+    exports.getRandomInt = getRandomInt;
+    exports.execPromise = execPromise;
+    exports.writeFilePromise = writeFilePromise;
+    exports.upload = upload;
+    exports.create = create;
+    exports.gzipAndUpload = gzipAndUpload;
+    // Fake functions
+    exports.fakeUpload = fakeUpload;
+    exports.fakeCreate = fakeCreate;
+    exports.fakeGzipAndUpload = fakeGzipAndUpload;
+    exports.fakeUploadMeta = fakeUploadMeta;
+    exports.fakeUploadContent = fakeUploadContent;
 }
 
 exports.uploadContent = uploadContent;
