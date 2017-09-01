@@ -100,7 +100,6 @@ window.XVM = (function(XVM) {
                 versionMatch = false;
                 console.error(error);
             }
-
             deferred.resolve(versionMatch);
         })
         .fail(deferred.reject);
@@ -203,6 +202,9 @@ window.XVM = (function(XVM) {
                 deferred.resolve();
             }
         }, function(err) {
+            if (!passed) {
+                return;
+            }
             licenseKey = "Unlicensed";
             licenseMode = XcalarMode.Unlic;
             showInvalidLicenseAlert(err.error);
