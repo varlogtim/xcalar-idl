@@ -2180,7 +2180,7 @@ window.xcHelper = (function($, xcHelper) {
             // error case
             return url;
         }
-        var displayURL = FileProtocol.mapR + "redacted:redatced" +
+        var displayURL = FileProtocol.mapR + "redacted:redacted" +
                          url.substring(index);
         return displayURL;
     };

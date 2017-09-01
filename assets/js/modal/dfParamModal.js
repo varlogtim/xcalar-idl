@@ -1283,7 +1283,7 @@ window.DFParamModal = (function($, DFParamModal){
                 var defaultPath = defaultParam[0];
                 var index = defaultPath.indexOf("@");
                 if (index > 0) {
-                    // encodePreifx is "mapr://redacted:redatced"
+                    // encodePreifx is "mapr://redacted:redacted"
                     var prefix = defaultPath.substring(0, index + 1);
                     var encodePrefix = xcHelper.encodeDisplayURL(prefix);
                     if (url.startsWith(encodePrefix)) {
