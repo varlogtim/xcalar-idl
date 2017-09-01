@@ -55,17 +55,21 @@ require("jsdom").env("", function(err, window) {
         });
         out.stderr.on('data', function(err) {
             xcConsole.log("Failure: Get OS information " + err);
-            deferred.reject(output);
+            deferred.reject("Fail to get OS info");
         });
         out.on('close', function(code) {
             if (code) {
                 xcConsole.log("Failure: Get OS information " + code);
-                deferred.reject(output);
+                deferred.reject("Fail to get OS info");
             } else {
                 deferred.resolve(output);
             }
         });
         return deferred.promise();
+    }
+
+    if (process.env.NODE_ENV === "test") {
+        exports.getOperatingSystem = getOperatingSystem;
     }
 
     getOperatingSystem()
