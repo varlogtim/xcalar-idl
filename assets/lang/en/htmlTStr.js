@@ -457,7 +457,7 @@ module.exports = {
         "AlertMessageTitle": "Alert Message:",
         "LogFlush": "Log Flush",
         "RestartRequired": "Restart Required",
-        "FreeRAM": "Free Ram",
+        "FreeRAM": "Free RAM",
         "FreeXcalarMem": "Free Xcalar Memory",
         "OtherUsers": "Other Users",
         "YourTables": "Your Tables",

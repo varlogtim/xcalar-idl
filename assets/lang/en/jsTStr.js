@@ -706,7 +706,7 @@ MonitorTStr = {
     'YouAreUsing': 'You are using Xcalar as ',
     "Restart": "Restart Xcalar",
     "RestartMsg": "Please restart Xcalar to apply the change",
-    "FreeRAM": "Free Ram",
+    "FreeRAM": "Free RAM",
     "FreeXcalarMem": "Free Xcalar Memory",
     "OtherUsers": "Other Users",
     "YourTables": "Your Tables",

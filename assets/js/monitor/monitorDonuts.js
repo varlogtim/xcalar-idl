@@ -185,15 +185,21 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             });
         }
 
+        var used;
+        if (index === memIndex) {
+            used = stats.xdbUsed;
+        } else {
+            used = stats.used;
+        }
 
-        updateDonutMidText("#donut" + index + " .userSize .num", stats.used,
+        updateDonutMidText("#donut" + index + " .userSize .num", used,
                             duration, index);
 
         if (index !== cpuIndex) {
             updateDonutMidText('#donut' + index + ' .totalSize .num', stats.total,
                                 duration, index);
             updateDonutMidText("#donut" + index + " .pctSize .num",
-                                Math.round(stats.used * 100 / stats.total),
+                                Math.round(used * 100 / stats.total),
                                             duration, index, true);
         }
 
@@ -265,9 +271,16 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             }
         } else {
             var sizeOption = {base2: true};
+            var usedRaw;
+            if (index === memIndex) {
+                usedRaw = stats.xdbUsed;
+            } else {
+                usedRaw = stats.used;
+            }
+
             var sumTotal = xcHelper.sizeTranslator(stats.total, true, null,
                                                     sizeOption);
-            var sumUsed = xcHelper.sizeTranslator(stats.used, true, null,
+            var sumUsed = xcHelper.sizeTranslator(usedRaw, true, null,
                                                     sizeOption);
             var separator = "";
 
@@ -284,11 +297,17 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             }
 
             for (var i = 0; i < numNodes; i++) {
+                var usedNum;
+                if (index === memIndex) {
+                    usedNum = stats.nodes[i].xdbUsed;
+                } else {
+                    usedNum = stats.nodes[i].used;
+                }
                 var total = xcHelper.sizeTranslator(stats.nodes[i].total, true, null,
                                                         sizeOption);
-                var used = xcHelper.sizeTranslator(stats.nodes[i].used, true, null,
-                                                        sizeOption);
-                var pct = Math.round(stats.nodes[i].used / max * 100);
+                var used = xcHelper.sizeTranslator(usedNum, true, null,
+                                                    sizeOption);
+                var pct = Math.round(usedNum / max * 100);
                 var bars = getPctBarHtml(pct);
 
                 listHTML += '<li>' + bars +
