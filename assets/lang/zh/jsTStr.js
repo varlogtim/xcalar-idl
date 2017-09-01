@@ -125,7 +125,7 @@ TooltipTStr = {
 'ShowGroupTables': 'Click to reveal the <number> operations involved in the <op> operation',
 'HideGroupTables': 'Click to hide the <number> operations involved in the <op> operation',
 'LowMemInTable': '警告！集群内存不足。单击此按钮删除表。',
-'LowMemInDS': '警告！集群内存不足。单击此按钮删除数据集。',
+'LowMemInDS': '警告！集群内存不足。请删除无用的数据集。',
 'LowMemByOthers': '集群中的其他用户已经超过分配给表的最佳内存。请联系管理员。',
 'SavedOn': '最近保存时间',
 };
