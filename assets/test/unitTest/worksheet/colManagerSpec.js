@@ -796,7 +796,7 @@ describe('ColManager Test', function() {
                 var newCol = newTable.getCol(colNum);
                 expect(newCol).not.to.be.null;
                 expect(newCol.getType()).to.equal(ColumnType.string);
-                expect(newCol.getFrontColName()).to.equal("votes_funny_string");
+                expect(newCol.getFrontColName()).to.equal("votes_funny");
 
                 done();
             })

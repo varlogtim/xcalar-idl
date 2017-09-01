@@ -1585,8 +1585,8 @@ describe('OperationsView Test', function() {
                 expect($catLis).to.have.length(2);
                 expect($catLis.text()).to.equal("arithmeticconversion");
 
-                expect($funcLis).to.have.length(3);
-                expect($funcLis.text()).to.equal("addipAddrToIntmacAddrToInt");
+                expect($funcLis).to.have.length(7);
+                expect($funcLis.text()).to.equal("adddateAddDaydateAddIntervaldateAddMonthdateAddYearipAddrToIntmacAddrToInt");
 
                 $filterInput.val('').trigger(fakeEvent.input);
                 expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
@@ -1596,7 +1596,7 @@ describe('OperationsView Test', function() {
                 $funcLis = $functionsMenu.find('li:visible').filter(function() {
                     return ($(this).text().indexOf(':') === -1);
                 });
-                expect($funcLis.text()).to.equal("addipAddrToIntmacAddrToInt");
+                expect($funcLis.text()).to.equal("adddateAddDaydateAddIntervaldateAddMonthdateAddYearipAddrToIntmacAddrToInt");
 
                 $filterInput.val('sub').trigger(fakeEvent.input);
                 $funcLis = $functionsMenu.find('li:visible').filter(function() {

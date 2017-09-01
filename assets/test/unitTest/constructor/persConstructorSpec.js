@@ -2929,9 +2929,9 @@ describe("Persistent Constructor Test", function() {
             sched = new SchedObj(options);
         });
 
-        it("Should have 8 attributes", function() {
+        it("Should have 14 attributes", function() {
             expect(sched).to.be.an.instanceof(SchedObj);
-            expect(Object.keys(sched).length).to.equal(12);
+            expect(Object.keys(sched).length).to.equal(14);
 
             expect(sched).to.have.property("version")
             .and.to.equal(currentVersion);

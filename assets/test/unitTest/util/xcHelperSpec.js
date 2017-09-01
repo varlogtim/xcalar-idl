@@ -1216,7 +1216,7 @@ describe("xcHelper Test", function() {
         // case 8
         $input = $('<input type="text" value="a">');
         // set cursor to end
-        $input.focus().val("a");
+        $input.focus().val("a").caret(1);
         xcHelper.insertText($input, "b", {append: true});
         expect($input.val()).to.be.equal("a, b");
 

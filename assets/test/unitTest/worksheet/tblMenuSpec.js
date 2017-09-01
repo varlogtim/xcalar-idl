@@ -1594,7 +1594,10 @@ describe('TableMenu Test', function() {
                 if (cellText === "FNF") {
                     fltStr = 'not(exists(' + prefix + gPrefixSign + '))' ;
                 } else {
-                    fltStr = 'eq(' + prefix + gPrefixSign + 'mixVal, ' + JSON.stringify(cellText) + ')'
+                    if (cellText !== "true" && cellText !== "false") {
+                        cellText = JSON.stringify(cellText)
+                    }
+                    fltStr = 'eq(' + prefix + gPrefixSign + 'mixVal, ' + cellText  + ')'
                 }
                 expect(options.filterString).to.equal(fltStr);
                 expect(options.operator).to.equal("Filter");
