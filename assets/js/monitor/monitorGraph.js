@@ -489,7 +489,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         $('#memYAxis').find(".memYAxisWrap")
                         .append('<span class="unit">0 (' + unit +
                                 ')</span>')
-                        .append('<span class="type"><span>Xcalar Memory' +
+                        .append('<span class="type"><span>Memory' +
                                 '</span> / <span>Swap</span></span>');
     }
 

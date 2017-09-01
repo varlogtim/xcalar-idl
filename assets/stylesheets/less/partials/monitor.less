@@ -778,12 +778,10 @@
                             fill: @color-arc-1;
                         }
                         &:nth-child(4) {
-                            fill: #cccccc;
+                            fill: @color-bg-pinkish-grey2;
                         }
                         &:nth-child(5) {
                             fill: transparent;
-                            // fill: red;
-                            // .transform(scale(0.9))
                         }
                     }
                 }
@@ -824,14 +822,14 @@
                 li {
                     height: 16px;
                     white-space: nowrap;
-                    &:hover {
+                    &:hover, &.hover {
                         font-weight: bold;
                     }
                     &:nth-child(1) .key {
                         background-color: @color-bg-graph-gray;
                     }
                     &:nth-child(2) .key {
-                        background-color: #cccccc;
+                        background-color: @color-bg-pinkish-grey2;
                     }
                     &:nth-child(3) .key {
                         background-color: @color-arc-3;

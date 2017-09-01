@@ -78,6 +78,18 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             $monitorPanel.find(".ramDonut").find("path").attr("class", "");
             $monitorPanel.find(".ramDonut").find(".donutInfo").removeClass("hidden");
         });
+
+        $monitorPanel.find(".ramDonut").on("mouseenter", ".thick path", function() {
+            var $path = $(this);
+            var index = $path.index();
+            index = numMemItems - 1 - index;
+            $monitorPanel.find(".ramDonut").find(".legend li").eq(index)
+            .addClass("hover");
+        });
+        $monitorPanel.find(".ramDonut").on("mouseleave", ".thick path", function() {
+            $monitorPanel.find(".ramDonut").find(".legend li")
+                                            .removeClass("hover");
+        });
     };
 
     MonitorDonuts.update = function(allStats) {
@@ -99,7 +111,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         var svg;
 
         for (var i = 0; i < numDonuts; i++) {
-            svg = makeSvg("#donut" + i, diameter, radius);
+            svg = makeSvg("#donut" + i, diameter, radius, "thick");
             drawPath(svg, pie, arc, i);
         }
         // gray background donut
@@ -110,14 +122,15 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                     .outerRadius(smallRadius - 6);
 
         for (var i = 0; i < numDonuts; i++) {
-            svg = makeSvg("#donut" + i, diameter, radius);
+            svg = makeSvg("#donut" + i, diameter, radius, "thin");
             drawPath(svg, pie, arc);
         }
 
-        function makeSvg (selector, diam, rad) {
+        function makeSvg (selector, diam, rad, className) {
             var svg = d3.select(selector).append("svg")
                         .attr("width", diam)
                         .attr("height", diam)
+                        .attr("class", className)
                         .append("g")
                         .attr("transform", "translate(" + rad + "," +
                                rad + ") rotate(180, 0,0)");

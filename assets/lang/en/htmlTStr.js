@@ -457,11 +457,11 @@ module.exports = {
         "AlertMessageTitle": "Alert Message:",
         "LogFlush": "Log Flush",
         "RestartRequired": "Restart Required",
-        "FreeRAM": "Free RAM",
-        "FreeXcalarMem": "Free Xcalar Memory",
-        "OtherUsers": "Other Users",
+        "FreeRAM": "Total Available Memory",
+        "FreeXcalarMem": "Reserved for Xcalar",
+        "OtherUsers": "Other Users' Tables",
         "YourTables": "Your Tables",
-        "Datasets": "Datasets",
+        "Datasets": "Shared Datasets",
         "AmountUsed": "Amount Used"
     },
 
