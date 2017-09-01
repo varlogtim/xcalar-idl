@@ -4482,7 +4482,7 @@ html.microsoft {
         div {
             max-width: 100%;
             word-wrap: break-word;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             line-height: 15px;
         }
     }
@@ -4492,7 +4492,7 @@ html.microsoft {
         background:#F2F2F2;
         border-radius:3px;
         float: left;
-        margin-left: 4%;
+        margin-left: 15px;
         max-width: 67%;
 
         &:before {
@@ -4526,7 +4526,7 @@ html.microsoft {
         background:#DDEAF2;
         border-radius:3px;
         float: right;
-        margin-right: 4%;
+        margin-right: 15px;
         max-width: 67%;
 
         &:before {
@@ -4562,13 +4562,11 @@ html.microsoft {
         max-width: 80%;
         margin: 0 auto;
         margin-bottom: 20px;
-        
+        clear: both;
+
         p {
             font-style: italic;
         }
-    }
-    .clear {
-        clear:both;
     }
     span {
         font-size: 13px;
@@ -4626,7 +4624,31 @@ html.microsoft {
         margin-top: 3%;
         font-size: 11px;
     }
+    .emailError {
+        color: red;
+        font-size: 11px;
+    }
     a {
         color: blue;
+    }
+    .userMsgSender {
+        text-align: right;
+        margin-right: 20px;
+        margin-bottom: 3px;
+        clear: both;
+        p {
+            color: grey;
+            font-weight: bold;
+        }
+    }
+    .supportMsgSender {
+        text-align: left;
+        margin-left: 20px;
+        margin-bottom: 3px;
+        clear: both;
+        p {
+            color: grey;
+            font-weight: bold;
+        }
     }
 }

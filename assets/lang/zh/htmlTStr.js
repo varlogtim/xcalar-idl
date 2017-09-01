@@ -963,6 +963,7 @@ module.exports = {
         "Email": "邮箱:",
         "SendEmail": "\"发送邮件\"",
         "TypeMsg": "\"请在此输入消息，键入回车发送消息\"",
-        "EmailInfo": "此邮箱地址将用于接受消息记录的备份"
+        "EmailInfo": "此邮箱地址将用于接受消息记录的备份",
+        "EmailError": "请输入正确的邮箱地址"
     }
 }

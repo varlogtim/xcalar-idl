@@ -1037,6 +1037,7 @@ module.exports = {
         "Email": "Email:",
         "SendEmail": "\"Send Email\"",
         "TypeMsg": "\"Type message here and press enter to send\"",
-        "EmailInfo": "This email address will be used to receive copy of chat messages"
+        "EmailInfo": "This email address will be used to receive copy of chat messages",
+        "EmailError": "Invalid email address"
     }
 };

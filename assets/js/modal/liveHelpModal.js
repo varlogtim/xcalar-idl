@@ -8,6 +8,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     var supportLeft;
     var socket;
     var connected = false;
+    var supportEmail = "support@xcalar.com";
     // A flag which controls whether to display this modal or not
     var flag = true;
     // Initial setup
@@ -22,9 +23,19 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             "noCenter": true,
             "noEnter": true
         });
-        userName = XcSupport.getUser();
+        userName = XcSupport.getUser().split("@")[0];
         addModalEvents();
     };
+    // Only for Beta to force the modal to be shown, also give it an email to
+    // customize auto-sending emails
+    LiveHelpModal.forceShow = function(customizedEmail) {
+        $("#userMenu").find(".liveHelp").show();
+        if (customizedEmail && isValidEmail(customizedEmail)) {
+            supportEmail = customizedEmail;
+        } else {
+            LiveHelpModal.autoSendEmail = function() {}
+        }
+    }
     // Three steps for user to connect to liveHelp:
     // 1. Request a connection
     // 2. Wait to be served by one of the supports
@@ -38,11 +49,16 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             // If reqConn UI is displayed, hide all other UIs
             if ($modal.find(".reqConn").is(":visible")) {
                 $modal.find(".chatBox").hide();
+                $modal.find(".emailInfo").show();
+                $modal.find(".emailError").hide();
                 // Auto-filling username and email
                 $modal.find(".name").val(userName);
-                var autoFillEmail = XcSupport.getFullUsername();
+                var autoFillEmail = XcSupport.getUser();
                 if (isValidEmail(autoFillEmail)) {
                     $modal.find(".email").val(autoFillEmail);
+                }
+                if (infoComplete()) {
+                    $modal.find(".reqConnBtn").removeClass("btn-disabled");
                 }
             }
         }
@@ -94,15 +110,20 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function submitForm() {
         var message = {
             "room": userName,
-            "content": userName + ": " + $modal.find(".sendMsg").val()
+            "content": $modal.find(".sendMsg").val(),
+            "sender": fullName
         };
         socket.emit("liveHelpMsg", message);
-        appendMsg(message.content, "userMsg");
+        appendMsg(message.content, "userMsg", fullName);
         clearInput();
     }
     // Update the chat messages in chat box
-    function appendMsg(content, type) {
-        var row = "<div class='" + type + "'></div><div class='clear'></div>";
+    function appendMsg(content, type, sender) {
+        var row = "<div class='" + type + "'></div>";
+        if (type != "sysMsg") {
+            content = xcHelper.escapeHTMLSpecialChar(content);
+            row = "<div class='" + type + "Sender'><p>" + sender + "</p></div>" + row;
+        }
         var $content = $modal.find(".chatMsg");
         var scrollHeight = $content[0].scrollHeight;
         $modal.find(".chatMsg").append(row);
@@ -147,7 +168,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         fullName = $modal.find(".name").val();
         email = $modal.find(".email").val();
         if (!isValidEmail(email)) {
-            $modal.find(".emailInfo").html("Invalid email address");
+            $modal.find(".emailInfo").hide();
+            $modal.find(".emailError").show();
             return;
         }
         requestConn();
@@ -279,7 +301,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         // For user, simply append message
         socket.on("liveHelpMsg", function(message) {
-            appendMsg(message.content, "supportMsg");
+            appendMsg(message.content, "supportMsg", message.sender);
         });
         socket.on("readyToChat", function(readyOpts) {
             readyToChat(readyOpts);
@@ -295,7 +317,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     LiveHelpModal.autoSendEmail = function() {
         // Only enable auto-sending email when modal is shown
         if ($modal.is(":visible")) {
-            sendEmailTo("support@xcalar.com");
+            sendEmailTo(supportEmail);
         }
     }
     return (LiveHelpModal);
