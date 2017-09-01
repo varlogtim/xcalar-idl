@@ -1191,7 +1191,9 @@ window.DFParamModal = (function($, DFParamModal){
                 // store meta
                 paramInfo = paramInformation;
                 df.updateParameters(params);
-                DF.deleteActiveSessionOption(retName);
+                if (type === "export") {
+                    DF.deleteActiveSessionOption(retName);
+                }
                 return PromiseHelper.alwaysResolve(df.updateParamMapInUsed());
             })
             .then(function() {
