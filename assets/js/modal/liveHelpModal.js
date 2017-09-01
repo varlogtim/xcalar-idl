@@ -22,7 +22,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             "noCenter": true,
             "noEnter": true
         });
-        userName = XcSupport.getFullUsername();
+        userName = XcSupport.getUser();
         addModalEvents();
     };
     // Three steps for user to connect to liveHelp:
@@ -32,17 +32,26 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
 
     // Everytime click on 'liveHelp' on menu
     LiveHelpModal.show = function() {
-        modalHelper.setup();
-        // If reqConn UI is displayed, hide all other UIs
-        if ($modal.find(".reqConn").is(":visible")) {
-            $modal.find(".chatBox").hide();
+        if (!$modal.is(":visible")) {
+            modalHelper.setup();
+            $modal.find(".xi-fullscreen").hide();
+            // If reqConn UI is displayed, hide all other UIs
+            if ($modal.find(".reqConn").is(":visible")) {
+                $modal.find(".chatBox").hide();
+                // Auto-filling username and email
+                $modal.find(".name").val(userName);
+                var autoFillEmail = XcSupport.getFullUsername();
+                if (isValidEmail(autoFillEmail)) {
+                    $modal.find(".email").val(autoFillEmail);
+                }
+            }
         }
     };
     // Request a connection to the support
     function requestConn(autoResend, supportLeft) {
         if (!autoResend) {
             // If the client is not connected to socket yet
-            if(!connected) {
+            if (!connected) {
                 // Consider reading url from config files later
                 var url = "ec2-52-37-245-88.us-west-2.compute.amazonaws.com:12124";
                 socket = io.connect(url);
@@ -56,7 +65,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             appendMsg(AlertTStr.EmailFunc, "sysMsg");
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
-        if(connected) {
+        if (connected) {
             // Send the request to socket
             socket.emit("liveHelpConn", userName);
         }
@@ -96,14 +105,10 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         var row = "<div class='" + type + "'></div><div class='clear'></div>";
         var $content = $modal.find(".chatMsg");
         var scrollHeight = $content[0].scrollHeight;
-        var curScrollTop = $content.scrollTop();
-        var contentHeight = $content.height();
         $modal.find(".chatMsg").append(row);
         $modal.find(".chatMsg").find("." + type).last()
                 .html("<p class='text '" + type + ">"+content+"</p>");
-        if (curScrollTop + contentHeight + 30 > scrollHeight) {
-            $content.scrollTop($content[0].scrollHeight);
-        }
+        $content.scrollTop($content[0].scrollHeight);
     }
     // Clear all input
     function clearInput() {
@@ -138,31 +143,43 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             }
         }
     }
+    function startChatting() {
+        fullName = $modal.find(".name").val();
+        email = $modal.find(".email").val();
+        if (!isValidEmail(email)) {
+            $modal.find(".emailInfo").html("Invalid email address");
+            return;
+        }
+        requestConn();
+        timer = setInterval(function() {
+            requestConn(true);
+        }, 10000);
+    }
+    function infoComplete() {
+        return ($modal.find(".name").val() && $modal.find(".email").val());
+    }
     function addModalEvents() {
         // Enable requesting connection only when both name and email are given
+        $modal.find(".reqConn input").keypress(function(e) {
+            if (e.which == keyCode.Enter && infoComplete()) {
+                startChatting();
+            }
+        });
         $modal.find(".reqConn input").on("input", function() {
-            if($modal.find(".name").val() && $modal.find(".email").val()) {
+            if (infoComplete()) {
                 $modal.find(".reqConnBtn").removeClass("btn-disabled");
             } else {
                 $modal.find(".reqConnBtn").addClass("btn-disabled");
             }
         });
+
         // Click 'send' button when it is for requesting connection
         $modal.on("click", ".reqConnBtn", function() {
-            fullName = $modal.find(".name").val();
-            email = $modal.find(".email").val();
-            if (!isValidEmail(email)) {
-                $modal.find(".emailInfo").html("Invalid email address");
-                return;
-            }
-            requestConn();
-            timer = setInterval(function() {
-                requestConn(true);
-            }, 10000);
+            startChatting();
         });
         // press enter when input
         $modal.find(".sendMsg").keypress(function(e) {
-            if(e.which == keyCode.Enter && !e.shiftKey && $(this).val()) {
+            if (e.which == keyCode.Enter && !e.shiftKey && $(this).val()) {
                 e.preventDefault();
                 submitForm();
                 resetSendArea();
@@ -215,6 +232,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         width = $modal.parent().width();
         height = $modal.parent().height();
         if ($modal.height() != 36) {
+            $modal.css("min-height","36px");
             $modal.animate({
                 height: 36,
                 width: 425,
@@ -222,10 +240,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 top: height - (10 + 36)
             }, 200, function() {
                 $modal.find(".modalContent").hide();
+                $modal.find(".ui-resizable-handle").hide();
+                $modal.find(".xi-exit-fullscreen").hide();
+                $modal.find(".xi-fullscreen").show();
             });
         } else {
-            setTimeout(function () {
-            }, 500);
+            $modal.css("min-height","300px");
             $modal.animate({
                 height: 536,
                 width: 425,
@@ -233,6 +253,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 top: height - (10 + 536)
             }, 200, function() {
                 $modal.find(".modalContent").show();
+                $modal.find(".ui-resizable-handle").show();
+                $modal.find(".xi-fullscreen").hide();
+                $modal.find(".xi-exit-fullscreen").show();
             });
         }
     }
@@ -240,7 +263,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function closeModal() {
         // Auto-send email when user leaves
         LiveHelpModal.autoSendEmail();
-        socket.disconnect();
+        if (socket) {
+            socket.disconnect();
+        }
         connected = false;
         $modal.find(".reqConn").show();
         $modal.find(".chatMsg").html("");
@@ -269,7 +294,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     }
     LiveHelpModal.autoSendEmail = function() {
         // Only enable auto-sending email when modal is shown
-        if($modal.is(":visible")) {
+        if ($modal.is(":visible")) {
             sendEmailTo("support@xcalar.com");
         }
     }

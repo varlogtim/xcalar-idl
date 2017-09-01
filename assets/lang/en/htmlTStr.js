@@ -1022,6 +1022,9 @@ module.exports = {
         "Instruction": "Welcome! Please enter the information below before " +
                        "we can help you.",
         "Name": "Name:",
-        "Email": "Email:"
+        "Email": "Email:",
+        "SendEmail": "\"Send Email\"",
+        "TypeMsg": "\"Type message here and press enter to send\"",
+        "EmailInfo": "This email address will be used to receive copy of chat messages"
     }
 };

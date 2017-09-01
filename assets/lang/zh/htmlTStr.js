@@ -594,7 +594,8 @@ module.exports = {
         "user": "用户",
         "wb": "工作簿",
         "ws": "工作表",
-        "Logs": "日志"
+        "Logs": "日志",
+        "LiveHelp": "在线帮助"
     },
     "monitor": {
         "AutoRefresh": "自动刷新",
@@ -943,5 +944,14 @@ module.exports = {
             "step8": "请在<b>租用戶 (tenant)</b>中输入您的 Azure Active Directory 租户, 例如 contoso.com"
         }
 
+    },
+    "liveHelp": {
+        "Title": "在线帮助",
+        "Instruction": "欢迎使用! 请您填写以下信息，以便我们可以更好地协助您解决问题",
+        "Name": "用户名:",
+        "Email": "邮箱:",
+        "SendEmail": "\"发送邮件\"",
+        "TypeMsg": "\"请在此输入消息，键入回车发送消息\"",
+        "EmailInfo": "此邮箱地址将用于接受消息记录的备份"
     }
 }

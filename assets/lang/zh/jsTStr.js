@@ -416,7 +416,14 @@ AlertTStr = {
 'UserOverLimit': '登录用户数量超过限制',
 'UserOverLimitMsg': '登录用户数量超过许可证支持的上限，请登出',
 'UnexpectInit': '初始化超时',
-'UnexpectInitMsg': '初始化超时。这可能是由网络延迟或同步初始化出错造成的。请重试或覆盖初始化操作。'
+'UnexpectInitMsg': '初始化超时。这可能是由网络延迟或同步初始化出错造成的。请重试或覆盖初始化操作。',
+'LeaveConMsg': '您即将离开对话，请点击确认 ' +
+               '<a href="#">确认</a>',
+"SuppLeft": "技术支持人员断开链接.",
+"WaitChat": "请稍后，正在为您寻找技术支持人员...",
+"StartChat": "您已成功连接，为您提供服务的是 ",
+"EmailSent": "发送成功！消息记录备份已发送至您的邮箱",
+"EmailFunc": "您可以在任何时候点击左上角的发送按钮，将消息记录的备份发至您的邮箱"
 };
 ErrorMessageTStr = {
 'title': '错误',

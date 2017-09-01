@@ -1,11 +1,13 @@
 <div id="liveHelpModal" class="modalContainer noWinResize">
   <header class="modalHeader">
-    <div class="headerBtn sendEmail">
+    <div class="headerBtn sendEmail"  data-toggle="tooltip" data-placement="top"
+      data-container="body" title=<%= dicts.liveHelp.SendEmail %>>
       <i class="icon xi-alert"></i>
     </div>
     <div class="title"><%= dicts.liveHelp.Title %></div>
     <div class="headerBtn minimize">
       <i class="icon xi-exit-fullscreen"></i>
+      <i class="icon xi-fullscreen"></i>
     </div>
     <div class="headerBtn close">
       <i class="icon xi-close"></i>
@@ -25,14 +27,14 @@
         <input class="xc-input email" type="Email">
       </div>
       <div class="row">
-        <span class="text emailInfo">This email address will be used to receive copy of chat messages</span>
+        <span class="text emailInfo"><%= dicts.liveHelp.EmailInfo %></span>
       </div>
     </div>
     <div class="chatBox">
       <section class="chatMsg">
       </section>
       <div class="sendArea">
-        <textarea class="sendMsg" placeholder="Type message here and press enter to send"></textarea>
+        <textarea class="sendMsg" placeholder=<%= dicts.liveHelp.TypeMsg %>></textarea>
       </div>
     </div>
     <div class="bottom reqConn">
