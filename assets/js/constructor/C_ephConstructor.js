@@ -1054,7 +1054,7 @@ ModalHelper.prototype = {
                 });
             }
         } else {
-            $modal.show();
+            $modal.addClass("noBackground").show();
             deferred.resolve();
         }
 
@@ -1115,6 +1115,7 @@ ModalHelper.prototype = {
         var numModalsOpen = $('.modalContainer:visible:not(#aboutModal)').length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
+        $modal.removeClass("noBackground");
         $modal.find(".focusable").off(".xcModal")
                                  .removeClass("focusable");
         this.enableSubmit();

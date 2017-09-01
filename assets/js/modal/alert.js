@@ -218,7 +218,7 @@ window.Alert = (function($, Alert){
             $modalContainer.css("z-index", 40);
             deferred.resolve();
         } else if ($(".modalContainer:visible:not(#alertModal):" +
-                     "not(#aboutModal)").length > 0) {
+                     "not(.noBackground)").length > 0) {
             // apart from alert modal, other modal is on
             $modal.hide();
             deferred.resolve();
