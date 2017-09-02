@@ -792,12 +792,14 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 var $modal = this._getModal();
                 var $section = $modal.find(".groupbyInfoSection");
                 var $labels = $section.find(".pieLabel");
+                var sectionBound = $section.get(0).getBoundingClientRect();
 
                 var prevRect;
                 var currRect;
                 var prevPos;
                 var currPos;
                 var intersectionLength;
+                var currRectBound;
                 var maxWidth = this._maxLabelWidth($labels) * 2;
                 var i = 0;
                 // method could be cleaner,
@@ -806,19 +808,27 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                     var move;
                     currRect = this;
                     currPos = labelPositions[i];
+                    var ele = d3.select(this);
+                    var padding = 30;
 
                     if (currPos[0] > 0) {
+                        ele.attr("text-anchor", "end");
+                        currRectBound = currRect.getBoundingClientRect();
+                        var maxRightMove = sectionBound.right -
+                                            currRectBound.right - padding;
+                        maxWidth = Math.min(maxWidth, maxRightMove);
                         move = [maxWidth, 0];
                         labelPositions[i][0] += maxWidth;
-                        d3.select(this)
-                            .attr("transform", "translate(" + move + ")")
-                            .attr("text-anchor", "end");
+                        ele.attr("transform", "translate(" + move + ")");
                     } else if (currPos[0] < 0) {
+                        ele.attr("text-anchor", "start");
+                        currRectBound = currRect.getBoundingClientRect();
+                        var maxLeftMove = currRectBound.left -
+                                            sectionBound.left - padding;
+                        maxWidth = Math.min(maxWidth, maxLeftMove);
                         move = [-1 * maxWidth, 0];
                         labelPositions[i][0] -= maxWidth;
-                        d3.select(this)
-                            .attr("transform", "translate(" + move + ")")
-                            .attr("text-anchor", "start");
+                        ele.attr("transform", "translate(" + move + ")");
                     }
                     var groupByBox = $(".groupbyChart").get(0).getBoundingClientRect();
                     if (i > 0) {
