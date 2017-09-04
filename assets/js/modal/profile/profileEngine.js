@@ -6,8 +6,8 @@ window.ProfileEngine = (function(ProfileEngine) {
     var aggKeys;
     var statsKeyMap;
 
-    var profileResultSetId;
-    var totalRows;
+    var profileResultSetId = null;
+    var totalRows = null;
 
     var aggMap = {
         "min": AggrOp.Min,
@@ -175,7 +175,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var totalRowNum = getProfileTableRowNum();
         var profileData = [];
 
-        if (totalRowNum === 0) {
+        if (totalRowNum == null || totalRowNum === 0) {
             return PromiseHelper.resolve(profileData);
         }
 
