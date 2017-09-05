@@ -1526,7 +1526,7 @@ window.DagDraw = (function($, DagDraw) {
                     } else {
                         sampleStr = " (Sample not included)";
                     }
-                    evalStr = value.evalStr;
+                    evalStr = value.evalStrs[0];
                     parenIndex = evalStr.indexOf("(");
                     var type = evalStr.substr(0, parenIndex);
                     info.type = "groupBy" + type;
@@ -1728,7 +1728,7 @@ window.DagDraw = (function($, DagDraw) {
                         if (gbNode.value.struct.includeSrcTableSample) {
                             sampleStr = " (Sample included)";
                         }
-                        evalStr = gbNode.value.struct.evalStr;
+                        evalStr = gbNode.value.struct.evalStrs[0];
                         aggs.push(evalStr);
                     }
                 }

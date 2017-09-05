@@ -1929,15 +1929,15 @@ window.Dag = (function($, Dag) {
                 });
                 break;
             case (XcalarApisT.XcalarApiGroupBy):
-                origColName = xcalarInput.newFieldName;
-                xcalarInput.newFieldName = origColName + "_er";
+                origColName = xcalarInput.newFieldNames[0];
+                xcalarInput.newFieldNames[0] = origColName + "_er";
                 options = {"replaceColumn": true};
                 // XXX This is going to screw up replay
                 sql = {
                     "operation": SQLOps.GroupBy,
                     "tableName": origTableName,
                     "tableId": origTableId,
-                    "newColName": xcalarInput.newFieldName,
+                    "newColName": xcalarInput.newFieldNames[0],
                     "newTableName": newTableName,
                 };
                 txId = Transaction.start({

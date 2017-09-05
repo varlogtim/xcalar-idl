@@ -1805,8 +1805,8 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
     return (deferred.promise());
 };
 
-xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStr,
-                               newFieldName, includeSrcSample, icvMode, newKeyFieldName) {
+xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStrs,
+                               newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
@@ -1818,8 +1818,21 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     workItem.input.groupByInput.srcTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.groupByInput.dstTable.tableName = dstTableName;
     workItem.input.groupByInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.groupByInput.evalStr = groupByEvalStr;
-    workItem.input.groupByInput.newFieldName = newFieldName;
+
+    if (groupByEvalStrs.constructor === Array) {
+        workItem.input.groupByInput.numEvals = groupByEvalStrs.length;
+        workItem.input.groupByInput.evalStrs = groupByEvalStr;
+    } else {
+        workItem.input.groupByInput.numEvals = 1;
+        workItem.input.groupByInput.evalStrs = [groupByEvalStrs];
+    }
+
+    if (newFieldNames.constructor === Array) {
+        workItem.input.groupByInput.newFieldNames = newFieldNames;
+    } else {
+        workItem.input.groupByInput.newFieldNames = [newFieldNames];
+    }
+
     workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
     workItem.input.groupByInput.icvMode = icvMode;
     workItem.input.groupByInput.newKeyFieldName = newKeyFieldName;
@@ -1831,7 +1844,7 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
-                    groupByEvalStr + ", newFieldName = " + newFieldName +
+                    groupByEvalStrs + ", newFieldName = " + newFieldNames +
                     ", icvMode = " + icvMode +
                     ", newKeyFieldName = " + newKeyFieldName + ")");
     }
@@ -1858,19 +1871,19 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
     return (deferred.promise());
 };
 
-xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
-                       newFieldName, includeSrcSample, icvMode, newKeyFieldName) {
+xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStrs,
+                       newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
-                    ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
-                    groupByEvalStr + ", newFieldName = " + newFieldName +
+                    ", dstTableName = " + dstTableName + ", groupByEvalStrs = " +
+                    groupByEvalStrs + ", newFieldNames = " + newFieldNames +
                     ", icvMode = " + icvMode +
                     ", newKeyFieldName = " + newKeyFieldName + ")");
     }
 
     var workItem = xcalarGroupByWorkItem(srcTableName, dstTableName,
-                                         groupByEvalStr, newFieldName,
+                                         groupByEvalStrs, newFieldNames,
                                          includeSrcSample, icvMode, newKeyFieldName);
 
     thriftHandle.client.queueWorkAsync(workItem)
