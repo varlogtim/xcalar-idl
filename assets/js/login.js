@@ -36,6 +36,7 @@ $(document).ready(function() {
         setTimeout(function() {
             $("#loginForm").fadeIn(1000);
             $("#logo").fadeIn(1000);
+            focusOnFirstEmptyInput();
         }, 800);
     } else {
         showSplashScreen();
@@ -199,6 +200,7 @@ $(document).ready(function() {
         setTimeout(function() {
             $("#loginContainer").fadeIn(1000);
             $("#logo").fadeIn(1000);
+            focusOnFirstEmptyInput();
         }, animTime + 800);
     }
 
