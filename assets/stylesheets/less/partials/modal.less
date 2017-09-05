@@ -3735,7 +3735,6 @@ html.microsoft {
 
         .comments {
             padding: 0px;
-            cursor: pointer;
             .text {
                 padding: 7px 0px 7px 14px;
                 float: left;
@@ -3744,6 +3743,7 @@ html.microsoft {
                 .textOverflowOneLine;
             }
             .expand {
+                display: none;
                 cursor: pointer;
                 .size(@width: 16px);
                 text-align: center;
@@ -3752,6 +3752,13 @@ html.microsoft {
                 .transform(rotate(180deg));
                 .icon {
                     .position(relative, @top: -1px);
+                }
+            }
+
+            &.overflow {
+                cursor: pointer;
+                .expand {
+                    display: block;
                 }
             }
         }
@@ -3766,6 +3773,7 @@ html.microsoft {
                     white-space: normal;
                 }
                 .expand {
+                    display: block;
                     .transform(rotate(0deg));
                     .icon {
                         top: 1px;

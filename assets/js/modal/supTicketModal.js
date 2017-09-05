@@ -12,7 +12,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $ticketIdSection = $modal.find(".ticketIDSection");
         $commentSection = $modal.find(".commentSection");
 
-        modalHelper = new ModalHelper($modal);
+        modalHelper = new ModalHelper($modal, {
+            afterResize: function(a, b, c, d, e) {
+                if (!$ticketIdSection.hasClass("closed")) {
+                    showHideCommentExpandIcon();
+                }
+            }
+        });
         $modal.on("click", ".close, .cancel", closeModal);
 
         setupListeners();
@@ -130,6 +136,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
+                    showHideCommentExpandIcon();
                 } else { // New
                     $ticketIdSection.addClass("closed");
                     $modal.find(".genBundleRow").find(".label")
@@ -172,7 +179,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
 
         $ticketIdSection.on("click", ".comments", function(event) {
-            if ($(event.target).closest(".expand").length) {
+            if ($(event.target).closest(".expand").length ||
+                !$(this).closest(".overflow").length) {
                 return;
             }
             var $row = $(this).closest(".innerRow");
@@ -218,6 +226,18 @@ window.SupTicketModal = (function($, SupTicketModal) {
             submitForm(download);
         });
     }
+
+    function showHideCommentExpandIcon() {
+        var width = $ticketIdSection.find(".comments .text").eq(0).outerWidth();
+        var $texts = $ticketIdSection.find(".comments").removeClass("overflow");
+        $ticketIdSection.find(".comments .text").each(function() {
+            var $text = $(this);
+            if ($text[0].scrollWidth > width) {
+                $text.parent().addClass("overflow");
+            }
+        });
+    }
+
 
     function listTickets() {
         var html = "";

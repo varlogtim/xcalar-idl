@@ -881,6 +881,8 @@ function ModalHelper($modal, options) {
      * noEsc: if set true, no event listener on key esc,
      * noEnter: if set true, no event listener on key enter,
      * noBackground: if set true, no darkened modal background
+     * resizeCallback: function called during modal resizing
+     * afterResize: funciton called after modal resizing
      */
     options = options || {};
     this.$modal = $modal;
@@ -921,6 +923,9 @@ ModalHelper.prototype = {
                 if (options.resizeCallback) {
                     options.resizeCallback();
                 }
+                if (options.afterResize) {
+                    options.afterResize();
+                }
             });
 
         }
@@ -935,6 +940,9 @@ ModalHelper.prototype = {
                 self.center();
                 if (options.resizeCallback) {
                     options.resizeCallback();
+                }
+                if (options.afterResize) {
+                    options.afterResize();
                 }
             });
         }
@@ -954,6 +962,7 @@ ModalHelper.prototype = {
                 "minWidth": self.minWidth,
                 "containment": "document",
                 "resize": options.resizeCallback || null,
+                "stop": options.afterResize || null
             });
         }
 
