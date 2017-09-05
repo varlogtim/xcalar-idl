@@ -1003,30 +1003,29 @@ html.edge {
                 }
             }
         }
-    }
-    &.joinState {
-        .dataTable {
-            .joinOn {
-                .position(absolute, @top: -8px, @right: -5px);
-                height: 24px;
-                min-width: 24px;
-                line-height: 18px;
-                color: @color-white;
-                text-align: center;
-                border-radius: 100%;
-                border: 3px solid @color-white;
-                background: @color-bg-select-blue;
-                box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.4);
-                z-index: 3;
-            }
 
-        }
-        .tableLocked {
-            .joinOn {
-                opacity: 0.5;
-            }
+        .formColNum {
+            .position(absolute, @top: -8px, @right: -5px);
+            height: 24px;
+            min-width: 24px;
+            line-height: 18px;
+            color: @color-white;
+            text-align: center;
+            border-radius: 100%;
+            border: 3px solid @color-white;
+            background: @color-bg-select-blue;
+            box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.4);
+            z-index: 3;
         }
     }
+
+    .tableLocked {
+        .formColNum {
+            opacity: 0.5;
+        }
+    }
+
+    // the second step in the join form
     &.joinState2 {
         .dataTable {
             .rowNumHead {

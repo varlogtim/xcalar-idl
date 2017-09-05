@@ -541,7 +541,7 @@ window.JoinView = (function($, JoinView) {
         $(".xcTableWrap").find('.modalHighlighted')
                          .removeClass('modalHighlighted');
         $("#container").removeClass("joinState2");
-        $(".xcTable").find(".joinOn").remove();
+        $(".xcTable").find(".formColNum").remove();
     };
 
     function addCastDropDownListener() {
@@ -2153,7 +2153,7 @@ window.JoinView = (function($, JoinView) {
         var rTable = gTables[tableIds[1]];
         var $lTable = $("#xcTable-" + tableIds[0]);
         var $rTable = $("#xcTable-" + tableIds[1]);
-        $(".xcTable").find(".joinOn").remove();
+        $(".xcTable").find(".formColNum").remove();
         $joinView.find(".joinClause").each(function(i) {
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
@@ -2161,12 +2161,12 @@ window.JoinView = (function($, JoinView) {
             if (lTable) {
                 var lColNum = lTable.getColNumByFrontName(lClause);
                 $lTable.find("th.col" + lColNum + ' .header')
-                       .append('<span class="joinOn">' + (i + 1) + '</span>');
+                       .append('<span class="formColNum">' + (i + 1) + '</span>');
             }
             if (rTable) {
                 var rColNum = rTable.getColNumByFrontName(rClause);
                 $rTable.find("th.col" + rColNum + ' .header')
-                   .append('<span class="joinOn">' + (i + 1) + '</span>');
+                   .append('<span class="formColNum">' + (i + 1) + '</span>');
             }
         });
     }

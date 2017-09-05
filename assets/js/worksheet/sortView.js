@@ -149,6 +149,7 @@ window.SortView = (function($, SortView) {
     function clearSort(keepData) {
         var $table = $("#xcTable-" + curTableId);
         $table.find(".modalHighlighted").removeClass("modalHighlighted");
+        $(".xcTable").find(".formColNum").remove();
 
         if (!keepData) {
             $sortTable.addClass("empty")
@@ -213,6 +214,17 @@ window.SortView = (function($, SortView) {
             order: order
         });
         xcHelper.scrollToBottom($sortView.find(".mainContent"));
+        updateColHeaderNums($table);
+    }
+
+
+    function updateColHeaderNums($table) {
+        $(".xcTable").find(".formColNum").remove();
+        for (var i = 0; i < newColOrders.length; i++) {
+            var colNum = newColOrders[i].colNum;
+            $table.find("th.col" + colNum + ' .header')
+                 .append('<span class="formColNum">' + (i + 1) + '</span>');
+        }
     }
 
     function restoreHighlightedCols() {
@@ -221,6 +233,7 @@ window.SortView = (function($, SortView) {
             $table.find(".col" + newColOrders[i].colNum)
                   .addClass("modalHighlighted");
         }
+        updateColHeaderNums($table);
     }
 
     function deSelectCol(colNum) {
@@ -237,6 +250,7 @@ window.SortView = (function($, SortView) {
         if ($sortTable.find(".row").length === 0) {
             $sortTable.addClass("empty");
         }
+        updateColHeaderNums($table);
     }
 
     function changeColOrder(colNum, colOrder) {
