@@ -846,6 +846,7 @@ DSTStr = {
     'Unlistable': 'Dataset is marked for deletion',
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
+    'InUseInstr': 'Please delete all active/hidden/temporary tables and constansts associated with the dataset before unlocking it.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',

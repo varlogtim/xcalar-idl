@@ -1986,11 +1986,20 @@ window.DS = (function ($, DS) {
             deferred.resolve();
         })
         .fail(function(error) {
+            var instr = (error.status === StatusT.StatusDsDatasetInUse)
+                        ? DSTStr.InUseInstr
+                        : null;
             var errorMsg = xcHelper.replaceMsg(DSTStr.FailUnlockDS, {
                 "ds": dsObj.getName(),
                 "error": error.error
             });
-            Alert.error(AlertTStr.Error, errorMsg);
+            Alert.show({
+                "title": AlertTStr.Error,
+                "instr": instr,
+                "msg": errorMsg,
+                "isAlert": true
+            });
+
             deferred.reject(error);
         });
 

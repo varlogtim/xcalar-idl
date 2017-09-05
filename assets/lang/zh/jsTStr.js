@@ -745,7 +745,8 @@ DSTStr = {
 'FailUnlockDS': '解锁数据集\"<ds>\"失败: <error>',
 'DetectInvalidCol': '数据集列名包含无效字符',
 'DetectInvalidColInstr': '在处理数据时，无效列名可能会导致结果出错。 建议提前处理其中的无效字符。',
-'DetectInvalidColMsg': '以下列名包含无效字符: <cols>。您确定要继续吗?'
+'DetectInvalidColMsg': '以下列名包含无效字符: <cols>。您确定要继续吗?',
+'InUseInstr': '请在解锁数据集之前删除所有与该数据集相关的激活/隐藏/临时表和常量。',
 };
 DSFormTStr = {
 'Pattern': '模式',
