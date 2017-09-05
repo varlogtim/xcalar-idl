@@ -3215,6 +3215,37 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testPerNodeTop(test) {
+        xcalarApiLocalTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs,
+                        XcalarApisConstantsT.XcalarApiDefaultCacheValidityInMs)
+        .done(function(topOutput) {
+            var ii;
+            printResult(topOutput);
+            for (ii = 0; ii < topOutput.numNodes; ii++) {
+                console.log("\tNode Id: ", topOutput.topOutputPerNode[ii].nodeId);
+                console.log("\tCpuUsage(%): ", topOutput.topOutputPerNode[ii].cpuUsageInPercent);
+                console.log("\tMemUsage(%): ", topOutput.topOutputPerNode[ii].memUsageInPercent);
+                console.log("\tMemUsed: ", topOutput.topOutputPerNode[ii].memUsedInBytes);
+                console.log("\tMemAvailable: ", topOutput.topOutputPerNode[ii].totalAvailableMemInBytes);
+                console.log("\tnetworkRecvInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkRecvInBytesPerSec);
+                console.log("\tnetworkSendInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkSendInBytesPerSec);
+                console.log("\txdbUsedBytes: ", topOutput.topOutputPerNode[ii].xdbUsedBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].xdbTotalBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].parentCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].childrenCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].numCores);
+                console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
+                console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
+                console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
+                console.log("\n\n");
+            }
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
     function testGetMemoryUsage(test) {
         test.trivial(xcalarApiGetMemoryUsage(thriftHandle, "test", 1));
     }
@@ -4110,6 +4141,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testApiKeySetIfEqual, "key set if equal", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testTop, "top test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testPerNodeTop, "per node top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetMemoryUsage, "get memory usage test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");

@@ -121,7 +121,8 @@ XcalarApisT = {
   'XcalarApiListDatasetUsers' : 112,
   'XcalarApiLogLevelGet' : 113,
   'XcalarApiLockDataset' : 114,
-  'XcalarApiFunctionInvalid' : 115
+  'XcalarApiPerNodeTop' : 115,
+  'XcalarApiFunctionInvalid' : 116
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -238,5 +239,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 112 : 'XcalarApiListDatasetUsers',
 113 : 'XcalarApiLogLevelGet',
 114 : 'XcalarApiLockDataset',
-115 : 'XcalarApiFunctionInvalid'
+115 : 'XcalarApiPerNodeTop',
+116 : 'XcalarApiFunctionInvalid'
 };

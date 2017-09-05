@@ -4376,6 +4376,52 @@ xcalarLogLevelGet = runEntity.xcalarLogLevelGet = function(thriftHandle) {
 
     return (deferred.promise());
 };
+
+xcalarApiLocalTopWorkItem = runEntity.xcalarApiLocalTopWorkItem = function(measureIntervalInMs, cacheValidityInMs) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.topInput = new XcalarApiTopInputT();
+
+    workItem.api = XcalarApisT.XcalarApiPerNodeTop;
+    workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
+    // any concurent top command in the same second will be served
+    // from the same top result collected from usrnodes in mgmtd
+    workItem.input.topInput.cacheValidityInMs = cacheValidityInMs;
+    return (workItem);
+};
+
+xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measureIntervalInMs) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiLocalTop(measureIntervalInMs = ", measureIntervalInMs,
+                    ")");
+    }
+
+    var workItem = xcalarApiLocalTopWorkItem(measureIntervalInMs);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var topOutput = result.output.outputResult.topOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        deferred.resolve(topOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarApiTop() caught exception: ", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
 // XXX
 //
 xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
