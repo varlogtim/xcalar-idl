@@ -1,4 +1,4 @@
-describe("Profile Selector Test", function() {
+describe("Profile-Profile Selector Test", function() {
     describe("Basic Function Test", function() {
         it("fltExist should work", function() {
             var fltExist = ProfileSelector.__testOnly__.fltExist;

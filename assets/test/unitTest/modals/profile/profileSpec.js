@@ -1,4 +1,4 @@
-describe("Profile Test", function() {
+describe("Profile-Profile Test", function() {
     var dsName, tableName, tableId, prefix, colNum;
     var $modal;
 
@@ -107,7 +107,7 @@ describe("Profile Test", function() {
         });
 
         it("Should hover on bar area", function() {
-            var $barArea = $modal.find(".barArea").eq(0);
+            var $barArea = $modal.find(".barChart .area").eq(0);
             $barArea.trigger("mouseenter");
             // .hasClass not work on svg
             var classList = $barArea.get(0).classList;
@@ -134,6 +134,18 @@ describe("Profile Test", function() {
             // turn back
             $label.trigger(fakeEvent.click);
             expect($label.text().includes("%")).to.be.false;
+        });
+
+        it("should change to pie chart", function() {
+            $modal.find(".graphSwitch").click();
+            expect($modal.find(".pieChart").length).to.equal(1);
+            expect($modal.find(".barChart").length).to.equal(0);
+        });
+
+        it("should change to bar chart", function() {
+            $modal.find(".graphSwitch").click();
+            expect($modal.find(".pieChart").length).to.equal(0);
+            expect($modal.find(".barChart").length).to.equal(1);
         });
     });
 
@@ -631,7 +643,7 @@ describe("Profile Test", function() {
             $modal.find(".close").click();
             var checkFunc = function() {
                 // wait unitl the resultset is freed
-                return Profile.__testOnly__.getResultSetId() == null;
+                return ProfileEngine.__testOnly__.getProfileResultSetId() == null;
             };
 
             UnitTest.testFinish(checkFunc)

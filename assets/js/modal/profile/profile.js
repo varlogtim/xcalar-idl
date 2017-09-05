@@ -1530,9 +1530,6 @@ window.Profile = (function($, Profile, d3) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         Profile.__testOnly__ = {};
-        // Profile.__testOnly__.getResultSetId = function() {
-        //     return resultSetId;
-        // };
         Profile.__testOnly__.getStatsCol = function() {
             return statsCol;
         };

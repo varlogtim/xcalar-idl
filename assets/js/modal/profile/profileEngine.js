@@ -849,5 +849,12 @@ window.ProfileEngine = (function(ProfileEngine) {
         return deferred.promise();
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        ProfileEngine.__testOnly__ = {};
+        ProfileEngine.__testOnly__.getProfileResultSetId = getProfileResultSetId;
+    }
+    /* End Of Unit Test Only */
+
     return ProfileEngine;
 }({}));

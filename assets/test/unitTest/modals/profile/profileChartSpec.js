@@ -1,4 +1,4 @@
-describe("Profile Chart Test", function() {
+describe("Profile-Profile Chart Test", function() {
     describe("Basic Test", function() {
         it("should get bar chart builder", function() {
             var chartBuilder = ProfileChart.new({type: "bar"});
