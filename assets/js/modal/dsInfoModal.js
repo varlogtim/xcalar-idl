@@ -39,9 +39,15 @@ window.DSInfoModal = (function(DSInfoModal, $) {
         var $section = $modal.find(".infoSection");
         var dsObj = DS.getDSObj(dsId);
 
-        addBasicInfo($section.find(".name .content"), dsObj.getName());
-        addBasicInfo($section.find(".owner .content"), dsObj.getUser());
+        var d1 = addBasicInfo($section.find(".name .content"), dsObj.getName());
+        var d2 = addBasicInfo($section.find(".owner .content"), dsObj.getUser());
         addUsedByInfo(dsObj.getFullName());
+        adjustModalWidth(Math.max(d1, d2));
+    }
+
+    function adjustModalWidth(delta) {
+        delta = Math.min(Math.max(delta, 0), 350);
+        $modal.width($modal.width() + delta);
     }
 
     function addUsedByInfo(dsName) {
@@ -69,6 +75,10 @@ window.DSInfoModal = (function(DSInfoModal, $) {
     function addBasicInfo($section, val) {
         $section.text(val);
         xcTooltip.changeText($section, val);
+
+        var textWidth = xcHelper.getTextWidth($section, val) + 5;
+        var sectionWidth = $section.width();
+        return Math.max(textWidth - sectionWidth, 0); // the delta width
     }
 
     function addUserList($userList, users) {
