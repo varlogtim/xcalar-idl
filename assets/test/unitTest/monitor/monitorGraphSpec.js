@@ -38,7 +38,7 @@ describe("Monitor Graph Test", function() {
                 return PromiseHelper.resolve(stats);
             };
             var cachedGetMemUsage = XcalarGetMemoryUsage;
-            XcalarGetMemoryUsage = function(userIdName, userIdUnique) {
+            XcalarGetMemoryUsage = function() {
                 return PromiseHelper.resolve({
                     userMemory: {
                         numSessions: 1,
@@ -64,7 +64,7 @@ describe("Monitor Graph Test", function() {
 
                 expect($monitorPanel.find(".line").length).to.equal(3);
                 expect($monitorPanel.find(".area").length).to.equal(3);
-                console.log($monitorPanel.find(".line0").attr("d"), $monitorPanel.find(".line1").attr("d"), $monitorPanel.find(".line2").attr("d"))
+                // console.log($monitorPanel.find(".line0").attr("d"), $monitorPanel.find(".line1").attr("d"), $monitorPanel.find(".line2").attr("d"))
                 expect($monitorPanel.find(".line0").attr("d")).to.equal("M0,210L6,84");
                 expect($monitorPanel.find(".line1").attr("d")).to.equal("M0,210L6,204.75");
                 expect($monitorPanel.find(".line2").attr("d")).to.equal("M0,210L6,189");

@@ -812,6 +812,9 @@ describe('JsonModal Test', function() {
                 UnitTest.offMinMode();
                 done();
             });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 });

@@ -346,8 +346,11 @@ describe("DSExport Test", function() {
 
     describe("successful form submit", function() {
         var submitForm;
+        var oldSend;
         before(function() {
             submitForm = DSExport.__testOnly__.submitForm;
+            oldSend = XcSocket.sendMessage;
+            XcSocket.sendMessage = function() {};
         });
 
         it("XcalarAddLocalFSExportTarget should be called", function(done) {
@@ -387,21 +390,15 @@ describe("DSExport Test", function() {
                 expect($grid.length).to.equal(1);
                 expect($grid.data("formatarg")).to.equal("/" + url);
 
-                XcalarRemoveExportTarget(testTargetName,
-                                        ExTargetTypeT.ExTargetSFType)
-                .then(function() {
-                    DSExport.__testOnly__.showExportTargetForm();
-                    DSExport.refresh()
-                    .then(function() {
-                        done();
-                    })
-                    .fail(function() {
-                        done("fail");
-                    });
-                })
-                .fail(function() {
-                    done("fail");
-                });
+                return XcalarRemoveExportTarget(testTargetName,
+                                        ExTargetTypeT.ExTargetSFType);
+            })
+            .then(function() {
+                DSExport.__testOnly__.showExportTargetForm();
+                return DSExport.refresh();
+            })
+            .then(function() {
+                done();
             })
             .fail(function(){
                 done("fail");
@@ -443,25 +440,23 @@ describe("DSExport Test", function() {
                 expect($grid.length).to.equal(1);
                 expect($grid.data("formatarg")).to.equal("/" + url);
 
-                XcalarRemoveExportTarget(testTargetName,
-                                        ExTargetTypeT.ExTargetUDFType)
-                .then(function() {
-                    DSExport.__testOnly__.showExportTargetForm();
-                    DSExport.refresh()
-                    .then(function() {
-                        done();
-                    })
-                    .fail(function() {
-                        done("fail");
-                    });
-                })
-                .fail(function() {
-                    done("fail");
-                });
+                return XcalarRemoveExportTarget(testTargetName,
+                                                ExTargetTypeT.ExTargetUDFType);
+            })
+            .then(function() {
+                DSExport.__testOnly__.showExportTargetForm();
+                return DSExport.refresh();
+            })
+            .then(function() {
+                done();
             })
             .fail(function(){
                 done("fail");
             });
+        });
+
+        after(function() {
+            XcSocket.sendMessage = oldSend;
         });
     });
 

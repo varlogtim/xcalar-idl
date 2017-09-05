@@ -1548,10 +1548,10 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("file:///");
         // case 2
         res = xcHelper.encodeDisplayURL("mapr://wrongPath/");
-        expect(res).to.equal("mapr://wrongPath/")
+        expect(res).to.equal("mapr://wrongPath/");
         // case 3
         res = xcHelper.encodeDisplayURL("mapr://username:password@host:port/");
-        expect(res).to.equal("mapr://redacted:redacted@host:port/")
+        expect(res).to.equal("mapr://redacted:redacted@host:port/");
     });
 
     it("xcHelper.decodeDisplayURL", function() {
@@ -1560,11 +1560,11 @@ describe("xcHelper Test", function() {
         // case 2
         res = xcHelper.decodeDisplayURL("mapr://username:password@host:port/",
                                         "mapr://wrongPath/");
-        expect(res).to.equal("mapr://wrongPath/")
+        expect(res).to.equal("mapr://wrongPath/");
         // case 3
         res = xcHelper.decodeDisplayURL("mapr://wrongBasePath/",
                                         "mapr://redacted:redacted@host:port/");
-        expect(res).to.equal("mapr://redacted:redacted@host:port/")
+        expect(res).to.equal("mapr://redacted:redacted@host:port/");
         // case 4
         res = xcHelper.decodeDisplayURL("mapr://username:password@host:port/",
                                        "mapr://redacted:redacted@host:port/a/");

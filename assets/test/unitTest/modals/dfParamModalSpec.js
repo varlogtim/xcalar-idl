@@ -425,6 +425,9 @@ describe("DFParamModal Test", function() {
                     UnitTest.offMinMode();
                     done();
                 });
+            })
+            .fail(function() {
+                done("fail");
             });
         });
     });

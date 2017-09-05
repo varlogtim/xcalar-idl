@@ -52,7 +52,8 @@ describe("MonitorConfig Test", function() {
             expect($curVal.val()).to.equal("");
             UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamNotFound);
 
-            $paramName.val("buffercachepercentoftotalmem").trigger(fakeEvent.enter);
+            var $existingParam = $configCard.find('.paramName').eq(0);
+            $paramName.val($existingParam.val()).trigger(fakeEvent.enter);
             UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamExists);
 
             $paramName.val("buffercachememlocking").trigger(fakeEvent.enter);

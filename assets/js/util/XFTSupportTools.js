@@ -16,7 +16,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     };
 
     XFTSupportTools.getRecentLogs = function(requireLineNum, filePath,
-        fileName, hosts) {
+                                             fileName, hosts) {
         var action = "GET";
         var url = "/service/logs";
         var content = {
@@ -30,7 +30,8 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     };
 
     // pass in callbacks to get triggered upon each post return
-    XFTSupportTools.monitorLogs = function(filePath, fileName, hosts, errCallback, successCallback) {
+    XFTSupportTools.monitorLogs = function(filePath, fileName, hosts,
+                                           errCallback, successCallback) {
         clearInterval(monitorIntervalId);
         monitorIntervalId = setInterval(getLog, 2000);
         getLog();

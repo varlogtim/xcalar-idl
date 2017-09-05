@@ -2934,7 +2934,8 @@ window.DSPreview = (function($, DSPreview) {
                 "loadArgs": loadArgs,
                 "highlighter": highlighter,
                 "detectArgs": detectArgs,
-                "isViewFolder": isViewFolder
+                "isViewFolder": isViewFolder,
+                "id": previewId
             };
         };
 

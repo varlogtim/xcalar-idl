@@ -1584,20 +1584,26 @@ describe('TableMenu Test', function() {
 
         it('tdFilter on mixed column', function() {
             $table.find('td.col6').eq(0).trigger(fakeEvent.mousedown);
-            var cellText = $table.find('td.col6').eq(0).find(".displayedData").text();
+            var cellText = $table.find('td.col6').filter(function() {
+                // cannot filter null value
+                return $(this).find(".displayedData").text() !== "null";
+            }).eq(0).find(".displayedData").text();
+            // console.log(cellText)
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(6);
                 expect(tId).to.equal(tableId);
                 var fltStr;
+                var colName = prefix + gPrefixSign + 'mixVal';
                 if (cellText === "FNF") {
-                    fltStr = 'not(exists(' + prefix + gPrefixSign + '))' ;
+                    fltStr = 'not(exists(' + colName + '))';
                 } else {
-                    if (cellText !== "true" && cellText !== "false") {
-                        cellText = JSON.stringify(cellText)
+                    if (cellText !== "true" && cellText !== "false" &&
+                        !isNaN(Number(cellText))) {
+                        cellText = JSON.stringify(cellText);
                     }
-                    fltStr = 'eq(' + prefix + gPrefixSign + 'mixVal, ' + cellText  + ')'
+                    fltStr = 'eq(' + colName + ', ' + cellText + ')';
                 }
                 expect(options.filterString).to.equal(fltStr);
                 expect(options.operator).to.equal("Filter");
@@ -1768,6 +1774,9 @@ describe('TableMenu Test', function() {
                 UnitTest.offMinMode();
                 done();
             });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 });

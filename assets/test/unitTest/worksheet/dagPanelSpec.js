@@ -929,7 +929,7 @@ describe("Dag Panel Test", function() {
                 var nodes = $largeDagWrap.data("allDagInfo").nodeIdMap;
                 // NumNodes defined this way as nodes is an object with keys
                 // named strings of numbers
-                var numNodes = Object.keys(nodes).length;
+                // var numNodes = Object.keys(nodes).length;
                 var tree = $largeDagWrap.data("allDagInfo").tree;
                 var dsId = $largeDagWrap.find(".dagTable").last().data("index");
 
@@ -1241,7 +1241,7 @@ describe("Dag Panel Test", function() {
         });
 
         describe("Operations on second to last table should work", function() {
-            var dagDepth;
+            // var dagDepth;
             var $prevDagTable;
             var $prevDagIcon;
             var prevTableId;
@@ -1277,7 +1277,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("Revert table should work", function(done) {
-                var dagDepth = largeTable.$dagWrap.data("allDagInfo").depth;
+                // var dagDepth = largeTable.$dagWrap.data("allDagInfo").depth;
                 var $prevDagTable = largeTable.$dagWrap.find(".dagTable")
                                     .eq(1);
                 var $prevDagIcon = $prevDagTable.find(".dagTableIcon");
@@ -1750,16 +1750,16 @@ describe("Dag Panel Test", function() {
 
         it("getDagNodeInfo", function() {
             var fn = DagDraw.__testOnly__.getDagNodeInfo;
-            var node = {value:
-                            {
-                                struct: {filterStr: "not(eq(col, 2))"},
-                                display: {},
-                                api: XcalarApisT.XcalarApiFilter
-                            },
-                        getSourceNames: function() {
-                            return ["parent"];
-                        }
-                    };
+            var node = {
+                value: {
+                    struct: {filterStr: "not(eq(col, 2))"},
+                    display: {},
+                    api: XcalarApisT.XcalarApiFilter
+                },
+                getSourceNames: function() {
+                    return ["parent"];
+                }
+            };
 
             var res = fn(node, "filterInput");
             expect(res.type).to.equal("filternot");
@@ -2020,7 +2020,7 @@ describe("Dag Panel Test", function() {
         var $joinDagWrap;
         var dagInfo;
         var node;
-        var origNode
+        var origNode;
 
         before(function() {
             $joinDagWrap = $("#dagPanel").find(".dagWrap").last();

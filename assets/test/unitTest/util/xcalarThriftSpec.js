@@ -1,24 +1,27 @@
-describe('XcalarThrift', function() {
-    it('remove findMinIdx when invalid', function(done) {
+describe("XcalarThrift Test", function() {
+    it("remove findMinIdx when invalid", function(done) {
         xcalarApiListXdfs(tHandle, "findMinIdx", "*")
         .then(function(ret) {
             expect(ret.fnDescs.length).to.equal(1);
-            expect(ret.fnDescs[0].fnName).to.equal('findMinIdx');
+            expect(ret.fnDescs[0].fnName).to.equal("findMinIdx");
             expect(ret.fnDescs[0].numArgs).to.equal(-1);
             expect(ret.fnDescs[0].argDescs[0].typesAccepted).to.equal(0);
             expect(ret.fnDescs[0].argDescs[0].argDesc).to.equal("");
 
-            XcalarListXdfs('findMinIdx', '*')
-            .then(function(ret) {
-                expect(ret.fnDescs.length).to.equal(0);
-                done();
-            });
+            return XcalarListXdfs("findMinIdx", "*");
+        })
+        .then(function(ret) {
+            expect(ret.fnDescs.length).to.equal(0);
+            done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
     // String must be resolved for this call
-    it("XcalarGetVersion should handle error by xcalar with log", function(done) {
-        var oldApiCall = xcalarGetLicense;
+    it("XcalarGetVersion should handle xcalar error", function(done) {
+        var oldApiCall = xcalarGetVersion;
         xcalarGetVersion = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
         };
@@ -39,7 +42,7 @@ describe('XcalarThrift', function() {
     });
 
     it("XcalarGetVersion should handle error by proxy", function(done) {
-        var oldApiCall = xcalarGetLicense;
+        var oldApiCall = xcalarGetVersion;
         xcalarGetVersion = function() {
             return PromiseHelper.reject({"httpStatus": 500});
         };
@@ -60,8 +63,8 @@ describe('XcalarThrift', function() {
     });
 
     // String must be resolved for this call
-    it("XcalarGetVersion should handle error by xcalar with log", function(done) {
-        var oldApiCall = xcalarGetLicense;
+    it("XcalarGetVersion should handle xcalar error case 2", function(done) {
+        var oldApiCall = xcalarGetVersion;
         xcalarGetVersion = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
         };
@@ -82,8 +85,8 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarGetVersion should handle error by proxy", function(done) {
-        var oldApiCall = xcalarGetLicense;
+    it("XcalarGetVersion should handle error by proxy case 2", function(done) {
+        var oldApiCall = xcalarGetVersion;
         xcalarGetVersion = function() {
             return PromiseHelper.reject({"httpStatus": 500});
         };
@@ -105,37 +108,22 @@ describe('XcalarThrift', function() {
         });
     });
 
-    // String must be resolved for this call
-    it("XcalarGetLicense should handle error by xcalar without log", function(done) {
-        var oldApiCall = xcalarGetLicense;
-        xcalarGetLicense = function() {
-            return PromiseHelper.reject({"xcalarStatus": 1, "log": undefined});
-        };
-        XcalarGetLicense()
-        .then(function(str) {
-            expect(str).to.equal(StatusTStr[1]);
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        })
-        .always(function() {
-            xcalarGetLicense = oldApiCall;
-        });
-    });
-
-    it("XcalarGetLicense should handle error by xcalar with log", function(done) {
+    it("XcalarGetLicense should handle xcalar error", function(done) {
         var oldApiCall = xcalarGetLicense;
         xcalarGetLicense = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
         };
         XcalarGetLicense()
-        .then(function(str) {
-            expect(str).to.equal(StatusTStr[1] + "1234");
-            done();
-        })
-        .fail(function() {
+        .then(function() {
             done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(1);
+            expect(error.httpStatus).to.equal(undefined);
+            expect(error.error).to.equal("Error: " + StatusTStr[1]);
+            expect(error.log).to.equal("1234");
+            expect(error.output).to.equal(undefined);
+            done();
         })
         .always(function() {
             xcalarGetLicense = oldApiCall;
@@ -148,20 +136,24 @@ describe('XcalarThrift', function() {
             return PromiseHelper.reject({"httpStatus": 500});
         };
         XcalarGetLicense()
-        .then(function(str) {
-            expect(str).to.equal("Get License fail to return!\n" +
-                                 "Network exception. Http status : 500");
-            done();
-        })
-        .fail(function() {
+        .then(function() {
             done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(undefined);
+            expect(error.httpStatus).to.equal(500);
+            expect(error.error)
+                  .to.equal("Error: Proxy Error with http status code: 500");
+            expect(error.log).to.equal(undefined);
+            expect(error.output).to.equal(undefined);
+            done();
         })
         .always(function() {
             xcalarGetLicense = oldApiCall;
         });
     });
 
-    it("XcalarGetNodeName should handle error by xcalar with log", function(done) {
+    it("XcalarGetNodeName should handle xcalar error", function(done) {
         var oldApiCall = xcalarGetIpAddr;
         xcalarGetIpAddr = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
@@ -206,7 +198,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarUpdateLicense should handle error by xcalar with log",function(done) {
+    it("XcalarUpdateLicense should handle xcalar error", function(done) {
         var oldApiCall = xcalarUpdateLicense;
         xcalarUpdateLicense = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
@@ -251,12 +243,12 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarPreview should handle error by xcalar with log",function(done) {
+    it("XcalarPreview should handle error by xcalar with log", function(done) {
         var oldApiCall = xcalarPreview;
         xcalarPreview = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
         };
-        XcalarPreview()
+        XcalarPreview("file:///")
         .then(function() {
             done("fail");
         })
@@ -278,7 +270,7 @@ describe('XcalarThrift', function() {
         xcalarPreview = function() {
             return PromiseHelper.reject({"httpStatus": 500});
         };
-        XcalarPreview()
+        XcalarPreview("file:///")
         .then(function() {
             done("fail");
         })
@@ -318,8 +310,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarGetQuery should handle error by proxy with log",
-    function(done) {
+    it("XcalarGetQuery should handle proxy error", function(done) {
         var oldApiCall = xcalarApiGetQuery;
         xcalarApiGetQuery = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -342,8 +333,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarLoad should have fix return order for all rejects",
-    function(done) {
+    it("XcalarLoad should have fix return order for all rejects", function(done) {
         var oldApiCall = xcalarLoad;
         var oldApiCal2 = XcalarGetQuery;
         var oldXcalarLoad = XcalarLoad;
@@ -389,6 +379,7 @@ describe('XcalarThrift', function() {
             });
             return deferred.promise();
         };
+
         XcalarLoad()
         .then(function() {
             done("fail");
@@ -410,8 +401,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarLoad should have fix return order for all rejects(reverse)",
-    function(done) {
+    it("XcalarLoad should have fix return order for all rejects(reverse)", function(done) {
         var oldApiCall = xcalarLoad;
         var oldApiCal2 = XcalarGetQuery;
         var oldXcalarLoad = XcalarLoad;
@@ -459,6 +449,7 @@ describe('XcalarThrift', function() {
             });
             return deferred.promise();
         };
+
         XcalarLoad()
         .then(function() {
             done("fail");
@@ -480,8 +471,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarLoad should have fix return order for rejects and resolves"
-    ,function(done) {
+    it("XcalarLoad should have fix return order for rejects and resolves", function(done) {
         // when resolve, xcalarGetQuery is an object of
         // XcalarApiGetQueryOutputT, and xcalarLoad is an object of
         // XcalarApiBulkLoadOutputT, they can never be String
@@ -528,6 +518,7 @@ describe('XcalarThrift', function() {
             });
             return deferred.promise();
         };
+
         XcalarLoad()
         .then(function() {
             done("fail");
@@ -549,8 +540,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarLoad should have fix return order for rejects and resolves"
-    ,function(done) {
+    it("XcalarLoad should have fix return order for rejects and resolves", function(done) {
         // when resolve, xcalarGetQuery will return a SQL string
         // and xcalarLoad is an object of XcalarApiBulkLoadOutputT
         var oldApiCall = xcalarLoad;
@@ -615,7 +605,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarAddUDFExportTarget should handle error by xcalar with log",function(done) {
+    it("XcalarAddUDFExportTarget should handle xcalar error", function(done) {
         var oldApiCall = xcalarAddExportTarget;
         xcalarAddExportTarget = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
@@ -633,12 +623,11 @@ describe('XcalarThrift', function() {
             done();
         })
         .always(function() {
-            xcalarApiGetQuery = oldApiCall;
+            xcalarAddExportTarget = oldApiCall;
         });
     });
 
-    it("XcalarAddUDFExportTarget should handle error by proxy with log",
-    function(done) {
+    it("XcalarAddUDFExportTarget should handle proxy error", function(done) {
         var oldApiCall = xcalarAddExportTarget;
         xcalarAddExportTarget = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -661,7 +650,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarRemoveExportTarget should handle error by xcalar with log",function(done) {
+    it("XcalarRemoveExportTarget should handle xcalar error",function(done) {
         var oldApiCall = xcalarRemoveExportTarget;
         xcalarRemoveExportTarget = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
@@ -683,8 +672,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarRemoveExportTarget should handle error by proxy with log",
-    function(done) {
+    it("XcalarRemoveExportTarget should handle proxy error", function(done) {
         var oldApiCall = xcalarRemoveExportTarget;
         xcalarRemoveExportTarget = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -707,7 +695,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarListExportTargets should handle error by xcalar with log",function(done) {
+    it("XcalarListExportTargets should handle xcalar error", function(done) {
         var oldApiCall = xcalarListExportTargets;
         xcalarListExportTargets = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
@@ -729,8 +717,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarListExportTargets should handle error by proxy with log",
-    function(done) {
+    it("XcalarListExportTargets should handle proxy error", function(done) {
         var oldApiCall = xcalarListExportTargets;
         xcalarListExportTargets = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -753,7 +740,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarUploadPython should handle error by xcalar with log",function(done) {
+    it("XcalarUploadPython should handle xcalar error", function(done) {
         var oldApiCall = xcalarApiUdfAdd;
         xcalarApiUdfAdd = function() {
             var output = {};
@@ -770,11 +757,11 @@ describe('XcalarThrift', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(undefined);
-            expect(error.httpStatus).to.equal(undefined);
-            expect(error.error).to.equal("message");
-            expect(error.log).to.equal(undefined);
-            expect(error.output).to.equal(undefined);
+            expect(error.status).to.be.null;
+            expect(error.httpStatus).to.be.null;
+            expect(error.error).to.equal("Error: message");
+            expect(error.log).to.be.null;
+            expect(error.output).to.be.null;
             done();
         })
         .always(function() {
@@ -782,8 +769,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarUploadPython should handle error by proxy with log",
-    function(done) {
+    it("XcalarUploadPython should handle proxy error", function(done) {
         var oldApiCall = xcalarApiUdfAdd;
         xcalarApiUdfAdd = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -806,7 +792,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarUpdatePython should handle error by xcalar with log",function(done) {
+    it("XcalarUpdatePython should handle xcalar error", function(done) {
         var oldApiCall = xcalarApiUdfUpdate;
         xcalarApiUdfUpdate = function() {
             var output = {};
@@ -823,11 +809,11 @@ describe('XcalarThrift', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(undefined);
-            expect(error.httpStatus).to.equal(undefined);
-            expect(error.error).to.equal("message");
-            expect(error.log).to.equal(undefined);
-            expect(error.output).to.equal(undefined);
+            expect(error.status).to.be.null;
+            expect(error.httpStatus).to.be.null;
+            expect(error.error).to.equal("Error: message");
+            expect(error.log).to.be.null;
+            expect(error.output).to.be.null;
             done();
         })
         .always(function() {
@@ -835,8 +821,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarUpdatePython should handle error by proxy with log",
-    function(done) {
+    it("XcalarUpdatePython should handle proxy error", function(done) {
         var oldApiCall = xcalarApiUdfUpdate;
         xcalarApiUdfUpdate = function() {
             return PromiseHelper.reject({"httpStatus": 500});
@@ -859,7 +844,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarQueryCancel should handle error by xcalar with log",function(done) {
+    it("XcalarQueryCancel should handle xcalar error", function(done) {
         var oldApiCall = xcalarQueryCancel;
         xcalarQueryCancel = function() {
             return PromiseHelper.reject({
@@ -884,8 +869,7 @@ describe('XcalarThrift', function() {
         });
     });
 
-    it("XcalarQueryCancel should handle error by proxy with log",
-    function(done) {
+    it("XcalarQueryCancel should handle proxy error", function(done) {
         var oldApiCall = xcalarQueryCancel;
         xcalarQueryCancel = function() {
             return PromiseHelper.reject({"httpStatus": 500});

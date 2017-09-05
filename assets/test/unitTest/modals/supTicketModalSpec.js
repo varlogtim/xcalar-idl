@@ -202,7 +202,7 @@ describe("SupTicketModal Test", function() {
             };
 
             XFTSupportTools.fileTicket = function() {
-                return PromiseHelper.resolve({logs:'{"ticketId":123}'});
+                return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
             var cachedKV = KVStore.append;

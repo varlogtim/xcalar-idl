@@ -395,12 +395,13 @@ describe("DSPreview Test", function() {
             var isViewFolder = meta.isViewFolder;
             meta.loadArgs.set({"path": "file:///url"});
             DSPreview.__testOnly__.set(null, null, true);
+            var id = DSPreview.__testOnly__.get().id;
             var oldPreview = XcalarPreview;
             XcalarPreview = function() {
                 return PromiseHelper.resolve({"relPath": "file/test"});
             };
 
-            DSPreview.__testOnly__.getURLToPreview("file:///url")
+            DSPreview.__testOnly__.getURLToPreview("file:///url", null, null, id)
             .then(function(path) {
                 expect(path).equal("file:///url/file/test");
                 done();
@@ -419,7 +420,6 @@ describe("DSPreview Test", function() {
             var isViewFolder = meta.isViewFolder;
             meta.loadArgs.set({"path": "file:///url"});
             DSPreview.__testOnly__.set(null, null, false);
-
             DSPreview.__testOnly__.getURLToPreview("file:///test")
             .then(function(path) {
                 expect(path).equal("file:///test");
@@ -429,6 +429,31 @@ describe("DSPreview Test", function() {
                 done("fail");
             })
             .always(function() {
+                DSPreview.__testOnly__.set(null, null, isViewFolder);
+            });
+        });
+
+        it("getURLToPreview should fail with wrong id", function(done) {
+            var meta = DSPreview.__testOnly__.get();
+            var isViewFolder = meta.isViewFolder;
+            meta.loadArgs.set({"path": "file:///url"});
+            DSPreview.__testOnly__.set(null, null, true);
+            var oldPreview = XcalarPreview;
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({"relPath": "file/test"});
+            };
+
+            DSPreview.__testOnly__.getURLToPreview("file:///url", null, null, "wrongId")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.an("object");
+                expect(error.error).to.equal("old preview error");
+                done();
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
                 DSPreview.__testOnly__.set(null, null, isViewFolder);
             });
         });

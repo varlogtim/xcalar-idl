@@ -1,6 +1,7 @@
 describe("Admin Test", function() {
     var cachedGetItem;
     var $userList;
+    var oldSend;
 
     before(function() {
         UnitTest.onMinMode();
@@ -22,6 +23,9 @@ describe("Admin Test", function() {
         }
         $("#monitorTab").click();
         $("#setupButton").click();
+
+        oldSend = XcSocket.sendMessage;
+        XcSocket.sendMessage = function(){};
     });
 
     describe("check initial state", function() {
@@ -440,5 +444,6 @@ describe("Admin Test", function() {
         gAdmin = false;
         $("#container").removeClass("admin posingAsUser");
         UnitTest.offMinMode();
+        XcSocket.sendMessage = oldSend;
     });
 });

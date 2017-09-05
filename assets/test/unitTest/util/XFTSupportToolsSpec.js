@@ -51,7 +51,7 @@ describe("XFTSupportTools Test", function() {
         it("XFTSupportTools.getRecentLogs should work", function(done) {
             XFTSupportTools.__testOnly__.setSendRequest();
 
-            XFTSupportTools.getRecentLogs(10)
+            XFTSupportTools.getRecentLogs(10, "path", "file", {"hostA": true})
             .then(function(res) {
                 expect(res).to.be.an("object");
                 expect(res.requireLineNum).to.equal(10);
@@ -80,7 +80,8 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs("testPath", "testFile", null, successCallback);
+            XFTSupportTools.monitorLogs("testPath", "testFile", {"hostA": true},
+                                        null, successCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
@@ -110,7 +111,8 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs("testPath", "testFile", errCallback);
+            XFTSupportTools.monitorLogs("testPath", "testFile", {"hostA": true},
+                                        errCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {

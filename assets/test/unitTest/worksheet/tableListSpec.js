@@ -731,10 +731,16 @@ describe('TableList Test', function() {
             expect($activeListSection.find(".tableName").eq(2).text()).to.equal("unitTest#ZZ1");
 
             var cache1 = WSManager.getWorksheets;
-            WSManager.getWorksheets = function(){ return {"a": {tables: ["ZZ1", "ZZ2", "ZZ3"]}}};
+            WSManager.getWorksheets = function() {
+                return {
+                    "a": {
+                        tables: ["ZZ1", "ZZ2", "ZZ3"]
+                    }
+                };
+            };
 
             var cache2 = WSManager.getWSName;
-            WSManager.getWSName = function(){ return ["a"]};
+            WSManager.getWSName = function() { return ["a"]; };
             $activeListSection.find(".sortWS").click();
 
             expect($activeListSection.hasClass("sortedByDate")).to.be.false;

@@ -5,6 +5,7 @@ describe("Repeat Test", function() {
     var tableId;
     var $table;
 
+    var testDs2;
     var tableName2;
     var prefix2;
     var tableId2;
@@ -18,13 +19,16 @@ describe("Repeat Test", function() {
 
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .then(function(ds, tName, tPrefix) {
             testDs = ds;
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
             prefix = tPrefix;
             $table = $("#xcTable-" + tableId);
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -41,7 +45,7 @@ describe("Repeat Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            xcFunction.sort(tableId, [{colNum: 1, order: XcalarOrderingT.XcalarOrderingDescending}])
+            xcFunction.sort(tableId, [{colNum: 4, order: XcalarOrderingT.XcalarOrderingDescending}])
             .then(function() {
                 indexCalled = false;
                 TblManager.highlightColumn($table.find("th.col4"));
@@ -51,7 +55,7 @@ describe("Repeat Test", function() {
                 var lastLog = Log.viewLastAction(true);
                 expect(indexCalled).to.be.true;
                 expect(lastLog.title).to.equal("Sort");
-                expect(lastLog.options.colNum).to.equal(4);
+                expect(lastLog.options.colNums[0]).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -506,7 +510,6 @@ describe("Repeat Test", function() {
     });
 
     describe("Worksheet operations", function() {
-
         it("add ws should work", function(done) {
             newWSId = WSManager.addWS();
             Log.repeat()
@@ -609,10 +612,19 @@ describe("Repeat Test", function() {
 
         UnitTest.deleteAllTables()
         .then(function() {
-            UnitTest.deleteDS(testDs);
+            UnitTest.deleteDS(testDs)
+            .then(function() {
+                UnitTest.deleteDS(testDs2)
+                .always(function() {
+                    done();
+                });
+            })
+            .fail(function() {
+                done();
+            });
         })
-        .always(function() {
-            done();
+        .fail(function() {
+            done("fail");
         });
     });
 });
