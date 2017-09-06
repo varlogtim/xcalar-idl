@@ -1519,6 +1519,7 @@
         background-color: @color-bg-white-three;
         height: 35px;
         width: 100%;
+        border-top: solid 1px @color-border-pinkish-grey2;
         border-bottom: solid 1px @color-border-pinkish-grey2;
         &.withTabs {
             .leftEnd {
@@ -1530,13 +1531,12 @@
             margin-left: 40px;
             margin-right: 40px;
             border: none;
-            border-right: none;
             display: flex;
             .tabAreaWrapper {
                 display: flex;
                 overflow: hidden;
                 width: ~"calc(100% - 48px)";
-                border-top: solid 1px @color-border-pinkish-grey2;
+                border: none;
             }
             .tabArea {
                 .size(@width: 100%, @height: 100%);
@@ -1620,6 +1620,7 @@
             }
             .end {
                 border: solid 1px @color-border-pinkish-grey2;
+                border-top: none;
                 border-bottom: none;
             }
         }
