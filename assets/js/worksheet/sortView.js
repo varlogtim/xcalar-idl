@@ -376,7 +376,11 @@ window.SortView = (function($, SortView) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         SortView.__testOnly__ = {};
-
+        SortView.__testOnly__.selectCol = selectCol;
+        SortView.__testOnly__.deSelectCol = deSelectCol;
+        SortView.__testOnly__.changeColOrder = changeColOrder;
+        SortView.__testOnly__.scrollToColumn = scrollToColumn;
+        SortView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 
