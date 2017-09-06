@@ -19,6 +19,16 @@ describe('ExpServer General Test', function() {
             done();
         });
     });
+    it("expServer.getCertificate should work", function() {
+        var centos = expServer.getCertificate("centos");
+        var ubuntu = expServer.getCertificate("ubuntu");
+        var redhat = expServer.getCertificate("redhat");
+        var oracle = expServer.getCertificate("oracle linux");
+        expect(centos).to.include("pem");
+        expect(ubuntu).to.include("pem");
+        expect(redhat).to.include("pem");
+        expect(oracle).to.include("pem");
+    })
     it("XcConsole.getTimeStamp should work", function() {
         expect(XcConsole.getTimeStamp()).to.not.be.empty;
     });

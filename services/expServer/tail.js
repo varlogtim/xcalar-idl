@@ -327,39 +327,38 @@ function isLogNumValid(num) {
     }
 }
 
+function getFileName(fileName) {
+    var deferred = jQuery.Deferred();
+    if (fileName === "node.*.out" || fileName === "node.*.err"
+        || fileName === "node.*.log") {
+        getNodeId()
+        .then(function(nodeID) {
+            xcConsole.log("NodeID: " + nodeID);
+            if (fileName === "node.*.out") {
+                deferred.resolve("node." + nodeID + ".out");
+            } else if (fileName === "node.*.err") {
+                deferred.resolve("node." + nodeID + ".err");
+            } else {
+                deferred.resolve("node." + nodeID + ".log");
+            }
+        })
+        .fail(function(err) {
+            var retMsg = {
+                // Server Internal error
+                "status": httpStatus.InternalServerError,
+                "error": "Can not get the Node ID " + err
+            };
+            deferred.reject(retMsg);
+        });
+    } else {
+        deferred.resolve(fileName);
+    }
+    return deferred.promise();
+}
+
 function getPath(filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-
-    function getFileName() {
-        var deferred = jQuery.Deferred();
-        if (fileName === "node.*.out" || fileName === "node.*.err"
-            || fileName === "node.*.log") {
-            getNodeId()
-            .then(function(nodeID) {
-                xcConsole.log("NodeID: " + nodeID);
-                if (fileName === "node.*.out") {
-                    deferred.resolve("node." + nodeID + ".out");
-                } else if (fileName === "node.*.err") {
-                    deferred.resolve("node." + nodeID + ".err");
-                } else {
-                    deferred.resolve("node." + nodeID + ".log");
-                }
-            })
-            .fail(function(err) {
-                var retMsg = {
-                    // Server Internal error
-                    "status": httpStatus.InternalServerError,
-                    "error": "Can not get the Node ID " + err
-                };
-                deferred.reject(retMsg);
-            });
-        } else {
-            deferred.resolve(fileName);
-        }
-        return deferred.promise();
-    }
-
-    getFileName()
+    getFileName(fileName)
     .then(function(realName) {
         var logPath = path.join(filePath, realName);
         xcConsole.log("Reading file stat: " + logPath);
@@ -468,15 +467,29 @@ function fakeGetPath() {
         return jQuery.Deferred().resolve(logPath, stat).promise();
     }
 }
+function fakeTailLog() {
+    tailLog = function() {
+        return jQuery.Deferred().resolve("success").promise();
+    }
+}
+function fakeSinceLastMonitorLog() {
+    sinceLastMonitorLog = function() {
+        return jQuery.Deferred().resolve("success").promise();
+    }
+}
 if (process.env.NODE_ENV === "test") {
     exports.isLogNumValid = isLogNumValid;
     exports.getPath = getPath;
     exports.readFileStat = readFileStat;
     exports.getCurrentTime = getCurrentTime;
     exports.sinceLastMonitorLog = sinceLastMonitorLog;
+    exports.getNodeId = getNodeId;
+    exports.getFileName = getFileName;
     // Fake functions
     exports.fakeGetNodeId = fakeGetNodeId;
     exports.fakeGetPath = fakeGetPath;
+    exports.fakeTailLog = fakeTailLog;
+    exports.fakeSinceLastMonitorLog = fakeSinceLastMonitorLog;
 }
 exports.tailLog = tailLog;
 exports.monitorLog = monitorLog;

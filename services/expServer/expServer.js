@@ -68,13 +68,7 @@ require("jsdom").env("", function(err, window) {
         return deferred.promise();
     }
 
-    if (process.env.NODE_ENV === "test") {
-        exports.getOperatingSystem = getOperatingSystem;
-    }
-
-    getOperatingSystem()
-    .always(function(data) {
-        data = data.toLowerCase();
+    function getCertificate(data) {
         var ca = '';
         if (data.indexOf("centos") > -1) {
             xcConsole.log("Operation System: CentOS");
@@ -101,6 +95,14 @@ require("jsdom").env("", function(err, window) {
         } else {
             xcConsole.log('Xcalar trusted certificate not found');
         }
+        return ca;
+    }
+
+    getOperatingSystem()
+    .always(function(data) {
+        data = data.toLowerCase();
+        // This is helpful for test and variable can be used in future development
+        var ca = getCertificate(data);
 
         var httpServer = http.createServer(app);
         socket(httpServer);
@@ -113,4 +115,9 @@ require("jsdom").env("", function(err, window) {
             xcConsole.log("All ready");
         });
     });
+
+    if (process.env.NODE_ENV === "test") {
+        exports.getOperatingSystem = getOperatingSystem;
+        exports.getCertificate = getCertificate;
+    }
 });

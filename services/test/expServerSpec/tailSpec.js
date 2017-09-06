@@ -42,6 +42,27 @@ describe('ExpServer Tail Test', function() {
             done();
         })
     });
+    it("getFileName should work", function(done) {
+        var out = "node.*.out";
+        var err = "node.*.err";
+        var log = "node.*.log";
+        tail.getFileName(out)
+        .then(function(ret) {
+            expect(ret).to.include("out");
+            return tail.getFileName(err);
+        })
+        .then(function(ret) {
+            expect(ret).to.include("err");
+            return tail.getFileName(log);
+        })
+        .then(function(ret) {
+            expect(ret).to.include("log");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
     it("getPath should work", function(done) {
         tail.getPath(testFilePath, testFileName)
         .then(function(currFile, stat) {
@@ -63,6 +84,16 @@ describe('ExpServer Tail Test', function() {
         })
         .fail(function() {
             done("fail");
+        });
+    });
+    it("tailLog should fail when error, e.g. invalid line number", function(done) {
+        tail.tailLog("invalidNum", testFilePath,testFileName)
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(400);
+            done();
         });
     });
     it("sinceLastMonitorLog should work", function(done) {
@@ -93,6 +124,30 @@ describe('ExpServer Tail Test', function() {
         })
         .fail(function(error) {
             expect(error.status).to.equal(403);
+            done();
+        });
+    });
+    it("monitorLog should work", function(done) {
+        tail.fakeTailLog();
+        tail.fakeSinceLastMonitorLog();
+        tail.monitorLog(testLastMonitor, testFilePath, testFileName)
+        .then(function(ret) {
+            expect(ret).to.equal("success");
+            return tail.monitorLog(-1, testFilePath, testFileName);
+        })
+        .then(function(ret) {
+            expect(ret).to.equal("success");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+    it("getNodeId should work", function(done) {
+        tail.getNodeId()
+        .always(function() {
+            // It is a command that depends on the machine it is running on
+            // So either resolve or reject should work
             done();
         });
     });

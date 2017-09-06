@@ -6,16 +6,6 @@ var guiDir = (process.env.XCE_HTTP_ROOT ?
 var support = require('./expServerSupport.js');
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
-var validate = function(name, version) {
-    if (name == null || name.length === 0) {
-        return false;
-    }
-    if (version == null || version.length === 0) {
-        return false;
-    }
-    return true;
-};
-
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -248,16 +238,6 @@ function fakeUpload() {
         return jQuery.Deferred().resolve().promise();
     }
 }
-function fakeCreate() {
-    create = function() {
-        return jQuery.Deferred().resolve().promise();
-    }
-}
-function fakeGzipAndUpload() {
-    gzipAndUpload = function() {
-        return jQuery.Deferred().resolve().promise();
-    }
-}
 function fakeUploadMeta() {
     uploadMeta = function() {
         return jQuery.Deferred().resolve("upload success").promise();
@@ -277,8 +257,6 @@ if (process.env.NODE_ENV === "test") {
     exports.gzipAndUpload = gzipAndUpload;
     // Fake functions
     exports.fakeUpload = fakeUpload;
-    exports.fakeCreate = fakeCreate;
-    exports.fakeGzipAndUpload = fakeGzipAndUpload;
     exports.fakeUploadMeta = fakeUploadMeta;
     exports.fakeUploadContent = fakeUploadContent;
 }
