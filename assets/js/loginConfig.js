@@ -2,6 +2,8 @@ var waadEnabled = false;
 var waadConfig;
 var defaultAdminEnabled = false;
 var defaultAdminConfig;
+var ldapConfig;
+var ldapConfigEnabled = false;
 
 function setWaadConfig(hostname, waadEnabledIn, tenant, clientId) {
     var deferred = jQuery.Deferred();
@@ -50,6 +52,12 @@ function getWaadConfig(hostname) {
         "contentType": "application/json",
         "url": hostname + "/app/login/waadConfig/get",
         "success": function (data) {
+            if (data.hasOwnProperty("error")) {
+                console.log("Failed to retrieve waadConfig: " + data.error);
+                deferred.reject(data.error);
+                return;
+            }
+
             waadConfig = {
                 instance: 'https://login.microsoftonline.com/',
                 tenant: data.tenant,
@@ -135,6 +143,12 @@ function getDefaultAdminConfig(hostname) {
         "contentType": "application/json",
         "url": hostname + "/app/login/defaultAdmin/get",
         "success": function (defaultAdminConfigIn) {
+            if (defaultAdminConfigIn.hasOwnProperty("error")) {
+                console.log("Failed to retrieve defaultAdminConfig: " + defaultAdminConfigIn.error);
+                deferred.reject(defaultAdminConfigIn.error);
+                return;
+            }
+
             defaultAdminConfig = defaultAdminConfigIn;
             defaultAdminEnabled = defaultAdminConfigIn.defaultAdminEnabled;
             deferred.resolve(defaultAdminConfig);
@@ -148,3 +162,70 @@ function getDefaultAdminConfig(hostname) {
     return deferred.promise();
 }
 
+function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, searchFilter, activeDir, serverKeyFile) {
+    var deferred = jQuery.Deferred();
+    var ldapConfigOut = {
+        ldapConfigEnabled: ldapConfigEnabledIn,
+        ldap_uri: ldap_uri,
+        userDN: userDN,
+        useTLS: useTLS,
+        searchFilter: searchFilter,
+        activeDir: activeDir,
+        serverKeyFile: serverKeyFile
+    };
+
+    $.ajax({
+        "type": "POST",
+        "contentType": "application/json",
+        "url": hostname + "/app/login/ldapConfig/set",
+        "data": JSON.stringify(ldapConfigOut),
+        "success": function (ret) {
+            if (ret.success) {
+                if (ldapConfigEnabled) {
+                    ldapConfigEnabled = ldapConfigEnabledIn;
+                    ldapConfig = ldapConfigOut;
+                }
+                deferred.resolve();
+            } else {
+                deferred.reject(ret.error);
+            }
+        },
+        "error": function (errorMsg) {
+            console.log("Failed to set ldapConfig: " + errorMsg.error);
+            deferred.reject(errorMsg.error);
+        }
+    });
+
+    return deferred.promise();
+}
+
+function getLdapConfig(hostname) {
+    var deferred = jQuery.Deferred();
+
+    if (ldapConfigEnabled) {
+        return deferred.resolve(ldapConfig).promise();
+    }
+
+    $.ajax({
+        "type": "POST",
+        "contentType": "application/json",
+        "url": hostname + "/app/login/ldapConfig/get",
+        "success": function (ldapConfigIn) {
+            if (ldapConfigIn.hasOwnProperty("error")) {
+                console.log("Failed to retrieve ldapConfig: " + ldapConfigIn.error);
+                deferred.reject(ldapConfigIn.error);
+                return;
+            }
+
+            ldapConfig = ldapConfigIn;
+            ldapConfigEnabled = ldapConfigIn.ldapConfigEnabled;
+            deferred.resolve(ldapConfig);
+        },
+        "error": function (errorMsg) {
+            console.log("Failed to retrieve ldapConfig: " + errorMsg.error);
+            deferred.reject(errorMsg.error);
+        }
+    });
+
+    return deferred.promise();
+}

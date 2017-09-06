@@ -3,6 +3,8 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     var modalHelper;
     var waadConfig;
     var defaultAdminConfig;
+    var ldapConfig;
+    var ldapChoice = "ldap";
 
     LoginConfigModal.setup = function() {
         $modal = $("#loginConfigModal");
@@ -15,9 +17,11 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         $("#loginConfigWAADSignOnUrl").text(signOnUrl);
     };
 
-    LoginConfigModal.show = function(waadConfigIn, defaultAdminConfigIn) {
+    LoginConfigModal.show = function(waadConfigIn, defaultAdminConfigIn, ldapConfigIn) {
         waadConfig = waadConfigIn;
         defaultAdminConfig = defaultAdminConfigIn;
+        ldapConfig = ldapConfigIn;
+
         modalHelper.setup();
 
         if (waadConfig !== null) {
@@ -41,6 +45,28 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $("#loginConfigAdminPassword").val("");
             $("#loginConfigAdminConfirmPassword").val("");
         }
+
+        if (ldapConfig !== null) {
+            if (ldapConfig.ldapConfigEnabled) {
+                $("#loginConfigEnableLdapAuth").find(".checkbox").addClass("checked");
+                $("#loginConfigEnableLdapAuth").next().removeClass("xc-hidden");
+            }
+
+            $("#loginConfigLdapUrl").val(ldapConfig.ldap_uri);
+            $("#loginConfigLdapUserDn").val(ldapConfig.userDN);
+            $("#loginConfigLdapSearchFilter").val(ldapConfig.searchFilter);
+            $("#loginConfigLdapServerKeyFile").val(ldapConfig.serverKeyFile);
+
+            if (ldapConfig.useTLS == "true") {
+                $("#loginConfigLdapEnableTLS").addClass("checked");
+            }
+
+            if (ldapConfig.activeDir == "true") {
+                $("#ldapChoice").find(".radioButton").eq(0).click();
+            } else {
+                $("#ldapChoice").find(".radioButton").eq(1).click();
+            }
+        }
     };
 
     function setupListeners() {
@@ -55,13 +81,8 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $(this).toggleClass("checked");
         });
 
-        $modal.find(".radioButton").click(function() {
-            if ($(this).hasClass("active")) {
-                return;
-            }
-            $(this).closest(".radioButtonGroup").find(".radioButton")
-                   .removeClass("active");
-            $(this).addClass("active");
+        xcHelper.optionButtonEvent($("#ldapChoice"), function(option, $radio) {
+            ldapChoice = option;
         });
     };
 
@@ -74,13 +95,20 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         var adminPassword = $("#loginConfigAdminPassword").val();
         var adminConfirmPassword = $("#loginConfigAdminConfirmPassword").val();
 
+        if (defaultAdminConfig == null) {
+            if (defaultAdminEnabled) {
+                defaultAdminConfig = {};
+            } else {
+                return deferred.resolve().promise();
+            }
+        }
+
         if (adminPassword != adminConfirmPassword) {
             deferred.reject(LoginConfigTStr.PasswordMismatch, false);
         } else if (defaultAdminConfig.defaultAdminEnabled != defaultAdminEnabled ||
                    defaultAdminConfig.username != adminUsername ||
                    defaultAdminConfig.email != adminEmail ||
                    adminPassword.trim() != "") {
-            console.log("defaultAdminChanged");
             if (defaultAdminEnabled) {
                 if (adminPassword.trim() == "") {
                     return (deferred.reject(LoginConfigTStr.EmptyPasswordError, false).promise());
@@ -107,10 +135,18 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         var waadEnabled = $("#loginConfigEnableWAAD").find(".checkbox").hasClass("checked");
         var tenant = $("#loginConfigWAADTenant").val();
         var clientId = $("#loginConfigWAADClientId").val();
+
+        if (waadConfig == null) {
+            if (waadEnabled) {
+                waadConfig = {};
+            } else {
+                return deferred.resolve().promise();
+            }
+        }
+
         if (waadConfig.waadEnabled != waadEnabled ||
             waadConfig.tenant != tenant ||
             waadConfig.clientId != clientId) {
-            console.log("waadConfig changed: " + tenant)
             setWaadConfig(hostname, waadEnabled, tenant, clientId)
             .then(deferred.resolve)
             .fail(function(errorMsg) {
@@ -122,9 +158,46 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         return deferred.promise();
     }
 
+    function submitLdapConfig() {
+        var deferred = jQuery.Deferred();
+        var ldapConfigEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox").hasClass("checked");
+        var activeDir = (ldapChoice == "ad") ? "true" : "false";
+        var ldap_uri = $("#loginConfigLdapUrl").val();
+        var userDN = $("#loginConfigLdapUserDn").val();
+        var searchFilter = $("#loginConfigLdapSearchFilter").val();
+        var enableTLS = $("#loginConfigLdapEnableTLS").hasClass("checked") ? "true" : "false";
+        var serverKeyFile = $("#loginConfigLdapServerKeyFile").val();
+
+        if (ldapConfig == null) {
+            if (ldapConfigEnabled) {
+                ldapConfig = {};
+            } else {
+                return deferred.resolve().promise();
+            }
+        }
+
+        if (ldapConfig.ldapConfigEnabled != ldapConfigEnabled ||
+            ldapConfig.ldap_uri != ldap_uri ||
+            ldapConfig.activeDir != activeDir ||
+            ldapConfig.userDN != userDN ||
+            ldapConfig.searchFilter != searchFilter ||
+            ldapConfig.enableTLS != enableTLS ||
+            ldapConfig.serverKeyFile != serverKeyFile) {
+                setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter, activeDir, serverKeyFile)
+                .then(deferred.resolve)
+                .fail(function(errorMsg) {
+                    deferred.reject(errorMsg, true);
+                });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
+    }
+
     function submitForm() {
         submitDefaultAdminConfig()
         .then(submitWaadConfig)
+        .then(submitLdapConfig)
         .then(function() {
             xcHelper.showSuccess(LoginConfigTStr.LoginConfigSavedSuccess);
             closeModal();
@@ -146,6 +219,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function closeModal() {
         waadConfig = null;
         defaultAdminConfig = null;
+        ldapConfig = null;
         modalHelper.clear();
     };
 

@@ -926,6 +926,7 @@ window.Admin = (function($, Admin) {
     function showLoginConfig() {
         var waadConfig = null;
         var defaultAdminConfig = null;
+        var ldapConfig = null;
 
         $('#loginConfig').addClass('unavailable');
         getWaadConfig(hostname)
@@ -936,22 +937,25 @@ window.Admin = (function($, Admin) {
             },
 
             function(error) {
-                console.log("getWaadConfig failed: " + error);
                 return (getDefaultAdminConfig(hostname));
             }
         )
         .then(
             function(defaultAdminConfigIn) {
                 defaultAdminConfig = defaultAdminConfigIn;
+                return (getLdapConfig(hostname));
             },
 
             function(error) {
-                console.log("getDefaultAdminConfig failed: " + error);
+                return (getLdapConfig(hostname));
             }
         )
+        .then(function(ldapConfigIn) {
+            ldapConfig = ldapConfigIn;
+        })
         .always(function() {
             $('#loginConfig').removeClass('unavailable');
-            LoginConfigModal.show(waadConfig, defaultAdminConfig);
+            LoginConfigModal.show(waadConfig, defaultAdminConfig, ldapConfig);
         });
     }
 
