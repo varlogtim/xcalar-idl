@@ -73,7 +73,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.equal("setupLdapConfigs fails");
+            expect(error).to.have.string("setupLdapConfigs failed: Error: Cannot find module");
             done();
         });
     });
@@ -219,7 +219,7 @@ describe('ExpServer Login Test', function() {
 
     it('Router should fail with setWaadConfig action and bogus waadConfig', function(done) {
         support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve("../../test").promise();
+            return jQuery.Deferred().resolve("/../../test").promise();
         };
 
         var credArray = {
@@ -279,7 +279,7 @@ describe('ExpServer Login Test', function() {
             var expectedRetMsg = {
                 "success": true,
                 "status": 200
-            }
+            };
 
             expect(ret).to.deep.equal(expectedRetMsg)
 
@@ -289,8 +289,8 @@ describe('ExpServer Login Test', function() {
             var expectedRetMsg = {
                 "waadEnabled": true,
                 "status": 200,
-                "tenant": setArray["tenant"],
-                "clientId": setArray["clientId"]
+                "tenant": setArray.tenant,
+                "clientId": setArray.clientId
             };
             expect(ret).to.deep.equal(expectedRetMsg);
 
@@ -504,6 +504,135 @@ describe('ExpServer Login Test', function() {
         .fail(function(error) {
             done("fail: " + JSON.stringify(error));
         });
+    });
 
+    it('Router should fail with setLdapConfig action and bogus ldapConfig', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve("../../test").promise();
+        };
+
+        var credArray = {
+            bogus: "bogus"
+        };
+
+        var expectedRetMsg = {
+            "status": 200,
+            "success": false,
+            "error": "Invalid ldapConfig provided"
+        };
+
+        postRequest("POST", "/login/ldapConfig/set", credArray)
+        .then(function(ret) {
+            expect(ret).to.deep.equal(expectedRetMsg);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should fail with setLdapConfig action and invalid directory', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve("../../doesnotexist").promise();
+        };
+
+        var credArray = {
+            ldap_uri: "legitLookingLdapUri",
+            userDN: "legitLookingUserDN",
+            useTLS: "true",
+            searchFilter: "legitLookingSearchFilter",
+            activeDir: "false",
+            serverKeyFile: "legitLookingKeyFile",
+            ldapConfigEnabled: true
+        };
+
+        postRequest("POST", "/login/ldapConfig/set", credArray)
+        .then(function(ret) {
+            expect(ret.error).to.have.string("Failed to write");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('Router should work with proper setLdapConfig action and getLdapConfig action', function(done) {
+        support.getXlrRoot = function() {
+            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+        };
+
+        var origLdapConfig;
+        var testPassed = false;
+        var errorMsg = "";
+
+        var setArray = {
+            ldapConfigEnabled: ((Math.floor(Math.random() * 10) % 2) == 0) ? true : false,
+            ldap_uri: Math.floor(Math.random() * 1000).toString(),
+            userDN: Math.floor(Math.random() * 1000).toString(),
+            useTLS: ((Math.floor(Math.random() * 10) % 2) == 0) ? "true" : "false",
+            searchFilter: Math.floor(Math.random() * 1000).toString(),
+            activeDir: ((Math.floor(Math.random() * 10) % 2) == 0) ? "true" : "false",
+            serverKeyFile: Math.floor(Math.random() * 1000).toString()
+        };
+
+        postRequest("POST", "/login/ldapConfig/get")
+        .then(function(ret) {
+            origLdapConfig = ret;
+            delete origLdapConfig.status;
+            return postRequest("POST", "/login/ldapConfig/set", setArray);
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                "success": true,
+                "status": 200
+            };
+
+            try {
+                expect(ret).to.deep.equal(expectedRetMsg);
+                return postRequest("POST", "/login/ldapConfig/get"); 
+            } catch (error) {
+                return jQuery.Deferred().reject(error).promise();
+            }
+        })
+        .then(function(ret) {
+            var expectedRetMsg = {
+                ldapConfigEnabled: setArray.ldapConfigEnabled,
+                ldap_uri: setArray.ldap_uri,
+                userDN: setArray.userDN,
+                useTLS: setArray.useTLS,
+                searchFilter: setArray.searchFilter,
+                activeDir: setArray.activeDir,
+                serverKeyFile: setArray.serverKeyFile,
+                status: 200
+            };
+
+            try {
+                expect(ret).to.deep.equal(expectedRetMsg);
+                testPassed = true;
+            } catch (error) {
+                return jQuery.Deferred().reject(error).promise();
+            }
+        })
+        .fail(function(ret) {
+            errorMsg = "fail: " + JSON.stringify(ret);
+        })
+        .always(function() {
+            // We need to restore the ldapConfig at the end of the test
+            // in order to allow grunt test to repeatably keep working
+            // This is because ldapConfig.json is in use by other test (setupLdapConfigs test)
+            postRequest("POST", "/login/ldapConfig/set", origLdapConfig)
+            .then(function(ret) {
+                if (!ret.success) {
+                    done("Failed to restore origLdapConfig");
+                } else if (testPassed) {
+                    done();
+                } else {
+                    done(errorMsg);
+                }
+            })
+            .fail(function(errorMsg) {
+                done("Failed to restore origLdapConfig: " + errorMsg);
+            });
+        });
     });
 });

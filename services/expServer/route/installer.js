@@ -321,6 +321,7 @@ function installLdap(domainName, password, companyName) {
 function writeLdapConfig(credArray) {
     var deferredOut = jQuery.Deferred();
     try {
+        credArray.ldapConfigEnabled = true
         fs.writeFileSync(ldapLocation, JSON.stringify(credArray, null, 4));
         copyFiles()
         .always(function(message) {

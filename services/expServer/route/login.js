@@ -24,12 +24,12 @@ var waadFieldsRequired = [ "tenant", "clientId", "waadEnabled" ];
 
 var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
+var ldapConfigFieldsRequired = [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ];
 var ldapConfig;
 var trustedCerts;
 
 var defaultAdminConfigRelPath = "/config/defaultAdmin.json";
 var defaultAdminFieldsRequired = [ "username", "password", "email", "defaultAdminEnabled" ];
-
 
 var users = new Map();
 var globalLoginId = 0;
@@ -189,7 +189,7 @@ function getWaadConfig() {
     .then(function(xlrRoot) {
         try {
             var waadConfigPath = path.join(xlrRoot, waadConfigRelPath);
-            delete require.cache[require.resolve(waadConfigPath)]
+            delete require.cache[require.resolve(waadConfigPath)];
             waadConfig = require(waadConfigPath);
         } catch (error) {
             return jQuery.Deferred().reject("Error reading " + waadConfigPath + ": " + error).promise();
@@ -197,7 +197,7 @@ function getWaadConfig() {
 
         for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
             if (!(waadConfig.hasOwnProperty(waadFieldsRequired[ii]))) {
-                return jQuery.Deferred.reject(waadConfigPath + " is corrupted").promise();
+                return jQuery.Deferred().reject(waadConfigPath + " is corrupted").promise();
             }
         }
 
@@ -301,7 +301,7 @@ function setWaadConfig(waadConfigIn) {
             return jQuery.Deferred().reject(error).promise();
         }
 
-        return (writeToFile(waadConfigPath, waadConfig, null));
+        return (writeToFile(waadConfigPath, waadConfig, {"mode": 0600}));
     })
     .then(function() {
         message.success = true;
@@ -315,6 +315,77 @@ function setWaadConfig(waadConfigIn) {
     return deferred.promise();
 }
 
+function setLdapConfig(ldapConfigIn) {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "success": false }
+    var ldapConfigPath;
+    var ldapConfigOut = {};
+
+    support.getXlrRoot()
+    .then(function(xlrRoot) {
+        // Make a copy of existing ldapConfig.json if it exists
+        ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
+        return (makeFileCopy(ldapConfigPath));
+    })
+    .then(function() {
+        try {
+            for (var ii = 0; ii < ldapConfigFieldsRequired.length; ii++) {
+                if (!(ldapConfigIn.hasOwnProperty(ldapConfigFieldsRequired[ii]))) {
+                    throw "Invalid ldapConfig provided"
+                }
+                ldapConfigOut[ldapConfigFieldsRequired[ii]] = ldapConfigIn[ldapConfigFieldsRequired[ii]];
+            }
+        } catch (error) {
+            return jQuery.Deferred().reject(error).promise();
+        }
+
+        return (writeToFile(ldapConfigPath, ldapConfigOut, {"mode": 0600}));
+    })
+    .then(function() {
+        message.success = true;
+        // Force a refresh of setupLdapConfigs the next time we get an ldap authentication request
+        isLdapConfigSetup = false;
+        deferred.resolve(message);
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg.toString();
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
+
+function getLdapConfig() {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "ldapConfigEnabled": false };
+    var ldapConfigOut;
+
+    support.getXlrRoot()
+    .then(function(xlrRoot) {
+        try {
+            var ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
+            delete require.cache[require.resolve(ldapConfigPath)];
+            ldapConfigOut = require(ldapConfigPath);
+        } catch (error) {
+            return jQuery.Deferred().reject("Error reading " + ldapConfigPath + ": " + error).promise();
+        }
+
+        for (var ii = 0; ii < ldapConfigFieldsRequired.length; ii++) {
+            if (!(ldapConfigOut.hasOwnProperty(ldapConfigFieldsRequired[ii]))) {
+                return jQuery.Deferred().reject(ldapConfigPath + " is corrupted").promise();
+            }
+        }
+
+        ldapConfigOut.status = message.status;
+        deferred.resolve(ldapConfigOut);
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
 
 function setupLdapConfigs(forceSetup) {
     var deferred = jQuery.Deferred();
@@ -325,13 +396,18 @@ function setupLdapConfigs(forceSetup) {
         .then(function(xlrRoot) {
             try {
                 var ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
+                delete require.cache[require.resolve(ldapConfigPath)];
                 ldapConfig = require(ldapConfigPath);
+                if (!ldapConfig.ldapConfigEnabled) {
+                    throw "LDAP authentication is disabled";
+                }
+
                 trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
                 isLdapConfigSetup = true;
                 deferred.resolve('setupLdapConfigs succeeds');
             } catch (error) {
                 xcConsole.log(error);
-                deferred.reject('setupLdapConfigs fails');
+                deferred.reject('setupLdapConfigs failed: ' + error);
             }
         })
         .fail(function() {
@@ -675,6 +751,21 @@ router.post('/login/defaultAdmin/set', function(req, res) {
     .always(function(message) {
         res.status(message.status).send(message);
     });
+});
+
+router.post('/login/ldapConfig/set', function(req, res) {
+    var credArray = req.body;
+    setLdapConfig(credArray)
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+});
+
+router.post('/login/ldapConfig/get', function(req, res) {
+    getLdapConfig()
+    .always(function(message) {
+        res.status(message.status).send(message);
+    })
 });
 
 // Below part is only for Unit Test

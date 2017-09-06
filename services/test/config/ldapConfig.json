@@ -4,5 +4,6 @@
     "useTLS":"false",
     "searchFilter":"(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)",
     "activeDir":"false",
-    "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt"
+    "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt",
+    "ldapConfigEnabled": true
 }
