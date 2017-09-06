@@ -1599,8 +1599,8 @@ describe('TableMenu Test', function() {
                 if (cellText === "FNF") {
                     fltStr = 'not(exists(' + colName + '))';
                 } else {
-                    if (cellText !== "true" && cellText !== "false" &&
-                        !isNaN(Number(cellText))) {
+                    var beStr = (cellText === "" || isNaN(Number(cellText)));
+                    if (cellText !== "true" && cellText !== "false" && beStr) {
                         cellText = JSON.stringify(cellText);
                     }
                     fltStr = 'eq(' + colName + ', ' + cellText + ')';

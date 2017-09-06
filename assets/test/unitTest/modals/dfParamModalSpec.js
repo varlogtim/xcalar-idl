@@ -7,6 +7,7 @@ describe("DFParamModal Test", function() {
     var prefix;
     var colName;
     var oldRefresh;
+    var testDs;
 
     before(function(done) {
         $("#dataflowTab").click();

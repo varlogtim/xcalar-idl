@@ -6,6 +6,7 @@ describe("RowScroller Test", function() {
     var $input;
 
     before(function(done) {
+        console.clear();
         $input = $("#rowInput");
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
@@ -17,6 +18,9 @@ describe("RowScroller Test", function() {
             $table = $('#xcTable-' + tableId);
 
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -104,6 +108,9 @@ describe("RowScroller Test", function() {
             .then(function() {
                 expect(addRowsCalled).to.be.true;
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -128,6 +135,9 @@ describe("RowScroller Test", function() {
             .then(function() {
                 expect(addRowsCalled).to.be.true;
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -164,7 +174,7 @@ describe("RowScroller Test", function() {
         });
     });
 
-    describe("scrollbar scroll", function() {
+    describe.skip("scrollbar scroll", function() {
         var $scrollBar;
         var $tbodyWrap;
         var table;
@@ -188,16 +198,19 @@ describe("RowScroller Test", function() {
             }
 
             UnitTest.testFinish(function () {
+                console.log("top", $tbodyWrap.scrollTop())
                 return $tbodyWrap.scrollTop() === 50;
             })
             .then(function() {
                 expect($tbodyWrap.scrollTop()).to.equal(50);
-
-                UnitTest.timeoutPromise(1)
-                .then(function() {
-                    table.scrollMeta.isBarScrolling = false;
-                    done();
-                });
+                return UnitTest.timeoutPromise(1);
+            })
+            .then(function() {
+                table.scrollMeta.isBarScrolling = false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -287,10 +300,13 @@ describe("RowScroller Test", function() {
             .then(function() {
                 expect(addRowsCalled).to.be.true;
                 expect($scrollBar.scrollTop()).to.be.gt(scrollBarTop);
-                UnitTest.timeoutPromise(300)
-                .then(function() {
-                    done();
-                });
+                return UnitTest.timeoutPromise(300);
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -324,6 +340,9 @@ describe("RowScroller Test", function() {
                 expect($scrollBar.scrollTop()).to.be.lt(scrollBarTop);
                 $table.find(".tempRow0").removeClass("tempRow0").addClass("row0");
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 

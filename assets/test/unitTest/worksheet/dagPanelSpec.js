@@ -20,6 +20,7 @@ describe("Dag Panel Test", function() {
     }
 
     before(function(done) {
+        console.clear();
         this.timeout(200000);
         UnitTest.onMinMode();
 
@@ -1426,7 +1427,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("complement table", function(done) {
-                var $dagTable = $(".actionType.filter").last().siblings(".dagTable");
+                var $dagTable = $dagPanel.find(".actionType.filter").last().siblings(".dagTable");
                 var $icon = $dagTable.find(".dagTableIcon");
                 var origId = $dagTable.data("id");
                 var origTablename = $dagTable.data("tablename");

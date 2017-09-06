@@ -713,7 +713,7 @@ describe("XcalarThrift Test", function() {
             done();
         })
         .always(function() {
-            xcalarRemoveExportTarget = oldApiCall;
+            xcalarListExportTargets = oldApiCall;
         });
     });
 

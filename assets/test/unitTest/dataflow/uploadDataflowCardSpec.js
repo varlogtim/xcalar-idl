@@ -31,9 +31,15 @@ describe("Upload Dataflow Test", function() {
         });
 
         it("should change the file path and check invalid case", function() {
+            var retName = "test";
+            retName = xcHelper.checkNamePattern("dataflow", "fix", retName);
+            retName = xcHelper.uniqueName(retName, function(name) {
+                return !DF.hasDataflow(name);
+            });
+
             UploadDataflowCard.__testOnly__.changeFilePath("test.pdf");
             expect($retPath.val()).to.equal("test.pdf");
-            expect($dfName.val()).to.equal("test");
+            expect($dfName.val()).to.equal(retName);
             expect($card.find(".confirm").hasClass("btn-disabled"))
             .to.be.true;
             UnitTest.hasStatusBoxWithError(ErrTStr.RetinaFormat);

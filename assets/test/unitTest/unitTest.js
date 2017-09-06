@@ -23,7 +23,7 @@ var testDatasets = {
         "hasHeader": false,
         "moduleName": "",
         "funcName": "",
-        "pointCheck": "#previewTable td:contains(20041101)"
+        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(20041101)"
     },
 
     "schedule": {
@@ -32,7 +32,7 @@ var testDatasets = {
         "format": "JSON",
         "moduleName": "",
         "funcName": "",
-        "pointCheck": "#previewTable td:contains(1)"
+        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(1)"
     },
 
     "fakeYelp": {
@@ -41,7 +41,7 @@ var testDatasets = {
         "format": "JSON",
         "moduleName": "",
         "funcName": "",
-        "pointCheck": "#previewTable th:eq(1):contains(yelping_since)"
+        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable th:eq(1):contains(yelping_since)"
     }
 };
 

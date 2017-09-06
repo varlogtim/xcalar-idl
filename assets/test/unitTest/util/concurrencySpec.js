@@ -3,39 +3,39 @@ describe("Concurrency Test", function() {
     var lockString;
 
     describe("Mutex tests", function() {
-        before(function(done) {
+        before(function() {
+            console.clear();
             mutex = new Mutex(xcHelper.randName("unitTestMutex"));
-            done();
         });
 
         it("Undefined calls should fail", function(done) {
             Concurrency.initLock()
             .then(function() {
-                throw "Error";
+                done("fail");
             }, function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.lock();
             })
             .then(function() {
-                throw "Error";
+                done("fail");
             }, function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.tryLock();
             })
             .then(function() {
-                throw "Error";
+                done("fail");
             }, function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.forceUnlock();
             })
             .then(function() {
-                throw "Error";
+                done("fail");
             }, function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.isLocked();
             })
             .then(function() {
-                throw "Error";
+                done("fail");
             }, function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 done();
@@ -43,10 +43,10 @@ describe("Concurrency Test", function() {
         });
 
         it("Lock call to uninited lock should fail", function(done) {
-            var uninited = new Mutex("notInited");
-            Concurrency.lock(uninited)
+            var lock = new Mutex("notInited");
+            Concurrency.lock(lock)
             .then(function() {
-                throw "Error";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(ConcurrencyEnum.NoKVStore);
@@ -55,22 +55,22 @@ describe("Concurrency Test", function() {
         });
 
         it("Bogus call to test other keysetifequal return codes", function(done) {
-            var uninited = new Mutex("notInited");
-            Concurrency.lock(uninited.key) // This is deliberate
+            var lock = new Mutex("notInited");
+            Concurrency.lock(lock) // This is deliberate
             .then(function() {
-                throw "Error";
+                done("fail");
             })
             .fail(function(error) {
-                expect(error).to.equal("Error: Invalid argument");
+                expect(error).to.equal(ConcurrencyEnum.NoKVStore);
                 done();
             });
         });
 
         it("Unlock call to uninited lock should fail", function(done) {
-            var uninited = new Mutex("notInited");
-            Concurrency.unlock(uninited.key, uninited.scope)
+            var lock = new Mutex("notInited");
+            Concurrency.unlock(lock)
             .then(function() {
-                throw "Error";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(ConcurrencyEnum.NoKey);
@@ -79,10 +79,10 @@ describe("Concurrency Test", function() {
         });
 
         it("isLocked call to uninited lock should fail", function(done) {
-            var uninited = new Mutex("notInited");
-            Concurrency.isLocked(uninited.key, uninited.scope)
+            var lock = new Mutex("notInited");
+            Concurrency.isLocked(lock)
             .then(function() {
-                throw "Error";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(ConcurrencyEnum.NoKey);
@@ -104,7 +104,7 @@ describe("Concurrency Test", function() {
         it("Should not be able to reinit already inited mutex", function(done) {
             Concurrency.initLock(mutex)
             .then(function() {
-                throw "Should not be able to double init";
+                done("Should not be able to double init");
             })
             .fail(function(error) {
                 expect(error).to.equal(ConcurrencyEnum.AlreadyInit);
@@ -115,7 +115,7 @@ describe("Concurrency Test", function() {
         it("Should not get lock after it's been locked", function(done) {
             Concurrency.lock(mutex, 1000)
             .then(function() {
-                throw "Should not get lock!";
+                done("Should not get lock!");
             })
             .fail(function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.OverLimit);
@@ -126,7 +126,7 @@ describe("Concurrency Test", function() {
         it("Should not be able to unlock undef lock", function(done) {
             Concurrency.unlock()
             .then(function() {
-                throw "Should not get lock!";
+                done("Should not get lock!");
             })
             .fail(function(errorMessage) {
                 expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
@@ -144,14 +144,14 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Should not error out!";
+                done("Should not error out!");
             });
         });
 
         it("Should fail trylock since lock is held", function(done) {
             Concurrency.tryLock(mutex)
             .then(function() {
-                throw "Should fail trylock";
+                done("Should fail trylock");
             })
             .fail(function(errorMessage) {
                 expect(errorMessage).to.equal("Limit exceeded");
@@ -166,7 +166,7 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Should be able to unlock";
+                done("Should be able to unlock");
             });
         });
 
@@ -177,7 +177,7 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Should be able to get trylock";
+                done("Should be able to get trylock");
             });
         });
 
@@ -191,7 +191,7 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Should be able to forceUnlock anytime";
+                done("Should be able to forceUnlock anytime");
             });
         });
 
@@ -202,7 +202,7 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Should still be able to unlock";
+                done("Should still be able to unlock");
             });
         });
 
@@ -226,7 +226,7 @@ describe("Concurrency Test", function() {
                 setTimeout(function() {
                     Concurrency.unlock(mutex, t1ls)
                     .fail(function() {
-                        throw "should be able to unlock!";
+                        done("should be able to unlock!");
                     });
                 }, 200);
 
@@ -237,7 +237,7 @@ describe("Concurrency Test", function() {
                         deferred.resolve();
                     })
                     .fail(function() {
-                        throw "Should be able to get the lock!";
+                        done("Should be able to get the lock!");
                     });
                 }, 1);
 
@@ -253,7 +253,7 @@ describe("Concurrency Test", function() {
                 done();
             })
             .fail(function() {
-                throw "should not fail anywhere";
+                done("should not fail anywhere");
             });
         });
 
@@ -265,6 +265,9 @@ describe("Concurrency Test", function() {
             .then(function(val) {
                 expect(val).to.be.null;
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 

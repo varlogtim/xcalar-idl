@@ -86,6 +86,7 @@ describe('Sort View Test', function() {
 
         it("Should submit the form and close the view", function() {
             var oldFunc = ColManager.changeType;
+            var oldSort = xcFunction.sort;
             var test = false;
             xcFunction.sort = function() {
                 test = true;
@@ -121,6 +122,7 @@ describe('Sort View Test', function() {
             assert.isFalse($sortView.is(":visible"));
 
             ColManager.changeType = oldFunc;
+            xcFunction.sort = oldSort;
         });
 
         it("restore form should work", function() {

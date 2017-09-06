@@ -3,14 +3,20 @@ describe("DFCard Test", function() {
     var tableName;
     var tableId;
     var testDfName;
-    var oldRefresh;
+    var oldRefresh = null;
 
     function getDfWrap(dfName) {
         return $('#dfViz .dagWrap[data-dataflowname="' + dfName + '"]');
     }
 
     before(function(done) {
-        $("#dataflowTab").click();
+        console.clear();
+
+        var $mainTabCache = $(".topMenuBarTab.active");
+        if ($mainTabCache.attr("id") !== "dataflowTab") {
+            $("#dataflowTab").click();
+        }
+
         UnitTest.testFinish(function() {
             return $("#dfViz .cardMain").children().length !== 0;
         })
@@ -190,7 +196,6 @@ describe("DFCard Test", function() {
                 var $inputs = $("#dfParamModal").find(".editableTable input.editableParamDiv");
                 $inputs.eq(1).val(testDfName + Date.now() + ".csv");
                 $inputs.eq(2).val("Default");
-
                 return DFParamModal.__testOnly__.storeRetina();
             })
             .then(function() {
@@ -262,7 +267,9 @@ describe("DFCard Test", function() {
         .always(function() {
             XcalarDeleteRetina.log("unitTestDF");
             Alert.forceClose();
-            DataflowPanel.refresh = oldRefresh;
+            if (oldRefresh != null) {
+                DataflowPanel.refresh = oldRefresh;
+            }
             done();
         });
     });
