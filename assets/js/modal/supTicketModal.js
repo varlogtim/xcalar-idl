@@ -32,9 +32,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
             $modal.addClass('locked');
             Alert.tempHide();
         }
-        if (!$issueList.find('.text').val()) {
-            $issueList.find('.text').val('Other');
-        }
     };
 
     function getTickets() {
@@ -42,17 +39,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
         KVStore.get(KVStore.gTktKey, gKVScope.USER)
         .then(function(ticketList) {
             var oldTickets = parseTicketList(ticketList);
-            if (!oldTickets) {
-                oldTickets = [];
-            }
             deferred.resolve(oldTickets);
         })
         .fail(function(err) {
             console.error(err);
             deferred.resolve([]);
-        })
-        .always(function() {
-            listTickets();
         });
         return deferred.promise();
     }
@@ -71,11 +62,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
             var tktStr = "[" + ticketList + "]";
             parsedTickets= JSON.parse(tktStr);
-            return parsedTickets;
         } catch (error) {
             xcConsole.error("parse log failed", error);
-            return null;
         }
+
+        return parsedTickets;
     }
 
 
@@ -111,6 +102,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     return 0;
                 }
             }
+
+            listTickets();
             deferred.resolve();
         });
 
@@ -149,19 +142,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }).setupListeners();
 
         // ticket id radio buttons
-        xcHelper.optionButtonEvent($modal.find(".ticketIDSection"), function(optino, $btn) {
-            if (!$ticketIdSection.hasClass("inactive")) {
-                $ticketIdSection.addClass("inactive");
-                $commentSection.removeClass("inactive");
+        xcHelper.optionButtonEvent($modal.find(".ticketIDSection"), function(option, $btn) {
+            $ticketIdSection.addClass("inactive");
+            $commentSection.removeClass("inactive");
 
-                $ticketIdSection.find(".tableBody .row").addClass("xc-hidden");
-                $btn.closest(".row").removeClass("xc-hidden");
-                $modal.find("textArea").focus();
-            } else {
-                $ticketIdSection.removeClass("inactive");
-                $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
-                $commentSection.addClass("inactive");
-            }
+            $ticketIdSection.find(".tableBody .row").addClass("xc-hidden");
+            $btn.closest(".row").removeClass("xc-hidden");
+            $modal.find("textArea").focus();
 
         }, {deselectFromContainer: true});
 
@@ -342,9 +329,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         } else {
             modalHelper.disableSubmit();
             modalHelper.addWaitingBG();
-            if (genBundle) {
-                submitBundle();
-            }
+
             var time = Date.now();
             var ticket;
             var bundleSendAttempted = false;
@@ -532,6 +517,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         SupTicketModal.__testOnly__.submitTicket = submitTicket;
         SupTicketModal.__testOnly__.downloadTicket = downloadTicket;
         SupTicketModal.__testOnly__.submitForm = submitForm;
+        SupTicketModal.__testOnly__.parseTicketList = parseTicketList;
+        SupTicketModal.__testOnly__.getTickets = getTickets;
     }
     /* End Of Unit Test Only */
 

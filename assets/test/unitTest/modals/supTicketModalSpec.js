@@ -1,8 +1,12 @@
 describe("SupTicketModal Test", function() {
     var $modal;
+    var $ticketIdSection;
+    var $commentSection;
 
     before(function() {
         $modal = $("#supTicketModal");
+        $ticketIdSection = $modal.find(".ticketIDSection");
+        $commentSection = $modal.find(".commentSection");
         UnitTest.onMinMode();
     });
 
@@ -15,11 +19,17 @@ describe("SupTicketModal Test", function() {
         it("should toggle dropdown list", function(){
             var $dropdown = $modal.find(".dropDownList");
             var $input = $dropdown.find(".text");
-            $dropdown.find("li").each(function() {
+            $($dropdown.find("li").get().reverse()).each(function() {
                 var $li = $(this);
                 $li.trigger(fakeEvent.mouseup);
                 expect($input.val()).to.equal($li.text());
             });
+
+            // already selected so shouldn't do anything
+            $ticketIdSection.addClass("closed");
+            $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
+            expect($ticketIdSection.hasClass("closed")).to.be.true;
+            $ticketIdSection.removeClass("closed");
         });
 
         it("should toggle check box", function() {
@@ -37,6 +47,153 @@ describe("SupTicketModal Test", function() {
         it("should close the modal", function() {
             $modal.find(".cancel").click();
             assert.isFalse($modal.is(":visible"));
+        });
+
+        it("alert modal should not be visible if modal background locked" ,function () {
+            expect($modal.hasClass("locked")).to.be.false;
+            $("#modalBackground").addClass("locked");
+
+            SupTicketModal.show();
+
+            expect($modal.hasClass("locked")).to.be.true;
+            expect($("#alertModal").hasClass("xc-hidden")).to.be.true;
+
+            $modal.find(".cancel").click();
+            assert.isFalse($modal.is(":visible"));
+            $("#modalBackground").removeClass("locked");
+            $modal.removeClass("locked");
+            expect($("#alertModal").hasClass("xc-hidden")).to.be.false;
+        });
+    });
+
+    describe("Existing tickets test", function() {
+        var longStr;
+        before(function() {
+            longStr = "blah blah ".repeat(40);
+            SupTicketModal.show();
+        });
+
+        it("SupTicketModal.Restore work", function(done) {
+            var list = '{"time": 12345, "id": 1, "comment": "abc"},' +
+                        '{"time": 12346, "id": 2, "comment": "' + longStr + '"},' +
+                        '{"time": 12345, "id": 1, "comment": "ghi"},' +
+                        '{"time": 12347, "id": 1, "comment": "jkl"},';
+            var kvStoreCache = KVStore.get;
+            KVStore.get = function() {
+                return PromiseHelper.resolve(list);
+            };
+            SupTicketModal.restore()
+            .then(function() {
+                expect($ticketIdSection.find(".tableBody .row").length).to.equal(2);
+                expect($ticketIdSection.find(".tableBody .innerRow").length).to.equal(4);
+                expect($ticketIdSection.find(".tableBody .row").eq(0).find(".innerRow").length).to.equal(1);
+                expect($ticketIdSection.find(".tableBody .row").eq(1).find(".innerRow").length).to.equal(3);
+                expect($ticketIdSection.find(".tableBody .comments .text").eq(0).text()).to.equal(longStr);
+                expect($ticketIdSection.find(".tableBody .comments .text").eq(1).text()).to.equal("abc");
+
+
+                KVStore.get = kvStoreCache;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("parseTicketList() should work", function() {
+            var fn = SupTicketModal.__testOnly__.parseTicketList;
+            var list = fn();
+            expect(list).to.deep.equal([]);
+            list = fn("unquoted");
+            expect(list).to.deep.equal([]);
+            list = fn("\"test\",");
+            expect(list).to.deep.equal(["test"]);
+        });
+
+        it("getTickets() errors should work", function(done) {
+            var cachedKV = KVStore.append;
+            var getCalled = false;
+            KVStore.get = function() {
+                getCalled = true;
+                return PromiseHelper.reject();
+            };
+
+            SupTicketModal.__testOnly__.getTickets()
+            .then(function(ret) {
+                expect(getCalled).to.be.true;
+                expect(ret).to.deep.equal([]);
+                KVStore.get = cachedKV;
+                $("#debugAlert .xi-close").click();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("ticket id radio buttons should work", function() {
+            var $dropdown = $modal.find(".dropDownList");
+            var $input = $dropdown.find(".text");
+
+            $dropdown.find("li").filter(function() {
+                return $(this).data("val") === "existing";
+            }).trigger(fakeEvent.mouseup);
+
+            expect($ticketIdSection.hasClass("inactive")).to.be.false;
+            expect($commentSection.hasClass("inactive")).to.be.true;
+
+            $ticketIdSection.find(".radioButton").eq(0).click();
+
+            expect($ticketIdSection.hasClass("inactive")).to.be.true;
+            expect($commentSection.hasClass("inactive")).to.be.false;
+            expect($ticketIdSection.find(".row.xc-hidden").length).to.equal(1);
+        });
+
+        it("mousedown on commentsection should work", function() {
+            $ticketIdSection.find(".innerRow").eq(0).click();
+            expect($ticketIdSection.hasClass("inactive")).to.be.false;
+            expect($commentSection.hasClass("inactive")).to.be.true;
+
+            $ticketIdSection.find(".tableBody .row").addClass("xc-hidden");
+
+            $commentSection.mousedown();
+            expect($ticketIdSection.find(".row").eq(0).hasClass("xc-hidden")).to.be.false;
+        });
+
+        it("clicking on comments should expand row", function() {
+            $ticketIdSection.find(".tableBody .comments").eq(0).addClass("overflow");
+            $ticketIdSection.find(".tableBody .innerRow").eq(0).removeClass("expanded");
+
+
+            $ticketIdSection.find(".tableBody .comments").eq(0).click();
+
+            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.true;
+        });
+
+        it("expand comment via icon should work", function() {
+            $ticketIdSection.find(".tableBody .innerRow").eq(0).removeClass("expanded");
+            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.false;
+            $ticketIdSection.find(".expand").eq(0).click();
+            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.true;
+
+            $ticketIdSection.find(".expand").eq(0).click();
+            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.false;
+        });
+
+        it("resize should show or hide expand icon", function() {
+            var $bar = $modal.find(".ui-resizable-w").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $ticketIdSection.find(".comments").addClass("overflow");
+            expect($ticketIdSection.find(".comments.overflow").length).to.equal(4);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 1, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY });
+
+            expect($ticketIdSection.find(".comments.overflow").length).to.be.lt(4);
         });
     });
 
@@ -180,6 +337,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should handle submit form fail case", function(done) {
+            var cache = XFTSupportTools.fileTicket;
             XFTSupportTools.fileTicket = function() {
                 return PromiseHelper.reject("test");
             };
@@ -191,8 +349,51 @@ describe("SupTicketModal Test", function() {
             .fail(function() {
                 assert.isTrue($("#statusBox").is(":visible"));
                 StatusBox.forceHide();
+                XFTSupportTools.fileTicket = cache;
                 done();
             });
+        });
+
+        it("should submit bundle if selected", function() {
+            var cache1 = XcalarSupportGenerate;
+            var cache2 = XFTSupportTools.fileTicket;
+            var cache3 = XFTSupportTools.getLicense;
+            var cache4 = KVStore.append;
+            var supGenCalled = false;
+            XcalarSupportGenerate = function() {
+                supGenCalled = true;
+                return PromiseHelper.resolve();
+            };
+            XFTSupportTools.fileTicket = function() {
+                return PromiseHelper.resolve({logs: JSON.stringify({ticketId: 5})});
+            };
+            XFTSupportTools.getLicense = function() {
+                return PromiseHelper.resolve();
+            };
+            KVStore.append = function() {
+                return PromiseHelper.resolve();
+            };
+            var $dropdown = $modal.find(".dropDownList");
+            $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
+            $modal.find(".genBundleBox .checkbox").addClass("checked");
+
+            $modal.find('.confirm').click();
+
+            expect(supGenCalled).to.be.true;
+            XcalarSupportGenerate = cache1;
+            XFTSupportTools.fileTicket = cache2;
+            XFTSupportTools.getLicense = cache3;
+            KVStore.append = cache4;
+        });
+
+        it("should provide error if no id selected", function() {
+            var $dropdown = $modal.find(".dropDownList");
+            $dropdown.find("li").eq(1).trigger(fakeEvent.mouseup);
+
+            $ticketIdSection.find(".radioButton").removeClass("active");
+            $modal.find(".download").click();
+            UnitTest.hasStatusBoxWithError(MonitorTStr.SelectExistingTicket);
+            $ticketIdSection.find(".radioButton").eq(0).addClass("active");
         });
 
         it("should submit form", function(done) {
