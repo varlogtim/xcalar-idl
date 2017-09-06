@@ -39,7 +39,7 @@ describe('ExpServer Upload Test', function() {
         testCommand = "ls";
         testFilePath = __dirname + "/../config/logs";
         testDir = __dirname + "/../config/testDir"
-        testData = "OVERWRITTEN BY UPLOAD TEST";
+        testData = "ONLY FOR TEST";
         testName = "testExt";
         testVersion = "1.0.0";
         testS3 = "s3";

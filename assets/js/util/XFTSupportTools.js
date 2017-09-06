@@ -8,7 +8,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
 
     XFTSupportTools.getMatchHosts = function(hostnamePattern) {
         var action = "GET";
-        var url = "/matchedHost";
+        var url = "/service/matchedHosts";
         var content = {
             "hostnamePattern": hostnamePattern
         };

@@ -607,9 +607,12 @@ function isComplete(command, data) {
     }
 }
 // Other commands
-function getXlrRoot() {
+function getXlrRoot(filePath) {
     var cfgLocation =  process.env.XCE_CONFIG ?
         process.env.XCE_CONFIG : defaultHostsFile;
+    if (filePath) {
+        cfgLocation = filePath;
+    }
     var deferred = jQuery.Deferred();
     var defaultLoc = "/mnt/xcalar";
     fs.readFile(cfgLocation, "utf8", function(err, data) {
@@ -632,14 +635,18 @@ function getXlrRoot() {
     return deferred.promise();
 }
 
-function getLicense() {
+function getLicense(filePath) {
     var deferredOut = jQuery.Deferred();
     getXlrRoot()
     .then(function(location) {
         var licenseLocation = location + "/config/license.txt";
+        if (filePath) {
+            licenseLocation = filePath;
+        }
         fs.readFile(licenseLocation, 'utf8', function(err, data) {
             var retMsg;
             try {
+                if (err) throw err;
                 var license = data;
                 retMsg = {"status": httpStatus.OK,
                     "logs": license};
@@ -650,6 +657,9 @@ function getLicense() {
                 deferredOut.reject(retMsg);
             }
         });
+    })
+    .fail(function() {
+        deferredOut.reject();
     });
     return deferredOut.promise();
 }
@@ -689,7 +699,7 @@ function hasLogFile(filePath) {
     var deferred = jQuery.Deferred();
     fs.access(filePath, function(err) {
         if (!err) {
-            deferred.resolve();
+            deferred.resolve(true);
             return;
         } else {
             deferred.reject();
@@ -712,9 +722,13 @@ function generateLastMonitorMap(results) {
     return lastMonitorMap;
 }
 
-function readInstallerLog() {
+function readInstallerLog(filePath) {
     var deferred = jQuery.Deferred();
-    fs.readFile('/tmp/xcalar/installer.log', 'utf8', function(err, data) {
+    var defaultPath = '/tmp/xcalar/installer.log';
+    if (filePath) {
+        defaultPath = filePath;
+    }
+    fs.readFile(defaultPath, 'utf8', function(err, data) {
         if (err) {
             retMsg = {
                 "status": httpStatus.InternalServerError,
@@ -739,7 +753,7 @@ function fakeExecuteCommand() {
 }
 function fakeReadHostsFromFile() {
     readHostsFromFile = function() {
-        return jQuery.Deferred().resolve(["bellman.int.xcalar.com"]).promise();
+        return jQuery.Deferred().resolve(["bellman.int.xcalar.com"], [0]).promise();
     }
 }
 function fakeSendCommandToSlaves() {
@@ -753,10 +767,14 @@ function fakeGetXlrRoot() {
     };
 }
 if (process.env.NODE_ENV === "test") {
+    exports.executeCommand = executeCommand;
     exports.sendCommandToSlaves = sendCommandToSlaves;
     exports.generateLogs = generateLogs;
     exports.isValidEmail = isValidEmail;
     exports.generateLastMonitorMap = generateLastMonitorMap;
+    exports.readInstallerLog = readInstallerLog;
+    exports.isComplete = isComplete;
+    exports.getOperatingSystem = getOperatingSystem;
     // Fake functions
     exports.fakeExecuteCommand = fakeExecuteCommand;
     exports.fakeReadHostsFromFile = fakeReadHostsFromFile;

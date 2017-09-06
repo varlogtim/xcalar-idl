@@ -38,6 +38,7 @@ describe('ExpServer Service Test', function() {
         service.fakeRemoveSHM();
         service.fakeGetLicense();
         service.fakeSubmitTicket();
+        service.fakeGetMatchedHosts();
     });
 
     it("service.convertToBase64 should work", function() {
@@ -198,4 +199,14 @@ describe('ExpServer Service Test', function() {
         });
     });
 
+    it('Get Matched Host router should work', function(done) {
+        sendRequest("GET", "/service/matchedHosts")
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+    });
 });

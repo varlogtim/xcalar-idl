@@ -19,7 +19,12 @@ describe('ExpServer Support Test', function() {
         testHosts = ["skywalker.int.xcalar.com"];
         testAction = "GET";
         testSlaveUrl = "/service/status/slave";
-        testContent = {};
+        testContent = {
+            hosts: testHosts,
+            isMonitoring: "true",
+            requireLineNum: 10,
+            lastMonitorMap: "{}"
+        };
         testEmail = "test@xcalar.com";
         testResults = {
             "bellman.int.xcalar.com": {
@@ -33,10 +38,28 @@ describe('ExpServer Support Test', function() {
             filePath: __dirname + "/../config",
             fileName: "logs"
         }
-        support.fakeExecuteCommand();
+        testPath = __dirname + "/../config/logs";
+        testCfg = __dirname + "/../config/hosts.cfg";
+        testLicense = __dirname + "/../config/license.txt";
+        testStartCommand = "/opt/xcalar/bin/xcalarctl start";
+        testStopCommand = "/opt/xcalar/bin/xcalarctl stop";
+        testStartData = "xcmgmtd started";
+        testStopData = "Stopped Xcalar";
+    });
+
+    it('executeCommand should work', function(done) {
+        support.executeCommand(" ")
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
     });
 
     it("readHostsFromFile should work", function(done) {
+        support.fakeExecuteCommand();
         support.readHostsFromFile(testHostsFile)
         .then(function(ret) {
             expect(ret).to.be.an("Array");
@@ -61,19 +84,19 @@ describe('ExpServer Support Test', function() {
     });
     // This part cannot pass and no reason is identified yet, probably caused by timeout
     // Manually tested it in XD and it works.
-    // it('sendCommandToSlaves should work', function(done) {
-    //     support.sendCommandToSlaves(testAction, testSlaveUrl, testContent, testHosts)
-    //     .then(function(ret) {
-    //         expect(ret[testHosts[0]].status).to.equal(200);
-    //         done();
-    //     })
-    //     .fail(function() {
-    //         done("fail");
-    //     });
-    // });
+    it('sendCommandToSlaves should work', function(done) {
+        support.sendCommandToSlaves(testAction, testSlaveUrl, testContent, testHosts)
+        .then(function(ret) {
+            expect(ret[testHosts[0]].status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
 
     it('sendCommandToSlaves should fail when error', function(done) {
-        testSlaveUrl = "";
+        testSlaveUrl = "/service/logs/slave";
         support.sendCommandToSlaves(testAction, testSlaveUrl, testContent, testHosts)
         .then(function() {
             done("fail");
@@ -109,7 +132,20 @@ describe('ExpServer Support Test', function() {
         done();
     });
 
-    it('masterExecuteAction should work', function(done) {
+    it('masterExecuteAction should work with given host', function(done) {
+        support.fakeReadHostsFromFile();
+        support.fakeSendCommandToSlaves();
+        support.masterExecuteAction(testAction, testSlaveUrl, testContent, true)
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+    });
+
+    it('masterExecuteAction should work without given host', function(done) {
         support.fakeReadHostsFromFile();
         support.fakeSendCommandToSlaves();
         support.masterExecuteAction(testAction, testSlaveUrl, testContent)
@@ -123,7 +159,18 @@ describe('ExpServer Support Test', function() {
     });
 
     it('getXlrRoot should work', function(done) {
-        support.getXlrRoot()
+        support.getXlrRoot(testCfg)
+        .then(function(ret) {
+            expect(ret).to.equal("test");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('getXlrRoot should work and return a default result when input is invalid', function(done) {
+        support.getXlrRoot("invalidPath")
         .then(function(ret) {
             expect(ret).to.equal("/mnt/xcalar");
             done();
@@ -147,13 +194,24 @@ describe('ExpServer Support Test', function() {
     });
 
     it('getLicense should work', function(done) {
-        support.getLicense()
+        support.getLicense(testLicense)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();
         })
         .fail(function() {
             done("fail");
+        });
+    });
+
+    it('getLicense should fail when error, e.g. invalid path', function(done) {
+        support.getLicense("invalidPath")
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(400);
+            done();
         });
     });
 
@@ -166,4 +224,107 @@ describe('ExpServer Support Test', function() {
         expect(support.generateLastMonitorMap(testResults)).to.not.be.empty;
     });
 
+    it('getMatchedHosts should work', function(done) {
+        support.getMatchedHosts({hostnamePattern: ".*"})
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('getMatchedHosts should work given not pattern', function(done) {
+        support.getMatchedHosts({hostnamePattern: ""})
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('getMatchedHosts should fail when error, e.g. invalid pattern', function(done) {
+        support.getMatchedHosts({hostnamePattern: "*"})
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(404);
+            done();
+        });
+    });
+    it('readInstallerLog should work', function(done) {
+        support.readInstallerLog(testPath)
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('readInstallerLog should fail when error, e.g. invalid path', function(done) {
+        support.readInstallerLog("invalidPath")
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(500);
+            done();
+        });
+    });
+
+    it('hasLogFile should work', function(done) {
+        support.hasLogFile(testPath)
+        .then(function(ret) {
+            expect(ret).to.equal(true);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('hasLogFile should fail when error, e.g. invalid path', function(done) {
+        support.hasLogFile("invalidPath")
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            done();
+        });
+    });
+
+    it('isComplete should work', function() {
+        expect(support.isComplete(testStartCommand, "")).to.equal(false);
+        expect(support.isComplete(testStartCommand, testStartData)).to.equal(true);
+        expect(support.isComplete(testStopCommand, "")).to.equal(false);
+        expect(support.isComplete(testStopCommand, testStopData)).to.equal(true);
+    });
+
+    it('removeSHM should work', function(done) {
+        support.removeSHM()
+        .then(function(ret) {
+            expect(ret).to.include("succeeds");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('getOperatingSystem should work', function(done) {
+        support.getOperatingSystem()
+        .then(function(ret) {
+            expect(ret).to.include("succeeds");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
 });

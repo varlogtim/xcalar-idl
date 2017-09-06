@@ -149,7 +149,7 @@ router.post("/service/ticket", function(req, res) {
     });
 });
 
-router.get("/matchedHost", function(req, res) {
+router.get("/service/matchedHosts", function(req, res) {
     xcConsole.log("Find matched Hosts");
     support.getMatchedHosts(req.query)
     .always(function(message) {
@@ -177,66 +177,6 @@ router.get("/service/logs/slave", function(req, res) {
 });
 // End of service calls
 
-function unitTest() {
-    responseReplace();
-    function responseReplace() {
-        support.removeSessionFiles = fakeResponseRSF;
-        support.removeSHM = fakeResponseSHM;
-        support.getLicense = fakeResponseLicense;
-        support.submitTicket = fakeResponseSubmitTicket;
-        support.masterExecuteAction = fakeResponseMasterExecuteAction;
-        support.slaveExecuteAction = fakeResponseSlaveExecuteAction;
-    }
-
-    function fakeResponseRSF() {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Fake response remove Session Files!"
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-    function fakeResponseSHM() {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Fake response remove SHM Files!"
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-    function fakeResponseLicense() {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Fake response get License!"
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-    function fakeResponseSubmitTicket() {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Fake response submit Ticket!"
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-    function fakeResponseMasterExecuteAction(action, slaveUrl) {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Master: Fake response! " + slaveUrl
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-    function fakeResponseSlaveExecuteAction(action, slaveUrl) {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": httpStatus.OK,
-            "logs": "Slave: Fake response! " + slaveUrl
-        };
-        return deferred.resolve(retMsg).promise();
-    }
-}
 // Below part is only for Unit Test
 function fakeMasterExecuteAction() {
     support.masterExecuteAction = function() {
@@ -269,6 +209,11 @@ function fakeSubmitTicket() {
         return jQuery.Deferred().resolve({status: 200}).promise();
     };
 }
+function fakeGetMatchedHosts() {
+    support.getMatchedHosts = function() {
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
+}
 if (process.env.NODE_ENV === "test") {
     exports.convertToBase64 = convertToBase64;
     exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
@@ -277,6 +222,7 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeRemoveSHM = fakeRemoveSHM;
     exports.fakeGetLicense = fakeGetLicense;
     exports.fakeSubmitTicket = fakeSubmitTicket;
+    exports.fakeGetMatchedHosts = fakeGetMatchedHosts;
 }
 
 // Export router
