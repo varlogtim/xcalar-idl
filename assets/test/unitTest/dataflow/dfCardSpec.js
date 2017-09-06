@@ -21,13 +21,13 @@ describe("DFCard Test", function() {
             UnitTest.onMinMode();
             testDfName = xcHelper.randName("unitTestDF");
             var testDSObj = testDatasets.fakeYelp;
-            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-            .always(function(ds, tName) {
-                testDs = ds;
-                tableName = tName;
-                tableId = xcHelper.getTableId(tableName);
-                done();
-            });
+            return UnitTest.addAll(testDSObj, "unitTestFakeYelp");
+        })
+        .then(function(ds, tName) {
+            testDs = ds;
+            tableName = tName;
+            tableId = xcHelper.getTableId(tableName);
+            done();
         })
         .fail(function() {
             done("fail");
@@ -147,67 +147,6 @@ describe("DFCard Test", function() {
         //     $("#dfViz").trigger(fakeEvent.mousedown);
         //     expect($tab.find(".retPopUp").is(":visible")).to.be.false;
         // });
-
-        it("empty param submission should validate", function() {
-            $tab.find(".newParam").val("");
-            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
-            UnitTest.hasStatusBoxWithError("Please fill out this field.");
-        });
-
-        it("invalid param character submission should validate", function() {
-            $tab.find(".newParam").val("te?st");
-            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
-            UnitTest.hasStatusBoxWithError("Please input a valid name with no special characters or spaces.");
-        });
-
-        it("duplicate param name should validate", function() {
-            $("#retLists").find(".row").eq(0).removeClass("unfilled").find(".paramName").text("test");
-            $tab.find(".newParam").val("test");
-            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
-            UnitTest.hasStatusBoxWithError('Parameter "test" already exists, please choose another name.');
-            $("#retLists").find(".row").eq(0).addClass("unfilled").find(".paramName").text("");
-        });
-
-        it("system param name should validate", function() {
-            $tab.find(".newParam").val("N");
-            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
-            UnitTest.hasStatusBoxWithError('Parameter "N" is a system parameter, please choose another name.');
-        });
-
-        it("valid param should work", function() {
-            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.true;
-            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("");
-            var df = DF.getDataflow(testDfName);
-            expect(df.parameters.length).to.equal(0);
-
-            $tab.find(".newParam").val("test");
-            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
-
-            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.false;
-            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("test");
-            expect(df.parameters.length).to.equal(1);
-            expect(df.parameters[0]).to.equal("test");
-        });
-
-        it("param delete should work", function() {
-            var df = DF.getDataflow(testDfName);
-            expect(df.parameters.length).to.equal(1);
-            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.false;
-            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("test");
-
-            $("#retLists").find(".paramDelete").eq(0).click();
-            expect(df.paramMap.hasOwnProperty("test")).to.be.false;
-            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.true;
-            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("");
-        });
-
-        it("adding parameter when rows are filled should work", function() {
-            expect($("#retLists").find(".row").length).to.equal(5);
-            $("#retLists").find(".row").removeClass("unfilled");
-            DFCard.__testOnly__.addParamToRetina("name", "val");
-            expect($("#retLists").find(".row").length).to.equal(6);
-            $("#retLists").find(".row").last().remove();
-        });
     });
 
     it("dag tables should have Created class", function() {
@@ -237,7 +176,6 @@ describe("DFCard Test", function() {
     });
 
     describe("Status Progress check", function() {
-
         // using real xcalarquerystate
         it("dag table statuses should update when executing retina", function(done) {
             $("#dfMenu .groupName").filter(function() {
@@ -247,29 +185,30 @@ describe("DFCard Test", function() {
             var $dfWrap = getDfWrap(testDfName);
             $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
-
             DFParamModal.show($dfWrap.find(".dagTable").last())
             .then(function() {
                 var $inputs = $("#dfParamModal").find(".editableTable input.editableParamDiv");
-                $inputs.eq(0).val(testDfName + Date.now() + ".csv");
-                $inputs.eq(1).val("Default");
+                $inputs.eq(1).val(testDfName + Date.now() + ".csv");
+                $inputs.eq(2).val("Default");
 
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    DFCard.__testOnly__.runDF(testDfName)
-                    .then(function() {
-                        // wait for last xcalarquerystate call to return
-                        setTimeout(function() {
-                            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-                            $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
-                            expect($dfWrap.find(".dagTable.Created").length).to.equal(0);
-                            expect($dfWrap.find(".dagTable.Ready").length).to.equal(3);
-                            done();
-                        }, 4000);
-                    });
-                });
+                return DFParamModal.__testOnly__.storeRetina();
+            })
+            .then(function() {
+                return DFCard.__testOnly__.runDF(testDfName);
+            })
+            .then(function() {
+                // wait for last xcalarquerystate call to return
+                setTimeout(function() {
+                    expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
+                    $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                    expect($dfWrap.find(".dagTable.Created").length).to.equal(0);
+                    expect($dfWrap.find(".dagTable.Ready").length).to.equal(3);
+                    done();
+                }, 4000);
+            })
+            .fail(function() {
+                done("fail");
             });
-
         });
 
         // using fake xcalarquerystate

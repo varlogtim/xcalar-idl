@@ -23,34 +23,34 @@ describe("DFParamModal Test", function() {
 
             testDfName = xcHelper.randName("unitTestParamDF");
             var testDSObj = testDatasets.fakeYelp;
-            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-            .always(function(ds, tName, tPrefix) {
-                testDs = ds;
-                tableName = tName;
-                oldTableName = tableName;
-                prefix = tPrefix;
-                tableId = xcHelper.getTableId(tableName);
-                colName = prefix + gPrefixSign + "average_stars";
 
-                xcFunction.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"})
-                .then(function(nTName) {
-                    tableName = nTName;
-                    tableId = xcHelper.getTableId(nTName);
-                    var columns = [{backCol: colName, frontCol: "average_stars"}];
+            return UnitTest.addAll(testDSObj, "unitTestFakeYelp");
+        })
+        .then(function(ds, tName, tPrefix) {
+            testDs = ds;
+            tableName = tName;
+            oldTableName = tableName;
+            prefix = tPrefix;
+            tableId = xcHelper.getTableId(tableName);
+            colName = prefix + gPrefixSign + "average_stars";
 
-                    DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName)
-                    .then(function() {
-                        $("#dataflowTab .mainTab").click();
-                        $("#dfMenu").find(".listBox").filter(function() {
-                            return ($(this).find(".groupName").text() === testDfName);
-                        }).closest(".listBox").trigger("click");
+            return xcFunction.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"});
+        })
+        .then(function(nTName) {
+            tableName = nTName;
+            tableId = xcHelper.getTableId(nTName);
+            var columns = [{backCol: colName, frontCol: "average_stars"}];
 
-                        $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+            return DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName);
+        })
+        .then(function() {
+            $("#dataflowTab .mainTab").click();
+            $("#dfMenu").find(".listBox").filter(function() {
+                return ($(this).find(".groupName").text() === testDfName);
+            }).closest(".listBox").trigger("click");
 
-                        done();
-                    });
-                });
-            });
+            $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+            done();
         })
         .fail(function() {
             done("fail");
@@ -69,11 +69,92 @@ describe("DFParamModal Test", function() {
         DFParamModal.show = cachedFn;
     });
 
+    describe("Add/delete param test", function() {
+        before(function(done) {
+            DFParamModal.show($dfWrap.find(".dagTable.export"))
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should click to show new param input", function() {
+            assert.isFalse($modal.find(".newParam").is(":visible"));
+            $modal.find(".addParam").click();
+            assert.isTrue($modal.find(".newParam").is(":visible"));
+        });
+
+        it("empty param submission should hide input", function() {
+            $modal.find(".newParam").val("").trigger(fakeEvent.enterKeydown);
+            assert.isFalse($modal.find(".newParam").is(":visible"));
+        });
+
+        it("invalid param character submission should validate", function() {
+            $modal.find(".addParam").click();
+            $modal.find(".newParam").val("te?st")
+                  .trigger(fakeEvent.enterKeydown);
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoSpecialCharOrSpace);
+        });
+
+
+        it("system param name should validate", function() {
+            $modal.find(".newParam").val("N")
+                  .trigger(fakeEvent.enterKeydown);
+            var error = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+                name: "N"
+            });
+            UnitTest.hasStatusBoxWithError(error);
+        });
+
+        it("valid param should work", function() {
+            var df = DF.getDataflow(testDfName);
+            expect(df.parameters.length).to.equal(0);
+
+            $modal.find(".newParam").val("test")
+                  .trigger(fakeEvent.enterKeydown);
+
+            expect($modal.find(".deleteParam").length).to.equal(1);
+            expect(df.parameters.length).to.equal(1);
+            expect(df.parameters[0]).to.equal("test");
+        });
+
+        it("duplicate param name should validate", function() {
+            $modal.find(".addParam").click();
+            $modal.find(".newParam").val("test")
+                  .trigger(fakeEvent.enterKeydown);
+            var error = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                name: "test"
+            });
+            UnitTest.hasStatusBoxWithError(error);
+            // hide the input
+            $modal.find(".newParam").val("")
+                  .trigger(fakeEvent.enterKeydown);
+            assert.isFalse($modal.find(".newParam").is(":visible"));
+        });
+
+        it("param delete should work", function() {
+            var df = DF.getDataflow(testDfName);
+            $modal.find(".deleteParam").eq(0).click();
+
+            expect(df.paramMap.hasOwnProperty("test")).to.be.false;
+            expect(df.parameters.length).to.equal(0);
+        });
+
+        after(function() {
+            DFParamModal.__testOnly__.closeDFParamModal();
+        });
+    });
+
     describe("initial state test from export and submit fail test", function() {
         before(function(done) {
             DFParamModal.show($dfWrap.find(".dagTable.export"))
             .then(function() {
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -84,9 +165,10 @@ describe("DFParamModal Test", function() {
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(2);
             expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + "Target:Default");
-            expect($modal.find("input").eq(0).val()).to.equal("export-" + tableName);
-            expect($modal.find("input").eq(1).val()).to.equal("Default");
-            expect($modal.find("input").length).to.equal(5);
+            var $inputs = $modal.find("input");
+            expect($inputs.length).to.equal(6);
+            expect($inputs.eq(1).val()).to.equal("export-" + tableName);
+            expect($inputs.eq(2).val()).to.equal("Default");
         });
 
         describe("export submit with invalid file name", function() {
@@ -144,10 +226,11 @@ describe("DFParamModal Test", function() {
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(3);
             expect($modal.find(".template").text()).to.equal("filter:" + colName + "bygt3");
-            expect($modal.find("input").eq(0).val()).to.equal(colName);
-            expect($modal.find("input").eq(1).val()).to.equal("gt");
-            expect($modal.find("input").eq(2).val()).to.equal("3");
-            expect($modal.find("input").length).to.equal(6);
+            var $inputs = $modal.find("input");
+            expect($inputs.length).to.equal(7);
+            expect($inputs.eq(1).val()).to.equal(colName);
+            expect($inputs.eq(2).val()).to.equal("gt");
+            expect($inputs.eq(3).val()).to.equal("3");
         });
 
         it("filter dropdown should be correct", function() {
@@ -318,7 +401,7 @@ describe("DFParamModal Test", function() {
             $modal.find(".editableParamQuery input").eq(0).val("");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
-                done("failed");
+                done("fail");
             })
             .fail(function(){
                 UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyMustRevert);
@@ -330,7 +413,7 @@ describe("DFParamModal Test", function() {
             $modal.find(".editableParamQuery input").eq(2).val("<test");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
-                done("failed");
+                done("fail");
             })
             .fail(function(){
                 UnitTest.hasStatusBoxWithError("Unclosed parameter bracket detected.");
@@ -342,7 +425,7 @@ describe("DFParamModal Test", function() {
             $modal.find(".editableParamQuery input").eq(2).val("<te?st>");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
-                done("failed");
+                done("fail");
             })
             .fail(function(){
                 UnitTest.hasStatusBoxWithError("No special characters or spaces allowed within parameter braces.");
@@ -358,7 +441,7 @@ describe("DFParamModal Test", function() {
 
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
-                done("failed");
+                done("fail");
             })
             .fail(function(){
                 UnitTest.hasStatusBoxWithError("Please fill out this field or keep it empty by checking the checkbox.");
@@ -371,7 +454,7 @@ describe("DFParamModal Test", function() {
             $modal.find(".editableParamQuery input").eq(1).val("garbage");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
-                done("failed");
+                done("fail");
             })
             .fail(function(){
                 UnitTest.hasStatusBoxWithError(ErrTStr.FilterTypeNoSupport);
@@ -386,12 +469,12 @@ describe("DFParamModal Test", function() {
             .then(function() {
                 var df = DF.getDataflow(testDfName);
                 expect(df.paramMap.testParam).to.equal("4");
-                expect($dfWrap.find(".actionType.filter").text()).to.equal("Filter<Parameterized>");
+                expect($dfWrap.find(".actionType.filter").text()).to.equal("filter<Parameterized>");
                 expect($dfWrap.find(".actionType.filter").hasClass("hasParam")).to.be.true;
                 done();
             })
             .fail(function(){
-                done("failed");
+                done("fail");
             });
         });
 
@@ -400,15 +483,15 @@ describe("DFParamModal Test", function() {
             .then(function() {
                 $modal.find(".editableParamQuery input").eq(2).val("<N>");
                 DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(2));
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    var df = DF.getDataflow(testDfName);
-                    expect(df.paramMap.N).to.equal(0);
-                    done();
-                })
-                .fail(function(){
-                    done("failed");
-                });
+                return DFParamModal.__testOnly__.storeRetina();
+            })
+            .then(function() {
+                var df = DF.getDataflow(testDfName);
+                expect(df.paramMap.N).to.equal(0);
+                done();
+            })
+            .fail(function(){
+                done("fail");
             });
         });
     });

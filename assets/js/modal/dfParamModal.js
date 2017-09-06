@@ -134,50 +134,55 @@ window.DFParamModal = (function($, DFParamModal){
             var paramName = $input.val().trim();
             var retName = $dfParamModal.data("df");
             var df = DF.getDataflow(retName);
+            var isValid = true;
 
             if (paramName === "") {
-                $dfParamModal.find(".newParam").hide();
-                $dfParamModal.find(".addParam").show();
-            }
-            var isValid = xcHelper.validate([
-                {
-                    "$ele": $input
-                },
-                {
+                isValid = false;
+                hideAddParamSection();
+            } else {
+                isValid = xcHelper.validate([{
                     "$ele": $input,
                     "error": ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
                         return !xcHelper.checkNamePattern("param", "check",
-                            paramName);
+                                                          paramName);
                     }
-                }
-            ]);
+                },
+                {
+                    "$ele": $input,
+                    "error": xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+                        "name": paramName
+                    }),
+                    "check": function() {
+                        return systemParams.hasOwnProperty(paramName);
+                    }
+                },
+                {
+                    "$ele": $input,
+                    "error": xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                        "name": paramName
+                    }),
+                    "check": function() {
+                        return df.paramMap.hasOwnProperty(paramName);
+                    }
+                }]);
+            }
 
             if (!isValid) {
                 return;
             }
-            var text;
-            if (df.paramMap.hasOwnProperty(paramName)) {
-                text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
-                    "name": paramName
-                });
-                StatusBox.show(text, $input);
-                return;
-            }
-            if (systemParams.hasOwnProperty(paramName)) {
-                text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
-                    "name": paramName
-                });
-                StatusBox.show(text, $input);
-                return;
-            }
+
             df.addParameter(paramName);
             var newParam = generateDraggableParams(paramName);
             $(newParam).insertBefore($dfParamModal.find(".inputSection"));
             $input.val("");
+            hideAddParamSection();
+            hasChange = true;
+        }
+
+        function hideAddParamSection() {
             $dfParamModal.find(".newParam").hide();
             $dfParamModal.find(".addParam").show();
-            hasChange = true;
         }
 
         var checkInputTimeout;

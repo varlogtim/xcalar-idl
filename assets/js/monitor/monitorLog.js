@@ -5,10 +5,12 @@ window.MonitorLog = (function(MonitorLog, $) {
     var hasError = {};
     var logs = {};
     var tabLength = 50;
+    var hasSetup = false;
 
     MonitorLog.setup = function() {
         $logCard = $("#monitorLogCard");
         addListeners();
+        hasSetup = true;
     };
 
     MonitorLog.show = function() {
@@ -20,10 +22,13 @@ window.MonitorLog = (function(MonitorLog, $) {
     };
 
     MonitorLog.adjustTabNumber = function() {
-        if ($logCard.is(":visible") && $logCard.find(".tab").length > 0) {
+        if (hasSetup &&
+            $logCard.is(":visible") &&
+            $logCard.find(".tab").length > 0)
+        {
             arrowStatusCheck();
         }
-    }
+    };
 
     function addTabs() {
         if ($.isEmptyObject(hosts)) {
