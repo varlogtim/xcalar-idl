@@ -810,7 +810,7 @@ window.Workbook = (function($, Workbook) {
                                 '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
-                                        WKBKTStr.Status + ':' +
+                                        WKBKTStr.State + ':' +
                                     '</div>' +
                                     '<div class="info isActive">' +
                                         isActive +

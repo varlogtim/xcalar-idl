@@ -654,7 +654,7 @@ WKBKTStr = {
     'CreateOn': 'Created on',
     'Modified': 'Last modified',
     'WS': 'Worksheets',
-    'Status': 'Status',
+    'State': 'State',
     'Creating': 'Creating Workbook',
     'SwitchErr': 'Switch Workbook Error',
     'SwitchErrMsg': 'Error occurred while switching workbooks. Proceeding with the switch may cause problems to the workbook. Do you still want to continue?',

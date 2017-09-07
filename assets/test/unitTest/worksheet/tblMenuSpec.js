@@ -1610,6 +1610,10 @@ describe('TableMenu Test', function() {
                 called = true;
             };
 
+            if ($cellMenu.find('.tdFilter').hasClass("unavailable")) {
+                console.info("error case", cellText);
+            }
+
             $cellMenu.find('.tdFilter').trigger(rightMouseup);
             expect(called).to.be.false;
 

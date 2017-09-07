@@ -545,7 +545,7 @@ WKBKTStr = {
 'CreateOn': '创建于',
 'Modified': '最近一次更改',
 'WS': '工作表',
-'Status': '状态',
+'State': '状态',
 'Creating': '创建工作簿',
 'SwitchErr': '切换工作簿错误',
 'SwitchErrMsg': '切换工作簿时发生错误。继续切换可能会导致工作簿出现问题。您还想继续吗？',
