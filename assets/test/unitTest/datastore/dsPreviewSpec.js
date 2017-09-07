@@ -1,9 +1,9 @@
-describe("DSPreview Test", function() {
+describe("Dataset-DSPreview Test", function() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
     var $previewTable;
-
+    var $form;
     var $formatText;
 
     var $fieldText;
@@ -28,7 +28,7 @@ describe("DSPreview Test", function() {
 
     before(function(){
         $previewTable = $("#previewTable");
-
+        $form = $("#importDataForm");
         $formatText = $("#fileFormat .text");
 
         $fieldText = $("#fieldText");
@@ -481,6 +481,65 @@ describe("DSPreview Test", function() {
                 DSPreview.__testOnly__.set(null, null, isViewFolder);
             });
         });
+
+        it("tooManyColAlertHelper should handle valid case", function(done) {
+            DSPreview.__testOnly__.tooManyColAlertHelper(0)
+            .then(function() {
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("tooManyColAlertHelper should handle invalid case", function(done) {
+            var def = DSPreview.__testOnly__.tooManyColAlertHelper(gMaxColToPull);
+            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn);
+
+            def
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        it("invalidHeaderDetection should handle no header case", function(done) {
+            DSPreview.__testOnly__.invalidHeaderDetection(null)
+            .then(function() {
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("invalidHeaderDetection should handle valid case", function(done) {
+            DSPreview.__testOnly__.invalidHeaderDetection(["abc"])
+            .then(function() {
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("invalidHeaderDetection should handle invalid case", function(done) {
+            var def = DSPreview.__testOnly__.invalidHeaderDetection(["a.b"]);
+            UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol);
+            def
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            });
+        });
     });
 
     describe("Preview Public API Test", function() {
@@ -527,6 +586,26 @@ describe("DSPreview Test", function() {
             DSPreview.toggleXcUDFs(isHide);
             expect($li.hasClass("xcUDF")).to.be.equal(isHide);
             $li.remove();
+        });
+
+        it("DSPreview.clear shoule resolve if view is hidden", function(done) {
+            var $view = $("#dsForm-preview");
+            var isHidden = $view.hasClass("xc-hidden");
+            $view.addClass("xc-hidden");
+
+            DSPreview.clear()
+            .then(function(res) {
+                expect(res).to.equal(null);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                if (!isHidden) {
+                    $view.removeClass("xc-hidden");
+                }
+            });
         });
 
         after(function() {
@@ -686,14 +765,15 @@ describe("DSPreview Test", function() {
             DSPreview.__testOnly__.getPreviewTable();
 
             DSPreview.__testOnly__.clearPreviewTable()
-            .then(function() {
+            .then(function(hasDestroyTable) {
+                expect(hasDestroyTable).to.be.false;
                 var res = DSPreview.__testOnly__.get();
                 expect(res.highlighter).to.equal("");
                 expect($previewTable.html()).to.equal("");
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -805,6 +885,58 @@ describe("DSPreview Test", function() {
             });
         });
 
+        it("should fetch more rows with UDF load", function(done) {
+            var test = false;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 40
+                });
+            };
+
+            XcalarFetchData = function() {
+                test = true;
+                var val = JSON.stringify({"a": "test"});
+                return PromiseHelper.resolve([{
+                    "value": val
+                }]);
+            };
+
+            var $section = $previewTable.closest(".datasetTbodyWrap");
+            var $previewBottom = $section.find(".previewBottom");
+            $previewBottom.addClass("load");
+            $previewBottom.find(".action").click();
+
+            UnitTest.testFinish(function() {
+                return !$previewBottom.hasClass("load");
+            })
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should clear the table", function(done) {
+            var oldDestory = XcalarDestroyDataset;
+            XcalarDestroyDataset = function() {
+                return PromiseHelper.resolve();
+            };
+            DSPreview.__testOnly__.clearPreviewTable()
+            .then(function(hasDestroyTable) {
+                expect(hasDestroyTable).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDestroyDataset = oldDestory;
+            });
+        });
+
         after(function() {
             XcalarLoad = oldLoad;
             XcalarSetFree = oldSetFree;
@@ -824,7 +956,7 @@ describe("DSPreview Test", function() {
             expect(loadArgs.getFieldDelim()).to.equal("");
         });
 
-        it("getNameFromPath() should work", function() {
+        it("getNameFromPath should work", function() {
             var getNameFromPath = DSPreview.__testOnly__.getNameFromPath;
         
             var testName = xcHelper.randName("testName");
@@ -845,6 +977,14 @@ describe("DSPreview Test", function() {
             var test4 = "/var/gdeltUnittest.csv";
             res = getNameFromPath(test4);
             expect(res).to.equal("gdeltUnittest");
+
+            var test5 = "/var/123";
+            res = getNameFromPath(test5);
+            expect(res).to.equal("var123");
+
+            var test6 = "/123";
+            res = getNameFromPath(test6);
+            expect(res).to.equal("ds123");
 
             DS.has = function(name) {
                 if (name === testName) {
@@ -1275,6 +1415,55 @@ describe("DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
         });
 
+        it("shoud validate genLineNum case", function() {
+            var $genLineNumCheckBox = $("#genLineNumbersCheckbox");
+            loadArgs.set({format: "raw"});
+            loadArgs.setHeader(true);
+            $genLineNumCheckBox.find(".checkbox").addClass("checked");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("JSON");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("genLineNumberWithHeader");
+
+            // case 2
+            loadArgs.setHeader(false);
+            res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("JSON");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("genLineNumber");
+
+            // clear up
+            $genLineNumCheckBox.find(".checkbox").removeClass("checked");
+        });
+
+        it("should validate special JSON case", function() {
+            var detectArgs = DSPreview.__testOnly__.get().detectArgs;
+            detectArgs.isSpecialJSON = true;
+            loadArgs.set({format: "JSON"});
+            $udfModuleList.find("input").val("");
+
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("JSON");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("convertNewLineJsonToArrayJson");
+
+            // clear up
+            detectArgs.isSpecialJSON = false;
+        });
+
+        it("should validate Excel case", function() {
+            loadArgs.set({format: "Excel"});
+
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("Excel");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("openExcel");
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
         });
@@ -1488,7 +1677,136 @@ describe("DSPreview Test", function() {
             PreviewFileModal.show = oldSelect;
         });
 
+        it("should click to toggle advanced option", function() {
+            var $advanceOption = $form.find(".advanceOption");
+            var $button = $advanceOption.find(".expand");
+
+            expect($advanceOption.hasClass("active")).to.be.false;
+            // open advance option
+            $button.click();
+            expect($advanceOption.hasClass("active")).to.be.true;
+            // close advance option
+            $button.click();
+            expect($advanceOption.hasClass("active")).to.be.false;
+        });
+
+        it("should click to fetch more rows", function(done) {
+            DSPreview.__testOnly__.set("abc");
+            $("#dsForm-skipRows").val("0");
+            var test = false;
+            var oldFunc = XcalarPreview;
+            XcalarPreview = function() {
+                test = true;
+                return PromiseHelper.resolve([{
+                    buffer: "efg"
+                }]);
+            };
+
+            var $section = $previewTable.closest(".datasetTbodyWrap");
+            var $previewBottom = $section.find(".previewBottom");
+            $previewBottom.addClass("load");
+            $previewBottom.find(".action").click();
+
+            UnitTest.testFinish(function() {
+                return !$previewBottom.hasClass("load");
+            })
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = oldFunc;
+            });
+        });
+
+        it("should change format", function() {
+            loadArgs.set({format: "CSV"});
+            $("#fileFormatMenu").find("li[name=JSON]").trigger(fakeEvent.mouseup);
+            expect(loadArgs.getFormat()).to.equal("JSON");
+            expect($("#fileFormat input").val()).to.equal("JSON");
+            // clear up
+            loadArgs.set({format: "CSV"});
+        });
+
+        it("should click refresh button to refresh", function() {
+            var $button = $form.find(".refreshPreview");
+            // make an error case
+            $("#dsForm-dsName").val("");
+            loadArgs.set({format: null});
+            $button.click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            // case 2
+            loadArgs.set({format: "CSV"});
+            $button.click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        });
+
+        it("should click detect button to auto preview", function() {
+            $("#dsForm-skipRows").val("1");
+            // make an error case
+            $("#dsForm-dsName").val("");
+            $("#dsForm-detect").click();
+            expect($("#dsForm-skipRows").val()).to.equal("0");
+        });
+
+        it("should click confirm to submit the form", function() {
+            // make an error case
+            $("#dsForm-dsName").val("");
+            $form.find(".confirm:not(.creatTable)").click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        });
+
+        it("should click cancel to back to form", function() {
+            loadArgs.set({path: "file:///abc"});
+            var $button = $form.find(".cancel");
+            var oldGetLicense = XVM.getLicenseMode;
+            var oldUpload = DSUploader.show;
+            var oldForm = DSForm.show;
+            var oldFileBrowser = FileBrowser.show;
+            var test1 = test2 = test3 = false;
+
+            DSUploader.show = function() { test1 = true; };
+            DSForm.show = function() { test2 = true; };
+            FileBrowser.show = function() { test3 = true; };
+
+            // case 1
+            XVM.getLicenseMode = function() { return XcalarMode.Demo; };
+            $button.click();
+            expect(test1).to.be.true;
+            expect(test2).to.be.false;
+            expect(test3).to.be.false;
+            test1 = false;
+
+            // case 2
+            loadArgs.set({path: "file:///abc"});
+            XVM.getLicenseMode = function() { return XcalarMode.Oper; };
+            DSPreview.__testOnly__.setBackToFormCard(true);
+            $button.click();
+            expect(test1).to.be.false;
+            expect(test2).to.be.true;
+            expect(test3).to.be.false;
+            test2 = false;
+
+            // case 3
+            loadArgs.set({path: "file:///abc"});
+            DSPreview.__testOnly__.setBackToFormCard(false);
+            $button.click();
+            expect(test1).to.be.false;
+            expect(test2).to.be.false;
+            expect(test3).to.be.true;
+
+            XVM.getLicenseMode = oldGetLicense;
+            DSUploader.show = oldUpload;
+            DSForm.show = oldForm;
+            FileBrowser.show = oldFileBrowser;
+        });
+
         after(function() {
+            DSPreview.__testOnly__.set();
             DSPreview.__testOnly__.resetForm();
         });
     });
@@ -1516,7 +1834,7 @@ describe("DSPreview Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             });
         });
 
@@ -1550,7 +1868,7 @@ describe("DSPreview Test", function() {
             })
             .fail(function() {
                 // Intentionally fail the test
-                throw "Fail Case!";
+                done("fail");
             });
         });
     });

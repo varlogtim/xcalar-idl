@@ -404,18 +404,12 @@ window.DSPreview = (function($, DSPreview) {
 
             resetForm();
             clearPreviewTable();
-            if (backToFormCard) {
-                if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                    DSUploader.show();
-                } else {
-                    DSForm.show({"noReset": true});
-                }
+            if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                DSUploader.show();
+            } else if (backToFormCard) {
+                DSForm.show({"noReset": true});
             } else {
-                if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                    DSUploader.show();
-                } else {
-                    FileBrowser.show(protocol, path);
-                }
+                FileBrowser.show(protocol, path);
             }
         });
 
@@ -802,32 +796,13 @@ window.DSPreview = (function($, DSPreview) {
             colLen = $previewTable.find("th:not(.rowNumHead)").length;
         }
 
-        function tooManyColAlertHelper() {
-            if (colLen < gMaxColToPull) {
-                return PromiseHelper.resolve();
-            }
-
-            var innerDeferred = jQuery.Deferred();
-            Alert.show({
-                "title": DSFormTStr.CreateWarn,
-                "msg": DSFormTStr.CreateWarnMsg,
-                "onConfirm": innerDeferred.resolve,
-                "onCancel": function() {
-                    xcHelper.enableSubmit($form.find('.confirm'));
-                    innerDeferred.reject();
-                }
-            });
-
-            return innerDeferred.promise();
-        }
-
         xcHelper.disableSubmit($form.find('.confirm'));
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
         invalidHeaderDetection(headers)
         .then(function() {
-            return tooManyColAlertHelper();
+            return tooManyColAlertHelper(colLen);
         })
         .then(function() {
             // XXX temp fix to preserve CSV header order
@@ -864,6 +839,25 @@ window.DSPreview = (function($, DSPreview) {
             deferred.resolve();
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function tooManyColAlertHelper(colLen) {
+        if (colLen < gMaxColToPull) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        Alert.show({
+            "title": DSFormTStr.CreateWarn,
+            "msg": DSFormTStr.CreateWarnMsg,
+            "onConfirm": deferred.resolve,
+            "onCancel": function() {
+                xcHelper.enableSubmit($form.find(".confirm"));
+                deferred.reject();
+            }
+        });
 
         return deferred.promise();
     }
@@ -1426,7 +1420,7 @@ window.DSPreview = (function($, DSPreview) {
                     "noCommit": true,
                     "noSql": true
                 });
-                deferred.resolve();
+                deferred.resolve(true);
             })
             .fail(function(error) {
                 Transaction.fail(txId, {
@@ -1435,10 +1429,10 @@ window.DSPreview = (function($, DSPreview) {
                 });
                 // fail but still resolve it because
                 // it has no effect to other operations
-                deferred.resolve();
+                deferred.resolve(false);
             });
         } else {
-            deferred.resolve();
+            deferred.resolve(false);
         }
 
         return deferred.promise();
@@ -2907,6 +2901,8 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.getDataFromLoadUDF = getDataFromLoadUDF;
         DSPreview.__testOnly__.getURLToPreview = getURLToPreview;
         DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
+        DSPreview.__testOnly__.invalidHeaderDetection = invalidHeaderDetection;
+        DSPreview.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
 
         DSPreview.__testOnly__.resetForm = resetForm;
         DSPreview.__testOnly__.restoreForm = restoreForm;
@@ -2945,6 +2941,10 @@ window.DSPreview = (function($, DSPreview) {
             if (isFolder != null) {
                 isViewFolder = isFolder;
             }
+        };
+
+        DSPreview.__testOnly__.setBackToFormCard = function(flag) {
+            backToFormCard = flag;
         };
     }
     /* End Of Unit Test Only */

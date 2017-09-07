@@ -1,4 +1,4 @@
-describe("DSExport Test", function() {
+describe("Dataset-DSExport Test", function() {
     var $nameInput;
     var $submitBtn;
     var $targetTypeList;
@@ -30,7 +30,6 @@ describe("DSExport Test", function() {
         });
     });
 
-
     describe("DSExport Basic Api Test", function() {
         it("DSExport.toggleXcUDFs should work", function() {
             var $udfModule = $("#exportDataForm").find(".udfModuleListWrap");
@@ -49,6 +48,42 @@ describe("DSExport Test", function() {
         it("DSExport.getTargets should work", function() {
             var res = DSExport.getTargets();
             expect(res).to.be.an("array");
+        });
+
+        it("DSExport.getTarget should work", function() {
+            var exportTargets = DSExport.getTargets();
+            var cache = [];
+            exportTargets.forEach(function(target) {
+                cache.push(target);
+            });
+
+            // case 1
+            DSExport.__testOnly__.setTargets([]);
+            var res = DSExport.getTarget("test");
+            expect(res).to.be.null;
+
+            // case 2
+            DSExport.__testOnly__.setTargets([{
+                name: ExportTStr.LocalFS,
+                targets: [{name: "test"}]
+            }]);
+            res = DSExport.getTarget("test");
+            expect(res).to.be.an("object");
+            expect(res.type).to.equal(ExTargetTypeT.ExTargetSFType);
+            expect(res.info).to.be.an("object");
+
+            // case 3
+            DSExport.__testOnly__.setTargets([{
+                name: "UDF",
+                targets: [{name: "test"}]
+            }]);
+            res = DSExport.getTarget("test");
+            expect(res).to.be.an("object");
+            expect(res.type).to.equal(ExTargetTypeT.ExTargetUDFType);
+            expect(res.info).to.be.an("object");
+
+            // restore
+            DSExport.__testOnly__.setTargets(cache);
         });
 
         it("DSExport.getDefaultPath should work", function(done) {
@@ -452,6 +487,18 @@ describe("DSExport Test", function() {
             })
             .fail(function(){
                 done("fail");
+            });
+        });
+
+        it("Error Type should not work", function(done) {
+            submitForm("Error Type", testTargetName, url, {module: "a", fn: "b"})
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error){
+                expect(error.error).to.equal(DSExportTStr.InvalidTypeMsg);
+                UnitTest.hasAlertWithText(DSExportTStr.InvalidTypeMsg);
+                done();
             });
         });
 

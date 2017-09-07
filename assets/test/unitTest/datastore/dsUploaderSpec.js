@@ -1,4 +1,4 @@
-describe("DSUploader Test", function() {
+describe("Dataset-DSUploader Test", function() {
     var $mainTabCache;
     var cachedXcalarListFiles;
     var uploads;

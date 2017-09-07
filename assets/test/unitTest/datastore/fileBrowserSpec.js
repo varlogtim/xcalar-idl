@@ -1,4 +1,4 @@
-describe("File Browser Test", function() {
+describe("Dataset-File Browser Test", function() {
     var $fileBrowser;
     var $pathLists;
     var defaultPath;
@@ -143,13 +143,44 @@ describe("File Browser Test", function() {
             var $defaultPath = $("#fileBrowserPath .defaultPath");
             var prevSource = $defaultPath.text();
             // error case
-            changeProtocol("error protocol");
+            var res = changeProtocol("error protocol", "path");
             expect($defaultPath.text()).to.equal("file:///");
-
-            changeProtocol("file:///");
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("file:///");
+            expect(res[1]).to.equal("path");
+            // case 1
+            res = changeProtocol("file:///", "path1");
             expect($defaultPath.text()).to.equal("file:///");
-            changeProtocol(FileProtocol.s3);
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("file:///");
+            expect(res[1]).to.equal("path1");
+            // case 2
+            res = changeProtocol(FileProtocol.s3, "path2");
             expect($defaultPath.text()).to.equal("s3://");
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("s3://");
+            expect(res[1]).to.equal("path2");
+            // case 3
+            res = changeProtocol(FileProtocol.azblob, "path3");
+            expect($defaultPath.text()).to.equal("azblob://");
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("azblob://");
+            expect(res[1]).to.equal("path3");
+            // case 4
+            res = changeProtocol(FileProtocol.hdfs, "host/path4");
+            expect($defaultPath.text()).to.equal("hdfs://host/");
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("hdfs://host/");
+            expect(res[1]).to.equal("path4");
+            // case 5
+            res = changeProtocol(FileProtocol.mapR, "user:password@host:port/path5");
+            expect($defaultPath.text())
+            .to.equal("mapr://redacted:redacted@host:port/");
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("mapr://user:password@host:port/");
+            expect(res[1]).to.equal("path5");
+
+            // clear up case
             changeProtocol(prevSource);
             expect($defaultPath.text()).to.equal(prevSource);
         });
@@ -198,7 +229,7 @@ describe("File Browser Test", function() {
             FilePreviewer.show = oldFunc;
         });
 
-        it("findVerticalIcon() should work", function() {
+        it("findVerticalIcon should work", function() {
             var findVerticalIcon = FileBrowser.__testOnly__.findVerticalIcon;
             var $curIcon = $(testHtml);
             $curIcon.after($testGrid);
@@ -210,6 +241,30 @@ describe("File Browser Test", function() {
             $curIcon.before($testGrid);
             $res = findVerticalIcon($curIcon, keyCode.Down);
             expect($res.length).to.equal(0);
+        });
+
+        it("showScrolledFiles should work", function() {
+            var showScrolledFiles = FileBrowser.__testOnly__.showScrolledFiles;
+            var $fileBrowserMain = $("#fileBrowserMain");
+            var $sizer = $('<div class="sizer"></div>');
+            $("#fileBrowserContainer").append($sizer);
+            var isGridView = $fileBrowserMain.hasClass("gridView");
+            // case 1
+            $fileBrowserMain.addClass("gridView");
+            $sizer.hide();
+            showScrolledFiles();
+            expect($sizer.css("display")).to.equal("block");
+            // case 2
+            $fileBrowserMain.removeClass("gridView");
+            $sizer.hide();
+            showScrolledFiles();
+            expect($sizer.css("display")).to.equal("block");
+
+            // clear up
+            $sizer.remove();
+            if (isGridView) {
+                $fileBrowserMain.addClass("gridView");
+            }
         });
 
         it("should submit form", function() {
@@ -357,14 +412,13 @@ describe("File Browser Test", function() {
                 return PromiseHelper.reject({error: oldBrowserErr});
             };
 
-            FileBrowser.show(FileProtocol.nfs)
+            FileBrowser.show(null)
             .then(function() {
                 done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
                 expect(error.error).to.equal(oldBrowserErr);
-
                 done();
             });
         });
@@ -1067,6 +1121,21 @@ describe("File Browser Test", function() {
             expect(test).not.to.be.null;
 
             FilePreviewer.show = oldFunc;
+        });
+
+        it("Should trigger getInfo via menu", function() {
+            var oldFunc = FileInfoModal.show;
+            var test = null;
+            FileInfoModal.show = function(options) {
+                test = options;
+            };
+            var target = $fileBrowser.find(".grid-unit.ds").get(0);
+            triggerContextMenu(target);
+
+            $fileBrowserMenu.find(".getInfo").mouseup();
+            expect(test).to.be.an("object");
+
+            FileInfoModal.show = oldFunc;
         });
 
         after(function() {

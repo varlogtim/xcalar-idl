@@ -439,7 +439,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var visibleRowsBelow;
         var visibleRowsAbove;
         var numVisibleRows;
-        if ($fileBrowserMain.hasClass('gridView')) {
+        if ($fileBrowserMain.hasClass("gridView")) {
             visibleRowsBelow = 5; // number of rows that have display:block
             visibleRowsAbove = 7;
             rowNum = Math.floor(scrollTop / dsIconHeight) - visibleRowsBelow;
@@ -452,7 +452,7 @@ window.FileBrowser = (function($, FileBrowser) {
             startIndex = Math.max(0, filesBelow);
             endIndex = startIndex + (filesPerRow *
                     (numVisibleRows + visibleRowsBelow + visibleRowsAbove));
-            $container.find('.sizer').show().height(rowNum * dsIconHeight);
+            $container.find(".sizer").show().height(rowNum * dsIconHeight);
         } else {
             visibleRowsBelow = 20;
             visibleRowsAbove = 25;
@@ -461,13 +461,13 @@ window.FileBrowser = (function($, FileBrowser) {
             startIndex = Math.max(0, rowNum);
             endIndex = startIndex + numVisibleRows + visibleRowsBelow +
                             visibleRowsAbove;
-            $container.find('.sizer').show().height(rowNum * dsListHeight);
+            $container.find(".sizer").show().height(rowNum * dsListHeight);
         }
 
-        $visibleFiles.removeClass('visible');
-        $visibleFiles = $container.find('.grid-unit')
+        $visibleFiles.removeClass("visible");
+        $visibleFiles = $container.find(".grid-unit")
                                   .slice(startIndex, endIndex)
-                                  .addClass('visible');
+                                  .addClass("visible");
         $container.scrollTop(scrollTop);
     }
 
@@ -1527,6 +1527,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.redirectHandler = redirectHandler;
         FileBrowser.__testOnly__.oversizeHandler = oversizeHandler;
         FileBrowser.__testOnly__.sumbitForm = sumbitForm;
+        FileBrowser.__testOnly__.showScrolledFiles = showScrolledFiles;
     }
     /* End Of Unit Test Only */
 

@@ -1,8 +1,23 @@
-describe("Dataset Form Test", function() {
+describe("Dataset-DSForm Test", function() {
     var $mainTabCache;
     var $statusBox;
     var $filePath;
     var $pathCard;
+    function setTestCredentials() {
+        var $credential = $pathCard.find(".credential");
+        $credential.find(".hostname input").val("a");
+        $credential.find(".port input").val(1);
+        $credential.find(".username input").val("c");
+        $credential.find(".password input").val("d");
+    }
+
+    function clearTestCredentials() {
+        var $credential = $pathCard.find(".credential");
+        $credential.find(".hostname input").val("");
+        $credential.find(".port input").val("");
+        $credential.find(".username input").val("");
+        $credential.find(".password input").val("");
+    }
 
     before(function(){
         $statusBox = $("#statusBox");
@@ -21,9 +36,23 @@ describe("Dataset Form Test", function() {
             assert.isFalse($("#dsFormView").is(":visible"));
         });
 
+        it("should see Uploader in demo license", function() {
+            var oldFunc = XVM.getLicenseMode;
+            XVM.getLicenseMode = function() {
+                return XcalarMode.Demo;
+            };
+            DSForm.show();
+            assert.isTrue($("#dsFormView").is(":visible"));
+            expect($("#dsForm-path").hasClass("xc-hidden")).to.be.true;
+            expect($("#dsUploader").hasClass("xc-hidden")).to.be.false;
+            XVM.getLicenseMode = oldFunc;
+        });
+
         it("Should see form", function() {
             DSForm.show();
             assert.isTrue($("#dsFormView").is(":visible"));
+            expect($("#dsForm-path").hasClass("xc-hidden")).to.be.false;
+            expect($("#dsUploader").hasClass("xc-hidden")).to.be.true;
         });
 
         it("Should trigger show from importDataButton button", function() {
@@ -32,13 +61,13 @@ describe("Dataset Form Test", function() {
             assert.isTrue($("#dsFormView").is(":visible"));
         });
 
-        it("Should reset form when call resetForm()", function() {
+        it("should reset form when call resetForm()", function() {
             $filePath.val("test");
             DSForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
         });
 
-        it("Should switch view", function() {
+        it("should switch view", function() {
             // error case
             DSForm.switchView(null);
             assert.isTrue($pathCard.is(":visible"));
@@ -66,7 +95,32 @@ describe("Dataset Form Test", function() {
             });
         });
 
-        it("Should Use DSForm.clear() to reset", function(done) {
+        it("getCredentials should work", function() {
+            var getCredentials = DSForm.__testOnly__.getCredentials;
+            var res = getCredentials(FileProtocol.nfs);
+            expect(res).to.be.null;
+            // case 2
+            setTestCredentials();
+            res = getCredentials(FileProtocol.mapR);
+            expect(res).to.be.an("object");
+            expect(res.credential).to.equal("c:d");
+            expect(res.host).to.equal("a:1");
+            clearTestCredentials();
+        });
+
+        it("getFullPath should work", function() {
+            getFullPath = DSForm.__testOnly__.getFullPath;
+            var res = getFullPath(FileProtocol.nfs, "test");
+            expect(res).to.equal("test");
+
+            // case 2
+            setTestCredentials();
+            res = getFullPath(FileProtocol.mapR, "/test");
+            expect(res).to.equal("c:d@a:1/test");
+            clearTestCredentials();
+        });
+
+        it("should Use DSForm.clear() to reset", function(done) {
             $filePath.val("test");
             DSForm.clear()
             .then(function() {
@@ -76,6 +130,10 @@ describe("Dataset Form Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        after(function() {
+            clearTestCredentials();
         });
     });
 
@@ -143,6 +201,30 @@ describe("Dataset Form Test", function() {
                 assert.isFalse($statusBox.is(":visible"), "no statux box");
             });
         });
+
+        it("should validate mapr protocol", function() {
+            var $credential = $pathCard.find(".credential");
+            var protocol = FileProtocol.mapR;
+            var path = "test";
+
+            var isValid = isValidPathToBrowse(protocol, path);
+            expect(isValid).to.be.false;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            $credential.find(".hostname input").val("host");
+            isValid = isValidPathToBrowse(protocol, path);
+            expect(isValid).to.be.false;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            $credential.find(".username input").val("username");
+            isValid = isValidPathToBrowse(protocol, path);
+            expect(isValid).to.be.false;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            $credential.find(".password input").val("password");
+            isValid = isValidPathToBrowse(protocol, path);
+            expect(isValid).to.be.true;
+        });
     });
 
     describe("Allow Browse and Preview Test", function() {
@@ -161,7 +243,7 @@ describe("Dataset Form Test", function() {
             assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmpty);
         });
 
-        it("Should be valid  with non-empty path", function() {
+        it("Should be valid with non-empty path", function() {
             $filePath.val("test");
             var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
@@ -174,8 +256,16 @@ describe("Dataset Form Test", function() {
     });
 
     describe("UI Behavior Test", function() {
-        before(function() {
+        it("should select mapR protocol", function() {
+            $('#fileProtocolMenu li[name="mapR"]').trigger(fakeEvent.mouseup);
+            expect($pathCard.find(".credential").hasClass("xc-hidden"))
+            .to.be.false;
+        });
+
+        it("should select file protocol", function() {
             $('#fileProtocolMenu li[name="nfs"]').trigger(fakeEvent.mouseup);
+            expect($pathCard.find(".credential").hasClass("xc-hidden"))
+            .to.be.true;
         });
 
         it("Should click browse button to trigger browse", function() {

@@ -1,4 +1,4 @@
-describe("DSTable Test", function() {
+describe("Dataset-DSTable Test", function() {
     var testDS;
     var testDSObj;
     var testDSId;
@@ -25,7 +25,7 @@ describe("DSTable Test", function() {
             done();
         })
         .fail(function() {
-            throw "Fail Case!";
+            done("fail");
         });
     });
 
@@ -42,8 +42,8 @@ describe("DSTable Test", function() {
                 assert.isTrue($("#dsTableView").is(":visible"));
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -66,7 +66,7 @@ describe("DSTable Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case!";
+                done("fail");
             });
         });
 
@@ -75,7 +75,7 @@ describe("DSTable Test", function() {
 
             DSTable.show(dsId)
             .then(function() {
-                throw "Error Case!";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal("No DS");
@@ -102,14 +102,14 @@ describe("DSTable Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case!";
+                done("fail");
             });
         });
 
         it("Should not scroll will error case", function(done) {
             DSTable.__testOnly__.scrollSampleAndParse(null)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal("No DS");
@@ -127,8 +127,8 @@ describe("DSTable Test", function() {
                 expect(currentNumRows - numRows).to.equal(rowsToFetch);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
     });
@@ -323,7 +323,7 @@ describe("DSTable Test", function() {
 
             DSTable.show(testDSId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(notLastDSError);
@@ -341,7 +341,7 @@ describe("DSTable Test", function() {
 
             DSTable.show(testDSId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(dsError);
@@ -360,7 +360,7 @@ describe("DSTable Test", function() {
 
             DSTable.show(testDSId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(dsError);
@@ -379,7 +379,7 @@ describe("DSTable Test", function() {
 
             DSTable.show(testDSId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(dsError);
@@ -401,7 +401,7 @@ describe("DSTable Test", function() {
                 done();
             })
             .fail(function() {
-                done("Error Case!");
+                done("fail");
             });
         });
 
@@ -437,6 +437,36 @@ describe("DSTable Test", function() {
         it("Should clear all selection", function() {
             $("#clearDsCols").click();
             expect($("#dsTable th.selectedCol").length).to.equal(0);
+        });
+
+        it("should click retry button to retry", function() {
+            var oldGetError = DS.getErrorDSObj;
+            var oldRemove = DS.removeErrorDSObj;
+            var test = false;
+            var oldId = $dsTableContainer.data("id");
+            var $dsTableView = $("#dsTableView");
+
+            DS.getErrorDSObj = function() {
+                return new DSObj({});
+            };
+
+            DS.removeErrorDSObj = function() {
+                test = true;
+            };
+
+            // case 1
+            $dsTableContainer.data("id", null);
+            $dsTableView.find(".errorSection .retry").click();
+            expect(test).to.be.false;
+
+            // case 2
+            $dsTableContainer.data("id", "testId");
+            $dsTableView.find(".errorSection .retry").click();
+            expect(test).to.be.true;
+
+            DS.getErrorDSObj = oldGetError;
+            DS.removeErrorDSObj = oldRemove;
+            $dsTableContainer.data(oldId);
         });
     });
 

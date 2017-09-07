@@ -773,6 +773,9 @@ window.DSExport = (function($, DSExport) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSExport.__testOnly__ = {};
+        DSExport.__testOnly__.setTargets = function(targets) {
+            exportTargets = targets;
+        };
         DSExport.__testOnly__.submitForm = submitForm;
         DSExport.__testOnly__.resetForm = resetForm;
         DSExport.__testOnly__.showExportTargetForm = showExportTargetForm;

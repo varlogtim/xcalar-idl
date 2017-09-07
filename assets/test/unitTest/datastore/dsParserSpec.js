@@ -1,5 +1,5 @@
 // XXX temporary disabled
-describe.skip("DSParser Test", function() {
+describe.skip("Dataset-DSParser Test", function() {
     var $formatInput;
 
     before(function() {

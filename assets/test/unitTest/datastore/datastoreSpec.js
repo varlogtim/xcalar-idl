@@ -1,4 +1,4 @@
-describe("Datastore Module Test", function() {
+describe("Dataset-Datastore Module Test", function() {
     var $mainTabCache;
 
     before(function() {

@@ -1,4 +1,4 @@
-describe("File Previewer Test", function() {
+describe("Dataset-File Previewer Test", function() {
     var $mainTabCache;
     var $fileBrowserPreview;
 

@@ -1,4 +1,4 @@
-describe("DSObj Test", function() {
+describe("Dataset-DSObj Test", function() {
     var $mainTabCache;
     var $gridView;
     var $statusBox;
