@@ -336,8 +336,8 @@ window.XIApi = (function(XIApi) {
                     })
                     .then(function() {
                         tableId = xcHelper.getTableId(curTableName);
-                        maxIntAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
-                                           "_maxInteger";
+                        maxIntAggVarName = "XC_SORT_COL_" + tableId + "_" +
+                                           index + "_maxInteger";
                         return XcalarAggregate("maxInteger(" + colName + ")",
                                                  maxIntAggVarName,
                                                  curTableName, txId);
@@ -386,8 +386,8 @@ window.XIApi = (function(XIApi) {
                 })
                 .fail(deferred.reject);
             } else {
-                // for numbers, add a constant to make everything non-negative and
-                // zero-pad according to largest number to sort.
+                // for numbers, add a constant to make everything non-negative
+                // and zero-pad according to largest number to sort.
 
                 var tableId = xcHelper.getTableId(fromTableName);
                 var maxAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
@@ -411,7 +411,8 @@ window.XIApi = (function(XIApi) {
                 } else {
                     inside = "sub(mult(-1," + minAggVarName + "),mult(-1," +
                              maxAggVarName + "))";
-                    actualString = "add(mult(-1," + colName + ")," + maxAggVarName + ")";
+                    actualString = "add(mult(-1," + colName + ")," +
+                                   maxAggVarName + ")";
                 }
                 var maxPadding = 'repeat("0", len(cut(string(' + inside +
                               '),1,".")))';
@@ -419,8 +420,9 @@ window.XIApi = (function(XIApi) {
                 var curNumDigits = 'len(cut(string(sub(' + actualString + ',' +
                                   minAggVarName + ')),1,"."))';
 
-                var mapStr = 'concat(substring(' + maxPadding + ',' + curNumDigits +
-                             ',0),string(sub(' + actualString + ',' + minAggVarName + ')))';
+                var mapStr = 'concat(substring(' + maxPadding + ',' +
+                             curNumDigits + ',0),string(sub(' + actualString +
+                             ',' + minAggVarName + ')))';
 
                 colName = "XC_SORT_COL_" + tableId + "_" + index;
                 fromTableName = curTableName;
@@ -489,7 +491,8 @@ window.XIApi = (function(XIApi) {
                                         txId);
         })
         .then(function() {
-            deferred.resolve(newTableName);
+            deferred.resolve({newTableName: newTableName,
+                              sortColName: concatColName});
         })
         .fail(deferred.reject)
         .always(function() {

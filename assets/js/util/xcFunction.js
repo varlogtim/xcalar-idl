@@ -280,6 +280,11 @@ window.xcFunction = (function($, xcFunction) {
             }
         })
         .then(function(sortTableName) {
+            if (typeof(sortTableName) !== "string") {
+                // For multiSort, it returns a struct with the name of the sort
+                // col as well
+                sortTableName = sortTableName.newTableName;
+            }
             finalTableName = sortTableName;
             var options = {"selectCol": colNums};
             // sort will filter out KNF, so it change the profile

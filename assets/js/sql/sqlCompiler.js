@@ -258,14 +258,16 @@ window.SQLCompiler = (function() {
                     case("Aggregate"):
                         retStruct = self._pushDownAggregate(treeNode);
                         break;
-                    case("LocalLimit"):
-                        retStruct = self._pushDownLocalLimit(treeNode);
-                        break;
                     case("GlobalLimit"):
                         retStruct = self._pushDownGlobalLimit(treeNode);
                         break;
-                    default:
+                    case("LocalLimit"):
+                        retStruct = self._pushDownIgnore(treeNode);
                         break;
+                    default:
+                        console.error("Unexpected operator: " + treeNodeClass);
+                        retStruct = self._pushDownIgnore(treeNode);
+
                 }
                 retStruct
                 .then(function(ret) {
@@ -273,6 +275,12 @@ window.SQLCompiler = (function() {
                         treeNode.newTableName = ret.newTableName;
                     }
                     treeNode.xccli = ret.cli;
+                    for (var prop in ret) {
+                        if (prop !== "newTableName" && prop !== "cli") {
+                            treeNode[prop] = ret[prop];
+                        }
+                    }
+
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -284,7 +292,8 @@ window.SQLCompiler = (function() {
                     getCli(node.children[i], cliArray);
                 }
                 if (node.value.class.indexOf(
-                    "org.apache.spark.sql.catalyst.plans.logical.") === 0) {
+                    "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
+                    node.xccli) {
                     cliArray.push(node.xccli);
                 }
             }
@@ -307,6 +316,16 @@ window.SQLCompiler = (function() {
 
 
         },
+
+        _pushDownIgnore: function(node) {
+            var self = this;
+            var deferred = jQuery.Deferred();
+            assert(node.children.length === 1);
+            return PromiseHelper.resolve({
+                "newTableName": node.children[0].newTableName,
+            });
+        },
+
         _pushDownProject: function(node) {
             // Pre: Project must only have 1 child and its child should've been
             // resolved already
@@ -343,6 +362,70 @@ window.SQLCompiler = (function() {
                 self.sqlObj.project(columns, tableName)
                 .then(deferred.resolve);
             }
+            return deferred.promise();
+        },
+
+        _pushDownGlobalLimit: function(node) {
+            var self = this;
+            var deferred = jQuery.Deferred();
+            assert(node.children.length === 1);
+            assert(node.value.limitExpr.length === 1);
+            assert(node.value.limitExpr[0].dataType === "integer");
+
+            function getPreviousSortOrder(curNode) {
+                if (!curNode) {
+                    return;
+                }
+                if (curNode.value.class ===
+                    "org.apache.spark.sql.catalyst.plans.logical.Sort") {
+                    return {order: curNode.order, name: curNode.sortColName};
+                } else {
+                    if (curNode.children.length > 1) {
+                        // Sort order doesn't make sense if > 1 children
+                        return;
+                    } else {
+                        return getPreviousSortOrder(curNode.children[0]);
+                    }
+                }
+            }
+
+            var limit = parseInt(node.value.limitExpr[0].value);
+            var tableName = node.children[0].newTableName;
+            var tableId = xcHelper.getTableId(tableName);
+            var colName = "XC_ROW_COL_" + tableId;
+            var cli = "";
+
+            self.sqlObj.genRowNum(tableName, colName)
+            .then(function(ret) {
+                var newTableName = ret.newTableName;
+                cli += ret.cli;
+                var filterString = "le(" + colName + "," + limit + ")";
+                return self.sqlObj.filter(filterString, newTableName);
+            })
+            .then(function(ret) {
+                var newTableName = ret.newTableName;
+
+                cli += ret.cli;
+                // If any descendents are sorted, sort again. Else return as is.
+
+                var sortObj = getPreviousSortOrder(node);
+                if (sortObj) {
+                    self.sqlObj.sort([{order: sortObj.order,
+                                       name: sortObj.name}],
+                                     newTableName)
+                    .then(function(ret2) {
+                        cli += ret2.cli;
+                        deferred.resolve({newTableName: ret2.newTableName,
+                                          cli: cli});
+                    })
+                    .fail(deferred.reject);
+                } else {
+                    deferred.resolve({newTableName: newTableName,
+                                      cli: cli});
+                }
+            })
+            .fail(deferred.reject);
+
             return deferred.promise();
         },
 
@@ -405,13 +488,7 @@ window.SQLCompiler = (function() {
             var sortColsAndOrder = genSortStruct(node.value.order);
             var tableName = node.children[0].newTableName;
 
-            if (sortColsAndOrder.length > 1) {
-                return self.sqlObj.multiSort(sortColsAndOrder, tableName);
-            } else {
-                var order = sortColsAndOrder[0].order;
-                var colName = sortColsAndOrder[0].colName;
-                return self.sqlObj.sort(order, colName, tableName);
-            }
+            return self.sqlObj.sort(sortColsAndOrder, tableName);
         },
 
         _pushDownAggregate: function(node) {

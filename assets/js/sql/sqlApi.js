@@ -191,36 +191,39 @@ window.SQLApi = (function() {
             return deferred.promise();
         },
 
-        sort: function(order, colName, tableName, newTableName) {
+        sort: function(sortColsAndOrder, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self._start();
 
-            XIApi.sort(txId, order, colName, tableName, newTableName)
-            .then(function(finalTable) {
+            var def;
+            if (sortColsAndOrder.length === 1) {
+                def = XIApi.sort(txId, sortColsAndOrder[0].order,
+                                 sortColsAndOrder[0].name, tableName,
+                                 newTableName);
+            } else {
+                def = XIApi.multiSort(txId, sortColsAndOrder, tableName,
+                                      newTableName);
+            }
+            def
+            .then(function(ret) {
                 var cli = self._end(txId);
-                deferred.resolve({
-                    "newTableName": finalTable,
-                    "cli": cli
-                });
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        },
-
-        multiSort: function(sortColsAndOrder, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
-            var self = this;
-            var txId = self._start();
-
-            XIApi.multiSort(txId, sortColsAndOrder, tableName, newTableName)
-            .then(function(finalTable) {
-                var cli = self._end(txId);
-                deferred.resolve({
-                    "newTableName": finalTable,
-                    "cli": cli
-                });
+                cli = cli.replace(/\\t/g, "\\\\t");
+                if (typeof(ret) === "string") {
+                    deferred.resolve({
+                        "newTableName": ret,
+                        "cli": cli,
+                        "sortColName": sortColsAndOrder[0].name,
+                        "order": sortColsAndOrder[0].order
+                    });
+                } else {
+                    deferred.resolve({
+                        "newTableName": ret.newTableName,
+                        "cli": cli,
+                        "sortColName": ret.sortColName,
+                        "order": XcalarOrderingT.XcalarOrderingAscending
+                    });
+                }
             })
             .fail(deferred.reject);
 

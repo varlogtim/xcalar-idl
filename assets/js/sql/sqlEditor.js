@@ -45,7 +45,7 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     function executeSQL() {
         var sql = editor.getValue();
-        sql = sql.replace(/\n/g, " ");
+        sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
         sqlCom.compile(sql);
     }
