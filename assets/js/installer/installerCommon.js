@@ -5,6 +5,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             "preConfig":false,
             "nfsOption":{
                 "option":"xcalarNfs" // either one of "xcalarNfs", "customerNfs", "readyNfs", "doNothing"
+                "nfsServer": something     //only for option customerNfs
                 "nfsMountPoint": something //only for option customerNfs
                 "nfsUsername": something   //only for option customerNfs
                 "nfsGroup": something      //only for option customerNfs
@@ -50,7 +51,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                                             "xcalarInstall": false
                                           }
                             "license": "AAAAAABAD92819321820BCAD...",
-                            'xcalarMount': {'server': '123', 'path': 'xmount 1'},
+                            'xcalarMount': {'option': 'readyNfs', 'server': '123', 'path': 'xmount 1'},
                             'xcalarRoot': '/mnt/xcalar',
                             'xcalarSerDes': '/serdes'
                            }
@@ -871,6 +872,23 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             }
         }
     };
+
+    InstallerCommon.prepareUninstall = function() {
+        switch (discoverResult.xcalarMount.option) {
+        case 'customerNfs':
+            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+            finalStruct.nfsOption.nfsServer = discoverResult.xcalarMount.server;
+            finalStruct.nfsOption.nfsMountPoint = discoverResult.xcalarMount.path;
+            break;
+        case 'readyNfs':
+            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+            finalStruct.nfsOption.nfsReuse = discoverResult.xcalarMount.path;
+            break;
+        case 'xcalarNfs':
+            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+            break;
+        }
+    }
 
     InstallerCommon.sendViaHttps = function(action, url, arrayToSend) {
         return sendViaHttps(action, url, arrayToSend);

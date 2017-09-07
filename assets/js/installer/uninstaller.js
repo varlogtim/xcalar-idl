@@ -27,6 +27,7 @@ window.Uninstaller = (function(Uninstaller, $) {
         var doingString = "UNINSTALLING...";
         var doingLower = "Uninstalling...";
 
+        InstallerCommon.prepareUninstall();
         InstallerCommon.prepareStart($form, doingString, doingLower);
         InstallerCommon.startOperation(startApi)
         .then(function() {
