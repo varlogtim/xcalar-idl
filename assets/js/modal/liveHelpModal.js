@@ -23,7 +23,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             "noCenter": true,
             "noEnter": true
         });
-        userName = XcSupport.getUser().split("@")[0];
         addModalEvents();
     };
     // Only for Beta to force the modal to be shown, also give it an email to
@@ -33,9 +32,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (customizedEmail && isValidEmail(customizedEmail)) {
             supportEmail = customizedEmail;
         } else {
-            LiveHelpModal.autoSendEmail = function() {}
+            supportEmail = "";
         }
-    }
+    };
     // Three steps for user to connect to liveHelp:
     // 1. Request a connection
     // 2. Wait to be served by one of the supports
@@ -43,6 +42,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
 
     // Everytime click on 'liveHelp' on menu
     LiveHelpModal.show = function() {
+        userName = XcSupport.getUser().split("@")[0];
         if (!$modal.is(":visible")) {
             modalHelper.setup();
             $modal.find(".xi-fullscreen").hide();
@@ -68,8 +68,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (!autoResend) {
             // If the client is not connected to socket yet
             if (!connected) {
-                // Consider reading url from config files later
-                var url = "ec2-52-37-245-88.us-west-2.compute.amazonaws.com:12124";
+                var url = "https://livechat.xcalar.com";
                 socket = io.connect(url);
                 addSocketEvent();
             }
@@ -81,10 +80,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             appendMsg(AlertTStr.EmailFunc, "sysMsg");
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
-        if (connected) {
-            // Send the request to socket
-            socket.emit("liveHelpConn", userName);
-        }
+        setTimeout(function() {
+            if (connected) {
+                // Send the request to socket
+                socket.emit("liveHelpConn", userName);
+            }
+        }, 1000);
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
@@ -103,7 +104,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         supportLeft = true;
         requestConn(false, supportLeft);
         timer = setInterval(function() {
-                requestConn(true);
+            requestConn(true);
         }, 10000);
     }
     // Only for sending messages
@@ -120,15 +121,14 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     // Update the chat messages in chat box
     function appendMsg(content, type, sender) {
         var row = "<div class='" + type + "'></div>";
-        if (type != "sysMsg") {
+        if (type !== "sysMsg") {
             content = xcHelper.escapeHTMLSpecialChar(content);
             row = "<div class='" + type + "Sender'><p>" + sender + "</p></div>" + row;
         }
         var $content = $modal.find(".chatMsg");
-        var scrollHeight = $content[0].scrollHeight;
         $modal.find(".chatMsg").append(row);
         $modal.find(".chatMsg").find("." + type).last()
-                .html("<p class='text '" + type + ">"+content+"</p>");
+                .html("<p class='text'>"+content+"</p>");
         $content.scrollTop($content[0].scrollHeight);
     }
     // Clear all input
@@ -146,18 +146,19 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     }
     // Send email
     function sendEmailTo(dest) {
-        if (!$modal.find(".reqConn").is(":visible")) {
+        if (dest && !$modal.find(".reqConn").is(":visible")) {
             var content = "";
             $modal.find(".userMsg, .supportMsg").each(function(i,e) {
                 content += $(e).text() + "\n";
-            })
+            });
             if (content) {
                 var mailOpts = {
                     from: 'support@xcalar.com',
                     to: dest,
                     subject: 'Support Chat History for ' + fullName,
                     text: content
-                }
+                };
+                appendMsg(AlertTStr.EmailSending, "sysMsg");
                 socket.emit("sendEmail", mailOpts, function() {
                     appendMsg(AlertTStr.EmailSent, "sysMsg");
                 });
@@ -183,7 +184,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function addModalEvents() {
         // Enable requesting connection only when both name and email are given
         $modal.find(".reqConn input").keypress(function(e) {
-            if (e.which == keyCode.Enter && infoComplete()) {
+            if (e.which === keyCode.Enter && infoComplete()) {
                 startChatting();
             }
         });
@@ -201,7 +202,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         // press enter when input
         $modal.find(".sendMsg").keypress(function(e) {
-            if (e.which == keyCode.Enter && !e.shiftKey && $(this).val()) {
+            if (e.which === keyCode.Enter && !e.shiftKey && $(this).val()) {
                 e.preventDefault();
                 submitForm();
                 resetSendArea();
@@ -238,10 +239,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             // If it is not on reqConn UI, ask the user if he needs all messages
             // to be sent to his email
             if (!$modal.find(".reqConn").is(":visible")) {
-                appendMsg(AlertTStr.LeaveConMsg, "sysMsg");
-                $modal.on("click", "a", function() {
+                var confirmation = AlertTStr.LeaveConMsg + "<a class='confirmClose'>" +
+                                   CommonTxtTstr.YES + "</a>";
+                appendMsg(confirmation, "sysMsg");
+                $modal.on("click", ".confirmClose", function() {
                     closeModal();
-                })
+                });
             } else {
                 closeModal();
             }
@@ -253,7 +256,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function minimize() {
         width = $modal.parent().width();
         height = $modal.parent().height();
-        if ($modal.height() != 36) {
+        if ($modal.height() !== 36) {
             $modal.css("min-height","36px");
             $modal.animate({
                 height: 36,
@@ -319,6 +322,15 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if ($modal.is(":visible")) {
             sendEmailTo(supportEmail);
         }
+    };
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        LiveHelpModal.__testOnly__ = {};
+        LiveHelpModal.__testOnly__.connected = connected;
+        LiveHelpModal.__testOnly__.readyToChat = readyToChat;
+        LiveHelpModal.__testOnly__.returnToWait = returnToWait;
     }
+    /* End Of Unit Test Only */
+
     return (LiveHelpModal);
 }(jQuery, {}));
