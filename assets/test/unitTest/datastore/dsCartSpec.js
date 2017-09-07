@@ -253,6 +253,24 @@ describe("Dataset-DSCart Test", function() {
             assert.equal($cart.length, 0, 'should have no carts');
         });
 
+        it("DSCart.resize should work", function() {
+            var $dsTableView = $("#dsTableView").removeClass("xc-hidden");
+            var $rightSection = $dsTableView.find(".rightSection");
+            // case 1
+            $rightSection.addClass("resizing");
+            var res = DSCart.resize();
+            expect(res).to.be.false;
+            // case 2
+            $rightSection.removeClass("resizing");
+            res = DSCart.resize();
+            expect(res).to.be.true;
+
+            // case 3
+            $dsTableView.addClass("xc-hidden");
+            res = DSCart.resize();
+            expect(res).to.be.false;
+        });
+
         after(function() {
             DSCart.clear();
             DSCart.restore(previousCart);
@@ -270,7 +288,7 @@ describe("Dataset-DSCart Test", function() {
             xcHelper.tableNameInputChecker = function() { return true; };
         });
 
-        it("Should fail in error case", function(done) {
+        it("should fail in error case", function(done) {
             tooManyColAlertHelper(null)
             .then(function() {
                 done("fail");
@@ -281,7 +299,7 @@ describe("Dataset-DSCart Test", function() {
             });
         });
 
-        it("Should resolve with valid cart", function(done) {
+        it("should resolve with valid cart", function(done) {
             var cart = new Cart({
                 "dsId": "test",
                 "tableName": "testTable"
@@ -297,7 +315,23 @@ describe("Dataset-DSCart Test", function() {
             });
         });
 
-        it("Should alert with too many columns and cancel", function(done) {
+        it("should resolve with valid cart case 2", function(done) {
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+            tooManyColAlertHelper(cart, "xc-new")
+            .then(function() {
+                expect(true).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should alert with too many columns and cancel", function(done) {
             var cart = new Cart({
                 "dsId": "test",
                 "tableName": "testTable"
@@ -319,7 +353,7 @@ describe("Dataset-DSCart Test", function() {
             });
         });
 
-        it("Should alert with too many columns and confirm", function(done) {
+        it("should alert with too many columns and confirm", function(done) {
             var cart = new Cart({
                 "dsId": "test",
                 "tableName": "testTable"
@@ -339,6 +373,100 @@ describe("Dataset-DSCart Test", function() {
             })
             .fail(function() {
                 done("fail");
+            });
+        });
+
+        it("should alert with too many worksheet cancel", function(done) {
+            var oldFunc = WSManager.getNumCols;
+            var test = false;
+            WSManager.getNumCols = function() {
+                test = true;
+                return gMaxColToPull + 1;
+            };
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+
+            var prmoise = tooManyColAlertHelper(cart);
+            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn);
+
+            prmoise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                expect(test).to.be.true;
+                done();
+            })
+            .always(function() {
+                WSManager.getNumCols = oldFunc;
+            });
+        });
+
+        it("should alert with too many worksheet confirm", function(done) {
+            var oldFunc = WSManager.getNumCols;
+            var test = false;
+            WSManager.getNumCols = function() {
+                test = true;
+                return gMaxColToPull + 1;
+            };
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+
+            var prmoise = tooManyColAlertHelper(cart);
+            assert.isTrue($("#alertModal").is(":visible"));
+            $("#alertModal").find(".funcBtn:not(.larger)").click();
+
+            prmoise
+            .then(function(res) {
+                assert.isFalse($("#alertModal").is(":visible"));
+                expect(res).to.be.undefined;
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                WSManager.getNumCols = oldFunc;
+            });
+        });
+
+        it("should alert with too many worksheet confirm case 2", function(done) {
+            var oldFunc = WSManager.getNumCols;
+            var test = false;
+            WSManager.getNumCols = function() {
+                test = true;
+                return gMaxColToPull + 1;
+            };
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+
+            var prmoise = tooManyColAlertHelper(cart);
+            assert.isTrue($("#alertModal").is(":visible"));
+            $("#alertModal").find(".funcBtn.larger").click();
+
+            prmoise
+            .then(function(res) {
+                assert.isFalse($("#alertModal").is(":visible"));
+                expect(res).to.be.equal("xc-new");
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                WSManager.getNumCols = oldFunc;
             });
         });
 
@@ -396,6 +524,37 @@ describe("Dataset-DSCart Test", function() {
             $btn.click();
             expect($btn.hasClass("active")).to.equal(isActive);
             expect($dsTableView.hasClass("fullSize")).to.equal(isFullSize);
+        });
+
+        it("should resize cart section", function() {
+            var $dsTableView = $("#dsTableView");
+            var $rightSection = $dsTableView.find(".rightSection");
+            var $bar = $rightSection.find(".ui-resizable-handle").eq(0);
+            var width = $rightSection.width();
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({
+                "type": "mousedown",
+                "which": 1,
+                "pageX": pageX,
+                "pageY": pageY
+            });
+            $bar.trigger({
+                "type": "mousemove",
+                "which": 1,
+                "pageX": pageX - 1,
+                "pageY": pageY
+            });
+            $bar.trigger({
+                "type": "mouseup",
+                "which": 1,
+                "pageX": pageX,
+                "pageY": pageY
+            });
+
+            expect($rightSection.width() > width).to.be.true;
         });
 
         it("Should focus on column when click", function() {
@@ -488,6 +647,30 @@ describe("Dataset-DSCart Test", function() {
             })
             .always(function() {
                 DSCart.createTable = oldFunc;
+            });
+        });
+
+        it("shhould handle create table fail case", function(done) {
+            var oldRemove = DSCart.removeCart;
+            var oldIndex = XcalarIndexFromDataset;
+            DSCart.removeCart = function() {};
+            XcalarIndexFromDataset = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            var cart = DSCart.__testOnly__.filterCarts(dsId);
+            var worksheet = WSManager.getActiveWS();
+            DSCart.createTable(cart, worksheet)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.TableCreationFailed);
+                done();
+            })
+            .always(function() {
+                DSCart.removeCart = oldRemove;
+                XcalarIndexFromDataset = oldIndex;
             });
         });
 

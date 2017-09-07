@@ -1,6 +1,7 @@
 describe("Dataset-DSObj Test", function() {
     var $mainTabCache;
     var $gridView;
+    var $dsListFocusTrakcer;
     var $statusBox;
 
     var testFolder;
@@ -9,7 +10,9 @@ describe("Dataset-DSObj Test", function() {
 
     before(function(done){
         UnitTest.onMinMode();
+        console.clear();
         $gridView = $("#dsListSection").find(".gridItems");
+        $dsListFocusTrakcer = $("#dsListFocusTrakcer");
         $statusBox = $("#statusBox");
         user = XcSupport.getUser();
 
@@ -25,6 +28,9 @@ describe("Dataset-DSObj Test", function() {
         })
         .then(function() {
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -72,6 +78,49 @@ describe("Dataset-DSObj Test", function() {
             var testName = genUniqDSName("testSuites-dsObj");
             expect(DS.has(testName)).to.be.false;
             expect(DS.has(null)).to.be.false;
+        });
+
+        it("DS.cancel should work", function(done) {
+            var $grid = $('<div class="active" data-txid="test"></div>');
+            var oldFunc = QueryManager.cancelQuery;
+            QueryManager.cancelQuery = function() {
+                return PromiseHelper.reject("test");
+            };
+            DS.cancel($grid)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                expect($grid.hasClass("active")).to.be.false;
+                expect($grid.hasClass("inactive")).to.be.true;
+                expect($grid.hasClass("deleting")).to.be.true;
+                done();
+            })
+            .always(function() {
+                QueryManager.cancelQuery = oldFunc;
+            });
+        });
+
+        it("DS.resize should work", function() {
+            var $menu = $("#datastoreMenu");
+            var isListView = $gridView.hasClass("listView");
+            var isActive = $menu.hasClass("active");
+            var name = new Array(100).fill("a").join(""); // a long name
+            var $testLabel = $('<div class="label" data-dsname="' + name + '"></div>');
+            $testLabel.text(name).appendTo($gridView);
+            $gridView.addClass("listView");
+            $menu.addClass("active");
+            DS.resize();
+            expect($testLabel.text()).to.contains("."); // has ellipsis
+
+            $testLabel.remove();
+            if (!isListView) {
+                $gridView.removeClass("listView");
+            }
+            if (!isActive) {
+                $menu.removeClass("active");
+            }
         });
 
         it("Should add current user's ds", function() {
@@ -141,6 +190,123 @@ describe("Dataset-DSObj Test", function() {
         it("should remoe cache error ds", function() {
             DS.removeErrorDSObj("test");
             expect(DS.getErrorDSObj("test")).to.be.null;
+        });
+
+        it("createTableHelper should work", function(done) {
+            var $grid = $("<div></div>");
+            var dsObj = {
+                fetch: function() { return PromiseHelper.resolve(null, []); },
+                getName: function() { return "test"; },
+                getId: function() { return "test"; }
+            };
+            var oldAddCart = DSCart.addCart;
+            var oldCreateTable = DSCart.createTable;
+            var test = false;
+            DSCart.addCart = function() {};
+            DSCart.createTable = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            DS.__testOnly__.createTableHelper($grid, dsObj)
+            .then(function() {
+                expect(test).to.equal(true);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSCart.addCart = oldAddCart;
+                DSCart.createTable = oldCreateTable;
+            });
+        });
+    });
+
+    describe("Hide unlistable DS Test", function() {
+        var $grid;
+        var dsId;
+        var oldGetDSNode;
+        var dsSet;
+        var checkUnlistableDS;
+
+        before(function() {
+            dsId = xcHelper.randName("test");
+            $grid = $('<div class="grid-unit" data-dsid="' + dsId + '"></div>');
+            $grid.appendTo($gridView);
+            oldGetDSNode = XcalarGetDSNode;
+
+            checkUnlistableDS = DS.__testOnly__.checkUnlistableDS;
+            dsSet = {};
+            dsSet[dsId] = true;
+        });
+
+        it("should handle empty unlistable ds case", function(done) {
+            checkUnlistableDS({})
+            .then(function() {
+                expect($grid.css("display")).to.equal("block");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should handle fail case", function(done) {
+            XcalarGetDSNode = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            checkUnlistableDS(dsSet)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            });
+        });
+
+        it("should hide unlistable ds", function(done) {
+            XcalarGetDSNode = function() {
+                return PromiseHelper.resolve({
+                    numNodes: 0,
+                    nodeInfo: []
+                });
+            };
+
+            checkUnlistableDS(dsSet)
+            .then(function() {
+                expect($grid.css("display")).to.equal("none");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should not hide unlistable ds that has table associated to it", function(done) {
+            XcalarGetDSNode = function() {
+                return PromiseHelper.resolve({
+                    numNodes: 1,
+                    nodeInfo: [{name: dsId}]
+                });
+            };
+            $grid.show();
+            checkUnlistableDS(dsSet)
+            .then(function() {
+                expect($grid.css("display")).to.equal("block");
+                expect(dsSet.hasOwnProperty(dsId)).to.be.false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            XcalarGetDSNode = oldGetDSNode;
+            $grid.remove();
         });
     });
 
@@ -231,6 +397,21 @@ describe("Dataset-DSObj Test", function() {
             var newNumEles = homeFolder.eles.length;
             expect(newNumEles - numEles).to.equal(-1);
             expect(DS.getGrid(id).length).to.equal(0);
+        });
+
+        it("should trigger delete from grid view use keyboard", function() {
+            var id = xcHelper.randName("test");
+            var $grid = $('<div class="grid-unit selected" data-dsid="' + id + '"></div>');
+            $grid.appendTo($gridView);
+            var oldRemove = DS.remove;
+            var test = false;
+            DS.remove = function() { test = true; };
+            var e = jQuery.Event("keydown", {which: keyCode.Delete});
+            $dsListFocusTrakcer.trigger(e);
+            expect(test).to.equal(true);
+            // clear up
+            $grid.remove();
+            DS.remove = oldRemove;
         });
     });
 
@@ -421,6 +602,27 @@ describe("Dataset-DSObj Test", function() {
             })
             .always(function() {
                 DSTable.show = oldFunc;
+            });
+        });
+
+        it("should handle not focus on unlistable ds", function(done) {
+            var oldFunc = DSTable.showError;
+            var test = false;
+            DSTable.showError = function() {
+                test = true;
+            };
+
+            var $grid = $('<div class="active unlistable" data-dsid="test"></div>');
+            DS.focusOn($grid)
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSTable.showError = oldFunc;
             });
         });
 

@@ -92,7 +92,7 @@ window.DS = (function ($, DS) {
         } else if (dsId === homeDirId) {
             return $gridView;
         } else {
-            return $gridView.find('.grid-unit[data-dsId="' + dsId + '"]');
+            return $gridView.find('.grid-unit[data-dsid="' + dsId + '"]');
         }
     };
 
@@ -782,7 +782,7 @@ window.DS = (function ($, DS) {
         for (var dsId in dsSet) {
             var dsObj = DS.getDSObj(dsId);
             var $grid = DS.getGrid(dsId);
-            if (dsObj.getUser() === currentUser) {
+            if (dsObj != null && dsObj.getUser() === currentUser) {
                 // when it's the currentUser's ds, can try to delete it
                 // tryRemoveUnlistableDS($grid, dsObj);
             } else {
@@ -1197,9 +1197,10 @@ window.DS = (function ($, DS) {
 
     function checkUnlistableDS(unlistableDS) {
         if ($.isEmptyObject(unlistableDS)) {
-            return;
+            return PromiseHelper.resolve();
         }
 
+        var deferred = jQuery.Deferred();
         XcalarGetDSNode()
         .then(function(ret) {
             var numNodes = ret.numNodes;
@@ -1219,10 +1220,14 @@ window.DS = (function ($, DS) {
                 }
             }
             hideUnlistableDS(unlistableDS);
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("check unlistable ds fails!", error);
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     function createTableHelper($grid, dsObj) {
@@ -2211,6 +2216,8 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.createDS = createDS;
         DS.__testOnly__.removeDS = removeDS;
         DS.__testOnly__.cacheErrorDS = cacheErrorDS;
+        DS.__testOnly__.checkUnlistableDS = checkUnlistableDS;
+        DS.__testOnly__.createTableHelper = createTableHelper;
 
         DS.__testOnly__.getDragDS = getDragDS;
         DS.__testOnly__.setDragDS = setDragDS;

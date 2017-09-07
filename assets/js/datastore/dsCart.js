@@ -488,6 +488,24 @@ window.DSCart = (function($, DSCart) {
         }
     };
 
+    DSCart.resize = function() {
+        var $dsTableView = $("#dsTableView");
+        if ($dsTableView.is(":visible")) {
+            var $leftSection = $dsTableView.find(".leftSection");
+            var $rightSection = $dsTableView.find(".rightSection");
+            if ($rightSection.hasClass("resizing")) {
+                // resizable will trigger window resize
+                return false;
+            }
+            // reset position
+            $leftSection.css("width", "");
+            $rightSection.css("left", "");
+            $rightSection.css("width", "");
+            return true;
+        }
+        return false;
+    };
+
     function setupResizable() {
         if (window.isBrowserSafari) {
             // safari has cannot resize issue, don't know why
@@ -523,17 +541,6 @@ window.DSCart = (function($, DSCart) {
                 $leftSection.removeClass("noAnim");
                 $rightSection.removeClass("noAnim resizing");
             }
-        });
-
-        $(window).on("resize", function() {
-            if ($rightSection.hasClass("resizing")) {
-                // resizable will trigger window resize
-                return;
-            }
-            // reset position
-            $leftSection.css("width", "");
-            $rightSection.css("left", "");
-            $rightSection.css("width", "");
         });
     }
 

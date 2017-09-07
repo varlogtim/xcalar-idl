@@ -862,6 +862,8 @@ window.xcManager = (function(xcManager, $) {
                 otherResize = false;
                 TblFunc.moveTableTitles();
             }
+
+            DSCart.resize();
             clearTimeout(winResizeTimer);
             winResizeTimer = setTimeout(winResizeStop, 100);
         });
