@@ -705,7 +705,7 @@ describe('OperationsView Test', function() {
         });
 
         describe('test type checking', function() {
-            this.timeout(60000);
+            this.timeout(120000);
             // this will take a long time because we
             // test out all combination of argument pairs and each test
             // loops through all the columns in a table each time to check if the
@@ -741,9 +741,11 @@ describe('OperationsView Test', function() {
                 var testArgs2 = [];
                 var testArgs2Unprefixed = [];
                 someColumnNames.forEach(function(colName) {
-                    if (colName !== "DATA") {
-                        colName = xcHelper.getPrefixColName(prefix, colName);
+                    if (colName === "DATA") {
+                        return;
                     }
+
+                    colName = xcHelper.getPrefixColName(prefix, colName);
 
                     testArgs2.push(gColPrefix + colName);
                     testArgs2Unprefixed.push(colName);
@@ -773,7 +775,10 @@ describe('OperationsView Test', function() {
                 });
 
                 var testedGBTypes = [];
-                aggsList.forEach(function(agg) {
+                aggsList.forEach(function(agg, i) {
+                    if (!(i % 2)) {
+                        return;
+                    }
                     var groupByType = agg.fnName;
                     testVariousInputsTypes(groupByType, testedGBTypes, testArgs1,
                                             testArgs2, arg1Types, arg2Types);
@@ -781,7 +786,10 @@ describe('OperationsView Test', function() {
 
                 // switch args around;
                 testedGBTypes = [];
-                aggsList.forEach(function(agg) {
+                aggsList.forEach(function(agg, i) {
+                    if (i % 2) {
+                        return;
+                    }
                     var groupByType = agg.fnName;
                     testVariousInputsTypes(groupByType, testedGBTypes, testArgs2,
                                             testArgs1, arg2Types, arg1Types);

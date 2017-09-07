@@ -2030,7 +2030,6 @@ describe("Dag Panel Test", function() {
             origNode = node;
         });
 
-
         it("tables should be correctly tagged", function() {
             var joinId = $joinDagWrap.data("id");
             // join group
@@ -2058,6 +2057,19 @@ describe("Dag Panel Test", function() {
             expect(node.value.display.isHiddenTag).to.be.undefined;
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0].indexOf("join#")).to.equal(-1);
+        });
+
+        it("expanding and collapsing should work", function() {
+            expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
+            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("214px");
+            //expand
+            $joinDagWrap.find(".tagHeader").eq(0).click();
+            expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.false;
+            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("428px");
+            // collapse
+            $joinDagWrap.find(".tagHeader").eq(0).click();
+            expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
+            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("214px");
         });
 
         it("getAllAncestors should work", function() {
@@ -2095,6 +2107,261 @@ describe("Dag Panel Test", function() {
             child2.value.tag = "a,b";
             expect(fn(["a"], node)).to.be.true;
             expect(fn(["a", "b"], node)).to.be.true;
+        });
+    });
+
+    describe("create and refresh dag tests", function() {
+        var dsNode, indexNode, sortNode, exportNode;
+        before(function() {
+            dsNode = {
+              "name": {
+                "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed"
+              },
+              "tag": "",
+              "comment": "",
+              "numParent": 0,
+              "dagNodeId": "18014398509488925",
+              "api": 2,
+              "state": 5,
+              "input": {
+                "loadInput": {
+                  "dataset": {
+                    "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
+                    "datasetId": "11793",
+                    "formatType": 1,
+                    "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                    "loadIsComplete": false,
+                    "refCount": 0,
+                    "isListable": false,
+                    "udfName": ""
+                  },
+                  "loadArgs": {
+                    "csv": {
+                      "recordDelim": "\n",
+                      "quoteDelim": "\"",
+                      "linesToSkip": 0,
+                      "fieldDelim": "",
+                      "isCRLF": true,
+                      "hasHeader": false
+                    },
+                    "udfLoadArgs": {
+                      "fullyQualifiedFnName": ""
+                    },
+                    "recursive": false,
+                    "fileNamePattern": "",
+                    "maxSize": 0
+                  },
+                  "dagNodeId": "18014398509488925"
+                }
+              }
+            };
+
+            indexNode = {
+              "name": {
+                "name": "yelp_academic_dataset_user_fixed#DP0"
+              },
+              "tag": "indexFromDataset#DP0",
+              "comment": "",
+              "numParent": 1,
+              "dagNodeId": "18014398509489069",
+              "api": 3,
+              "state": 5,
+              "input": {
+                "indexInput": {
+                  "dhtName": "",
+                  "source": {
+                    "isTable": false,
+                    "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                    "nodeId": "18014398509488925"
+                  },
+                  "keyName": "xcalarRecordNum",
+                  "dstTable": {
+                    "tableName": "yelp_academic_dataset_user_fixed#DP0",
+                    "tableId": "18014398509489069"
+                  },
+                  "ordering": 0,
+                  "fatptrPrefixName": "",
+                  "keyType": 0
+                }
+              }
+            };
+
+            sortNode = {
+              "name": {
+                "name": "yelp_academic_dataset_user_fixed#DP3"
+              },
+              "tag": "sort#DP3",
+              "comment": "",
+              "numParent": 1,
+              "dagNodeId": "18014398509611722",
+              "api": 3,
+              "state": 5,
+              "input": {
+                "indexInput": {
+                  "dhtName": "",
+                  "source": {
+                    "isTable": true,
+                    "name": "yelp_academic_dataset_user_fixed#DP0",
+                    "nodeId": "18014398509489069"
+                  },
+                  "keyName": "yelp_academic_dataset_user_fixe::type",
+                  "dstTable": {
+                    "tableName": "yelp_academic_dataset_user_fixed#DP3",
+                    "tableId": "18014398509611722"
+                  },
+                  "ordering": 3,
+                  "fatptrPrefixName": "",
+                  "keyType": 0
+                }
+              }
+            };
+
+            exportNode = {
+              "name": {
+                "name": ".XcalarLRQExport.students#wE1"
+              },
+              "tag": "",
+              "comment": "",
+              "numParent": 1,
+              "dagNodeId": "1273",
+              "api": 33,
+              "state": 1,
+              "input": {
+                "exportInput": {
+                  "srcTable": {
+                    "tableName": "yelp_academic_dataset_user_fixed#DP3",
+                    "tableId": "8299634059700679470"
+                  },
+                  "exportName": "",
+                  "meta": {
+                    "target": {
+                      "type": 1,
+                      "name": "Default"
+                    },
+                    "specificInput": {
+                      "sfInput": {
+                        "fileName": "export-students#wE1.csv",
+                        "format": 2,
+                        "splitRule": {
+                          "type": 1,
+                          "spec": {
+                            "numFiles": 0,
+                            "maxSize": 3665476190
+                          }
+                        },
+                        "headerType": 1,
+                        "formatArgs": {
+                          "csv": {
+                            "fieldDelim": "\t",
+                            "recordDelim": "\n",
+                            "quoteDelim": "\""
+                          },
+                          "json": {
+                            "array": false
+                          },
+                          "sql": {
+                            "tableName": "",
+                            "dropTable": false,
+                            "createTable": false
+                          }
+                        }
+                      },
+                      "udfInput": {
+                        "fileName": "",
+                        "format": 0,
+                        "headerType": 0,
+                        "formatArgs": {
+                          "csv": {
+                            "fieldDelim": "",
+                            "recordDelim": "",
+                            "quoteDelim": ""
+                          },
+                          "json": {
+                            "array": false
+                          },
+                          "sql": {
+                            "tableName": "",
+                            "dropTable": false,
+                            "createTable": false
+                          }
+                        }
+                      }
+                    },
+                    "createRule": 1,
+                    "sorted": true,
+                    "numColumns": 2,
+                    "columns": [
+                      {
+                        "name": "students::student_name",
+                        "headerAlias": "student_name"
+                      },
+                      {
+                        "name": "students::student_id",
+                        "headerAlias": "student_id"
+                      }
+                    ]
+                  }
+                }
+              }
+            };
+        });
+
+        it("exceeding canvas limit should make dag have error state", function() {
+            var $dagWrap = $('<div id="testDagWrap" class="dagWrap"></div>');
+            var nodes = [sortNode, indexNode, dsNode];
+            var oldCanvasLimit = Dag.canvasLimit;
+            Dag.canvasLimit = -1;
+
+            DagDraw.createDagImage(nodes, $dagWrap);
+            expect($dagWrap.hasClass("tooLarge")).to.be.true;
+            Dag.canvasLimit = oldCanvasLimit;
+            $dagWrap.remove();
+        });
+
+        it("dag function error should make dag have error state", function() {
+            var $dagWrap = $('<div id="testDagWrap" class="dagWrap"></div>');
+            var nodes = [sortNode, indexNode, {error: "invalid node"}];
+
+            DagDraw.createDagImage(nodes, $dagWrap);
+            expect($dagWrap.hasClass("invalid")).to.be.true;
+            $dagWrap.remove();
+        });
+
+        it("unexpected node should make dag have error state", function() {
+            var $dagWrap = $('<div id="testDagWrap" class="dagWrap"></div>');
+            var invalidNode = xcHelper.deepCopy(dsNode);
+            invalidNode.api = 3;
+            invalidNode.input = indexNode.input;
+
+            var nodes = [sortNode, indexNode, invalidNode];
+
+            DagDraw.createDagImage(nodes, $dagWrap);
+            expect($dagWrap.hasClass("hasUnexpectedNode")).to.be.true;
+            $dagWrap.remove();
+        });
+
+        it("should handle multiple export nodes", function() {
+            var $dagWrap = $('<div id="dagWrap-testDagWrap" class="dagWrap"></div>');
+            var exportNode2 = xcHelper.deepCopy(exportNode);
+            exportNode2.dagNodeId = "-1";
+            var nodes = [exportNode, sortNode, indexNode, dsNode, exportNode2];
+
+            DagDraw.createDagImage(nodes, $dagWrap);
+            expect($dagWrap.hasClass("invalid")).to.be.true;
+            $dagWrap.remove();
+        });
+
+        it("refresh dag image should work", function() {
+            var $dagWrap = $('<div id="dagWrap-testDagWrap" class="dagWrap"></div>');
+            var nodes = [sortNode, indexNode, dsNode];
+
+            DagDraw.createDagImage(nodes, $dagWrap);
+            $("body").append($dagWrap);
+            DagDraw.refreshDagImage("testDagWrap", "unitTestTag", [indexNode.name.name]);
+            var indexInfo = $dagWrap.data("allDagInfo").nodeIdMap[indexNode.dagNodeId];
+
+            expect(indexInfo.value.tags.indexOf("unitTestTag")).to.equal(1);
+            $dagWrap.remove();
         });
     });
 

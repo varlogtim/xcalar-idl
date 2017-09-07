@@ -150,6 +150,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.addDS = function(testDSObj, dsName) {
+        console.clear();
         var deferred = jQuery.Deferred();
         if (dsName == null) {
             dsName = "uniteTest";
@@ -260,7 +261,6 @@ window.UnitTest = (function(UnitTest, $) {
             console.error("Delete fail", error);
             deferred.reject(error);
         });
-
         return deferred.promise();
     };
 

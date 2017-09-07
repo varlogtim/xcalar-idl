@@ -18,7 +18,9 @@ describe("UDF Test", function() {
             })
             .then(function() {
                 $tab.click();
-                return !$("#menuBar").hasClass("animating");
+                return (UnitTest.testFinish(function() {
+                    return !$("#menuBar").hasClass("animating");
+                }));
             })
             .then(function() {
                 done();

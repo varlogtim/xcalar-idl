@@ -179,18 +179,23 @@ describe("RowScroller Test", function() {
         var $tbodyWrap;
         var table;
         var cachedAddRows;
+        var scrollTriggered = false;
 
         before(function(){
             $scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
             $tbodyWrap = $("#xcTbodyWrap-" + tableId);
             table = gTables[tableId];
             cachedAddRows = RowManager.addRows;
+            $scrollBar.on("scroll.unitTest", function() {
+                scrollTriggered = true;
+            });
         });
 
         it("scrolling on scrollbar should work", function(done) {
             table.scrollMeta.isTableScrolling = false;
             expect(table.scrollMeta.isBarScrolling).to.be.false;
             expect($scrollBar.scrollTop()).to.not.equal(50);
+            scrollTriggered = false;
             $scrollBar.scrollTop(50);
 
             if (!ifvisible.now()) {
@@ -198,7 +203,7 @@ describe("RowScroller Test", function() {
             }
 
             UnitTest.testFinish(function () {
-                console.log("top", $tbodyWrap.scrollTop())
+                console.log("top", $tbodyWrap.scrollTop());
                 return $tbodyWrap.scrollTop() === 50;
             })
             .then(function() {
@@ -220,7 +225,7 @@ describe("RowScroller Test", function() {
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
             };
-
+            scrollTriggered = false;
             $scrollBar.trigger(fakeEvent.mousedown);
             $scrollBar.scrollTop(100);
 
@@ -228,13 +233,18 @@ describe("RowScroller Test", function() {
                 $scrollBar.scroll();
             }
             gTables[tableId].rowHeights[0] = {1: 300};
+
             UnitTest.testFinish(function() {
-                return addRowsCalled === false;
+                return $scrollBar.scrollTop() === 100;
+            })
+            .then(function() {
+                return UnitTest.testFinish(function() {
+                    return addRowsCalled === false;
+                });
             })
             .then(function() {
                 expect(table.scrollMeta.isBarScrolling).to.be.false;
                 expect($tbodyWrap.scrollTop()).to.equal(50);
-
                 $(document).mouseup();
 
                 return UnitTest.testFinish(function() {
@@ -257,6 +267,7 @@ describe("RowScroller Test", function() {
 
         after(function() {
             RowManager.addRows = cachedAddRows;
+            $scrollBar.off("scroll.unitTest");
         });
     });
 

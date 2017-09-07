@@ -7,14 +7,25 @@ describe("Dataset-DSObj Test", function() {
     var testDS;
     var user;
 
-    before(function(){
+    before(function(done){
+        UnitTest.onMinMode();
         $gridView = $("#dsListSection").find(".gridItems");
         $statusBox = $("#statusBox");
         user = XcSupport.getUser();
 
         $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
-        UnitTest.onMinMode();
+        UnitTest.testFinish(function() {
+            return !$("#menuBar").hasClass("animating");
+        })
+        .then(function() {
+            $("#dataStoresTab").click();
+            return (UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            }));
+        })
+        .then(function() {
+            done();
+        });
     });
 
     function genUniqDSName(name) {

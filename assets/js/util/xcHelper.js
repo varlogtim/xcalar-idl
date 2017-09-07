@@ -41,6 +41,8 @@ window.xcHelper = (function($, xcHelper) {
         if (classNames == null) {
             console.error("Unexpected element to parse row", $tr);
             return null;
+        } else if (classNames.indexOf("tempRow") > -1) {
+            keyword = "tempRow";
         }
 
         var index = classNames.indexOf(keyword);

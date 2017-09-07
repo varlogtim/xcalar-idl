@@ -1583,12 +1583,13 @@ describe('TableMenu Test', function() {
         });
 
         it('tdFilter on mixed column', function() {
-            $table.find('td.col6').eq(0).trigger(fakeEvent.mousedown);
-            var cellText = $table.find('td.col6').filter(function() {
+            var $cell = $table.find('td.col6').filter(function() {
                 // cannot filter null value
                 return $(this).find(".displayedData").text() !== "null";
-            }).eq(0).find(".displayedData").text();
-            // console.log(cellText)
+            }).eq(0);
+            $cell.trigger(fakeEvent.mousedown);
+
+            var cellText = $cell.find(".displayedData").text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
@@ -1596,6 +1597,7 @@ describe('TableMenu Test', function() {
                 expect(tId).to.equal(tableId);
                 var fltStr;
                 var colName = prefix + gPrefixSign + 'mixVal';
+                console.log(cellText);
                 if (cellText === "FNF") {
                     fltStr = 'not(exists(' + colName + '))';
                 } else {
