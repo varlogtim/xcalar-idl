@@ -569,6 +569,7 @@ MonitorTStr = {
 'Ext': '扩展',
 'GetHostsFail': '无法匹配主机',
 'GetLogsFail': '无法获取日志',
+'GetDuplicateHost': '每台主机只能对应一个节点',
 'GetStatusFail': '无法获得状态',
 'Monitor': '监控',
 'NotAuth': '没有授权执行此命令。',

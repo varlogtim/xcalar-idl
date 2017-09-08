@@ -124,6 +124,9 @@ function readHostsFromFile(hostFile) {
         var tempHosts = hostData.split("\n");
         for (var i = 0; i < tempHosts.length; i++) {
             var str = tempHosts[i].trim();
+            if((str.length < 2) || (str[0] == '/' && str[1] =='/') || (str[0] == '#')) {
+                continue;
+            }
             var re = /Node\.([0-9]+)\.IpAddr=(.*)/g;
             var matches = re.exec(str);
             if (matches && matches.length >= 3) {

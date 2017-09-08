@@ -422,11 +422,19 @@ window.MonitorLog = (function(MonitorLog, $) {
     function updateHosts(ret) {
         var matchHosts = ret["matchHosts"];
         var matchNodeIds = ret["matchNodeIds"];
+        var duplicateHosts = false;
         for (var i = 0; i < matchHosts.length; i++) {
             var host = matchHosts[i];
             var nodeId = matchNodeIds[i];
+            if (host in hosts) {
+                duplicateHosts = true;
+                continue;
+            }
             hosts[host] = nodeId;
             logs[host] = "";
+        }
+        if (duplicateHosts) {
+            Alert.error(MonitorTStr.GetLogsFail,  MonitorTStr.GetDuplicateHost);
         }
     }
 
