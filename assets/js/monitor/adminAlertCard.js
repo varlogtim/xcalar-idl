@@ -31,7 +31,7 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
             }
         });
         // click cancel or close button
-        $card.on("click", ".close", function() {
+        $card.on("click", ".close", function(event) {
             event.stopPropagation();
             closeCard();
         });
