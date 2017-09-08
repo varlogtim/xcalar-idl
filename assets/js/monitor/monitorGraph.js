@@ -231,9 +231,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var mem = new StatsObj();
         var swap = new StatsObj();
         var usrCpu = new StatsObj();
+        var network = new StatsObj();// For network, send is used, recv is tot
         mem.datasetUsage = 0;
         mem.xdbUsed = 0;
         mem.xdbTotal = 0;
+        mem.ramUsed = 0;
 
         for (var i = 0; i < numNodes; i++) {
             var node = apiTopResult.topOutputPerNode[i];
@@ -256,14 +258,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
             mem.datasetUsage += node.datasetUsedBytes;
             mem.xdbUsed += node.xdbUsedBytes;
             mem.xdbTotal += node.xdbTotalBytes;
-            mem.used += ramUsed;
+            mem.ramUsed += ramUsed;
+            mem.used += node.xdbUsedBytes;
             mem.total += node.totalAvailableMemInBytes;
 
             mem.nodes.push({
                 node: i,
                 xdbUsed: node.xdbUsedBytes,
                 xdbTotal: node.xdbTotalBytes,
-                used: ramUsed,
+                ramUsed: ramUsed,
+                used: node.xdbUsedBytes,
                 total: node.totalAvailableMemInBytes
             });
 
@@ -275,6 +279,17 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 used: node.sysSwapUsedInBytes,
                 total: node.sysSwapTotalInBytes
             });
+
+            // network
+            var networkUsed = node.networkSendInBytesPerSec;
+            var networkTot = node.networkRecvInBytesPerSec;
+            network.used += networkUsed;
+            network.total += networkTot;
+            network.nodes.push({
+                node: i,
+                used: networkUsed,
+                total: networkTot
+            });
         }
 
         usrCpu.used /= numNodes;
@@ -282,9 +297,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.userTableUsage = tableUsage;
         mem.otherTableUsage = mem.xdbUsed - mem.userTableUsage - mem.datasetUsage;
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
-        mem.free = mem.total - mem.used;
+        mem.free = mem.total - mem.ramUsed;
 
-        var allStats = [mem, swap, usrCpu];
+        var allStats = [mem, swap, usrCpu, network];
 
         // make sure no values exceed total
         for (var i = 0; i < allStats.length; i++) {

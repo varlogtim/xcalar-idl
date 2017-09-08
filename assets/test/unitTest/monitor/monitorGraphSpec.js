@@ -23,8 +23,8 @@ describe("Monitor Graph Test", function() {
                         "memUsageInPercent": 60,
                         "totalAvailableMemInBytes": 200 * GB,
 
-                        "xdbUsedBytes": 40 * MB,
-                        "xdbTotalBytes": 50 * MB,
+                        "xdbUsedBytes": 40 * GB,
+                        "xdbTotalBytes": 50 * GB,
                         "networkRecvInBytesPerSec": 0,
                         "networkSendInBytesPerSec": 0,
 
@@ -58,14 +58,14 @@ describe("Monitor Graph Test", function() {
 
             fn()
             .then(function() {
-                expect(dataset[0][1]).to.equal(120);
+                expect(dataset[0][1]).to.equal(40);
                 expect(dataset[1][1]).to.equal(5);
                 expect(dataset[2][1]).to.equal(10);
 
                 expect($monitorPanel.find(".line").length).to.equal(3);
                 expect($monitorPanel.find(".area").length).to.equal(3);
                 // console.log($monitorPanel.find(".line0").attr("d"), $monitorPanel.find(".line1").attr("d"), $monitorPanel.find(".line2").attr("d"))
-                expect($monitorPanel.find(".line0").attr("d")).to.equal("M0,210L6,84");
+                expect($monitorPanel.find(".line0").attr("d")).to.equal("M0,210L6,168");
                 expect($monitorPanel.find(".line1").attr("d")).to.equal("M0,210L6,204.75");
                 expect($monitorPanel.find(".line2").attr("d")).to.equal("M0,210L6,189");
 

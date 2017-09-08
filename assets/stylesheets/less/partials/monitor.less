@@ -325,10 +325,10 @@
     }
 
     .graphSection {
-        .size(@width: ~"calc(100% - 40px)", @height: 270px);
+        .size(@width: 100%, @height: 270px);
         .font(@color: @color-font-greyish-brown, @size: 11px);
-        padding-left: 65px;
-        padding-right: 95px;
+        padding-left: 50px;
+        padding-right: 55px;
         display: inline-block;
         float: left;
         background-color: @color-white;
@@ -359,7 +359,7 @@
 
         #graphWrap {
             .size(@width: ~"calc(100% - 160px)", @height: 260px);
-            .position(absolute, @left: 94px);
+            .position(absolute, @left: 79px);
             z-index: 1;
             overflow-x: scroll;
             overflow-y: hidden;
@@ -398,7 +398,7 @@
                         .position(absolute, @left: 0px, @bottom: -42px);
                     }
                     .type {
-                        .position(absolute, @bottom: -60px, @left: -40px);
+                        .position(absolute, @bottom: -60px, @left: -26px);
                         white-space: nowrap;
 
                         span {
@@ -572,14 +572,18 @@
     }
 
     .bottomSection {
-        .flex-display();
         .flex-wrap(wrap);
-        margin-left: 40px;
-        margin-right: 40px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .flexOuter {
+        .flex(1 0 480px);
+        .justify-content(center);
     }
 
     .donutSection {
-        .flex(1 0 220px);
+        .flex(1 0 240px);
         .size(@height: 100%, @min-height: 200px);
         position: relative;
 
@@ -657,7 +661,7 @@
                 .network {
                     .font(@size: 18px, @weight: 500) !important;
                     .icon {
-                        color: @color-bg-graph-three;
+                        color: @color-bg-graph-four;
                     }
                     &.userSize, &.totalSize {
                         i {
@@ -751,6 +755,8 @@
                     }
                 }
             }
+
+
 
             .donut {
                 .font(@color: @color-bg-graph-two);
@@ -916,6 +922,35 @@
             }
         }
 
+        #donut3 {
+            .font(@color: @color-bg-graph-four);
+            width: 115px;
+            .donutInfo {
+                width: 115px;
+                text-align: right;
+            }
+            .network {
+                white-space: nowrap;
+                margin-right: 0px;
+            }
+        }
+
+        #donutStats3 {
+            .statsTopHeading {
+                .font(@color: @color-bg-graph-four);
+            }
+
+
+            .statsHeadingBar {
+                background-color: @color-bg-graph-four;
+                .userSize {
+                    padding-right: 4px !important;
+                    margin-right: 4px;
+                }
+            }
+
+        }
+
         .statsSection {
             width: 180px;
             margin: 0 auto;
@@ -979,6 +1014,27 @@
                 float: right;
                 margin-right: 4px;
 
+            }
+
+            .network {
+                .font(@size: 18px, @weight: 500) !important;
+                .icon {
+                    color: @color-bg-graph-four;
+                }
+                &.userSize, &.totalSize {
+                    i {
+                        .position(absolute, @left: 0px);
+                        &.xi-down {
+                            padding-top: 5px;
+                            padding-left: 1px;
+                            padding-right: 10px;
+                        }
+                        &.xi-up {
+                            padding-top: 5px;
+                            padding-right: 10px;
+                        }
+                    }
+                }
             }
 
             .listWrap {

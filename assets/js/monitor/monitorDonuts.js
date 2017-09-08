@@ -6,6 +6,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     var memIndex = 0; // the index of the ram or memUsed donut
     var swapIndex = 1;
     var cpuIndex = 2;
+    var networkIndex = 3;
     var numDonuts = 3;
     var ramData = [];
     var ramTotal = 0;
@@ -94,7 +95,18 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
     MonitorDonuts.update = function(allStats) {
         $('.donut').each(function(index) {
-            updateOneDonut(this, index, allStats[index]);
+            if (index === networkIndex) {
+                updateDonutMidText('#donut3 .userSize .num',
+                                allStats[index].used,
+                                defDurationForD3Anim, index);
+
+                updateDonutMidText('#donut3 .totalSize .num',
+                                allStats[index].total,
+                                defDurationForD3Anim, index);
+            } else {
+                updateOneDonut(this, index, allStats[index]);
+            }
+
             updateDonutStatsSection(this, index, allStats[index]);
         });
     };
@@ -198,12 +210,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             });
         }
 
-        var used;
-        if (index === memIndex) {
-            used = stats.xdbUsed;
-        } else {
-            used = stats.used;
-        }
+        var used = stats.used;
 
         updateDonutMidText("#donut" + index + " .userSize .num", used,
                             duration, index);
@@ -284,12 +291,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             }
         } else {
             var sizeOption = {base2: true};
-            var usedRaw;
-            if (index === memIndex) {
-                usedRaw = stats.xdbUsed;
-            } else {
-                usedRaw = stats.used;
-            }
+            var usedRaw = stats.used;
 
             var sumTotal = xcHelper.sizeTranslator(stats.total, true, null,
                                                     sizeOption);
@@ -297,12 +299,19 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                                                     sizeOption);
             var separator = "";
 
-            $statsSection.find('.statsHeadingBar .totNum')
+            if (index === networkIndex) {
+                $statsSection.find('.statsHeadingBar .totNum')
+                             .text(sumTotal[0] + " " + sumTotal[1] + "/s");
+                $statsSection.find('.statsHeadingBar .avgNum')
+                             .text(sumUsed[0] + " " + sumUsed[1] + "/s");
+                separator = "&nbsp;";
+            } else {
+                $statsSection.find('.statsHeadingBar .totNum')
                          .text(sumTotal[0] + " " + sumTotal[1]);
-            $statsSection.find('.statsHeadingBar .avgNum')
-                         .text(sumUsed[0] + " " + sumUsed[1]);
-            separator = "/";
-
+                $statsSection.find('.statsHeadingBar .avgNum')
+                             .text(sumUsed[0] + " " + sumUsed[1]);
+                separator = "/";
+            }
 
             var max = 0;
             for (var i = 0; i < stats.nodes.length; i++) {
@@ -310,16 +319,20 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             }
 
             for (var i = 0; i < numNodes; i++) {
-                var usedNum;
-                if (index === memIndex) {
-                    usedNum = stats.nodes[i].xdbUsed;
-                } else {
-                    usedNum = stats.nodes[i].used;
-                }
+                var usedNum = stats.nodes[i].used;
                 var total = xcHelper.sizeTranslator(stats.nodes[i].total, true, null,
                                                         sizeOption);
                 var used = xcHelper.sizeTranslator(usedNum, true, null,
                                                     sizeOption);
+
+                if (index === networkIndex) {
+                    usedUnits = used[1] + "/s";
+                    totalUnits = total[1] + "/s";
+                } else {
+                    usedUnits = used[1];
+                    totalUnits = total[1];
+                }
+
                 var pct = Math.round(usedNum / max * 100);
                 var bars = getPctBarHtml(pct);
 
@@ -329,12 +342,12 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                         '</div>' +
                         '<div class="values">' +
                             '<span class="userSize">' +
-                                used[0] + " " + used[1] +
+                                used[0] + " " + usedUnits +
                             '</span>' +
                             '<span class="separator">&nbsp;' + separator +
                                                     '&nbsp;</span>' +
                             '<span class="totalSize">' +
-                                total[0] + " " + total[1] +
+                                total[0] + " " + totalUnits +
                             '</span>' +
                             '<span class="pct">' + pct + '%</span>' +
                         '</div>' +
