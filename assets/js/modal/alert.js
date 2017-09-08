@@ -23,18 +23,7 @@ window.Alert = (function($, Alert){
         alertList.setupListeners();
 
         $("#alertDetail .detailAction").click(function() {
-            var $alertDetail = $("#alertDetail");
-            var $content = $alertDetail.find(".detailContent");
-            var h;
-            if ($alertDetail.hasClass("expand")) {
-                h = $content.height();
-                $modal.height($modal.height() - h);
-                $alertDetail.removeClass("expand");
-            } else {
-                $alertDetail.addClass("expand");
-                h = $content.height();
-                $modal.height($modal.height() + h);
-            }
+            $modal.toggleClass("expandDetail");
         });
     };
 
@@ -260,13 +249,11 @@ window.Alert = (function($, Alert){
         }
 
         if (options.detail != null && options.detail !== "") {
-            $modal.addClass("hasDetail");
-            $("#alertDetail").removeClass("expand")
-                             .find(".detailContent").text(options.detail);
+            $modal.addClass("hasDetail").removeClass("expandDetail");
+            $("#alertDetail").find(".detailContent").text(options.detail);
         } else {
-            $modal.removeClass("hasDetail");
-            $("#alertDetail").removeClass("expand")
-                             .find(".detailContent").text("");
+            $modal.removeClass("hasDetail").removeClass("expandDetail");
+            $("#alertDetail").find(".detailContent").text("");
         }
 
         // set alert instruction

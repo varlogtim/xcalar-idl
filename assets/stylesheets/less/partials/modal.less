@@ -1495,6 +1495,7 @@ html.microsoft {
     @checkboxHeight: 36px;
     @instrHeight: 60px;
     @modalBaseHeight: 167px;
+    @detailHeight: 75px;
     .size(@width: 500px, @height: @modalBaseHeight);
     bottom: auto;
     z-index: 100;
@@ -1551,9 +1552,29 @@ html.microsoft {
     &.hasCheckbox {
         min-height: @modalBaseHeight + @checkboxHeight !important;
     }
+    &.hasDetail {
+        &.expandDetail {
+            min-height: @modalBaseHeight + @detailHeight !important;
 
+            #alertDetail {
+                .flex(1 0 75px);
+                .detailContent {
+                    display: block;
+                }
+            }
+        }
+
+        #alertDetail {
+            display: block;
+        }
+    }
     &.hasInstr {
         min-height: @modalBaseHeight + @instrHeight !important;
+
+        &.hasDetail.expandDetail {
+            min-height: @modalBaseHeight + @instrHeight @detailHeight !important;
+        }
+
         &.hasCheckbox {
             min-height: @modalBaseHeight + @instrHeight + @checkboxHeight !important;
         }
@@ -1577,23 +1598,11 @@ html.microsoft {
         }
     }
 
-     &.hasDetail {
-        #alertDetail {
-            display: block;
-        }
-    }
-
     #alertDetail {
         display: none;
         .size(@width: 100%);
         padding: 0 20px 5px 20px;
-        max-height: 75px;
-
-        &.expand {
-            .detailContent {
-                display: block;
-            }
-        }
+        .flex(1 1 0);
 
         .detailTitle {
             .font(@size: 12px, @color: @color-font-softBlue);
@@ -1604,7 +1613,6 @@ html.microsoft {
 
         .detailContent {
             display: none;
-            .textOverflow;
             word-break: break-all;
         }
     }
