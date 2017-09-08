@@ -119,20 +119,12 @@ window.AggModal = (function($, AggModal) {
         });
 
         $quickAgg.attr("data-state", "pending");
+        // will always resolve
         calcAgg(tableId, txId)
-        .then(function() {
+        .always(function() {
             $quickAgg.attr("data-state", "finished");
             Transaction.done(txId);
             deferred.resolve();
-        })
-        .fail(function(error) {
-            $quickAgg.attr("data-state", "failed");
-            console.error("Quick Aggregate Fails", error);
-            Transaction.fail(txId, {
-                "noAlert": true,
-                "error": error
-            });
-            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -171,24 +163,16 @@ window.AggModal = (function($, AggModal) {
             "steps": -1
         });
 
+        // will always resolve
         $corr.attr("data-state", "pending");
         calcCorr(tableId, txId)
-        .then(function() {
+        .always(function() {
             $corr.attr("data-state", "finished");
             Transaction.done(txId);
             deferred.resolve();
-        })
-        .fail(function(error) {
-            $corr.attr("data-state", "failed");
-            console.error("Quick Aggregate Fails", error);
-            Transaction.fail(txId, {
-                "noAlert": true,
-                "error": error
-            });
-            deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     function showAggModal(tableName, mode, hasSelectedCols) {
@@ -492,9 +476,7 @@ window.AggModal = (function($, AggModal) {
     }
 
     function calcCorr(tableId, txId) {
-        var deferred = jQuery.Deferred();
         var promises = [];
-
         var colLen = aggCols.length;
         var dupCols = [];
         var total = $corr.find(".cell").length;
@@ -575,20 +557,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        PromiseHelper.when.apply(window, promises)
-        .then(deferred.resolve)
-        .fail(function() {
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                if (arguments[i] != null && arguments[i].error != null) {
-                    deferred.reject(arguments[i]);
-                    return;
-                }
-            }
-
-            deferred.reject("Unknown Correlation Error");
-        });
-
-        return deferred.promise();
+        return PromiseHelper.when.apply(window, promises);
     }
 
     function updateRunProgress(curr, total, isCorr) {
@@ -722,7 +691,7 @@ window.AggModal = (function($, AggModal) {
             });
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function runCorr(tableId, evalStr, row, col, colDups, txId) {
@@ -770,7 +739,7 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve(numDupCells);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function applyCorrResult(row, col, value, colDups, error) {

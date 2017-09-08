@@ -206,6 +206,28 @@ describe("Agg Modal Test", function() {
             });
         });
 
+        it("should able to scroll quick agg view", function(done) {
+            var $container = $quickAgg.find(".aggContainer");
+            var $headerContainer = $quickAgg.find(".headerContainer");
+            var $col = $container.find(".aggCol").eq(0);
+            var $headerCol = $headerContainer.find(".colLabel:not(.blankSpace)").eq(0);
+            // make the view scrollable
+            for (var i = 0; i < 10; i++) {
+                $container.append($col.clone());
+                $headerContainer.append($headerCol.clone());
+            }
+            var container = $container.get(0);
+            expect(container.scrollWidth > container.offsetWidth);
+            expect($headerContainer.get(0).scrollLeft).to.equal(0);
+
+            container.scrollLeft = 10;
+
+            setTimeout(function() {
+                expect($quickAgg.find(".headerContainer").scrollLeft()).to.equal(10);
+                done();
+            }, 500);
+        });
+
         it("AggModal.corrAgg should work", function(done) {
             AggModal.corrAgg(tableId)
             .then(function() {
@@ -221,6 +243,37 @@ describe("Agg Modal Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+         it("should resize corr view work", function() {
+            var $header = $corr.find(".headerContainer");
+            var $padding = $header.find(".padding");
+            var $bar = $padding.find(".ui-resizable-e").eq(0);
+            var width = $padding.width();
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({
+                "type": "mousedown",
+                "which": 1,
+                "pageX": pageX,
+                "pageY": pageY
+            });
+            $bar.trigger({
+                "type": "mousemove",
+                "which": 1,
+                "pageX": pageX + 1,
+                "pageY": pageY
+            });
+            $bar.trigger({
+                "type": "mouseup",
+                "which": 1,
+                "pageX": pageX,
+                "pageY": pageY
+            });
+
+            expect($padding.width() > width).to.be.true;
         });
 
         it("Should click tab to toggle view", function() {

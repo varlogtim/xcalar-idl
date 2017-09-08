@@ -20,6 +20,33 @@ describe("Profile-Profile Test", function() {
     });
 
     describe("Show Profile Test", function() {
+        it("should handle fail case", function(done) {
+            var oldFunc = ProfileEngine.genProfile;
+
+            ProfileEngine.genProfile = function() {
+                return PromiseHelper.reject({error: "test"});
+            };
+
+            var table = gTables[tableId];
+            var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
+            colNum = table.getColNumByBackName(backCol);
+
+            Profile.show(tableId, colNum)
+            .then(function() {
+                assert.isTrue($modal.is(":visible"));
+                expect($modal.attr("data-state")).to.equal("failed");
+                expect($modal.find(".errorSection .text").text()).to.equal("test");
+                $modal.find(".close").click();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                ProfileEngine.genProfile = oldFunc;
+            });
+        });
+
         it("Should show profile", function(done) {
             var table = gTables[tableId];
             var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
@@ -146,6 +173,66 @@ describe("Profile-Profile Test", function() {
             $modal.find(".graphSwitch").click();
             expect($modal.find(".pieChart").length).to.equal(0);
             expect($modal.find(".barChart").length).to.equal(1);
+        });
+
+        it("should download as png", function(done) {
+            var oldFunc = domtoimage.toPng;
+            var oldSuccess = xcHelper.showSuccess;
+            var test = false;
+            var called = false;
+            domtoimage.toPng = function() {
+                test = true;
+                return new Promise(function(resolve) {
+                    resolve(null);
+                });
+            };
+            xcHelper.showSuccess = function() { called = true; };
+
+            $("#profile-download").click();
+            UnitTest.testFinish(function() {
+                return called;
+            })
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                domtoimage.toPng = oldFunc;
+                xcHelper.showSuccess = oldSuccess;
+            });
+        });
+
+        it("down handle fail case", function(done) {
+            var oldFunc = domtoimage.toPng;
+            var oldSuccess = xcHelper.showFail;
+            var test = false;
+            var called = false;
+            domtoimage.toPng = function() {
+                test = true;
+                return new Promise(function(resolve, reject) {
+                    reject("test error");
+                });
+            };
+            xcHelper.showFail = function() { called = true; };
+
+            $("#profile-download").click();
+            UnitTest.testFinish(function() {
+                return called;
+            })
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                domtoimage.toPng = oldFunc;
+                xcHelper.showFail = oldSuccess;
+            });
         });
     });
 

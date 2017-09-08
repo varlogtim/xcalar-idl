@@ -6,6 +6,14 @@ describe("Alert Modal Test", function() {
     var $alertInstr;
     var $modalBg;
 
+    function closeModal() {
+        $alertModal.find(".logout, .copyLog, .genSub").remove();
+        $modalBg.removeClass("locked");
+        $alertModal.removeClass("locked");
+        $alertModal.find(".close").click();
+        $("#container").removeClass("locked");
+    }
+
     before(function(){
         // turn off min mode, as it affectes DOM test
         minModeCache = gMinModeOn;
@@ -92,6 +100,40 @@ describe("Alert Modal Test", function() {
         expect($alertTitle.text()).to.equal(title);
         expect($alertMsg.text()).to.equal(msg);
 
+        // toggle check box
+        $checkbox = $alertModal.find(".checkbox");
+        var hasChecked = $checkbox.hasClass("checked");
+        $checkbox.click();
+        expect($checkbox.hasClass("checked")).to.equal(!hasChecked);
+        // toggle back
+        $checkbox.click();
+        expect($checkbox.hasClass("checked")).to.equal(hasChecked);
+
+        $alertModal.find(".close").click();
+        assert.isFalse($alertModal.is(":visible"));
+    });
+
+    it("should size to text", function() {
+        var msg = new Array(300).fill("a");
+        Alert.show({title: "title", msg: msg});
+        var height = $alertModal.height();
+        $alertModal.find(".close").click();
+
+        Alert.show({title: "title", msg: msg, sizeToText: true});
+        expect($alertModal.height()).to.be.above(height);
+
+        $alertModal.find(".close").click();
+        assert.isFalse($alertModal.is(":visible"));
+    });
+
+    it("should show alert with msgTemplate", function() {
+        var html =  "<a>test</a>";
+        Alert.show({
+            msgTemplate: html
+        });
+
+        expect($alertMsg.html()).to.contains(html);
+
         $alertModal.find(".close").click();
         assert.isFalse($alertModal.is(":visible"));
     });
@@ -122,6 +164,31 @@ describe("Alert Modal Test", function() {
 
         $alertModal.find(".close").click();
         assert.isFalse($alertModal.is(":visible"));
+    });
+
+    it("should show error with no message", function() {
+        var title = "test title";
+        Alert.error(title);
+        expect($alertMsg.text()).to.equal(title);
+
+        $alertModal.find(".close").click();
+        assert.isFalse($alertModal.is(":visible"));
+    });
+
+    it("should show error with details", function() {
+        expect($alertModal.hasClass("hasDetail")).to.be.false;
+
+        Alert.error("test", {error: "error", log: "log"});
+        expect($alertModal.hasClass("hasDetail")).to.be.true;
+        expect($alertModal.hasClass("expandDetail")).to.be.false;
+        expect($("#alertDetail").find(".detailContent").text()).to.equal("log");
+
+        // click to expand
+        var $button = $("#alertDetail .detailAction");
+        $button.click();
+        expect($alertModal.hasClass("expandDetail")).to.be.true;
+        $button.click();
+        expect($alertModal.hasClass("expandDetail")).to.be.false;
     });
 
     it("Should show alert with dropdownlist", function() {
@@ -297,12 +364,93 @@ describe("Alert Modal Test", function() {
         assert.isTrue($modalBg.hasClass("locked"));
         assert.isFalse($alertModal.find(".logout").length > 0);
 
-        // close modal
-        $alertModal.find(".logout, .copyLog, .genSub").remove();
-        $modalBg.removeClass("locked");
-        $alertModal.removeClass("locked");
+        closeModal();
+    });
+
+    it("should lock screen with expired case", function() {
+        Alert.show({
+            "title": "test",
+            "msg": "test",
+            "lockScreen": true,
+            "expired": true
+        });
+
+        var $button = $alertModal.find("button:visible");
+        expect($button.length).to.equal(1);
+        expect($button.text()).to.equal("Log Out");
+
+        closeModal();
+    });
+
+    it("should lock screen with disconnect case", function() {
+        Alert.show({
+            "title": "test",
+            "msg": "test",
+            "lockScreen": true,
+            "disconnect": true
+        });
+
+        var $button = $alertModal.find("button:not(.adminOnly):visible");
+        expect($button.length).to.equal(2);
+
+        closeModal();
+    });
+
+    it("should lock screen with noLogout case", function() {
+        Alert.show({
+            "title": "test",
+            "msg": "test",
+            "lockScreen": true,
+            "noLogout": true
+        });
+
+        var $button = $alertModal.find("button:not(.adminOnly):visible");
+        expect($button.length).to.equal(2);
+
+        closeModal();
+    });
+
+    it("should lock screen with other case", function() {
+        Alert.show({
+            "title": "test",
+            "msg": "test",
+            "lockScreen": true
+        });
+
+        var $button = $alertModal.find("button:not(.adminOnly):visible");
+        expect($button.length).to.equal(3);
+
+        closeModal();
+    });
+
+    it("should return id with lokcScreen", function() {
+        var id = xcHelper.randName("id");
+        $("#container").addClass("supportOnly");
+        $alertModal.data("id", id);
+
+        var res = Alert.show({lockScreen: true});
+        expect(res).to.equal(id);
+
+        $alertModal.removeData("id");
+        $("#container").removeClass("supportOnly");
+    });
+
+    it("should apply highZindex, ultraHighZindex and align options", function() {
+        expect($alertModal.hasClass("highZindex")).to.be.false;
+        expect($alertModal.hasClass("ultraHighZindex")).to.be.false;
+        expect($alertModal.hasClass("left-align")).to.be.false;
+
+        Alert.show({
+            highZindex: true,
+            ultraHighZindex: true,
+            align: "left"
+        });
+
+        expect($alertModal.hasClass("highZindex")).to.be.true;
+        expect($alertModal.hasClass("ultraHighZindex")).to.be.true;
+        expect($alertMsg.hasClass("left-align")).to.be.true;
+
         $alertModal.find(".close").click();
-        $("#container").removeClass("locked");
         assert.isFalse($alertModal.is(":visible"));
     });
 
