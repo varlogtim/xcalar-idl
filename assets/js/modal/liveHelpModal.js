@@ -145,7 +145,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         $(chatMsg).css("height", "calc(100% - 90px)");
     }
     // Send email
-    function sendEmailTo(dest) {
+    function prepareEmail(dest) {
         if (dest && !$modal.find(".reqConn").is(":visible")) {
             var content = "";
             $modal.find(".userMsg, .supportMsg").each(function(i,e) {
@@ -159,11 +159,14 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                     text: content
                 };
                 appendMsg(AlertTStr.EmailSending, "sysMsg");
-                socket.emit("sendEmail", mailOpts, function() {
-                    appendMsg(AlertTStr.EmailSent, "sysMsg");
-                });
+                LiveHelpModal.sendEmail(mailOpts);
             }
         }
+    }
+    LiveHelpModal.sendEmail = function(mailOpts) {
+        socket.emit("sendEmail", mailOpts, function() {
+            appendMsg(AlertTStr.EmailSent, "sysMsg");
+        });
     }
     function startChatting() {
         fullName = $modal.find(".name").val();
@@ -232,7 +235,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             }
         });
         $modal.on("click", ".sendEmail", function() {
-            sendEmailTo(email);
+            prepareEmail(email);
         });
         // Click leave button
         $modal.on("click", ".close", function() {
@@ -320,7 +323,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     LiveHelpModal.autoSendEmail = function() {
         // Only enable auto-sending email when modal is shown
         if ($modal.is(":visible")) {
-            sendEmailTo(supportEmail);
+            prepareEmail(supportEmail);
         }
     };
     /* Unit Test Only */

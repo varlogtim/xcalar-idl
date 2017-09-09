@@ -104,8 +104,11 @@ describe("LiveHelp Modal Test", function() {
 
         // Click "Send Email" button
         it("Should send emails", function() {
+            var oldFunc = LiveHelpModal.sendEmail;
+            LiveHelpModal.sendEmail = function() {};
             $modal.find(".sendEmail").click();
             expect($modal.find(".sysMsg").text()).to.include(AlertTStr.EmailSending);
+            LiveHelpModal.sendEmail = oldFunc;
         });
 
         // Click "Close" button
