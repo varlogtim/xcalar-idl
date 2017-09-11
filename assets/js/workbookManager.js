@@ -233,16 +233,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
             .fail(function(ret) {
                 if (ret && ret.status === StatusT.StatusSessionNotInact) {
                     switchWorkbookAnimation(true)
-                    .then(function() {
+                    .always(function() {
                         xcHelper.reload();
                         deferred.resolve();
                     });
                 } else {
-                    if (!ret) {
-                        ret = {
-                            error: "Error occurred while switching workbooks"
-                        };
-                    }
+                    ret = ret || {
+                        error: "Error occurred while switching workbooks"
+                    };
                     $("#initialLoadScreen").hide();
                     $("#container").removeClass("switchingWkbk");
                     endProgressCycle();
@@ -387,14 +385,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
         var deferred = jQuery.Deferred();
         var newId;
-        var promise;
-
-        if (activeWKBKId == null) {
-            // no active workbook
-            promise = PromiseHelper.resolve();
-        } else {
-            promise = KVStore.commit();
-        }
+        var promise = (activeWKBKId == null)
+                      ? PromiseHelper.resolve() // no active workbook
+                      : KVStore.commit();
 
         promise
         .then(function() {
@@ -531,15 +524,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // 5. update wkbkSet meta
         // 6. reset KVStore and change active key if change current wkbk's name
         // 7. restart heart beat check
-        var promise = null;
-        if (activeWKBKId == null) {
-            // when no active workbook
-            promise = PromiseHelper.resolve();
-        } else {
-            promise = KVStore.commit();
-        }
-
         XcSupport.stopHeartbeatCheck();
+
+        var promise = (activeWKBKId == null)
+                      ? PromiseHelper.resolve() // when no active workbook
+                      : KVStore.commit();
 
         promise
         .then(function() {
@@ -1165,7 +1154,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         $loadScreen.find(".animatedEllipsisWrapper .text")
                    .text(StatusMessageTStr.PleaseWait);
         countdown()
-        .then(function() {
+        .always(function() {
             MainMenu.close(true);
             Workbook.hide(true);
 
@@ -1321,7 +1310,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
+        var cacheActiveWKBKId = undefined;
         WorkbookManager.__testOnly__ = {};
+        WorkbookManager.__testOnly__.setAcitiveWKBKId = function(id) {
+            cacheActiveWKBKId = activeWKBKId;
+            activeWKBKId = id;
+        };
+        WorkbookManager.__testOnly__.restoreWKBKId = function() {
+            if (cacheActiveWKBKId !== undefined) {
+                activeWKBKId = cacheActiveWKBKId;
+                cacheActiveWKBKId = undefined;
+            }
+        };
         WorkbookManager.__testOnly__.generateKey = generateKey;
         WorkbookManager.__testOnly__.getWKBKId = getWKBKId;
         WorkbookManager.__testOnly__.delWKBKHelper = delWKBKHelper;
@@ -1336,6 +1336,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
         WorkbookManager.__testOnly__.progressCycle = progressCycle;
         WorkbookManager.__testOnly__.endProgressCycle = endProgressCycle;
+        WorkbookManager.__testOnly__.countdown = countdown;
     }
     /* End Of Unit Test Only */
 

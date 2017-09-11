@@ -491,8 +491,8 @@ describe('ColManager Test', function() {
                 expect(progCol.getFrontColName()).to.equal("average_stars");
                 done();
             })
-            .fail(function(error) {
-                done(error);
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -937,11 +937,16 @@ describe('ColManager Test', function() {
         });
 
         after(function(done) {
-            UnitTest.deleteAll(tableName, dsName)
-            .always(function() {
-                done();
+            UnitTest.deleteAllTables()
+            .then(function() {
+                UnitTest.deleteDS(dsName)
+                .always(function() {
+                    done();
+                });
+            })
+            .fail(function() {
+                done("fail");
             });
-
         });
     });
 

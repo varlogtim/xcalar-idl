@@ -268,17 +268,42 @@ describe("WorkbookManager Test", function() {
                 expect($("#initialLoadScreen .numSteps").text()).to.equal("0/4");
                 expect($("#initialLoadScreen .progressBar").data("pct")).to.equal(50);
 
-                UnitTest.testFinish(function() {
+                return UnitTest.testFinish(function() {
                     return $("#initialLoadScreen .numSteps").text() === "2/4";
-                })
-                .then(function() {
-                    XcalarQueryState = cachedQueryState;
-                    WorkbookManager.__testOnly__.endProgressCycle();
-                    expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
-                    WorkbookManager.__testOnly__.changeIntTime(200, 100);
-                    done();
                 });
+            })
+            .then(function() {
+                XcalarQueryState = cachedQueryState;
+                WorkbookManager.__testOnly__.endProgressCycle();
+                expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
+                WorkbookManager.__testOnly__.changeIntTime(200, 100);
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
+        });
+
+        it("count down should work", function(done) {
+            var $topBar = $("#monitorTopBar");
+            $topBar.attr("id", "monitorTopBar2");
+            $fakeBar = $('<div id="monitorTopBar"><div class="wkbkTitle"></div></div>');
+            $fakeBar.appendTo($("body"));
+            expect($("#monitorTopBar").find(".wkbkTitle").is(":visible"));
+
+            WorkbookManager.__testOnly__.countdown()
+            .always(function() {
+                var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+                    time: 1
+                });
+                expect($("#monitorTopBar").find(".wkbkTitle").text())
+                .to.equal(msg);
+                done();
+            });
+
+            // clear up
+            $fakeBar.remove();
+            $topBar.attr("id", "monitorTopBar");
         });
     });
 
@@ -468,9 +493,10 @@ describe("WorkbookManager Test", function() {
                 expect(error).to.be.an("object");
                 expect(error.error).to.be.equal("test");
                 done();
+            })
+            .always(function() {
+                XcalarNewWorkbook = oldFunc;
             });
-
-            XcalarNewWorkbook = oldFunc;
         });
 
         it("Should create new workbook", function(done) {
@@ -488,6 +514,24 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function() {
                 done("fail");
+            });
+        });
+
+        it("copy workbook should handle fail case", function(done) {
+            var oldFunc = KVStore.commit;
+            KVStore.commit = function() {
+                return PromiseHelper.reject("test");
+            };
+            WorkbookManager.copyWKBK()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            })
+            .always(function() {
+                KVStore.commit = oldFunc;
             });
         });
 
@@ -586,6 +630,50 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 KVStore.commit = oldCommit;
+            });
+        });
+
+        it("should hand switch fail case", function(done) {
+            var oldFunc = KVStore.put;
+            KVStore.put = function() {
+                return PromiseHelper.reject("test");
+            };
+            WorkbookManager.__testOnly__.setAcitiveWKBKId(null);
+
+            WorkbookManager.switchWKBK(testWkbkId)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            })
+            .always(function() {
+                KVStore.put = oldFunc;
+                WorkbookManager.__testOnly__.restoreWKBKId();
+            });
+        });
+
+        it("should hand switch fail case 2", function(done) {
+            var oldFunc = KVStore.put;
+            KVStore.put = function() {
+                return PromiseHelper.reject({
+                    status: StatusT.StatusSessionNotInact
+                });
+            };
+            WorkbookManager.__testOnly__.setAcitiveWKBKId(null);
+            WorkbookManager.switchWKBK(testWkbkId)
+            .then(function() {
+                activeWkbkId = WorkbookManager.getActiveWKBK();
+                expect(activeWkbkId).not.to.equal(testWkbkId);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                KVStore.put = oldFunc;
+                WorkbookManager.__testOnly__.restoreWKBKId();
             });
         });
 

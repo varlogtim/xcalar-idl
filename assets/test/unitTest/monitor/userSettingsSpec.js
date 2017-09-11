@@ -285,5 +285,47 @@ describe("User Setting Test", function() {
             expect(UserSettings.getPref("DsDefaultSampleSize"))
             .to.equal(oldSize);
         });
+
+        it("should select ds sample size unit", function() {
+            var $dropDownList = $("#monitorDsSampleInput .dropDownList");
+            var $input = $dropDownList.find("input");
+            var oldVal = $input.val();
+
+            var $li = $dropDownList.find("li:contains(MB)");
+            $li.trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal("MB");
+            // change back
+            $li = $dropDownList.find("li:contains(" + oldVal + ")");
+            $li.trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal(oldVal);
+        });
+
+        it("should click save button to save", function() {
+            var oldFunc = KVStore.commit;
+            var test = false;
+            KVStore.commit = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            $("#userSettingsSave").click();
+            expect(test).to.be.true;
+            KVStore.commit = oldFunc;
+        });
+
+        it("revert Default settings should work", function() {
+            var $button = $("#enableCreateTable");
+            var checked = $button.hasClass("checked");
+            $button.click();
+            expect($button.hasClass("checked")).to.equal(!checked);
+            $("#userSettingsDefault").click();
+
+            var oldFunc = KVStore.commit;
+            KVStore.commit = function() {
+                return PromiseHelper.resolve();
+            };
+            expect($button.hasClass("checked")).to.equal(checked);
+
+            KVStore.commit = oldFunc;
+        });
     });
 });
