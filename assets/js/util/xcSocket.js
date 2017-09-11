@@ -1,4 +1,4 @@
-window.XcSocket = (function(XcSocket, $) {
+window.XcSocket = (function(XcSocket) {
     var socket = null;
     var connected = false;
     var enable = true;  // use it or not
@@ -82,4 +82,4 @@ window.XcSocket = (function(XcSocket, $) {
     /* End Of Unit Test Only */
 
     return XcSocket;
-}({}, jQuery));
+}({}));

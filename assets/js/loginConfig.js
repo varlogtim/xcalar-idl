@@ -79,7 +79,7 @@ function getWaadConfig(hostname) {
     });
 
     return deferred.promise();
-};
+}
 
 function getWaadConfigFromLocalStorage() {
     var localWaadConfig = xcLocalStorage.getItem("waadConfig");
@@ -102,7 +102,7 @@ function setDefaultAdminConfig(hostname, defaultAdminEnabledIn, adminUsername, a
         username: adminUsername,
         email: adminEmail,
         password: adminPassword
-    }
+    };
 
     $.ajax({
         "type": "POST",

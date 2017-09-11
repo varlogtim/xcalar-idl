@@ -116,10 +116,6 @@ window.XVM = (function(XVM) {
 
     XVM.checkVersionAndLicense = function() {
         var deferred = jQuery.Deferred();
-
-        var def1 = XcalarGetLicense();
-        var def2 = XVM.checkVersion();
-
         var err;
 
         var passed = true;
@@ -128,8 +124,8 @@ window.XVM = (function(XVM) {
         .then(function(versionMatch) {
             try {
                 if (!versionMatch) {
-                     err = {"error": ThriftTStr.Update};
-                     passed = false;
+                    err = {"error": ThriftTStr.Update};
+                    passed = false;
                 }
             } catch (error) {
                 // code may go here if thrift changes

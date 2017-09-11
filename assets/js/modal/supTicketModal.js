@@ -13,7 +13,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $commentSection = $modal.find(".commentSection");
 
         modalHelper = new ModalHelper($modal, {
-            afterResize: function(a, b, c, d, e) {
+            afterResize: function() {
                 if (!$ticketIdSection.hasClass("closed")) {
                     showHideCommentExpandIcon();
                 }
@@ -86,8 +86,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
             tickets = [];
             for (var i in ticketMap) {
-                var ticketGroup = ticketMap[i];
-                ticketGroup = ticketMap[i].sort(sort);
+                ticketMap[i].sort(sort);
                 tickets.push(ticketMap[i]);
             }
             tickets = tickets.sort(function(a, b) {
@@ -216,7 +215,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     function showHideCommentExpandIcon() {
         var width = $ticketIdSection.find(".comments .text").eq(0).outerWidth();
-        var $texts = $ticketIdSection.find(".comments").removeClass("overflow");
+        $ticketIdSection.find(".comments").removeClass("overflow");
         $ticketIdSection.find(".comments .text").each(function() {
             var $text = $(this);
             if ($text[0].scrollWidth > width) {
@@ -250,7 +249,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 }
             }
         });
-        $commentSection.mousedown(function(event) {
+        $commentSection.mousedown(function() {
             if ($commentSection.hasClass("inactive")) {
                 $commentSection.removeClass("inactive");
                 $ticketIdSection.addClass("inactive");
@@ -273,7 +272,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var tbodyHeight = $row.closest(".tableBody").height();
         if (rowHeight - tbodyHeight > 0 && tbodyHeight < maxHeight) {
             var diff = maxHeight - tbodyHeight;
-            var distFromBottom = $(window).height()  -
+            var distFromBottom = $(window).height() -
                                  $modal[0].getBoundingClientRect().bottom;
             distFromBottom = Math.max(0, distFromBottom);
 
@@ -483,7 +482,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             html += '<div class="innerRow">' +
               '<div class="td">';
             if (i === 0) {
-                html +=  '<div class="radioButtonGroup">' +
+                html += '<div class="radioButtonGroup">' +
                           '<div class="radioButton" data-option="blank">' +
                             '<div class="radio">' +
                               '<i class="icon xi-radio-selected"></i>' +

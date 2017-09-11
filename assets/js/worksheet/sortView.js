@@ -159,7 +159,7 @@ window.SortView = (function($, SortView) {
     }
 
     function submitForm() {
-        var len = newColOrders.length;
+        // var len = newColOrders.length;
         var colInfos = [];
         // may be deleted
         if (!gTables.hasOwnProperty(curTableId)) {
@@ -241,7 +241,7 @@ window.SortView = (function($, SortView) {
         var $table = $("#xcTable-" + curTableId);
         $table.find(".col" + colNum).removeClass("modalHighlighted");
         for (var i = 0; i < newColOrders.length; i++) {
-            if  (newColOrders[i].colNum === colNum) {
+            if (newColOrders[i].colNum === colNum) {
                 newColOrders.splice(i, 1);
                 break;
             }
@@ -263,7 +263,7 @@ window.SortView = (function($, SortView) {
         var $col = getRow(colNum).find(".colOrder");
         $col.find(".text").text(colOrder);
         for (var i = 0; i < newColOrders.length; i++) {
-            if  (newColOrders[i].colNum === colNum) {
+            if (newColOrders[i].colNum === colNum) {
                 newColOrders[i].order = colOrder;
                 break;
             }
@@ -330,7 +330,7 @@ window.SortView = (function($, SortView) {
     }
 
     function setColumnCache(tableId) {
-        var table = gTables[tableId]
+        var table = gTables[tableId];
         var tableCols = table.tableCols;
         var $table = $("#xcTable-" + tableId);
         var tableKey = table.getKeyName();

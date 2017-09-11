@@ -57,11 +57,11 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $("#loginConfigLdapSearchFilter").val(ldapConfig.searchFilter);
             $("#loginConfigLdapServerKeyFile").val(ldapConfig.serverKeyFile);
 
-            if (ldapConfig.useTLS == "true") {
+            if (ldapConfig.useTLS === "true") {
                 $("#loginConfigLdapEnableTLS").addClass("checked");
             }
 
-            if (ldapConfig.activeDir == "true") {
+            if (ldapConfig.activeDir === "true") {
                 $("#ldapChoice").find(".radioButton").eq(0).click();
             } else {
                 $("#ldapChoice").find(".radioButton").eq(1).click();
@@ -81,10 +81,10 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $(this).toggleClass("checked");
         });
 
-        xcHelper.optionButtonEvent($("#ldapChoice"), function(option, $radio) {
+        xcHelper.optionButtonEvent($("#ldapChoice"), function(option) {
             ldapChoice = option;
         });
-    };
+    }
 
     function submitDefaultAdminConfig() {
         var deferred = jQuery.Deferred();
@@ -103,18 +103,18 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             }
         }
 
-        if (adminPassword != adminConfirmPassword) {
+        if (adminPassword !== adminConfirmPassword) {
             deferred.reject(LoginConfigTStr.PasswordMismatch, false);
-        } else if (defaultAdminConfig.defaultAdminEnabled != defaultAdminEnabled ||
-                   defaultAdminConfig.username != adminUsername ||
-                   defaultAdminConfig.email != adminEmail ||
-                   adminPassword.trim() != "") {
+        } else if (defaultAdminConfig.defaultAdminEnabled !== defaultAdminEnabled ||
+                   defaultAdminConfig.username !== adminUsername ||
+                   defaultAdminConfig.email !== adminEmail ||
+                   adminPassword.trim() !== "") {
             if (defaultAdminEnabled) {
-                if (adminPassword.trim() == "") {
+                if (adminPassword.trim() === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyPasswordError, false).promise());
-                } else if (adminUsername.trim() == "") {
+                } else if (adminUsername.trim() === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyUsernameError, false).promise());
-                } else if (adminEmail.trim() == "") {
+                } else if (adminEmail.trim() === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyEmailError, false).promise());
                 }
             }
@@ -144,9 +144,9 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             }
         }
 
-        if (waadConfig.waadEnabled != waadEnabled ||
-            waadConfig.tenant != tenant ||
-            waadConfig.clientId != clientId) {
+        if (waadConfig.waadEnabled !== waadEnabled ||
+            waadConfig.tenant !== tenant ||
+            waadConfig.clientId !== clientId) {
             setWaadConfig(hostname, waadEnabled, tenant, clientId)
             .then(deferred.resolve)
             .fail(function(errorMsg) {
@@ -161,7 +161,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function submitLdapConfig() {
         var deferred = jQuery.Deferred();
         var ldapConfigEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox").hasClass("checked");
-        var activeDir = (ldapChoice == "ad") ? "true" : "false";
+        var activeDir = (ldapChoice === "ad") ? "true" : "false";
         var ldap_uri = $("#loginConfigLdapUrl").val();
         var userDN = $("#loginConfigLdapUserDn").val();
         var searchFilter = $("#loginConfigLdapSearchFilter").val();
@@ -176,18 +176,19 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             }
         }
 
-        if (ldapConfig.ldapConfigEnabled != ldapConfigEnabled ||
-            ldapConfig.ldap_uri != ldap_uri ||
-            ldapConfig.activeDir != activeDir ||
-            ldapConfig.userDN != userDN ||
-            ldapConfig.searchFilter != searchFilter ||
-            ldapConfig.enableTLS != enableTLS ||
-            ldapConfig.serverKeyFile != serverKeyFile) {
-                setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter, activeDir, serverKeyFile)
-                .then(deferred.resolve)
-                .fail(function(errorMsg) {
-                    deferred.reject(errorMsg, true);
-                });
+        if (ldapConfig.ldapConfigEnabled !== ldapConfigEnabled ||
+            ldapConfig.ldap_uri !== ldap_uri ||
+            ldapConfig.activeDir !== activeDir ||
+            ldapConfig.userDN !== userDN ||
+            ldapConfig.searchFilter !== searchFilter ||
+            ldapConfig.enableTLS !== enableTLS ||
+            ldapConfig.serverKeyFile !== serverKeyFile)
+        {
+            setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter, activeDir, serverKeyFile)
+            .then(deferred.resolve)
+            .fail(function(errorMsg) {
+                deferred.reject(errorMsg, true);
+            });
         } else {
             deferred.resolve();
         }
@@ -213,15 +214,15 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
                     "isAlert": true
                 });
             }
-        })
-    };
+        });
+    }
 
     function closeModal() {
         waadConfig = null;
         defaultAdminConfig = null;
         ldapConfig = null;
         modalHelper.clear();
-    };
+    }
 
     return (LoginConfigModal);
 }(jQuery, {}));

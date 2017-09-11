@@ -978,9 +978,10 @@ window.TableList = (function($, TableList) {
         var $list = $("#orphanedTablesList");
         var html = getOrphanListLiHtml(tableName);
         var $lis = $list.find("li");
-        if ($lis.filter(function() {
-                return $(this).data("tablename") === tableName;
-            }).length) {
+        var $tables = $lis.filter(function() {
+            return $(this).data("tablename") === tableName;
+        });
+        if ($tables.length) {
             return;
         }
         var found = false;

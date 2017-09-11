@@ -1069,7 +1069,7 @@ window.TblMenu = (function(TblMenu, $) {
 
     function sortColumn(colNums, tableId, order) {
         var colInfo = [];
-         for (var i = 0; i < colNums.length; i++) {
+        for (var i = 0; i < colNums.length; i++) {
             colInfo.push({
                 colNum: colNums[i],
                 order: order,

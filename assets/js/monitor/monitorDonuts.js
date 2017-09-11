@@ -4,14 +4,14 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     var defDurationForD3Anim = 800;
     var $monitorPanel;
     var memIndex = 0; // the index of the ram or memUsed donut
-    var swapIndex = 1;
+    // var swapIndex = 1;
     var cpuIndex = 2;
     var networkIndex = 3;
     var numDonuts = 3;
     var ramData = [];
     var ramTotal = 0;
     var numMemItems = 5;
-    var sortOrder = "name"; // by "name" or "size"
+    // var sortOrder = "name"; // by "name" or "size"
 
     MonitorDonuts.setup = function() {
         $monitorPanel = $("#monitor-system");
@@ -73,8 +73,6 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         });
 
         $monitorPanel.find(".ramDonut").on("mouseleave", ".legend li", function() {
-            var $li = $(this);
-
             $monitorPanel.find(".donutLegendInfo").addClass("xc-hidden");
             $monitorPanel.find(".ramDonut").find("path").attr("class", "");
             $monitorPanel.find(".ramDonut").find(".donutInfo").removeClass("hidden");
@@ -365,11 +363,11 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         return bars;
     }
 
-    function sortStats(a, b) {
-        if (a.used > b.used) return 1;
-        if (a.used < b.used) return -1;
-        return 0;
-    }
+    // function sortStats(a, b) {
+    //     if (a.used > b.used) return 1;
+    //     if (a.used < b.used) return -1;
+    //     return 0;
+    // }
 
     return (MonitorDonuts);
 }(jQuery, {}));

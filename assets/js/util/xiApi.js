@@ -335,7 +335,7 @@ window.XIApi = (function(XIApi) {
                                                colName, txId);
                     })
                     .then(function() {
-                        tableId = xcHelper.getTableId(curTableName);
+                        var tableId = xcHelper.getTableId(curTableName);
                         maxIntAggVarName = "XC_SORT_COL_" + tableId + "_" +
                                            index + "_maxInteger";
                         return XcalarAggregate("maxInteger(" + colName + ")",
@@ -344,9 +344,8 @@ window.XIApi = (function(XIApi) {
                     })
                     .then(function() {
                         fromTableName = curTableName;
-                        tableId = Authentication.getHashId();
                         curTableName = xcHelper.getTableName(fromTableName) +
-                                       tableId;
+                                       Authentication.getHashId();
                         var mapStr =
                                 'concat(repeat("0",int(sub(len(string(^' +
                                 maxIntAggVarName + ')), len(string(' + colName +
@@ -365,9 +364,8 @@ window.XIApi = (function(XIApi) {
                 }
             } else if (colType === "boolean") {
                 fromTableName = curTableName;
-                var tableId = Authentication.getHashId();
                 curTableName = xcHelper.getTableName(fromTableName) +
-                               tableId;
+                               Authentication.getHashId();
 
                 var mapStr = "string(int(";
                 if (order === XcalarOrderingTStr.Ascending) {
@@ -1895,7 +1893,7 @@ window.XIApi = (function(XIApi) {
 
         TblManager.setOrphanTableMeta(groupbyTableName, tableCols);
 
-        var promises = [];
+        // var promises = [];
         var currTableName = groupbyTableName;
         var tempTables = [];
         var mapStrs = [];

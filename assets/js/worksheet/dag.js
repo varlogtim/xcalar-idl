@@ -433,7 +433,7 @@ window.Dag = (function($, Dag) {
 
         for (var i in groups) {
             groups[i].collapsed = true;
-            var node = idMap[i];
+            node = idMap[i];
             depth = node.value.display.depth + 1;
             group = groups[i].group;
             right = group[0].value.display.x - dataStoreWidth;
@@ -824,7 +824,7 @@ window.Dag = (function($, Dag) {
             Dag.toggleTaggedGroup($dagWrap, $(this));
         });
 
-        $dagWrap.on("mouseenter", ".groupTagIcon", function(event) {
+        $dagWrap.on("mouseenter", ".groupTagIcon", function() {
             var $icon = $(this);
             if ($icon.closest(".actionType").hasClass("collapsed")) {
                 return;
@@ -876,7 +876,7 @@ window.Dag = (function($, Dag) {
         var $dagWrap = $dagTable.closest('.dagWrap');
         var idMap = $dagWrap.data('allDagInfo').nodeIdMap;
         var node = idMap[id];
-        var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
+        // var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
         for (var i = 0; i < node.parents.length; i++) {
             var parentId = node.parents[i].value.dagNodeId;
             if (idMap[parentId].value.state === DgDagStateT.DgDagStateDropped) {
@@ -2004,7 +2004,7 @@ window.Dag = (function($, Dag) {
                     options = {"selectCol": idx};
                 }
                 var prevCols = gTables[origTableId].tableCols;
-                if (op  === XcalarApisT.XcalarApiMap) {
+                if (op === XcalarApisT.XcalarApiMap) {
                     for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
                         newCols = xcHelper.mapColGenerate(idx,
                                              xcalarInput.newFieldNames[i],

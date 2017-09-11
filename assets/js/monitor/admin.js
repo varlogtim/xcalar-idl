@@ -936,7 +936,7 @@ window.Admin = (function($, Admin) {
                 return (getDefaultAdminConfig(hostname));
             },
 
-            function(error) {
+            function() {
                 return (getDefaultAdminConfig(hostname));
             }
         )
@@ -946,7 +946,7 @@ window.Admin = (function($, Admin) {
                 return (getLdapConfig(hostname));
             },
 
-            function(error) {
+            function() {
                 return (getLdapConfig(hostname));
             }
         )

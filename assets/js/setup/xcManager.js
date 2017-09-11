@@ -1318,7 +1318,7 @@ window.xcManager = (function(xcManager, $) {
 
         var waadUser = null;
         var waadAuthContext;
-        var waadConfig = getWaadConfigFromLocalStorage()
+        var waadConfig = getWaadConfigFromLocalStorage();
         if (waadConfig != null) {
             try {
                 waadAuthContext = new AuthenticationContext(waadConfig);

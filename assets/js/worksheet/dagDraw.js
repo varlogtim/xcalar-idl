@@ -38,7 +38,7 @@ window.DagDraw = (function($, DagDraw) {
             nodeIdMap = nodes.nodeIdMap;
         } else {
             try {
-                var lineageStruct = DagFunction.construct(nodes, options.tableId);
+                lineageStruct = DagFunction.construct(nodes, options.tableId);
                 tree = lineageStruct.tree;
                 nodeIdMap = lineageStruct.nodeIdMap;
             } catch (err) {
@@ -293,7 +293,7 @@ window.DagDraw = (function($, DagDraw) {
                     $dagWrap.find('.tagHeader.collapsed').each(function() {
                         var $wrap = $(this).parent();
                         var top = Math.floor($wrap.position().top) + 50;
-                        var left = Math.floor($wrap.position().left) +  148;
+                        var left = Math.floor($wrap.position().left) + 148;
                         ctx.drawImage(expandImage, left, top, 12, 12);
                     });
                     $(canvas).hide();
@@ -1464,8 +1464,8 @@ window.DagDraw = (function($, DagDraw) {
 
     function getDagNodeInfo(node, key) {
         var parenIndex;
-        var commaIndex;
-        var filterType;
+        // var commaIndex;
+        // var filterType;
         var evalStr;
         var value = node.value.struct;
         var info = {
@@ -1676,6 +1676,7 @@ window.DagDraw = (function($, DagDraw) {
         var taggedOp = getOpFromTag(node.value.tags[0]);
         var opFound = true;
         var evalStr;
+        var ancestors;
         info.operation = taggedOp;
 
         switch (taggedOp) {
@@ -1693,7 +1694,7 @@ window.DagDraw = (function($, DagDraw) {
                 info.opText = info.column;
                 break;
             case (SQLOps.ChangeType):
-                var ancestors = getTaggedAncestors(node);
+                ancestors = getTaggedAncestors(node);
                 evalStr = value.evalStrs[0];
                 info.text = evalStr;
                 if (ancestors.length) {
@@ -1712,7 +1713,7 @@ window.DagDraw = (function($, DagDraw) {
                 }
                 break;
             case (SQLOps.GroupBy):
-                var ancestors = getTaggedAncestors(node, true);
+                ancestors = getTaggedAncestors(node, true);
                 var gbOnCols = {};
                 var aggs = [];
                 var tooltip = "";
@@ -1844,10 +1845,8 @@ window.DagDraw = (function($, DagDraw) {
         };
         if (parenIndex !== filterStr.lastIndexOf("(")) {
             // nested args, use general filterstr for tooltip
-             info.column = filterStr
-                              .slice(parenIndex + 1,
-                                     filterStr.lastIndexOf(')'))
-                              .trim();
+            info.column = filterStr.slice(parenIndex + 1,
+                                          filterStr.lastIndexOf(')')).trim();
             info.tooltip = "Filtered table &quot;" + parentNames[0] +
                             "&quot;: " + filterStr;
         } else if (filterTypeMap[abbrFilterType]) {

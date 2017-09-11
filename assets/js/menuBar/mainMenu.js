@@ -409,7 +409,7 @@ window.MainMenu = (function($, MainMenu) {
 
     function openMenu($curTab, noAnim) {
         if (noAnim) {
-           $("#dagPanelContainer").addClass("noAnim");
+            $("#dagPanelContainer").addClass("noAnim");
         }
         var id = $curTab.attr("id");
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
@@ -447,7 +447,7 @@ window.MainMenu = (function($, MainMenu) {
     // makeInactive is used in "noWorkbook" mode
     function closeMenu($curTab, noAnim, makeInactive) {
         if (noAnim) {
-           $("#dagPanelContainer").addClass("noAnim");
+            $("#dagPanelContainer").addClass("noAnim");
         }
 
         checkAnim(noAnim);

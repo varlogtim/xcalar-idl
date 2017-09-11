@@ -816,7 +816,7 @@ window.DagFunction = (function($, DagFunction) {
 
     function parseAggFromEvalStrs(evalStrs) {
         var allTables = [];
-        var tablesMap = {};
+        // var tablesMap = {};
         if (!evalStrs) {
             return allTables;
         }

@@ -167,7 +167,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         socket.emit("sendEmail", mailOpts, function() {
             appendMsg(AlertTStr.EmailSent, "sysMsg");
         });
-    }
+    };
+
     function startChatting() {
         fullName = $modal.find(".name").val();
         email = $modal.find(".email").val();

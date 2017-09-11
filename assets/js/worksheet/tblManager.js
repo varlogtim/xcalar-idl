@@ -1808,7 +1808,7 @@ window.TblManager = (function($, TblManager) {
         var deferred = jQuery.Deferred();
         var promise;
         if (options.txId != null) {
-              promise = DagFunction.tagNodes(options.txId);
+            promise = DagFunction.tagNodes(options.txId);
         } else {
             promise = PromiseHelper.resolve();
         }

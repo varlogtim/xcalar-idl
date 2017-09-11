@@ -417,13 +417,12 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 deferred.reject("Passwords different",
                                        "Passwords must be the same");
             } else {
-                var struct = {
+                res.ldap = {
                     "xcalarInstall": true,
                     "domainName": getVal($params.find("input").eq(0)),
                     "password": getVal($params.find("input").eq(1)),
                     "companyName": getVal($params.find("input").eq(3)),
                 };
-                res.ldap = struct;
                 deferred.resolve(res);
             }
         } else {
@@ -436,7 +435,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 deferred.reject("TLS",
                                   "Please select whether to use TLS").promise();
             } else {
-                var struct = {
+                res.ldap = {
                     "xcalarInstall": false,
                     "ldap_uri": getVal($params.find("input").eq(0)),
                     "userDN": getVal($params.find("input").eq(1)),
@@ -447,7 +446,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     "useTLS": $form.find("#TLSChoice .radioButton.active")
                                    .data("option")
                 };
-                res.ldap = struct;
                 deferred.resolve(res);
             }
         }
