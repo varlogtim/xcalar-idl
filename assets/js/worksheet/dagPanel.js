@@ -607,23 +607,6 @@ window.DagPanel = (function($, DagPanel) {
         }
     }
 
-    // // for map & groupby tables, does not handle joined tables
-    // function isParentDropped($dagTable) {
-    //     var id = $dagTable.data('index');
-    //     var $dagWrap = $dagTable.closest('.dagWrap');
-    //     var idMap = $dagWrap.data('allDagInfo').nodeIdMap;
-    //     var node = idMap[id];
-    //     var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
-    //     for (var i = 0; i < node.parents.length; i++) {
-    //         var parentId = node.parents[i].value.dagNodeId;
-    //         var $parentTable = Dag.getTableIcon($dagWrap, parentId);
-    //         if ($parentTable.hasClass(droppedClass)) {
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     function setupDataFlowBtn() {
         $dagPanel.on('click', '.addDataFlow', function() {
             var self = this;

@@ -194,6 +194,7 @@ window.Dag = (function($, Dag) {
                 xcTooltip.changeText($(this), newText);
             }
             var title = $(this).attr('title');
+
             if (title) {
                 newText = title.replace(oldTableName, newTableName);
                 $(this).attr('title', newText);
@@ -1864,7 +1865,6 @@ window.Dag = (function($, Dag) {
         var scrollChecker = new ScollTableChecker();
         $tableIcon = $dagPanel.find(".dagTable[data-tablename='" +
                                             mapTableName + "']");
-
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
                 origColNames = xcalarInput.newFieldNames;

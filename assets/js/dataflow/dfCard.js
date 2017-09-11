@@ -315,19 +315,21 @@ window.DFCard = (function($, DFCard) {
                 // open tab
                 DFCard.updateRetinaTab(DFCard.getCurrentDF());
                 $tab.addClass('active');
+
+                $("#container").on("mousedown.retTab", function(event) {
+                    var $target = $(event.target);
+                    if ($retTabSection.find(".retTab").hasClass("active") &&
+                        !$target.closest('.retTab').length) {
+                        closeRetTab();
+                        $("#container").off("mousedown.retTab");
+                        return;
+                    }
+                });
+
                 return false;
             }
         });
 
-        $("#container").on("mousedown", function(event) {
-            var $target = $(event.target);
-            if ($retTabSection.find(".retTab").hasClass("active") &&
-                !$target.closest('.retTab').length) {
-                closeRetTab();
-                $("#container").off("mousedown.retTab");
-                return;
-            }
-        });
 
         $retTabSection[0].oncontextmenu = function(e) {
             e.preventDefault();
@@ -635,7 +637,6 @@ window.DFCard = (function($, DFCard) {
                 $tables = $tables.prev();
             }
             var paramVal = $tables.data("paramValue");
-
             if (isParameterized(paramVal)) {
                 var $tableNode = dataflow.colorNodes(nodeId);
                 var type = dataflow.parameterizedNodes[nodeId]
@@ -1439,7 +1440,7 @@ window.DFCard = (function($, DFCard) {
                 deferred.resolve();
             }
         })
-        .fail(deferred.reject);
+        .fail(deferred.resolve);
 
         return deferred.promise();
     }
@@ -1598,6 +1599,13 @@ window.DFCard = (function($, DFCard) {
         DFCard.__testOnly__.endStatusCheck = endStatusCheck;
         DFCard.__testOnly__.addParamToRetina = addParamToRetina;
         DFCard.__testOnly__.showExportCols = showExportCols;
+        DFCard.__testOnly__.parseFileName = parseFileName;
+        DFCard.__testOnly__.applyDeltaTagsToDag = applyDeltaTagsToDag;
+        DFCard.__testOnly__.restoreParameterizedNode =  restoreParameterizedNode;
+        DFCard.__testOnly__.setCanceledRun = function(run) {
+            canceledRuns = {};
+            canceledRuns[run] = true;
+        };
     }
     /* End Of Unit Test Only */
 

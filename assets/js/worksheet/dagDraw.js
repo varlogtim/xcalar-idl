@@ -2227,6 +2227,7 @@ window.DagDraw = (function($, DagDraw) {
         DagDraw.__testOnly__.getDagNodeInfo = getDagNodeInfo;
         DagDraw.__testOnly__.getIconHtml = getIconHtml;
         DagDraw.__testOnly__.getJoinIconClass = getJoinIconClass;
+        DagDraw.__testOnly__.getFilterInfo = getFilterInfo;
     }
 
     return (DagDraw);

@@ -441,10 +441,16 @@ describe("Dag Panel Test", function() {
 
             $bar.trigger("mouseover");
             $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
-            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 1, pageY: pageY});
-            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY + 30});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY + 30 });
 
-            expect($bar.offset().top < pageX);
+            expect($bar.offset().top > pageY);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY + 30});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
+            expect($bar.offset().top === pageY);
         });
     });
 
@@ -624,6 +630,29 @@ describe("Dag Panel Test", function() {
                     if ($nodeLis.length > 1) {
                         expect($nodeLis.eq(0).children().eq(0).text()).to.not.equal("0");
                     }
+
+                    // sort by percent
+                    $("#dagSchema").find(".nodeInfoHeader .sort").eq(1).click();
+                    $("#dagSchema").find(".nodeInfoHeader .sort").eq(1).click();
+                    // XXX no good way to test out % if 1 node or equal %s
+                    // unless we replace data
+                });
+
+                it("showSchema li on dropped table should work", function() {
+                    $(document).mousedown();
+                    var tId = $menu.data("tableId");
+                    var cachedTable = gTables[tId];
+                    delete gTables[tId];
+                    expect($("#dagSchema:visible").length).to.equal(0);
+                    $menu.find(".showSchema").trigger(fakeEvent.mouseup);
+                    expect($("#dagSchema:visible").length).to.equal(1);
+
+                    expect($("#dagSchema").find(".content li").length).to.equal(0);
+
+                    expect($("#dagSchema").find(".noFields").length).to.equal(1);
+
+                    $(document).mousedown();
+                    gTables[tId] = cachedTable;
                 });
 
                 it("lockTable li should work", function() {
@@ -742,6 +771,7 @@ describe("Dag Panel Test", function() {
             after(function() {
                 // close menu
                 $(document).mousedown().click();
+                console.log("after");
             });
         });
     });
@@ -890,6 +920,9 @@ describe("Dag Panel Test", function() {
                 expect($dfPanel.hasClass("xc-hidden")).to.be.false;
 
                 UnitTest.testFinish(function() {
+                    if (!ifvisible.now()) {
+                        $("#menuBar").removeClass("animating")
+                    }
                     return !$("#menuBar").hasClass("animating");
                 })
                 .always(function() {
@@ -1102,12 +1135,47 @@ describe("Dag Panel Test", function() {
                 $dagSchema = $("#dagSchema");
                 var numCols = gTables[largeTableId].tableCols.length - 1;
                 expect($("#dagSchema").find(".content li").length).to.equal(numCols);
+                $("#dagSchema").find(".content li").eq(8).trigger({"type": "mouseup", "which": 3});
+                expect($("#dagSchema").find(".content li").eq(8).hasClass("selected")).to.be.false;
                 $("#dagSchema").find(".content li").eq(8).trigger(fakeEvent.mouseup);
+                expect($("#dagSchema").find(".content li").eq(8).hasClass("selected")).to.be.true;
 
                 // TODO: Do more interesting tests once have groupBy and join tables
             });
 
-            it("ICV Table should work", function(done) {
+            it("ICV Table fail should work on map", function(done) {
+                var cachedMap = XcalarMapWithInput;
+                var mapCalled = false;
+                XcalarMapWithInput = function() {
+                    mapCalled = true;
+                    return PromiseHelper.reject();
+                };
+
+                $largeDagIcon.click();
+                expect($menu.find("li.generateIcv").hasClass("unavailable"))
+                .to.be.false;
+                // $menu.find(".generateIcv").trigger(fakeEvent.mouseup);
+                Dag.generateIcvTable(
+                    largeTable.$dagWrap.data("id"),
+                    $largeDagTable.data("tablename"),
+                    $largeDagIcon)
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function() {
+                    // wait for icon's generating class to be removed in .always
+                    return UnitTest.timeoutPromise(1);
+                })
+                .always(function() {
+                    expect(mapCalled).to.be.true;
+                    XcalarMapWithInput = cachedMap;
+                    Alert.forceClose();
+                    done();
+                });
+            });
+
+
+            it("ICV Table should work on map", function(done) {
                 $largeDagIcon.click();
                 expect($menu.find("li.generateIcv").hasClass("unavailable"))
                 .to.be.false;
@@ -1153,6 +1221,78 @@ describe("Dag Panel Test", function() {
                     done("failed");
                 });
             });
+
+            it("ICV Table fail should work on groupby", function(done) {
+                var cachedGB = XcalarGroupByWithInput;
+                var gbCalled = false;
+                XcalarGroupByWithInput = function(txId, input) {
+                    gbCalled = true;
+                    expect(input.evalStrs[0].indexOf("count")).to.equal(0);
+                    return PromiseHelper.reject();
+                }
+
+                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(1);
+                var tId = $actionType.next().data("id");
+                var tName = $actionType.next().data("tablename");
+
+                Dag.generateIcvTable(
+                    groupTable.$dagWrap.data("id"),
+                    tName,
+                    $actionType.next())
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function() {
+                    // wait for icon's generating class to be removed in .always
+                    return UnitTest.timeoutPromise(1);
+                })
+                .always(function() {
+                    expect(gbCalled).to.be.true;
+                    XcalarGroupByWithInput = cachedGB;
+                    Alert.forceClose();
+                    done();
+                });
+            });
+
+            it("ICV Table should work on groupby", function(done) {
+                var cachedGB = XcalarGroupByWithInput;
+                var gbCalled = false;
+                XcalarGroupByWithInput = function(txId, input) {
+                    gbCalled = true;
+                    expect(input.evalStrs[0].indexOf("count")).to.equal(0);
+                    return PromiseHelper.resolve();
+                }
+                var cachedRefresh = TblManager.refreshTable;
+                TblManager.refreshTable = function() {
+                    return PromiseHelper.resolve();
+                };
+
+                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(1);
+                var tId = $actionType.next().data("id");
+                var tName = $actionType.next().data("tablename");
+
+                Dag.generateIcvTable(
+                    groupTable.$dagWrap.data("id"),
+                    tName,
+                    $actionType.next())
+                .then(function() {
+                    return UnitTest.timeoutPromise(1);
+                })
+                .fail(function() {
+                    // wait for icon's generating class to be removed in .always
+                    done("fail");
+                })
+                .always(function() {
+                    var table = gTables[tId];
+                    expect(table.icv.length).to.be.gt(3);
+                    table.icv = "";
+                    expect(gbCalled).to.be.true;
+                    XcalarGroupByWithInput = cachedGB;
+                    TblManager.refreshTable = cachedRefresh;
+                    done();
+                });
+            });
+
 
             it("Drop table fail should work", function() {
                 var cachedDelete = XIApi.deleteTable;
@@ -1341,7 +1481,6 @@ describe("Dag Panel Test", function() {
                 expect($menu.find("li.deleteTable").hasClass("unavailable"))
                 .to.be.false;
                 expect($("#alertModal").css("display")).to.equal("none");
-                console.log($menu.data());
 
                 $menu.find(".deleteTable").trigger(fakeEvent.mouseup);
 
@@ -1519,7 +1658,11 @@ describe("Dag Panel Test", function() {
             expect($dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("data-original-title")).to.equal(newTableName);
             expect($newTables.length).to.equal(numTables);
 
+            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("data-original-title", "");
+            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("title", newTableName);
+
             Dag.renameAllOccurrences(newTableName, oldTableName);
+            expect($dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("title")).to.equal(oldTableName);
         });
     });
 
@@ -1552,7 +1695,42 @@ describe("Dag Panel Test", function() {
             var datasets = $dagWrap.data().allDagInfo.datasets;
             var loadInfo = datasets[tableName].loadInfo;
             var cachedLoadInfo = xcHelper.deepCopy(loadInfo);
+            // loadInfo.loadArgs = {csv: {recordDelim: "\t"}};
+
+            var cachedDS = DS.getDSObj;
+            DS.getDSObj = function() {
+                return {getNumEntries: function() {return null;},
+                        getSize: function() {return null;}};
+            };
+            var cachedGetMeta = XcalarGetDatasetMeta;
+            var getMetaCalled = false;
+            XcalarGetDatasetMeta = function() {
+                getMetaCalled = true;
+                return PromiseHelper.resolve({metas: [{size: 1, numRows: 2}]});
+            };
+
+            Dag.showDataStoreInfo($table);
+
+            expect(getMetaCalled).to.be.true;
+            expect($("#dagSchema").text().indexOf('"numEntries": 2'))
+            .to.be.gt(-1);
+
+            $(document).mousedown(); // hide schema
+
+            DS.getDSObj = cachedDS;
+            XcalarGetDatasetMeta = cachedGetMeta;
+            datasets[tableName].loadInfo = cachedLoadInfo;
+        });
+
+        it("Dag.showDataStoreInfo with csv", function() {
+            var $dagWrap = largeTable.$dagWrap;
+            var $table = $dagWrap.find(".dataStore").eq(0);
+            var tableName = $table.data("tablename");
+            var datasets = $dagWrap.data().allDagInfo.datasets;
+            var loadInfo = datasets[tableName].loadInfo;
+            var cachedLoadInfo = xcHelper.deepCopy(loadInfo);
             loadInfo.loadArgs = {csv: {recordDelim: "\t"}};
+            loadInfo.format === "csv";
 
             var cachedDS = DS.getDSObj;
             DS.getDSObj = function() {
@@ -1777,6 +1955,16 @@ describe("Dag Panel Test", function() {
             res = fn(node, "otherInput");
             expect(res.type).to.equal("other");
             expect(res.tooltip).to.equal("Other");
+        });
+
+        it("getFilterInfo", function() {
+            var fn = DagDraw.__testOnly__.getFilterInfo;
+            var info = {};
+            fn(info, "not(x)", ["abc"]);
+            expect(info.column).to.equal("x");
+            expect(info.text).to.equal("not(x)");
+            expect(info.tooltip).to.equal("Filtered table &quot;abc&quot;: not(x)");
+            expect(info.type).to.equal("filternot");
         });
     });
 
@@ -2057,6 +2245,21 @@ describe("Dag Panel Test", function() {
             expect(node.value.display.isHiddenTag).to.be.undefined;
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0].indexOf("join#")).to.equal(-1);
+        });
+
+        it("hovering over tag icon should work", function() {
+            var $tagIcon = $joinDagWrap.find(".tagHeader").eq(0).find(".groupTagIcon");
+            expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
+            $tagIcon.trigger(fakeEvent.mouseenter);
+            expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
+            $tagIcon.closest(".actionType").removeClass("collapsed");
+            $tagIcon.trigger(fakeEvent.mouseenter);
+            expect($joinDagWrap.find(".tagHighlighted").length).to.be.gt(1);
+            $tagIcon.trigger(fakeEvent.mouseleave);
+            expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
+            $tagIcon.closest(".actionType").addClass("collapsed");
+            $tagIcon.trigger(fakeEvent.mouseleave);
+            expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
         });
 
         it("expanding and collapsing should work", function() {
@@ -2364,7 +2567,6 @@ describe("Dag Panel Test", function() {
             $dagWrap.remove();
         });
     });
-
 
     after(function(done) {
         if ($("#dfPanelSwitch").hasClass("active")) {

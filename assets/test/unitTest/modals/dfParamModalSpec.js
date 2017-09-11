@@ -237,7 +237,7 @@ describe("DFParamModal Test", function() {
         it("filter dropdown should be correct", function() {
             var $list = $modal.find(".tdWrapper.dropDownList");
             expect($list.find("li").eq(0).text()).to.equal("and");
-            expect($list.find("li").last().text()).to.equal("regex");
+            expect($list.find("li").last().text()).to.equal("startsWith");
         });
 
         it("param should be present", function() {
@@ -351,7 +351,7 @@ describe("DFParamModal Test", function() {
 
             $input.val(" ");
             fn($input);
-            expect($list.find("li:visible").length).to.equal(19);
+            expect($list.find("li:visible").length).to.equal(21);
 
             $input.val("abcd");
             fn($input);
