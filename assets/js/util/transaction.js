@@ -97,6 +97,22 @@ window.Transaction = (function(Transaction) {
 
         QueryManager.queryDone(txId, queryNum);
 
+        // check if we need to update monitorGraph's table usage
+        var dstTables = QueryManager.getAllDstTables(txId);
+        if (dstTables.length) {
+            var hasTableChange = false;
+            for (var i = 0; i < dstTables.length; i++) {
+                if (dstTables[i].indexOf(gDSPrefix) === -1) {
+                    hasTableChange = true;
+                    break;
+                }
+            }
+            // XcalarDeleteTable also triggers tableUsageChange
+            if (hasTableChange) {
+                MonitorGraph.tableUsageChange();
+            }
+        }
+
         // remove transaction
         removeTX(txId);
 
@@ -107,7 +123,6 @@ window.Transaction = (function(Transaction) {
 
         transactionCleaner();
         if (Transaction.isSimulate(txId)) {
-            // console.log("simuldate", txLog.getCli());
             return txLog.getCli();
         } else {
             return null;

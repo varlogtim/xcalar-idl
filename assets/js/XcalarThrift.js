@@ -1318,6 +1318,7 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
             if (txId != null) {
                 Transaction.log(txId, ret2, tableName + "drop", ret1.timeElapsed);
             }
+            MonitorGraph.tableUsageChange();
             deferred.resolve(ret1);
         }
     })
@@ -1370,6 +1371,7 @@ function XcalarDeleteConstants(constantPattern, txId) {
                 Transaction.log(txId, ret2, constantPattern + "drop",
                                 ret1.timeElapsed);
             }
+            MonitorGraph.tableUsageChange();
             deferred.resolve(ret1);
         }
     })

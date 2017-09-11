@@ -18,13 +18,15 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var gridRight;
     var newWidth;
     var svgWrap;
-    var firstTime;
+    var freshData;
     var numXGridMarks;
     var $graphWrap;
     var timeStamp;
     var failCount = 0;
     var curIteration = 0;
     var tableUsage = 0;
+    var hasTableUsageChange = true;
+    var lastTableUsageTime = 0; // when greater than 10s, ok to fetch new data
 
     MonitorGraph.setup = function() {
         $('#graph').on('click', '.area', function() {
@@ -79,6 +81,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
         cycle();
     };
 
+    MonitorGraph.tableUsageChange = function() {
+        hasTableUsageChange = true;
+    };
+
     function startCycle() {
         count = 0;
         newWidth = xGridWidth + shiftWidth;
@@ -88,7 +94,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         svgWrap = svg.select(function() {
             return (this.parentNode);
         });
-        firstTime = true;
+        freshData = true;
 
         intervalTime = (UserSettings.getPref('monitorGraphInterval') * 1000) ||
                         intervalTime;
@@ -149,11 +155,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var prevIteration = curIteration;
         var promise;
         var oldData;
-        // only update memusage if first time, scren is visible, or interval is
-        // infrequent
-        if ($("#monitor-system").is(":visible") || firstTime ||
-            intervalTime > 19999) {
+
+        if (needsTableUsageCall()) {
             promise = XcalarGetMemoryUsage(userIdName, userIdUnique);
+            hasTableUsageChange = false;
         } else {
             promise = PromiseHelper.resolve(tableUsage);
             oldData = true;
@@ -162,6 +167,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         promise
         .then(function(userMemory) {
             if (!oldData) {
+                lastTableUsageTime = Date.now();
                 tableUsage = getTableUsage(userMemory.userMemory.sessionMemory);
             }
 
@@ -206,6 +212,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }, 150);
 
         return deferred.promise();
+    }
+
+    function needsTableUsageCall() {
+        // only update memusage if change detected AND
+        // first time, screen is visible, or interval is infrequent
+        // AND it's been at least 10 seconds since last call
+        return (hasTableUsageChange &&
+                ($("#monitor-system").is(":visible") || freshData ||
+                intervalTime > 19999) &&
+                (Date.now() - lastTableUsageTime > 10000));
     }
 
     function getTableUsage(sessions) {
@@ -509,11 +525,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function redraw(newWidth, gridRight, yMaxes, units) {
-        if (firstTime) {
+        if (freshData) {
             // var memYMax = Math.max(yMaxes[memIndex], yMaxes[swapIndex]);
             // drawMemYAxes(memYMax, units[0]);
             drawMemYAxes(yMaxes[memIndex], units[memIndex]);
-            firstTime = false;
+            freshData = false;
         }
 
         for (var i = 0; i < datasets.length; i++) {
@@ -596,7 +612,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         MonitorGraph.__testOnly__ = {};
         MonitorGraph.__testOnly__.updateGraph = getStatsAndUpdateGraph;
         MonitorGraph.__testOnly__.reset = function(dSets) {
-            firstTime = true;
+            freshData = true;
             datasets = dSets;
         };
     }
