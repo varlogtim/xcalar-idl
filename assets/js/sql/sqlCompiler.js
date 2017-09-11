@@ -81,51 +81,54 @@ window.SQLCompiler = (function() {
         // randomExpressions.scala,
         "expressions.Rand": "genRandom", // XXX a little different
         "expressions.Randn": null,
-        // regexoExpressions.scala
-        "expressions.like": "like",
+        // regexpExpressions.scala
+        "expressions.Like": "like",
         "expressions.RLike": "regex",
         "expressions.StringSplit": null,
         "expressions.RegExpReplace": null,
         "expressions.RegExpExtract": null,
         // stringExpressions.scala
-        "expressions.Concat": "concat",
+        "expressions.Concat": "concat", // Concat an array
         "expressions.ConcatWs": null,
-        "expressions.Elt": null,
+        "expressions.Elt": null, // XXX Given an array returns element at idx
         "expressions.Upper": "upper",
         "expressions.Lower": "lower",
+        "expressions.Contains": "contains",
+        "expressions.StartsWith": "startsWith",
+        "expressions.EndsWith": "endsWith",
         "expressions.StringReplace": "replace",
         "expressions.StringTranslate": null,
-        "expressions.FindInSet": null,
+        "expressions.FindInSet": "findInSet",
         "expressions.StringTrim": "strip",
-        "expressions.StringTrimLeft": null,
-        "expressions.StringTrimRight": null,
+        "expressions.StringTrimLeft": "stripLeft",
+        "expressions.StringTrimRight": "stripRight",
         "expressions.StringInstr": "find", // XXX 1-based index
-        "expressions.SubstringIndex": null,
+        "expressions.SubstringIndex": "substringIndex",
         "expressions.StringLocate": "find", // XXX 1-based index
-        "expressions.StringLPad": null,
-        "expressions.StringRPad": null,
-        "expressions.ParseUrl": null,
-        "expressions.FormatString": null,
-        "expressions.InitCap": null,
-        "expressions.StringRepeat": null,
-        "expressions.StringReverse": null,
-        "expressions.StringSpace": null,
+        "expressions.StringLPad": null, // TODO
+        "expressions.StringRPad": null, // TODO
+        "expressions.ParseUrl": null, // TODO
+        "expressions.FormatString": null, // TODO
+        "expressions.InitCap": null, // TODO
+        "expressions.StringRepeat": "repeat",
+        "expressions.StringReverse": null, // TODO
+        "expressions.StringSpace": null, // TODO
         "expressions.Substring": "substring", // XXX 1-based index
-        "expressions.Right": null,
-        "expressions.Left": null,
+        "expressions.Right": "right", // XXX right(str, 5) == substring(str, -5, 0)
+        "expressions.Left": "left", // XXX left(str, 4) == substring(str, 0, 4)
         "expressions.Length": "len",
-        "expressions.BitLength": null,
-        "expressions.OctetLength": null,
-        "expressions.Levenshtein": null,
-        "expressions.SoundEx": null,
-        "expressions.Ascii": null,
-        "expressions.Chr": null,
-        "expressions.Base64": null,
-        "expressions.UnBase64": null,
-        "expressions.Decode": null,
-        "expressions.Encode": null,
-        "expressions.FormatNumber": null,
-        "expressions.Sentences": null,
+        "expressions.BitLength": null, // TODO
+        "expressions.OctetLength": null, // TODO
+        "expressions.Levenshtein": null, // TODO
+        "expressions.SoundEx": null, // TODO
+        "expressions.Ascii": null, // TODO
+        "expressions.Chr": null, // TODO
+        "expressions.Base64": null, // TODO
+        "expressions.UnBase64": null, // TODO
+        "expressions.Decode": null, // TODO
+        "expressions.Encode": null, // TODO
+        "expressions.FormatNumber": null, // TODO
+        "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
@@ -344,10 +347,18 @@ window.SQLCompiler = (function() {
                 var newColNames = evalStrArray.map(function(o) {
                     return o.newColName;
                 });
+                if (!node.additionalRDDs) {
+                    node.additionalRDDs = [];
+                }
+                for (var i = 0; i < newColNames.length; i++) {
+                    node.additionalRDDs.push(newColNames[i]);
+                }
                 var newTableName = xcHelper.getTableName(tableName) +
-                               Authentication.getHashId();
+                                   Authentication.getHashId();
 
                 var cli;
+                // XXX FIXME rename map. in genMapArray, need to take note
+                // Just cast it to the type. it's quite a simple fix.
                 self.sqlObj.map(mapStrs, tableName, newColNames,
                     newTableName)
                 .then(function(ret) {
@@ -409,7 +420,7 @@ window.SQLCompiler = (function() {
                 // If any descendents are sorted, sort again. Else return as is.
 
                 var sortObj = getPreviousSortOrder(node);
-                if (sortObj) {
+                if (sortObj && limit > 1) {
                     self.sqlObj.sort([{order: sortObj.order,
                                        name: sortObj.name}],
                                      newTableName)
@@ -459,13 +470,17 @@ window.SQLCompiler = (function() {
                     }
                     assert(orderArray[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                    var colName = orderArray[i][1].name;
+                    var colName = orderArray[i][1].name
+                                                  .replace(/[\(|\)]/g, "_").toUpperCase();
 
                     var type = orderArray[i][1].dataType;
                     switch (type) {
                         case ("integer"):
                         case ("boolean"):
                         case ("string"):
+                            break;
+                        case ("long"):
+                            type = "integer";
                             break;
                         case ("double"):
                             type = "float";
@@ -506,13 +521,24 @@ window.SQLCompiler = (function() {
 
             genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
                         {operator: true});
+            var options = {};
+            if (!node.additionalRDDs) {
+                node.additionalRDDs = [];
+            }
             for (var i = 0; i < evalStrArray.length; i++) {
                 evalStrArray[i].aggColName = evalStrArray[i].evalStr;
                 delete evalStrArray[i].evalStr;
+                if (!evalStrArray[i].operator) {
+                    options.isIncSample = true;
+                }
+                node.additionalRDDs.push(evalStrArray[i].newColName);
             }
+
             // TODO Handle case where it's COL1 AS COL2
+
             // This will result in evalStrArray[i] having undefined as operator
-            return self.sqlObj.groupBy(gbCols, evalStrArray, tableName);
+            return self.sqlObj.groupBy(gbCols, evalStrArray, tableName,
+                                       options);
         },
 
         _pushDownJoin: function(node) {
@@ -735,44 +761,44 @@ window.SQLCompiler = (function() {
             if (opName.indexOf(".aggregate.") === -1) {
                 outStr += ")";
             }
-            if (opName === "expressions.Substring") {
-                // They use substr instead of substring. We must convert
-                var regex = /(.*substring\(.*,)(\d*),(\d*)(\))/;
-                var matches = regex.exec(outStr);
-                var endIdx = 1 * matches[2] - 1 + 1 * matches[3];
-                outStr = matches[1] + (1 * matches[2] - 1) + "," +
-                         endIdx + matches[4];
+
+            switch (opName) {
+                // XXX These are all wrong because of nesting
+                case ("expressions.Substring"):
+                    var regex = /(.*substring\(.*,)(\d*),(\d*)(\))/;
+                    var matches = regex.exec(outStr);
+                    var endIdx = 1 * matches[2] - 1 + 1 * matches[3];
+                    outStr = matches[1] + (1 * matches[2] - 1) + "," +
+                             endIdx + matches[4];
+                    break;
+                case ("expressions.Left"):
+                    var regex = /(.*)(left\()(.*,)(\d*)(\))/;
+                    var matches = regex.exec(outStr);
+                    outStr = matches[1] + "substring(" + matches[3] + ",0," +
+                             matches[4] + matches[5];
+                    break;
+                case ("expressions.Right"):
+                    var regex = /(.*)(right\()(.*,)(\d*)(\))/;
+                    var matches = regex.exec(outStr);
+                    outStr = matches[1] + "substring(" + matches[3] + "," +
+                             (-1 * matches[4]) + ",0" + matches[5];
+                    break;
+                default:
+                    break;
             }
         } else {
             if (condTree.parent) {
                 var parentOpName = condTree.parent.value.class.substring(
                     condTree.value.class.indexOf("expressions."));
                 if (parentOpName === "expressions.Cast") {
-                    switch (condTree.value.dataType) {
-                        case ("double"):
-                            outStr += "float(";
-                            break;
-                        case ("integer"):
-                            outStr += "int(";
-                            break;
-                        case ("boolean"):
-                            outStr += "bool(";
-                            break;
-                        case ("string"):
-                        case ("date"):
-                            outStr += "string(";
-                            break;
-                        default:
-                            assert(0);
-                            outStr += "string(";
-                            break;
-                    }
+                    outStr += convertSparkTypeToXcalarType(
+                              condTree.value.dataType) + "(";
                 }
             }
             if (condTree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
-                outStr += condTree.value.name;
+                outStr += condTree.value.name.replace(/[\(|\)]/g, "_").toUpperCase();
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string") {
@@ -798,20 +824,25 @@ window.SQLCompiler = (function() {
                 var evalStr = genEvalStringRecur(
                     SQLCompiler.genTree(undefined,
                     evalList[i].slice(1)), acc);
-                var newColName = evalList[i][0].name;
+                var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr};
                 colName = newColName;
                 if (options && options.operator) {
                     retStruct.operator = acc.operator;
                 }
+                if (evalList[i].length === 2) {
+                    // This is a special alias case
+                    assert(evalList[i][1].dataType);
+                    retStruct.dataType = convertSparkTypeToXcalarType(
+                        evalList[i][1].dataType);
+                }
                 evalStrArray.push(retStruct);
             } else {
                 colNameStruct = evalList[i][0];
                 assert(colNameStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                colName = colNameStruct.name;
-
+                colName = colNameStruct.name.replace(/[\(|\)]/g, "_").toUpperCase();
             }
 
             columns.push(colName);
@@ -856,7 +887,15 @@ window.SQLCompiler = (function() {
         if (treeNode.value.class ===
             "org.apache.spark.sql.execution.LogicalRDD") {
             for (var i = 0; i < treeNode.value.output.length; i++) {
-                arr.push(treeNode.value.output[i][0].name);
+                arr.push(treeNode.value.output[i][0].name
+                                 .replace(/[\(|\)]/g, "_").toUpperCase());
+            }
+        }
+        if (treeNode.additionalRDDs) {
+            for (var i = 0; i < treeNode.additionalRDDs.length; i++) {
+                if (arr.indexOf(treeNode.additionalRDDs[i]) === -1) {
+                    arr.push(treeNode.additionalRDDs[i]);
+                }
             }
         }
         for (var i = 0; i < treeNode.children.length; i++) {
@@ -868,11 +907,30 @@ window.SQLCompiler = (function() {
         if (treeNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
             if (arr.indexOf(treeNode.value.name) === -1) {
-                arr.push(treeNode.value.name);
+                arr.push(treeNode.value.name.replace(/[\(|\)]/g, "_").toUpperCase());
             }
         }
+
         for (var i = 0; i < treeNode.children.length; i++) {
             getAttributeReferences(treeNode.children[i], arr);
+        }
+    }
+
+    function convertSparkTypeToXcalarType(dataType) {
+        switch (dataType) {
+            case ("double"):
+                return "float";
+            case ("integer"):
+            case ("long"):
+                return "int";
+            case ("boolean"):
+                return "bool";
+            case ("string"):
+            case ("date"):
+                return "string";
+            default:
+                assert(0);
+                return "string";
         }
     }
 

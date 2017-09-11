@@ -727,6 +727,7 @@ window.XIApi = (function(XIApi) {
 
         options = options || {};
         var isIncSample = options.isIncSample || false;
+        var isSql = options.isSql || false;
         var sampleCols = options.sampleCols || [];
         var icvMode = options.icvMode || false;
         var finalTableName = options.newTableName || null;
@@ -736,10 +737,20 @@ window.XIApi = (function(XIApi) {
             groupByCols = [groupByCols];
         }
 
-        // 0 cols is a special case of 'multiGroupBy'
-        // if (groupByCols.length < 1) {
-        //     return PromiseHelper.reject("Invalid args in groupby");
-        // }
+        // Split gbArgs into 2 arrays, one array with operators and
+        // Another array that's just aliasing
+
+        var aliasArray = [];
+        var opArray = [];
+
+        for (var i = 0; i < gbArgs.length; i++) {
+            if (!gbArgs[i].operator) {
+                aliasArray.push(gbArgs[i]);
+            } else {
+                opArray.push(gbArgs[i]);
+            }
+        }
+        gbArgs = opArray;
 
         var deferred = jQuery.Deferred();
 
@@ -812,6 +823,62 @@ window.XIApi = (function(XIApi) {
             } else {
                 return PromiseHelper.resolve(finalTableName, []);
             }
+        })
+        .then(function(resTable, tempTablesInMap) {
+            var deferred = jQuery.Deferred();
+            if (aliasArray.length > 0) {
+                // Included sample to do some renames
+                var newFieldNames = [];
+                var evalStrs = [];
+                var prevCols = finalCols;
+                for (var i = 0; i < aliasArray.length; i++) {
+                    var type = aliasArray[i].dataType;
+                    newFieldNames.push(aliasArray[i].newColName);
+                    evalStrs.push(type + "(" + aliasArray[i].aggColName + ")");
+                    var colType = null;
+                    switch (type) {
+                        case("float"):
+                            colType = ColumnType.float;
+                            break;
+                        case("int"):
+                            colType = ColumnType.integer;
+                            break;
+                        case("bool"):
+                            colType = ColumnType.boolean;
+                            break;
+                        case("string"):
+                            colType = ColumnType.string;
+                            break;
+                        default:
+                            break;
+                    }
+                    finalCols.push(ColManager.newPullCol(
+                                        aliasArray[i].newColName,
+                                        aliasArray[i].newColName, colType));
+                }
+                var newTableName = getNewTableName(resTable);
+                XcalarMap(newFieldNames, evalStrs, resTable,
+                          newTableName, txId)
+                .then(function() {
+                    tempTablesInMap = tempTablesInMap.concat([resTable,
+                                                              newTableName]);
+                    var prevName = newTableName;
+                    newTableName = getNewTableName(newTableName);
+                    for (var i = 0; i < prevCols.length; i++) {
+                        newFieldNames.push(prevCols[i].getBackColName());
+                    }
+
+                    return XcalarProject(newFieldNames, prevName, newTableName,
+                                         txId);
+                })
+                .then(function() {
+                    deferred.resolve(newTableName, tempTablesInMap);
+                })
+                .fail(deferred.reject);
+            } else {
+                deferred.resolve(resTable, tempTablesInMap);
+            }
+            return deferred.promise();
         })
         .then(function(resTable, tempTablesInMap) {
             finalTable = resTable;
@@ -1708,30 +1775,47 @@ window.XIApi = (function(XIApi) {
                                  isIncSample, sampleCols, renamedGroupByCols) {
         var dataCol = ColManager.newDATACol();
         var tableId = xcHelper.getTableId(tableName);
+        var newColNames = {};
+        var newProgCols = [];
+        var numNewCols = gbArgs.length;
+        var numGroupByCols = groupByCols.length;
+        var finalCols;
+
         for (var i = 0; i < groupByCols.length; i++) {
             renamedGroupByCols.push(groupByCols[i]);
         }
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-            // in case we have no meta of the table
-            console.warn("cannot find the table");
-            return [dataCol];
+            // We really should clean up this function to remove the requirement
+            // of gTables
+            finalCols = [];
+            gbArgs.forEach(function(gbArg) {
+                var name = gbArg.newColName;
+                newColNames[name] = true;
+                newProgCols.push(ColManager.newPullCol(name, name));
+            });
+
+            groupByCols.forEach(function(name) {
+                if (!newColNames[name]) {
+                    newColNames[name] = true;
+                    newProgCols.push(ColManager.newPullCol(name, name));
+                }
+            });
+
+            console.warn("Cannot find table. Not handling sampleCols");
+
+            newProgCols.push(dataCol);
+            return newProgCols;
         }
 
         var table = gTables[tableId];
         var tableCols = table.tableCols;
-        var newColNames = {};
-        var newProgCols = [];
-        var numNewCols = gbArgs.length;
 
         gbArgs.forEach(function(gbArg) {
             var name = gbArg.newColName;
             newColNames[name] = true;
             newProgCols.push(ColManager.newPullCol(name, name));
         });
-
-        var numGroupByCols = groupByCols.length;
-        var finalCols;
 
         if (isIncSample) {
             var newCols = [];
