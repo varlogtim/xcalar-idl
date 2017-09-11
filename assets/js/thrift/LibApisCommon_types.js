@@ -12142,6 +12142,7 @@ XcalarApiLogLevelSetInputT = function(args) {
   this.logLevel = null;
   this.logFlush = null;
   this.logFlushLevel = null;
+  this.logFlushPeriod = null;
   if (args) {
     if (args.logLevel !== undefined) {
       this.logLevel = args.logLevel;
@@ -12151,6 +12152,9 @@ XcalarApiLogLevelSetInputT = function(args) {
     }
     if (args.logFlushLevel !== undefined) {
       this.logFlushLevel = args.logFlushLevel;
+    }
+    if (args.logFlushPeriod !== undefined) {
+      this.logFlushPeriod = args.logFlushPeriod;
     }
   }
 };
@@ -12189,6 +12193,13 @@ XcalarApiLogLevelSetInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.I32) {
+        this.logFlushPeriod = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12213,6 +12224,11 @@ XcalarApiLogLevelSetInputT.prototype.write = function(output) {
   if (this.logFlushLevel !== null && this.logFlushLevel !== undefined) {
     output.writeFieldBegin('logFlushLevel', Thrift.Type.I32, 3);
     output.writeI32(this.logFlushLevel);
+    output.writeFieldEnd();
+  }
+  if (this.logFlushPeriod !== null && this.logFlushPeriod !== undefined) {
+    output.writeFieldBegin('logFlushPeriod', Thrift.Type.I32, 4);
+    output.writeI32(this.logFlushPeriod);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -16561,9 +16577,13 @@ XcalarApiListDatasetUsersOutputT.prototype.write = function(output) {
 
 XcalarApiLogLevelGetOutputT = function(args) {
   this.logLevel = null;
+  this.logFlushPeriod = null;
   if (args) {
     if (args.logLevel !== undefined) {
       this.logLevel = args.logLevel;
+    }
+    if (args.logFlushPeriod !== undefined) {
+      this.logFlushPeriod = args.logFlushPeriod;
     }
   }
 };
@@ -16588,9 +16608,13 @@ XcalarApiLogLevelGetOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.I32) {
+        this.logFlushPeriod = input.readI32().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -16605,6 +16629,11 @@ XcalarApiLogLevelGetOutputT.prototype.write = function(output) {
   if (this.logLevel !== null && this.logLevel !== undefined) {
     output.writeFieldBegin('logLevel', Thrift.Type.I32, 1);
     output.writeI32(this.logLevel);
+    output.writeFieldEnd();
+  }
+  if (this.logFlushPeriod !== null && this.logFlushPeriod !== undefined) {
+    output.writeFieldBegin('logFlushPeriod', Thrift.Type.I32, 2);
+    output.writeI32(this.logFlushPeriod);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

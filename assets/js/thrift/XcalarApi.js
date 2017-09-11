@@ -4314,25 +4314,28 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     return (deferred.promise());
 };
 
-xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLevel, logFlush) {
+xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLevel, logFlushLevel, logFlushPeriod) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.logLevelSetInput = new XcalarApiLogLevelSetInputT();
 
     workItem.api = XcalarApisT.XcalarApiLogLevelSet;
     workItem.input.logLevelSetInput.logLevel = logLevel;
-    workItem.input.logLevelSetInput.logFlushLevel = logFlush;
+    workItem.input.logLevelSetInput.logFlushLevel = logFlushLevel;
+    workItem.input.logLevelSetInput.logFlushPeriod = logFlushPeriod;
     return (workItem);
 };
 
-xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel, logFlush) {
+xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel, logFlushLevel, logFlushPeriod) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() +
-                    "logFlush = " + logFlush + ")");
+                    "logFlushLevel = " + logFlushLevel + "logFlushPeriod = " +
+                    logFlushPeriod + ")");
     }
 
-    var workItem = xcalarLogLevelSetWorkItem(logLevel, logFlush);
+    var workItem = xcalarLogLevelSetWorkItem(logLevel, logFlushLevel,
+                                             logFlushPeriod);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

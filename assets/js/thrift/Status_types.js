@@ -598,7 +598,11 @@ StatusT = {
   'StatusLMDBError' : 589,
   'StatusXpuNoBufsToRecv' : 590,
   'StatusJoinInvalidOrdering' : 591,
-  'StatusDatasetAlreadyLocked' : 592
+  'StatusDatasetAlreadyLocked' : 592,
+  'StatusUsrnodeStillAlive' : 593,
+  'StatusBufferOnFailed' : 594,
+  'StatusCantUnbufferLogs' : 595,
+  'StatusLogFlushPeriodFailure' : 596
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1192,5 +1196,9 @@ StatusTStr = {0 : 'Success',
 589 : 'LMDB Key/Value store error',
 590 : 'No buffers to receive on destination XPU',
 591 : 'Invalid ordering for Join',
-592 : 'Dataset is already locked'
+592 : 'Dataset is already locked',
+593 : 'XCE node alive, reap timed out',
+594 : 'Attempt to buffer logs failed',
+595 : 'Failure to unbuffer logs is fatal',
+596 : 'Failure in updating periodic log flushing'
 };

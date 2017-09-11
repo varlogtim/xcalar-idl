@@ -564,12 +564,14 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
-    function testLogLevelSetDebug(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 7, 0));
+    // 2 = LOG_CRIT, 1 = FlushGlobal, 0 = no change to periodic flushing
+    function testLogLevelSetCrit(test) {
+        test.trivial(xcalarLogLevelSet(thriftHandle, 2, 1, 0));
     }
 
-    function testLogLevelSetCrit(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 2, 1));
+    // 7 = LOG_DEBUG, 0 = NoFlush, 0 = no change to periodic flushing
+    function testLogLevelSetDebug(test) {
+        test.trivial(xcalarLogLevelSet(thriftHandle, 7, 0, 0));
     }
 
     function testGetIpAddrNode0(test) {
@@ -4169,9 +4171,19 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
-    // Use 0 for NoFlush, 1 for FlushGlobal, 2 for FlushLocal
-    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT 1", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG 0", defaultTimeout, TestCaseEnabled, "");
+    // LogLevelSet has 3 params (max):
+    //     logLevel [ FlushGlobal [ NUMBER ] | FlushLocal ]
+    // logLevel: in below, LOG_CRIT has value 2, LOG_DEBUG is 7
+    // FlushLevel: use 0 for NoFlush, 1 for FlushGlobal, 2 for FlushLocal
+    // NUMBER: > 0 flush period in secs; -1 to turn off flushing; 0 is a no-op
+    //
+    // Note that NUMBER > 0 will work only on a deployment which has buffering
+    // e.g. using NUMBER > 0 will fail on DEBUG builds (which don't have
+    // buffered logs). So for the automation just use 0 for NUMBER which should
+    // pass on all builds.
+    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT 1 0", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG 0 0", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 
