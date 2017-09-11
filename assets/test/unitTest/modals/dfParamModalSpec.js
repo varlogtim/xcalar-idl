@@ -289,9 +289,45 @@ describe("DFParamModal Test", function() {
             expect($("#dagModleParamList").text()).to.equal(paramName);
         });
 
+        // curr params
         it("paramDragEnd should work", function() {
             var $dummyWrap = $modal.find("input.editableParamDiv").eq(0).siblings(".dummyWrap");
             expect($dummyWrap.is(":visible")).to.be.true;
+
+            var event = $.Event("mouseup");
+            var $div = $('<div class="draggableParams currParams"></div>');
+            $("#container").prepend($div);
+            var $innerDiv1 = $("<div class='paramDragTest1'></div>");
+            var $innerDiv2 = $("<div class='paramDragTest2'></div>");
+            $div.append($innerDiv1);
+            $div.append($innerDiv2);
+            event.target = $innerDiv1;
+            expect($div.find(".paramDragTest1").length).to.equal(1);
+            expect($div.find(".paramDragTest2").length).to.equal(1);
+            DFParamModal.__testOnly__.setDragElems($innerDiv1[0], $innerDiv2[0]);
+            DFParamModal.paramDragEnd(event);
+            expect($div.find(".paramDragTest1").length).to.equal(0);
+            expect($div.find(".paramDragTest2").length).to.equal(0);
+            $div.remove();
+        });
+
+        // sys params
+        it("paramDragEnd should work", function() {
+            var event = $.Event("mouseup");
+            var $div = $('<div class="draggableParams systemParams"></div>');
+            $("#container").prepend($div);
+            var $innerDiv1 = $("<div class='paramDragTest1'></div>");
+            var $innerDiv2 = $("<div class='paramDragTest2'></div>");
+            $div.append($innerDiv1);
+            $div.append($innerDiv2);
+            event.target = $innerDiv1;
+            expect($div.find(".paramDragTest1").length).to.equal(1);
+            expect($div.find(".paramDragTest2").length).to.equal(1);
+            DFParamModal.__testOnly__.setDragElems($innerDiv1[0], $innerDiv2[0]);
+            DFParamModal.paramDragEnd(event);
+            expect($div.find(".paramDragTest1").length).to.equal(0);
+            expect($div.find(".paramDragTest2").length).to.equal(0);
+            $div.remove();
         });
 
         function startDrag() {

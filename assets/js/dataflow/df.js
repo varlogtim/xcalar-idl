@@ -545,6 +545,28 @@ window.DF = (function($, DF) {
             delete df.nameWithHash;
         }
     };
+
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DF.__testOnly__ = {};
+        DFParamModal.__testOnly__.getSubstitutions = getSubstitutions;
+        DFParamModal.__testOnly__.updateDataflows = function(newDf) {
+            var oldDataflows = [];
+            for (var i in dataflows) {
+                oldDataflows[i] = dataflows[i];
+                delete dataflows[i];
+            }
+            for (var i in newDf) {
+                dataflows[i] = newDf[i];
+            }
+
+            return oldDataflows;
+        };
+    }
+    /* End Of Unit Test Only */
+
+
     return (DF);
 
 }(jQuery, {}));

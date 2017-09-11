@@ -64,6 +64,20 @@ describe("Upload Dataflow Test", function() {
             expect($checkbox.hasClass("checked")).to.be.false;
         });
 
+        it("fakeBrowse btn should trigger real btn", function() {
+            var clicked = false;
+            $("#dataflow-browse").attr("type", "");
+            $("#dataflow-browse").on("click.unitTest", function() {
+                clicked = true;
+            });
+            $("#dataflow-fakeBrowse").click();
+            expect(clicked).to.be.true;
+            clicked = false;
+            $("#retinaPath").mousedown();
+            expect(clicked).to.be.true;
+            $("#dataflow-browse").attr("type", "file");
+        });
+
         it("should close the card", function() {
             $card.find(".close").click();
             assert.isFalse($card.is(":visible"));
@@ -180,6 +194,21 @@ describe("Upload Dataflow Test", function() {
                 expect(isAddDF).to.be.false;
                 expect(successMsg).to.be.null;
                 UnitTest.hasStatusBoxWithError(ErrTStr.RetinaFailed);
+                done();
+            });
+        });
+
+        it("should handle large file size error", function(done) {
+            $("#dataflow-browse")[0].files[0] = {size: 2 * MB};
+            UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+            UploadDataflowCard.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithTitle(DSTStr.UploadLimit);
+                $("#dataflow-browse")[0].files[0] = {size: 1 * KB};
+                UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
                 done();
             });
         });

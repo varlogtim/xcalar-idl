@@ -1698,6 +1698,10 @@ window.DFParamModal = (function($, DFParamModal){
         DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
         DFParamModal.__testOnly__.suggest = suggest;
         DFParamModal.__testOnly__.checkInputForParam = checkInputForParam;
+        DFParamModal.__testOnly__.setDragElems = function(a, b) {
+            crt = a;
+            cover = b;
+        };
     }
     /* End Of Unit Test Only */
 

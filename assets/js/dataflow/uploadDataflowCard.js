@@ -168,6 +168,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     function changeFilePath(path) {
         path = path.replace(/C:\\fakepath\\/i, '');
         file = $browserBtn[0].files[0];
+
         var retName = path.substring(0, path.indexOf(".")).toLowerCase()
                           .replace(/ /g, "");
         retName = xcHelper.checkNamePattern("dataflow", "fix", retName);
