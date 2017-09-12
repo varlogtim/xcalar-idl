@@ -18,7 +18,7 @@ window.SQLApi = (function() {
 
     SQLApi.getIndexTable = function(tableName, colName) {
         if (indexTableCache[tableName]) {
-            return indexTableCache[tableName][colName];
+            return indexTableCache[tableName][colName] || null;
         } else {
             return null;
         }
@@ -72,7 +72,7 @@ window.SQLApi = (function() {
                 case DfFieldTypeT.DfInt32:
                 case DfFieldTypeT.DfInt64:
                 case DfFieldTypeT.DfUInt32:
-                case DfFieldTypeT.DfUInt32:
+                case DfFieldTypeT.DfUInt64:
                     return ColumnType.integer;
                 case DfFieldTypeT.DfFloat32:
                 case DfFieldTypeT.DfFloat64:
