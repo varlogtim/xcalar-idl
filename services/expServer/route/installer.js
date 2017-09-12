@@ -97,12 +97,12 @@ function genExecString(hostnameLocation,
     }
     if (ldapOption) {
         if (ldapOption.xcalarInstall) {
-            execString += " --ldap-mode create"
+            execString += " --ldap-mode create";
             execString += " --ldap-domain " + ldapOption.domainName;
             execString += " --ldap-org " + '"' + ldapOption.companyName + '"';
             execString += " --ldap-password " + '"' + encryptPassword(ldapOption.password) + '"';
         } else {
-            execString += " --ldap-mode external"
+            execString += " --ldap-mode external";
         }
     }
     if (serDes) {
@@ -222,7 +222,7 @@ function stdErrCallback(dataBlock) {
     errorLog += dataBlock + "\n";
 }
 
-function checkLicense(credArray) {
+function checkLicense(credArray, script) {
     var deferredOut = jQuery.Deferred();
     var fileLocation = licenseLocation;
     fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
@@ -232,14 +232,19 @@ function checkLicense(credArray) {
             deferredOut.reject(retMsg);
             return;
         }
-        var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
+        var out;
+        if (script) {
+            out = exec(script);
+        } else {
+            out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
+        }
         out.stdout.on('data', function(data) {
             console.log(data);
             if (data.indexOf("SUCCESS") > -1) {
                 retMsg = {"status": httpStatus.OK, "verified": true};
                 xcConsole.log("Success: Check License");
                 deferredOut.resolve(retMsg);
-            } else if (data.indexOf("FAILURE") > -1) {
+            } else {
                 retMsg = {"status": httpStatus.OK, "verified": false};
                 xcConsole.log("Failure: Check License");
                 deferredOut.reject(retMsg);
@@ -249,12 +254,17 @@ function checkLicense(credArray) {
     return deferredOut.promise();
 }
 
-function copyFiles() {
+function copyFiles(script) {
     var deferredOut = jQuery.Deferred();
     var execString = scriptDir + "/deploy-shared-config.sh ";
     execString += cliArguments;
     xcConsole.log(execString);
-    out = exec(execString);
+    var out;
+    if (script) {
+        out = exec(script);
+    } else {
+        out = exec(execString);
+    }
     out.stdout.on('data', function(data) {
         xcConsole.log(data);
     });
@@ -280,174 +290,9 @@ function copyFiles() {
     return deferredOut.promise();
 }
 
-function installLdap(domainName, password, companyName) {
-    var deferredOut = jQuery.Deferred();
-    var execString = scriptDir + "/ldap-install.sh ";
-    execString += cliArguments; // Add all the previous stuff
-    execString += genLdapExecString(domainName, password,companyName);
-    out = exec(execString);
-
-    var replied = false;
-    out.stdout.on('data', function(data) {
-        xcConsole.log(data);
-    });
-    var errorMessage = "ERROR: ";
-    out.stderr.on('data', function(data) {
-        errorMessage += data;
-        xcConsole.log("Error: " + data);
-    });
-
-    out.on('close', function(code) {
-        // Exit code. When we fail, we return non 0
-        if (code) {
-            xcConsole.log("Failure: " + code + " " + errorMessage);
-            if (!replied) {
-                retMsg = {
-                    "status": httpStatus.InternalServerError,
-                    "logs": errorMessage
-                };
-                deferredOut.reject(retMsg);
-            }
-        } else {
-            copyFiles()
-            .always(function(message) {
-                deferredOut.resolve(message);
-            });
-        }
-    });
-    return deferredOut.promise();
-}
-
-function writeLdapConfig(credArray) {
-    var deferredOut = jQuery.Deferred();
-    try {
-        credArray.ldapConfigEnabled = true
-        fs.writeFileSync(ldapLocation, JSON.stringify(credArray, null, 4));
-        copyFiles()
-        .always(function(message) {
-            deferredOut.resolve(message);
-        });
-    } catch (err) {
-        xcConsole.log(err);
-        var retMsg = {
-            "status": httpStatus.InternalServerError,
-            "logs": JSON.stringify(err)
-        };
-        deferredOut.reject(retMsg);
-    }
-    return deferredOut.promise();
-}
-
-// function installXcalar(credArray) {
-//     // Write files to /config and chmod
-//     var isPassword = true;
-//     var hostArray = credArray.hostnames;
-//     var hasPrivHosts = false;
-
-//     function initialStep() {
-//         var deferred = jQuery.Deferred();
-//         if ("password" in credArray.credentials) {
-//             var password = credArray.credentials.password;
-//             fs.writeFile(credentialLocation, password,
-//                          {mode: parseInt('600', 8)},
-//                          function(err) {
-//                              if (err) {
-//                                  deferred.reject(err);
-//                                  return;
-//                              }
-//                              deferred.resolve();
-//                          });
-//         } else {
-//             isPassword = false;
-//             var sshkey = credArray.credentials.sshKey;
-//             fs.writeFile(credentialLocation, sshkey,
-//                          {mode: parseInt('600', 8)},
-//                          function(err) {
-//                              if (err) {
-//                                  deferred.reject(err);
-//                                  return;
-//                              }
-//                              deferred.resolve();
-//                          });
-//         }
-//         return deferred.promise();
-//     }
-
-//     initialStep()
-//     .then(function() {
-//         var deferred = jQuery.Deferred();
-//         fs.writeFile(hostnameLocation, hostArray.join("\n"), function(err) {
-//             if (err) {
-//                 deferred.reject(err);
-//                 return;
-//             }
-//             deferred.resolve();
-//         });
-//         return deferred.promise();
-//     })
-//     .then(function() {
-//         var deferred = jQuery.Deferred();
-//         if (credArray.privHostNames.length > 0) {
-//             fs.writeFile(privHostnameLocation,
-//                          credArray.privHostNames.join("\n"),
-//                          function(err) {
-//                              if (err) {
-//                                  deferred.reject(err);
-//                                  return;
-//                              }
-//                              hasPrivHosts = true;
-//                              deferred.resolve();
-//                          });
-//         } else {
-//             fs.writeFile(privHostnameLocation, credArray.hostnames.join("\n"),
-//                          function(err) {
-//                              if (err) {
-//                                  deferred.reject(err);
-//                                  return;
-//                              }
-//                              hasPrivHosts = true;
-//                              deferred.resolve();
-//                          });
-//         }
-//         return deferred.promise();
-//     })
-//     .then(function() {
-//         var execString = scriptDir + "/cluster-install.sh";
-//         cliArguments = genExecString(hostnameLocation, hasPrivHosts,
-//                                      credentialLocation,
-//                                      isPassword, credArray.username,
-//                                      credArray.port,
-//                                      credArray.nfsOption,
-//                                      credArray.installationDirectory);
-//         execString += cliArguments;
-//         initStepArray();
-
-//         var out = exec(execString);
-
-//         out.stdout.on('data', stdOutCallback);
-//         out.stderr.on('data', stdErrCallback);
-
-//         out.on('close', function(code) {
-//             // Exit code. When we fail, we return non 0
-//             if (code) {
-//                 xcConsole.log("Failure: Executing " + execString +
-//                   " fails. " + errorLog);
-//                 curStep.curStepStatus = installStatus.Error;
-//             } else {
-//                 curStep.curStepStatus = installStatus.Done;
-//             }
-//         });
-//     })
-//     .fail(function(err) {
-//         xcConsole.log("Failure: Xcalar installation fails. " + err);
-//         curStep.curStepStatus = installStatus.Error;
-//     });
-// }
-
-
-function installUpgradeUtil(credArray, execCommand) {
+function installUpgradeUtil(credArray, execCommand, script) {
     // Write files to /config and chmod
-    var isPassword = true;
+    var deferredOut = jQuery.Deferred();
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
 
@@ -465,7 +310,6 @@ function installUpgradeUtil(credArray, execCommand) {
                              deferred.resolve();
                          });
         } else if ("sshKey" in credArray.credentials) {
-            isPassword = false;
             var sshkey = credArray.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
                          {mode: parseInt('600', 8)},
@@ -533,6 +377,7 @@ function installUpgradeUtil(credArray, execCommand) {
         return deferred.promise();
     })
     .then(function() {
+        var deferred = jQuery.Deferred();
         var execString = scriptDir + "/" + execCommand;
         cliArguments = genExecString(hostnameLocation,
                                      hasPrivHosts,
@@ -548,8 +393,12 @@ function installUpgradeUtil(credArray, execCommand) {
                                      credArray.preConfig);
         execString += cliArguments;
         initStepArray();
-
-        var out = exec(execString);
+        var out;
+        if (script) {
+            out = exec(script);
+        } else {
+            out = exec(execString);
+        }
 
         out.stdout.on('data', stdOutCallback);
         out.stderr.on('data', stdErrCallback);
@@ -560,21 +409,28 @@ function installUpgradeUtil(credArray, execCommand) {
                 xcConsole.log("Failure: Executing " + execString +
                   " fails. " + errorLog);
                 curStep.curStepStatus = installStatus.Error;
+                deferred.reject();
             } else {
                 curStep.curStepStatus = installStatus.Done;
+                deferred.resolve();
             }
         });
+        return deferred.promise();
+    })
+    .then(function() {
+        deferredOut.resolve();
     })
     .fail(function(err) {
         xcConsole.log("Failure: Xcalar installation fails. " + err);
         curStep.curStepStatus = installStatus.Error;
+        deferredOut.reject(err);
     });
+    return deferredOut.promise();
 }
 
-function discoverUtil(credArray, execCommand) {
+function discoverUtil(credArray, execCommand, script) {
     // Write files to /config and chmod
     var deferredOut = jQuery.Deferred();
-    var isPassword = true;
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
 
@@ -592,7 +448,6 @@ function discoverUtil(credArray, execCommand) {
                              deferred.resolve();
                          });
         } else if ("sshKey" in credArray.credentials) {
-            isPassword = false;
             var sshkey = credArray.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
                          {mode: parseInt('600', 8)},
@@ -638,10 +493,13 @@ function discoverUtil(credArray, execCommand) {
                                      credArray.preConfig);
         execString += cliArguments;
         initStepArray();
+        var out;
+        if (script) {
+            out = exec(script);
+        } else {
+            out = exec(execString);
+        }
 
-        var out = exec(execString);
-
-        var replied = false;
         out.stdout.on('data', stdOutCallback);
         out.stderr.on('data', stdErrCallback);
 
@@ -704,7 +562,7 @@ router.post('/xdp/license/verification', function(req, res) {
 });
 
 router.post("/xdp/installation/status", function(req, res) {
-    xcConsole.log("Checking Status");
+    xcConsole.log("Checking Install Status");
     var credArray = req.body;
     createStatusArray(credArray)
     .always(function(message) {
@@ -741,7 +599,7 @@ router.post("/xdp/discover", function(req, res) {
 });
 
 router.post("/xdp/upgrade/status", function(req, res) {
-    xcConsole.log("Checking Status");
+    xcConsole.log("Checking Upgrade Status");
     var credArray = req.body;
     createStatusArray(credArray)
     .always(function(message) {
@@ -750,7 +608,7 @@ router.post("/xdp/upgrade/status", function(req, res) {
 });
 
 router.post("/xdp/upgrade/start", function(req, res) {
-    xcConsole.log("Installing Xcalar");
+    xcConsole.log("Upgrading Xcalar");
     var credArray = req.body;
     upgradeXcalar(credArray);
     // Immediately ack after starting
@@ -759,7 +617,7 @@ router.post("/xdp/upgrade/start", function(req, res) {
 });
 
 router.post("/xdp/uninstallation/status", function(req, res) {
-    xcConsole.log("Checking Status");
+    xcConsole.log("Checking Uninstall Status");
     var credArray = req.body;
     createStatusArray(credArray)
     .always(function(message) {
@@ -768,7 +626,7 @@ router.post("/xdp/uninstallation/status", function(req, res) {
 });
 
 router.post("/xdp/uninstallation/start", function(req, res) {
-    xcConsole.log("Installing Xcalar");
+    xcConsole.log("Uninstalling Xcalar");
     var credArray = req.body;
     uninstallXcalar(credArray);
     // Immediately ack after starting
@@ -789,10 +647,66 @@ router.get("/installationLogs/slave", function(req, res) {
     });
 });
 
-function unitTest() {
-    exports.genExecString = genExecString;
-    exports.genLdapExecString = genLdapExecString;
+// Below part is only for Unit Test
+function fakeGenExecString() {
+    return "echo SUCCESS";
 }
-exports.unitTest = unitTest;
-
+function getCurStepStatus() {
+    return curStep.curStepStatus;
+}
+function setTestVariables(opts) {
+    if (opts.hostnameLocation) {
+        hostnameLocation = opts.hostnameLocation;
+    }
+    if (opts.privHostnameLocation) {
+        privHostnameLocation = opts.privHostnameLocation;
+    }
+    if (opts.ldapLocation) {
+        ldapLocation = opts.ldapLocation;
+    }
+    if (opts.discoveryResultLocation) {
+        discoveryResultLocation = opts.discoveryResultLocation;
+    }
+    if (opts.licenseLocation) {
+        licenseLocation = opts.licenseLocation;
+    }
+}
+function fakeCheckLicense() {
+    checkLicense = function() {
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
+}
+function fakeInstallUpgradeUtil() {
+    installUpgradeUtil = function() {
+        return jQuery.Deferred().resolve().promise();
+    };
+}
+function fakeDiscoverUtil() {
+    discoverUtil = function() {
+        return jQuery.Deferred().resolve().promise();
+    };
+}
+function fakeCreateStatusArray() {
+    createStatusArray = function() {
+        return jQuery.Deferred().resolve({status: 200}).promise();
+    };
+}
+if (process.env.NODE_ENV === "test") {
+    exports.genExecString = genExecString;
+    exports.encryptPassword = encryptPassword;
+    exports.genDiscoverExecString = genDiscoverExecString;
+    exports.createStatusArray = createStatusArray;
+    exports.checkLicense = checkLicense;
+    exports.copyFiles = copyFiles;
+    exports.installUpgradeUtil = installUpgradeUtil;
+    exports.discoverUtil = discoverUtil;
+    exports.getCurStepStatus = getCurStepStatus;
+    exports.setTestVariables = setTestVariables;
+    // Fake functions
+    exports.fakeGenExecString = fakeGenExecString;
+    exports.fakeCheckLicense = fakeCheckLicense;
+    exports.fakeInstallUpgradeUtil = fakeInstallUpgradeUtil;
+    exports.fakeDiscoverUtil = fakeDiscoverUtil;
+    exports.fakeCreateStatusArray = fakeCreateStatusArray;
+}
 exports.router = router;
