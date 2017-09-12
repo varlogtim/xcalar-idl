@@ -90,6 +90,48 @@ describe("Workbook Test", function() {
             expect($("#container").hasClass("monitorMode")).to.be.false;
         });
 
+        it("should go to setup", function() {
+            Workbook.goToSetup();
+            expect($("#container").hasClass("setupMode")).to.be.true;
+
+            $("#monitorPanel .backToWB").click();
+            expect($("#container").hasClass("setupMode")).to.be.false;
+        });
+
+        it("should mouseenter to triger tooltipoverflow", function() {
+            var $div = $('<div class="tooltipOverflow"><input></div>');
+            var $workbookSection = $workbookPanel.find(".bottomSection");
+            var oldFunc = xcTooltip.auto;
+            var test = false;
+            xcTooltip.auto = function() { test = true; };
+            $workbookSection.append($div);
+            $div.trigger(fakeEvent.mouseenter);
+            expect(test).to.be.true;
+            // clear up
+            $div.remove();
+            xcTooltip.auto = oldFunc;
+        });
+
+        it("should trigger clear active", function() {
+            var $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
+            var $newWorkbookInput = $newWorkbookCard.find("input");
+            var workbooks = WorkbookManager.getWorkbooks();
+            var wkbkId = Object.keys(workbooks)[0];
+            var workbookName = WorkbookManager.getWorkbook(wkbkId).name;
+            var $div = $('<div class="workbookBox" ' +
+                         'data-workbook-id="' + wkbkId + '">' +
+                            '<input class="active">' +
+                        '</div>');
+            $workbookPanel.append($div);
+
+            $newWorkbookInput.trigger(fakeEvent.enter);
+            var $input = $div.find("input");
+            expect($input.hasClass("active")).to.be.false;
+            expect($input.val()).to.equal(workbookName);
+            // clear up
+            $div.remove();
+        });
+
         it("should not close on no workbook case", function(done) {
             var $container = $("#container");
             var $dialogWrap = $("#dialogWrap").addClass("closeAttempt");
@@ -202,6 +244,51 @@ describe("Workbook Test", function() {
             expect($("#container").hasClass("noWorkbook")).to.be.true;
             expect($input.val()).not.to.equal("");
             $("#container").removeClass("noWorkbook");
+        });
+
+        it("should handle invalid name in create workbook", function() {
+            var workbooks = WorkbookManager.getWorkbooks();
+            var wkbkId = Object.keys(workbooks)[0];
+            var name = workbooks[wkbkId].getName();
+            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+
+            $newWorkbookBox.find("input").val(name)
+                    .end()
+                    .find(".btn").click();
+            var error = xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                "name": name
+            });
+            UnitTest.hasStatusBoxWithError(error);
+        });
+
+        it("should handle create workbook error case", function(done) {
+            var name = xcHelper.randName("testWorkbook");
+            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+            var $newWorkbookInput = $newWorkbookBox.find("input");
+            var oldFunc = XcSupport.commitCheck;
+
+            XcSupport.commitCheck = function() {
+                return PromiseHelper.reject();
+            };
+
+            $newWorkbookInput.find("button").addClass("inActive");
+
+            $newWorkbookBox.find("input").val(name)
+                    .end()
+                    .find(".btn").click();
+            UnitTest.testFinish(function() {
+                return !$newWorkbookInput.find("button").hasClass("inActive");
+            })
+            .then(function() {
+                UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcSupport.commitCheck = oldFunc;
+            });
         });
 
         it("Should create new workbook", function(done) {

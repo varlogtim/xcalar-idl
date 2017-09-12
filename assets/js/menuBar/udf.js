@@ -839,6 +839,7 @@ window.UDF = (function($, UDF) {
         UDF.__testOnly__.parseSyntaxError = parseSyntaxError;
         UDF.__testOnly__.uploadUDF = upload;
         UDF.__testOnly__.inputUDFFuncList = inputUDFFuncList;
+        UDF.__testOnly__.readUDFFromFile = readUDFFromFile;
     }
     /* End Of Unit Test Only */
 

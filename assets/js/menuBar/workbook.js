@@ -528,17 +528,17 @@ window.Workbook = (function($, Workbook) {
 
         XcSupport.commitCheck()
         .then(function() {
-            var deferred1 = createLoadingCard($newWorkbookCard);
-            var deferred2 = WorkbookManager.newWKBK(workbookName);
+            var deferred1 = WorkbookManager.newWKBK(workbookName);
+            var deferred2 = createLoadingCard($newWorkbookCard);
             return PromiseHelper.when(deferred1, deferred2);
         })
-        .then(function($fauxCard, id) {
+        .then(function(id, $fauxCard) {
             replaceLoadingCard($fauxCard, id);
 
             $newWorkbookInput.val("");
             $lastFocusedInput = "";
         })
-        .fail(function($fauxCard, error) {
+        .fail(function(error, $fauxCard) {
             handleError(error || WKBKTStr.CreateErr, $newWorkbookInput);
             removeWorkbookBox($fauxCard);
             $lastFocusedInput = $newWorkbookInput;
@@ -619,6 +619,9 @@ window.Workbook = (function($, Workbook) {
     }
 
     function removeWorkbookBox($workbookBox) {
+        if ($workbookBox == null) {
+            return;
+        }
         $workbookBox.addClass("removing");
         setTimeout(function() {
             $workbookBox.remove();

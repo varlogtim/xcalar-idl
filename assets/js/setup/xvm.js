@@ -133,7 +133,7 @@ window.XVM = (function(XVM) {
                 console.error(error);
                 passed = false;
             }
-            passed = true;
+
             if (passed) {
                 return XcalarGetLicense();
             } else {

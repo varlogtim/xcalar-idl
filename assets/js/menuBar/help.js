@@ -13,29 +13,29 @@ window.Help = (function($, Help) {
     };
 
     function setupHelpSearch() {
-        var $searchInput = $('#helpSearch');
-        var $categoryArea = $('#helpResults').find('.categoryArea');
-        var $resultsArea = $('#helpResults').find('.resultsArea');
+        var $searchInput = $("#helpSearch");
+        var $categoryArea = $("#helpResults").find(".categoryArea");
+        var $resultsArea = $("#helpResults").find(".resultsArea");
 
-        $('#helpSubmit').click(function() {
-            $('#helpResults').find('.noResults').hide();
+        $("#helpSubmit").click(function() {
+            $("#helpResults").find(".noResults").hide();
             $searchInput.trigger({"type": "keyup", "keyCode": keyCode.Enter});
         });
 
-        $('#helpSearchArea').submit(function() {
-            $('#helpResults').find('.noResults').hide();
+        $("#helpSearchArea").submit(function() {
+            $("#helpResults").find(".noResults").hide();
             return false;
         });
 
-        $('#helpCategories').click(function() {
+        $("#helpCategories").click(function() {
             $categoryArea.show();
             $("#helpCategories").hide();
             $resultsArea.hide();
             $searchInput.val("");
         });
 
-        $searchInput.on('keyup', function(e) {
-            if (e.keyCode === keyCode.Enter) {
+        $searchInput.on("keyup", function(event) {
+            if (event.which === keyCode.Enter) {
                 if ($searchInput.val().trim() === "") {
                     $categoryArea.show();
                     $("#helpCategories").hide();
@@ -46,18 +46,18 @@ window.Help = (function($, Help) {
                     $resultsArea.hide();
                     // Must remove and reattach. Else the .load trick doesn't
                     // work
-                    var $iframe = $('#mcfResults');
+                    var $iframe = $("#mcfResults");
                     $iframe.remove();
                     $resultsArea.append('<iframe id="mcfResults"></iframe>');
                     $iframe = $("#mcfResults");
-                    $iframe.attr('src', searchURL + $searchInput.val());
+                    $iframe.attr("src", searchURL + $searchInput.val());
                     $iframe.load(function() {
                         $resultsArea.show();
                     });
                 }
             }
         });
-        $searchInput.on('change', function() {
+        $searchInput.on("change", function() {
             if ($searchInput.val().trim() === "") {
                 $categoryArea.show();
                 $("#helpCategories").hide();

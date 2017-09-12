@@ -125,6 +125,22 @@ describe("UDF Test", function() {
             inputUDFFuncList("default");
             expect(UDF.getEditor().getValue()).contains("convertFormats");
         });
+
+        it("readUDFFromFile should work", function() {
+            var readUDFFromFile = UDF.__testOnly__.readUDFFromFile;
+            var oldReader = FileReader;
+
+            FileReader = function() {
+                this.onLoad = function() {};
+                this.readAsText = function() {};
+            };
+
+            readUDFFromFile("testFile", "testModule");
+            expect($("#udf-fnName").val()).to.equal("testModule");
+            // clear up
+            $("#udf-fnName").val("");
+            FileReader = oldReader;
+        });
     });
 
     describe("Upload Error Handling Test", function() {
@@ -348,6 +364,19 @@ describe("UDF Test", function() {
             var $tab = $udfSection.find('.tab[data-tab="udf-manager"]');
             expect($tab.hasClass("active")).to.be.false;
         });
+
+        it("should click to trigger downloadUDF", function() {
+            var udfName = xcHelper.randName("testUDF");
+            var $udf = $('<div class="udf">' +
+                            '<div class="text">' + udfName + '</div>' +
+                            '<div class="download"></div>' +
+                        '</div>');
+            $udfManager.append($udf);
+            $udf.find(".download").click();
+            UnitTest.hasAlertWithTitle(SideBarTStr.DownloadError);
+            // clear up
+            $udf.remove();
+        });
     });
 
     describe("Upload and Delete UDF Test", function() {
@@ -377,6 +406,14 @@ describe("UDF Test", function() {
             $("#udf-fnUpload").click();
 
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        });
+
+        it("Should not upload with invalid module name", function() {
+            editor.setValue(func);
+            $fnName.val("123ab");
+            $("#udf-fnUpload").click();
+
+            UnitTest.hasStatusBoxWithError(UDFTStr.InValidName);
         });
 
         it("Should not upload with long module name", function() {
@@ -508,6 +545,46 @@ describe("UDF Test", function() {
                 return PromiseHelper.resolve({
                     "numXdfs": 1
                 });
+            };
+
+            var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
+            $udf.find(".delete").click();
+            UnitTest.hasAlertWithTitle(UDFTStr.DelTitle, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            var checkFunc = function() {
+                return test === true;
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                UnitTest.hasAlertWithTitle(UDFTStr.DelFail);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDeletePython = oldDelete;
+                XcalarListXdfs = oldList;
+            });
+        });
+
+        it("should handle delet udf fails case 3", function(done) {
+            var oldDelete = XcalarDeletePython;
+            var oldList = XcalarListXdfs;
+            var test = false;
+            XcalarDeletePython = function() {
+                test = true;
+                return PromiseHelper.reject({
+                    "status": StatusT.StatusUdfModuleNotFound
+                });
+            };
+
+            XcalarListXdfs = function() {
+                return PromiseHelper.reject("test");
             };
 
             var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
