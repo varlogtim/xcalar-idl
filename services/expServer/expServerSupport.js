@@ -37,6 +37,10 @@ var defaultStopCommand = defaultXcalarctl + " stop";
 var defaultStatusCommand = defaultXcalarctl + " status";
 
 var logPath = "/var/log/Xcalar.log";
+var installationLogPath;
+if (process.env.TMPDIR) {
+    installationLogPath = process.env.TMPDIR + "/cluster-install.log";
+}
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
@@ -294,7 +298,7 @@ function slaveExecuteAction(action, slaveUrl, content) {
                 return deferredOut.promise();
             }
         case "/installationLogs/slave":
-            return readInstallerLog();
+            return readInstallerLog(installationLogPath);
         default:
             xcConsole.log("Should not be here!");
     }
@@ -727,7 +731,7 @@ function generateLastMonitorMap(results) {
 
 function readInstallerLog(filePath) {
     var deferred = jQuery.Deferred();
-    var defaultPath = '/tmp/xcalar/installer.log';
+    var defaultPath = '/tmp/xcalar/cluster-install.log';
     if (filePath) {
         defaultPath = filePath;
     }
