@@ -19,8 +19,8 @@ function setupHostName() {
     var protocol = window.location.protocol;
 
     // If you have special ports, it needs to be part of the hostname
-    if (!hostname.startsWith(protocol)) {
-        hostname = "https://" + hostname;
+    if (protocol.startsWith("http") && !hostname.startsWith(protocol)) {
+        hostname = "https://" + hostname.split("://")[1];
     }
 }
 // for convenience, add the function list here and make them
