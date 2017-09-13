@@ -221,6 +221,9 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     if ($form.find(".nfsServer").val().trim().length === 0) {
                         deferred.reject("NFS Server Invalid",
                             "You must provide a valid NFS Server IP or FQDN");
+                    } else if ($form.find(".nfsMountPoint").val().trim().length === 0) {
+                        deferred.reject("NFS MountPoint Invalid",
+                            "You must provide a valid NFS Mount Point");
                     } else {
                         res.nfsOption.option = "customerNfs";
                         res.nfsOption.nfsServer = getVal($form.find(".nfsServer"));
@@ -236,7 +239,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                             "You must provide a valid NFS Mount Path");
                     } else {
                         res.nfsOption.option = "readyNfs";
-                        res.nfsOption.nfsReuse = getVal($form.find(".nfsMountPointReady"));
+                        res.nfsOption.nfsReuse = removeDuplicateSlash(getVal($form.find(".nfsMountPointReady")));
                         deferred.resolve(res);
                     }
                     break;
@@ -529,32 +532,38 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 cancel = false;
                 $form.find("input.cancel").val("CANCEL");
                 clearInterval(intervalTimer);
+                intervalTimer = undefined;
                 deferred.reject("Cancelled", "Operation cancelled");
             } else {
-                InstallerCommon.sendViaHttps("POST", statusApi, JSON.stringify(finalStruct))
-                .then(function(hints, ret) {
-                    if (ret.curStepStatus === installStatus.Done) {
-                        done = true;
-                        clearInterval(intervalTimer);
-                        deferred.resolve();
-                    } else if (ret.curStepStatus === installStatus.Error) {
-                        if (ret.errorLog) {
-                            console.log(ret.errorLog);
+                if (intervalTimer) {
+                    InstallerCommon.sendViaHttps("POST", statusApi, JSON.stringify(finalStruct))
+                    .then(function(hints, ret) {
+                        if (ret.curStepStatus === installStatus.Done) {
+                            done = true;
+                            clearInterval(intervalTimer);
+                            intervalTimer = undefined;
+                            deferred.resolve();
+                        } else if (ret.curStepStatus === installStatus.Error) {
+                            if (ret.errorLog) {
+                                console.log(ret.errorLog);
+                            }
+                            clearInterval(intervalTimer);
+                            intervalTimer = undefined;
+                            deferred.reject("Status Error", ret);
                         }
+                        if (!done) {
+                            InstallerCommon.updateStatus($form, ret.retVal);
+                        }
+                    })
+                    .fail(function() {
                         clearInterval(intervalTimer);
-                        deferred.reject("Status Error", ret);
-                    }
-                    if (!done) {
-                        InstallerCommon.updateStatus($form, ret.retVal);
-                    }
-                })
-                .fail(function() {
-                    clearInterval(intervalTimer);
-                    deferred.reject("Connection Error",
-                                    "Connection to server cannot be " +
-                                    "established. " +
-                                    "Please contact Xcalar Support.");
-                });
+                        intervalTimer = undefined;
+                        deferred.reject("Connection Error",
+                                        "Connection to server cannot be " +
+                                        "established. " +
+                                        "Please contact Xcalar Support.");
+                    });
+                }
             }
         }, checkInterval);
         return deferred.promise();
@@ -762,10 +771,11 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             case ("TLSChoice"):
                 break;
             case ("ADChoice"):
+                var inputs;
                 switch (radioOption) {
                     case (true):
                         // AD
-                        var inputs = $form.find(".fieldWrap .inputWrap input");
+                        inputs = $form.find(".fieldWrap .inputWrap input");
                         inputs.eq(0).attr("placeholder",
                                             "[ldap://pdc1.int.xcalar.com:389]");
                         inputs.eq(1).attr("placeholder",
@@ -777,7 +787,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                         break;
                     case (false):
                         // LDAP
-                        var inputs = $form.find(".fieldWrap .inputWrap input");
+                        inputs = $form.find(".fieldWrap .inputWrap input");
                         inputs.eq(0).attr("placeholder",
                                          "[ldap://openldap1-1.xcalar.net:389]");
                         inputs.eq(1).attr("placeholder",
@@ -874,21 +884,22 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.prepareUninstall = function() {
+        finalStruct.nfsOption = {};
         switch (discoverResult.xcalarMount.option) {
-        case 'customerNfs':
-            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
-            finalStruct.nfsOption.nfsServer = discoverResult.xcalarMount.server;
-            finalStruct.nfsOption.nfsMountPoint = discoverResult.xcalarMount.path;
-            break;
-        case 'readyNfs':
-            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
-            finalStruct.nfsOption.nfsReuse = discoverResult.xcalarMount.path;
-            break;
-        case 'xcalarNfs':
-            finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
-            break;
+            case 'customerNfs':
+                finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+                finalStruct.nfsOption.nfsServer = discoverResult.xcalarMount.server;
+                finalStruct.nfsOption.nfsMountPoint = discoverResult.xcalarMount.path;
+                break;
+            case 'readyNfs':
+                finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+                finalStruct.nfsOption.nfsReuse = discoverResult.xcalarMount.path;
+                break;
+            case 'xcalarNfs':
+                finalStruct.nfsOption.option = discoverResult.xcalarMount.option;
+                break;
         }
-    }
+    };
 
     InstallerCommon.sendViaHttps = function(action, url, arrayToSend) {
         return sendViaHttps(action, url, arrayToSend);
@@ -962,7 +973,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         if (input.indexOf("/") !== 0) {
             output = "/" + output;
         }
-        if (output.charAt(output.indexOf(output.length - 1)) === "/") {
+        if (output.charAt(output.length - 1) === "/") {
             output = output.substring(0, output.length - 1);
         }
         return output;
@@ -1001,6 +1012,36 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         }
         return deferred.promise();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        InstallerCommon.__testOnly__ = {};
+        InstallerCommon.__testOnly__.getVal = getVal;
+        InstallerCommon.__testOnly__.removeDuplicateSlash = removeDuplicateSlash;
+        InstallerCommon.__testOnly__.sendViaHttps = sendViaHttps;
+        InstallerCommon.__testOnly__.findStepId = findStepId;
+        InstallerCommon.__testOnly__.showStep = showStep;
+        InstallerCommon.__testOnly__.showFailure = showFailure;
+
+        InstallerCommon.__testOnly__.setSendViaHttps = function(f) {
+            sendViaHttps = f;
+        };
+        InstallerCommon.__testOnly__.setCancel = function(bool) {
+            cancel = bool;
+        };
+        InstallerCommon.__testOnly__.setDone = function(bool) {
+            done = bool;
+        };
+        InstallerCommon.__testOnly__.radioAction = radioAction;
+
+        InstallerCommon.__testOnly__.finalStruct = finalStruct;
+        InstallerCommon.__testOnly__.discoverResult = discoverResult;
+
+        InstallerCommon.__testOnly__.setDiscoverResult = function(discoverResultObj) {
+            discoverResult = discoverResultObj;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return (InstallerCommon);
 }({}, jQuery));

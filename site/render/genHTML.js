@@ -43,7 +43,8 @@ function genHTMLHelper(file, srcDir, destMap) {
             dicts.isTutor = false;
             dicts.tutor.name = "";
 
-            if (file === "unitTest.html") {
+            if (file === "unitTest.html" ||
+                file === "unitTestInstaller.html") {
                 dicts.isUnitTest = true;
             } else {
                 dicts.isUnitTest = null;
