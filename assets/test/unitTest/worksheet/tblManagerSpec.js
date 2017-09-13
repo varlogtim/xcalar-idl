@@ -1,5 +1,6 @@
 describe("TableManager Test", function() {
     before(function() {
+        console.clear();
         UnitTest.onMinMode();
     });
 
@@ -12,7 +13,7 @@ describe("TableManager Test", function() {
 
             TblManager.refreshTable("test", null, null, null, "testTxId")
             .then(function() {
-                throw "error";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(StatusTStr[StatusT.StatusCanceled]);
@@ -34,7 +35,7 @@ describe("TableManager Test", function() {
 
             TblManager.refreshTable([tableName])
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.exist;
@@ -44,6 +45,17 @@ describe("TableManager Test", function() {
             .always(function() {
                 XcalarMakeResultSetFromTable = oldFunc;
             });
+        });
+
+        it("TblManager.setOrphanedList should work", function() {
+            var cache = gOrphanTables;
+            TblManager.setOrphanedList({"a": true});
+            expect(gOrphanTables).to.be.an("array");
+            expect(gOrphanTables.length).to.equal(1);
+            expect(gOrphanTables[0]).to.equal("a");
+
+            // clear up
+            gOrphanTables = cache;
         });
 
         it("TblManager.setOrphanTableMeta should work", function() {
@@ -138,6 +150,253 @@ describe("TableManager Test", function() {
 
             delete gTables[tableId];
         });
+
+        it("should make and remove noDelete", function() {
+            // case 1
+            var table = TblManager.makeTableNoDelete("test");
+            expect(table).to.be.null;
+
+            var tableId = xcHelper.randName("id");
+            var tableName = "test#" + tableId;
+            table = TblManager.makeTableNoDelete(tableName);
+            expect(table.noDelete).to.be.true;
+            table = TblManager.removeTableNoDelete(tableId);
+            expect(table.noDelete).to.be.false;
+            // clear up
+            delete gTables[tableId];
+        });
+
+        it("TblManager.adjustRowHeights should work", function() {
+            var $trs = $('<tr class="row0"><td class="col0"></td></tr>');
+            var tableId = xcHelper.randName("testTable");
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+
+            table.rowHeights = [{1: 100}];
+            gTables[tableId] = table;
+
+            TblManager.adjustRowHeights($trs, 0, tableId);
+            expect($trs.hasClass("changedHeight")).to.be.true;
+
+            // clear up
+            delete gTables[tableId];
+        });
+
+        it("setTablesToReplace should work", function() {
+            var oldFunc = WSManager.getWSById;
+            var setTablesToReplace = TblManager.__testOnly__.setTablesToReplace;
+            var oldTableNames = ["test#wrongId1"];
+            var tablesToReplace = [];
+            var tablesToRemove = [];
+            setTablesToReplace(oldTableNames, null, tablesToReplace, tablesToRemove);
+            expect(tablesToReplace.length).to.equal(1);
+            expect(tablesToReplace[0]).to.equal("test#wrongId1");
+            expect(tablesToRemove.length).to.equal(1);
+            expect(tablesToRemove[0]).to.equal("wrongId1");
+
+            // case 2
+            WSManager.getWSById = function() {
+                return {tables: ["wrongId3"]};
+            };
+            oldTableNames = ["test#wrongId1", "test#wrongId2"];
+            tablesToReplace = [];
+            setTablesToReplace(oldTableNames, null, tablesToReplace, []);
+            expect(tablesToReplace.length).to.equal(0);
+
+            // case 3
+            WSManager.getWSById = function() {
+                return {tables: ["wrongId2"]};
+            };
+            setTablesToReplace(oldTableNames, null, tablesToReplace, []);
+            expect(tablesToReplace.length).to.equal(1);
+            expect(tablesToReplace[0]).to.equal("test#wrongId2");
+
+            WSManager.getWSById = oldFunc;
+        });
+
+        it("TblManager.highlightColumn should highlight modal", function() {
+            var id = xcHelper.randName("testId");
+            var $wrap = $('<table id="xcTable-' + id + '" class="dataTable">' +
+                            '<th class="col1"></th>' +
+                            '<tr class="col1"></tr>' +
+                          '</table>');
+            $("body").append($wrap);
+            var $el = $wrap.find("tr.col1");
+            TblManager.highlightColumn($el, true, true);
+            expect($wrap.find("th").hasClass("modalHighlighted"));
+
+            $wrap.remove();
+        });
+
+        it("TblManager.updateHeaderAndListInfo should work", function() {
+            var oldFunc = WSManager.getWSName;
+            WSManager.getWSName = function() {};
+            var tableId = xcHelper.randName("testTable");
+            var $wrap = $('<div id="xcTheadWrap-' + tableId + '">' +
+                            '<div class="tableTitle">' +
+                                '<div class="text"></div>' +
+                            '</div>' +
+                          '</div>');
+            $("body").append($wrap);
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+            gTables[tableId] = table;
+            TblManager.updateHeaderAndListInfo(tableId);
+            expect($wrap.find(".text").data("cols")).to.equal(-1);
+
+            // clear up
+            $wrap.remove();
+            delete gTables[tableId];
+            WSManager.getWSName = oldFunc;
+        });
+
+        it("should add and remove waiting cursor should work", function() {
+            var id = xcHelper.randName("testId");
+            var $wrap = $('<div id="xcTableWrap-' + id + '"></div>');
+            $("body").append($wrap);
+            TblManager.addWaitingCursor(id);
+            expect($wrap.find(".tableCoverWaiting").length).to.equal(1);
+
+            TblManager.removeWaitingCursor(id);
+            expect($wrap.find(".tableCoverWaiting").length).to.equal(0);
+            // clear up
+            $wrap.remove();
+        });
+
+        it("TblManager.freeAllResultSets should work", function(done) {
+            var oldFunc = XcalarSetFree;
+            var test = false;
+            XcalarSetFree = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            var oldTables = gTables;
+            var id = xcHelper.randName("testTable");
+            var table = new TableMeta({
+                tableName: id,
+                tableId: id
+            });
+            table.resultSetId = 1;
+
+            gTables = {};
+            gTables[id] = table;
+
+            TblManager.freeAllResultSets();
+            UnitTest.testFinish(function() {
+                return test;
+            })
+            .then(function() {
+                expect(table.resultSetId).to.equal(-1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                gTables = oldTables;
+                XcalarSetFree = oldFunc;
+            });
+        });
+
+        it("TblManager.freeAllResultSetsSync should work", function(done) {
+            var oldTables = gTables;
+            gTables = {};
+            var id1 = xcHelper.randName("testTable");
+            var id2 = xcHelper.randName("testTable2");
+
+            [id1, id2].forEach(function(id) {
+                var table = new TableMeta({
+                    tableName: id,
+                    tableId: id
+                });
+                table.resultSetId = 1;
+                gTables[id] = table;
+            });
+
+            var oldGet = xcHelper.getBackTableSet;
+            var oldFree = XcalarSetFree;
+
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            xcHelper.getBackTableSet = function() {
+                var set = {};
+                set[id1] = true;
+                return PromiseHelper.resolve(set);
+            };
+
+            TblManager.freeAllResultSetsSync()
+            .then(function() {
+                expect(gTables[id1].resultSetId).to.equal(-1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                gTables = oldTables;
+                XcalarSetFree = oldFree;
+                xcHelper.getBackTableSet = oldGet;
+            });
+        });
+
+        it("animateTableId should work", function(done) {
+            var id = "ab10";
+            var oldId = "ab21";
+            var $wrap = $('<div id="xcTheadWrap-' + id + '">' +
+                            '<div class="hashName">test</div>' +
+                         '</div>');
+            $("body").append($wrap);
+
+            TblManager.__testOnly__.animateTableId(id, oldId)
+            .then(function() {
+                expect($wrap.find(".hashName").text()).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                $wrap.remove();
+            });
+        });
+
+        it("tagOldTables should work", function() {
+            var tagOldTables = TblManager.__testOnly__.tagOldTables;
+            var id = xcHelper.randName("test");
+            var $wrap = $('<div id="xcTableWrap-' + id + '"></div>');
+            $("body").append($wrap);
+
+            tagOldTables(null);
+            expect($wrap.hasClass("tableToRemove")).to.be.false;
+
+            // case 2
+            tagOldTables([id]);
+            expect($wrap.hasClass("tableToRemove")).to.be.true;
+            // clear up
+            $wrap.remove();
+        });
+
+        it("removeOldTables should work", function() {
+            var removeOldTables = TblManager.__testOnly__.removeOldTables;
+            var id = xcHelper.randName("test");
+            var $wrap = $('<div id="xcTableWrap-' + id + '"></div>');
+            $("body").append($wrap);
+
+            removeOldTables(null);
+            expect($("#xcTableWrap-" + id).length).to.equal(1);
+
+            // case 2
+            removeOldTables([id]);
+            expect($("#xcTableWrap-" + id).length).to.equal(0);
+            // clear up
+            $wrap.remove();
+        });
     });
 
     describe("TblManager.deleteTables Test", function() {
@@ -189,7 +448,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -203,7 +462,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -219,7 +478,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -233,7 +492,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -244,7 +503,7 @@ describe("TableManager Test", function() {
 
             TblManager.deleteTables(tableId, TableType.Active)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.exist;
@@ -266,7 +525,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -279,7 +538,7 @@ describe("TableManager Test", function() {
 
             TblManager.deleteTables([tableId2], TableType.Active)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function() {
                 expect(deleteCalled).to.be.false;
@@ -305,7 +564,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -348,8 +607,8 @@ describe("TableManager Test", function() {
                 tableId = xcHelper.getTableId(tableName);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -374,7 +633,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -391,7 +650,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -408,7 +667,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -429,7 +688,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -511,7 +770,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 

@@ -1667,5 +1667,13 @@ window.WSManager = (function($, WSManager) {
         return html;
     }
 
+     /* Unit Test Only */
+    if (window.unitTestMode) {
+        WSManager.__testOnly__ = {};
+        WSManager.__testOnly__.deleteTableFailHandler = deleteTableFailHandler;
+    }
+    /* End Of Unit Test Only */
+
+
     return (WSManager);
 }(jQuery, {}));

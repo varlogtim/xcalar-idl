@@ -106,6 +106,64 @@ describe("Worksheet Test", function() {
             var wsName = WSManager.getWSName(worksheetId);
             expect(wsName).to.equal(worksheet.getName());
         });
+
+        it("should handle delete fail case", function() {
+            var deleteTableFailHandler = WSManager.__testOnly__.deleteTableFailHandler;
+            var oldFunc = TblManager.sendTableToOrphaned;
+            var testId = null;
+            var testOptions = null;
+            TblManager.sendTableToOrphaned = function(tableId, options) {
+                testId = tableId;
+                testOptions = options;
+            };
+
+            // case 1
+            deleteTableFailHandler([]);
+            expect(testId).to.be.null;
+            expect(testOptions).to.be.null;
+            // case 2
+            var errors = [{
+                fails: [{
+                    tables: "testTable#testId1"
+                }]
+            }];
+            deleteTableFailHandler(errors);
+            expect(testId).to.equal("testId1");
+            expect(testOptions).to.be.an("object");
+            UnitTest.hasAlertWithTitle(TblTStr.DelFail);
+            // clear up
+            TblManager.sendTableToOrphaned = oldFunc;
+        });
+
+        it("WSManager.dropUndoneTables should work", function(done) {
+            var oldDelete = TblManager.deleteTables;
+            var oldTables = gTables;
+            var test = false;
+            TblManager.deleteTables = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            var table = new TableMeta({
+                tableName: "testTable",
+                tableId: "testTable"
+            });
+            table.beUndone();
+            gTables = {"testTable": table};
+
+            WSManager.dropUndoneTables()
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                gTables = oldTables;
+                TblManager.deleteTables = oldDelete;
+            });
+        });
     });
 
     describe("Worksheet Basic Behavior Test", function() {
@@ -351,18 +409,36 @@ describe("Worksheet Test", function() {
     describe("Worksheet Table Behavior Test", function() {
         var worksheetId;
         var tableId;
+        var newTableId;
         var worksheet;
 
         before(function() {
             worksheetId = WSManager.addWS();
             worksheet = WSManager.getWSById(worksheetId);
             tableId = xcHelper.randName("testTable");
+            newTableId = xcHelper.randName("testTable2");
         });
-
 
         it("Should focus on worksheet", function() {
             WSManager.focusOnWorksheet();
             expect(WSManager.getActiveWS()).to.equal(worksheetId);
+        });
+
+        it("WSManager.focusOnWorksheet should handle locked table", function() {
+            var $fakeLock = $('<div class="tableLocked">' +
+                                '<div class="tableCover"></div>' +
+                                '<div class="xcTbodyWrap">' +
+                                    '<tbody class="tbody"></tbody>' +
+                                    '<div class="lockedTableIcon"></div>' +
+                                '</div>' +
+                              '</div>');
+            $("body").append($fakeLock);
+            $fakeLock.find("tbody").height(0);
+            WSManager.focusOnWorksheet();
+            expect($fakeLock.find(".tableCover").height()).to.equal(1);
+
+            // clear up
+            $fakeLock.remove();
         });
 
         it("Should add table to worksheet", function() {
@@ -376,6 +452,11 @@ describe("Worksheet Test", function() {
             var resId = WSManager.addTable(tableId, worksheetId);
             expect(resId).to.equal(worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(1);
+        });
+
+        it("should know table in active worksheet or not", function() {
+            var res = WSManager.isTableInActiveWS();
+            expect(res).to.be.false;
         });
 
         it("Should replace table from orphan to workseet table", function() {
@@ -503,6 +584,18 @@ describe("Worksheet Test", function() {
             worksheet.tables.splice(0, 1);
         });
 
+        it("should replace table", function() {
+            WSManager.replaceTable(newTableId, tableId);
+            expect(worksheet.tables.length).to.equal(1);
+            expect(worksheet.tables[0]).to.equal(newTableId);
+            expect(worksheet.orphanedTables.length).to.equal(1);
+            expect(worksheet.orphanedTables[0]).to.equal(tableId);
+
+            // clear up
+            worksheet.orphanedTables = [];
+            worksheet.tables = [tableId];
+        });
+
         // remove worksheet test
         it("Should remove table from worksheet", function() {
             expect(worksheet.tables.length).to.equal(1);
@@ -599,8 +692,8 @@ describe("Worksheet Test", function() {
                 tableId2 = xcHelper.getTableId(table2);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -622,8 +715,8 @@ describe("Worksheet Test", function() {
                     expect(worksheet1.tempHiddenTables.length).to.equal(0);
                     done();
                 })
-                .fail(function(error) {
-                    throw error;
+                .fail(function() {
+                    done("fail");
                 });
             }, 1000);
         });
@@ -636,6 +729,37 @@ describe("Worksheet Test", function() {
             expect(WSManager.getActiveWS()).to.equal(worksheetId2);
         });
 
+        it("WSManager.moveInactiveTable should handle fail case", function(done) {
+            var oldFunc = TableList.refreshOrphanList;
+            TableList.refreshOrphanList = function() {
+                return PromiseHelper.reject("test error");
+            };
+
+            WSManager.moveInactiveTable(tableId1, worksheetId1, TableType.Orphan)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test error");
+                UnitTest.hasAlertWithTitle(WSTStr.AddOrphanFail);
+                done();
+            })
+            .always(function() {
+                TableList.refreshOrphanList = oldFunc;
+            });
+        });
+
+        it("WSManager.moveInactiveTable should handle invalid type", function(done) {
+            WSManager.moveInactiveTable(tableId1, worksheetId1, "invalid type")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("Cannot support this table type");
+                done();
+            });
+        });
+
         it("Should move inactive table to another worksheet", function(done) {
             TblManager.archiveTables(tableId1);
 
@@ -645,8 +769,8 @@ describe("Worksheet Test", function() {
                 expect(worksheet2.tables.length).to.equal(1);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -667,8 +791,8 @@ describe("Worksheet Test", function() {
                 xcTooltip.hideAll();
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -684,8 +808,8 @@ describe("Worksheet Test", function() {
                 WSManager.delWS(worksheetId1, DelWSType.Empty);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
     });

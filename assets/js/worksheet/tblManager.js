@@ -159,10 +159,7 @@ window.TblManager = (function($, TblManager) {
 
     function setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
                                 tablesToRemove) {
-        var oldTableIds = oldTableNames.map(function(oldName) {
-            return xcHelper.getTableId(oldName);
-        });
-
+        var oldTableIds = oldTableNames.map(xcHelper.getTableId);
         if (oldTableNames.length === 1) {
             // only have one table to remove
             tablesToReplace.push(oldTableNames[0]);
@@ -188,8 +185,6 @@ window.TblManager = (function($, TblManager) {
                 // tablesToReplace will remain an empty array
             }
         }
-
-
 
         oldTableIds.forEach(function(oldTableId) {
             if (!tablesToRemove.includes(oldTableId)) {
@@ -635,7 +630,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
 
         if (!table) {
-            if (tableId != null || !gTables.hasOwnProperty(tableId)) {
+            if (tableId != null && !gTables.hasOwnProperty(tableId)) {
                 table = new TableMeta({
                     "tableId": tableId,
                     "tableName": tableName,
@@ -645,15 +640,17 @@ window.TblManager = (function($, TblManager) {
                 gTables[tableId] = table;
             } else {
                 // XXX no id, handle this by renaming?
-                return;
+                return null;
             }
         }
         table.addNoDelete();
+        return table;
     };
 
     TblManager.removeTableNoDelete = function(tableId) {
         var table = gTables[tableId];
         table.removeNoDelete();
+        return table;
     };
 
     function verifyTableType(tableIdOrName, expectTableType) {
@@ -1643,6 +1640,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function animateTableId(tableId, oldId) {
+        var deferred = jQuery.Deferred();
         var $hashName = $("#xcTheadWrap-" + tableId).find(".hashName");
         var oldText = $hashName.text();
         var hashPart = "#" + tableId.substring(0, 2); // first 2 chars
@@ -1654,7 +1652,11 @@ window.TblManager = (function($, TblManager) {
         animateCharCnt($hashName)
         .then(function() {
             $hashName.text(oldText);
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
 
         function splitCntChars(sChars, eChars) {
             var eLen = eChars.length;
@@ -2201,22 +2203,21 @@ window.TblManager = (function($, TblManager) {
             }
         });
 
-        // bookmark
-        $trs.find('.idSpan').click(function() {
-            return; // disabled
-            var tableId = xcHelper.parseTableId($(this).closest('table'));
-            var table = gTables[tableId];
-            if (table.resultSetCount === 0) {
-                // no rows to bookmark
-                return;
-            }
-            var rowNum = xcHelper.parseRowNum($(this).closest('tr'));
-            if (table.bookmarks.indexOf(rowNum) < 0) {
-                TblManager.bookmarkRow(rowNum, tableId);
-            } else {
-                TblManager.unbookmarkRow(rowNum, tableId);
-            }
-        });
+        // bookmark (disabled)
+        // $trs.find('.idSpan').click(function() {
+        //     var tableId = xcHelper.parseTableId($(this).closest('table'));
+        //     var table = gTables[tableId];
+        //     if (table.resultSetCount === 0) {
+        //         // no rows to bookmark
+        //         return;
+        //     }
+        //     var rowNum = xcHelper.parseRowNum($(this).closest('tr'));
+        //     if (table.bookmarks.indexOf(rowNum) < 0) {
+        //         TblManager.bookmarkRow(rowNum, tableId);
+        //     } else {
+        //         TblManager.unbookmarkRow(rowNum, tableId);
+        //     }
+        // });
 
         function showJSONModal() {
             if ($('#mainFrame').hasClass('modalOpen') &&
@@ -3149,6 +3150,10 @@ window.TblManager = (function($, TblManager) {
     if (window.unitTestMode) {
         TblManager.__testOnly__ = {};
         TblManager.__testOnly__.vefiryTableType = verifyTableType;
+        TblManager.__testOnly__.setTablesToReplace = setTablesToReplace;
+        TblManager.__testOnly__.animateTableId = animateTableId;
+        TblManager.__testOnly__.tagOldTables = tagOldTables;
+        TblManager.__testOnly__.removeOldTables = removeOldTables;
     }
     /* End Of Unit Test Only */
 

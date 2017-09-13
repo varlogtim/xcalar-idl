@@ -1,9 +1,7 @@
 describe('ColManager Test', function() {
-    var minModeCache;
-
     before(function() {
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
+        console.clear();
+        UnitTest.onMinMode();
     });
 
     describe('Basic API Test', function() {
@@ -398,7 +396,38 @@ describe('ColManager Test', function() {
                 knf: false,
                 isChildOfArray: true
             });
+        });
 
+        it("attachRows should work", function() {
+            var tableTemplate = '<table><tbody>' +
+                                    '<tr class="tempRow"></tr>' +
+                                '</tbody></table>';
+            var attachRows = ColManager.__testOnly__.attachRows;
+            var $table = $('<table><tbody></tbody></table>');
+            var $row = $('<div class="row2"></div>');
+            attachRows($table, $row, 3, RowDirection.Top);
+            expect($table.find(".row2").length).to.equal(1);
+
+            // case 2
+            $row.before('<tr class="tempRow"></tr><tr class="row1"></tr>');
+            $row = $('<div class="row0"></div>');
+            attachRows($table, $row, 3, RowDirection.Top, 1);
+            expect($table.find(".row0").length).to.equal(1);
+            expect($table.find(".tempRow").length).to.equal(0);
+
+            // case 3
+            $table = $(tableTemplate);
+            $row = $('<div class="row0"></div>');
+            attachRows($table, $row, null, RowDirection.Top);
+            expect($table.find(".row0").length).to.equal(1);
+            expect($table.find(".tempRow").length).to.equal(0);
+
+            // case 4
+            $table = $(tableTemplate);
+            $row = $('<div class="row0"></div>');
+            attachRows($table, $row);
+            expect($table.find(".row0").length).to.equal(1);
+            expect($table.find(".tempRow").length).to.equal(0);
         });
     });
 
@@ -461,6 +490,83 @@ describe('ColManager Test', function() {
             });
         });
 
+        it("should exec column (raw)", function(done) {
+            ColManager.execCol("raw", null, tableId)
+            .then(function(res) {
+                expect(res).to.equal(undefined);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should exec column (map)", function(done) {
+            var usrStr = "a = map(add(1, 1))";
+            var oldFunc = xcFunction.map;
+            xcFunction.map = function() {
+                return PromiseHelper.reject("test error");
+            };
+            ColManager.execCol("map", usrStr, tableId, 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test error");
+                done();
+            })
+            .always(function() {
+                xcFunction.map = oldFunc;
+            });
+        });
+
+        it("should exec column (filter)", function(done) {
+            var usrStr = "a = filter(eq(b, 1))";
+            var oldFunc = xcFunction.filter;
+            xcFunction.filter = function() {
+                return PromiseHelper.reject("test error");
+            };
+            ColManager.execCol("filter", usrStr, tableId, 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test error");
+                done();
+            })
+            .always(function() {
+                xcFunction.filter = oldFunc;
+            });
+        });
+
+        it("should exec column (search)", function() {
+            var $section = $("#functionArea");
+            var searchHelper = new SearchBar($());
+            ColManager.execCol("search", null, null, null, {
+                value: "abc",
+                searchBar: searchHelper
+            });
+            expect($section.find(".arrows").css("display")).to.equal("block");
+
+            // clear case
+            ColManager.execCol("search", null, null, null, {
+                value: "",
+                searchBar: searchHelper
+            });
+            expect($section.find(".arrows").css("display")).to.equal("none");
+        });
+
+        it("should exec column handle invalid case", function(done) {
+            ColManager.execCol("test")
+            .then(function(res) {
+                expect(res).to.equal(undefined);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         it("Should Delete Column", function() {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
@@ -474,7 +580,7 @@ describe('ColManager Test', function() {
             expect(table.hasCol("average_stars")).to.be.false;
         });
 
-        it("Should Pull Column", function(done) {
+        it("should Pull Column", function(done) {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
             var colName = xcHelper.getPrefixColName(prefix, "average_stars");
@@ -741,6 +847,39 @@ describe('ColManager Test', function() {
             expect(getColLen(tableId) - numCols).to.equal(3);
         });
 
+        it("should handle split fail case", function(done) {
+            var oldFunc = XIApi.map;
+            XIApi.map = function() {
+                return PromiseHelper.reject("test error");
+            };
+            var id = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: id,
+                tableId: id
+            });
+            var progCol = new ProgCol({
+                name: "test",
+                type: ColumnType.string
+            });
+            table.tableCols = [];
+            table.addCol(1, progCol);
+            gTables[id] = table;
+
+            ColManager.splitCol(1, id, ",", 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test error");
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.SplitColumnFailed);
+                done();
+            })
+            .always(function() {
+                delete gTables[id];
+                XIApi.map = oldFunc;
+            });
+        });
+
         it("Should split column", function(done) {
             var table = gTables[tableId];
             var backCol = xcHelper.getPrefixColName(prefix, "one");
@@ -778,6 +917,70 @@ describe('ColManager Test', function() {
             })
             .fail(function(error) {
                 done(error);
+            });
+        });
+
+        it("change type should handle invalid case", function(done) {
+            var id = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: id,
+                tableId: id
+            });
+            var progCol = new ProgCol({
+                name: "test",
+                type: ColumnType.object
+            });
+            table.tableCols = [];
+            table.addCol(1, progCol);
+            gTables[id] = table;
+
+            ColManager.changeType([{colNum: 1}], id)
+            .then(function(res) {
+                expect(res).to.equal(id);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                delete gTables[id];
+            });
+        });
+
+        it("change type should handle fail case", function(done) {
+            var oldFunc = XIApi.map;
+            XIApi.map = function() {
+                return PromiseHelper.reject("test error");
+            };
+            var id = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: id,
+                tableId: id
+            });
+            var progCol = new ProgCol({
+                name: "test",
+                type: ColumnType.string
+            });
+            table.tableCols = [];
+            table.addCol(1, progCol);
+            gTables[id] = table;
+
+            var colTypeInfos = [{
+                colNum: 1,
+                type: ColumnType.integer
+            }];
+            ColManager.changeType(colTypeInfos, id)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test error");
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.ChangeTypeFailed);
+                done();
+            })
+            .always(function() {
+                delete gTables[id];
+                XIApi.map = oldFunc;
             });
         });
 
@@ -951,7 +1154,7 @@ describe('ColManager Test', function() {
     });
 
     after(function() {
-        gMinModeOn = minModeCache;
+        UnitTest.offMinMode();
     });
 
     function getColLen(tableId) {

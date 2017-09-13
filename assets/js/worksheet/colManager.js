@@ -794,10 +794,6 @@ window.ColManager = (function($, ColManager) {
                 searchColNames(args.value, args.searchBar, args.initialTableId);
                 deferred.resolve();
                 break;
-            case (undefined):
-                console.warn("Blank col?");
-                deferred.resolve();
-                break;
             default:
                 console.warn("No such function yet!");
                 deferred.resolve();
@@ -1223,7 +1219,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        return ($row);
+        return $row;
     }
 
     // colNames is optional, if not provided then will try to pull all cols
@@ -2135,6 +2131,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.__testOnly__.parseColFuncArgs = parseColFuncArgs;
         ColManager.__testOnly__.formatColumnCell = formatColumnCell;
         ColManager.__testOnly__.getTdInfo = getTdInfo;
+        ColManager.__testOnly__.attachRows = attachRows;
     }
     /* End Of Unit Test Only */
 
