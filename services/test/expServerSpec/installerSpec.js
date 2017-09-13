@@ -39,13 +39,14 @@ describe('ExpServer Installer Test', function() {
     var preConfig;
     var testPwd;
     var testCredArray;
-    var testScript1, testScript2;
+    var testScript1, testScript2, testScript3;
     var testData;
     this.timeout(10000);
     // Test begins
     before(function() {
         hostnameLocation = path.join(__dirname, "../config/hosts.txt");
         licenseLocation = path.join(__dirname, "../config/license.txt");
+        failLicenseLocation = path.join(__dirname, "../config/failLicense.txt");
         hostnameLocation = path.join(__dirname, "../config/hosts.txt");
         privHostnameLocation = path.join(__dirname, "../config/privHosts.txt");
         ldapLocation = path.join(__dirname, "../config/ldapConfig.json");
@@ -104,6 +105,7 @@ describe('ExpServer Installer Test', function() {
         };
         testScript1 = "cat " + licenseLocation;
         testScript2 = "echo SUCCESS";
+        testScript3 = "cat " + failLicenseLocation;
         testData = {};
 
         var opts = {
@@ -165,8 +167,18 @@ describe('ExpServer Installer Test', function() {
                                                true,username, port,
                                                installationDirectory)).to.be.a("String");
     });
-    it("checkLicense should fail when error, e.g. invalid license", function(done) {
+    it("checkLicense should fail when error, e.g. data has no SUCCESS or FAILURE", function(done) {
         installer.checkLicense(testCredArray, testScript1)
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error.status).to.equal(500);
+            done();
+        });
+    });
+    it("checkLicense should fail when error, e.g. data has FAILURE", function(done) {
+        installer.checkLicense(testCredArray, testScript3)
         .then(function() {
             done("fail");
         })

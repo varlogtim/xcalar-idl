@@ -226,9 +226,8 @@ function checkLicense(credArray, script) {
     var deferredOut = jQuery.Deferred();
     var fileLocation = licenseLocation;
     fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
-        var retMsg;
+        var retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
-            retMsg = {"status": httpStatus.InternalServerError};
             deferredOut.reject(retMsg);
             return;
         }
@@ -239,14 +238,23 @@ function checkLicense(credArray, script) {
             out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
         }
         out.stdout.on('data', function(data) {
-            console.log(data);
             if (data.indexOf("SUCCESS") > -1) {
                 retMsg = {"status": httpStatus.OK, "verified": true};
                 xcConsole.log("Success: Check License");
-                deferredOut.resolve(retMsg);
+                // deferredOut.resolve(retMsg);
             } else if (data.indexOf("FAILURE") > -1) {
                 retMsg = {"status": httpStatus.OK, "verified": false};
                 xcConsole.log("Failure: Check License");
+                // deferredOut.reject(retMsg);
+            }
+        });
+        out.stdout.on('close', function(data) {
+            if (retMsg && retMsg.hasOwnProperty("verified") && retMsg.verified) {
+                // Only resolve when verified is true
+                deferredOut.resolve(retMsg);
+            } else {
+                // This can be: 1. verified is false.
+                // 2. For test case when data does not contain SUCCESS or FAILURE
                 deferredOut.reject(retMsg);
             }
         });
