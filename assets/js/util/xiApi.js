@@ -862,6 +862,23 @@ window.XIApi = (function(XIApi) {
         return XcalarQueryWithCheck(queryName, queryStr, txId);
     };
 
+    /*
+     *   attribute in options:
+     *      splitType
+     *      headerType,
+     *      format,
+     *      createRule,
+     *      handleName
+     */
+    XIApi.export = function(txId, tableName, exportName, targetName, numCols,
+                            backColumns, frontColumns, keepOrder, options) {
+        if (txId == null || tableName == null || exportName == null) {
+            return PromiseHelper.reject("Invalid args in export");
+        }
+        return XcalarExport(tableName, exportName, targetName, numCols,
+                        backColumns, frontColumns, keepOrder, options, txId);
+    };
+
     XIApi.genRowNum = function(txId, tableName, newColName, newTableName) {
         if (txId == null || tableName == null || newColName == null) {
             return PromiseHelper.reject("Invalid args in get row num");

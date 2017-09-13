@@ -294,6 +294,13 @@ window.XcSDK.Extension.prototype = (function() {
             return (res1.length === res2.length);
         },
 
+        export: function(tableName, exportName, targetName, numCols,
+                        backColumns, frontColumns, keepOrder, options) {
+            var txId = this.txId;
+            return XIApi.export(txId, tableName, exportName, targetName, numCols,
+                                backColumns, frontColumns, keepOrder, options);
+        },
+
         genRowNum: function(tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;

@@ -2,7 +2,7 @@ describe("Dataset-Datastore Module Test", function() {
     var $mainTabCache;
 
     before(function() {
-        // go to the datastes tab,
+        // go to the datasets tab,
         // or some UI effect like :visible cannot test
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();

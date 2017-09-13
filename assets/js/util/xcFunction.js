@@ -837,8 +837,8 @@ window.xcFunction = (function($, xcFunction) {
             // "exportName": options.handleName
         });
 
-        XcalarExport(tableName, exportName, targetName, numCols, backColumns,
-                     frontColumns, keepOrder, options, txId)
+        XIApi.export(txId, tableName, exportName, targetName, numCols,
+                    backColumns, frontColumns, keepOrder, options)
         .then(function(retStruct) {
             // XXX retStruct is unused. retStruct.timeTaken contains how long
             // the operation took to run
