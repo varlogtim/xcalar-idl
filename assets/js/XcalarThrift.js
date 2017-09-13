@@ -63,7 +63,7 @@ function thriftLog() {
             status = (errRes.status != null)
                      ? errRes.status
                      : errRes.xcalarStatus;
-            log = errRes.log;
+            log = parseLog(errRes.log);
             httpStatus = errRes.httpStatus;
             output = errRes.output;
         } else {
@@ -135,6 +135,18 @@ function thriftLog() {
     // case other than connection reset and no mem,
     // return first error
     return errorLists[0];
+
+    function parseLog(log) {
+        if (!log) {
+            return log;
+        }
+        var res = log;
+        var splits = log.split(/Line \d+:/);
+        if (splits.length === 2) {
+            res = splits[1].trim();
+        }
+        return res;
+    }
 }
 
 function sleep(val) {
