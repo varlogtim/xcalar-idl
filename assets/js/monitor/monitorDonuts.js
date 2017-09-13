@@ -40,12 +40,6 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             $(this).closest(".donutSection").toggleClass("pctMode");
         });
 
-        $monitorPanel.find(".cpuDonut .donut").click(function() {
-            var $donutSection = $(this).closest(".donutSection");
-            $donutSection.toggleClass("usrMode");
-            $monitorPanel.find(".graphSection").toggleClass("usrMode");
-        });
-
         $monitorPanel.find(".ramDonut").on("mouseenter", ".legend li", function() {
             var $li = $(this);
             var index = $li.index();

@@ -73,6 +73,12 @@ describe("Monitor Graph Test", function() {
                 expect($monitorPanel.find(".memYAxisWrap text").text()).to.equal("4080120160200");
                 expect($monitorPanel.find(".memYAxisWrap .unit").text()).to.equal("0 (GiB)");
 
+                // order changes when clicked
+                $monitorPanel.find(".area").eq(0).click();
+                expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.4");
+                $monitorPanel.find(".area").last().click();
+                expect($monitorPanel.find(".area").last().css("opacity")).to.equal("0.8");
+
                 XcalarApiTop = cachedTopFn;
                 XcalarGetMemoryUsage = cachedGetMemUsage;
                 done();
@@ -80,6 +86,98 @@ describe("Monitor Graph Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("error screen should work", function() {
+            MonitorGraph.__testOnly__.toggleErrorScreen(true);
+            var $errorScreen = $("#monitor-graphCard").find(".statsErrorContainer");
+            expect($errorScreen.hasClass("xc-hidden")).to.be.false;
+            expect($errorScreen.text()).to.equal(MonitorTStr.StatsFailed);
+
+            MonitorGraph.__testOnly__.toggleErrorScreen(true, {error: "test"});
+            expect($errorScreen.text()).to.equal("test");
+
+            MonitorGraph.__testOnly__.toggleErrorScreen(false);
+            expect($errorScreen.hasClass("xc-hidden")).to.be.true;
+        });
+    });
+
+    describe("donut interaction", function() {
+        it("stats section should toggle", function(done) {
+            $monitorPanel.find(".statsHeadingBar").eq(0).click();
+            UnitTest.testFinish(function() {
+                return !$monitorPanel.find(".statsSection ul").eq(0).is(":visible");
+            })
+            .then(function() {
+                $monitorPanel.find(".statsHeadingBar").eq(0).click();
+                return  (UnitTest.testFinish(function() {
+                    return $monitorPanel.find(".statsSection ul").eq(0).is(":visible");
+                }));
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("clicking on donut should toggle percentage", function() {
+            expect($monitorPanel.find(".donut").eq(0)
+                    .find(".pctSize").is(":visible")).to.be.false;
+            $monitorPanel.find(".donut").click();
+            expect($monitorPanel.find(".donut").eq(0)
+                    .find(".pctSize").is(":visible")).to.be.true;
+            $monitorPanel.find(".donut").click();
+            expect($monitorPanel.find(".donut").eq(0)
+                    .find(".pctSize").is(":visible")).to.be.false;
+        });
+
+        it("clicking on node stats should toggle percentage", function() {
+            expect($monitorPanel.find(".statsSection").eq(0)
+                    .find(".pct").is(":visible")).to.be.false;
+            $monitorPanel.find(".statsSection .listWrap").click();
+            expect($monitorPanel.find(".statsSection").eq(0)
+                    .find(".pct").is(":visible")).to.be.true;
+            $monitorPanel.find(".statsSection .listWrap").click();
+            expect($monitorPanel.find(".statsSection").eq(0)
+                    .find(".pct").is(":visible")).to.be.false;
+        });
+
+        it("mouseenter on ram legend should work", function(){
+            var $donut = $monitorPanel.find(".ramDonut");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
+            $donut.find(".legend li").last().trigger("mouseenter");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.true;
+            expect($donut.find("svg").first().find("path").first()
+                                        .attr("class")).to.be.equal("hover");
+
+            $donut.find(".legend li").last().trigger("mouseleave");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
+            expect($donut.find("svg").first().find("path").first()
+                                        .attr("class")).to.be.equal("");
+        });
+
+        it("mouseenter on free memory portion of legend should work", function() {
+            var $donut = $monitorPanel.find(".ramDonut");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
+            $donut.find(".legend li").first().trigger("mouseenter");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.true;
+            expect($donut.find("svg").eq(1).find("path").eq(1)
+                                        .attr("class")).to.be.equal("hover");
+
+            $donut.find(".legend li").last().trigger("mouseleave");
+            expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
+            expect($donut.find("svg").eq(1).find("path").eq(1)
+                                        .attr("class")).to.be.equal("");
+        });
+
+        it("mouseenter on path should work", function() {
+            var $donut = $monitorPanel.find(".ramDonut");
+            $donut.find(".thick path").eq(0).trigger("mouseenter");
+            expect($donut.find(".legend li").last().hasClass("hover")).to.be.true;
+            $donut.find(".thick path").eq(0).trigger("mouseleave");
+            expect($donut.find(".legend li").last().hasClass("hover")).to.be.false;
         });
     });
 

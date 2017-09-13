@@ -611,6 +611,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     if (window.unitTestMode) {
         MonitorGraph.__testOnly__ = {};
         MonitorGraph.__testOnly__.updateGraph = getStatsAndUpdateGraph;
+        MonitorGraph.__testOnly__.toggleErrorScreen = toggleErrorScreen;
         MonitorGraph.__testOnly__.reset = function(dSets) {
             freshData = true;
             datasets = dSets;

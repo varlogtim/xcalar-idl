@@ -15,6 +15,17 @@ describe("Monitor Panel Test", function() {
 
     });
 
+    describe("monitor tabs", function() {
+        it("settings button should work", function() {
+            $("#settingsButton").click();
+            expect($("#monitor-settings").hasClass("active")).to.be.true;
+        });
+        it("extensionSettingButton should work", function() {
+            $("#extensionSettingButton").click();
+            expect($("#monitor-extension").hasClass("active")).to.be.true;
+        });
+    });
+
     describe("toggling graph switches", function() {
         it("switching should work", function() {
             var $area0 = $monitorPanel.find(".area0");
@@ -36,6 +47,51 @@ describe("Monitor Panel Test", function() {
             expect($area1.css("display")).to.not.equal("none");
             expect($monitorPanel.find(".area").index($area1)).to.be.gt(
                                 $monitorPanel.find(".area").index($area0));
+        });
+    });
+
+    describe("list interactions", function() {
+        it("toggling monitor system lists should work", function() {
+            var $listInfo = $("#monitorMenu-sys").find(".listInfo").eq(0);
+            var wasActive = $listInfo.closest(".listWrap").hasClass("active");
+            $listInfo.click();
+            expect($listInfo.closest(".listWrap").hasClass("active")).to.not.equal(wasActive);
+            $listInfo.click();
+            expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
+        });
+
+        it("toggling monitor setup lists should work", function() {
+            var $listInfo = $("#monitorMenu-setup").find(".listInfo").eq(0);
+            var wasActive = $listInfo.closest(".listWrap").hasClass("active");
+            $listInfo.click();
+            expect($listInfo.closest(".listWrap").hasClass("active")).to.not.equal(wasActive);
+            $listInfo.click();
+            expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
+        });
+
+        it("monitor-delete button should work", function() {
+            var shown = false;
+            var cache = DeleteTableModal.show;
+            DeleteTableModal.show = function() {
+                shown = true;
+            };
+
+            $("#monitor-delete").click();
+            expect(shown).to.be.true;
+
+            DeleteTableModal.show = cache;
+        });
+
+        it("gen sub helper button should work", function() {
+            var shown = false;
+            var cache = SupTicketModal.show;
+            SupTicketModal.show = function() {
+                shown = true;
+            };
+
+            $("#monitor-genSub").click();
+            expect(shown).to.be.true;
+            SupTicketModal.show = cache;
         });
     });
 
