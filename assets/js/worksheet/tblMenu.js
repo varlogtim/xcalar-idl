@@ -979,7 +979,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             copyToClipboard(valArray);
-            xcHelper.showSuccess(SuccessTStr.CopyToClipboard);
             TblManager.unHighlightCells();
         });
 

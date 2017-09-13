@@ -1042,7 +1042,6 @@ window.Log = (function($, Log) {
         $hiddenInput.val(value).select();
         document.execCommand("copy");
         $hiddenInput.remove();
-        xcHelper.showSuccess(SuccessTStr.Copy);
     }
 
     function toggleLogSize($section) {

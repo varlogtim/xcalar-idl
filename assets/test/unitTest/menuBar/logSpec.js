@@ -479,29 +479,22 @@ describe("Log Test", function() {
             $logMenu.hide();
         });
 
-        it("Should copy log", function(done) {
+        it("Should copy log", function() {
+            var test = false;
+            var cachedFunc = document.execCommand;
+            document.execCommand = function(type) {
+                expect(type).to.equal("copy");
+                test = true;
+            };
             var oldFunc = xcAssert;
             // it will fail the test
             xcAssert = function() { return true; };
 
             $logButtons.find(".copyLog").click();
-            var $successMessageWrap = $("#successMessageWrap");
-            assert.isTrue($successMessageWrap.is(":visible"));
+            expect(test).to.be.true;
 
-            var checkFunc = function() {
-                return !$successMessageWrap.is(":visible");
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                xcAssert = oldFunc;
-            });
+            xcAssert = oldFunc;
+            document.execCommand = cachedFunc;
         });
 
         it("should toggle log size", function() {
@@ -522,8 +515,9 @@ describe("Log Test", function() {
 
         it("should right click to copy log", function() {
             var test = false;
-            var oldSuccess = xcHelper.showSuccess;
-            xcHelper.showSuccess = function() {
+            var cachedFunc = document.execCommand;
+            document.execCommand = function(type) {
+                expect(type).to.equal("copy");
                 test = true;
             };
 
@@ -534,7 +528,7 @@ describe("Log Test", function() {
             $li.trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
 
-            xcHelper.showSuccess = oldSuccess;
+            document.execCommand = cachedFunc;
         });
 
         it("should right click to collapse all", function() {
