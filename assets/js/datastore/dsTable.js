@@ -86,8 +86,6 @@ window.DSTable = (function($, DSTable) {
         })
         .fail(function(error) {
             clearTimeout(timer);
-            dsObj.release();
-
             var noRetry = false;
             if (error === notLastDSError ||
                 lastDSToSample !== datasetName)

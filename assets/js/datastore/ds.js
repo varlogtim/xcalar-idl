@@ -373,17 +373,6 @@ window.DS = (function ($, DS) {
         refreshDS();
     };
 
-    DS.release = function() {
-        var promises = [];
-
-        $gridView.find(".grid-unit.ds").each(function() {
-            var dsId = $(this).data("dsid");
-            var def = DS.getDSObj(dsId).release();
-            promises.push(def);
-        });
-        return PromiseHelper.when.apply(window, promises);
-    };
-
     DS.resize = function() {
         var $menu = $("#datastoreMenu");
         if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
@@ -645,9 +634,6 @@ window.DS = (function ($, DS) {
         });
 
         checkDSUse(dsName)
-        .then(function() {
-            return dsObj.release();
-        })
         .then(function() {
             return destroyDataset(dsName, txId);
         })

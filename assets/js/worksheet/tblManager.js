@@ -1408,9 +1408,6 @@ window.TblManager = (function($, TblManager) {
         for (var tableId in gTables) {
             gTables[tableId].freeResultset();
         }
-
-        // Free datasetBrowser resultSetId
-        DS.release();
     };
 
     TblManager.freeAllResultSetsSync = function() {
@@ -1433,9 +1430,6 @@ window.TblManager = (function($, TblManager) {
 
                 promises.push(table.freeResultset.bind(table));
             }
-
-            // Free datasetBrowser resultSetId
-            promises.push(DS.release.bind(this));
             return PromiseHelper.chain(promises);
         })
         .then(deferred.resolve)

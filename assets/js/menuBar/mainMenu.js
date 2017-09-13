@@ -356,8 +356,6 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.removeClass("firstTouch");
                     DS.setupView();
                     DSForm.initialize();
-                    // relese the old ref count if any
-                    DS.release();
                     DSUploader.refreshFiles();
                 }
                 DS.resize();
@@ -390,11 +388,6 @@ window.MainMenu = (function($, MainMenu) {
             default:
                 $(".underConstruction").addClass("active");
         }
-        if (curTab !== "dataStoresTab") {
-            // when switch to other tab, release result set
-            DS.release();
-        }
-
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
         } else if (lastTabId === "dataStoresTab") {

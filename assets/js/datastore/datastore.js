@@ -57,7 +57,6 @@ window.DataStore = (function($, DataStore) {
     //     DataStore.update(0);
 
     //     DSPreview.clear()
-    //     .then(DS.release)
     //     .then(deferred.resolve)
     //     .then(deferred.reject);
 

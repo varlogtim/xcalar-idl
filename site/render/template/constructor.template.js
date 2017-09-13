@@ -2000,17 +2000,32 @@
                 return this.locked || false;
             },
 
-            makeResultSet: function() {
+            _makeResultSet: function() {
                 var self = this;
                 var deferred = jQuery.Deferred();
 
-                self.release()
-                .then(function() {
-                    return XcalarMakeResultSetFromDataset(self.fullName);
-                })
+                XcalarMakeResultSetFromDataset(self.fullName)
                 .then(function(result) {
                     self.resultSetId = result.resultSetId;
                     self.numEntries = result.numEntries;
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+
+                return deferred.promise();
+            },
+
+            _release: function() {
+                var self = this;
+                var resultSetId = self.resultSetId;
+                if (resultSetId == null) {
+                    return PromiseHelper.resolve();
+                }
+
+                var deferred = jQuery.Deferred();
+                XcalarSetFree(resultSetId)
+                .then(function() {
+                    self.resultSetId = null;
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -2030,18 +2045,10 @@
 
                 return deferred.promise();
 
-                function makeResultSetHelper() {
-                    if (self.resultSetId != null) {
-                        return PromiseHelper.resolve();
-                    }
-
-                    return self.makeResultSet();
-                }
-
                 function fetchHelper() {
                     var innerDeferred = jQuery.Deferred();
 
-                    makeResultSetHelper()
+                    self._makeResultSet()
                     .then(function() {
                         if (self.numEntries <= 0) {
                             return PromiseHelper.resolve(null);
@@ -2052,21 +2059,17 @@
                                                 rowsToFetch,
                                                 self.numEntries, []);
                     })
-                    .then(innerDeferred.resolve)
+                    .then(function(res) {
+                        self._release()
+                        .always(function() {
+                            innerDeferred.resolve(res);
+                        });
+                    })
                     .fail(function(error) {
-                        if (error.status === StatusT.StatusInvalidResultSetId) {
-                            // when old result is invalid
-                            self.makeResultSet()
-                            .then(function() {
-                                return XcalarFetchData(self.resultSetId, rowToGo,
-                                                        rowsToFetch,
-                                                        self.numEntries, []);
-                            })
-                            .then(innerDeferred.resolve)
-                            .fail(innerDeferred.reject);
-                        } else {
+                        self._release()
+                        .always(function() {
                             innerDeferred.reject(error);
-                        }
+                        });
                     });
 
                     return innerDeferred.promise();
@@ -2153,24 +2156,6 @@
                 });
 
                 return newHeaders;
-            },
-
-            release: function() {
-                var self = this;
-                var resultSetId = self.resultSetId;
-                if (resultSetId == null) {
-                    return PromiseHelper.resolve();
-                }
-
-                var deferred = jQuery.Deferred();
-                XcalarSetFree(resultSetId)
-                .then(function() {
-                    self.resultSetId = null;
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-
-                return deferred.promise();
             },
 
             // rename of dsObj

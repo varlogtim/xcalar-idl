@@ -2383,37 +2383,6 @@ describe("Persistent Constructor Test", function() {
             expect(dsObj.previewSize).to.equal(123);
         });
 
-        it("Should makeResultSet", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "isFolder": false
-            });
-
-            var oldFunc = XcalarMakeResultSetFromDataset;
-            XcalarMakeResultSetFromDataset = function() {
-                return PromiseHelper.resolve({
-                    "resultSetId": 1,
-                    "numEntries": 123
-                });
-            };
-
-            dsObj.makeResultSet()
-            .then(function() {
-                expect(dsObj.resultSetId).to.equal(1);
-                expect(dsObj.numEntries).to.equal(123);
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            })
-            .always(function() {
-                XcalarMakeResultSetFromDataset = oldFunc;
-            });
-        });
-
         it("Should preserve order", function() {
             // XXX temp fix to preserve CSV header order
             var dsObj = new DSObj({
@@ -2481,27 +2450,69 @@ describe("Persistent Constructor Test", function() {
         });
 
         describe("Fetch data test", function() {
+            var oldMakeResult;
+            var oldRelease;
             var oldFetch;
             var dsObj;
 
             before(function() {
                 oldFetch = XcalarFetchData;
+                oldMakeResult = XcalarMakeResultSetFromDataset;
+                oldRelease = XcalarSetFree;
                 dsObj = new DSObj({
                     "id": "testId",
                     "name": "testName",
                     "fullName": "testFullName",
                     "parentId": DSObjTerm.homeParentId,
-                    "isFolder": false,
-                    "resultSetId": 1
+                    "isFolder": false
+                });
+
+                XcalarSetFree = function() {
+                    return PromiseHelper.resolve();
+                };
+            });
+
+            it("should makeResultSet", function(done) {
+                XcalarMakeResultSetFromDataset = function() {
+                    return PromiseHelper.resolve({
+                        "resultSetId": 1,
+                        "numEntries": 123
+                    });
+                };
+
+                dsObj._makeResultSet()
+                .then(function() {
+                    expect(dsObj.resultSetId).to.equal(1);
+                    expect(dsObj.numEntries).to.equal(123);
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
                 });
             });
 
-            it("Should return null in invalid case", function(done) {
-                dsObj.numEntries = -1;
+            it("should release dsObj", function(done) {
+                dsObj._release()
+                .then(function() {
+                    expect(dsObj.resultSetId).to.be.null;
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+
+            it("should return null in invalid case", function(done) {
+                XcalarMakeResultSetFromDataset = function() {
+                    return PromiseHelper.resolve({
+                        "resultSetId": 1,
+                        "numEntries": -1
+                    });
+                };
 
                 dsObj.fetch(1, 10)
                 .then(function() {
-                    throw "error case";
+                    done("fail");
                 })
                 .fail(function(error) {
                     expect(error).to.be.an("object");
@@ -2510,13 +2521,18 @@ describe("Persistent Constructor Test", function() {
                 });
             });
 
-            it("Should fetch data", function(done) {
+            it("should fetch data", function(done) {
+                XcalarMakeResultSetFromDataset = function() {
+                    return PromiseHelper.resolve({
+                        "resultSetId": 1,
+                        "numEntries": 1000
+                    });
+                };
+
                 XcalarFetchData = function() {
                     var json = JSON.stringify({"a": "b"});
                     return PromiseHelper.resolve([{"value": json}]);
                 };
-
-                dsObj.numEntries = 1000;
 
                 dsObj.fetch(1, 10)
                 .then(function(jsons, jsonKeys) {
@@ -2526,7 +2542,7 @@ describe("Persistent Constructor Test", function() {
                     done();
                 })
                 .fail(function() {
-                    throw "error case";
+                    done("fail");
                 });
             });
 
@@ -2537,7 +2553,7 @@ describe("Persistent Constructor Test", function() {
 
                 dsObj.fetch(1, 10)
                 .then(function() {
-                    throw "error case";
+                    done("fail");
                 })
                 .fail(function(error) {
                     expect(error).to.be.an("object");
@@ -2546,77 +2562,10 @@ describe("Persistent Constructor Test", function() {
                 });
             });
 
-            it("Should handle fetch fail case", function(done) {
-                var oldMakeResult = XcalarMakeResultSetFromDataset;
-                var shouldFail = true;
-
-                XcalarMakeResultSetFromDataset = function() {
-                    return PromiseHelper.resolve({
-                        "resultSetId": null,
-                        "numEntries": 1000
-                    });
-                };
-
-                XcalarFetchData = function() {
-                    if (shouldFail) {
-                        shouldFail = false;
-
-                        return PromiseHelper.reject({
-                            "status": StatusT.StatusInvalidResultSetId
-                        });
-                    } else {
-                        var json = JSON.stringify({"a": "b"});
-                        return PromiseHelper.resolve([{"value": json}]);
-                    }
-                };
-
-                dsObj.resultSetId = null;
-
-                dsObj.fetch(1, 10)
-                .then(function(jsons, jsonKeys) {
-                    expect(jsons).to.be.an("array");
-                    expect(jsonKeys).to.be.an("array");
-                    expect(jsonKeys[0]).to.equal("a");
-                    done();
-                })
-                .fail(function() {
-                    throw "error case";
-                })
-                .always(function() {
-                    XcalarMakeResultSetFromDataset = oldMakeResult;
-                });
-            });
-
             after(function() {
                 XcalarFetchData = oldFetch;
-            });
-        });
-
-        it("Should release dsObj", function(done) {
-            var oldFunc = XcalarSetFree;
-            XcalarSetFree = function() {
-                return PromiseHelper.resolve();
-            };
-
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "isFolder": false,
-                "resultSetId": 1
-            });
-
-            dsObj.release()
-            .then(function() {
-                expect(dsObj.resultSetId).to.be.null;
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            })
-            .always(function() {
-                XcalarSetFree = oldFunc;
+                XcalarMakeResultSetFromDataset = oldMakeResult;
+                XcalarSetFree = oldRelease;
             });
         });
     });
