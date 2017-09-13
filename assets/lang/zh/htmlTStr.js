@@ -236,6 +236,7 @@ module.exports = {
         "ClearAll": "清空",
         "ClickToOpts": "点击查看选项",
         "Close": "关闭",
+        "ClusterName": "集群名",
         "ColRenameInstr": "您选择的列有重名。请重命名。",
         "ColRenames": "重命名",
         "ComeSoon": "功能即将开放",
