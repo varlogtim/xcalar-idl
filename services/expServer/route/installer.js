@@ -244,7 +244,7 @@ function checkLicense(credArray, script) {
                 retMsg = {"status": httpStatus.OK, "verified": true};
                 xcConsole.log("Success: Check License");
                 deferredOut.resolve(retMsg);
-            } else {
+            } else if (data.indexOf("FAILURE") > -1) {
                 retMsg = {"status": httpStatus.OK, "verified": false};
                 xcConsole.log("Failure: Check License");
                 deferredOut.reject(retMsg);

@@ -35,6 +35,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "serverKeyFile": "h",     // only when xcalarInstall is false
                 "activeDir": "i",         // only when xcalarInstall is false
                 "useTLS": "j"             // only when xcalarInstall is false
+                "ldapConfigEnabled": "k"  // only when xcalarInstall is false
             }
         }
 
@@ -444,7 +445,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     "activeDir": $form.find("#ADChoice .radioButton.active")
                                       .data("option"),
                     "useTLS": $form.find("#TLSChoice .radioButton.active")
-                                   .data("option")
+                                   .data("option"),
+                    "ldapConfigEnabled": true
                 };
                 deferred.resolve(res);
             }
