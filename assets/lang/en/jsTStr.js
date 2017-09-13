@@ -134,7 +134,7 @@ TooltipTStr = {
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
-    'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Please delete ununsed datasets.',
+    'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Please delete unused datasets.',
     'LowMemByOthers': 'Other users in the cluster have exceeded the optimum memory allocated for tables. Please contact an administrator.'
 };
 
@@ -217,7 +217,7 @@ ErrTStr = {
     'NoEmptyOrCheck': 'Please fill out this field ' +
                         'or keep it empty by checking the checkbox.',
     'NameInUse': 'Name is in use, please choose another name.',
-    'DSNameConfilct': 'Dataset with the same name already exits. ' +
+    'DSNameConfilct': 'Dataset with the same name already exists. ' +
                         'please choose another name.',
     'DSStartsWithLetter': 'Dataset name should start with letter.',
     'PrefixStartsWithLetter': 'Prefix should start with letter.',
@@ -252,7 +252,7 @@ ErrTStr = {
                         'folder',
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'TimeExpire': 'Please choose a time that is in the future.',
-    'LongFileName': 'File Name is too long, please use less than 255 chars.',
+    'LongFileName': 'File name is too long, please use less than 255 chars.',
     'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
     'NoSupportOp': 'This operation is not supported.',
     'PreservedName': 'This name is reserved, please use another name.',
@@ -353,7 +353,7 @@ ErrWRepTStr = {
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name',
-    'InvalidSampleSize': 'Maximium dataset size is <size>.'
+    'InvalidSampleSize': 'Maximum dataset size is <size>.'
 };
 
 DemoTStr = {
@@ -459,12 +459,12 @@ AlertTStr = {
     'NoConnect': 'Not connected.',
     'Connecting': 'Connecting...',
     'TryConnect': 'Connecting in <second>s.',
-    'UserOverLimit': 'Concurrent Users Overlimit',
+    'UserOverLimit': 'Concurrent Users Over Limit',
     'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license, please logout',
     'UnexpectInit': 'Unexpected Initialization Time',
     'UnexpectInitMsg': 'The initialization time is taking longer than usual. ' +
                      'This may be due to a slow network connection or a ' +
-                     'previously distrupted or concurrent initialization. ' +
+                     'previously disrupted or concurrent initialization. ' +
                      'You can choose to retry and wait a little longer, or ' +
                      'you can force the current initialization to overwrite ' +
                      'any concurrent / previously disrupted initialization.',
@@ -480,13 +480,13 @@ AlertTStr = {
 
 ErrorMessageTStr = {
     "title": "Error",
-    "instrUp": "An error has occured.",
+    "instrUp": "An error has occurred.",
     "instrDown": "Please review the following error(s)."
 };
 
 FnBarTStr = {
     'NewCol': 'Please specify the new column name and press enter.',
-    'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
+    'InvalidOpParen': 'Operation must be preceded by operator name and ' +
                       'arguments in parentheses.',
     'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.',
     'DiffColumn': 'The selected column (<colName>) is not included ' +
@@ -587,7 +587,7 @@ ExportTStr = {
     'TargetName': 'Target Name',
 
     // With replace
-    'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location>' +
+    'SuccessInstr': 'Table \"<table>\" was successfully exported to <location>' +
                     ' under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',
     'ListTargFail': 'List Targets Failed',
@@ -814,7 +814,7 @@ DSTStr = {
     'DelDSFail': 'Delete Dataset Failed',
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
-    'NoNewFolderMsg': 'This folder is uneditable, cannot create a new folder here',
+    'NoNewFolderMsg': 'This folder is not editable, cannot create a new folder here',
     'NotFindDS': 'Cannot find the dataset',
     'DelMultipleDS': 'Are you sure you want to delete selected datasets/folders?',
     'NoParse': 'Cannot parse the dataset.',
@@ -848,7 +848,7 @@ DSTStr = {
     'Unlistable': 'Dataset is marked for deletion',
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
-    'InUseInstr': 'Please delete all active/hidden/temporary tables and constansts associated with the dataset before unlocking it.',
+    'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',

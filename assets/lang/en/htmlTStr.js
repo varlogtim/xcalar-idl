@@ -336,7 +336,7 @@ module.exports = {
         "logFolder": "Log Folder:",
         "logName": "Log Name:",
         "lastNRow": "Get recent logs:",
-        "hostnamePattern": "Host Name Pattern:"
+        "hostnamePattern": "Hostname Pattern:"
     },
 
     "ws": {
@@ -494,8 +494,8 @@ module.exports = {
         "RetryPoint": "Please try to import data with different parameters (for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created.",
-        "DSInfo": "Dataset Infomation",
-        "UsedBy": "Used By"
+        "DSInfo": "Dataset Information",
+        "UsedBy": "Locked By"
     },
 
     // keep in sync with the FileProtocol in enums.js
@@ -989,7 +989,7 @@ module.exports = {
                                 "exists and the Xcalar cluster is powered off.",
         "uninstallWizardContent": "To remove Xcalar from a target cluster.",
         "title": "Error",
-        "instrUp": "An error has occured.",
+        "instrUp": "An error has occurred.",
         "instrDown": "Please review the following error(s).",
         "errorCode": "Error Code:",
         "description": "Description:",
