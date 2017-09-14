@@ -1,6 +1,6 @@
 window.ExtensionManager = (function(ExtensionManager, $) {
+    var enabledExts = {};
     var extMap = {};
-    var extFileNames = [];
     var triggerCol;
 
     // for the opsView
@@ -14,28 +14,163 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var shouldRestore = false;
     var formOpenTime;
 
-    function removeExt(extName) {
-        for (var i = 0; i < extFileNames.length; i++) {
-            if (extFileNames[i] === extName) {
-                extFileNames.splice(i, 1);
-                return true;
+    ExtensionManager.setup = function() {
+        $extOpsView = $("#extension-ops");
+        $extTriggerTableDropdown = $("#extension-ops-mainTable");
+        addEventListeners();
+        setupSuggest();
+        return ExtensionManager.install();
+    };
+
+    ExtensionManager.install = function() {
+        initInstall();
+
+        var deferred = jQuery.Deferred();
+        var url = xcHelper.getAppUrl();
+
+        $extOpsView.addClass("loading");
+        xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
+
+        $.ajax({
+            "type": "GET",
+            "dataType": "JSON",
+            "url": url + "/extension/getEnabled",
+        })
+        .then(function(data) {
+            if (data.status === Status.Ok) {
+                return loadExtensions(data.data);
+            } else {
+                console.error("Failed to get extensions", data);
+                return PromiseHelper.resolve();
             }
-        }
-        // Already been removed.
-        return false;
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error("install extension fails", error);
+            deferred.reject(error);
+        })
+        .always(function() {
+            $extOpsView.removeClass("loading");
+        });
+
+        return deferred.promise();
+    };
+
+    function initInstall() {
+        extMap = {};
+        enabledExts = {};
+        // extensions.html should be autopopulated by the backend
+        $("#extension-ops-script").empty(); // Clean up for idempotency
+        // change to async call later
+        // jquery 3 should not need it
+        $.ajaxPrefilter("script", function(options, originalOptions, jqXHR) {
+            // only apply when it's loading extension
+            if (options.url.indexOf("assets/extensions/") >= 0) {
+                options.async = true;
+            }
+        });
     }
 
-    function checkPythonFunctions(extFileNames) {
+    function loadExtensions(htmlString) {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        var $tag = $('<div>' + htmlString + '</div>');
+        $tag.find("script").each(function() {
+            var $script = $(this);
+            promises.push(loadScript($script));
+        });
+
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            return loadUDFs();
+        })
+        .then(function() {
+            setupExtensions();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function loadScript($script) {
+        var deferred = jQuery.Deferred();
+        var src = $script.attr("src");
+        var extName = parseExtNameFromSrc(src);
+        cacheEnabledExtension(extName);
+
+        $.getScript(src)
+        .then(function() {
+            $("#extension-ops-script").append($script);
+            setExtensionState(extName, "installScript", true);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error(error, src + " could not be loaded.");
+            setExtensionState(extName, "error", ExtTStr.LoadScriptFail);
+            // still resolve it
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    function loadUDFs() {
+        // check that python modules have been uploaded
+        var extNames = Object.keys(enabledExts).filter(function(extName) {
+            return getExtensionState(extName, "installScript");
+        });
+        // Check that the python modules are uploaded
+        // For now, we reupload everything everytime.
+        var pythonReuploadList = checkPythonFunctions(extNames);
+        // if python module is gone, reupload by reading file from local system
+        var extPromises = pythonReuploadList.map(function(extName) {
+            return loadAndStorePython(extName);
+        });
+
+        var promise = PromiseHelper.when.apply(this, extPromises);
+        // always resolve the promise, even if extPromises is empty.
+        return PromiseHelper.alwaysResolve(promise);
+    }
+
+    function setupExtensions() {
+        // check that python modules have been uploaded
+        var extNames = Object.keys(enabledExts).filter(function(extName) {
+            var loadScript = getExtensionState(extName, "installScript");
+            var loadUDF = getExtensionState(extName, "installUDF");
+            return loadScript && loadUDF;
+        });
+        var extList = [];
+        // get list of extensions currently loaded into system
+        for (var objs in window) {
+            if (objs.indexOf("UExt") === 0) {
+                for (var i = 0; i < extNames.length; i++) {
+                    if (objs.toLowerCase().substring(4, objs.length) ===
+                        extNames[i].toLowerCase())
+                    {
+                        // Found it!
+                        extList.push(objs);
+                        break;
+                    }
+                }
+            }
+        }
+
+        extList.sort();
+        generateExtList(extList);
+        storeExtConfigParams();
+    }
+
+    function checkPythonFunctions(extNames) {
         // XcalarListXdfs with fnName = extPrefix+":"
         // Also check that the module has a python file
         var needReupload = [];
-        for (var j = 0; j < extFileNames.length; j++) {
-            needReupload.push(extFileNames[j]);
+        for (var j = 0; j < extNames.length; j++) {
+            needReupload.push(extNames[j]);
             continue;
             // XXX This part is not run because we are currently blindly
             // reuploading everything
-            // var extPrefix = extFileNames[j].substring(0,
-            //                                        extFileNames[j].length - 4);
+            // var extPrefix = extNames[j].substring(0, extNames[j].length - 4);
             // var found = false;
             // for (var i = 0; i < udfFunctions.length; i++) {
             //     if (udfFunctions[i].indexOf(extPrefix + ":") !== -1) {
@@ -46,7 +181,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             // }
             // if (!found) {
             //     console.log("Did not find ext python: " + extPrefix);
-            //     needReupload.push(extFileNames[j]);
+            //     needReupload.push(extNames[j]);
             // }
         }
         return (needReupload);
@@ -54,12 +189,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function loadAndStorePython(extName) {
         // python name need to be lowercase
-        var pyModName = extName.substring(0, extName.length - 4).toLowerCase();
+        var pyModName = extName.toLowerCase();
         var deferred = jQuery.Deferred();
 
         jQuery.ajax({
             type: "GET",
-            url: "assets/extensions/ext-enabled/" + extName + ".py"
+            url: "assets/extensions/ext-enabled/" + extName + ".ext.py"
         })
         .then(function(response, status, xhr) {
             // Success case
@@ -70,12 +205,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             // Fail case
             console.error("Python file not found!");
         })
-        .then(deferred.resolve)
-        .fail(function() {
-            console.error("Extension failed to upload. Removing: " + extName);
-            // Remove extension from list
-            removeExt(extName);
-            deferred.reject();
+        .then(function() {
+            setExtensionState(extName, "installUDF", true);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Extension", extName, "failed to upload", error);
+            setExtensionState(extName, "error", ExtTStr.LoadUDFFail);
+            deferred.resolve(); // still resolve it
         });
         return deferred.promise();
     }
@@ -111,159 +248,44 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return (data == null || data === "");
     }
 
-    function setupPart2() {
-        var deferred = jQuery.Deferred();
-        // check that python modules have been uploaded
-        var extLoaded = $("#extension-ops-script script");
-        for (var i = 0; i < extLoaded.length; i++) {
-            var jsFile = extLoaded[i].src;
-
-            // extract module name
-            var strLoc = jsFile.indexOf("assets/extensions/ext-enabled/");
-            if (strLoc !== -1) {
-                jsFile = jsFile.substring(strLoc +
-                                         "assets/extensions/ext-enabled/".length,
-                                         jsFile.length - 3);
-                extFileNames[i] = jsFile;
-            } else {
-                extFileNames[i] = "";
-                console.error("extensions are not located in extensions");
-                continue;
-            }
+    function cacheEnabledExtension(extName) {
+        if (extName != null) {
+            enabledExts[extName] = {};
         }
-        // Check that the python modules are uploaded
-        // For now, we reupload everything everytime.
-        var pythonReuploadList = checkPythonFunctions(extFileNames);
-        // if python module is gone, reupload by reading file from local system
-        extPromises = [];
-        for (var i = 0; i < pythonReuploadList.length; i++) {
-            var extName = pythonReuploadList[i];
-            extPromises.push(loadAndStorePython(extName));
-        }
-        PromiseHelper.when.apply(this, extPromises)
-        // This case happens even if extPromises is empty.
-        .always(function(resultPromises) {
-            var extList = [];
-            // get list of extensions currently loaded into system
-            for (var objs in window) {
-                if (objs.indexOf("UExt") === 0 ) {
-                    for (var i = 0; i < extFileNames.length; i++) {
-                        if (objs.toLowerCase().substring(4, objs.length) +
-                            ".ext" === extFileNames[i].toLowerCase()) {
-                            // Found it!
-                            extList.push(objs);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            extList.sort();
-            generateExtList(extList);
-            storeExtConfigParams();
-            // Always resolve so don't crash setup if extensions fail.
-            deferred.resolve();
-        });
-
-        return (deferred.promise());
     }
 
-    ExtensionManager.setup = function() {
-        $extOpsView = $("#extension-ops");
-        $extTriggerTableDropdown = $("#extension-ops-mainTable");
-        addEventListeners();
-        setupSuggest();
-        return ExtensionManager.install();
-    };
-
-    ExtensionManager.install = function() {
-        extMap = {};
-        var deferred = jQuery.Deferred();
-        var innerDeferred = jQuery.Deferred();
-        var url = xcHelper.getAppUrl();
-
-        // extensions.html should be autopopulated by the backend
-        $("#extension-ops-script").empty(); // Clean up for idempotency
-        // change to async call later
-        // jquery 3 should not need it
-        $.ajaxPrefilter("script", function( options, originalOptions, jqXHR ) {
-            // only apply when it's loading extension
-            if (options.url.indexOf("assets/extensions/") >= 0) {
-                options.async = true;
-            }
-        });
-
-        $.ajax({
-            "type": "GET",
-            "dataType": "JSON",
-            "url": url + "/extension/getEnabled",
-            "success": function(data) {
-                if (data.status === Status.Ok) {
-                    innerDeferred.resolve(data.data);
-                } else {
-                    console.error("Failed to get extensions", data);
-                    deferred.resolve();
-                }
-            },
-            "error": function(error) {
-                console.error("Failed to get extensions", error);
-                deferred.resolve();
-            }
-        });
-
-        $extOpsView.addClass("loading");
-        xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
-
-        innerDeferred
-        .then(function(htmlString) {
-            var promises = [];
-            var $tag = $('<div>' + htmlString + '</div>');
-            $tag.find("script").each(function() {
-                var $script = $(this);
-                promises.push(loadScript($script));
-            });
-
-            return PromiseHelper.when.apply(this, promises);
-        })
-        .then(function() {
-            return setupPart2();
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            $extOpsView.removeClass("loading");
-        });
-
-        return deferred.promise();
-    };
-
-    function loadScript($script) {
-        var deferred = jQuery.Deferred();
-        var src = $script.attr("src");
-        $.getScript(src)
-        .then(function() {
-            $("#extension-ops-script").append($script);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error(error, src + " could not be loaded.");
-            // still resolve it
-            deferred.resolve();
-        });
-
-        return deferred.promise();
+    function setExtensionState(extName, status, val) {
+        if (enabledExts.hasOwnProperty(extName)) {
+            enabledExts[extName][status] = val;
+        }
     }
 
-    // This registers an extension.
-    // The extension must have already been added via addExtension
-    ExtensionManager.registerExtension = function(extName) {
+    function getExtensionState(extName, status) {
+        if (enabledExts.hasOwnProperty(extName)) {
+            return enabledExts[extName][status];
+        } else {
+            return null;
+        }
+    }
 
-    };
-    // This unregisters an extension. This does not remove it from the system.
-    ExtensionManager.unregisterExtension = function(extName) {
-    };
+    function parseExtNameFromSrc(src) {
+        // src format: assets/extensions/ext-enabled/dev.ext.js
+        var res = null;
+        try {
+            var start = src.lastIndexOf("/") + 1;
+            var end = src.lastIndexOf(".ext.js");
+            res = src.substring(start, end);
+        } catch (error) {
+            console.error(error);
+        }
+        return res;
+    }
 
     ExtensionManager.isExtensionEnabled = function(extName) {
+        return enabledExts.hasOwnProperty(extName);
+    };
+
+    ExtensionManager.isInstalled = function(extName) {
         for (var extKey in extMap) {
             if (extMap.hasOwnProperty(extKey)) {
                 if (extKey.toLowerCase() === "uext" + extName.toLowerCase()) {
@@ -274,20 +296,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return false;
     };
 
-    // This adds an extension to the current list of extensions. fileString
-    // represents a version of the .py and .js files. It might be tar gz, or
-    // might just be the two files concatted together. We are still deciding
-    // This basically uploads the string to the backend and asks the backend to
-    // Write it to a file in our designated location
-    // This also requires that the backend writes some html into our .html
-    // file that does the <script src> so that the new .js files get loaded
-    ExtensionManager.addExtension = function(fileString, extName) {
-        // Waiting for thrift call
-    };
-    // This removes the extension permanently from the system. This basically
-    // undoes everything in addExtension
-    ExtensionManager.removeExtension = function(extName) {
-         // Might not support in 1.0
+    ExtensionManager.getInstallError = function(extName) {
+        return (enabledExts[extName].error || ErrTStr.Unknown);
     };
 
     ExtensionManager.openView = function(colNum, tableId, options) {

@@ -395,12 +395,23 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             var enabled = "";
             var status = "";
             var extName = extensions[i];
+            var icon = '<i class="icon xi-menu-extension fa-15"></i>';
             if (ExtensionManager.isExtensionEnabled(extName)) {
                 enabled = "enabled";
                 status = "on";
+
+                if (!ExtensionManager.isInstalled(extName)) {
+                    var error = ExtensionManager.getInstallError(extName);
+                    icon = '<i class="icon xi-critical fa-15 hasError"' +
+                            ' data-toggle="tooltip"' +
+                            ' data-container="body"' +
+                            ' data-placement="right"' +
+                            ' data-title="' + error + '"></i>';
+                }
             }
+
             html += '<li class="item no-selection ' + enabled + '">' +
-                        '<i class="icon xi-menu-extension fa-15"></i>' +
+                        icon +
                         '<span class="name textOverflowOneLine">' +
                             extName +
                         '</span>' +
