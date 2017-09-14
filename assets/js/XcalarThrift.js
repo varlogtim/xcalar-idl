@@ -3598,6 +3598,31 @@ function XcalarKeyLookup(key, scope) {
     return (deferred.promise());
 }
 
+function XcalarKeyList(keyRegex, scope) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (scope == null) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+
+    xcalarKeyList(tHandle, scope, keyRegex)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarKeyList", error);
+        Log.errorLog("Key List", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarKeyPut(key, value, persist, scope) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

@@ -20,7 +20,21 @@ WorkItem = function() {
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     return (workItem);
 };
-
+function handleRejection(error, output) {
+    if (error instanceof XcalarApiException) {
+        if (output) {
+            return {"xcalarStatus": error.status, "output": output};
+        } else {
+            return {"xcalarStatus": error.status};
+        }
+    } else {
+        if (output) {
+            return {"httpStatus": error.status, "output": output};
+        } else {
+            return {"httpStatus": error.status};
+        }
+    }
+}
 xcalarConnectThrift = runEntity.xcalarConnectThrift = function(hostname) {
     // protocol needs to be part of hostname
     // If not it's assumed ot be http://
@@ -69,14 +83,14 @@ xcalarGetNumNodes = runEntity.xcalarGetNumNodes = function(thriftHandle) {
         }
         deferred.resolve(getNumNodesOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetNumNodes() caught exception:", jqXHR);
+    .fail(function(error) {
+        console.log("xcalarGetNumNodes() caught exception:", error);
 
-        var error = new XcalarApiGetNumNodesOutputT();
-        error.version = "<unknown>";
-        error.apiVersionSignatureFull = "<unknown>";
-        error.apiVersionSignatureShort = 0;
-        deferred.reject({httpStatus: jqXHR.status, output: error});
+        var output = new XcalarApiGetNumNodesOutputT();
+        output.version = "<unknown>";
+        output.apiVersionSignatureFull = "<unknown>";
+        output.apiVersionSignatureShort = 0;
+        deferred.reject(handleRejection(error, output));
     });
 
     return (deferred.promise());
@@ -109,15 +123,15 @@ xcalarGetVersion = runEntity.xcalarGetVersion = function(thriftHandle) {
         }
         deferred.resolve(getVersionOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetVersion() caught exception:", jqXHR);
+    .fail(function(error) {
+        console.log("xcalarGetVersion() caught exception:", error);
 
-        var error = new XcalarApiGetVersionOutputT();
-        error.version = "<unknown>";
-        error.apiVersionSignatureFull = "<unknown>";
-        error.apiVersionSignatureShort = 0;
+        var output = new XcalarApiGetVersionOutputT();
+        output.version = "<unknown>";
+        output.apiVersionSignatureFull = "<unknown>";
+        output.apiVersionSignatureShort = 0;
 
-        deferred.reject({httpStatus: jqXHR.status, output: error});
+        deferred.reject(handleRejection(error, output));
     });
 
     return (deferred.promise());
@@ -150,9 +164,9 @@ xcalarGetLicense = runEntity.xcalarGetLicense = function(thriftHandle) {
         }
         deferred.resolve(getLicenseOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetLicense() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetLicense() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -182,9 +196,9 @@ xcalarGetConfigParams = runEntity.xcalarGetConfigParams = function(thriftHandle)
         }
         deferred.resolve(getConfigParamsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetConfigParams() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetConfigParams() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -221,9 +235,9 @@ xcalarSetConfigParam = runEntity.xcalarSetConfigParam = function(thriftHandle, p
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarSetConfigParam() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarSetConfigParam() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -282,9 +296,9 @@ xcalarAppSet = runEntity.xcalarAppSet = function(thriftHandle, name, hostType, d
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarAppSet() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarAppSet() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -325,9 +339,9 @@ xcalarAppRun = runEntity.xcalarAppRun = function(thriftHandle, name, isGlobal, i
         }
         deferred.resolve(appRunOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarAppRun() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarAppRun() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -365,9 +379,9 @@ xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
         }
         deferred.resolve(appReapOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarAppReap() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarAppReap() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -426,9 +440,9 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, url, fileNamePa
         previewOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(previewOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarPreview() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarPreview() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -457,8 +471,8 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
                     ", format = " +
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
                     maxSampleSize.toString() + ", recursive = " +
-		    loadArgs.recursive + ", fileNamePattern = " +
-		    loadArgs.fileNamePattern + ")");
+            loadArgs.recursive + ", fileNamePattern = " +
+            loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
@@ -486,9 +500,9 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
         loadOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(loadOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarLoad() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarLoad() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -549,9 +563,9 @@ xcalarIndexDataset = runEntity.xcalarIndexDataset = function(thriftHandle, datas
         indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(indexOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarIndexDataset() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarIndexDataset() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -609,9 +623,9 @@ xcalarIndexTable = runEntity.xcalarIndexTable = function(thriftHandle, srcTableN
         indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(indexOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarIndexTable() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarIndexTable() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -661,9 +675,9 @@ xcalarGetMetaInt = runEntity.xcalarGetMetaInt = function(thriftHandle, datasetNa
         }
         deferred.resolve(metaOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetMeta() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetMeta() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -704,46 +718,9 @@ xcalarShutdown = runEntity.xcalarShutdown = function(thriftHandle, force) {
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarShutdown() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
-    });
-
-    return (deferred.promise());
-};
-
-xcalarStartNodesWorkItem = runEntity.xcalarStartNodesWorkItem = function(numNodes) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.startNodesInput = new XcalarApiStartNodesInputT();
-
-    workItem.api = XcalarApisT.XcalarApiStartNodes;
-    workItem.input.startNodesInput.numNodes = numNodes;
-    return (workItem);
-};
-
-xcalarStartNodes = runEntity.xcalarStartNodes = function(thriftHandle, numNodes) {
-    var deferred = jQuery.Deferred();
-
-    if (verbose) {
-        console.log("xcalarStartNodes(numNodes = " + numNodes + ")");
-    }
-
-    var workItem = xcalarStartNodesWorkItem(numNodes);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = StatusT.StatusOk;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-            deferred.reject({xcalarStatus: status, log: log});
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(jqXHR) {
-        console.log("xcalarStartNodes() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarShutdown() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -782,9 +759,9 @@ xcalarGetStats = runEntity.xcalarGetStats = function(thriftHandle, nodeId) {
         }
         deferred.resolve(statOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetStats() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetStats() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -823,9 +800,9 @@ xcalarRenameNode = runEntity.xcalarRenameNode = function(thriftHandle, oldName, 
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarRenameNode() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarRenameNode() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -865,9 +842,9 @@ xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, nu
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarTagDagNodes() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarTagDagNodes() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -907,9 +884,9 @@ xcalarCommentDagNodes = runEntity.xcalarCommentDagNodes = function(thriftHandle,
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarCommentDagNodes() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarCommentDagNodes() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -952,9 +929,9 @@ xcalarGetStatsByGroupId = runEntity.xcalarGetStatsByGroupId = function(thriftHan
         }
         deferred.resolve(statOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetStatsByGroupId() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetStatsByGroupId() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -990,9 +967,9 @@ xcalarResetStats = runEntity.xcalarResetStats = function(thriftHandle, nodeId) {
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarResetStats() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarResetStats() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1032,9 +1009,9 @@ xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHan
         }
         deferred.resolve(statGroupIdMapOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetStatGroupIdMap() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetStatGroupIdMap() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1074,9 +1051,9 @@ xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr
         }
         deferred.resolve(queryOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarQuery() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarQuery() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1116,9 +1093,9 @@ xcalarQueryState = runEntity.xcalarQueryState = function(thriftHandle, queryName
 
         deferred.resolve(queryStateOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarQueryState() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarQueryState() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1155,9 +1132,9 @@ xcalarQueryCancel = runEntity.xcalarQueryCancel = function(thriftHandle, queryNa
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarQueryCancel() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarQueryCancel() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1194,9 +1171,9 @@ xcalarQueryDelete = runEntity.xcalarQueryDelete = function(thriftHandle, queryNa
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarQueryDelete() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarQueryDelete() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1231,9 +1208,9 @@ xcalarApiGetOpStats = runEntity.xcalarApiGetOpStats = function(thriftHandle, dst
         }
         deferred.resolve(opStatsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiGetOpStats() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiGetOpStats() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1267,9 +1244,9 @@ xcalarApiCancelOp = runEntity.xcalarApiCancelOp = function(thriftHandle, dstDagN
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiCancelOp() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiCancelOp() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1306,9 +1283,9 @@ xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
         }
         deferred.resolve(dagOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDag() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDag() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1346,9 +1323,9 @@ xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMa
         }
         deferred.resolve(listNodesOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarListTables() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarListTables() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1380,14 +1357,14 @@ xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
         }
         deferred.resolve(listDatasetsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarListDatasets() caught exception:", jqXHR);
+    .fail(function(error) {
+        console.log("xcalarListDatasets() caught exception:", error);
 
         var listDatasetsOutput = new XcalarApiListDatasetsOutputT();
         // XXX FIXME should add StatusT.StatusThriftProtocolError
         listDatasetsOutput.numDatasets = 0;
 
-        deferred.reject({httpStatus: jqXHR.status, output: listDatasetsOutput});
+        deferred.reject(handleRejection(error, listDatasetsOutput));
     });
 
     return (deferred.promise());
@@ -1510,12 +1487,12 @@ xcalarMakeResultSetFromTable = runEntity.xcalarMakeResultSetFromTable = function
         }
         deferred.resolve(makeResultSetOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarMakeResultSetFromTable() caught exception:", jqXHR);
+    .fail(function(error) {
+        console.log("xcalarMakeResultSetFromTable() caught exception:", error);
 
         makeResultSetOutput = new XcalarApiMakeResultSetOutputT();
         makeResultSetOutput.status = StatusT.StatusThriftProtocolError;
-        deferred.reject({httpStatus: jqXHR.status, output: makeResultSetOutput});
+        deferred.reject(handleRejection(error, makeResultSetOutput));
     });
 
     return (deferred.promise());
@@ -1557,13 +1534,12 @@ xcalarMakeResultSetFromDataset = runEntity.xcalarMakeResultSetFromDataset = func
         }
         deferred.resolve(makeResultSetOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarMakeResultSetFromDataset() caught exception:",
-                    jqXHR);
+    .fail(function(error) {
+        console.log("xcalarMakeResultSetFromDataset() caught exception:", error);
 
         makeResultSetOutput = new XcalarApiMakeResultSetOutputT();
         makeResultSetOutput.status = StatusT.StatusThriftProtocolError;
-        deferred.reject({httpStatus: jqXHR.status, output: makeResultSetOutput});
+        deferred.reject(handleRejection(error, makeResultSetOutput));
     });
 
     return (deferred.promise());
@@ -1606,9 +1582,9 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
         }
         deferred.resolve(resultSetNextOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarResultSetNext() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarResultSetNext() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1691,9 +1667,9 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
         joinOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(joinOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarJoin() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarJoin() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1747,9 +1723,9 @@ xcalarProject = runEntity.xcalarProject = function(thriftHandle, numColumns, col
         projectOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(projectOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarProject() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarProject() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1797,9 +1773,9 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
         filterOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(filterOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarFilter() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarFilter() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -1864,9 +1840,9 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
         groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(groupByOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGroupBy() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGroupBy() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -1901,9 +1877,9 @@ xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, d
         groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(groupByOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGroupBy() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGroupBy() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -1941,9 +1917,9 @@ xcalarResultSetAbsolute = runEntity.xcalarResultSetAbsolute = function(thriftHan
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarResultSetAbsolute() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarResultSetAbsolute() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -1979,9 +1955,9 @@ xcalarFreeResultSet = runEntity.xcalarFreeResultSet = function(thriftHandle, res
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarResultSetAbsolute() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarResultSetAbsolute() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2022,9 +1998,9 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
             result.output.hdr.elapsed.milliseconds;
         deferred.resolve(deleteDagNodesOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDeleteDagNodes() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDeleteDagNodes() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2063,9 +2039,9 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
         }
         deferred.resolve(getTableRefCountOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDeleteTable() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDeleteTable() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2134,9 +2110,9 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(mapOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiMap() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiMap() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2171,9 +2147,9 @@ xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
         mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(mapOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiMap() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiMap() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2223,9 +2199,9 @@ xcalarApiGetRowNum = runEntity.xcalarApiGetRowNum = function(thriftHandle, newFi
         getRowNumOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(getRowNumOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiGetRowNum() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiGetRowNum() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2274,9 +2250,9 @@ xcalarAggregate = runEntity.xcalarAggregate = function(thriftHandle, srcTableNam
         aggregateOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(aggregateOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarAggregate() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarAggregate() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2312,9 +2288,9 @@ xcalarAddExportTarget = runEntity.xcalarAddExportTarget = function(thriftHandle,
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarAddExportTarget() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarAddExportTarget() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2350,9 +2326,9 @@ xcalarRemoveExportTarget = runEntity.xcalarRemoveExportTarget = function(thriftH
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarRemoveExportTarget() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarRemoveExportTarget() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2391,9 +2367,9 @@ xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHan
         }
         deferred.resolve(listExportTargetsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarListExportTargets() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarListExportTargets() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2454,9 +2430,9 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
         exportOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(exportOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarExport() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarExport() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2496,9 +2472,9 @@ xcalarListFiles = runEntity.xcalarListFiles = function(thriftHandle, url, recurs
         }
         deferred.resolve(listFilesOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarListFiles() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarListFiles() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2531,9 +2507,9 @@ xcalarApiDeleteRetina = runEntity.xcalarApiDeleteRetina = function(thriftHandle,
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiDeleteRetina() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiDeleteRetina() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2569,9 +2545,9 @@ xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaNam
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarMakeRetina() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarMakeRetina() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2606,9 +2582,9 @@ xcalarListRetinas = runEntity.xcalarListRetinas = function(thriftHandle) {
         }
         deferred.resolve(listRetinasOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarListRetinas() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarListRetinas() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2645,9 +2621,9 @@ xcalarGetRetina = runEntity.xcalarGetRetina = function(thriftHandle, retinaName)
         }
         deferred.resolve(getRetinaOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetRetina() caught exception: " + jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetRetina() caught exception: " + error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -2702,9 +2678,9 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarUpdateRetina() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarUpdateRetina() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2757,9 +2733,9 @@ xcalarUpdateRetinaExport = runEntity.xcalarUpdateRetinaExport = function(thriftH
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarUpdateRetinaExport() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarUpdateRetinaExport() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2815,9 +2791,9 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
         retinaOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(retinaOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarExecuteRetina() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarExecuteRetina() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -2856,10 +2832,51 @@ xcalarListParametersInRetina = runEntity.xcalarListParametersInRetina = function
         }
         deferred.resolve(listParametersInRetinaOutput);
     })
+    .fail(function(error) {
+        console.log("xcalarListParametersInRetina() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+    return (deferred.promise());
+};
+
+xcalarKeyListWorkItem = runEntity.xcalarKeyListWorkItem = function(scope, keyRegex) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.keyListInput = new XcalarApiKeyListInputT();
+    workItem.input.keyListInput.scope = scope;
+    workItem.input.keyListInput.keyRegex = keyRegex;
+    workItem.api = XcalarApisT.XcalarApiKeyList;
+    return (workItem);
+};
+
+xcalarKeyList = runEntity.xcalarKeyList = function(thriftHandle, scope, keyRegex) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarKeyList(scope = " + scope + ", keyRegex = " + keyRegex +
+                    ")");
+    }
+
+    var workItem = xcalarKeyListWorkItem(scope, keyRegex);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var keyListOutput = result.output.outputResult.keyListOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        }
+        deferred.resolve(keyListOutput);
+    })
     .fail(function(jqXHR) {
-        console.log("xcalarListParametersInRetina() caught exception:", jqXHR);
+        console.log("xcalarKeyList() caught exception:", jqXHR);
         deferred.reject({httpStatus: jqXHR.status});
     });
+
     return (deferred.promise());
 };
 
@@ -2896,9 +2913,9 @@ xcalarKeyLookup = runEntity.xcalarKeyLookup = function(thriftHandle, scope, key)
         }
         deferred.resolve(keyLookupOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarKeyLookup() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarKeyLookup() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2946,9 +2963,9 @@ xcalarKeyAddOrReplace = runEntity.xcalarKeyAddOrReplace = function(thriftHandle,
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarKeyAddOrReplace() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarKeyAddOrReplace() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -2985,9 +3002,9 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarUpdateLicense() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarUpdateLicense() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return(deferred.promise());
@@ -3030,9 +3047,9 @@ xcalarKeyAppend = runEntity.xcalarKeyAppend = function(thriftHandle, scope, key,
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarKeyAppend() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarKeyAppend() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3103,9 +3120,9 @@ xcalarKeySetIfEqual = runEntity.xcalarKeySetIfEqual = function(thriftHandle, sco
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarKeySetIfEqual() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarKeySetIfEqual() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3143,9 +3160,9 @@ xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key)
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarKeyLookup() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarKeyLookup() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3188,9 +3205,9 @@ xcalarApiTop = runEntity.xcalarApiTop = function(thriftHandle, measureIntervalIn
 
         deferred.resolve(topOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiTop() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiTop() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3234,9 +3251,9 @@ xcalarApiGetMemoryUsage = runEntity.xcalarApiGetMemoryUsage = function(thriftHan
 
         deferred.resolve(memoryUsageOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiGetMemoryUsage() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiGetMemoryUsage() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3276,9 +3293,9 @@ xcalarApiMemory = runEntity.xcalarApiMemory = function(thriftHandle, tagName) {
 
         deferred.resolve(memOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiMemory() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiMemory() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3320,9 +3337,9 @@ xcalarApiSessionNew = runEntity.xcalarApiSessionNew = function(thriftHandle, ses
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionNew() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionNew() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3360,9 +3377,9 @@ xcalarApiSessionDelete = runEntity.xcalarApiSessionDelete = function(thriftHandl
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionDelete() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionDelete() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3401,9 +3418,9 @@ xcalarApiSessionInact = runEntity.xcalarApiSessionInact = function(thriftHandle,
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionInact() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionInact() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3443,9 +3460,9 @@ xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, p
 
         deferred.resolve(sessionListOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionList() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionList() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3485,9 +3502,9 @@ xcalarApiSessionPersist = runEntity.xcalarApiSessionPersist = function(thriftHan
         }
         deferred.resolve(sessionListOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionPersist() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionPersist() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3533,9 +3550,9 @@ xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandl
         result.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionSwitch() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionSwitch() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3574,9 +3591,9 @@ xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandl
         }
         deferred.resolve(result);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSessionRename() caught exception:",jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSessionRename() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3616,9 +3633,9 @@ xcalarApiListXdfs = runEntity.xcalarApiListXdfs = function(thriftHandle, fnNameP
 
         deferred.resolve(listXdfsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiListXdfs() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiListXdfs() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3663,9 +3680,9 @@ xcalarApiUdfAdd = runEntity.xcalarApiUdfAdd = function(thriftHandle, type, modul
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiUdfAdd() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiUdfAdd() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3695,9 +3712,9 @@ xcalarApiUdfUpdate = runEntity.xcalarApiUdfUpdate = function(thriftHandle, type,
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiUdfUpdate() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiUdfUpdate() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3737,9 +3754,9 @@ xcalarApiUdfDelete = runEntity.xcalarApiUdfDelete = function(thriftHandle, modul
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiUdfDelete() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiUdfDelete() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3779,9 +3796,9 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
 
         deferred.resolve(result.output.outputResult.udfGetOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiUdfGet() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiUdfGet() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3808,9 +3825,9 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
 
         deferred.resolve(getQueryOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiGetQuery() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiGetQuery() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3855,9 +3872,9 @@ xcalarApiCreateDht = runEntity.xcalarApiCreateDht = function(thriftHandle, dhtNa
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiCreateDht() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiCreateDht() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3897,9 +3914,9 @@ xcalarApiDeleteDht = runEntity.xcalarApiDeleteDht = function(thriftHandle, dhtNa
 
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiDeleteDht() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiDeleteDht() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3944,9 +3961,9 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
             result.output.hdr.elapsed.milliseconds;
         deferred.resolve(supportGenerateOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiSupportGenerate() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiSupportGenerate() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -3997,9 +4014,9 @@ xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle,
 
         deferred.resolve(importRetinaOutput);
     })
-    .fail(function (jqXHR) {
-        console.log("xcalarApiImportRetina() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function (error) {
+        console.log("xcalarApiImportRetina() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
     return (deferred.promise());
 };
@@ -4042,9 +4059,9 @@ xcalarApiExportRetina = runEntity.xcalarApiExportRetina = function(thriftHandle,
 
         deferred.resolve(exportRetinaOutput);
     })
-    .fail(function (jqXHR) {
-        console.log("xcalarApiExportRetina() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function (error) {
+        console.log("xcalarApiExportRetina() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4092,9 +4109,9 @@ xcalarApiStartFuncTest = runEntity.xcalarApiStartFuncTest = function(thriftHandl
 
         deferred.resolve(startFuncTestOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiStartFuncTest() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiStartFuncTest() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4136,9 +4153,9 @@ xcalarApiListFuncTest = runEntity.xcalarApiListFuncTest = function(thriftHandle,
 
         deferred.resolve(listFuncTestOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiListFuncTest() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiListFuncTest() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4182,9 +4199,9 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
 
         deferred.resolve(deleteDatasetsOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiDeleteDatasets() caught exceptions: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiDeleteDatasets() caught exceptions: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4229,9 +4246,9 @@ xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, f
         demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(demoFileOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDemoFileCreate() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDemoFileCreate() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4269,9 +4286,9 @@ xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, f
         demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(demoFileOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDemoFileAppend() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDemoFileAppend() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4306,9 +4323,9 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
         demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(demoFileOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarDemoFileDelete() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarDemoFileDelete() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4321,6 +4338,7 @@ xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLe
 
     workItem.api = XcalarApisT.XcalarApiLogLevelSet;
     workItem.input.logLevelSetInput.logLevel = logLevel;
+
     workItem.input.logLevelSetInput.logFlushLevel = logFlushLevel;
     workItem.input.logLevelSetInput.logFlushPeriod = logFlushPeriod;
     return (workItem);
@@ -4349,9 +4367,9 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
         }
         deferred.resolve(status);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarLogLevelSet() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarLogLevelSet() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4387,7 +4405,7 @@ xcalarLogLevelGet = runEntity.xcalarLogLevelGet = function(thriftHandle) {
     })
     .fail(function(error) {
         console.log("xcalarLogLevelGet() caught exception:", error);
-        deferred.reject(error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4430,9 +4448,9 @@ xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measure
 
         deferred.resolve(topOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarApiTop() caught exception: ", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarApiTop() caught exception: ", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());
@@ -4472,9 +4490,9 @@ xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
         }
         deferred.resolve(getIpAddrOutput);
     })
-    .fail(function(jqXHR) {
-        console.log("xcalarGetIpAddr() caught exception:", jqXHR);
-        deferred.reject({httpStatus: jqXHR.status});
+    .fail(function(error) {
+        console.log("xcalarGetIpAddr() caught exception:", error);
+        deferred.reject(handleRejection(error));
     });
 
     return (deferred.promise());

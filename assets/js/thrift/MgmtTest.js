@@ -209,13 +209,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
 
-    system.args.forEach(function(arg, i) {
-        if (arg === "nostartnodes") {
-            console.log("Disabling testStartNodes()");
-            startNodesState = TestCaseDisabled;
-        }
-    });
-
     function TestObj(options) {
         this.deferred = options.deferred || jQuery.Deferred();
         if (options.hasOwnProperty("currentTestNumber")) {
@@ -382,10 +375,6 @@ PromiseHelper = (function(PromiseHelper, $) {
 
         // This starts the entire chain
         initialDeferred.resolve();
-    }
-
-    function testStartNodes(test) {
-        test.trivial(xcalarStartNodes(thriftHandle, numUsrnodes));
     }
 
     function testGetNumNodes(test) {
@@ -3009,6 +2998,32 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testApiKeyList(test) {
+        var keyname = "testListKeyMgmtd";
+        // Insert original key
+        xcalarKeyAddOrReplace(thriftHandle,
+                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              keyname, "a", true)
+        .then(function() {
+            // Get list of keys using this keyname as a regex
+            return xcalarKeyList(thriftHandle,
+                                 XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                 keyname);
+        })
+        .then(function(keyList) {
+            test.assert(keyList.keys.indexOf(keyname) != -1);
+            return xcalarKeyDelete(thriftHandle,
+                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, keyname);
+        })
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(result) {
+            test.fail(StatusTStr[result["xcalarStatus"]]);
+        });
+    }
+
     function testApiKeySetIfEqual(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
@@ -4004,7 +4019,6 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
-    addTestCase(testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetLicense, "getLicense", defaultTimeout, TestCaseEnabled, "");
@@ -4134,6 +4148,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
 
+    addTestCase(testApiKeyList, "key list", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testApiKeyReplace, "key replace", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testApiKeyLookup, "key lookup", defaultTimeout, TestCaseEnabled, "");
