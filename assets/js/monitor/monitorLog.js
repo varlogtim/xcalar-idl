@@ -13,14 +13,6 @@ window.MonitorLog = (function(MonitorLog, $) {
         hasSetup = true;
     };
 
-    MonitorLog.show = function() {
-        $logCard.show();
-    };
-
-    MonitorLog.close = function() {
-        $logCard.hide();
-    };
-
     MonitorLog.adjustTabNumber = function() {
         if (hasSetup &&
             $logCard.is(":visible") &&
@@ -434,9 +426,23 @@ window.MonitorLog = (function(MonitorLog, $) {
             logs[host] = "";
         }
         if (duplicateHosts) {
-            Alert.error(MonitorTStr.GetLogsFail,  MonitorTStr.GetDuplicateHost);
+            Alert.error(MonitorTStr.GetLogsFail, MonitorTStr.GetDuplicateHost);
         }
     }
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        MonitorLog.__testOnly__ = {};
+        MonitorLog.__testOnly__.getThisHosts = function() {
+            return hosts;
+        };
+        MonitorLog.__testOnly__.getThisLogs = function() {
+            return logs;
+        };
+        MonitorLog.__testOnly__.getHost = getHost;
+        MonitorLog.__testOnly__.getRecentLogs = getRecentLogs;
+        MonitorLog.__testOnly__.appendResultToFocusTab = appendResultToFocusTab;
+    }
+    /* End Of Unit Test Only */
 
     return (MonitorLog);
 }({}, jQuery));
