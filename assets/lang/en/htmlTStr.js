@@ -845,7 +845,7 @@ module.exports = {
 
     "dfParam": {
         "title": "Parameterize Operation",
-        "instr": "To convert this operation into a parameterized operation, please click the add new parameterized operation button and drag and drop the parameters into their appropriate places.",
+        "instr": "To convert this operation into a parameterized operation, please click the New Parameter button, provide a name, and drag and drop the parameter into its appropriate place.",
         "query": "Original Operation",
         "currParamList": "Current Parameter List",
         "systemParamList": "System Parameter List",
