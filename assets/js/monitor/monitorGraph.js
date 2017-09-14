@@ -311,7 +311,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         usrCpu.used /= numNodes;
         usrCpu.total /= numNodes;
         mem.userTableUsage = tableUsage;
-        mem.otherTableUsage = mem.xdbUsed - mem.userTableUsage - mem.datasetUsage;
+        mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage - mem.datasetUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
         mem.free = mem.total - mem.ramUsed;
 

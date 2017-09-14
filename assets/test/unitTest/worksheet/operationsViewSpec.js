@@ -731,7 +731,7 @@ describe('OperationsView Test', function() {
             });
         });
 
-        describe.skip('test type checking', function() {
+        describe('test type checking', function() {
             this.timeout(120000);
             // this will take a long time because we
             // test out all combination of argument pairs and each test
@@ -1664,7 +1664,7 @@ describe('OperationsView Test', function() {
             var cachedFilter;
             var fn;
             before(function() {
-                cachedGB = xcFunction.filter;
+                cachedFilter = xcFunction.filter;
                 fn = OperationsView.__testOnly__.submitFinalForm;
             });
             it("submitFinalForm", function(done) {
