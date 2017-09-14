@@ -47,7 +47,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         .then(deferred.resolve)
         .fail(function(error) {
             console.error("install extension fails", error);
-            deferred.reject(error);
+            deferred.resolve(); // still resolve it
         })
         .always(function() {
             $extOpsView.removeClass("loading");
