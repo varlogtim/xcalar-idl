@@ -1,4 +1,8 @@
 describe("xcManager Test", function() {
+    before(function() {
+        console.clear();
+    });
+
     describe("Setup Fail Hanlder Test", function() {
         var handleSetupFail;
         var oldAlert;
@@ -102,6 +106,118 @@ describe("xcManager Test", function() {
         });
     });
 
+    describe("Basic Function Test", function() {
+        it("restoreActiveTable should work", function(done) {
+            var oldFunc = TblManager.parallelConstruct;
+            var test = false;
+            TblManager.parallelConstruct = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            var tableId = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+
+            table.getMetaAndResultSet = function() {
+                return PromiseHelper.resolve();
+            };
+
+            gTables[tableId] = table;
+
+            var failures = [];
+            xcManager.__testOnly__.restoreActiveTable(tableId, null, failures)
+            .then(function() {
+                expect(table.status).to.equal(TableType.Active);
+                expect(failures.length).to.equal(0);
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                delete gTables[tableId];
+                TblManager.parallelConstruct = oldFunc;
+            });
+        });
+
+        it("restoreActiveTable should handle fail case", function(done) {
+            var oldFunc = WSManager.removeTable;
+            var test = false;
+            WSManager.removeTable = function() { test = true; };
+            var tableId = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+
+            table.getMetaAndResultSet = function() {
+                return PromiseHelper.reject({error: "test"});
+            };
+            gTables[tableId] = table;
+
+            var failures = [];
+            xcManager.__testOnly__.restoreActiveTable(tableId, null, failures)
+            .then(function() {
+                expect(table.status).to.equal(TableType.Orphan);
+                expect(failures.length).to.equal(1);
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                delete gTables[tableId];
+                WSManager.removeTable = oldFunc;
+            });
+        });
+
+        it("window.error should work", function() {
+            var oldFunc = Log.errorLog;
+            var $target = $('<div>testDiv</div>');
+            gMouseEvents.setMouseDownTarget($target);
+            var info = null;
+            Log.errorLog = function(arg1, arg2, arg3, arg4) {
+                info = arg4;
+            },
+            window.onerror("test");
+            expect(info).to.be.an("object");
+            expect(info.error).to.be.equal("test");
+            expect(info.lastMouseDown).not.to.be.null;
+            // clear up
+            Log.errorLog = oldFunc;
+        });
+
+        it("window.onunload should autoSendEmail", function() {
+            var oldFunc = LiveHelpModal.autoSendEmail;
+            var test = false;
+            LiveHelpModal.autoSendEmail = function() { test = true; };
+
+            window.onunload();
+            expect(test).to.be.true;
+
+            // clear up
+            LiveHelpModal.autoSendEmail = oldFunc;
+        });
+
+        it("window.beforeunload should work", function() {
+            var oldUnLoad = xcManager.unload;
+            var oldLogCheck = Log.hasUncommitChange;
+
+            xcManager.unload = function() {};
+            Log.hasUncommitChange = function() { return true; };
+
+            var res = window.onbeforeunload();
+            expect(res).to.equal(CommonTxtTstr.LogoutWarn);
+
+            xcManager.unload = oldUnLoad;
+            Log.hasUncommitChange = oldLogCheck;
+        });
+    });
+
     describe("Public API Test", function() {
         it("xcManager.isInSetup should work", function() {
             $("body").addClass("xc-setup");
@@ -124,6 +240,80 @@ describe("xcManager Test", function() {
 
             window.onbeforeunload = beforunload;
             window.onunload = unload;
+        });
+
+        it("xcManager.unload should work in async case", function() {
+            var oldClean = DSPreview.cleanup;
+            var oldFree = TblManager.freeAllResultSets;
+            var test1, test2;
+            DSPreview.cleanup = function() { test1 = true; };
+            TblManager.freeAllResultSets = function() { test2 = true; };
+
+            xcManager.unload(true);
+            expect(test1).to.be.true;
+            expect(test2).to.be.true;
+
+            DSPreview.cleanup = oldClean;
+            TblManager.freeAllResultSets = oldFree;
+        });
+
+        it("xcManager.unload should work in sync case", function(done) {
+            xcManager.__testOnly__.fakeLogoutRedirect();
+
+            var oldClean = DSPreview.cleanup;
+            var oldFree = TblManager.freeAllResultSetsSync;
+            var oldRelease =  XcSupport.releaseSession;
+            var oldRemove = xcManager.removeUnloadPrompt;
+            var test1, test2, test3, test4;
+            DSPreview.cleanup = function() {
+                test1 = true;
+                return PromiseHelper.resolve();
+            };
+            TblManager.freeAllResultSetsSync = function() {
+                test2 = true;
+                return PromiseHelper.resolve();
+            };
+            XcSupport.releaseSession = function() {
+                test3 = true;
+                return PromiseHelper.resolve();
+            };
+            xcManager.removeUnloadPrompt = function() { test4 = true; };
+
+            xcManager.unload(false, false);
+
+            UnitTest.testFinish(function() {
+                return test4 === true;
+            })
+            .then(function() {
+                expect(test1).to.be.true;
+                expect(test2).to.be.true;
+                expect(test3).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSPreview.cleanup = oldClean;
+                TblManager.freeAllResultSetsSync = oldFree;
+                XcSupport.releaseSession = oldRelease;
+                xcManager.removeUnloadPrompt = oldRemove;
+                xcManager.__testOnly__.resetLogoutRedirect();
+            });
+        });
+
+        it("xcManager.forceLogout should work", function() {
+            xcManager.__testOnly__.fakeLogoutRedirect();
+            var oldFunc = xcManager.removeUnloadPrompt;
+            var test = false;
+            xcManager.removeUnloadPrompt = function() { test = true; };
+
+            xcManager.forceLogout();
+            expect(test).to.be.true;
+
+            // clear up
+            xcManager.removeUnloadPrompt = oldFunc;
+            xcManager.__testOnly__.resetLogoutRedirect();
         });
     });
 
@@ -163,8 +353,62 @@ describe("xcManager Test", function() {
             expect(test).to.be.false;
             $menu.find(".about").trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
-
+            // clear up
             AboutModal.show = oldFunc;
+        });
+
+        it("should mouseup .setup to open setup panel", function() {
+            var oldSetup = Workbook.goToSetup;
+            var oldOpenPanel = MainMenu.openPanel;
+            var oldOpen = MainMenu.open;
+            var test1 = test2 = test3 = false;
+            var noWorkbook = $("#container").hasClass("noWorkbook");
+
+            Workbook.goToSetup = function() { test1 = true; };
+            MainMenu.openPanel = function() { test2 = true; };
+            MainMenu.open = function() { test3 = true; };
+
+            // normal moouseup not work
+            $menu.find(".setup").mouseup();
+            expect(test1).to.be.false;
+            expect(test2).to.be.false;
+            expect(test3).to.be.false;
+
+            // case 1
+            $("#container").addClass("noWorkbook");
+            $menu.find(".setup").trigger(fakeEvent.mouseup);
+            expect(test1).to.be.true;
+            expect(test2).to.be.false;
+            expect(test3).to.be.false;
+
+            // case 2
+            test1 = false;
+            $("#container").removeClass("noWorkbook");
+            $menu.find(".setup").trigger(fakeEvent.mouseup);
+            expect(test1).to.be.false;
+            expect(test2).to.be.true;
+            expect(test3).to.be.true;
+
+            // clear up
+            Workbook.goToSetup = oldSetup;
+            MainMenu.openPanel = oldOpenPanel;
+            MainMenu.open = oldOpen;
+            if (noWorkbook) {
+                $("#container").addClass("noWorkbook");
+            }
+        });
+
+        it("should mouseup .liveHelp to open about modal", function() {
+            var oldFunc = LiveHelpModal.show;
+            var test = false;
+            LiveHelpModal.show = function() { test = true; };
+            // normal moouseup not work
+            $menu.find(".liveHelp").mouseup();
+            expect(test).to.be.false;
+            $menu.find(".liveHelp").trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+            // clear up
+            LiveHelpModal.show = oldFunc;
         });
 
         it("should mouseup logout button to sign out", function() {
@@ -202,6 +446,168 @@ describe("xcManager Test", function() {
             // close menu
             $("#datastoreMenu .minimizeBtn").click();
             $("#memoryAlert").removeClass("yellow");
+        });
+
+        it("should go to workbook monitor in meomryAlert", function() {
+            var oldFunc = Workbook.goToMonitor;
+            var test = false;
+            $("#container").addClass("switchingWkbk");
+            Workbook.goToMonitor = function() { test = true; };
+
+            $("#memoryAlert").click();
+            expect(test).to.be.true;
+
+            // clear up
+            Workbook.goToMonitor = oldFunc;
+            $("#container").removeClass("switchingWkbk");
+        });
+
+        it("should open meau in nromal meomryAlert", function() {
+            var oldFunc = MainMenu.openPanel;
+            var mainMenu, subMenu;
+
+            MainMenu.openPanel = function(arg1, arg2) {
+                mainMenu = arg1;
+                subMenu = arg2;
+            };
+
+            $("#memoryAlert").removeClass("yellow red").click();
+            expect(mainMenu).to.equal("monitorPanel");
+            expect(subMenu).to.equal("systemButton");
+
+            // clear up
+            MainMenu.openPanel = oldFunc;
+        });
+
+        it("should click auto save to save", function(done) {
+            var oldCommit = KVStore.commit;
+            var oldShowSuccess = xcHelper.showSuccess;
+            var test = false;
+            var msg = null;
+
+            KVStore.commit = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            xcHelper.showSuccess = function(arg) { msg = arg; };
+
+            $("#autoSaveBtn").click();
+
+            UnitTest.testFinish(function() {
+                return test;
+            })
+            .then(function() {
+                expect(msg).to.equal(SuccessTStr.Saved);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                KVStore.commit = oldCommit;
+                xcHelper.showSuccess = oldShowSuccess;
+            });
+        });
+
+        it("should click to auto save handle fail case", function(done) {
+            var oldCommit = KVStore.commit;
+            var oldAlert = Alert.error;
+            var test = false;
+            var error = null;
+
+            KVStore.commit = function() {
+                test = true;
+                return PromiseHelper.reject();
+            };
+
+            Alert.error = function(arg) { error = arg; };
+
+            $("#autoSaveBtn").click();
+
+            UnitTest.testFinish(function() {
+                return test;
+            })
+            .then(function() {
+                expect(error).to.equal(AlertTStr.Error);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                KVStore.commit = oldCommit;
+                Alert.error = oldAlert;
+            });
+        });
+    });
+
+    describe("Global Keydown Event Test", function() {
+        var key, flag;
+
+        before(function() {
+            xcManager.__testOnly__.fakeTableScroll(function(arg1, arg2) {
+                key = arg1;
+                flag = arg2;
+                return true;
+            });
+        });
+
+        beforeEach(function() {
+            key = flag = null;
+        });
+
+        it("should trigger page up", function() {
+            var e = {type: "keydown", which: keyCode.PageUp};
+            $(document).trigger(e);
+            expect(key).to.equal("pageUpdown");
+            expect(flag).to.be.true;
+        });
+
+        it("should trigger space", function() {
+            var e = {type: "keydown", which: keyCode.Space};
+            $(document).trigger(e);
+            expect(key).to.equal("pageUpdown");
+            expect(flag).to.be.false;
+        });
+
+        it("should trigger page down", function() {
+            var e = {type: "keydown", which: keyCode.PageDown};
+            $(document).trigger(e);
+            expect(key).to.equal("pageUpdown");
+            expect(flag).to.be.false;
+        });
+
+        it("should trigger up", function() {
+            var e = {type: "keydown", which: keyCode.Up};
+            $(document).trigger(e);
+            expect(key).to.equal("updown");
+            expect(flag).to.be.true;
+        });
+
+        it("should trigger down", function() {
+            var e = {type: "keydown", which: keyCode.Down};
+            $(document).trigger(e);
+            expect(key).to.equal("updown");
+            expect(flag).to.be.false;
+        });
+
+        it("should trigger home", function() {
+            var e = {type: "keydown", which: keyCode.Home};
+            $(document).trigger(e);
+            expect(key).to.equal("homeEnd");
+            expect(flag).to.be.true;
+        });
+
+        it("should trigger home", function() {
+            var e = {type: "keydown", which: keyCode.End};
+            $(document).trigger(e);
+            expect(key).to.equal("homeEnd");
+            expect(flag).to.be.false;
+        });
+
+        after(function() {
+            xcManager.__testOnly__.resetFakeScroll();
         });
     });
 

@@ -753,7 +753,6 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function documentReadyGeneralFunction() {
-        var $rowInput = $("#rowInput");
         var backspaceIsPressed = false;
 
         $(document).keydown(function(event){
@@ -1180,106 +1179,6 @@ window.xcManager = (function(xcManager, $) {
             }
         };
 
-        function tableScroll(scrollType, isUp) {
-            if (!$("#workspaceTab").hasClass("active") ||
-                gActiveTableId == null)
-            {
-                return false;
-            }
-
-            var $visibleMenu = $('.menu:visible');
-            if ($visibleMenu.length !== 0) {
-                // if the menu is only .tdMenu, allow scroll
-                if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
-                    return false;
-                }
-            }
-
-            if ($("#functionArea .CodeMirror").hasClass("CodeMirror-focused") ||
-                $(document.activeElement).is("input")) {
-                return false;
-            }
-
-            var tableId = gActiveTableId;
-            var $lastTarget = gMouseEvents.getLastMouseDownTarget();
-            var isInMainFrame = !$lastTarget.context ||
-                                ($lastTarget.closest("#mainFrame").length > 0 &&
-                                !$lastTarget.is("input"));
-
-            if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
-                if (gIsTableScrolling ||
-                    $("#modalBackground").is(":visible") ||
-                    !TblFunc.isTableScrollable(tableId)) {
-                    // not trigger table scroll, but should return true
-                    // to prevent table's natural scroll
-                    return true;
-                }
-
-                var maxRow     = gTables[tableId].resultSetCount;
-                var curRow     = $rowInput.data("val");
-                var lastRowNum = RowScroller.getLastVisibleRowNum(tableId);
-                var rowToGo;
-
-                // validation check
-                xcAssert((lastRowNum != null), "Error Case!");
-
-                if (scrollType === "homeEnd") {
-                    // isUp === true for home button, false for end button
-                    rowToGo = isUp ? 1 : maxRow;
-                } else {
-                    var rowToSkip;
-                    if (scrollType === "updown") {
-                        var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
-                        var scrollTop = $xcTbodyWrap.scrollTop();
-                        var $trs = $("#xcTable-" + tableId + " tbody tr");
-                        var trHeight = $trs.height();
-                        var rowNum;
-
-                        if (!isUp) {
-                            rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
-                            if (rowNum - lastRowNum > 5) {
-                                // when have more then 5 buffer on bottom
-                                $xcTbodyWrap.scrollTop(scrollTop + trHeight);
-                                return true;
-                            }
-                        } else {
-                            rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
-                            if (curRow - rowNum > 5) {
-                                // when have more then 5 buffer on top
-                                $xcTbodyWrap.scrollTop(scrollTop - trHeight);
-                                return true;
-                            }
-                        }
-
-                        rowToSkip = 1;
-                    } else if (scrollType === "pageUpdown") {
-                        // this is one page's row
-                        rowToSkip = lastRowNum - curRow;
-                    } else {
-                        // error case
-                        console.error("Invalid case!");
-                        return false;
-                    }
-
-                    rowToGo = isUp ? Math.max(1, curRow - rowToSkip) :
-                                    Math.min(maxRow, curRow + rowToSkip);
-                }
-
-                if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {
-                    // no need for backend call
-                    return true;
-                }
-
-                xcMenu.close();
-                gMouseEvents.setMouseDownTarget(null);
-                $rowInput.val(rowToGo).trigger(fakeEvent.enter);
-
-                return true;
-            }
-
-            return false;
-        }
-
         function checkUndoRedo(event) {
             if (!(isSystemMac && event.metaKey) &&
                 !(!isSystemMac && event.ctrlKey))
@@ -1307,6 +1206,107 @@ window.xcManager = (function(xcManager, $) {
                 }
             }
         }
+    }
+
+    function tableScroll(scrollType, isUp) {
+        if (!$("#workspaceTab").hasClass("active") ||
+            gActiveTableId == null)
+        {
+            return false;
+        }
+
+        var $visibleMenu = $('.menu:visible');
+        if ($visibleMenu.length !== 0) {
+            // if the menu is only .tdMenu, allow scroll
+            if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
+                return false;
+            }
+        }
+
+        if ($("#functionArea .CodeMirror").hasClass("CodeMirror-focused") ||
+            $(document.activeElement).is("input")) {
+            return false;
+        }
+
+        var $rowInput = $("#rowInput");
+        var tableId = gActiveTableId;
+        var $lastTarget = gMouseEvents.getLastMouseDownTarget();
+        var isInMainFrame = !$lastTarget.context ||
+                            ($lastTarget.closest("#mainFrame").length > 0 &&
+                            !$lastTarget.is("input"));
+
+        if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
+            if (gIsTableScrolling ||
+                $("#modalBackground").is(":visible") ||
+                !TblFunc.isTableScrollable(tableId)) {
+                // not trigger table scroll, but should return true
+                // to prevent table's natural scroll
+                return true;
+            }
+
+            var maxRow = gTables[tableId].resultSetCount;
+            var curRow = $rowInput.data("val");
+            var lastRowNum = RowScroller.getLastVisibleRowNum(tableId);
+            var rowToGo;
+
+            // validation check
+            xcAssert((lastRowNum != null), "Error Case!");
+
+            if (scrollType === "homeEnd") {
+                // isUp === true for home button, false for end button
+                rowToGo = isUp ? 1 : maxRow;
+            } else {
+                var rowToSkip;
+                if (scrollType === "updown") {
+                    var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
+                    var scrollTop = $xcTbodyWrap.scrollTop();
+                    var $trs = $("#xcTable-" + tableId + " tbody tr");
+                    var trHeight = $trs.height();
+                    var rowNum;
+
+                    if (!isUp) {
+                        rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
+                        if (rowNum - lastRowNum > 5) {
+                            // when have more then 5 buffer on bottom
+                            $xcTbodyWrap.scrollTop(scrollTop + trHeight);
+                            return true;
+                        }
+                    } else {
+                        rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
+                        if (curRow - rowNum > 5) {
+                            // when have more then 5 buffer on top
+                            $xcTbodyWrap.scrollTop(scrollTop - trHeight);
+                            return true;
+                        }
+                    }
+
+                    rowToSkip = 1;
+                } else if (scrollType === "pageUpdown") {
+                    // this is one page's row
+                    rowToSkip = lastRowNum - curRow;
+                } else {
+                    // error case
+                    console.error("Invalid case!");
+                    return false;
+                }
+
+                rowToGo = isUp ? Math.max(1, curRow - rowToSkip) :
+                                Math.min(maxRow, curRow + rowToSkip);
+            }
+
+            if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {
+                // no need for backend call
+                return true;
+            }
+
+            xcMenu.close();
+            gMouseEvents.setMouseDownTarget(null);
+            $rowInput.val(rowToGo).trigger(fakeEvent.enter);
+
+            return true;
+        }
+
+        return false;
     }
 
     function logoutRedirect(releaseHold) {
@@ -1482,10 +1482,31 @@ window.xcManager = (function(xcManager, $) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
+        var oldLogoutRedirect;
+        var oldTableScroll;
         xcManager.__testOnly__ = {};
         xcManager.__testOnly__.handleSetupFail = handleSetupFail;
         xcManager.__testOnly__.reImplementMouseWheel = reImplementMouseWheel;
         xcManager.__testOnly__.oneTimeSetup = oneTimeSetup;
+        xcManager.__testOnly__.restoreActiveTable = restoreActiveTable;
+
+        xcManager.__testOnly__.fakeLogoutRedirect = function() {
+            oldLogoutRedirect = logoutRedirect;
+            logoutRedirect = function() {};
+        };
+
+        xcManager.__testOnly__.resetLogoutRedirect = function() {
+            logoutRedirect = oldLogoutRedirect;
+        };
+
+        xcManager.__testOnly__.fakeTableScroll = function(func) {
+            oldTableScroll = tableScroll;
+            tableScroll = func;
+        };
+
+        xcManager.__testOnly__.resetFakeScroll = function() {
+            tableScroll = oldTableScroll;
+        };
     }
     /* End Of Unit Test Only */
 

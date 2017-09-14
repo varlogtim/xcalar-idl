@@ -85,6 +85,7 @@ describe('xcTooltip Test', function() {
         });
 
         $ele.tooltip("show");
+
         expect($(".tooltip:visible").length).not.to.equal(0);
         xcTooltip.hideAll();
         expect($(".tooltip:visible").length).to.equal(0);
