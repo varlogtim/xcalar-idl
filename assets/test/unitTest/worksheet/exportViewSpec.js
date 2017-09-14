@@ -7,6 +7,7 @@ describe('ExportView Test', function() {
     var tableId2;
     var cachedGetTableList;
     var cachedCenterFn;
+    var $table;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
@@ -19,6 +20,7 @@ describe('ExportView Test', function() {
             tableName = tName;
             $exportForm = $('#exportView');
             tableId = xcHelper.getTableId(tableName);
+            $table = $("#xcTable-" + tableId);
 
             // add a second table for table list testing
             tableName2 = "fakeTable#zz999";
@@ -299,6 +301,64 @@ describe('ExportView Test', function() {
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
         });
 
+        it("shift click should work on columns list", function() {
+
+            expect($exportForm.find(".cols li").eq(0).find(".checked").length).to.equal(1);
+            $exportForm.find(".cols li").eq(0).click();
+            expect($exportForm.find(".cols li").eq(0).find(".checked").length).to.equal(0);
+
+            var event = {"type": "click", "which": 1, "shiftKey": true};
+            expect($exportForm.find(".cols li").eq(1).find(".checked").length).to.equal(1);
+            expect($exportForm.find(".cols li").eq(2).find(".checked").length).to.equal(1);
+            $exportForm.find(".cols li").eq(2).trigger(event);
+            expect($exportForm.find(".cols li").eq(1).find(".checked").length).to.equal(0);
+            expect($exportForm.find(".cols li").eq(2).find(".checked").length).to.equal(0);
+
+            $exportForm.find(".cols li").eq(0).click();
+            $exportForm.find(".cols li").eq(2).trigger(event);
+            expect($exportForm.find(".cols li").eq(0).find(".checked").length).to.equal(1);
+            expect($exportForm.find(".cols li").eq(1).find(".checked").length).to.equal(1);
+            expect($exportForm.find(".cols li").eq(2).find(".checked").length).to.equal(1);
+        });
+
+        it("shift click should work on table columns", function() {
+            $table.find("th").eq(0).mousedown();
+            var $target = $table.find(".header").eq(1);
+            var event = {"type": "click", "which": 1, "shiftKey": true};
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            $target.click();
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+
+            // shift deselect 7th column
+            $target = $table.find(".header").eq(7);
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            expect($table.find(".header").eq(4).closest(".modalHighlighted").length).to.equal(1);
+            $target.trigger(event);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            expect($table.find(".header").eq(4).closest(".modalHighlighted").length).to.equal(0);
+
+            // select 1st column
+            var $target = $table.find(".header").eq(1);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            $target.click();
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+
+            // shift select 7th column
+            $target = $table.find(".header").eq(7);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            expect($table.find(".header").eq(4).closest(".modalHighlighted").length).to.equal(0);
+
+            $target.trigger(event);
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            expect($table.find(".header").eq(4).closest(".modalHighlighted").length).to.equal(1);
+
+            $target = $table.find(".header").eq(1);
+            $target.click();
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            $table.find("th").eq(0).click();
+            expect($table.find(".header").eq(1).closest(".modalHighlighted").length).to.equal(1);
+        });
+
         it('advancedSection should toggle', function() {
             expect($advancedSection.hasClass('collapsed')).to.be.true;
             expect($advancedSection.hasClass('expanded')).to.be.false;
@@ -336,6 +396,14 @@ describe('ExportView Test', function() {
             $advancedSection.find('.recordDelim').trigger(fakeEvent.click);
             $advancedSection.find('.recordDelim').siblings('.list').find('li').eq(0).trigger(fakeEvent.mouseup);
             expect($advancedSection.find('.recordDelim').val()).to.equal("\\n");
+        });
+
+        it("keepOrder checkbox should work", function() {
+            expect($exportForm.find('.keepOrderedCBWrap .checkbox').hasClass('checked')).to.be.false;
+            $exportForm.find('.keepOrderedCBWrap').click();
+            expect($exportForm.find('.keepOrderedCBWrap .checkbox').hasClass('checked')).to.be.true;
+            $exportForm.find('.keepOrderedCBWrap').click();
+            expect($exportForm.find('.keepOrderedCBWrap .checkbox').hasClass('checked')).to.be.false;
         });
     });
 
@@ -387,9 +455,34 @@ describe('ExportView Test', function() {
 
             $exportForm.find(".fieldDelim.text").val(cachedVal);
         });
+
+        it("getAdvancedOptions  should work", function() {
+            var cacheFn = xcHelper.delimiterTranslate;
+            xcHelper.delimiterTranslate = function() {return "";};
+            var fn = ExportView.__testOnly__.getAdvancedOptions;
+            var options = fn();
+            expect(options.error).to.be.true;
+            expect(options.errorMsg).to.equal(ErrTStr.NoEmpty);
+            xcHelper.delimiterTranslate = function($el) {
+                if ($el.hasClass("recordDelim")) return "";
+                return "\t";
+            };
+            options = fn();
+            expect(options.error).to.be.true;
+            expect(options.errorMsg).to.equal(ErrTStr.NoEmpty);
+            xcHelper.delimiterTranslate = cacheFn;
+        });
     });
 
     describe('test submit errors', function() {
+        it("invalid table name should produce error", function() {
+            var tableCache = gTables[tableId];
+            delete gTables[tableId];
+            $exportForm.mousedown();
+            $(document).trigger(fakeEvent.enter);
+            UnitTest.hasStatusBoxWithError(ErrTStr.TableNotExists);
+            gTables[tableId] = tableCache;
+        });
         // invalid column name
         it("invalid backnames should produce error", function(done) {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
@@ -537,7 +630,7 @@ describe('ExportView Test', function() {
         delete gTables[tableId2];
         WSManager.getTableList = cachedGetTableList;
         xcHelper.centerFocusedTable = cachedCenterFn;
-        ExportView.close();
+        $exportForm.find(".close").click();
 
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {

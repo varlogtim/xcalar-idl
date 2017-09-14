@@ -2571,6 +2571,7 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
+    // new column name duplication & validity check
     function newColNameCheck(args) {
         var deferred = jQuery.Deferred();
         var $nameInput;
@@ -4604,6 +4605,10 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.submissionFailHandler = submissionFailHandler;
         OperationsView.__testOnly__.groupBy = groupBy;
         OperationsView.__testOnly__.groupByCheck = groupByCheck;
+        OperationsView.__testOnly__.getColNumFromFunc = getColNumFromFunc;
+        OperationsView.__testOnly__.isBoolInQuotes = isBoolInQuotes;
+        OperationsView.__testOnly__.newColNameCheck = newColNameCheck;
+        OperationsView.__testOnly__.submitFinalForm = submitFinalForm;
 
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;

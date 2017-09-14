@@ -21,7 +21,6 @@ window.JoinView = (function($, JoinView) {
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
     var focusedThNum;
-    var formOpenTime; // stores the last time the form was opened
 
     var validTypes = [ColumnType.integer, ColumnType.float, ColumnType.string,
                       ColumnType.boolean];
@@ -191,6 +190,7 @@ window.JoinView = (function($, JoinView) {
 
             if (originalText !== tableName) {
                 $textBox.val(tableName);
+
                 $li.siblings().removeClass('selected');
                 $li.addClass('selected');
                 var $clauses;
@@ -200,13 +200,9 @@ window.JoinView = (function($, JoinView) {
                     $clauses = $joinView.find('.rightClause');
                 }
                 $clauses.val("").eq(0).focus();
-                checkNextBtn();
-                updatePreviewText();
+                $textBox.trigger("change");
                 var tableId = getTableIds(index);
                 xcHelper.centerFocusedTable(tableId, true, {noClear: true});
-                deselectAllTableCols(curTableIds[index]);
-                curTableIds[index] = tableId;
-                selectAllTableCols(tableId);
             }
         }
 
@@ -222,18 +218,24 @@ window.JoinView = (function($, JoinView) {
 
             checkNextBtn();
             updatePreviewText();
+            var tableIds = getTableIds();
+            var prev = $(this).data("val");
+            var prevId = xcHelper.getTableId(prev);
+            if (gTables[prevId] && prevId !== tableIds[0] &&
+                prevId !== tableIds[1]) {
+                deselectAllTableCols(prevId);
+            }
 
-            var tableId = getTableIds(index);
+            var tableId = tableIds[index];
             if (gTables[tableId]) {
                 TblFunc.focusTable(tableId);
                 activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
                 selectAllTableCols(tableId);
             } else {
-                deselectAllTableCols(curTableIds[index]);
-                curTableIds[index] = null;
                 deactivateClauseSection(index);
             }
+            $(this).data("val", $(this).val());
         });
 
         $joinView.find('.tableListSections .focusTable').click(function() {
@@ -471,7 +473,7 @@ window.JoinView = (function($, JoinView) {
     };
 
     JoinView.show = function(tableId, colNums, restore, restoreTime) {
-        if (restoreTime && restoreTime !== formOpenTime) {
+        if (restoreTime && restoreTime !== formHelper.getOpenTime()) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
@@ -479,7 +481,6 @@ window.JoinView = (function($, JoinView) {
         }
         isOpen = true;
         formHelper.showView();
-        formOpenTime = Date.now();
 
         if (restore) {
             if ($joinView.hasClass('nextStep')) {
@@ -599,13 +600,14 @@ window.JoinView = (function($, JoinView) {
 
     function deselectCol(colNum, $colList, tableId) {
         var $table = $("#xcTable-" + tableId);
+        var tableIds = getTableIds();
 
         $colList.find('li[data-colnum="' + colNum + '"]')
                 .removeClass('checked')
                 .find('.checkbox').removeClass('checked');
 
         // self join
-        if (curTableIds[0] === curTableIds[1]) {
+        if (tableIds[0] === tableIds[1]) {
             var $sibList = $colList.siblings("ul");
             if ($sibList.find('li[data-colnum="' + colNum + '"]')
                 .hasClass("checked")) {
@@ -638,7 +640,8 @@ window.JoinView = (function($, JoinView) {
             $checkbox.removeClass('checked');
             $colList.find('li').removeClass('checked')
                  .find('.checkbox').removeClass('checked');
-            if (curTableIds[0] === curTableIds[1]) {
+            var tableIds = getTableIds();
+            if (tableIds[0] === tableIds[1]) {
                 var $sibList = $colList.siblings("ul");
                 var $table = $("#xcTable-" + tableId);
                 $sibList.find("li:not(.checked)").each(function() {
@@ -666,7 +669,8 @@ window.JoinView = (function($, JoinView) {
     }
 
     function deselectAllTableCols(tableId) {
-        if (curTableIds[0] === curTableIds[1]) {
+        var tableIds = getTableIds();
+        if (tableIds[0] === tableIds[1]) {
             return;
         }
         var $table = $("#xcTable-" + tableId);
@@ -700,7 +704,7 @@ window.JoinView = (function($, JoinView) {
         var toHighlight = !$cell.hasClass("modalHighlighted");
         var $colList = isLeftSide ? $joinView.find(".leftCols") :
                                     $joinView.find(".rightCols");
-        var isSelfJoin = curTableIds[0] === curTableIds[1];
+        var isSelfJoin = tableIds[0] === tableIds[1];
         var $sibList = $colList.siblings("ul");
         // check side clicked
         if (toShift && focusedThNum != null) {
@@ -1383,12 +1387,12 @@ window.JoinView = (function($, JoinView) {
 
         var options = {
             "keepTables": keepTable,
-            "formOpenTime": formOpenTime
+            "formOpenTime": formHelper.getOpenTime()
         };
 
         JoinView.close();
 
-        var origFormOpenTime = formOpenTime;
+        var origFormOpenTime = formHelper.getOpenTime();
 
         xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
         .then(function(finalTableName) {
@@ -1414,6 +1418,7 @@ window.JoinView = (function($, JoinView) {
         var rCols = colsInClause.rCols;
 
         var tableIds = getTableIds();
+        curTableIds = tableIds;
         var lTableId = tableIds[0];
         var rTableId = tableIds[1];
         var lTable = gTables[lTableId];
@@ -1835,7 +1840,7 @@ window.JoinView = (function($, JoinView) {
             });
         } else {
             // show modify and/or delete tables modal button
-            var showModifyBtn = formOpenTime === origFormOpenTime;
+            var showModifyBtn = formHelper.getOpenTime() === origFormOpenTime;
             // if they're not equal, the form has been opened before
             // and we can't show the modify join button
             var showDeleteTableBtn = newMsg.toLowerCase()
@@ -2014,6 +2019,7 @@ window.JoinView = (function($, JoinView) {
         updateJoinTableName();
         resetRenames();
         curTableIds = [];
+        $joinView.on(".tableListSection .arg").data("val", "");
     }
 
     function updateJoinTableName() {
@@ -2045,7 +2051,6 @@ window.JoinView = (function($, JoinView) {
                 return ($(this).text() === tableName);
             }).addClass('selected');
             selectAllTableCols(origTableId);
-            curTableIds = [origTableId, null];
         }
     }
 
@@ -2285,7 +2290,7 @@ window.JoinView = (function($, JoinView) {
             return false;
         });
 
-        $renameSection.on("click", ".copyAll", function() {
+        $renameSection.on("click", ".copyAll", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2293,7 +2298,7 @@ window.JoinView = (function($, JoinView) {
             copyInRename($section);
         });
 
-        $renameSection.on("click", ".copyAppend", function() {
+        $renameSection.on("click", ".copyAppend", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2332,6 +2337,10 @@ window.JoinView = (function($, JoinView) {
         JoinView.__testOnly__.deactivateClauseSection = deactivateClauseSection;
         JoinView.__testOnly__.autoResolveCollisions = autoResolveCollisions;
         JoinView.__testOnly__.smartRename = smartRename;
+        JoinView.__testOnly__.colHeaderClick = colHeaderClick;
+        JoinView.__testOnly__.getFormHelper = function() {
+            return formHelper;
+        };
 
     }
     /* End Of Unit Test Only */

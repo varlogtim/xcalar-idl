@@ -193,6 +193,16 @@ describe('OperationsView Test', function() {
                 }
             });
         });
+
+        it("function isBoolInQuotes", function() {
+            var fn = OperationsView.__testOnly__.isBoolInQuotes;
+            expect(fn("'true'")).to.be.true;
+            expect(fn("'true")).to.be.false;
+            expect(fn("\"true\"")).to.be.true;
+            expect(fn("\"False\"")).to.be.true;
+            expect(fn("\"False")).to.be.false;
+            expect(fn("'Falsez'")).to.be.false;
+        });
     });
 
     describe('function getAllColumnTypesFromArg (map)', function() {
@@ -367,7 +377,19 @@ describe('OperationsView Test', function() {
                 $listWrap.find('li').eq(1).trigger(fakeEvent.mouseup);
                 expect(colNameCacheCalled).to.be.true;
                 expect(centerCalled).to.be.true;
+            });
 
+            it("focus table should work", function() {
+                expect($operationsModal.find(".groupby .focusTable").length).to.equal(1);
+                var called = false;
+                var cache = xcHelper.centerFocusedTable;
+                xcHelper.centerFocusedTable = function() {
+                    called = true;
+                };
+
+                $operationsModal.find(".groupby .focusTable").click();
+                expect(called).to.be.true;
+                xcHelper.centerFocusedTable = cache;
             });
 
             after(function() {
@@ -654,6 +676,11 @@ describe('OperationsView Test', function() {
                 expect($cols.find(".checkbox.checked").length).to.equal(0);
             });
 
+            it("colMenu shouldn't open", function() {
+                $(".xcTable .header").trigger(fakeEvent.mousedown);
+                expect($("#colMenu").is(":visible")).to.be.false;
+            })
+
             after(function() {
                 $operationsView.find('.groupby .incSample .checkbox').click();
             });
@@ -704,7 +731,7 @@ describe('OperationsView Test', function() {
             });
         });
 
-        describe('test type checking', function() {
+        describe.skip('test type checking', function() {
             this.timeout(120000);
             // this will take a long time because we
             // test out all combination of argument pairs and each test
@@ -841,7 +868,78 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find(".groupbyGroup").length).to.equal(2);
                 expect($operationsView.find(".groupbyGroup").eq(0).find(".argsSection").length).to.equal(2);
                 expect($operationsView.find(".groupbyGroup").eq(1).find(".argsSection").length).to.equal(1);
+                $operationsView.find(".closeGroup").click();
             });
+        });
+
+        describe("function newColNameCheck", function() {
+            it("newColNameCheck should work", function(done) {
+                var cachedFn;
+                $functionInput.siblings('.dropdown').mousedown();
+                $functionInput.siblings('.dropdown').click();
+
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "avg");
+                }).trigger(fakeEvent.mouseup);
+
+                var $inputs = $operationsModal.find(".groupby .group .arg");
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
+                $inputs.eq(2).val(prefixCol);
+                $operationsModal.find('.groupby .newTableName').val("a" + Date.now());
+
+                var firstPass = false;
+                OperationsView.__testOnly__.newColNameCheck()
+                .then(function(res) {
+                    firstPass = true;
+                    $inputs.eq(3).val("test");
+                    cachedFn = ColManager.checkColName;
+                    $operationsModal.find(".groupbyGroup").append('<div class="colNameRow testDiv"><input value="test"></div>');
+                    ColManager.checkColName = function() {return false;};
+                    return OperationsView.__testOnly__.newColNameCheck()
+                })
+                .then(function() {
+                    done("failed");
+                })
+                .fail(function(res) {
+                    expect(firstPass).to.be.true;
+                    UnitTest.hasStatusBoxWithError(ErrTStr.NameInUse);
+                    $operationsModal.find(".testDiv").remove();
+                    ColManager.checkColName = cachedFn;
+                    done();
+                });
+            });
+        });
+
+        describe("function submitFinalForm for groupby", function() {
+            var cachedGB;
+            var fn;
+            before(function() {
+                cachedGB = xcFunction.groupBy;
+                fn = OperationsView.__testOnly__.submitFinalForm;
+            });
+            it("submitFinalForm", function(done) {
+                var called = false;
+                xcFunction.groupBy = function() {
+                    called = true;
+                    return PromiseHelper.reject();
+                }
+
+                var colName = xcHelper.getPrefixColName(prefix, "average_stars");
+                fn([colName, colName, "c"], )
+                .then(function() {
+
+                    done("fail");
+                })
+                .fail(function() {
+                    expect(called).to.be.true;
+                    UnitTest.hasAlertWithTitle(StatusMessageTStr.GroupByFailed, {confirm: true});
+                    done();
+                });
+            });
+
+            after(function() {
+                xcFunction.groupBy = cachedGB;
+            })
         });
 
         after(function() {
@@ -1180,6 +1278,15 @@ describe('OperationsView Test', function() {
             expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
+        });
+
+        it("keydown escape should close dropdowns", function() {
+            $operationsView.find(".filter .list").show();
+            expect($operationsView.find(".filter .list:visible").length).to.be.gt(1);
+            $functionsInput.val('').trigger({type: "keydown", which: keyCode.Escape});
+            // only table list should be open
+            expect($operationsView.find(".filter .list:visible").length).to.equal(1);
+            $operationsView.find(".filter .tableList:visible .list").hide();
         });
 
         it('$.change on input should update argument section', function() {
@@ -1552,6 +1659,40 @@ describe('OperationsView Test', function() {
             });
         });
 
+
+        describe("function submitFinalForm for filter", function() {
+            var cachedFilter;
+            var fn;
+            before(function() {
+                cachedGB = xcFunction.filter;
+                fn = OperationsView.__testOnly__.submitFinalForm;
+            });
+            it("submitFinalForm", function(done) {
+                var called = false;
+                xcFunction.filter = function() {
+                    called = true;
+                    return PromiseHelper.reject();
+                }
+
+                var colName = xcHelper.getPrefixColName(prefix, "average_stars");
+
+                fn([colName, colName])
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function() {
+                    expect(called).to.be.true;
+                    UnitTest.hasAlertWithTitle(StatusMessageTStr.FilterFailedAlt, {confirm: true});
+                    done();
+                });
+            });
+
+            after(function() {
+                xcFunction.filter = cachedFilter;
+            })
+        });
+
+
         after(function(done) {
             OperationsView.close();
             setTimeout(function() { // allow time for op menu to close
@@ -1728,6 +1869,33 @@ describe('OperationsView Test', function() {
             });
         });
 
+        describe("special argument cases", function() {
+            it("addMapArg should work", function() {
+                $categoryMenu.find("li:contains('user-defined')").click();
+                $functionsMenu.find("li:contains('default:multiJoin')").click();
+                expect($operationsView.find(".addMapArg").length).to.equal(1);
+                expect($operationsView.find(".arg:visible").length).to.equal(2);
+                $operationsView.find(".addMapArg").click();
+                expect($operationsView.find(".arg:visible").length).to.equal(3);
+            });
+
+            it("boolean checkbox should work", function() {
+                $categoryMenu.find("li:contains('conditional')").click();
+                $functionsMenu.find("li:contains('startsWith')").click();
+                expect($operationsView.find(".boolArg").length).to.equal(1);
+
+                $operationsView.find(".boolArgWrap").click();
+                expect($operationsView.find(".boolArgWrap .checkbox").hasClass("checked")).to.be.true;
+                expect($operationsView.find(".map .arg").eq(2).val()).to.equal("true");
+            });
+
+            it("no arg box should be visible for optional args", function() {
+                $categoryMenu.find("li:contains('type-casting')").click();
+                $functionsMenu.find("li:contains('int')").click();
+                expect($operationsView.find(".checkboxWrap:visible").length).to.equal(1);
+            });
+        });
+
         describe('run map functions', function() {
             var submitForm;
             before(function() {
@@ -1803,7 +1971,6 @@ describe('OperationsView Test', function() {
                     done();
                 });
             });
-
 
             it ('udf default:splitWithDelim should work', function(done) {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
@@ -2089,6 +2256,15 @@ describe('OperationsView Test', function() {
                 });
             });
         });
+
+        describe("functions test", function() {
+            it("function getColNumFromFunc should work", function() {
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
+                var str = "test(" + prefixCol + ", blah)";
+                var res = OperationsView.__testOnly__.getColNumFromFunc(str);
+                expect(res).to.equal(1);
+            });
+        })
 
         describe('aggregate submit test', function() {
             var submitForm;

@@ -175,6 +175,26 @@ describe("JoinView Test", function() {
             expect(fnCalled).to.be.true;
             xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
         });
+
+        it("estimate join size should work", function(done) {
+            var cachedFn = ExtensionManager.trigger;
+            ExtensionManager.trigger = function() {
+                called = true;
+                return PromiseHelper.reject();
+            };
+            expect($joinForm.find(".estimateCheckbox").hasClass("checked")).to.be.false;
+            $joinForm.find(".estimateCheckbox").click();
+            expect($joinForm.find(".estimateCheckbox").hasClass("checked")).to.be.true;
+            UnitTest.testFinish(function() {
+                return called = true;
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
     });
 
     // to be continued
@@ -451,8 +471,63 @@ describe("JoinView Test", function() {
             $joinForm.find(".rightColHeading .checkbox").click();
             expect($joinForm.find(".rightCols li.checked").length).to.equal(numCols);
             expect($joinForm.find(".rightColHeading .checkbox").hasClass("checked")).to.be.true;
+        });
 
-            // go back to step 1
+        it("shift clicking on column list should work", function() {
+            expect($joinForm.find(".leftCols li").eq(0).find(".checked").length).to.equal(1);
+            $joinForm.find(".leftCols li").eq(0).click();
+            expect($joinForm.find(".leftCols li").eq(0).find(".checked").length).to.equal(0);
+
+            var event = {"type": "click", "which": 1, "shiftKey": true};
+            expect($joinForm.find(".leftCols li").eq(1).find(".checked").length).to.equal(1);
+            expect($joinForm.find(".leftCols li").eq(2).find(".checked").length).to.equal(1);
+            $joinForm.find(".leftCols li").eq(2).trigger(event);
+            expect($joinForm.find(".leftCols li").eq(1).find(".checked").length).to.equal(0);
+            expect($joinForm.find(".leftCols li").eq(2).find(".checked").length).to.equal(0);
+
+            $joinForm.find(".leftCols li").eq(0).click();
+            $joinForm.find(".leftCols li").eq(2).trigger(event);
+            expect($joinForm.find(".leftCols li").eq(0).find(".checked").length).to.equal(1);
+            expect($joinForm.find(".leftCols li").eq(1).find(".checked").length).to.equal(1);
+            expect($joinForm.find(".leftCols li").eq(2).find(".checked").length).to.equal(1);
+        });
+
+
+        it("colheaderclick should work", function() {
+            // deselect 1st column
+            var $target = $table.find(".header").eq(1);
+            var event = {};
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            JoinView.__testOnly__.colHeaderClick($target, event);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+
+            // shift deselect 3rd column
+            $target = $table.find(".header").eq(3);
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(1);
+            event.shiftKey = true;
+            JoinView.__testOnly__.colHeaderClick($target, event);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(0);
+
+            // select 1st column
+            var $target = $table.find(".header").eq(1);
+            event = {};
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            JoinView.__testOnly__.colHeaderClick($target, event);
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+
+            // shift select 3rd column
+            $target = $table.find(".header").eq(3);
+            expect($target.closest(".modalHighlighted").length).to.equal(0);
+            expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(0);
+            event.shiftKey = true;
+            JoinView.__testOnly__.colHeaderClick($target, event);
+            expect($target.closest(".modalHighlighted").length).to.equal(1);
+            expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(1);
+        });
+
+        it("should go back to step 1", function() {
             $joinForm.find(".back").click();
             expect($joinForm.find(".firstStep:visible").length).to.equal(1);
             expect($joinForm.find(".secondStep:visible").length).to.equal(0);
@@ -714,10 +789,33 @@ describe("JoinView Test", function() {
 
             DeleteTableModal.show = deleteModalCache;
         });
+
+        it("submissionFailHandler should show modify button", function() {
+            var formHelper = JoinView.__testOnly__.getFormHelper();
+            Alert.show({title: "Join Fail", msg: "some error"});
+            fn(tableId, tableId, formHelper.getOpenTime(), {});
+            expect($("#alertModal .confirm:visible").text()).to.equal("MODIFY JOIN");
+            UnitTest.hasAlertWithTitle("Join Failed");
+        });
     });
 
     describe("submit test", function() {
-        it("valid submit should work", function(done) {
+        it("invalid type should show cast", function() {
+            $joinForm.find(".back").click();
+            expect($joinForm.find(".firstStep:visible").length).to.equal(1);
+            var colName = prefix + gPrefixSign + "average_stars";
+            $joinForm.find(".leftClause").val(colName);
+
+            $joinForm.find(".next").click();
+
+            // cast error appears
+            expect($joinForm.find(".leftCast").is(":visible")).to.be.true;
+            $joinForm.find(".leftCast li").last().trigger(fakeEvent.mouseup);
+            expect($joinForm.find(".leftCast input").val()).to.equal("string");
+            $joinForm.find(".next").click();
+        });
+
+        it("invalid submit should not work", function(done) {
             var submit = JoinView.__testOnly__.submitJoin;
 
             var newTableName = "joinUnitTest" + Date.now();
@@ -732,24 +830,49 @@ describe("JoinView Test", function() {
             .fail(function() {
                 xcTooltip.hideAll();
                 expect($joinForm.find(".renameSection").is(":visible")).to.be.true;
+                done();
+            });
+        });
 
-                $joinForm.find(".newName").eq(0).val("testYelp1");
-                $joinForm.find(".newName").eq(1).val("testYelp2");
+        it("renaming should work", function() {
+            var $renameSection = $joinForm.find(".renameSection");
+            expect($renameSection.is(":visible")).to.be.true;
+            $renameSection.find(".option").eq(0).click();
+            $renameSection.find(".copyAll").eq(0).trigger({"type": "click", "which": 3});
+            expect($joinForm.find(".newName").eq(0).val()).to.equal("");
+            $renameSection.find(".copyAll").eq(0).trigger(fakeEvent.click);
+            expect($joinForm.find(".newName").eq(0).val()).to.equal(prefix);
 
-                submit()
-                .then(function(newTableName) {
-                    console.log(newTableName);
-                    var tableId = xcHelper.getTableId(newTableName);
-                    expect(tableId).to.not.be.null;
-                    expect(gTables[tableId].resultSetCount).to.equal(14878);
-                    Log.undo()
-                    .always(function() {
-                        done();
-                    });
-                })
-                .fail(function() {
-                    done("fail");
+            $renameSection.find(".copyAppend").eq(0).trigger({"type": "click", "which": 3});
+            expect($joinForm.find(".newName").eq(0).val()).to.equal(prefix);
+            $renameSection.find(".copyAppend").eq(0).trigger(fakeEvent.click);
+            expect($joinForm.find(".newName").eq(0).val()).to.equal(prefix);
+
+            $renameSection.find(".copyAppend input").val("a");
+            $renameSection.find(".copyAppend input").eq(0).trigger(fakeEvent.input);
+            expect($joinForm.find(".newName").eq(0).val()).to.equal(prefix + "a");
+
+            $joinForm.find(".newName").eq(0).val("testYelp1");
+            $joinForm.find(".newName").eq(1).val("testYelp2");
+            var colName = prefix + gPrefixSign + "yelping_since";
+            $joinForm.find(".leftClause").val(colName);
+        });
+
+        it("valid submit should work", function(done) {
+            var submit = JoinView.__testOnly__.submitJoin;
+
+            submit()
+            .then(function(newTableName) {
+                var tableId = xcHelper.getTableId(newTableName);
+                expect(tableId).to.not.be.null;
+                expect(gTables[tableId].resultSetCount).to.equal(14878);
+                Log.undo()
+                .always(function() {
+                    done();
                 });
+            })
+            .fail(function() {
+                done("fail");
             });
         });
     });
