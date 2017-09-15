@@ -489,6 +489,7 @@ module.exports = {
     "ds": {
         "Point": "Import Data Source",
         "Datasets": "Datasets",
+        "Import": "Import Datasets",
         "DSIn": "DATASETS",
         "Protocol": "Data Source Protocol",
         "Retry": "Retry",
