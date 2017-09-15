@@ -5,7 +5,33 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             "fnName": "viewLicense"
         },
         {
-            "buttonText": "Issue new license",
+            "buttonText": "Issue license",
+            "fnName": "issueLicense",
+            "arrayOfFields": [
+                {
+                    "type": "string",
+                    "name": "Name",
+                    "fieldClass": "customerName"
+                },
+                {
+                    "type": "string",
+                    "name": "Organization",
+                    "fieldClass": "customerOrg"
+                },
+                {
+                    "type": "string",
+                    "name": "License Key",
+                    "fieldClass": "customerLicense"
+                },
+                {
+                    "type": "boolean",
+                    "name": "Create ZenDesk account",
+                    "fieldClass": "createZenDeskAcct"
+                }
+            ]
+        },
+        {
+            "buttonText": "Create new license",
             "fnName": "newLicense"
         }
     ];
@@ -18,6 +44,8 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
         switch (fnName) {
             case "viewLicense":
                 return viewLicense();
+            case "issueLicense":
+                return issueLicense();
             case "newLicense":
                 return newLicense();
             default:
@@ -31,6 +59,39 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             var deferred = XcSDK.Promise.deferred();
             // XXX Please implement me
             return deferred.reject("Not implemented").promise();
+        }
+        return ext;
+    }
+
+    function issueLicense() {
+        var ext = new XcSDK.Extension();
+        ext.start = function() {
+            var deferred = XcSDK.Promise.deferred();
+            var self = this;
+            var args = self.getArgs();
+            var data = {
+                "secret": "xcalarS3cret",
+                "name": args.customerName,
+                "organization": args.customerOrg,
+                "key": args.customerLicense
+            };
+
+            $.ajax({
+                "type": "POST",
+                "contentType": "application/json",
+                "url": "https://zd.xcalar.net/license/api/v1.0/secure/addlicense",
+                "crossdomain": true,
+                "data": JSON.stringify(data),
+                "success": function () {
+                    deferred.resolve("Successfully created license");
+                    xcHelper.showSuccess("License successfully created");
+                },
+                "error": function() {
+                    deferred.reject("Failed to create license");
+                }
+            });
+
+            return deferred.promise();
         }
         return ext;
     }

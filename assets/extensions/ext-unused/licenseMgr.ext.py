@@ -1,7 +1,7 @@
 import json
 import urllib2
 
-licenseServerApiEndpoint = "https://zd.xcalar.net/license/api/v1.0/secure/listTable"
+licenseServerApiEndpoint = "https://zd.xcalar.net/license/api/v1.0/secure/list"
 
 def getTable(filePath, inStream, tableName = "license"):
     inObj = json.loads(inStream.read())
@@ -10,9 +10,9 @@ def getTable(filePath, inStream, tableName = "license"):
         # Only load on 1 node for now
         return
 
-    data = {"secret": "xcalarS3cret", "tableName": tableName}
+    data = {"secret": "xcalarS3cret"}
 
-    req = urllib2.Request(licenseServerApiEndpoint)
+    req = urllib2.Request("%s%s" % (licenseServerApiEndpoint, tableName))
     req.add_header('Content-Type', 'application/json')
     rsp = urllib2.urlopen(req, json.dumps(data))
     parsedData = json.loads(rsp.read())
