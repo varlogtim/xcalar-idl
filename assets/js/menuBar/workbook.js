@@ -706,12 +706,12 @@ window.Workbook = (function($, Workbook) {
             activateTooltip = WKBKTStr.ReturnWKBK;
             // pause button
             stopTab =
-                '<div class="tab btn btn-small pause"' +
+                '<div class="vertBarBtn pause"><div class="tab btn btn-small"' +
                 ' data-toggle="tooltip" data-container="body"' +
                 ' data-placement="auto right"' +
                 ' title="' + WKBKTStr.Pause + '">' +
                     '<i class="icon xi-pause-circle"></i>' +
-                '</div>';
+                '</div></div>';
         } else {
             activateTooltip = WKBKTStr.Activate;
 
@@ -719,23 +719,23 @@ window.Workbook = (function($, Workbook) {
                 isActive = WKBKTStr.Paused;
                 // stop button
                 stopTab =
-                    '<div class="tab btn btn-small deactivate"' +
+                    '<div class="vertBarBtn deactivate"><div class="tab btn btn-small"' +
                     ' data-toggle="tooltip" data-container="body"' +
                     ' data-placement="auto right"' +
                     ' title="' + WKBKTStr.Deactivate + '">' +
                         '<i class="icon xi-stop-circle"></i>' +
-                    '</div>';
+                    '</div></div>';
             } else {
                 isActive = WKBKTStr.Inactive;
                 extraClasses.push("noResource");
                 // delete button
                 stopTab =
-                '<div class="tab btn btn-small delete"' +
+                '<div class="vertBarBtn delete"><div class="tab btn btn-small"' +
                 ' data-toggle="tooltip" data-container="body"' +
                 ' data-placement="auto right"' +
                 ' title="' + WKBKTStr.Delete + '">' +
                     '<i class="icon xi-trash"></i>' +
-                '</div>';
+                '</div></div>';
             }
         }
 
@@ -823,25 +823,25 @@ window.Workbook = (function($, Workbook) {
                         '</div>' +
                     '</div>' +
                     '<div class="rightBar vertBar">' +
-                        '<div class="tab btn btn-small activate"' +
+                        '<div class="vertBarBtn activate"><div class="tab btn btn-small"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="auto right"' +
                         ' title="' + activateTooltip + '">' +
                             '<i class="icon xi-play-circle"></i>' +
-                        '</div>' +
-                        '<div class="tab btn btn-small modify"' +
+                        '</div></div>' +
+                        '<div class="vertBarBtn modify"><div class="tab btn btn-small"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="auto right"' +
                         ' title="' + WKBKTStr.EditName + '">' +
                             '<i class="icon xi-edit"></i>' +
-                        '</div>' +
-                        '<div class="tab btn btn-small duplicate"' +
+                        '</div></div>' +
+                        '<div class="vertBarBtn duplicate"><div class="tab btn btn-small"' +
                         ' data-toggle="tooltip" data-container="body" ' +
                         ' data-placement="auto right"' +
                         ' title="' + WKBKTStr.Duplicate + '">' +
                             '<i class="icon xi-duplicate"></i>' +
-                        '</div>' +
-                        stopTab +
+                        '</div></div>' +
+                        '<div class="vertBarBtn">' + stopTab + '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';

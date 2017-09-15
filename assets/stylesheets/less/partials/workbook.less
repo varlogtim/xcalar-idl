@@ -473,6 +473,31 @@
             width: @tabHeight;
         }
 
+        .vertBarBtn {
+            &:nth-child(1) {
+                .tab {
+                    .transition-delay(0.24s);
+                }
+                border-top-width: 0px;
+            }
+            &:nth-child(2) {
+                .tab {
+                    .transition-delay(0.18s);
+                }
+            }
+
+            &:nth-child(3) {
+                .tab {
+                    .transition-delay(0.12s);
+                }
+            }
+            &:nth-child(4) {
+                .tab {
+                    .transition-delay(0.06s);
+                }
+            }
+        }
+
         .tab {
             background-color: @color-bg-select-blue;
             .size(100%, 25%);
@@ -491,21 +516,6 @@
                 }
             }
 
-            &:nth-child(1) {
-                .transition-delay(0.24s);
-                border-top-width: 0px;
-            }
-            &:nth-child(2) {
-                .transition-delay(0.18s);
-            }
-
-            &:nth-child(3) {
-                .transition-delay(0.12s);
-            }
-            &:nth-child(4) {
-                .transition-delay(0.06s);
-            }
-
             .icon {
                 line-height: @tabHeight;
                 opacity: @opacity-unhover;
@@ -520,19 +530,29 @@
         }
 
         &:hover {
-            .tab {
-                .transform(translateY(0%));
+            .vertBarBtn {
+                .tab {
+                    .transform(translateY(0%));
+                }
                 &:nth-child(1) {
-                    .transition-delay(0.06s);
+                    .tab {
+                        .transition-delay(0.06s);
+                    }
                 }
                 &:nth-child(2) {
-                    .transition-delay(0.12s);
+                    .tab {
+                        .transition-delay(0.12s);
+                    }
                 }
                 &:nth-child(3) {
-                    .transition-delay(0.18s);
+                    .tab {
+                        .transition-delay(0.18s);
+                    }
                 }
                 &:nth-child(4) {
-                    .transition-delay(0.24s);
+                    .tab {
+                        .transition-delay(0.24s);
+                    }
                 }
             }
         }
