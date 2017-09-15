@@ -22,6 +22,12 @@ function setupHostName() {
     if (protocol.startsWith("http") && !hostname.startsWith(protocol)) {
         hostname = "https://" + hostname.split("://")[1];
     }
+
+    // If host name ends with a trailing /, remove it because it gets added
+    // later in XcalarApi.js
+    if (hostname.charAt(hostname.length - 1) === "/") {
+        hostname = hostname.substring(0, hostname.length-1);
+    }
 }
 // for convenience, add the function list here and make them
 // comment in default
