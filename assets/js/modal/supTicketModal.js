@@ -185,18 +185,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 return;
             }
             $checkbox.toggleClass("checked");
-            // enable/disable minidump
-            if ($section.hasClass("genBundleBox")) {
-                var $miniDump = $modal.find(".miniDump");
-                if ($checkbox.hasClass("checked")) {
-                    $miniDump.removeClass("inactive");
-                    xcTooltip.disable($miniDump);
-                } else {
-                    $miniDump.addClass("inactive");
-                    $miniDump.find(".checkbox").removeClass("checked");
-                    xcTooltip.enable($miniDump);
-                }
-            }
         });
 
         // toggling active sections
@@ -409,10 +397,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var deferred = jQuery.Deferred();
 
         $("#monitor-genSub").addClass("xc-disabled");
-        var $miniDump = $modal.find(".miniDump");
-        var miniDump = $miniDump.find(".checkbox").hasClass("checked");
 
-        XcalarSupportGenerate(miniDump, ticketId)
+        XcalarSupportGenerate(false, ticketId)
         .then(deferred.resolve)
         .fail(function(err) {
             if ($modal.is(":visible")) {
