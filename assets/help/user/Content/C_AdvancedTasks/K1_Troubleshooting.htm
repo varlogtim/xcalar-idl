@@ -272,13 +272,10 @@
                                         <h4>Solution</h4>
                                         <p>To shorten the evaluation string, split the operation into several operations. For example, you can filter one set of values first. Then in the resultant table, filter another set of values.</p>
                                         <h2>Dataset</h2>
-                                        <p>When you try to delete a dataset, the following error message appears:</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_err_msgs/dataset-ref-deletion-failed.png" />
-                                        </p>
-                                        <p>This error happens if your workbook contains a table (whether hidden, temporary, or active) or a saved aggregate that uses the dataset.</p>
+                                        <p>When you try to delete a dataset, an error informs you that the dataset is locked by another user.</p>
+                                        <p>You cannot delete a dataset if at least one lock exists for the dataset, regardless of whether you created the dataset. </p>
                                         <h4>Solution</h4>
-                                        <p>If you no longer need the table or aggregate that uses the dataset, drop the table or aggregate. Then delete the dataset again.</p>
+                                        <p>Wait until all locks are removed from the dataset. Then try to delete the dataset again.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

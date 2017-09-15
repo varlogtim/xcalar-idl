@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Detailed steps for Xcalar 1.2.1 (with custom settings)</title>
+        <meta name="author" content="" /><title>Detailed steps for Xcalar 1.2.2 (with custom settings)</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -172,9 +172,8 @@
                                         </div>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Detailed steps for <span class="GeneralProductFullVersion">Xcalar 1.2.1</span> (with custom settings)</h1>
+                                        <h1>Detailed steps for <span class="GeneralProductFullVersion">Xcalar 1.2.2</span> (with custom settings)</h1>
                                         <p>This section provides detailed information about the steps up to the point where you can start performing operations in tables presented in a <span class="GeneralProductName">Xcalar Design</span> workbook. Read this section if you want to better understand the fields that are displayed when you start using <span class="GeneralProductName">Xcalar Design</span> and if you want to override default settings when importing your data source.</p>
-                                        <p> This section pertains to <span class="GeneralProductFullVersion">Xcalar 1.2.1</span>; if you use <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>, follow the instructions in <a href="B1_PreviewSteps.htm" class="MCXref xref">Steps for Xcalar Cloud Preview</a></p>
                                         <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must follow the instructions in <a href="B2_PrepareDataSource.htm" class="MCXref xref">Preparing the data source</a> before you start using <span class="GeneralProductName">Xcalar Design</span> to import data.</div>
                                         <h2>Starting <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>Follow these steps to start <span class="GeneralProductName">Xcalar Design</span>:</p>
@@ -191,7 +190,7 @@
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
                                                     <li value="1">The name is case-sensitive. </li>
-                                                    <li value="2">Length must be from 1 to 255 characters.</li>
+                                                    <li value="2">Length must not exceed 255 characters.</li>
                                                     <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                     <li value="4">First character must be a letter.</li>
                                                 </ul>
@@ -269,7 +268,7 @@
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
-                                                            <li value="2">Length must be from 1 to 255 characters.</li>
+                                                            <li value="2">Length must not exceed 255 characters.</li>
                                                             <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                             <li value="4">First character must be a letter.</li>
                                                         </ul>
@@ -277,10 +276,10 @@
                                                 </div>
                                             </li>
                                             <li value="8">
-                                                <p>If you want <span class="GeneralProductName">Xcalar Design</span> to invoke a streaming UDF when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
-                                                <p> You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs.</p>
+                                                <p>If you want <span class="GeneralProductName">Xcalar Design</span> to invoke an import UDF when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
+                                                <p> You can preview the results of the import UDF by clicking <span class="UIelement">refresh preview</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs.</p>
                                                 <p>For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. If no UDFs are needed for parsing the data, skip to the next step.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Parsing a data source with a streaming UDF is required if your data source contains illegal characters. For a list of these characters, see <a href="B2_PrepareDataSource.htm#Preparin" class="MCXref xref">Preparing the first row as column header</a>.</div>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Parsing a data source with an import UDF is required if your data source contains illegal characters. For a list of these characters, see <a href="B2_PrepareDataSource.htm#Preparin" class="MCXref xref">Preparing the first row as column header</a>.</div>
                                             </li>
                                             <li value="9">
                                                 <p>The fields in the rest of the <span class="UIelement">Import Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
@@ -318,7 +317,7 @@
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Record Delimiter</span>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The UTF-8 character for separating records (for example, \n or a null character). It must be a single character, unless it is CRLF (\r\n). If your data uses a multiple-character delimiter, you must use a streaming UDF when importing the data.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The UTF-8 character for separating records (for example, \n or a null character). It must be a single character, unless it is CRLF (\r\n). If your data uses a multiple-character delimiter, you must use an import UDF when importing the data.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="UIelement">Field Delimiter</span>
@@ -340,7 +339,7 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;After you change a value in this step, click <span class="UIelement">REFRESH&#160;PREVIEW</span> to display a preview that reflects your change. This helps verify whether the change creates the desired table format. For example, if you enter an incorrect field or record delimiter, your data will not be arranged in columns appropriately. In addition, such an error might cause the number of fields or the size of a record to exceed the <span class="GeneralCompanyNameShort">Xcalar</span> limit. When you import the data using the erroneous setting, a message is displayed, indicating that the attempt to import data has failed.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;<span class="GeneralProductName">Xcalar Design</span> automatically displays a new preview after you change the value of a field. The preview helps you determine whether the change creates the desired table format. If not, click <span class="UIelement">REDETECT&#160;FORMAT</span> to restore all default values.</div>
                                             </li>
                                             <li value="10">
                                                 <p>Click <span class="UIelement">CREATE DATASET</span>. The <span class="UIelement">Dataset Preview</span> window is displayed.</p>
@@ -358,6 +357,7 @@
                                             <li value="2">import files recursively</li>
                                             <li value="3">set the dataset size </li>
                                         </ul>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;After using the advanced options, you can click <span class="UIelement">refresh preview</span> to see the effect of the option settings.</div>
                                         <h3>Pattern matching</h3>
                                         <p>To import files with names that match a particular string pattern, type the string with the wild card character in the  <span class="UIelement">Pattern</span> field. The wild card character is an asterisk (*). For example, to import all files with names ending with csv, type <span class="UIelement">*csv</span> in this field. </p>
                                         <p>Alternatively, you can enter a regular expression in the <span class="UIelement">Pattern</span> field and select the <span class="UIelement">regex</span> option. For example, you can enter the regular expression <span class="UIelement">sellers(1|2|3)</span> to import <span class="UIelement">sellers1info.csv</span>, <span class="UIelement">sellers2data.csv</span>, and <span class="UIelement">sellers3.Info.csv</span>, but not <span class="UIelement">serllers4.csv</span>.</p>

@@ -188,6 +188,23 @@
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/column-sorted-ascending.png" />
                                         </p>
+                                        <h2>Sorting values in multiple columns</h2>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;Columns of String type in a multi-column sort are always sorted alphabetically.</div>
+                                        <p>Follow these steps to sort multiple columns:</p>
+                                        <ol>
+                                            <li value="1">To sort a particular column first, display the column options from that column. Then select <span class="UIelement">Sort</span> to display the  pop-up. </li>
+                                            <li value="2">Click <span class="UIelement">Advanced …</span> in the pop-up to display the <span class="UIelement">Sort</span> panel. The column name is displayed in the <span class="UIelement">Sort</span> panel.</li>
+                                            <li value="3">
+                                                <p>Select another column (by clicking anywhere in the column) as the second column to be sorted. Repeat this step for each additional column that you want to sort.</p>
+                                                <p>To deselect a column, click the column again.</p>
+                                                <p>The column names are listed in the <span class="UIelement">Sort</span> panel in the same order as you select the columns. Also, each column header is associated with a number (for example, 1, 2, and so on), indicating the order in which the columns will be sorted. In the following screenshot, the  DayOfWeek column is selected first, followed by the AirTime column.</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/sort-multi-column.png" />
+                                                </p>
+                                            </li>
+                                            <li value="4">In the <span class="UIelement">Sort</span> panel, for each selected column, specify whether the sort is in ascending or descending order.</li>
+                                            <li value="5">Click <span class="UIelement">SORT</span>.</li>
+                                        </ol>
                                         <h2>How quartile values are affected by sorting a string column</h2>
                                         <p>If a column being sorted contains FNF (field not found), the FNF rows are removed from the resultant table. (For more information about FNF, see <a href="P_UnderstandFNF.htm#Sorting" class="MCXref xref" xrefformat="{para}">Sorting a table by a column containing FNF</a>.) If sorting a string column gives you a choice of sorting numerically or alphabetically, your choice affects how many rows will contain FNF after the sort. As a result, you might get different quartile values from the same column, depending on whether the column is sorted numerically or alphabetically. </p>
                                         <div class="Example"><span class="label">Example</span>: In a table with 10 rows, suppose a string column called Age contains NA in 4 rows and numbers in other rows. If you sort values in this column alphabetically, the resultant table contains 10 rows just as it did before sorting. If you sort numerically, because the rows containing NA cannot be converted to integer, they now contain FNF and are not included in the resultant table. The table after sorting contains 6 rows. After you generate the quartile values, you can see that the values from the 10-row table are different from those from the 6-row table.</div>

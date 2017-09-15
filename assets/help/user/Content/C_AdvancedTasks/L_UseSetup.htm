@@ -260,17 +260,24 @@
                                         <h2>Checking cluster status and updating the license</h2>
                                         <p>In the Setup panel, you can click Cluster Status to display a modal window with status information.&#160;Report the information to <span class="GeneralCompanyNameShort">Xcalar</span> technical support if needed.</p>
                                         <p>To update a license, click <span class="UIelement">Update License</span>. Paste the license key given to you by <span class="GeneralProductName3">Xcalar</span> in the modal window and then click <span class="UIelement">CONFIRM</span>.</p>
+                                        <h2>Sending a message to all users</h2>
+                                        <p>Follow these steps to  send an alert message to all users who are using <span class="GeneralProductName">Xcalar Design</span>:</p>
+                                        <ol>
+                                            <li value="1"> Click <span class="UIelement">Admin Alert</span> in the <span class="UIelement">Setup</span> panel.</li>
+                                            <li value="2">In the <span class="UIelement">Admin Alert</span> window, type a message.</li>
+                                            <li value="3">Click <span class="UIelement">SEND</span>.The message is displayed in each user's  <span class="GeneralProductName">Xcalar Design</span> window.</li>
+                                        </ol>
                                         <h2>Managing users</h2>
                                         <p>In the <span class="UIelement">Setup</span> panel, you can click <span class="UIelement">Users</span> to display a list of users that have logged in to the cluster. The user names are listed regardless of whether the users are currently logged in or whether the users have any workbooks.</p>
                                         <p>You cannot edit the user list. You can, however, perform the following tasks:</p>
                                         <ul>
-                                            <li value="1">sorting user names alphabetically by memory usage.</li>
-                                            <li value="2">hovering over a user's memory usage icon to display the amount of memory consumed by that user.</li>
-                                            <li value="3">clicking a user's memory usage icon to display the amount of memory used by the user's workbooks.</li>
-                                            <li value="4">logging in as another user.</li>
+                                            <li value="1">Sorting user names alphabetically by memory usage.</li>
+                                            <li value="2">Hovering over a user's memory usage icon to display the amount of memory consumed by that user.</li>
+                                            <li value="3">Clicking a user's memory usage icon to display the amount of memory used by the user's workbooks.</li>
+                                            <li value="4">Logging in as another user.</li>
                                         </ul>
                                         <p>The following partial screenshot shows the <span class="UIelement">Setup</span> panel containing the user list:</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/users-in-setup-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="701" data-mc-height="651" src="../Resources/Images/XD_screenshots/users-in-setup-panel_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/users-in-setup-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="710" data-mc-height="680" src="../Resources/Images/XD_screenshots/users-in-setup-panel_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following screenshot shows the modal window that displays the memory used by the user's workbook. It includes a breakdown of memory consumed by the tables. The information helps you determine which tables to delete for the purpose of releasing memory.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/user-memory-consumption.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="984" data-mc-height="641" src="../Resources/Images/XD_screenshots/user-memory-consumption_thumb_0_150.png" tabindex="" /></a>
@@ -299,12 +306,18 @@
                                         <h2>Understanding log messages</h2>
                                         <p><span class="GeneralProductName3">Xcalar</span> logs are located in the directory named /var/log/xcalar. You can use <span class="GeneralProductName">Xcalar Design</span> to view log messages generated by each node, which are in a file named  /var/log/xcalar/node.X.log, where X is the node number. For example, on a two-node cluster, the log directory contains /var/log/xcalar/node.0.log and /var/log/xcalar/node.1.log.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;If you want <span class="GeneralProductName3">Xcalar</span> logs to be saved at a different location, contact <span class="GeneralCompanyNameShort">Xcalar</span> for instructions on changing the path to the log directory.</div>
+                                        <h2>Methods for viewing logs</h2>
                                         <p>You can view log messages through <span class="GeneralProductName">Xcalar Design</span> in one of two ways:</p>
                                         <ul>
                                             <li value="1">Viewing a specified number of recent messages.</li>
                                             <li value="2">Streaming messages as they are generated.</li>
                                         </ul>
-                                        <p>With either method, you can view messages from all nodes or from a particular node.</p>
+                                        <h2>Specifying the nodes from which you retrieve the logs</h2>
+                                        <p>You can view messages from all nodes or from particular nodes. Follow these steps if you want <span class="GeneralProductName3">Xcalar</span> to retrieve the logs from particular nodes:</p>
+                                        <ol>
+                                            <li value="1">Display the <span class="UIelement">Setup</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                            <li value="2">In the <span class="UIelement">Host Name Pattern</span> field, enter a regular expression. If a node has a host name that matches the regular expression, its log will be displayed. If you leave this field blank, logs from all nodes will be displayed.</li>
+                                        </ol>
                                         <h2>Viewing recent log messages</h2>
                                         <p>Follow these steps to view recent log messages:</p>
                                         <ol>

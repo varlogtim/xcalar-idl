@@ -172,16 +172,16 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding UDFs</h1>
-                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of <span class="GeneralProductName3">Xcalar</span>. </p>
+                                        <p>User-defined functions (UDFs) are programs that accept parameters and perform an operation to produce a value. Some built-in UDFs are included in <span class="GeneralProductName3">Xcalar</span> default modules for you to enhance your operations. You can create additional UDFs to further extend the functions of <span class="GeneralProductName3">Xcalar</span>. </p>
                                         <h2>When to run UDFs</h2>
                                         <p>You can run UDFs in these circumstances:</p>
                                         <ul>
                                             <li value="1">When you execute a Map operation, you can specify a UDF as a Map function.</li>
-                                            <li value="2">When you import a data source, you run a UDF to parse the data. A UDF run during an import is called a streaming UDF.</li>
-                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
-                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when importing the data source.</div>
+                                            <li value="2">When you import a data source, you run a UDF to parse the data. A UDF run during an import is called an import UDF.</li>
+                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar</span>, run an import UDF to convert that particular format into a natively supported format. </div>
+                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run an import UDF to replace the comma when importing the data source.</div>
                                             <li value="3">
-                                                <p>When you export data from <span class="GeneralProductName3">Xcalar</span>, you run a UDF to process the data when <span class="GeneralProductName3">Xcalar</span> writes it  to a target. A UDF run when data is exported is called an export UDF.</p>
+                                                <p>When you export data from <span class="GeneralProductName3">Xcalar</span>, you run a UDF to process the data as it is written  to a target. A UDF run when data is exported is called an export UDF.</p>
                                             </li>
                                         </ul>
                                         <h2>Understanding UDF names</h2>
@@ -191,12 +191,15 @@
                                         <div class="Note"><span class="label">IMPORTANT</span>: For an export UDF, the function you want to run during the export must be named main. For example, you can have a module named my_module containing several functions. But there must be a function named main in my_module that will be executed when you export data to the UDF. If the module does not contain a function named main, you cannot select the module as an export target.</div>
                                         <h3><a name="UDF"></a>UDF naming conventions</h3>
                                         <p><span class="GeneralProductName">Xcalar Design</span> does not have restrictions on function names, but modules must follow the module naming conventions.</p>
-                                        <p>The following list describes the naming conventions:</p>
-                                        <ul>
-                                            <li value="1">Characters must be a-z, 0-9, hyphen (-), and underscore (_).</li>
-                                            <li value="2">Letters must be lowercase.</li>
-                                            <li value="3">First character must be a letter or an underscore.</li>
-                                        </ul>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">Characters must be a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                    <li value="2">Letters must be lowercase.</li>
+                                                    <li value="3">First character must be a letter or an underscore.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                         <h2>Limitations and restrictions</h2>
                                         <p>The following list describes the UDF limitations and restrictions:</p>
                                         <ul>

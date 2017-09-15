@@ -173,7 +173,12 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>User-defined function (UDF) examples</h1>
-                                        <p>This section provides three examples: one for a UDF, one for a streaming UDF, and one for an export UDF.</p>
+                                        <p>This section provides examples for these UDF&#160;typesf: </p>
+                                        <ul>
+                                            <li value="1"> UDF for a database operation.</li>
+                                            <li value="2">UDF for importing data, which is called  an import UDF.</li>
+                                            <li value="3">UDF for exporting data, which is called an export UDF.</li>
+                                        </ul>
                                         <h2>Example of a UDF for a database operation</h2>
                                         <p>Suppose you have the following table in <span class="GeneralProductName">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
@@ -211,11 +216,10 @@
                                         </div>
                                         <p>The <span class="UIelement">getWeekday</span> function takes a column and a date-time format string as input. The Python built-in <span class="UIelement">time</span> module, which is imported into <span class="UIelement">calendar</span>, parses the input. The output from <span class="UIelement">calendar</span> is a new table with the Weekday column showing the day of week for each event.</p>
                                         <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Design</span> users to use.</p>
-                                        <h3>Executing the UDF</h3>
+                                        <h3>Running the UDF</h3>
                                         <p>In <span class="GeneralProductName">Xcalar Design</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">"%Y-%m-%d"</span> as the second argument.</p>
-                                        <p>The process for executing a UDF is the same as those for executing other database functions. For more information about t</p>
-                                        <p>he Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
-                                        <h3>Result of executing the UDF</h3>
+                                        <p>The process for running a UDF is the same as  other database functions. For more information about the Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
+                                        <h3>Result of running the UDF</h3>
                                         <p>The following table is created with an additional column showing the day of week for each date:</p>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -246,9 +250,9 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h2>Example of using a streaming UDF when importing</h2>
-                                        <p>If you want to import data not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can execute a streaming UDF that converts the data format as <span class="GeneralProductName3">Xcalar</span> imports the data. In the following example, the data source is an XML&#160;file, which you can convert into JSON&#160;with a streaming UDF.</p>
-                                        <h3>Coding the streaming UDF</h3>
+                                        <h2>Example of using an import UDF when importing</h2>
+                                        <p>If you want to import data not natively supported by <span class="GeneralProductName3">Xcalar</span>, you can run an import UDF that converts the data format as <span class="GeneralProductName3">Xcalar</span> imports the data. In the following example, the data source is an XML&#160;file, which you can convert into JSON&#160;with an import UDF.</p>
+                                        <h3>Coding the import UDF</h3>
                                         <p>Write the following code in a module named <span class="UIelement">convertxmltojson</span>. The source data to be converted is shown as comments in this example to illustrate how the UDF works.</p>
                                         <div class="Code"><pre># Sample XML document
 
@@ -288,7 +292,7 @@ def xmlToJson1(fullPath, xmlStream):
                                         </ul>
                                         <p>The return value of the function will be used in the place of the actual file contents.</p>
                                         <p>Upload this module so that it is available for execution.</p>
-                                        <h3>Executing the streaming UDF</h3>
+                                        <h3>Running the import UDF</h3>
                                         <p>In the <span class="UIelement">Import Data Source</span> window, after you specify the pathname to the data source, follow these steps:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Parse Data With UDF</span> check box. </li>
@@ -296,7 +300,7 @@ def xmlToJson1(fullPath, xmlStream):
                                             <li value="3">Select the <span class="UIelement">xmlToJson1</span> function. </li>
                                         </ol>
                                         <p>For more information about importing a data source, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Importing data from a data source</a>.</p>
-                                        <h3>Result of executing the streaming UDF</h3>
+                                        <h3>Result of running the import UDF</h3>
                                         <p>Suppose the data source is a file named <span class="UIelement">bookstore</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">bookstore</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data being imported. If you create a table with all columns from the dataset, your worksheet contains the following table:</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-streaming-example-output.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1165" data-mc-height="185" src="../Resources/Images/XD_screenshots/udf-streaming-example-output_thumb_0_40.png" tabindex="" /></a>
                                         </p>
@@ -305,9 +309,9 @@ def xmlToJson1(fullPath, xmlStream):
                                         <h3>Coding the export UDF</h3>
                                         <p>The sample code provided in this section can be saved in a module (for example, write_to_excel). The following list provides information explaining the code, which helps you write your own export UDF:</p>
                                         <ul>
-                                            <li value="1">There must be a function named main in the module. This function is the one executed when you export data to this UDF.</li>
-                                            <li value="2">The main function must take one argument, which is the stringified JSON with these fields: filePath and fileContents.</li>
-                                            <p>The filePath parameter takes the export file system path specified during export target creation and then creates each export file name based on the path. The following path is an example of an export file name:</p>
+                                            <li value="1">There must be a function named <span class="UIelement">main</span> in the module. This function is  run when you export data to this UDF.</li>
+                                            <li value="2">The <span class="UIelement">main</span> function must take one argument, which is the stringified JSON with these fields: filePath and fileContents.</li>
+                                            <p>The filePath parameter takes the export file system path specified during the export target creation and then creates an export file name based on the path. The following path is an example of an export file name:</p>
                                             <p>/nas/exports_excel/carriers/carriers-nXXXX-cXXXX-pXXXX.csv</p>
                                             <p>The following list explains the components of the path:</p>
                                             <ul>
@@ -318,7 +322,7 @@ def xmlToJson1(fullPath, xmlStream):
                                             </ul>
                                             <li value="3">The fileContents parameter is a string representing the output string as though it were to be written as a csv.</li>
                                             <p>For example, if you were to write a UDF that creates a file at filePath and writes the file contents into it without modifications, the file would be identical to the csv file exported directly without a UDF.</p>
-                                            <p>The line and field delimiters in the fileContents string obey the specifications in the <span class="UIelement">Advanced Options</span> section of the <span class="UIelement">EXPORT TABLE</span> panel entered by you before starting the export operation.</p>
+                                            <p>The line and field delimiters in the fileContents string obey the specifications in the <span class="UIelement">Advanced Options</span> section of the <span class="UIelement">EXPORT TABLE</span> panel, which you entered before starting the export operation.</p>
                                         </ul>
                                         <div class="Code"><pre>import openpyxl
 import json
@@ -361,11 +365,11 @@ def main(inStruct):
                                             <li value="1">Click the <span class="UIelement">Export Targets</span> icon to display the <span class="UIelement">Export Targets</span> panel.</li>
                                             <li value="2">Type the target name. For example, you can specify ExcelTarget as the target name.</li>
                                             <li value="3">Select UDF as the export target.</li>
-                                            <li value="4">In the <span class="UIelement">Additional Information</span> section, specify the path to the file system to which the UDF will write its output. For example, specify /nas/exports_excel, which is a shared directory that all nodes of the <span class="GeneralProductName3">Xcalar</span> cluster can write to.</li>
+                                            <li value="4">In the <span class="UIelement">Additional Information</span> section, enter the path to the file system in which the UDF will write its output. For example, enter /nas/exports_excel, which is a shared directory that all nodes of the <span class="GeneralProductName3">Xcalar</span> cluster can write to.</li>
                                             <li value="5">Select the write_to_excel module, and leave the UDF function name as main.</li>
                                             <li value="6">Click <span class="UIelement">ADD</span>.</li>
                                         </ol>
-                                        <h3>Executing the export UDF</h3>
+                                        <h3>Running the export UDF</h3>
                                         <p>The UDF is run when you export data from <span class="GeneralProductName3">Xcalar</span> to the target named ExcelTarget.</p>
                                         <p>As a result of exporting data from <span class="GeneralProductName3">Xcalar</span> to Exceltarget, files are written to your specified file system. In this example, one or multiple files with the .xlsx file extension are created in the /nas/exports_excel folder. Each Excel file contains a number of rows from the <span class="GeneralProductName3">Xcalar</span> table. (A <span class="GeneralProductName3">Xcalar</span> table can be much larger than a typical Excel file. Splitting the table into smaller files not only speeds up the export operation, but also makes the exported data easier to read.)</p>
                                     </div>

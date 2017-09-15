@@ -174,7 +174,7 @@
                                         <h1>Dataflow graph</h1>
                                         <p>The dataflow graph provides an audit trail for your data. It helps you trace data lineage through all stages of your analytics pipeline. Over time, the data in your table might become increasingly complex due to the operations performed on the table. You can use the dataflow graph to determine how the data has been transformed since the table was created.  For example,  you can determine when a value in a column was filtered out or what operation was used to create a particular column.</p>
                                         <h2>Overview of the dataflow graph</h2>
-                                        <p>The dataflow graph panel presents the dataflow graphs for all active tables in the same worksheet. The following screen shows an example of a dataflow graph.</p>
+                                        <p>The dataflow graph panel displays the dataflow graphs for all active tables in the same worksheet. The following screen shows an example of a dataflow graph.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataflow-graph-overview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="962" data-mc-height="383" src="../Resources/Images/XD_screenshots/dataflow-graph-overview_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Example of a dataflow</h2>
@@ -183,12 +183,12 @@
                                             <li value="1">A table named <span class="UIelement">airlines4#XS10</span> is created.</li>
                                             <li value="2">A Map function is executed to change the data type of the <span class="UIelement">DayOfWeek</span> column to Integer. In this example, the user locks the resultant table to prevent it from being dropped accidentally.</li>
                                             <li value="3">A Map function is executed to change the data type of the <span class="UIelement">DepTime</span> column to Integer, but only erroneous rows are included in the resultant table. For more information about erroneous rows, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a table with only erroneous rows</a>.</li>
-                                            <li value="4">The table named <span class="UIelement">airlines4#XS10</span> is dropped. This table is removed  permanently. You cannot add it back to your worksheet or perform operations on it.</li>
+                                            <li value="4">The table named <span class="UIelement">airlines4#XS10</span> is dropped. This table is removed  permanently. You cannot add it back to your worksheet.</li>
                                         </ol>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataflow-icons.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="908" data-mc-height="290" src="../Resources/Images/XD_screenshots/dataflow-icons_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Collapsing and expanding table icons in a dataflow graph</h2>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the exact number of table icons collapsed. Click the icon to expand the table icons.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the number of collapsed table icons. Click the icon to expand the table icons.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/collapse-tables-in-dataflow.png" />
                                         </p>
@@ -196,8 +196,8 @@
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1206" data-mc-height="212" src="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Displaying dataset information</h2>
-                                        <p>To display detailed information about the dataset (for example, the path to the data source, the parameters and streaming UDF used when data is imported, and so on), click the dataset icon at the beginning of the dataflow graph.</p>
-                                        <h2>Tasks you can perform by clicking the table icon</h2>
+                                        <p>To display detailed information about the dataset (for example, the path to the data source, the parameters and import UDF used when data is imported, and so on), click the dataset icon at the beginning of the dataflow graph.</p>
+                                        <h2><a name="Tasks"></a>Tasks you can perform by clicking the table icon</h2>
                                         <p>You can click a table icon in the dataflow graph to display a pop-up that lists the actions you can take. The possible actions depend on whether the selected table is in the worksheet or is a temporary table or active table.</p>
                                         <p>If a table is displayed as the last table in any dataflow graph, it is an active table. All other tables in the dataflow are temporary tables. For more information about different table statuses, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm" class="MCXref xref" xrefformat="{para}">Understanding and changing table statuses</a>.</p>
                                         <p>The following partial screenshot shows the options available when you click a table icon in a dataflow graph.</p>
@@ -217,9 +217,9 @@
                                             </li>
                                         </ul>
                                         <h3>Active tables</h3>
-                                        <p>You an perform these tasks on active tables only:</p>
+                                        <p>You can perform these tasks on active tables only:</p>
                                         <ul>
-                                            <li value="1">Finding the table in the worksheet: You can quickly locate a particular table in a worksheet by clicking its icon in a dataflow graph. This feature is useful if you have many tables in a worksheet. Remember not to maximize the dataflow graph panel so that the table you try to locate is visible.</li>
+                                            <li value="1">Finding the table in the worksheet: You can quickly locate a particular table in a worksheet by clicking its icon in a dataflow graph.  Do not maximize the dataflow graph panel so that the table you try to locate is visible.</li>
                                             <li value="2">Hiding the table: You can hide a table that you do not use often. The hidden table does not show up in the worksheet, but can be added back at any time. Also, the dataflow graph of a hidden table is removed from the dataflow graph panel.</li>
                                         </ul>
                                         <h3><a name="Temporar"></a>Temporary and active tables</h3>
@@ -250,12 +250,12 @@
                                             <li value="5">
                                                 <p>Create a complement table: If a table is a result of a filter operation, you can create its complement.</p>
                                             </li>
-                                            <div class="Example"><span class="label">EXAMPLE</span>: Suppose a table named airlines4#XS10 is created from an airlines dataset. One of the columns is named DayOfWeek, which contains integers 1 through 7. If you filter the value 1 in DayOfWeek, the resultant table, airlines4#XS11, has only the value 1 in this column. In the dataflow graph, you can right click the icon for airlines4#XS11 and select <span class="UIelement">Create complement table</span>. The complement table, airlines4#XS12, contains values 2 through 7 in the DayOfWeek column.</div>
-                                            <div class="Example"><span class="label">EXAMPLE</span>: Suppose a table named airlines4#XS10 is created from an airlines dataset. One of the columns is named DayOfWeek, which contains integers 1 through 7. If you exclude the value 1 in DayOfWeek, the resultant table, airlines4#XS11, has the values 2 through 7 in this column. In the dataflow graph, you can right click the icon for airlines4#XS11 and select <span class="UIelement">Create complement table</span>. The complement table, airlines4#XS12, contains only the value 1 in the DayOfWeek column.</div>
+                                            <div class="Example"><span class="label">EXAMPLE</span>: This example illustrates how to filter a value. In a table named airlines4#XS10, one of the columns is named DayOfWeek, which contains integers 1 through 7. If you filter the value 1 in DayOfWeek, the resultant table, airlines4#XS11, has only the value 1 in this column. In the dataflow graph, you can right click the icon for airlines4#XS11 and select <span class="UIelement">Create complement table</span>. The complement table, airlines4#XS12, contains values 2 through 7 in the DayOfWeek column.</div>
+                                            <div class="Example"><span class="label">EXAMPLE</span>: This example illustrates how to exclude a value. In a table named airlines4#XS10, one of the columns is named DayOfWeek, which contains integers 1 through 7. If you exclude the value 1 in DayOfWeek, the resultant table, airlines4#XS11, has the values 2 through 7 in this column. In the dataflow graph, you can right click the icon for airlines4#XS11 and select <span class="UIelement">Create complement table</span>. The complement table, airlines4#XS12, contains only the value 1 in the DayOfWeek column.</div>
                                         </ul>
                                         <h2>Saving or displaying a dataflow graph as an image file</h2>
-                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/XD_assets/xd-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>
-                                        <p>Alternatively, you can click <img src="../Resources/Images/XD_assets/xd-open-dataflow-in-new-tab.png" /> to display the dataflow graph as an .png image in a new tab of your browser.</p>
+                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/XD_assets/xd-save-dataflow-as-image.png" />. The image is saved in the PNG format.</p>
+                                        <p>Alternatively, you can click <img src="../Resources/Images/XD_assets/xd-open-dataflow-in-new-tab.png" /> to display the dataflow graph as a PNG image in a new tab of your browser.</p>
                                         <div class="Note"><span class="label">NOTE</span>: Right-clicking in the dataflow graph displays a menu with options that work the same as <img src="../Resources/Images/XD_assets/xd-save-dataflow-as-image.png" /> and <img src="../Resources/Images/XD_assets/xd-open-dataflow-in-new-tab.png" />.</div>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

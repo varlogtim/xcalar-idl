@@ -176,12 +176,12 @@
                                         <h2>Tasks you can perform in the Workbook Browser</h2>
                                         <p>The following list and partial screenshots describe the tasks you can perform in the <span class="UIelement">Workbook Browser</span>:</p>
                                         <ul>
-                                            <li value="1">Activating an inactive or a paused workbook</li>
-                                            <li value="2">Pausing an active workbook</li>
-                                            <li value="3">Deactivate a paused or active workbook</li>
-                                            <li value="4">Deleting an inactive workbook</li>
-                                            <li value="5">Editing a workbook name</li>
-                                            <li value="6">Duplicating a workbook</li>
+                                            <li value="1">Activating an inactive or a paused workbook.</li>
+                                            <li value="2">Pausing an active workbook.</li>
+                                            <li value="3">Deactivate a paused or active workbook.</li>
+                                            <li value="4">Deleting an inactive workbook.</li>
+                                            <li value="5">Editing a workbook name.</li>
+                                            <li value="6">Duplicating a workbook.</li>
                                         </ul>
                                         <p>You can edit or duplicate a workbook regardless of its status.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook_active.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1361" data-mc-height="366" src="../Resources/Images/XD_screenshots/workbook_active_thumb_0_40.png" tabindex="" /></a>
@@ -192,7 +192,7 @@
                                         </p>
                                         <h2>Understanding workbook activation</h2>
                                         <p>Upon creation, a workbook is inactive. You must activate the workbook before you can use it as your workspace.</p>
-                                        <p>After you log out and log in again to <span class="GeneralProductName">Xcalar Design</span>, the workbook that was active before you logged out remains active. However, if the <span class="GeneralProductName3">Xcalar</span> cluster is powered off and then powered on again, none of the workbooks are active and you must activate one of the workbooks in the <span class="UIelement">Workbook Browser</span>.</p>
+                                        <p>After you log out and log in again to <span class="GeneralProductName">Xcalar Design</span>, the workbook that was active before you logged out remains active. However, if the <span class="GeneralProductName3">Xcalar</span> cluster is stopped and then started again, none of the workbooks are active and you must activate one of the workbooks in the <span class="UIelement">Workbook Browser</span>.</p>
                                         <h2>How a workbook status changes</h2>
                                         <p>A workbook can be active, inactive, or paused.</p>
                                         <h3>Deactivating a workbook</h3>
@@ -202,17 +202,17 @@
                                         <p>The following list describes the difference between an inactive workbook and a paused workbook:</p>
                                         <ul>
                                             <li value="1">When deactivating a workbook (that is, when you switch from one workbook to another), <span class="GeneralProductName3">Xcalar</span> releases memory used by the workbook's datasets and tables. When you re-activate the workbook, <span class="GeneralProductName3">Xcalar</span> re-creates the datasets and active tables, which might take a while, especially if the tables were created with complex operations. Therefore, before you deactivate a workbook, be aware that re-activating it in the future might not be instantaneous.</li>
-                                            <li value="2">Data from the paused workbook remains in memory. If you want to re-activate a paused workbook, the in-memory data enables the re-activation to be faster than the re-activation of an inactive workbook. However, be aware that a paused workbook continues to consume memory.</li>
+                                            <li value="2">Data from a paused workbook remains in memory. If you want to re-activate a paused workbook, the in-memory data enables the re-activation to be faster than the re-activation of an inactive workbook. However, be aware that a paused workbook continues to consume memory.</li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>: <span class="GeneralProductName3">Xcalar</span> cannot change an active workbook to the paused or inactive state if the workbook has an operation in progress. Wait until the operation is finished before you switch from this workbook or click the pause icon for this workbook.</div>
                                         <h3>Re-activating a paused or inactive workbook</h3>
                                         <p>You can re-activate a paused or inactive workbook at any time. For example, if workbook1 is paused and workbook2 is active, you can activate workbook1. This causes workbook2 to become inactive.</p>
-                                        <p>When workbook activation is in progress, you can click the memory alert icon (the icon next to the user icon) to display cluster statistics. </p>
+                                        <p>When workbook activation is in progress, you can click the memory alert icon (the icon next to the user icon) to display <span class="GeneralProductName3">Xcalar</span> cluster statistics. </p>
                                         <h2>Effects of deleting a workbook</h2>
                                         <p>Deleting a workbook has the following  effects:</p>
                                         <ul>
                                             <li value="1">All worksheets in the workbook and all tables in the worksheets are deleted. They are not recoverable after the deletion.</li>
-                                            <li value="2">A dataset created through the workbook might or might not remain depending on whether the dataset is also being used by other workbooks. The dataset is removed only if the workbook being deleted is the only one using the dataset. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref" xrefformat="{para}">Understanding dataset deletion</a></li>
+                                            <li value="2">A dataset created through the workbook might or might not remain depending on whether the dataset is also being used by other workbooks. The dataset is removed only if the workbook being deleted is the only one using the dataset. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref" xrefformat="{para}">Understanding dataset deletion</a>.</li>
                                         </ul>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

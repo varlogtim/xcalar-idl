@@ -173,64 +173,61 @@
                                     <div class="bodyProxyNarrow">
                                         <h1><a name="manageDatasetRef" class="ForCSH"></a>Managing datasets</h1>
                                         <p>When you import data, <span class="GeneralProductName3">Xcalar</span> creates a dataset (typically in memory), which is the representation of raw data and metadata. You can preview the data in the dataset and create tables with all or selected fields in the dataset.</p>
+                                        <h2>Understanding dataset names</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> provides a default name for each dataset when you import data. The name is based on the name of the source file or directory. You can enter a different name or accept the default. You cannot rename the dataset at a later time.</p>
-                                        <p>Datasets are shared by all users on the same cluster. The <span class="UIelement">Datasets</span>&#160;panel displays all the datasets. The following partial screenshot shows an example of the <span class="UIelement">Datasets</span> list. </p>
+                                        <h2>Understanding how datasets are shared</h2>
+                                        <p>Datasets are shared by all users on the same cluster. The <span class="UIelement">Datasets</span>&#160;panel displays all the datasets available for you to use on the cluster. The following partial screenshot shows an example of the <span class="UIelement">Datasets</span> list. </p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataset-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="617" data-mc-height="475" src="../Resources/Images/XD_screenshots/dataset-panel_thumb_0_150.png" tabindex="" /></a>
                                         </p>
+                                        <p>The rest of this topic discusses what you can and cannot do to datasets created by other users.</p>
                                         <h2>Organizing datasets in folders</h2>
-                                        <p>In the <span class="UIelement">Datasets</span> panel, you can organize datasets in folders. For example, you can create a folder named <span class="UIelement">Finance</span> for datasets that import data sources from the Finance department, another folder named <span class="UIelement">Engineering</span> for datasets importing data sources from the Engineering department, and so on.</p>
+                                        <p>In the <span class="UIelement">Datasets</span> panel, you can organize datasets created by you in folders. For example, you can create a folder named <span class="UIelement">Finance</span> for datasets that import data sources from the Finance department, another folder named <span class="UIelement">Engineering</span> for datasets that import data sources from the Engineering department, and so on.</p>
+                                        <h2>Understanding dataset locking</h2>
+                                        <p>Any user can lock and unlock a dataset. A locked dataset is a dataset that cannot be deleted by any user, including the creator. The following icon is for a locked dataset named airlines:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/dataset-locked.png" />
+                                        </p>
+                                        <p>While datasets are shared, users manage their own locks independently. For example, User1 can place a lock on the airlines dataset, but User2 can choose not to place a lock on it. </p>
+                                        <p>A dataset icon that does not include a lock means that you have not locked the dataset. It does not indicate whether other users have locked it.</p>
+                                        <p>You place a lock on a dataset to prevent other users from deleting it. The reason for doing so is that while you currently do not have tables based on the dataset, you want to ensure that it is available for future use.  </p>
+                                        <h3>When a dataset becomes locked</h3>
+                                        <p>After a user creates a dataset, by default, it is locked. The creator, who owns the lock, can choose to keep or remove the lock. </p>
+                                        <p>Because datasets are shared by all users, other users can see and use this dataset, which is shown as unlocked initially. They can choose to lock it or keep it unlocked. </p>
+                                        <p><span class="GeneralProductName3">Xcalar</span> automatically locks a dataset when a user creates a table from it. As long as you have a table (active, temporary, or hidden) or an aggregate dependent on a dataset, the dataset is automatically locked for you. You cannot remove the lock unless you remove all tables and aggregates that depend on the dataset.</p>
+                                        <h3>Determining who has a lock on a dataset</h3>
+                                        <p>As long as one lock exists for a dataset, the dataset cannot be deleted by any user. To view who has a lock on a dataset, right click the dataset icon and select <span class="UIelement">Get info</span> in the menu.</p>
                                         <h2><a name="Effects"></a>Understanding dataset deletion</h2>
-                                        <p>You cannot delete a dataset if it is in use. A dataset is in use if one or both of the following conditions are true: </p>
-                                        <ul>
-                                            <li value="1">Your workbook contains a table (hidden, temporary, or active) that was created from the dataset.</li>
-                                            <li value="2">You have an aggregate created from the dataset. </li>
-                                        </ul>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;A dropped table that is a part of a batch dataflow is not considered a table dependent on a dataset. As a result, such table does not prevent the dataset deletion. For example, after you drop a table named Airlines1#ue3 that is created from a dataset named Airlines, you can successfully delete Airlines even if Airlines1#ue3 appears in a batch dataflow (provided that no other tables or aggregates use the dataset).  For information about dataflows, see <a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Understanding and creating batch dataflows</a>.</div>
-                                        <p>If you do not have a table or aggregate created from the dataset, your attempt to delete a dataset has various consequences depending on the following factors.</p>
-                                        <h3><a name="If"></a>If you are the creator of the dataset</h3>
-                                        <p>If no other users have tables or aggregates created from the dataset, the dataset is deleted immediately.</p>
-                                        <p>Otherwise, the dataset is marked for deletion.&#160;You cannot take any action for this dataset. When all tables and aggregates from this dataset are dropped, this dataset is deleted automatically. The associated dataset is also removed from memory.</p>
-                                        <h3>If you are not the creator of the dataset</h3>
-                                        <p>You cannot delete a dataset if you are not the creator of the dataset. This means that you cannot delete a dataset in  another user's folder. However, you can mark it for deletion by selecting <span class="UIelement">Delete</span> when right-clicking its icon. The following list describes the effects of marking another user's dataset for deletion:</p>
-                                        <ul>
-                                            <li value="1">You cannot take any action on the dataset.</li>
-                                            <li value="2">Other users who do not have tables or aggregates created from the dataset cannot start using the dataset.</li>
-                                            <li value="3">Other users who already have tables or aggregates created from the dataset can see that the dataset is marked for deletion. They can continue using the dataset.</li>
-                                            <li value="4">The creator of the dataset can see that the dataset is marked for deletion. The creator can choose to continue using it or to delete it. The dataset continues to exist until the creator deletes it.</li>
-                                            <li value="5">If the creator chooses to delete the dataset, the results are the same as described in <a href="#If" class="MCXref xref" xrefformat="{para}">If you are the creator of the dataset</a>.</li>
-                                        </ul>
-                                        <h3>How the dataset icon changes</h3>
-                                        <p>The  dataset icon changes depending on the status of the dataset. For more information about how to determine the status of the dataset, see <a href="#Example" class="MCXref xref" xrefformat="{para}">Example of dataset deletion</a>.</p>
-                                        <h3>Deleting a dataset</h3>
+                                        <p>You can delete a dataset whether or not you are the creator of the dataset. The only prerequisite for dataset deletion is that no one has a lock on the dataset.</p>
+                                        <h2>Effects of workbook status on dataset locks</h2>
+                                        <p>Suppose the user who locks a dataset has only inactive workbooks, other users can successfully delete the dataset. The dataset lock is not in effect when the user with the lock has only inactive workbooks. However, after the user with the locked dataset activates a workbook, the dataset becomes available on the cluster again. </p>
+                                        <p>If the user who locks a dataset has a paused workbook, the lock is in effect as usual. No users can delete the locked dataset.</p>
+                                        <h2>Locking and unlocking a dataset</h2>
+                                        <p>Follow these steps to lock a dataset:</p>
+                                        <ol>
+                                            <li value="1">In the <span class="UIelement">Datasets</span> panel, locate the dataset in your folder or another user's folder.</li>
+                                            <li value="2">If the <span class="UIelement">Datasets</span> panel is in grid view, right click the dataset icon and click <span class="UIelement">Lock dataset</span>. If the <span class="UIelement">Datasets</span> panel is in list view, click the closed lock icon for the dataset.</li>
+                                        </ol>
+                                        <p>Follow these steps to unlock a dataset:</p>
+                                        <ol>
+                                            <li value="1">Verify that you do not have tables or aggregates dependent on the dataset.</li>
+                                            <li value="2">In the <span class="UIelement">Datasets</span> panel, locate the dataset in your folder or another user's folder.</li>
+                                            <li value="3">If the <span class="UIelement">Datasets</span> panel is in grid view, right click the dataset icon and click <span class="UIelement">Unlock dataset</span>. If the <span class="UIelement">Datasets</span> panel is in list view, click the open lock icon for the dataset.</li>
+                                        </ol>
+                                        <h2>Deleting a dataset</h2>
                                         <p>Follow these steps to delete a dataset:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Datasets</span> list, navigate to the dataset that you want to delete. It can be located in your folder or another user's folder.</li>
-                                            <li value="2">Right click the icon or name of the dataset.</li>
+                                            <li value="1">In the <span class="UIelement">Datasets</span> panel, locate the dataset in your folder or another user's folder.</li>
+                                            <li value="2">Right click the icon or name of the dataset and then click <span class="UIelement">Get info</span> in the drop-down list to determine if the dataset is locked by any user.</li>
                                             <li value="3">From the drop-down list, click <span class="UIelement">Delete</span>.</li>
                                             <li value="4">When a confirmation message is displayed, click <span class="UIelement">CONFIRM</span>&#160;if you are sure that you no longer need the dataset.</li>
                                         </ol>
                                         <h2>What you cannot do to other users' datasets</h2>
-                                        <p>You can view or mark other users' datasets for deletion. You can preview and create tables from other users' datasets. However, you cannot perform the following tasks:</p>
+                                        <p>You can preview and create tables from other users' datasets. You can also delete other users' datasets provided that they are not locked by anyone. However, you cannot perform the following tasks:</p>
                                         <ul>
                                             <li value="1">Renaming the folder containing other users' datasets.</li>
                                             <li value="2">Moving other users' datasets to another folder.</li>
                                             <li value="3">Creating a folder in another user's dataset folder.</li>
                                         </ul>
-                                        <h2><a name="Example"></a>Example of dataset deletion</h2>
-                                        <p>In this example, user1 creates a dataset named airlines, from which a table is created. This dataset is visible to all other users on the cluster. The following screenshot shows the dataset list as seen by user1.</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/user1-dataset-ref-active.png" />
-                                        </p>
-                                        <p>Suppose user2 navigates to user1's dataset folder, right-clicks the icon for airlines, and selects <span class="UIelement">Delete</span>. The airlines dataset is not deleted immediately but is marked for deletion. User2 can change the status of airlines because user2 does not have any tables or aggregates created from it. From this point on, user2 can no longer use airlines. The following screenshot shows the dataset list as seen by user2:</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/user2-dataset-ref-ghost.png" />
-                                        </p>
-                                        <p>After the airlines dataset is marked for deletion by user2, the appearance of the dataset icon also changes for user1, as illustrated in the following screenshot:</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/user1-dataset-ref-ghost.png" />
-                                        </p>
-                                        <p>Now user1 and other users who have tables and aggregates from the dataset can continue to use airlines. User1 can delete it when all users no longer have tables and aggregates from the dataset. Alternatively, user1 can mark it for deletion. In this way, after the last table or aggregate from the dataset is dropped, the dataset is deleted automatically.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;To see the correct status of the dataset, you must click <span class="UIelement">Refresh</span>. In this example, as soon as user2 marks the airlines dataset for deletion, its icon disappears. Without clicking <span class="UIelement">Refresh</span>, it seems to user2 that the dataset is deleted, but actually it remains for other users who currently have tables or aggregates from the dataset.</div>
                                         <h2>Effect of cluster restart on datasets</h2>
                                         <p>After the cluster is restarted, some datasets previously in your list of datasets might not be displayed. Only the datasets used in your active workbook are shown immediately after the cluster was restarted. </p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The datasets  still exist; they are available for you to use again when needed. </div>

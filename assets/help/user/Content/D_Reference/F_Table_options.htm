@@ -174,21 +174,20 @@
                                         <h1>Table options</h1>
                                         <p>You can right click anywhere in the table title bar or click the triangle in the lower-right corner of the table title bar to display a drop-down menu. The menu presents table options for manipulating the entire table. This section explains the purpose of each table option.</p>
                                         <h2>Hide table</h2>
-                                        <p>You can hide a table that you do not use often. The hidden table does not show up in the worksheet, but can be added back at any time. For more information about adding a hidden table to the worksheet, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm#Changing" class="MCXref xref" xrefformat="{para}">Changing a table to an active table</a>.</p>
+                                        <p>You can hide  a table that you rarely use. The hidden table does not show up in the worksheet, but you can add it back at any time. For more information about adding a hidden table back to the worksheet, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm#Changing" class="MCXref xref" xrefformat="{para}">Changing a table to an active table</a>.</p>
                                         <h2>Minimize table</h2>
-                                        <p>You can minimize a table so that the columns are not viewable. A small portion of the table is still visible in the worksheet, enabling you to click the table title bar to display the table options. One of the options in the menu from a hidden table is <span class="UIelement">Maximize table</span>, which returns the table to view again.</p>
+                                        <p>You can minimize a table to significantly decrease the table width. You cannot view table columns in a minimized table, but the table remains visible in the worksheet, enabling you to click the table title bar to display the table options. One of the options is <span class="UIelement">Maximize table</span>, which returns the minimized table to its full size.</p>
                                         <h2>Drop table</h2>
-                                        <p>You can drop a table you no longer need. </p>
+                                        <p>You can drop a table you no longer need. Dropping a table removes it from memory.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You cannot undo the action of dropping a table.</div>
                                         <h2>Export table</h2>
-                                        <p>This feature is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>.</p>
-                                        <p>You can export a table or selected columns of a table to a location that is either the default location or a location defined as an export target.</p>
+                                        <p>You can export a table or selected columns of a table to a default export target or a user-defined export target.</p>
                                         <h2>Smart type casting</h2>
                                         <p>You can change the data type for one or multiple columns. For more information about smart type casting, see <a href="../B_CommonTasks/D_ChangeDataType.htm" class="MCXref xref" xrefformat="{para}">Changing the data type of a column</a>.</p>
                                         <h2>Move</h2>
                                         <p>If you have multiple tables in the worksheet, you can move the table to the left or to the right.</p>
                                         <div class="Note"><span class="label">TIP</span>: Alternatively, you can move the cursor to anywhere in the table title bar. When the cursor changes into the Hand icon, grab and drag the table to the desired location.</div>
-                                        <p>If you have multiple worksheets in the workbook, you can move the table to a different worksheet.</p>
+                                        <p>If you have multiple worksheets in the workbook, you can also move the table to a different worksheet.</p>
                                         <h2>Sort columns </h2>
                                         <p>You can arrange table columns by name, type, and prefix. The following list describes how <span class="GeneralProductName">Xcalar Design</span> compares strings when sorting by name or prefix:</p>
                                         <ul>
@@ -212,8 +211,10 @@
                                             </li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;To move a particular column without sorting, simply  move the cursor to  the column header. When the cursor changes into the Hand icon, grab and drag the column to the desired location. </div>
-                                        <h3>Sort column by name</h3>
-                                        <p>You can arrange table columns by sorting the column names. Prefixes are not considered in the sorting. The following list illustrates how columns are sorted by name in ascending order:</p>
+                                        <h3>Sort columns by name</h3>
+                                        <p>You can arrange table columns by sorting the column names. </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;Prefix names are not considered in the column name sort. </div>
+                                        <p>The following list shows how column names are ordered  in ascending order:</p>
                                         <ul>
                                             <li value="1">AirTime_integer</li>
                                             <li value="2">airlines::Carrier</li>
@@ -229,8 +230,8 @@
                                             <li value="4">String</li>
                                         </ul>
                                         <h3>Sort columns by prefix</h3>
-                                        <p>You can arrange table columns by sorting the prefixes. For each prefix, the columns are sorted by name. If you sort in ascending order, derived fields are placed before prefixed fields.</p>
-                                        <p>The following list shows how prefixed fields and derived fields in a table are ordered if you sort  in ascending order:</p>
+                                        <p>You can arrange table columns by sorting the prefixes. Columns with the same prefixed are sorted by name. If you sort in ascending order, derived fields are placed before prefixed fields.</p>
+                                        <p>The following list shows how prefixed fields and derived fields are ordered   in ascending order:</p>
                                         <ul>
                                             <li value="1">ArrTime_integer</li>
                                             <li value="2">DayOfWeek_integer</li>
@@ -245,6 +246,16 @@
                                         <p>You can display the Correlation And Quick Aggregates modal window from this option. For more information about correlations and aggregates, see <a href="../B_CommonTasks/L_Correlation.htm" class="MCXref xref" xrefformat="{para}">Determining correlation between two values</a>.</p>
                                         <h2>Create batch dataflow</h2>
                                         <p>For each active table in the worksheet, you can create a batch dataflow.&#160;This option enables you to perform the same task as  described in <a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a batch dataflow</a></p>
+                                        <h2>Advanced Options</h2>
+                                        <p>The advanced options provide a shortcut for these tasks that you can also accomplish through a table icon in a dataflow graph: </p>
+                                        <ul>
+                                            <li value="1">locking a table</li>
+                                            <li value="2">unlocking a table</li>
+                                            <li value="3">generating a table with only erroneous rows</li>
+                                            <li value="4">generating a complement table</li>
+                                        </ul>
+                                        <p>For information about these tasks, see <a href="E_DataflowGraph.htm#Tasks" class="MCXref xref" xrefformat="{para}">Tasks you can perform by clicking the table icon</a></p>
+                                        <p>In addition, an advanced option called <span class="UIelement">View skew details</span> displays a modal window that shows how evenly the data in the table is distributed across the cluster nodes. This modal window is the same as the one displayed when you click <span class="UIelement">Skew</span> to the right of the function bar in the worksheet window. For information about skew, see <a href="C_WorksheetWindow.htm#Skew" class="MCXref xref" xrefformat="{para}">Skew value</a>.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

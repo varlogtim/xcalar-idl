@@ -173,7 +173,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Column options</h1>
                                         <p>This section describes the column options that enable you to manipulate table columns without performing a database operation. The options are available in the column drop-down menu that you display by right clicking the column header or clicking the triangle in the lower-right corner of the column header.</p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you have an operation panel opened (for example, the <span class="UIelement">MAP</span> panel), you must exit that panel before you can display the column drop-down menu. To close the panel, right click the column header to display a pop-up and click in the command in the pop-up to exit the panel. Alternatively, you can click <img src="../Resources/Images/XD_assets/xd-close-panel.png" /> in the panel to close it.</div>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you have an operation panel opened (for example, the <span class="UIelement">MAP</span> panel), you must exit that panel before you can display the column drop-down menu. To close the panel,  click <img src="../Resources/Images/XD_assets/xd-close-panel.png" /> in the panel.</div>
                                         <p>Unless the data type of the column is Mixed, the column drop-down menu contains more options than the ones described in this section. The other options are described in the following topics:</p>
                                         <ul>
                                             <li value="1"><a href="../B_CommonTasks/M_QuickAggregates.htm" class="MCXref xref" xrefformat="{para}">Determining aggregate values</a>
@@ -197,15 +197,16 @@
                                         <ol>
                                             <li value="1">In the column drop-down menu, select <span class="UIelement">Add a column</span>.</li>
                                             <li value="2">
-                                                <p>Select <span class="UIelement">On the left</span> or <span class="UIelement">On the right</span>, depending on the desired location of the new column. A blank, unnamed column is created.</p>
+                                                <p>Select <span class="UIelement">On the left</span> or <span class="UIelement">On the right</span>. A blank, unnamed column is created.</p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;The data type for the new column is unknown because there is no data. A data type is assigned when you execute a function on this column. After data is entered in the column, you can change the data type as described in <a href="../B_CommonTasks/D_ChangeDataType.htm" class="MCXref xref" xrefformat="{para}">Changing the data type of a column</a>.</div>
                                             </li>
                                             <li value="3">
-                                                <p>(Optional) Type the column name. You must press Enter to record the name. </p>
+                                                <p>(Optional) In the column header, type the column name. You must press Enter to record the name. </p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">
+                                                            <li value="1">The name is case sensitive.</li>
+                                                            <li value="2">
                                                                 <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
                                                                 <ul>
                                                                     <li value="1">caret (^)</li>
@@ -220,10 +221,10 @@
                                                                     <li value="10">period (.)</li>
                                                                 </ul>
                                                             </li>
-                                                            <li value="2">The name cannot begin or end with a space.</li>
-                                                            <li value="3">The name cannot begin with a number.</li>
-                                                            <li value="4">Length must be from 1 to 255 characters.</li>
-                                                            <li value="5">The name must not be <span class="UIelement">DATA</span>. Because column names are case sensitive, strings such as <span class="UIelement">data</span> and <span class="UIelement">Data</span> are acceptable.</li>
+                                                            <li value="3">The name must not begin or end with a space.</li>
+                                                            <li value="4">The name must not begin with a number.</li>
+                                                            <li value="5">Length must not exceed 255 characters.</li>
+                                                            <li value="6">The name must not be <span class="UIelement">DATA</span>. Because the name is case sensitive, <span class="UIelement">data</span> or <span class="UIelement">Data</span> is acceptable.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -232,12 +233,12 @@
                                         </ol>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;When a column contains no values, the column drop-down menu has fewer options than the drop-down menu invoked from a column with values. For example, the Join and Filter functions are not available for a blank column. Also, if you start the Map function from a blank column, the column name is automatically entered in the <span class="UIelement">New Resultant Column Name</span> field in the <span class="UIelement">Map</span> panel.</div>
                                         <h2>Minimize and maximize a column</h2>
-                                        <p>In the column drop-down menu, select <span class="UIelement">Minimize column</span> to make it narrow. To view the contents of the column, mouse over the minimized column and then right click to display the drop-down menu. Select <span class="UIelement">Maximize column</span> to revert the column to the width before you minimize it.</p>
+                                        <p>In the column drop-down menu, select <span class="UIelement">Minimize column</span> to make it narrow. To view the contents of the column, mouse over the minimized column and then right click to display the drop-down menu. Select <span class="UIelement">Maximize column</span> to revert the column to the width before you minimized it.</p>
                                         <h2>Delete a column</h2>
-                                        <p>This option is available only for an unpopulated column. For example, if you use the <span class="UIelement">Add a column</span> option to create a column and its cells do not contain any values yet, you can use the <span class="UIelement">Delete a column</span> option to remove it.</p>
+                                        <p>This option is available only for an unpopulated column. For example, if you use the <span class="UIelement">Add a column</span> option to create a column and its cells do not contain any values, you can use the <span class="UIelement">Delete a column</span> option to remove it.</p>
                                         <h2>Hide a column</h2>
                                         <p>In the column drop-down menu, select <span class="UIelement">Hide a column</span> to remove the column from the table.</p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Hiding a column reduces clutter in your table. It does not delete the column or remove the column in the <span class="UIelement">Data Browser</span>. You can always add a hidden column back to a table. See <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref" xrefformat="{para}">Adding columns from a dataset to a table</a>for information about how to add a column. Deleting a column is possible if the column is not yet populated with values.</div>
+                                        <p>Hiding a column reduces clutter in your table. It does not delete the column or remove the column in the <span class="UIelement">Data Browser</span>. You can always add a hidden column back to a table. See <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref" xrefformat="{para}">Adding columns from a dataset to a table</a> for information about how to add a column. Deleting a column is possible if the column is not yet populated with values.</p>
                                         <h2>Text align</h2>
                                         <p>Follow these steps to align text in a column:</p>
                                         <ol>
@@ -284,7 +285,8 @@
                                             <li value="3">Click the check mark in the pop-up to submit your information.</li>
                                         </ol>
                                         <h2>Sort</h2>
-                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible the resultant table contains fewer rows than before the sort. For more information about FNF, see <a href="../B_CommonTasks/P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a table containing FNF</a>.</p>
+                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible for the resultant table to contain fewer rows than before the sort. </p>
+                                        <p>For more information about FNF, see <a href="../B_CommonTasks/P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a table containing FNF</a>.</p>
                                         <p>For more information about sorting, see <a href="../B_CommonTasks/E1_SortAndQuartile.htm" class="MCXref xref" xrefformat="{para}">Sorting a column and finding quartiles</a>.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

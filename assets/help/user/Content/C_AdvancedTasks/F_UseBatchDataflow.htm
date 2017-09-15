@@ -197,11 +197,11 @@ Scheduling, which is described in <a href="F1_ScheduleBatchDataflow.htm" class="
 The actual result of running a batch dataflow depends on your selection under <span class="UIelement">Advanced Export Options</span> in the graph before you run the batch dataflow:</p>
                                         <ul>
                                             <li value="1">
-                                                <p><span class="UIelement">Export to export target</span> (not supported in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>):&#160;The export folder shown in the batch dataflow graph is saved to the default export target or a user-defined target that you can specify in the <span class="UIelement">Parameterize Operation</span> modal window. For information about parameterizing, see <a href="#Specifyi" class="MCXref xref" xrefformat="{para}">Renaming the export folder shown in a batch dataflow graph</a>. By default, the table is exported to a folder at the default export target.</p>
+                                                <p><span class="UIelement">Export to export target</span>):&#160;The export folder shown in the batch dataflow graph is saved to the default export target or a user-defined target that you can specify in the <span class="UIelement">Parameterize Operation</span> modal window. For information about parameterizing, see <a href="#Specifyi" class="MCXref xref" xrefformat="{para}">Renaming the export folder shown in a batch dataflow graph</a>. By default, the table is exported to a folder at the default export target.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:The name of the export file must not be a duplicate. For example, if running the batch dataflow for the first time creates a file named export-airlines1#L811.csv, re-running the batch dataflow fails because the dataflow attempts to create an export file with the same name. To avoid duplicating names, before re-running a dataflow, either rename the existing export file (for example, to export-airlines00#L811.csv) or parameterize the name for the export file to be created. </div>
                                             </li>
                                             <li value="2">
-                                                <p><span class="UIelement">Export to a Xcalar table</span>:&#160;This option exports the table created by the dataflow to another table that will be placed in your active worksheet. You must provide the exported table with a name that does not conflict with any existing table name.</p>
+                                                <p><span class="UIelement">Export as a Xcalar table</span>:&#160;This option exports the table created by the batch dataflow to a table that will be placed in your active worksheet. You must provide the exported table with a name that does not conflict with any existing table name. </p>
                                             </li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;You can export the result of a batch dataflow as a table only if you run it from the dataflow graph. If you run it according to a schedule, the batch dataflow always exports the result as files. </div>
@@ -253,10 +253,10 @@ The actual result of running a batch dataflow depends on your selection under <s
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
-                                                            <li value="2">First character must be a letter.</li>
-                                                            <li value="3">The name is case-sensitive. </li>
-                                                            <li value="4">Length must be from 1 to 255 characters.</li>
+                                                            <li value="1">The name is case sensitive. </li>
+                                                            <li value="2"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
+                                                            <li value="3">First character must be a letter.</li>
+                                                            <li value="4">Length must not exceed 255 characters.</li>
                                                             <li value="5">The name must not be a duplicate of an existing table name in the same workbook.</li>
                                                         </ul>
                                                     </div>
@@ -268,8 +268,8 @@ The actual result of running a batch dataflow depends on your selection under <s
                                                 <ul>
                                                     <li value="1">When the batch dataflow is in progress, there is a tooltip showing the status of each table that has been created or is being created.</li>
                                                     <li value="2">For each table being created, the icon is yellow, and a progress bar is displayed.</li>
-                                                    <li value="3">After a table is created, the icon turns green. You can hover over the table icon to display the time taken to complete the operation.</li>
-                                                    <li value="4">If the final table or file cannot be created, its icon is displayed in red.</li>
+                                                    <li value="3">After a table is created, the dataset and table icons turn green. You can hover over each icon to display the time taken to complete the operation and the number of rows in the table.</li>
+                                                    <li value="4">If the batch dataflow fails to complete, a red dataset or table icon is displayed to show where the problem occurs.</li>
                                                 </ul>
                                             </li>
                                         </ol>
