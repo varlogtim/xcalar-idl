@@ -365,3 +365,19 @@ var ConcurrencyEnum = {
     OverLimit: "Limit exceeded",
     NoKVStore: "kvStore / kvEntry not found"
 };
+
+var JoinCompoundOperator = {
+    "Left Semi Join": 10,
+    "Right Semi Join": 11,
+    "Left Anti Semi Join": 12,
+    "Right Anti Semi Join": 13,
+    "Cross Join": 14,
+};
+
+var JoinCompoundOperatorTStr = {
+    LeftSemiJoin: "Left Semi Join",
+    RightSemiJoin: "Right Semi Join",
+    LeftAntiSemiJoin: "Left Anti Semi Join",
+    RightAntiSemiJoin: "Right Anti Semi Join",
+    CrossJoin: "Cross Join"
+};

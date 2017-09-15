@@ -718,6 +718,15 @@ window.SQLCompiler = (function() {
                     case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
                         joinType = JoinOperatorT.FullOuterJoin;
                         break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
+                        joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
+                        joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
+                        joinType = JoinCompoundOperatorTStr.CrossJoin;
+                        break;
                     default:
                         assert(0);
                         console.error("Join Type not supported");
