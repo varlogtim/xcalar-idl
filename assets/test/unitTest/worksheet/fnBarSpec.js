@@ -4,6 +4,8 @@ describe('FnBar Test', function() {
     var prefix;
     var tableId;
     var $table;
+    var newTableId;
+    var $newTable;
     var editor;
     var $fnArea;
     var newTableName;
@@ -255,8 +257,18 @@ describe('FnBar Test', function() {
                     }
                 }
                 expect(hasReviewCount).to.be.true;
+
+                // find and click regex li
+                var $li = $(".CodeMirror-hints").find("li").filter(function() {
+                    return $(this).find(".displayText").text() === "regex";
+                });
+                $li.click();
+                expect($(".fnbarPre").text().indexOf("regex")).to.equal(5);
+
                 FnBar.clear();
             });
+
+
         });
         describe("Fnbar misc functions should work.", function() {
 
@@ -393,8 +405,8 @@ describe('FnBar Test', function() {
                 FnBar.__testOnly__.functionBarEnter()
                 .then(function(ret) {
                     newTableName = ret;
-                    var newTableId = xcHelper.getTableId(ret);
-                    var $newTable = $('#xcTable-' + newTableId);
+                    newTableId = xcHelper.getTableId(ret);
+                    $newTable = $('#xcTable-' + newTableId);
 
                     expect($newTable.find('tbody tr').length).to.equal(27);
                     expect($newTable.find('.row0 td.col1 .originalData').text())
@@ -408,6 +420,75 @@ describe('FnBar Test', function() {
                 .fail(function() {
                     expect('failed').to.equal('should succeed');
                     done();
+                });
+            });
+        });
+
+        describe("Map test", function() {
+            it("map on existing column should be detected", function(done) {
+                $newTable.find('th.col1 .dragArea').mousedown();
+
+                editor.setValue('= map(add(' + prefix + gPrefixSign +
+                    'average_stars, 4.5))');
+
+                FnBar.__testOnly__.functionBarEnter()
+                .then(function() {
+                    done("failed");
+                })
+                .fail(function() {
+                    var numCols = $newTable.find("th").length;
+                    UnitTest.hasAlertWithTitle(FnBarTStr.NewColTitle, {confirm: true});
+                    UnitTest.testFinish(function() {
+                        return $newTable.find("th").length === numCols + 1;
+                    })
+                    .then(function() {
+                        done();
+                    })
+                    .fail(function() {
+                        done("fail");
+                    });
+                });
+            });
+
+            it("map on blank new col should show error", function(done) {
+                $newTable.find('th.col1 .dragArea').mousedown();
+
+                editor.setValue('= map(add(' + prefix + gPrefixSign +
+                    'average_stars, 4.5))');
+                FnBar.__testOnly__.functionBarEnter()
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function() {
+                    UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+                    done();
+                });
+            });
+
+            it("map with invalid parens should show error", function(done) {
+                $newTable.find('th.col2 .dragArea').mousedown();
+
+                // missing add(
+                editor.setValue('= map(' + prefix + gPrefixSign +
+                    'average_stars, 4.5))');
+                FnBar.__testOnly__.functionBarEnter()
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function() {
+                    UnitTest.testFinish(function() {
+                        return $("#statusBox").is(":visible");
+                    })
+                    .then(function() {
+                        var text = xcHelper.replaceMsg(FnBarTStr.InvalidNumParens, {
+                            operation: "map"
+                        });
+                        UnitTest.hasStatusBoxWithError(text);
+                        done();
+                    })
+                    .fail(function() {
+                        done("fail");
+                    });
                 });
             });
         });

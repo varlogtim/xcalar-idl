@@ -485,7 +485,6 @@ window.FnBar = (function(FnBar, $) {
         function autocompleteSelect(cm, data, completion) {
             var text = completion.templateTwo || completion.text;
             cm.replaceRange(text, data.from, data.to, "complete");
-            // var firstStartIndex;
             var firstEndIndex;
 
             // highlight arguments and place cursor right after the end of the
