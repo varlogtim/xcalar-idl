@@ -44,6 +44,22 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             var $li = $(this);
             var index = $li.index();
             index = numMemItems - 1 - index;
+            donutMouseEnter(index);
+        });
+
+        $monitorPanel.find(".ramDonut").on("mouseleave", ".legend li", function() {
+            donutMouseLeave();
+        });
+
+        $monitorPanel.find(".ramDonut").on("mouseenter", ".thick path", function() {
+            donutMouseEnter($(this).index());
+
+        });
+        $monitorPanel.find(".ramDonut").on("mouseleave", ".thick path", function() {
+            donutMouseLeave();
+        });
+
+        function donutMouseEnter(index) {
             var val = ramData[index];
             var rawVal = val;
             var sizeOption = {base2: true};
@@ -63,26 +79,21 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                                              .eq(index).attr("class", "hover");
             }
             // visibility:hidden
-            $monitorPanel.find(".ramDonut").find(".donutInfo").addClass("hidden");
-        });
+            $monitorPanel.find(".ramDonut").find(".donutInfo")
+                                           .addClass("hidden");
+            $monitorPanel.find(".ramDonut").find(".legend li")
+                                            .eq(numMemItems - 1 - index)
+                                            .addClass("hover");
+        }
 
-        $monitorPanel.find(".ramDonut").on("mouseleave", ".legend li", function() {
-            $monitorPanel.find(".donutLegendInfo").addClass("xc-hidden");
-            $monitorPanel.find(".ramDonut").find("path").attr("class", "");
-            $monitorPanel.find(".ramDonut").find(".donutInfo").removeClass("hidden");
-        });
-
-        $monitorPanel.find(".ramDonut").on("mouseenter", ".thick path", function() {
-            var $path = $(this);
-            var index = $path.index();
-            index = numMemItems - 1 - index;
-            $monitorPanel.find(".ramDonut").find(".legend li").eq(index)
-            .addClass("hover");
-        });
-        $monitorPanel.find(".ramDonut").on("mouseleave", ".thick path", function() {
+        function donutMouseLeave() {
             $monitorPanel.find(".ramDonut").find(".legend li")
                                             .removeClass("hover");
-        });
+            $monitorPanel.find(".donutLegendInfo").addClass("xc-hidden");
+            $monitorPanel.find(".ramDonut").find("path").attr("class", "");
+            $monitorPanel.find(".ramDonut").find(".donutInfo")
+                                           .removeClass("hidden");
+        }
     };
 
     MonitorDonuts.update = function(allStats) {
