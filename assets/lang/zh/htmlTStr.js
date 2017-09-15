@@ -812,10 +812,10 @@ module.exports = {
     },
     "sortView": {
         "SORT": "SORT",
-        "instr": "Select one or multiple columns to sort your table on by selecting the columns from the current table.",
-        "colInstrHeader": "Select Columns to Sort On",
-        "colInstrText": "To sort on a column, first select the column in the table. You will see a row appended for the column. Next click on the drop down and select the sort order. To remove a column from being sorted on, click on the column in the table to deselect it. You can jump to the column by clicking on the column name in the table.",
-        "order": "Order",
+        "instr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
+        "colInstrHeader": "Change Columns to Sort",
+        "colInstrText": "To remove a column from the sort, deselect the column from the table. To add a column to the sort, select the column in the table. The number in the top right of each selected column represent the order of the sort key (1 - Primary sort key, 2 - Secondary sort key, etc.) Click the Direction dropdown to change the direction of sort.",
+        "order": "Direction",
         "NoSort": "No columns selected"
     },
     "statistics": {
