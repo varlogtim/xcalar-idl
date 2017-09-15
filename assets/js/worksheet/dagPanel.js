@@ -53,6 +53,7 @@ window.DagPanel = (function($, DagPanel) {
 
     DagPanel.adjustScrollBarPositionAndSize = function() {
         var id = $scrollBarWrap.data('id');
+
         if (id && id !== "none") {
             var $dagWrap = $('#dagWrap-' + id);
             if (!$dagWrap.length) {

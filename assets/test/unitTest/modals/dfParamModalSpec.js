@@ -387,7 +387,7 @@ describe("DFParamModal Test", function() {
 
             $input.val(" ");
             fn($input);
-            expect($list.find("li:visible").length).to.equal(21);
+            expect($list.find("li:visible").length).to.equal(22);
 
             $input.val("abcd");
             fn($input);

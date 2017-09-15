@@ -431,6 +431,50 @@ describe("Dag Panel Test", function() {
 
             }, 1000);
         });
+
+        it("horizontal scrollbar should work", function() {
+            var $scrollBarWrap = $('#dagScrollBarWrap');
+            expect($scrollBarWrap.data("id")).to.equal("none");
+            $scrollBarWrap.show();
+            expect($scrollBarWrap.is(":visible")).to.be.true;
+            DagPanel.adjustScrollBarPositionAndSize();
+            expect($scrollBarWrap.is(":visible")).to.be.false;
+
+            $scrollBarWrap.data("id", "fakeId");
+            $scrollBarWrap.show();
+            expect($scrollBarWrap.is(":visible")).to.be.true;
+            DagPanel.adjustScrollBarPositionAndSize();
+            expect($scrollBarWrap.is(":visible")).to.be.false;
+
+            $scrollBarWrap.data("id", largeTable.tableId);
+            var parentWidth = largeTable.$dagWrap.find(".dagImageWrap").width();
+            var cacheWidth = largeTable.$dagWrap.find(".dagImage").width();
+
+            largeTable.$dagWrap.find(".dagImage").width(parentWidth - 10000);
+            expect($scrollBarWrap.is(":visible")).to.be.false;
+            DagPanel.adjustScrollBarPositionAndSize();
+            expect($scrollBarWrap.is(":visible")).to.be.false;
+            largeTable.$dagWrap.find(".dagImage").width(cacheWidth);
+
+            largeTable.$dagWrap.find(".dagImage").width(parentWidth + 10);
+            expect($scrollBarWrap.is(":visible")).to.be.false;
+            DagPanel.adjustScrollBarPositionAndSize();
+            expect($scrollBarWrap.is(":visible")).to.be.true;
+            largeTable.$dagWrap.find(".dagImage").width(cacheWidth);
+        });
+
+        it("horizontal scroll bar should get correct ID", function() {
+            var cachedFn = document.elementFromPoint;
+            document.elementFromPoint = function() {
+                return largeTable.$dagWrap.find(".dagTable")[0];
+            };
+            DagPanel.setScrollBarId(0);
+            expect($('#dagScrollBarWrap').data("id")).to.equal(largeTable.tableId);
+
+            DagPanel.setScrollBarId(999999999);
+            expect($('#dagScrollBarWrap').data("id")).to.equal("none");
+            document.elementFromPoint = cachedFn;
+        });
     });
 
     describe("dag panel resizing", function() {

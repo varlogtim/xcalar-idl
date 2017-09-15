@@ -69,6 +69,50 @@ describe('DFCreateView Test', function() {
             expect($dfView.find('.cols li').eq(0).hasClass('checked')).to.be.true;
         });
 
+        it("shift clicking columns should work", function() {
+            var $th = $("#xcTable-" + tableId).find('th.col1');
+            expect($th.hasClass('modalHighlighted')).to.be.true;
+            $th.click(); // deselect
+            expect($th.hasClass('modalHighlighted')).to.be.false;
+
+            var event = {type: "click", "which": 1, shiftKey: true};
+            $th = $("#xcTable-" + tableId).find('th.col7');
+            $th.trigger(event);
+            expect($th.hasClass('modalHighlighted')).to.be.false;
+            expect($("#xcTable-" + tableId).find('th.col4').hasClass("modalHighlighted")).to.be.false;
+
+            $th = $("#xcTable-" + tableId).find('th.col1');
+            expect($th.hasClass('modalHighlighted')).to.be.false;
+            $th.click(); // select
+            expect($th.hasClass('modalHighlighted')).to.be.true;
+
+            var event = {type: "click", "which": 1, shiftKey: true};
+            $th = $("#xcTable-" + tableId).find('th.col7');
+            $th.trigger(event);
+            expect($th.hasClass('modalHighlighted')).to.be.true;
+            expect($("#xcTable-" + tableId).find('th.col4').hasClass("modalHighlighted")).to.be.true;
+        });
+
+        it("shift clicking lis should work", function() {
+            var event = {type: "click", "which": 1, shiftKey: true};
+            var numCols = $dfView.find('.cols li').length;
+            expect(numCols).to.be.gt(4);
+            expect($dfView.find('.cols li.checked').length).to.equal(numCols);
+
+            $dfView.find('.cols li').eq(0).click();
+            expect($dfView.find('.cols li.checked').length).to.equal(numCols - 1);
+
+
+            $dfView.find('.cols li').eq(3).trigger(event);
+            expect($dfView.find('.cols li.checked').length).to.equal(numCols - 4);
+
+            $dfView.find('.cols li').eq(0).click();
+            expect($dfView.find('.cols li.checked').length).to.equal(numCols - 3);
+
+            $dfView.find('.cols li').eq(3).trigger(event);
+            expect($dfView.find('.cols li.checked').length).to.equal(numCols);
+        });
+
         it('clicking on non-exportable column header should not select', function() {
             var $th = $("#xcTable-" + tableId).find('th.col11');
             expect($th.find('input').val()).to.equal("votes");
@@ -107,6 +151,19 @@ describe('DFCreateView Test', function() {
             colText = getHighlightedColText();
             expect(listText.length).to.be.gt(20);
             expect(listText).to.equal(colText);
+        });
+
+        it("selectAllWrap clicking should work", function() {
+            var listText = $dfView.find('.columnsToExport li.checked').text();
+            expect(listText.length).to.be.gt(20);
+            $dfView.find('.selectAllWrap').click();
+            listText = $dfView.find('.columnsToExport li.checked').text();
+            expect(listText.length).to.equal(0);
+
+
+            $dfView.find('.selectAllWrap').click();
+            listText = $dfView.find('.columnsToExport li.checked').text();
+            expect(listText.length).to.be.gt(20);
         });
 
         function getHighlightedColText() {
@@ -180,6 +237,22 @@ describe('DFCreateView Test', function() {
                 expect($(".tooltip.error").text().indexOf(TooltipTStr.ChooseColToExport)).to.be.gt(-1);
             })
             .always(function() {
+                done();
+            });
+        });
+
+        it("check duplicate name fail should be handled", function(done) {
+            var cache = XcalarGetRetina;
+            XcalarGetRetina = function() {return PromiseHelper.resolve()};
+
+            DFCreateView.__testOnly__.selectAll();
+            submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.DFConflict);
+                XcalarGetRetina = cache;
                 done();
             });
         });

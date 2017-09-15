@@ -518,6 +518,20 @@ describe('TableList Test', function() {
         });
     });
 
+    describe("clicking on tablename", function() {
+        it("clicking on tablename should focus table", function() {
+            var fn = xcHelper.centerFocusedTable;
+            xcHelper.centerFocusedTable = function() {
+                called = true;
+            }
+            var $activeLists = $("#activeTableListSection");
+            $activeLists.find(".tableListBox .tableName").eq(0).click();
+            expect(called).to.be.true;
+
+            xcHelper.centerFocusedTable = fn;
+        });
+    });
+
     describe("clicking on column name", function() {
         it("clicking on column name should call focus on column", function() {
             var cachedCenterFn = xcHelper.centerFocusedColumn;
@@ -592,6 +606,13 @@ describe('TableList Test', function() {
             $input.val('e').trigger(fakeEvent.input);
             expect($listWrap.find('.addTableBtn.selected').length).to.equal(0);
             $input.val("").trigger(fakeEvent.input);
+        });
+
+        it("orphan list search should work", function() {
+            $("#orphanedTableList-search").find("input").val("test");
+            expect($("#orphanedTableList-search").find("input").val()).to.equal("test");
+            $("#orphanedTableList-search").find(".clear" ).click();
+            expect($("#orphanedTableList-search").find("input").val()).to.equal("");
         });
     });
 
@@ -689,6 +710,30 @@ describe('TableList Test', function() {
         });
     });
 
+    describe("TableList.activeTables", function() {
+        it("TableList.activeTables fail should be handled", function(done) {
+            var called = false;
+            var cachedFn1 = TableList.tableBulkAction;
+            TableList.tableBulkAction = function() {
+                called = true;
+                return PromiseHelper.reject();
+            }
+            var cachedFn2 = WSManager.addNoSheetTables;
+            WSManager.addNoSheetTables = function() {};
+
+            TableList.activeTables()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithTitle(TblTStr.ActiveFail);
+                TableList.tableBulkAction = cachedFn1;
+                WSManager.addNoSheetTables = cachedFn2;
+                done();
+            })
+        });
+    });
+
     describe("sorting", function() {
         var cachedGetWSList;
         var cachedGetWSById;
@@ -760,6 +805,26 @@ describe('TableList Test', function() {
             WSManager.getHiddenWSList = cachedgetHiddenWSList;
         });
     });
+
+    describe("other functions", function() {
+        it("too many columns check", function() {
+            var fnCache = WSManager.getNumCols;
+            WSManager.getNumCols = function() {return 1;};
+
+            var fn = TableList.__testOnly__.tooManyColAlertHelper;
+            var tableType = TableType.Orphan;
+            var action = "add";
+            var tableNames = ["a", "b"];
+            var maxColCache = gMaxColToPull;
+            gMaxColToPull = 1;
+
+            fn(tableNames, tableType, action);
+            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn);
+            WSManager.getNumCols = fnCache;
+
+            gMaxColToPull = maxColCache;
+        })
+    })
 
     after(function() {
         gTables = gTableCache;

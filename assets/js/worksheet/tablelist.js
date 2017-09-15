@@ -696,6 +696,7 @@ window.TableList = (function($, TableList) {
             });
             var totalCols = numWsCols + numTableCols;
             // only show alert if columns are present in ws
+
             if (numWsCols && totalCols > gMaxColToPull) {
                 Alert.show({
                     "title": DSFormTStr.CreateWarn,
@@ -1896,6 +1897,14 @@ window.TableList = (function($, TableList) {
         }
         return (tableIsInActiveWS);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        TableList.__testOnly__ = {};
+        TableList.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
+
+    }
+    /* End Of Unit Test Only */
 
     return (TableList);
 }(jQuery, {}));

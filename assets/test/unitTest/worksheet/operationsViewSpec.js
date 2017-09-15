@@ -1086,7 +1086,7 @@ describe('OperationsView Test', function() {
             it('should select correct function list when clicked', function() {
                 expect($functionsMenu.is(":visible")).to.equal(true);
                 expect($functionsMenu.find('li').length).to.be.above(6);
-                expect($functionsMenu.find('li').eq(0).text()).to.equal('concat');
+                expect($functionsMenu.find('li').eq(0).text()).to.equal('ascii');
             });
         });
 
