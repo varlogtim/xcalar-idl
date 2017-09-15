@@ -5,8 +5,17 @@ describe("LiveHelp Modal Test", function() {
     var $modal;
     var $menu;
     var testMsg;
+    var oldSendReqToSocket;
+    var oldSendEmail;
+    var oldSendMsgToSocket;
     before(function(){
         UnitTest.onMinMode();
+        oldSendReqToSocket = LiveHelpModal.__testOnly__.getSendReqToSocket;
+        oldSendEmail = LiveHelpModal.__testOnly__.getSendEmail;
+        oldSendMsgToSocket = LiveHelpModal.__testOnly__.getSendMsgToSocket;
+        LiveHelpModal.__testOnly__.setSendReqToSocket(function() {});
+        LiveHelpModal.__testOnly__.setSendEmail(function() {});
+        LiveHelpModal.__testOnly__.setSendMsgToSocket(function() {});
 
         $modal = $("#liveHelpModal");
         $menu = $("#userMenu").find(".liveHelp");
@@ -104,11 +113,8 @@ describe("LiveHelp Modal Test", function() {
 
         // Click "Send Email" button
         it("Should send emails", function() {
-            var oldFunc = LiveHelpModal.sendEmail;
-            LiveHelpModal.sendEmail = function() {};
             $modal.find(".sendEmail").click();
             expect($modal.find(".sysMsg").text()).to.include(AlertTStr.EmailSending);
-            LiveHelpModal.sendEmail = oldFunc;
         });
 
         // Click "Close" button
@@ -137,5 +143,8 @@ describe("LiveHelp Modal Test", function() {
 
     after(function() {
         UnitTest.offMinMode();
+        LiveHelpModal.__testOnly__.setSendReqToSocket(oldSendReqToSocket);
+        LiveHelpModal.__testOnly__.setSendEmail(oldSendEmail);
+        LiveHelpModal.__testOnly__.setSendMsgToSocket(oldSendMsgToSocket);
     });
 });

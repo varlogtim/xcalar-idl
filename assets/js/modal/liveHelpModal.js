@@ -81,9 +81,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
         setTimeout(function() {
-            if (connected) {
+            if (!connected) {
                 // Send the request to socket
-                socket.emit("liveHelpConn", userName);
+                sendReqToSocket();
             }
         }, 1000);
         // Hide reqConn UI, display chatting UI
@@ -91,6 +91,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         $modal.find(".chatBox").show();
         $modal.find(".sendMsg").prop("disabled", true);
         clearInput();
+    }
+    function sendReqToSocket() {
+        socket.emit("liveHelpConn", userName);
     }
     // Support is ready to chat
     function readyToChat(readyOpts) {
@@ -114,9 +117,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             "content": $modal.find(".sendMsg").val(),
             "sender": fullName
         };
-        socket.emit("liveHelpMsg", message);
+        sendMsgToSocket(message);
         appendMsg(message.content, "userMsg", fullName);
         clearInput();
+    }
+    function sendMsgToSocket(message) {
+        socket.emit("liveHelpMsg", message);
     }
     // Update the chat messages in chat box
     function appendMsg(content, type, sender) {
@@ -159,15 +165,15 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                     text: content
                 };
                 appendMsg(AlertTStr.EmailSending, "sysMsg");
-                LiveHelpModal.sendEmail(mailOpts);
+                sendEmail(mailOpts);
             }
         }
     }
-    LiveHelpModal.sendEmail = function(mailOpts) {
+    function sendEmail(mailOpts) {
         socket.emit("sendEmail", mailOpts, function() {
             appendMsg(AlertTStr.EmailSent, "sysMsg");
         });
-    };
+    }
 
     function startChatting() {
         fullName = $modal.find(".name").val();
@@ -333,6 +339,18 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         LiveHelpModal.__testOnly__.connected = connected;
         LiveHelpModal.__testOnly__.readyToChat = readyToChat;
         LiveHelpModal.__testOnly__.returnToWait = returnToWait;
+        LiveHelpModal.__testOnly__.getSendEmail = sendEmail;
+        LiveHelpModal.__testOnly__.setSendEmail = function(func) {
+            sendEmail = func;
+        };
+        LiveHelpModal.__testOnly__.getSendReqToSocket = sendReqToSocket;
+        LiveHelpModal.__testOnly__.setSendReqToSocket = function(func) {
+            sendReqToSocket = func;
+        };
+        LiveHelpModal.__testOnly__.getSendMsgToSocket = sendMsgToSocket;
+        LiveHelpModal.__testOnly__.setSendMsgToSocket = function(func) {
+            sendMsgToSocket = func;
+        };
     }
     /* End Of Unit Test Only */
 
