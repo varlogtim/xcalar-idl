@@ -265,22 +265,51 @@
                                             <li value="2">Click your storage account name.</li>
                                             <li value="3">Navigate to the shared access signature (SAS)&#160;page.</li>
                                             <li value="4">
-                                                <p>Set the SAS&#160;parameters, such as Allowed services, Allowed resource types, Allowed permissions, for generating the SAS token. </p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Make sure you grant read and list permissions to the Azure container. Also, set an expiry time before which <span class="GeneralProductName3">Xcalar</span> can access the data.</div>
+                                                <p>Set the SAS&#160;parameters as follows for generating the SAS token:</p>
+                                                <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Parameter</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Setting</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed services</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Blob</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Allowed resource types</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Container, Object</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed permissions</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Read, List</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Start and expiry date/time</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Start time and end time for the time period when your <span class="GeneralProductName3">Xcalar</span> cluster can access the data</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Allowed protocols</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">HTTPS only</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </li>
                                             <li value="5">
                                                 <p>After the SAS token is generated, copy the token (not the signature) to your computer's clipboard. You will need to paste the token in the next step.</p>
-                                                <p>The following is an example of a SAS token:</p>
-                                                <div>
-                                                    <p class="userInput">?sv=2015-04-05&amp;st=2015-04-29T22%3A18%3A26Z&amp;se=2015-04-30T02%3A23%3A26Z&amp;sr=b&amp;sp=rw&amp;sip=168.1.5.60-168.1.5.70&amp;spr=https&amp;sig=Z%2FRHIX5Xcg0Mq2rqI3OlWTjEg2tYkboXr1P9ZUXDtkk%3DD</p>
-                                                </div>
+                                                <p>The following is an example of a SAS token with a Start Time set to 2017-09-18 00:00;00 and End Time set to 2017-12-01 00:00:00:</p>
+                                                <p class="userInput">?sv=2017-04-17&amp;ss=b&amp;srt=co&amp;sp=rl&amp;se=2017-12-01T00:00:00Z&amp;st=2017-09-18T00:00:00Z&amp;spr=https&amp;sig=xO0OwmPaIe27S0jy%2Fqr%2FbRs6WXj3%2BP84fGr4%2Bh%2BE5Qs%3D</p>
                                             </li>
                                             <li value="6">
-                                                <p>Enter the following string in the /etc/xcalar/default.cfg file on each <span class="GeneralProductName3">Xcalar</span> cluster node. The SAS token is the token you copied in Step 4.</p>
+                                                <p>Enter the following string in the /etc/xcalar/default.cfg file on each <span class="GeneralProductName3">Xcalar</span> cluster node. The SAS token is the token you copied in the preceding step.</p>
                                                 <p class="userInput">AzBlob.&lt;Azure Storage account name&gt;.sasToken=&lt;SAS token&gt;</p>
-                                                <p>The following string is an example of the string  entered in the /etc/xcalar/default.cfg file:</p>
-                                                <p class="userInput">AzBlob.myaccount.sasToken=?sv=2015-04-05&amp;st=2015-04-29T22%3A18%3A26Z&amp;se=2015-04-30T02%3A23%3A26Z&amp;sr=b&amp;sp=rw&amp;sip=168.1.5.60-168.1.5.70&amp;spr=https&amp;sig=Z%2FRHIX5Xcg0Mq2rqI3OlWTjEg2tYkboXr1P9ZUXDtkk%3D
-</p>
+                                                <p>For example, enter the following string in the /etc/xcalar/default.cfg file:</p>
+                                                <p class="userInput">AzBlob.myaccount.sasToken=?sv=2017-04-17&amp;ss=b&amp;srt=co&amp;sp=rl&amp;se=2017-12-01T00:00:00Z&amp;st=2017-09-18T00:00:00Z&amp;spr=https&amp;sig=xO0OwmPaIe27S0jy%2Fqr%2FbRs6WXj3%2BP84fGr4%2Bh%2BE5Qs%3D<![CDATA[
+]]></p>
                                                 <p>In this example, the Azure Storage account name is myaccount. Be sure to use the appropriate account name for your Azure Storage.</p>
                                             </li>
                                             <li value="7">Save the /etc/xcalar/default.cfg file.</li>
