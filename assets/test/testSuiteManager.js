@@ -145,7 +145,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             $inputs.eq(3).val("y");
         }
         var close = $inputs.eq(4).val();
-        if (close !== "y" && close !== "force") {
+        if (close !== "y" && close !== "n" && close !== "force") {
             close = "y";
             $inputs.eq(4).val("y");
         }

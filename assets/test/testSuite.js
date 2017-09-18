@@ -521,14 +521,13 @@ window.TestSuite = (function($, TestSuite) {
                 .then(function() {
                     DS.remove($grid);
                     $("#alertModal .confirm").click();
+                    setTimeout(function() {
+                        // wait for some time
+                        gMinModeOn = minModeCache;
+                        deferred.resolve();
+                    }, 2000);
                 });
             });
-
-            setTimeout(function() {
-                // wait for some time
-                gMinModeOn = minModeCache;
-                deferred.resolve();
-            }, 2000);
         }
 
         return deferred.promise();

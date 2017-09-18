@@ -196,12 +196,12 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     function autoRunTestSuite() {
         var deferred = jQuery.Deferred();
         var params = getUrlParameters();
-        var delay = Number(params.timeout);
+        var delay = Number(params.delay);
 
         if (isNaN(delay)) {
             delay = 0;
         }
-        var clean = parseBooleanParam(params.clean);
+        var clean = parseBooleanParam(params.cleanup);
         var animation = parseBooleanParam(params.animation);
         var noPopup = parseBooleanParam(params.noPopup);
         var mode = params.mode;

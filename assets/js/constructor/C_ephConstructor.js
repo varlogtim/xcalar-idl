@@ -6,6 +6,7 @@ function XcMap() {
 
 XcMap.prototype = {
     entries: function() {
+
         return this.map;
     },
 
@@ -2153,6 +2154,9 @@ RangeSlider.prototype = {
         this.$rangeSliderWrap.find('.leftArea').width(width);
     },
     handleClick: function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var self = this;
         var $rangeSlider = $(event.target).closest('.rangeSlider');
         var mouseX = event.pageX - $rangeSlider.offset().left +

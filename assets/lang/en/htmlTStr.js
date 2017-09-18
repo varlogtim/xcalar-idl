@@ -393,7 +393,7 @@ module.exports = {
         "enableFile": "Enable file://",
         "GeneralSettings": "General Settings",
         "GenSub": "File Support Ticket",
-        "graphInterval": "MONITOR GRAPH INTERVAL",
+        "graphInterval": "Graph Interval",
         "commitInterval": "AUTOSAVE INTERVAL",
         "GTotal": "Total",
         "hideSysOps": "HIDE SYSTEM GENERATED OPERATIONS FROM OPERATIONS LIST",
