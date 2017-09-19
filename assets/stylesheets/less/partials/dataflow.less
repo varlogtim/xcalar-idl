@@ -845,6 +845,16 @@
             width: ~"calc(100% - @{label-width})";
             .input-wrap {
                 width: 180px;
+            }
+            .utc-wrap {
+                width: 30px;
+                line-height: 30px;
+                color: @color-bg-white-two;
+                border: solid 1px @color-table-hoverBg-gray;
+                border-left: none;
+                border-right: none;
+            }
+            .input-wrap, .utc-wrap {
                 height: 30px;
                 background-color: @color-bg-white-three;
                 display: inline-block;
@@ -889,11 +899,21 @@
                 &.timePickerPart {
                     position: relative;
 
+                    .input-wrap {
+                        width: 150px !important;
+                    }
+
                      &.active {
                         .icon-wrap {
                             background-color: @color-white;
                             border: solid 1px  @color-border-softBlue;
                             border-left: none;
+                        }
+                        .utc-wrap {
+                            background-color: @color-white;
+                            border: solid 1px  @color-border-softBlue;
+                            border-left: none;
+                            border-right: none;
                         }
                     }
                 }
