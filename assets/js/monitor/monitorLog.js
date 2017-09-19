@@ -232,18 +232,28 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function getRecentLogs() {
         var $inputSection = $logCard.find(".inputSection");
-        var $input = $inputSection.find(".xc-input").eq(1);
+        var $lastNRow = $inputSection.find(".lastRow .xc-input");
+        var $fileName = $inputSection.find(".logName .xc-input");
         var lastNRow = $inputSection.find(".lastRow .xc-input").val().trim();
         var fileName = $inputSection.find(".logName .xc-input").val().trim();
         var filePath = getFilePath();
-        $input.blur();
+        $lastNRow.blur();
 
         var isValid = xcHelper.validate([
             {
-                "$ele": $input // check if it"s empty
+                "$ele": $fileName // check if it"s empty
+            }
+        ]);
+        if (!isValid) {
+            return false;
+        }
+
+        isValid = xcHelper.validate([
+            {
+                "$ele": $lastNRow // check if it"s empty
             },
             {
-                "$ele": $input,
+                "$ele": $lastNRow,
                 "error": "Please enter a value between 1 and 500",
                 "check": function() {
                     return (!(parseInt(lastNRow) > 0 && parseInt(lastNRow) < 501));
@@ -281,7 +291,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         })
         .always(function() {
             $inputSection.removeClass("xc-disabled");
-            $input.blur();
+            $lastNRow.blur();
             xcTooltip.hideAll();
         });
     }
@@ -299,11 +309,19 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function startMonitorLog() {
+        var $fileName = $("#monitorLogCard .logName .xc-input");
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $fileName // check if it"s empty
+            }
+        ]);
+        if (!isValid) {
+            return false;
+        }
         var $streamBtns = $logCard.find(".streamBtns");
         $("#monitorLogCard .inputSection .xc-input").prop('disabled', true);
         $streamBtns.addClass("streaming");
-        var fileName = $("#monitorLogCard .logName .xc-input")
-                       .val().trim();
+        var fileName = $("#monitorLogCard .logName .xc-input").val().trim();
         var filePath = getFilePath();
 
         clearAll();
