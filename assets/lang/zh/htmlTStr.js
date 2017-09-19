@@ -183,7 +183,9 @@ module.exports = {
         "logFolder": "文件路径:",
         "logName": "文件名:",
         "lastNRow": "读取最新日志行数:",
-        "hostnamePattern": "主机名称正则表达式:"
+        "hostnamePattern": "主机名称正则表达式:",
+        "downloadLog": "下载日志",
+        "copyLog": "复制日志"
     },
     "aggModal": {
         "BackToProfile": "返回数据概况",

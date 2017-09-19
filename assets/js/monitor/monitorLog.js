@@ -52,6 +52,7 @@ window.MonitorLog = (function(MonitorLog, $) {
             focusTab($tabs.eq(0));
         }
         arrowStatusCheck();
+        showBarSection();
     }
 
     function focusTab($tab) {
@@ -95,6 +96,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         $logCard.find(".tabSection").removeClass("withTabs");
         $logCard.find(".tabArea").html("");
         $logCard.find(".content").html("");
+        hideBarSection();
     }
 
     function clearLogs() {
@@ -205,6 +207,16 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         $logCard.on('click', '.tabClose .icon', function() {
             closeTab($(this).closest('.tab'));
+            return false;
+        });
+
+        $logCard.on('click', '.downloadLog', function() {
+            downloadLog();
+            return false;
+        });
+
+        $logCard.on('click', '.copyLog', function() {
+            copyLog();
             return false;
         });
     }
@@ -459,6 +471,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         }
     }
 
+<<<<<<< HEAD
     function flushLog() {
         var deferred = jQuery.Deferred();
         XcalarLogLevelSet(9, 1)
@@ -478,6 +491,42 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function stopFlushPeriod() {
         clearInterval(flushIntervalId);
+    }
+
+    function downloadLog() {
+        var logs = getLogText();
+        var fileName = $logCard.find(".tab.focus").data("original-title") + "-logs.txt";
+        var $link = document.createElement('a');
+        $link.setAttribute('download', fileName);
+        $link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(logs));
+        $link.click();
+        $link.remove();
+    }
+
+    function copyLog() {
+        var logs = getLogText();
+        var $hiddenInput = $("<input>");
+        $("body").append($hiddenInput);
+        $hiddenInput.val(logs).select();
+        document.execCommand("copy");
+        $hiddenInput.remove();
+    }
+
+    function getLogText() {
+        var logs = "";
+        var msgRows = $logCard.find(".logSection .content .msgRow");
+        for (var i = 0; i < msgRows.length; i++) {
+            logs += $(msgRows[i]).html();
+        }
+        return logs;
+    }
+
+    function showBarSection() {
+        $logCard.find(".barSection").removeClass("xc-hidden");
+    }
+
+    function hideBarSection() {
+        $logCard.find(".barSection").addClass("xc-hidden");
     }
 
     /* Unit Test Only */

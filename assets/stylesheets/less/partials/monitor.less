@@ -1612,6 +1612,7 @@
     }
     .tabSection {
         background-color: @color-bg-white-three;
+        margin-bottom: 25px;
         height: 35px;
         width: 100%;
         border-top: solid 1px @color-border-pinkish-grey2;
@@ -1747,11 +1748,36 @@
         }
     }
 
-    .logSection {
+    .barSection {
         .flex-display;
         margin-left: 57px;
         margin-right: 57px;
-        margin-top: 25px;
+        margin-top: -20px;
+        .downloadLog, .copyLog {
+            flex-direction: row;
+            overflow: hidden;
+            .size(@width: 30px, @height: 30px);
+            white-space: normal;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .icon {
+                opacity: 0.5;
+            }
+            &:hover {
+                .icon {
+                    opacity: 1.0;
+                }
+                cursor: pointer;
+            }
+        }
+    }
+    .logSection {
+        position: relative;
+        .flex-display;
+        margin-left: 57px;
+        margin-right: 57px;
+        margin-top: 0px;
         height: 200px;
         min-height: 160px;
         background-color: @color-table-evenRow-gray;
@@ -1759,6 +1785,7 @@
         .content {
             margin: 0px;
             padding: 20px;
+            padding-top: 5px;
             background-color: @color-table-evenRow-gray;
             .size(@width: 100%);
             white-space: pre-wrap;

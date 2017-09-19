@@ -337,7 +337,9 @@ module.exports = {
         "logFolder": "Log Folder:",
         "logName": "Log Name:",
         "lastNRow": "Get recent logs:",
-        "hostnamePattern": "Hostname Pattern:"
+        "hostnamePattern": "Hostname Pattern:",
+        "downloadLog": "Download Log",
+        "copyLog": "Copy Log"
     },
 
     "ws": {
