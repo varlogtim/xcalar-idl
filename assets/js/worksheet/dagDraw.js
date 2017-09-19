@@ -1151,8 +1151,9 @@ window.DagDraw = (function($, DagDraw) {
             var tId = node.value.dagNodeId;
             var originalTableName = tableName;
             var dsText = "";
-            if (tableName.indexOf(gDSPrefix) === 0) {
-                tableName = tableName.substr(gDSPrefix.length);
+            var dsPrefixIndex = tableName.indexOf(gDSPrefix);
+            if (dsPrefixIndex > -1) {
+                tableName = tableName.substr(dsPrefixIndex + gDSPrefix.length);
             }
             if (node.value.api === XcalarApisT.XcalarApiExecuteRetina) {
                 tableClasses += "retina ";
