@@ -21,6 +21,10 @@ window.XcSocket = (function(XcSocket) {
     };
 
     XcSocket.sendMessage = function(msg, arg) {
+        if (socket == null) {
+            return;
+        }
+
         socket.emit(msg, arg, function() {
             console.log("Send " + msg + " to all clients");
         });
