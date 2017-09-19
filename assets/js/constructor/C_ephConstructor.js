@@ -882,6 +882,7 @@ function ModalHelper($modal, options) {
      * noEsc: if set true, no event listener on key esc,
      * noEnter: if set true, no event listener on key enter,
      * noBackground: if set true, no darkened modal background
+     * beforeResize: funciton called before modal resizing
      * resizeCallback: function called during modal resizing
      * afterResize: funciton called after modal resizing
      */
@@ -913,6 +914,9 @@ ModalHelper.prototype = {
         var $exitFullScreenBtn = $modal.find('.exitFullScreen');
         if ($fullScreenBtn.length) {
             $fullScreenBtn.click(function() {
+                if (options.beforeResize) {
+                    options.beforeResize();
+                }
                 var winWidth = $(window).width();
                 var winHeight = $(window).height();
                 $modal.width(winWidth - 14);
@@ -921,30 +925,21 @@ ModalHelper.prototype = {
                     "top": 0,
                     "left": Math.round((winWidth - $modal.width()) / 2)
                 });
-                if (options.resizeCallback) {
-                    options.resizeCallback();
-                }
-                if (options.afterResize) {
-                    options.afterResize();
-                }
+                self.__resizeCallback();
             });
 
         }
         if ($exitFullScreenBtn.length) {
             $exitFullScreenBtn.click(function() {
-                // var winWidth = $(window).width();
-                // var winHeight = $(window).height();
+                if (options.beforeResize) {
+                    options.beforeResize();
+                }
                 var minWidth  = options.minWidth || 0;
                 var minHeight = options.minHeight || 0;
                 $modal.width(minWidth);
                 $modal.height(minHeight);
                 self.center();
-                if (options.resizeCallback) {
-                    options.resizeCallback();
-                }
-                if (options.afterResize) {
-                    options.afterResize();
-                }
+                self.__resizeCallback();
             });
         }
 
@@ -962,11 +957,25 @@ ModalHelper.prototype = {
                 "minHeight": self.minHeight,
                 "minWidth": self.minWidth,
                 "containment": "document",
+                "start": options.beforeResize || null,
                 "resize": options.resizeCallback || null,
                 "stop": options.afterResize || null
             });
         }
+    },
 
+    __resizeCallback: function() {
+        var self = this;
+        var $modal = self.$modal;
+        var options = self.options;
+        if (options.resizeCallback) {
+            options.resizeCallback(null, {
+                size: {width: $modal.width(), height: $modal.height()}
+            });
+        }
+        if (options.afterResize) {
+            options.afterResize();
+        }
     },
 
     setup: function(extraOptions) {

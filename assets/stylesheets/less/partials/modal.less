@@ -1921,7 +1921,7 @@ html.microsoft {
 
      @width-stats: 180px;
 
-    .modalInstruction, .modalTopMain, .modalMain, .modalBottom {
+    .modalLeft {
         .size(@width: ~"calc(100% - @{width-stats})");
     }
 
@@ -1949,9 +1949,15 @@ html.microsoft {
 
         #profile-stats {
             width: 10px;
+            min-width: 10px;
             .transition(width 0.3s);
 
             .container {
+                display: none;
+            }
+
+            .ui-resizable-handle {
+                // cannot resize when collapse
                 display: none;
             }
         }
@@ -2717,11 +2723,15 @@ html.microsoft {
     }
 
     #profile-stats {
-        .size(@width: @width-stats, @height: ~"calc(100% - @{height-card-header})");
+        .size(@width: @width-stats, @min-width: @width-stats, @height: ~"calc(100% - @{height-card-header})");
         .position(absolute, @top: @height-card-header, @right: 0);
         background-color: @color-bg-white-three;
         box-shadow: inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
         .text-selection;
+
+        .ui-resizable-handle {
+            left: -5px;
+        }
 
         .popBar {
             .size(@width: 24px, @height: @height-card-instr - 2);
@@ -2746,6 +2756,10 @@ html.microsoft {
 
             > div {
                 padding: 0 15px;
+            }
+
+            .button, button {
+                margin: 0 auto;
             }
 
             &:first-child {
@@ -2867,9 +2881,7 @@ html.microsoft {
                 }
 
                 .text {
-                    position: absolute;
-                    bottom: 0px;
-                    left: 80px;
+                    .position(absolute, @bottom: 0, @left: 70px);
                     .size(@width: ~"calc(100% - 85px)");
                     .font(@color: @color-font-select-blue);
                     .textOverflow;

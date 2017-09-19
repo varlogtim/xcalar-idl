@@ -66,11 +66,117 @@ window.Profile = (function($, Profile, d3) {
 
         ProfileSelector.setup($modal);
 
+        var modalWidth;
+        var statsWidth;
         modalHelper = new ModalHelper($modal, {
-            "resizeCallback": resizeChart,
-            "noEnter": true
+            beforeResize: function() {
+                modalWidth = $modal.width();
+                statsWidth = $("#profile-stats").width();
+            },
+            resizeCallback: function(event, ui) {
+                if ($modal.hasClass("collapse")) {
+                    resizeChart();
+                    return;
+                }
+
+                var minWidth = getMinStatsPanelWidth();
+                var width = minWidth;
+                if (statsWidth > minWidth) {
+                    width = ui.size.width / modalWidth * statsWidth;
+                }
+                width = Math.min(width, getMaxStatsPanelWidth());
+                width = Math.max(width, minWidth);
+                adjustStatsPanelWidth(width);
+            },
+            noEnter: true
+        });
+        addEventListeners();
+    };
+
+    Profile.restore = function(oldInfos) {
+        statsInfos = oldInfos || {};
+    };
+
+    Profile.getCache = function() {
+        return (statsInfos);
+    };
+
+    Profile.deleteCache = function(tableId) {
+        delete statsInfos[tableId];
+    };
+
+    Profile.copy = function(oldTableId, newTableId) {
+        if (statsInfos[oldTableId] == null) {
+            return;
+        }
+
+        statsInfos[newTableId] = {};
+        for (var colName in statsInfos[oldTableId]) {
+            var options = statsInfos[oldTableId][colName];
+            statsInfos[newTableId][colName] = new ProfileInfo(options);
+        }
+    };
+
+    Profile.show = function(tableId, colNum) {
+        var deferred = jQuery.Deferred();
+
+        var table = gTables[tableId];
+        var progCol = table.tableCols[colNum - 1];
+        var colName = progCol.getBackColName();
+
+        if (colName == null) {
+            deferred.reject("No backend col name!");
+            return (deferred.promise());
+        }
+
+        curTableId = tableId;
+        curColNum = colNum;
+
+        statsInfos[tableId] = statsInfos[tableId] || {};
+        statsCol = statsInfos[tableId][colName];
+
+        if (statsCol == null) {
+            statsCol = statsInfos[tableId][colName] = new ProfileInfo({
+                "colName": colName,
+                "type": progCol.getType()
+            });
+        } else if (statsCol.getId() === $modal.data("id")) {
+            // when same modal open twice
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
+        // update front col name
+        statsCol.frontColName = progCol.getFrontColName(true);
+
+        showProfile();
+        $modal.attr("data-state", "pending");
+        generateProfile(table)
+        .then(function() {
+            $modal.attr("data-state", "finished");
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            $modal.attr("data-state", "failed");
+            console.error("Profile failed", error);
+            deferred.resolve();
         });
 
+        return (deferred.promise());
+    };
+
+    Profile.getNumRowsToFetch = function() {
+        return numRowsToFetch;
+    };
+
+    Profile.refreshAgg = function(profileInfo, aggkey) {
+        // modal is open and is for that column
+        if (isModalVisible(profileInfo)) {
+            refreshAggInfo(aggkey, profileInfo);
+        }
+    };
+
+    function addEventListeners() {
         $modal.on("click", ".close", function() {
             closeProfileModal();
         });
@@ -273,90 +379,7 @@ window.Profile = (function($, Profile, d3) {
 
         setupRangeSection();
         setupStatsSection();
-    };
-
-    Profile.restore = function(oldInfos) {
-        statsInfos = oldInfos || {};
-    };
-
-    Profile.getCache = function() {
-        return (statsInfos);
-    };
-
-    Profile.deleteCache = function(tableId) {
-        delete statsInfos[tableId];
-    };
-
-    Profile.copy = function(oldTableId, newTableId) {
-        if (statsInfos[oldTableId] == null) {
-            return;
-        }
-
-        statsInfos[newTableId] = {};
-        for (var colName in statsInfos[oldTableId]) {
-            var options = statsInfos[oldTableId][colName];
-            statsInfos[newTableId][colName] = new ProfileInfo(options);
-        }
-    };
-
-    Profile.show = function(tableId, colNum) {
-        var deferred = jQuery.Deferred();
-
-        var table = gTables[tableId];
-        var progCol = table.tableCols[colNum - 1];
-        var colName = progCol.getBackColName();
-
-        if (colName == null) {
-            deferred.reject("No backend col name!");
-            return (deferred.promise());
-        }
-
-        curTableId = tableId;
-        curColNum = colNum;
-
-        statsInfos[tableId] = statsInfos[tableId] || {};
-        statsCol = statsInfos[tableId][colName];
-
-        if (statsCol == null) {
-            statsCol = statsInfos[tableId][colName] = new ProfileInfo({
-                "colName": colName,
-                "type": progCol.getType()
-            });
-        } else if (statsCol.getId() === $modal.data("id")) {
-            // when same modal open twice
-            deferred.resolve();
-            return (deferred.promise());
-        }
-
-        // update front col name
-        statsCol.frontColName = progCol.getFrontColName(true);
-
-        showProfile();
-        $modal.attr("data-state", "pending");
-        generateProfile(table)
-        .then(function() {
-            $modal.attr("data-state", "finished");
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            $modal.attr("data-state", "failed");
-            console.error("Profile failed", error);
-            deferred.resolve();
-        });
-
-        return (deferred.promise());
-    };
-
-    Profile.getNumRowsToFetch = function() {
-        return numRowsToFetch;
-    };
-
-    Profile.refreshAgg = function(profileInfo, aggkey) {
-        // modal is open and is for that column
-        if (isModalVisible(profileInfo)) {
-            refreshAggInfo(aggkey, profileInfo);
-        }
-    };
+    }
 
     function setupRangeSection() {
         //set up dropdown for worksheet list
@@ -430,7 +453,16 @@ window.Profile = (function($, Profile, d3) {
     function setupStatsSection() {
         var $statsSection = $("#profile-stats");
         $statsSection.on("click", ".popBar", function() {
-            $modal.toggleClass("collapse");
+            if ($modal.hasClass("collapse")) {
+                // when collapse
+                $modal.removeClass("collapse");
+                $statsSection.width(getMinStatsPanelWidth());
+            } else {
+                // expand
+                $statsSection.css("width", "");
+                $modal.find(".modalLeft").css("width", "");
+                $modal.addClass("collapse");
+            }
             resizeChart();
         });
 
@@ -460,6 +492,32 @@ window.Profile = (function($, Profile, d3) {
             AggModal.corrAgg(tableId, null, [colNum], colNum);
             gMinModeOn = tmp;
         });
+
+        $statsSection.resizable({
+            handles: "w",
+            minWidth: getMinStatsPanelWidth(),
+            containment: "#profileModal",
+            resize: function(event, ui) {
+                var width = Math.min(ui.size.width, getMaxStatsPanelWidth());
+                adjustStatsPanelWidth(width);
+            }
+        });
+    }
+
+    function getMaxStatsPanelWidth() {
+        // left part need 555px at least
+        return ($modal.width() - 555);
+    }
+
+    function getMinStatsPanelWidth() {
+        return parseFloat($("#profile-stats").css("minWidth"));
+    }
+
+    function adjustStatsPanelWidth(width) {
+        $("#profile-stats").width(width)
+                           .css("left", "");
+        $modal.find(".modalLeft").width($modal.width() - width);
+        resizeChart();
     }
 
     function closeProfileModal() {
