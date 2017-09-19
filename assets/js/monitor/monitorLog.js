@@ -71,6 +71,7 @@ window.MonitorLog = (function(MonitorLog, $) {
                 focusTab($tab.prev());
             } else {
                 clearAll();
+                stopMonitorLog();
                 return;
             }
         }
