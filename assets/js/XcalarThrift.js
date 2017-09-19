@@ -798,7 +798,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
             match = res.match(/ValueError:(.+)/);
             if (match && match.length >= 2) {
                 res = match[1].trim();
-                res = res.split('\\\\n')[0]; // strip ending unuseful chars
+                res = res.split('\\n')[0]; // strip ending unuseful chars
                 return res;
             }
         } catch (e) {
