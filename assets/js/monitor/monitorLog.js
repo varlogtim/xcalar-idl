@@ -6,6 +6,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     var logs = {};
     var tabLength = 50;
     var hasSetup = false;
+    var flushIntervalId;
 
     MonitorLog.setup = function() {
         $logCard = $("#monitorLogCard");
@@ -268,7 +269,10 @@ window.MonitorLog = (function(MonitorLog, $) {
         $inputSection.addClass("xc-disabled");
         clearAll();
 
-        getHost()
+        flushLog()
+        .then(function() {
+            return getHost();
+        })
         .then(function() {
             return XFTSupportTools.getRecentLogs(lastNRow, filePath,
                     fileName, hosts);
@@ -325,8 +329,13 @@ window.MonitorLog = (function(MonitorLog, $) {
         var filePath = getFilePath();
 
         clearAll();
-        getHost()
+
+        flushLog()
         .then(function() {
+            return getHost();
+        })
+        .then(function() {
+            startFlushPeriod();
             XFTSupportTools.monitorLogs(filePath, fileName, hosts,
             function(err) {
                 if (err && err.results) {
@@ -360,6 +369,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $streamBtns = $logCard.find(".streamBtns");
         $streamBtns.removeClass("streaming");
         $("#monitorLogCard .inputSection .xc-input").prop('disabled', false);
+        stopFlushPeriod();
         XFTSupportTools.stopMonitorLogs();
     }
 
@@ -448,6 +458,28 @@ window.MonitorLog = (function(MonitorLog, $) {
             Alert.error(MonitorTStr.GetLogsFail, MonitorTStr.GetDuplicateHost);
         }
     }
+
+    function flushLog() {
+        var deferred = jQuery.Deferred();
+        XcalarLogLevelSet(9, 1)
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
+
+    function startFlushPeriod() {
+        clearInterval(flushIntervalId);
+        flushIntervalId = setInterval(flushLog, 5000);
+    }
+
+    function stopFlushPeriod() {
+        clearInterval(flushIntervalId);
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         MonitorLog.__testOnly__ = {};
