@@ -223,7 +223,7 @@ window.JoinView = (function($, JoinView) {
             var prevId = xcHelper.getTableId(prev);
             if (gTables[prevId] && prevId !== tableIds[0] &&
                 prevId !== tableIds[1]) {
-                deselectAllTableCols(prevId);
+                deselectAllTableCols(prevId, true);
             }
 
             var tableId = tableIds[index];
@@ -668,9 +668,9 @@ window.JoinView = (function($, JoinView) {
         }
     }
 
-    function deselectAllTableCols(tableId) {
+    function deselectAllTableCols(tableId, force) {
         var tableIds = getTableIds();
-        if (tableIds[0] === tableIds[1]) {
+        if (!force && tableIds[0] === tableIds[1]) {
             return;
         }
         var $table = $("#xcTable-" + tableId);
@@ -2019,7 +2019,7 @@ window.JoinView = (function($, JoinView) {
         updateJoinTableName();
         resetRenames();
         curTableIds = [];
-        $joinView.on(".tableListSection .arg").data("val", "");
+        $joinView.find(".tableListSection .arg").data("val", "");
     }
 
     function updateJoinTableName() {
@@ -2156,9 +2156,16 @@ window.JoinView = (function($, JoinView) {
         var tableIds = getTableIds();
         var lTable = gTables[tableIds[0]];
         var rTable = gTables[tableIds[1]];
-        var $lTable = $("#xcTable-" + tableIds[0]);
-        var $rTable = $("#xcTable-" + tableIds[1]);
         $(".xcTable").find(".formColNum").remove();
+        var $lTable;
+        var $rTable;
+        if (lTable) {
+            $lTable = $("#xcTable-" + tableIds[0]);
+        }
+        if (rTable) {
+            $rTable = $("#xcTable-" + tableIds[1]);
+        }
+
         $joinView.find(".joinClause").each(function(i) {
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
