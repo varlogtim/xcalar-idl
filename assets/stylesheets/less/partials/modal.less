@@ -3722,6 +3722,10 @@ html.microsoft {
                     line-height: @rowHeight - 15px;
                 }
             }
+            &.invalid {
+                pointer-events: none;
+                opacity: @opacity-hint;
+            }
             .innerRow {
                 .flex-display;
                 height: @rowHeight;

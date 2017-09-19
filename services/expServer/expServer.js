@@ -22,8 +22,9 @@ require("jsdom").env("", function(err, window) {
 
     var app = express();
 
-    app.use(bodyParser.urlencoded({extended: false}));
-    app.use(bodyParser.json());
+    // increase default limit payload size of 100kb
+    app.use(bodyParser.urlencoded({extended: false, limit: '20mb'}));
+    app.use(bodyParser.json({limit: '20mb'}));
 
     app.all('/*', function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");

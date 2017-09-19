@@ -190,8 +190,12 @@ window.Log = (function($, Log) {
         return logs;
     };
 
-    Log.getErrorLogs = function() {
-        return errors;
+    Log.getErrorLogs = function(condensed) {
+        if (condensed) {
+            return getCondensedErrors();
+        } else {
+            return errors;
+        }
     };
 
     Log.getConsoleErrors = function() {
@@ -204,8 +208,14 @@ window.Log = (function($, Log) {
         return consoleErrors;
     };
 
-    Log.getAllLogs = function() {
-        return logCache;
+    Log.getAllLogs = function(condensed) {
+        if (condensed) {
+            return {"logs": logs,
+                    "errors": getCondensedErrors(),
+                    "version": XVM.getVersion()};
+        } else {
+            return logCache;
+        }
     };
 
     Log.getLocalStorage = function() {
@@ -1114,6 +1124,62 @@ window.Log = (function($, Log) {
 
             return false;
         });
+    }
+
+    function getCondensedErrors() {
+        var condErrors = [];
+        var lastError = {};
+        var diffFound;
+        var numRepeats = 0;
+        var currError;
+
+        for (var i = 0; i < errors.length; i++) {
+            currError = errors[i];
+            diffFound = false;
+            if (currError.title === lastError.title) {
+                for (var prop in currError) {
+                    if (prop !== "timestamp") {
+                        if (typeof currError[prop] === "object") {
+                            if (typeof lastError[prop] === "object") {
+                                if (!xcHelper.deepCompare(currError[prop],
+                                                          lastError[prop])) {
+                                    diffFound = true;
+                                    break;
+                                }
+                            } else {
+                                diffFound = true;
+                                break;
+                            }
+                        } else if (currError[prop] !== lastError[prop]) {
+                            diffFound = true;
+                            break;
+                        }
+                    }
+                }
+                if (diffFound) {
+                    addError();
+                } else {
+                    numRepeats++;
+                }
+            } else {
+                addError();
+            }
+            lastError = currError;
+        }
+
+        addError();
+
+        function addError() {
+            if (!$.isEmptyObject(lastError)) {
+                if (numRepeats) {
+                    lastError["errorRepeated"] = numRepeats;
+                }
+                condErrors.push(lastError);
+            }
+
+            numRepeats = 0;
+        }
+        return condErrors;
     }
 
     function isBackendOperation(xcLog) {

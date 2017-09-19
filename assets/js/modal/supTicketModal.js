@@ -291,12 +291,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
             genBundle = true;
         }
         var comment = $modal.find('.xc-textArea').val().trim();
+
         var ticketObj = {
             "type": issueType,
             "ticketId": ticketId,
             "server": document.location.href,
             "comment": comment,
-            "xiLog": Log.getAllLogs(),
             "userIdName": userIdName,
             "userIdUnique": userIdUnique,
             "sessionName": WorkbookManager.getActiveWKBK(),
@@ -308,6 +308,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         };
 
         if (download) {
+            ticketObj.xiLog = Log.getAllLogs(true);
             downloadTicket(ticketObj);
             $modal.addClass("downloadSuccess");
             $modal.removeClass("downloadMode");
@@ -323,7 +324,22 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
             submitTicket(ticketObj)
             .then(function(ret) {
-                ticketId = JSON.parse(ret.logs).ticketId;
+                if (ret.logs.indexOf("error") > -1) {
+                    ticketError(genBundle, bundleSendAttempted);
+                    return PromiseHelper.reject();
+                }
+
+                var ticketId;
+                try {
+                    var logs = JSON.parse(ret.logs);
+                    ticketId = logs.ticketId;
+                } catch(err) {
+                    console.error(err);
+                }
+
+                if (!ticketId) {
+                    ticketId = "N/A";
+                }
 
                 if (genBundle) {
                     submitBundle(ticketId);
@@ -348,19 +364,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 deferred.resolve();
             })
             .fail(function() {
-                $modal.addClass('downloadMode');
-                var msg = "Ticket failed, try downloading and uploading to " +
-                          "ZenDesk.";
-                if ($modal.is(":visible")) {
-                    StatusBox.show(msg, $modal.find('.download'), false, {
-                        highZindex: $modal.hasClass('locked')
-                    });
-                } else {
-                    Alert.error('Submit Ticket Failed', msg);
-                }
-                if (genBundle && !bundleSendAttempted) {
-                    submitBundle(0);
-                }
+                ticketError(genBundle, bundleSendAttempted);
                 deferred.reject();
             })
             .always(function() {
@@ -370,6 +374,22 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }
 
         return deferred.promise();
+    }
+
+    function ticketError(genBundle, bundleSendAttempted) {
+        $modal.addClass('downloadMode');
+        var msg = "Ticket failed, try downloading and uploading to " +
+                  "ZenDesk.";
+        if ($modal.is(":visible")) {
+            StatusBox.show(msg, $modal.find('.download'), false, {
+                highZindex: $modal.hasClass('locked')
+            });
+        } else {
+            Alert.error('Submit Ticket Failed', msg);
+        }
+        if (genBundle && !bundleSendAttempted) {
+            submitBundle(0);
+        }
     }
 
     function appendTicketToList(ticket) {
@@ -404,7 +424,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
             if ($modal.is(":visible")) {
                 modalHelper.removeWaitingBG();
                 $modal.addClass("bundleError");
-                $modal.find(".errorText").text(ErrTStr.BundleFailed + " " + err);
+                var error = "";
+                if (err && err.error) {
+                    error = " " + err.error;
+                }
+                $modal.find(".errorText").text(ErrTStr.BundleFailed + error);
             } else {
                 Alert.error(ErrTStr.BundleFailed, err);
             }
@@ -422,7 +446,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
             // Even if it fails and returns undef, we continue with the values
             ticketObj.topInfo = topRet;
             ticketObj.license = licRet;
-            return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
+            var logStr = trimRecentLogs();
+            var ticketStr = JSON.stringify(ticketObj);
+            ticketStr = ticketStr.slice(0, -1);
+            ticketStr += ',"xiLog":' + logStr + "}";
+            return XFTSupportTools.fileTicket(ticketStr);
         }
         var deferred = jQuery.Deferred();
         var topProm = XcalarApiTop(1000);
@@ -461,14 +489,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     // ticket consists of a group of tickets with the same id;
     function getTicketRowHtml(ticket) {
-        var html = '<div class="row">';
+        var className = "";
+        if (ticket[0] && isNaN(parseInt(ticket[0].id))) {
+            className += " invalid";
+        }
+        var html = '<div class="row ' + className + '">';
         for (var i = 0; i < ticket.length; i++) {
             var date = xcHelper.getDate("-", null, ticket[i].time);
             var time = xcHelper.getTime(null, ticket[i].time, true);
+            var id = ticket[i].id;
+
             html += '<div class="innerRow">' +
               '<div class="td">';
             if (i === 0) {
-                html += '<div class="radioButtonGroup">' +
+                html += '<div class="radioButtonGroup ' + '">' +
                           '<div class="radioButton" data-option="blank">' +
                             '<div class="radio">' +
                               '<i class="icon xi-radio-selected"></i>' +
@@ -495,6 +529,66 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return html;
     }
 
+    // stringify logs and take up to 100KB worth of logs and errors
+    function trimRecentLogs() {
+        var xiLogs = Log.getAllLogs(true);
+        var strLogs = JSON.stringify(xiLogs);
+        var errorLimit = 50 * KB;
+
+        if (strLogs.length > 100 * KB) {
+            var strLogLen
+            var strErrors = "";
+            var numErrorsAdded = 0;
+            for (var i = xiLogs.errors.length - 1; i >= 0; i--) {
+                var strError = JSON.stringify(xiLogs.errors[i]);
+                if (strErrors.length + strError.length < errorLimit) {
+                    if (strErrors.length) {
+                        strErrors += ",";
+                    }
+                    strErrors += strError;
+                } else {
+                    numErrorsAdded = xiLogs.errors.length - 1 - i;
+                    break;
+                }
+            }
+
+            var lenRemaining = (100 * KB) - strErrors.length;
+            var strLogs = "";
+            for (var i = xiLogs.logs.length - 1; i >= 0; i--) {
+                var strLog = JSON.stringify(xiLogs.logs[i]);
+                if (strLogs.length + strLog.length < lenRemaining) {
+                    if (strLogs.length) {
+                        strLogs += ",";
+                        lenRemaining--;
+                    }
+                    strLogs += strLog;
+                    lenRemaining -= strLog.length;
+                } else {
+                    break;
+                }
+            }
+
+            for (var i = xiLogs.errors.length - (1 + numErrorsAdded);
+                 i >= 0; i--) {
+                var strError = JSON.stringify(xiLogs.errors[i]);
+                if (strError.length < lenRemaining) {
+                    if (strErrors.length) {
+                        strErrors += ",";
+                        lenRemaining--;
+                    }
+                    strErrors += strError;
+                    lenRemaining -= strError.length;
+                } else {
+                    break;
+                }
+            }
+            strLogs = '{"version":"' + xiLogs.version + '",' +
+                         '"logs":[' + strLogs + '],' +
+                         '"errors":[' + strErrors + ']}';
+        }
+        return strLogs;
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         SupTicketModal.__testOnly__ = {};
@@ -504,6 +598,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         SupTicketModal.__testOnly__.submitForm = submitForm;
         SupTicketModal.__testOnly__.parseTicketList = parseTicketList;
         SupTicketModal.__testOnly__.getTickets = getTickets;
+        SupTicketModal.__testOnly__.trimRecentLogs = trimRecentLogs;
     }
     /* End Of Unit Test Only */
 

@@ -232,6 +232,26 @@ describe("SupTicketModal Test", function() {
             };
         });
 
+        it("should trim large logs", function() {
+            var cacheFn = Log.getAllLogs;
+            Log.getAllLogs = function() {
+                return {version: "a",
+                        logs: ["try".repeat(60 * KB), "test"],
+                        errors: ["a".repeat(40 * KB), "b".repeat(50 * KB), "c".repeat(10 * KB), "d"]
+                    };
+            };
+
+            var logs = SupTicketModal.__testOnly__.trimRecentLogs();
+            logs = JSON.parse(logs);
+            expect(logs.logs.length).to.equal(1);
+            expect(logs.logs[0]).to.equal("test");
+            expect(logs.errors.length).to.equal(3);
+            expect(logs.errors[0]).to.equal("d");
+            expect(logs.errors[2]).to.equal("b".repeat(50 * KB));
+
+            Log.getAllLogs = cacheFn;
+        });
+
         it("should handle submit bandle error", function(done) {
             var test = false;
             XcalarSupportGenerate = function() {
