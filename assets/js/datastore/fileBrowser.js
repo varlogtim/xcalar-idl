@@ -608,7 +608,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function backToForm() {
         clearAll();
-        DSForm.show();
+        DSForm.show({"noReset": true});
     }
 
     function redirectHandler(path) {
