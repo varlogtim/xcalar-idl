@@ -471,7 +471,6 @@ window.MonitorLog = (function(MonitorLog, $) {
         }
     }
 
-<<<<<<< HEAD
     function flushLog() {
         var deferred = jQuery.Deferred();
         XcalarLogLevelSet(9, 1)
