@@ -1118,8 +1118,8 @@ window.TestSuite = (function($, TestSuite) {
 
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
-            // $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
             $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay");
+            $section.find(".arg").eq(3).val("ArrDelay_count");
             newTableName = 'GB' + randInt();
             $section.find('.newTableName').val(newTableName);
             $("#operationsView .submit").click();

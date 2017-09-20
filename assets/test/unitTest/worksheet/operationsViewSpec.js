@@ -885,6 +885,7 @@ describe('OperationsView Test', function() {
                 var $inputs = $operationsModal.find(".groupby .group .arg");
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 $inputs.eq(2).val(prefixCol);
+                $inputs.eq(3).val(xcHelper.parsePrefixColName(prefixCol).name + "_avg");
                 $operationsModal.find('.groupby .newTableName').val("a" + Date.now());
 
                 var firstPass = false;

@@ -813,6 +813,9 @@ window.OperationsView = (function($, OperationsView) {
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
                                             gColPrefix, options);
                 checkHighlightTableCols($lastInputFocused);
+                if ($lastInputFocused.hasClass("gbAgg")) {
+                    autoGenNewGroubyName($lastInputFocused);
+                }
             }
         };
         formHelper.setup({"columnPicker": columnPicker});
@@ -1698,6 +1701,7 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 0; i < numInputsNeeded; i++) {
             argsHtml += getArgHtml();
         }
+
         $argsSection.append(argsHtml);
         addCastDropDownListener();
         suggestLists[groupIndex] = [];
@@ -1820,26 +1824,39 @@ window.OperationsView = (function($, OperationsView) {
         return (strPreview);
     }
 
-    function groupbyArgumentsSetup(numArgs, operObj, $rows) {
-        var description = OpFormTStr.FieldToGroup;
-        var $gbOnRow = $rows.eq(0);
-        $gbOnRow.find('.arg').focus();
+    function autoGenNewGroubyName($aggArg) {
+        var $argSection = $aggArg.closest(".argsSection");
+        var $newColName = $argSection.find(".colNameSection .arg");
+        if ($newColName.hasClass("touched")) {
+            // when user have touched it, don't autoRename
+            return;
+        }
 
-        // new col name field
-        description = OpFormTStr.NewColName + ":";
-        autoGenColName = xcHelper.parsePrefixColName(colName).name;
-        autoGenColName = getAutoGenColName(autoGenColName + "_" +
-                                            operObj.fnName);
+        var fnName = $argSection.closest(".groupbyGroup")
+                                .find(".functionsList input").val();
+        var autoGenColName = $aggArg.val().trim();
+        autoGenColName = xcHelper.parsePrefixColName(autoGenColName).name;
+        autoGenColName = getAutoGenColName(autoGenColName + "_" + fnName);
         autoGenColName = xcHelper.stripColName(autoGenColName);
 
-        $rows.eq(numArgs).addClass('colNameRow')
-                         .find('.dropDownList')
-                            .addClass('colNameSection')
-                        .end()
-                        .find('.arg').val(autoGenColName)
-                        .end()
-                        .find('.description').text(description);
+        $argSection.find(".colNameSection .arg").val(autoGenColName);
+    }
 
+    function groupbyArgumentsSetup(numArgs, operObj, $rows) {
+        // agg input
+        var $gbOnRow = $rows.eq(0);
+        $gbOnRow.find(".arg").addClass("gbAgg").focus();
+        var description = OpFormTStr.NewColName + ":";
+        // new col name field
+        var $newColRow = $rows.eq(numArgs);
+        $newColRow.addClass("colNameRow")
+                .find(".dropDownList").addClass("colNameSection")
+                .end()
+                .find(".description").text(description);
+
+        $newColRow.find(".arg").on("change", function() {
+            $(this).addClass("touched");
+        });
 
         var strPreview = '<span class="aggColStrWrap">' + operObj.fnName + '(' +
                         '<span class="aggCols">' +
@@ -1925,7 +1942,7 @@ window.OperationsView = (function($, OperationsView) {
             var $inputs = $(this).find('.arg:visible');
             var existingTypes = getExistingTypes(i);
 
-            $inputs.each(function(i) {
+            $inputs.each(function() {
                 var $input = $(this);
                 var $row = $input.closest('.row');
                 var arg = $input.val().trim();
@@ -4302,8 +4319,7 @@ window.OperationsView = (function($, OperationsView) {
                 '<i class="icon xi-arrow-down"></i>' +
               '</div>' +
               '<div class="list genFunctionsMenu">' +
-                '<ul data-fnmenunum="' + index + '">' +
-                '</ul>' +
+                '<ul data-fnmenunum="' + index + '"></ul>' +
                 '<div class="scrollArea top">' +
                   '<div class="arrow"></div>' +
                 '</div>' +
@@ -4313,8 +4329,7 @@ window.OperationsView = (function($, OperationsView) {
               '</div>' +
             '</div>' +
             '<div class="descriptionText"></div>' +
-            '<div class="argsSection inactive">' +
-            '</div>' +
+            '<div class="argsSection inactive"></div>' +
         '</div>';
         return html;
     }
