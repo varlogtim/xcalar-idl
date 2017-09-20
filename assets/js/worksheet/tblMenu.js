@@ -122,6 +122,17 @@ window.TblMenu = (function(TblMenu, $) {
             ExportView.show(tableId);
         });
 
+        $tableMenu.on('mouseup', '.jupyterTable', function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            var tableName = gTables[tableId].tableName;
+
+            $("#jupyterTab").click();
+            JupyterPanel.publishTable(tableName);
+        });
+
         $tableMenu.on('mouseup', '.exitOp', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;

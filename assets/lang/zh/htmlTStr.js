@@ -61,6 +61,7 @@ module.exports = {
         "HideNewCol": "删除列",
         "HideTbl": "最小化表",
         "Join": "连接",
+        "Jupyter": "Publish to Jupyter",
         "LockTbl": "锁表",
         "LockDS": "锁数据集",
         "UnlockDS": "解锁数据集",

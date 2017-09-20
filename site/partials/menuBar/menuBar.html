@@ -3,14 +3,22 @@
 <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>" data-introstep="w1-workbookBut">
   <div class="logo xc-logo">
     <div class="innerShadow"></div>
+    <% if (dicts.product == "XI") { %>
+    <i class="icon xi_logo"></i>
+    <% } else { %>
     <i class="icon xd-logo-bw"></i>
+    <% } %>
   </div>
 </div>
 <% } else { %>
 <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>">
   <div class="logo xc-logo">
     <div class="innerShadow"></div>
+    <% if (dicts.product == "XI") { %>
+    <i class="icon xi_logo"></i>
+    <% } else { %>
     <i class="icon xd-logo-bw"></i>
+    <% } %>
   </div>
 </div>
 <% } %>
@@ -37,6 +45,16 @@
     <div id="workspaceTab" class="topMenuBarTab mainMenuOpen">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
         <i class="icon xi-menu-worksheet fa-25"></i>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (dicts.isTutor || dicts.product == "XD") { %>
+    <% } else { %>
+    <!-- jupyter Tab -->
+    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
+        <i class="icon xi-menu-cli fa-20"></i>
       </div>
     </div>
     <% } %>

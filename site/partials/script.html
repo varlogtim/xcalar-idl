@@ -63,7 +63,11 @@
 <!-- end auto template tags -->
 
 <!-- Start Xcalar Design stuff -->
+<% if (dicts.product == "XI") { %>
+<script src="assets/lang/<%=lang%>/jsTStrXI.js" type="text/javascript"></script>
+<% } else { %>
 <script src="assets/lang/<%=lang%>/jsTStr.js" type="text/javascript"></script>
+<% } %>
 <script src="assets/js/XcalarThrift.js" type="text/javascript"></script>
 <script src="assets/js/enums.js" type="text/javascript"></script>
 <script src="assets/js/globalEnums.js" type="text/javascript"></script>
@@ -142,6 +146,7 @@
 <script src="assets/js/monitor/admin.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/monitor/adminAlertCard.js" type="text/javascript" <%= tag %>></script>
 <!-- end of monitor file -->
+
 
 <!-- modal file -->
 <script src="assets/js/modal/jsonModal.js" type="text/javascript" <%= tag %>></script>
@@ -224,6 +229,15 @@
 <script src="assets/js/dataflow/uploadDataflowCard.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/dataflow/scheduleView.js" type="text/javascript" <%= tag %>></script>
 <!-- end of dataflow -->
+
+<!-- jupyter -->
+<% if (dicts.product == "XI") { %>
+<script src="assets/js/jupyter/jupyter.js" type="text/javascript" <%= tag %>></script>
+<% } else { %>
+<script src="assets/js/noJupyter/noJupyter.js" type="text/javascript" <%= tag %>></script>
+<% } %>
+
+<!-- end of jupyter -->
 
 <!-- tests -->
 <script src="assets/test/testSuite.js" type="text/javascript"></script>

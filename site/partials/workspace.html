@@ -2,7 +2,11 @@
   include "workspaceBar.html"
   <div id="watermark"></div>
   <div id="insight">
+    <% if (dicts.product == "XI") { %>
+    insight
+    <% } else { %>
     <i class="icon xi-design-logo"></i>
+    <% } %>
   </div>
   <div class="mainContent">
     <div id="mainFrame" class="subPanel"></div>

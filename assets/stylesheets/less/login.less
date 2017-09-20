@@ -7,7 +7,7 @@ html, body {
     margin: 0;
     padding: 0;
     min-height: 600px;
-    min-width: 780px; 
+    min-width: 780px;
     font: 13px @font-base;
     font-weight: 600;
     .box-sizing;
@@ -34,6 +34,9 @@ body {
     color: @color-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+    &.bodyXI {
+        background: #225c7b;
+    }
 }
 
 form {
@@ -56,6 +59,9 @@ form {
 }
 
 #canvas {
+    pointer-events: none;
+}
+video {
     pointer-events: none;
 }
 
@@ -121,7 +127,7 @@ header {
             &.immediateAnimation {
                .keyframeAnim(slideRight 0.7s linear forwards 0s);
             }
-        } 
+        }
     }
 }
 
@@ -236,7 +242,7 @@ input:-webkit-autofill:focus {
         &:active {
             outline: none;
         }
-    } 
+    }
 }
 
 .part {
@@ -304,7 +310,7 @@ input:-webkit-autofill:focus {
     margin-top: 26px;
     font-weight: 500;
 }
-   
+
 #loginButton, #signup-submit {
     border: 1px solid @color-white;
     .font(@color: @color-white);

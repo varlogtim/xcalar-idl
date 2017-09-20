@@ -28,6 +28,11 @@ destMap = {
     "userManagement.html": "assets/htmlFiles/userManagement.html"
 };
 
+replaceProductJsFiles = {
+    "assets/lang/en/jsTStr.js": "assets/lang/en/jsTStrXI.js",
+    "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
+};
+
 var noPrettify = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"];
 
 htmlMinOptions = {};
@@ -174,8 +179,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerTask('html', ['includes']);
-  grunt.registerTask('template', function() {
-    genHTML(tmpDest, destMap);
+  grunt.registerTask('templateXD', function() {
+    genHTML(tmpDest, destMap, "XD");
+  });
+
+  grunt.registerTask('templateXI', function() {
+    genHTML(tmpDest, destMap, "XI", replaceProductJsFiles);
   });
 
   // template to build a version constructor file
@@ -197,7 +206,8 @@ module.exports = function(grunt) {
   grunt.registerTask("reloadCSSLess", ['concurrent:set5']);
 
   // used for prod
-  grunt.registerTask("render", ['html', 'template', 'clean', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
   grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);

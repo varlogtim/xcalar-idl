@@ -23,7 +23,11 @@
       })();
     </script>
   </head>
+  <% if (dicts.product == "XI") { %>
+  <body class="bodyXI">
+  <% } else { %>
   <body>
+  <% } %>
     include "partials/container.html"
     include "partials/script.html"
     <script>documentReadyIndexFunction();</script>

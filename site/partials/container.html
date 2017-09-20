@@ -40,6 +40,10 @@
 
   <!-- START MAIN PANELS -->
   include "workbook.html"
+<% if (dicts.product == "XI") { %>
+  include "jupyter.html"
+<% } else { %>
+<% } %>
   include "workspace.html"
   include "monitor/monitor.html"
   include "datastore/datastore.html"

@@ -69,6 +69,9 @@ window.MainMenu = (function($, MainMenu) {
             case ("dataflowPanel"):
                 $tab = $("#dataflowTab");
                 break;
+            case ("jupyterPanel"):
+                $tab = $("#jupyterTab");
+                break;
             default:
                 break;
         }
@@ -228,6 +231,9 @@ window.MainMenu = (function($, MainMenu) {
             MainMenu.close();
         });
         $mainMenu.find(".minimizedContent").click(function() {
+            if ($(".topMenuBarTab.active").hasClass("noLeftPanel")) {
+                return;
+            }
             MainMenu.open();
         });
     }
@@ -246,6 +252,9 @@ window.MainMenu = (function($, MainMenu) {
             clickable = true;
 
             if ($curTab.hasClass("active")) {
+                if ($curTab.hasClass("noLeftPanel")) {
+                    return;
+                }
                 var hasAnim = false;
                 if ($target.closest(".mainTab").length) {
                     // clicking on active main tab
@@ -287,7 +296,8 @@ window.MainMenu = (function($, MainMenu) {
                 }
 
                 var noAnim = true;
-                if ($curTab.hasClass("mainMenuOpen")) {
+                if ($curTab.hasClass("mainMenuOpen") &&
+                    !$curTab.hasClass("noLeftPanel")) {
                     openMenu($curTab, noAnim);
                 } else {
                     closeMenu($curTab, noAnim);
@@ -385,6 +395,10 @@ window.MainMenu = (function($, MainMenu) {
                     });
                 }
                 break;
+            case ("jupyterTab"):
+                $("#jupyterPanel").addClass("active");
+                JupyterPanel.sendInit();
+                break;
             default:
                 $(".underConstruction").addClass("active");
         }
@@ -413,6 +427,7 @@ window.MainMenu = (function($, MainMenu) {
         }
         checkAnim(noAnim);
         resolveMenuAnim();
+
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
 

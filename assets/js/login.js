@@ -189,7 +189,9 @@ $(document).ready(function() {
 
     function showSplashScreen() {
         var animTime = 4200;
-        init(); // 3rd party splash screen js
+        if (!$("body").hasClass("bodyXI")) {
+            init(); // 3rd party splash screen js
+        }
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
 

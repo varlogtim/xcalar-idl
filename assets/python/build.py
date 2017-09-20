@@ -5,8 +5,8 @@ import os, shutil, fnmatch, re, tempfile, sys
 from glob import glob
 
 def catFilesTogether():
-    sortSubfolder = ["prod/assets/js/constructor"]
-    jsRoot = "prod/assets/js/"
+    sortSubfolder = ["assets/js/constructor"]
+    jsRoot = "assets/js/"
 
     for f in os.listdir(jsRoot):
         if os.path.isdir(jsRoot+f):
@@ -30,7 +30,7 @@ def catFilesTogether():
             outFile.close()
 
 def replacePathsInHtml():
-    root = "prod/"
+    root = "."
     filesToReplace = []
     for rt, subdirs, files in os.walk(root):
         for f in fnmatch.filter(files, "*.html"):
@@ -38,7 +38,7 @@ def replacePathsInHtml():
                 htmlCandidate = rt + f
             else:
                 htmlCandidate = rt+"/"+f
-            if htmlCandidate.find("prod/3rd/") == 0:
+            if htmlCandidate.find("3rd/") == 0:
                 continue
             filesToReplace.append(htmlCandidate)
 
@@ -74,7 +74,7 @@ def replacePathsInHtml():
 def genSearchInsight(searchLocation):
     print "Generating SearchInsight.htm from " + searchLocation
     newFile = searchLocation.split(".")[0]+"Insight.htm"
-    insertions = "prod/site/partials/mcf.html"
+    insertions = "site/partials/mcf.html"
     code = open(searchLocation, "rb").read()
     insert = open(insertions, "rb").read()
     fout = open(newFile, "wb")
@@ -92,7 +92,7 @@ def genSearchInsight(searchLocation):
     fout.close()
 
     # Copy to assets
-    shutil.copyfile(newFile, newFile[newFile.find("/")+1:])
+    # shutil.copyfile(newFile, newFile[newFile.find("/")+1:])
 
 
 if __name__ == "__main__":
@@ -100,4 +100,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or not sys.argv[1] == "debug":
         catFilesTogether()
         replacePathsInHtml()
-    genSearchInsight("prod/assets/help/user/Content/Search.htm")
+    genSearchInsight("assets/help/user/Content/Search.htm")

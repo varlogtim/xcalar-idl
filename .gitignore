@@ -9,6 +9,8 @@
 /assets/dev/!shortCutStyles.css
 *.DS_Store
 /prod/*
+/xcalar-insight/*
+/xcalar-design/*
 /node_modules/*
 /services/**/node_modules/*
 index.html
@@ -33,3 +35,5 @@ install-tarball.html
 /assets/js/constructor/DA_persConstructorV1.js
 /assets/js/constructor/DB_persConstructorV2.js
 /assets/js/constructor/README
+/assets/lang/en/jsTStrXI.js
+/assets/lang/zh/jsTStrXI.js

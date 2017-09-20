@@ -28,6 +28,7 @@ window.xcManager = (function(xcManager, $) {
         MonitorPanel.setup();
         DagPanel.setup();
         DataflowPanel.setup();
+        JupyterPanel.setup();
         setupModals();
         TutorialsSetup.setup();
         Admin.initialize();
@@ -62,6 +63,7 @@ window.xcManager = (function(xcManager, $) {
             // restore user settings
             JoinView.restore();
             FileBrowser.restore();
+            JupyterPanel.initialize();
 
             XVM.initMode();
 

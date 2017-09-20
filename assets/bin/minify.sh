@@ -2,10 +2,10 @@
 
 set -e
 
-JSFILES="$(find prod/assets/js -not -path "../../3rd" -name "*.js" | tr '\n' ' ')"
+JSFILES="$(find assets/js -not -path "../../3rd" -name "*.js" | tr '\n' ' ')"
 OS=`uname`
 if [ "${OS}" = "Darwin" ]; then
-    export PATH="$PWD/prod/3rd/bower_components/uglify-js/bin:$PATH"
+    export PATH="$PWD/3rd/bower_components/uglify-js/bin:$PATH"
 fi
 
 TMPDIR="${TMPDIR:-/tmp/`id -un`}/xcalar-gui"

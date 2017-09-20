@@ -6,6 +6,9 @@
     <li class="archiveTable"><%= dicts.MenuTStr.Archive %></li>
     <li class="deleteTable"><%= dicts.MenuTStr.DelTbl %></li>
     <li class="exportTable"><%= dicts.MenuTStr.ExportTbl %><span class="ellipsis">...</span></li>
+    <% if (dicts.product == "XI") { %>
+      <li class="jupyterTable"><%= dicts.MenuTStr.Jupyter %></li>
+    <% } %>
     <li class="multiCast"><%= dicts.MenuTStr.SmartCast %><span class="ellipsis">...</span></li>
     <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
     <!-- <li class="visualize">

@@ -1,15 +1,24 @@
 <div id="splashContainer">
-  <!-- <div id="flashContent"> -->
-    <div id="animation_container" style="background-color:rgba(255, 255, 255, 0.00); width:550px; height:400px">
+  <div id="animation_container" style="background-color:rgba(255, 255, 255, 0); width:550px; height:400px">
+   <% if (dicts.product == "XI") { %>
+      <video width="550" height="400" autoplay>
+        <source src="../video/XI_Flat_splash_middle.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    <% } else { %>
       <canvas id="canvas" width="550" height="400" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 0.00);"></canvas>
       <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:550px; height:400px; position: absolute; left: 0px; top: 0px; display: block;">
       </div>
-    </div>
-  <!-- </div> -->
+    <% } %>
+  </div>
 </div>
 <div id="logo" class="xc-logo">
   <div class="innerShadow"></div>
-  <i class="icon xd-logo-bw"></i>
+    <% if (dicts.product == "XI") { %>
+    <i class="icon xi_logo"></i>
+    <% } else { %>
+    <i class="icon xd-logo-bw"></i>
+    <% } %>
 </div>
 <div id="loginContainer">
   <div class="outerWrap">
