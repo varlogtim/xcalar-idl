@@ -2824,6 +2824,7 @@ describe("Persistent Constructor Test", function() {
             expect(wkbk.isNoMeta()).to.be.true;
 
             wkbk.update();
+            expect(wkbk.noMeta).to.be.false;
             expect(wkbk.getModifyTime()).not.to.equal(2234);
 
             expect(wkbk.hasResource()).to.be.false;

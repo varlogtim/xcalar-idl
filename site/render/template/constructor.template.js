@@ -1549,6 +1549,7 @@
         __extends(WKBK<%= v %>, _super, {
             <% if (isCurCtor) {%>
             update: function() {
+                this.noMeta = false;
                 // store modified data
                 this.modified = xcHelper.getCurrentTimeStamp();
             },
