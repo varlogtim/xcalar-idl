@@ -876,7 +876,8 @@ ExtTStr = {
 "WEBSITE": "网站",
 "MODIFY": "修改插件",
 "LoadScriptFail": "加载插件脚本失败",
-"LoadUDFFail": "加载插件UDF失败"
+"LoadUDFFail": "加载插件UDF失败",
+"Instruction": "说明"
 };
 DaysTStr = {
 'Sunday': '星期日',

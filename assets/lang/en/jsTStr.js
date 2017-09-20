@@ -1027,7 +1027,8 @@ ExtTStr = {
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
     "AddClause": "Add another argument",
     "LoadScriptFail": "Fail to load extension script",
-    "LoadUDFFail": "Fail to load extension UDF"
+    "LoadUDFFail": "Fail to load extension UDF",
+    "Instruction": "Instruction"
 };
 
 DaysTStr = {

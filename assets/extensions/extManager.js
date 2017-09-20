@@ -832,14 +832,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var fnName = func.fnName;
             var funcClass = "xc-action func";
             var arrayOfFields = func.arrayOfFields;
+            extMap[modName][fnName] = func;
 
             if (arrayOfFields == null || arrayOfFields.length === 0) {
                 funcClass += " simple";
-                // make the value null, but still has the key
-                extMap[modName][fnName] = null;
-            } else {
-                // cache arryOfField
-                extMap[modName][fnName] = func.arrayOfFields;
             }
 
             html +=
@@ -903,10 +899,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var modText = getModuleText(modName);
         $extArgs.find(".titleSection .title").text(modText + ": " + fnText);
+        var instruction = extMap[modName][fnName].instruction;
+        var $instr = $extArgs.find(".instructionSection");
+        if (instruction) {
+            $instr.text(ExtTStr.Instruction + ": " + instruction).show();
+        } else {
+            $instr.text("").hide();
+        }
 
         var tableList = updateTableList(modName);
-
-        var args = extMap[modName][fnName] || [];
+        var args = extMap[modName][fnName].arrayOfFields || [];
         var html = "";
         for (var i = 0, len = args.length; i < len; i++) {
             html += getArgHtml(args[i], tableList);
@@ -1168,6 +1170,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         }
 
+        if (typeCheck.allowEmpty) {
+            placeholder = placeholder
+                         ? placeholder + " (" + CommonTxtTstr.Optional + ")"
+                         : CommonTxtTstr.Optional;
+        }
+
         var addClause = "";
         if (arg.variableArg === true) {
             addClause = '<div class="addClause">' +
@@ -1414,7 +1422,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function getArgs(modName, fnName, extTableId) {
         var args = {};
         var $arguments = $extOpsView.find(".extArgs .argument:not(.subArg)");
-        var extFields = extMap[modName][fnName];
+        var extFields = extMap[modName][fnName].arrayOfFields;
         var invalidArg = false;
 
         $arguments.each(function(i) {

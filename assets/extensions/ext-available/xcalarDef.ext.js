@@ -2,6 +2,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
     UExtXcalarDef.buttons = [{
         "buttonText": "Horizontal Partition",
         "fnName": "hPartition",
+        "instruction": "This function chooses the values with the highest number of occurrences when creating the partitions.",
         "arrayOfFields": [{
             "type": "column",
             "name": "Partition On",

@@ -23,7 +23,9 @@ window.UExtHello = (function(UExtHello) {
      *                 it will show in XI.
      *  2) fnName: a name that uniquely identify the function,
      *             it will be passed in as an argument in UExtHello.actionFn.
-     *  3) arrayOfFields: an array to specify all arguments in
+     *  3) instruction: a string that will be display as instruction for
+     *                  the function, it's optional
+     *  4) arrayOfFields: an array to specify all arguments in
      *                    the extension function. Each arguement is an object.
      *                    In XI, every argument will disaply
      *                    as a field of input.
@@ -152,6 +154,7 @@ window.UExtHello = (function(UExtHello) {
     UExtHello.buttons = [{
         "buttonText": "Sum 3",
         "fnName": "sum3",
+        "instruction": "This is a tutorial sample of Xcalar Extension SDK.",
         "arrayOfFields": [{
             "type": "column",
             "name": "Column 1",
