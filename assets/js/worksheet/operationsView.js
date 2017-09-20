@@ -3699,9 +3699,16 @@ window.OperationsView = (function($, OperationsView) {
     function checkIfBlanksAreValid(invalidInputs) {
         var hasValidBlanks = true;
         $activeOpSection.find('.arg:visible').each(function() {
-            var $input   = $(this);
-            var val   = $input.val().trim();
+            var $input = $(this);
+            var val = $input.val().trim();
             var untrimmedVal = $input.val();
+            if (val === gColPrefix || val === gAggVarPrefix) {
+                // the prefix only without escaping is invalid,
+                // handle it as empty val
+                val = "";
+                untrimmedVal = "";
+            }
+
             if (val !== "") {
                 // not blank so no need to check. move on to next input.
                 return;
