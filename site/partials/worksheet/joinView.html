@@ -22,10 +22,16 @@
                 <i class="icon xi-arrow-down"></i>
               </div>
               <ul class="list">
-                <li><%= dicts.joinView.InnerJoin %></li>
+                <li class="selected"><%= dicts.joinView.InnerJoin %></li>
                 <li><%= dicts.joinView.LeftJoin %></li>
                 <li><%= dicts.joinView.RightJoin %></li>
                 <li><%= dicts.joinView.FullJoin %></li>
+               <!--  <div class="sectionLabel"><%= dicts.common.Advanced %></div>
+                <li><%= dicts.joinView.LeftSemiJoin %></li>
+                <li><%= dicts.joinView.RightSemiJoin %></li>
+                <li><%= dicts.joinView.LeftAntiSemiJoin %></li>
+                <li><%= dicts.joinView.RightAntiSemiJoin %></li>
+                <li><%= dicts.joinView.CrossJoin %></li> -->
               </ul>
             </div>
           </div>
@@ -88,7 +94,7 @@
             <div class="subHeading clearfix">
               <div><%= dicts.joinView.colSelectTitle %></div>
             </div>
-            <p><%= dicts.joinView.colSelectInstr %></p>
+            <p class="colSelectInstr"><!-- added in joinView.js --></p>
             <div class="smartSuggestSection">
               <button class="smartSuggest btn" title="<%= dicts.joinView.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinView.SmartSuggBtn %></button>
               <span class="suggError">e</span>
@@ -124,7 +130,7 @@
             <div><%= dicts.joinView.colKeepTitle %></div>
           </div>
           <p><%= dicts.joinView.colKeepInstr %></p>
-          <div class="subHeading">
+          <div class="subHeading clearfix">
             <div class="leftColHeading"><%= dicts.joinView.LeftCols %>
               <div class="checkbox checked selectAll">
                 <i class="icon xi-ckbox-empty fa-13"></i>
@@ -139,8 +145,8 @@
             </div>
           </div>
           <div class="columnsWrap clearfix">
-            <ul class="leftCols"></ul>
-            <ul class="rightCols"></ul>
+            <ul class="leftCols cols"></ul>
+            <ul class="rightCols cols"></ul>
           </div>
         </div>
         <div class="checkboxWrap keepTablesCBWrap clearfix">

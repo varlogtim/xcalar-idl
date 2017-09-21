@@ -1,14 +1,14 @@
 window.JoinView = (function($, JoinView) {
-    var $mainJoin;       // $("#mainJoin")
     var $joinView;      // $("#joinView")
     var $leftTableDropdown;  // $('#joinLeftTableList');
     var $rightTableDropdown;  // $('#joinRightTableList');
     var $joinTypeSelect;     // $("#joinType")
     var $joinTableName;  // $("#joinTableNameInput")
-    var $clauseContainer;   // $mainJoin.find('.clauseContainer');
+    var $clauseContainer;   // $("#mainJoin").find('.clauseContainer');
     var $lastInputFocused;
     var $renameSection; // $("#joinView .renameSection")
-    var isNextNew = true; // if true, will run join estimator
+    var needsNextStepUpdate = true; // if true, will reset join estimator
+                          // and redisplay columns list
     var joinEstimatorType = "inner"; // if user changes join type,
                                      // rerun estimator
     var isOpen = false;
@@ -24,7 +24,6 @@ window.JoinView = (function($, JoinView) {
 
     var validTypes = [ColumnType.integer, ColumnType.float, ColumnType.string,
                       ColumnType.boolean];
-    var curTableIds = [];
 
     var formHelper;
     var multiClauseTemplate =
@@ -83,16 +82,16 @@ window.JoinView = (function($, JoinView) {
         '</div>';
 
     JoinView.setup = function () {
-        $mainJoin = $("#mainJoin");
         $joinView = $("#joinView");
         $leftTableDropdown = $('#joinLeftTableList');
         $rightTableDropdown = $('#joinRightTableList');
         $joinTypeSelect = $("#joinType");
         $joinTableName = $("#joinTableNameInput");
-        $clauseContainer = $mainJoin.find('.clauseContainer');
+        $clauseContainer = $("#mainJoin").find('.clauseContainer');
         $renameSection = $("#joinView .renameSection");
 
-        setupRenameMenu($renameSection);
+        $clauseContainer.find(".colSelectInstr").html(JoinTStr.ColSelectInstr);
+        // ****** actions available in BOTH steps of the join form
 
         var columnPicker = {
             "state": "joinState",
@@ -109,7 +108,6 @@ window.JoinView = (function($, JoinView) {
                         xcHelper.fillInputFromCell($target, $lastInputFocused);
                     }
                 }
-
             },
             "headCallback": function($target) {
                 if (!$lastInputFocused) {
@@ -128,11 +126,10 @@ window.JoinView = (function($, JoinView) {
                         $joinView.find('.joinClause').each(function() {
                             $(this).find('.clause').eq(index).val("");
                         });
-                        $joinView.find('.clause').eq(index).focus();
-                        checkNextBtn();
-                        updatePreviewText();
+
                         TblFunc.focusTable(getTableIds(index));
-                        activateClauseSection(index);
+                        $lastInputFocused.trigger("change");
+                        $joinView.find('.clause').eq(index).focus();
                     }
                 }
             }
@@ -150,14 +147,90 @@ window.JoinView = (function($, JoinView) {
             toggleNextView();
         });
 
+        // ****** actions available in FIRST step
+
+        // join type menu
         var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
-                $joinTypeSelect.find(".text").text(joinType);
+                var $input = $joinTypeSelect.find(".text");
+                var prevType = $input.text();
+                $input.text(joinType);
                 updatePreviewText();
                 checkNextBtn();
+
+                // the following toggles all column selection and deselection
+                // for the left and right tables
+                // based on switching the join type from nonsemi -> semi
+                // or semi - nonsemi
+                // if previous and current type were semi then
+                // check if leftsemi -> rightsemi or rightsemi-> left semi
+                // and de/select appropriate table columns
+                if (prevType !== joinType) {
+                    var tableId;
+                    // from non semi to semi - deselect right table cols
+                    if (prevType.indexOf("Semi") === -1 &&
+                        joinType.indexOf("Semi") > -1) {
+
+                        if (isLeftSemiJoin()) {
+                            tableId = getTableIds(1);
+                        } else {
+                            tableId = getTableIds(0);
+                        }
+                        if (gTables[tableId]) {
+                            deselectAllTableCols(tableId);
+                            needsNextStepUpdate = true;
+                        }
+                        // from semi to non semi - select right table cols
+                    } else if (prevType.indexOf("Semi") > -1 &&
+                                joinType.indexOf("Semi") === -1) {
+                        if (prevType.indexOf("Left") > -1) {
+                            tableId = getTableIds(1);
+                        } else {
+                            tableId = getTableIds(0);
+                        }
+                        if (gTables[tableId]) {
+                            selectAllTableCols(tableId);
+                            needsNextStepUpdate = true;
+                        }
+                    } else if (joinType.indexOf("Semi") > -1) { // semi -> semi
+                        if (prevType.indexOf("Right") === -1 &&
+                            joinType.indexOf("Right") > -1) {
+                            var tableIds = getTableIds();
+                            if (gTables[tableIds[0]]) {
+                                deselectAllTableCols(tableIds[0]);
+                                needsNextStepUpdate = true;
+                            }
+                            if (gTables[tableIds[1]]) {
+                                selectAllTableCols(tableIds[1]);
+                                needsNextStepUpdate = true;
+                            }
+                        } else if (prevType.indexOf("Left") === -1 &&
+                            joinType.indexOf("Left") > -1) {
+                            var tableIds = getTableIds();
+                            if (gTables[tableIds[0]]) {
+                                selectAllTableCols(tableIds[0]);
+                                needsNextStepUpdate = true;
+                            }
+                            if (gTables[tableIds[1]]) {
+                                deselectAllTableCols(tableIds[1]);
+                                needsNextStepUpdate = true;
+                            }
+                        }
+                    }
+                }
+                if (isCrossJoin()) {
+                    $joinView.addClass("crossJoin");
+                    $clauseContainer.find(".colSelectInstr")
+                                    .html(JoinTStr.ColSelectInstrCross);
+                } else {
+                    $joinView.removeClass("crossJoin");
+                    $clauseContainer.find(".colSelectInstr")
+                                    .html(JoinTStr.ColSelectInstr);
+                }
             }
         });
+
         joinTypeList.setupListeners();
 
         var leftTableList = new MenuHelper($leftTableDropdown, {
@@ -206,10 +279,19 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
+        $joinView.find('.tableListSections .focusTable').click(function() {
+            var tableIds = getTableIds();
+            var index = $joinView.find('.tableListSections .focusTable')
+                                 .index($(this));
+            var tableId = tableIds[index];
+            xcHelper.centerFocusedTable(tableId, true);
+        });
+
         $joinView.on('focus', '.tableListSection .arg', function() {
             $lastInputFocused = $(this);
         });
 
+        // change table name
         $joinView.on('change', '.tableListSection .arg', function() {
             var index = $joinView.find('.tableListSection .arg').index($(this));
             $joinView.find('.joinClause').each(function() {
@@ -231,85 +313,28 @@ window.JoinView = (function($, JoinView) {
                 TblFunc.focusTable(tableId);
                 activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
-                selectAllTableCols(tableId);
+                if (isSemiJoin()) {
+                    if (isLeftSemiJoin()) {
+                        if (index === 0) {
+                            selectAllTableCols(tableId);
+                        }
+                    } else if (index === 1) {
+                        selectAllTableCols(tableId);
+                    }
+                } else {
+                    selectAllTableCols(tableId);
+                }
+
             } else {
                 deactivateClauseSection(index);
             }
             $(this).data("val", $(this).val());
-        });
-
-        $joinView.find('.tableListSections .focusTable').click(function() {
-            var tableIds = getTableIds();
-            var index = $joinView.find('.tableListSections .focusTable')
-                                 .index($(this));
-            var tableId = tableIds[index];
-            xcHelper.centerFocusedTable(tableId, true);
-        });
-
-
-        // This submits the joined tables
-        $("#joinTables").click(function() {
-            $(this).blur();
-            submitJoin();
-        });
-
-        // toggle keep tables
-        $joinView.find('.keepTablesCBWrap').click(function() {
-            $(this).find(".checkbox").toggleClass("checked");
-        });
-
-        $joinView.find('.estimateCheckbox').click(function() {
-            if ($(this).hasClass('checked')) {
-                return;
-            }
-            $(this).addClass('checked');
-            estimateJoinSize();
-        });
-
-        // add multi clause
-        $clauseContainer.on("click", ".addClause", function() {
-            addClause();
-        });
-
-        // delete multi clause
-        $clauseContainer.on("click", ".joinClause .middleIcon", function() {
-            var $joinClause = $(this).closest(".joinClause");
-            if (gMinModeOn) {
-                clauseRemoveHelper();
-            } else {
-                $joinClause.slideUp(100, clauseRemoveHelper);
-            }
-
-            function clauseRemoveHelper() {
-                $joinClause.remove();
-                updatePreviewText();
-                checkNextBtn();
-                if ($joinClause.find('.leftClause').val().trim() !== "" ||
-                    $joinClause.find('.leftClause').val().trim() !== "") {
-                    isNextNew = true;
-                }
+            if (isCrossJoin()) {
+                // usually checkNextButton() detects if next step needs
+                // an update but not if crossJoin
+                needsNextStepUpdate = true;
             }
         });
-
-        $joinView.on('focus', '.clause', function() {
-            $lastInputFocused = $(this);
-        });
-        $joinView.on('input', '.clause', function(event, other) {
-            var delay = true;
-            if (other && other.insertText) {
-                delay = false;
-            }
-            updatePreviewText(delay);
-            checkNextBtn();
-            isNextNew = true;
-        });
-        $joinView.on('change', '.clause', function() {
-            updatePreviewText();
-            checkNextBtn();
-            isNextNew = true;
-        });
-
-        addCastDropDownListener();
 
         // smart suggest button
         $joinView.find('.smartSuggest').click(function() {
@@ -402,6 +427,67 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
         });
 
+        // clause section
+        $joinView.on('focus', '.clause', function() {
+            $lastInputFocused = $(this);
+        });
+        $joinView.on('input', '.clause', function(event, other) {
+            var delay = true;
+            if (other && other.insertText) {
+                delay = false;
+            }
+            updatePreviewText(delay);
+            checkNextBtn();
+            needsNextStepUpdate = true;
+        });
+        $joinView.on('change', '.clause', function() {
+            updatePreviewText();
+            checkNextBtn();
+            needsNextStepUpdate = true;
+        });
+
+        // add multi clause
+        $clauseContainer.on("click", ".addClause", function() {
+            addClause();
+        });
+
+        // delete multi clause
+        $clauseContainer.on("click", ".joinClause .middleIcon", function() {
+            var $joinClause = $(this).closest(".joinClause");
+            if (gMinModeOn) {
+                clauseRemoveHelper();
+            } else {
+                $joinClause.slideUp(100, clauseRemoveHelper);
+            }
+
+            function clauseRemoveHelper() {
+                $joinClause.remove();
+                updatePreviewText();
+                checkNextBtn();
+                if ($joinClause.find('.leftClause').val().trim() !== "" ||
+                    $joinClause.find('.leftClause').val().trim() !== "") {
+                    needsNextStepUpdate = true;
+                }
+            }
+        });
+
+        addCastDropDownListener();
+
+        // ***** actions available in SECOND step
+
+        // toggle keep tables
+        $joinView.find('.keepTablesCBWrap').click(function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+
+        $joinView.find('.estimateCheckbox').click(function() {
+            if ($(this).hasClass('checked')) {
+                return;
+            }
+            $(this).addClass('checked');
+            estimateJoinSize();
+        });
+
         $joinView.find('.columnsWrap').on('click', 'li', function(event) {
             var $li = $(this);
             var colNum = $li.data('colnum');
@@ -456,11 +542,17 @@ window.JoinView = (function($, JoinView) {
             toggleAllCols(!$checkbox.hasClass("checked"), tableId, index);
         });
 
-
+        setupRenameMenu($renameSection);
 
         $renameSection.on("click", ".renameIcon", function() {
             var $colToRename = $(this).closest(".rename");
             smartRename($colToRename);
+        });
+
+        // This submits the joined tables
+        $("#joinTables").click(function() {
+            $(this).blur();
+            submitForm();
         });
     };
 
@@ -659,7 +751,6 @@ window.JoinView = (function($, JoinView) {
     function selectAllTableCols(tableId) {
         var $table = $("#xcTable-" + tableId);
         var allCols = gTables[tableId].getAllCols();
-
         for (var i = 0; i < allCols.length; i++) {
             var progCol = allCols[i];
             if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
@@ -673,6 +764,7 @@ window.JoinView = (function($, JoinView) {
         if (!force && tableIds[0] === tableIds[1]) {
             return;
         }
+
         var $table = $("#xcTable-" + tableId);
         $table.find(".modalHighlighted").removeClass("modalHighlighted");
     }
@@ -688,6 +780,16 @@ window.JoinView = (function($, JoinView) {
         var tIdx = tableIds.indexOf(tableId);
         if (tIdx === -1) {
             return;
+        }
+
+        if (isSemiJoin()) {
+            if (isLeftSemiJoin()) {
+                if (tIdx === 1) {
+                    return;
+                }
+            } else if (tIdx === 0) {
+                return;
+            }
         }
 
         var colNum = xcHelper.parseColNum($cell);
@@ -750,13 +852,16 @@ window.JoinView = (function($, JoinView) {
     }
 
     function restoreSelectedTableCols() {
+        var tableIds = getTableIds();
         $joinView.find(".columnsWrap ul").each(function(i) {
-            var tableId = curTableIds[i];
-            var $table = $("#xcTable-" + tableId);
-            $(this).find("li.checked").each(function() {
-                var colNum = $(this).data("colnum");
-                $table.find(".col" + colNum).addClass("modalHighlighted");
-            });
+            var tableId = tableIds[i];
+            if (gTables[tableId]) {
+                var $table = $("#xcTable-" + tableId);
+                $(this).find("li.checked").each(function() {
+                    var colNum = $(this).data("colnum");
+                    $table.find(".col" + colNum).addClass("modalHighlighted");
+                });
+            }
         });
     }
 
@@ -807,69 +912,102 @@ window.JoinView = (function($, JoinView) {
         $('.estimatorWrap .title').text(JoinTStr.EstimateJoin);
     }
 
+    function getJoinType() {
+        return $joinTypeSelect.find(".text").text();
+    }
+
+    function isSemiJoin() {
+        var type = getJoinType();
+        return type.indexOf("Semi") > -1;
+    }
+
+    function isLeftSemiJoin() {
+        var type = getJoinType();
+        return type.indexOf("Left") > -1;
+    }
+
+    function isCrossJoin() {
+         var type = getJoinType();
+        return type.indexOf("Cross") > -1;
+    }
+
     function toggleNextView() {
         StatusBox.forceHide();
-        if ($joinView.hasClass('nextStep')) {
-            // go to step 1
+        if ($joinView.hasClass('nextStep')) { // go to step 1
             goToFirstStep();
-        } else {
-            // go to step 2
-            if (checkFirstView()) {
-                if (isNextNew) {
-                    resetJoinEstimator();
-                    displayAllColumns();
-                    isNextNew = false;
-                    resetRenames();
-                } else if ($joinTypeSelect.find(".text").text() !==
-                           joinEstimatorType) {
-                    // Rerun estimator since type is now different
-                    resetJoinEstimator();
+        } else if (checkFirstViewValid()) { // go to step 2
+            if (isSemiJoin()) {
+                $joinView.addClass("semiJoin");
+                if (isLeftSemiJoin()) {
+                    $joinView.addClass("leftSemiJoin");
+                } else {
+                    $joinView.addClass("rightSemiJoin");
                 }
 
-                $joinView.addClass('nextStep');
-                $("#container").addClass("joinState2");
-                if ($joinTableName.val().trim() === "") {
-                    $joinTableName.focus();
-                }
-
-                // clear any empty column rows
-                $clauseContainer.find(".joinClause")
-                .each(function() {
-                    var $joinClause = $(this);
-                    var lClause = $joinClause.find(".leftClause").val().trim();
-                    var rClause = $joinClause.find(".rightClause").val().trim();
-
-                    if (lClause === "" && rClause === "") {
-                        $joinClause.remove();
-                    }
-                });
-
-                formHelper.refreshTabbing();
-            } else {
-                // checkfirstview is handling errors
-                return;
+                $("#container").addClass("semiJoinState");
+            } else if (isCrossJoin()) {
+                $joinView.addClass("crossJoin");
             }
+
+            if (needsNextStepUpdate) {
+                resetJoinEstimator();
+                displayAllColumnsList();
+                needsNextStepUpdate = false;
+                resetRenames();
+                if (isCrossJoin()) {
+                    $joinView.find('.estimateCheckbox').click();
+                }
+            } else if (getJoinType() !== joinEstimatorType) {
+                // Rerun estimator since type is now different
+                resetJoinEstimator();
+            }
+
+            $joinView.addClass('nextStep');
+            $("#container").addClass("joinState2");
+
+            if ($joinTableName.val().trim() === "") {
+                $joinTableName.focus();
+            }
+
+            // clear any empty column rows
+            $clauseContainer.find(".joinClause").each(function() {
+                var $joinClause = $(this);
+                var lClause = $joinClause.find(".leftClause").val().trim();
+                var rClause = $joinClause.find(".rightClause").val().trim();
+
+                if (lClause === "" && rClause === "") {
+                    $joinClause.remove();
+                }
+            });
+
+            formHelper.refreshTabbing();
+
+        } else {
+            return;
         }
         $joinView.find('.mainContent').scrollTop(0);
     }
 
     function goToFirstStep() {
-        $joinView.removeClass('nextStep');
-        $("#container").removeClass("joinState2");
+        $joinView.removeClass("nextStep semiJoin leftSemiJoin rightSemiJoin");
+        $("#container").removeClass("joinState2 semiJoinState");
         formHelper.refreshTabbing();
         lastSideClicked = null;
         focusedListNum = null;
         focusedThNum = null;
     }
 
-    function checkFirstView() {
-        var colsInClause = getColsInClause();
-        if (colsInClause == null) {
+    function checkFirstViewValid() {
+        if (isCrossJoin()) {
+            return true;
+        }
+        var joinKeys = getJoinKeys();
+        if (joinKeys == null) {
             return false;
         }
 
-        var lCols = colsInClause.lCols;
-        var rCols = colsInClause.rCols;
+        var lCols = joinKeys.lCols;
+        var rCols = joinKeys.rCols;
         var tableIds = getTableIds();
         var leftColRes = xcHelper.convertFrontColNamesToBack(lCols, tableIds[0],
                                                     validTypes);
@@ -919,9 +1057,16 @@ window.JoinView = (function($, JoinView) {
         }, 250);
     }
 
-    function getColsInClause(toGoBack) {
+    function getJoinKeys(toGoBack) {
         var lCols = [];
         var rCols = [];
+
+        if (isCrossJoin()) {
+            return {
+                "lCols": lCols,
+                "rCols": rCols
+            };
+        }
         var $invalidClause = null;
 
         // check validation
@@ -1062,39 +1207,55 @@ window.JoinView = (function($, JoinView) {
             return deferred.promise();
         }
         var tableIds = getTableIds();
-        var cols = getClauseCols();
-        var rTableName = gTables[tableIds[1]].getName();
-        var argList = {
-            "leftLimit": 100,
-            "rightLimit": 100,
-            "joinType": $joinTypeSelect.find(".text").text(),
-            "lCol": cols[0],
-            "rCol": cols[1],
-            "rTable": new XcSDK.Table(rTableName),
-            "unlock": true,
-            "fromJoin": true
-        };
 
+        joinEstimatorType = getJoinType();
         var $estimatorWrap = $joinView.find('.estimatorWrap');
-        $(".estimatorWrap .stats").show();
-        $estimatorWrap.find('.min .value').text(JoinTStr.Estimating);
-        $estimatorWrap.find('.med .value').text(JoinTStr.Estimating);
-        $estimatorWrap.find('.max .value').text(JoinTStr.Estimating);
-        $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin);
+        $estimatorWrap.find(".stats").show();
         $estimatorWrap.find('.value').empty();
 
-        var extOptions = {
-            noNotification: true,
-            noSql: true
-        };
+        var promise;
+        if (joinEstimatorType === "Cross Join") {
+            var lNumRows = gTables[tableIds[0]].resultSetCount;
+            var rNumRows = gTables[tableIds[1]].resultSetCount;
+            var totalRows = lNumRows * rNumRows;
+            var joinEstInfo = {
+                minSum: totalRows,
+                maxSum: totalRows,
+                expSum: totalRows
+            };
 
-        joinEstimatorType = $joinTypeSelect.find(".text").text();
+            promise = PromiseHelper.resolve(joinEstInfo);
+        } else {
+            var cols = getClauseCols();
+            var rTableName = gTables[tableIds[1]].getName();
+            var argList = {
+                "leftLimit": 100,
+                "rightLimit": 100,
+                "joinType": getJoinType(),
+                "lCol": cols[0],
+                "rCol": cols[1],
+                "rTable": new XcSDK.Table(rTableName),
+                "unlock": true,
+                "fromJoin": true
+            };
 
-        ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin",
-                                 argList, extOptions)
+            $estimatorWrap.find('.min .value').text(JoinTStr.Estimating);
+            $estimatorWrap.find('.med .value').text(JoinTStr.Estimating);
+            $estimatorWrap.find('.max .value').text(JoinTStr.Estimating);
+            $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin);
+
+            var extOptions = {
+                noNotification: true,
+                noSql: true
+            };
+            promise = ExtensionManager.trigger(tableIds[0], "UExtDev",
+                                                "estimateJoin", argList,
+                                                extOptions);
+        }
+
+        promise
         .then(function(ret) {
-            $joinView.find('.estimatorWrap .title')
-                     .text(JoinTStr.EstimatedJoin + ':');
+            $estimatorWrap.find('.title').text(JoinTStr.EstimatedJoin + ':');
             $estimatorWrap.find('.min .value').text(ret.minSum);
             $estimatorWrap.find('.med .value').text(ret.expSum);
             $estimatorWrap.find('.max .value').text(ret.maxSum);
@@ -1111,15 +1272,29 @@ window.JoinView = (function($, JoinView) {
     }
 
     // generates all left and right table columns to keep
-    function displayAllColumns() {
+    function displayAllColumnsList() {
         var tableIds = getTableIds();
-        var lHtml = getTableColList(tableIds[0]);
-        var rHtml = getTableColList(tableIds[1]);
-        $joinView.find('.leftCols').html(lHtml);
-        $joinView.find('.rightCols').html(rHtml);
-        $joinView.find('.selectAll').addClass('checked');
-        selectAllTableCols(tableIds[0]);
-        selectAllTableCols(tableIds[1]);
+        var start;
+        var end;
+        if (isSemiJoin()) {
+            if (isLeftSemiJoin()) {
+                start = 0;
+                end = 1;
+            } else {
+                start = 1;
+                end = 2;
+            }
+        } else {
+            start = 0;
+            end = 2;
+        }
+        $joinView.find(".cols").empty();
+        for (var i = start; i < end; i++) {
+            var html = getTableColList(tableIds[i]);
+            $joinView.find(".cols").eq(i).html(html);
+            $joinView.find(".selectAll").eq(i).addClass("checked");
+            selectAllTableCols(tableIds[i]);
+        }
     }
 
     function resetRenames() {
@@ -1189,6 +1364,9 @@ window.JoinView = (function($, JoinView) {
 
     function hasColsAndTableNames() {
         if (hasValidTableNames()) {
+            if (isCrossJoin()) {
+                return true; // passes, no columns needed for cross join
+            }
             var columnPairs = [];
             var pair;
             var lClause;
@@ -1263,17 +1441,17 @@ window.JoinView = (function($, JoinView) {
 
     function checkNextBtn() {
         var $nextBtn = $joinView.find('.next');
-        var isDisabled = $nextBtn.hasClass('btn-disabled');
+        var wasDisabled = $nextBtn.hasClass('btn-disabled');
         if (hasColsAndTableNames()) {
             $nextBtn.removeClass('btn-disabled');
-            if (isDisabled) {
-                isNextNew = true;
+            if (wasDisabled) {
+                needsNextStepUpdate = true;
                 formHelper.refreshTabbing();
             }
         } else {
             $nextBtn.addClass('btn-disabled');
-            if (!isDisabled) {
-                isNextNew = true;
+            if (!wasDisabled) {
+                needsNextStepUpdate = true;
                 formHelper.refreshTabbing();
             }
         }
@@ -1304,7 +1482,7 @@ window.JoinView = (function($, JoinView) {
         return (html);
     }
 
-    function submitJoin() {
+    function submitForm() {
         // check validation
         // if submit is enabled, that means first view is already valid
         var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
@@ -1319,7 +1497,7 @@ window.JoinView = (function($, JoinView) {
 
         formHelper.disableSubmit();
 
-        joinSubmitHelper()
+        submitFormHelper()
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
@@ -1380,7 +1558,7 @@ window.JoinView = (function($, JoinView) {
     function proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit) {
         var deferred = jQuery.Deferred();
 
-        var joinType = $joinTypeSelect.find(".text").text();
+        var joinType = getJoinType();
         var newTableName = $joinTableName.val().trim();
         var keepTable = $joinView.find(".keepTablesCBWrap")
                         .find(".checkbox").hasClass("checked");
@@ -1408,17 +1586,16 @@ window.JoinView = (function($, JoinView) {
         return deferred.promise();
     }
 
-    function joinSubmitHelper() {
-        var colsInClause = getColsInClause(true);
-        if (colsInClause == null) {
+    function submitFormHelper() {
+        var joinKeys = getJoinKeys(true);
+        if (joinKeys == null) {
             return PromiseHelper.reject();
         }
 
-        var lCols = colsInClause.lCols;
-        var rCols = colsInClause.rCols;
+        var lCols = joinKeys.lCols;
+        var rCols = joinKeys.rCols;
 
         var tableIds = getTableIds();
-        curTableIds = tableIds;
         var lTableId = tableIds[0];
         var rTableId = tableIds[1];
         var lTable = gTables[lTableId];
@@ -1431,10 +1608,9 @@ window.JoinView = (function($, JoinView) {
         var lColNums = getColNumFromName(lCols, lTable);
         var rColNums = getColNumFromName(rCols, rTable);
         // set up "keeping" columns
-        var $lColLis = $joinView.find(".leftCols li.checked");
-        var $rColLis = $joinView.find(".rightCols li.checked");
-        var lColsToKeep = getColNameFromList($lColLis, lTable);
-        var rColsToKeep = getColNameFromList($rColLis, rTable);
+        var colNamesToKeep = getColNamesToKeep(lTable, rTable);
+        var lColsToKeep = colNamesToKeep.left;
+        var rColsToKeep = colNamesToKeep.right;
 
         var lJoinInfo = {
             "tableId": lTableId,
@@ -1599,6 +1775,9 @@ window.JoinView = (function($, JoinView) {
 
     function getCasts(index) {
         var casts = [];
+        if (isCrossJoin()) {
+            return casts;
+        }
         $clauseContainer.find(".clauseRow").each(function() {
             var $input = $(this).find("input").eq(index);
             if ($input.data("casted")) {
@@ -1753,6 +1932,31 @@ window.JoinView = (function($, JoinView) {
         return colNums;
     }
 
+    function getColNamesToKeep(lTable, rTable) {
+        var $lColLis = $joinView.find(".leftCols li.checked");
+        var $rColLis = $joinView.find(".rightCols li.checked");
+        var lColsToKeep;
+        var rColsToKeep;
+        if (isSemiJoin()) {
+            var joinType = getJoinType();
+            if (joinType.indexOf("Left") > -1) {
+                lColsToKeep = getColNameFromList($lColLis, lTable);
+                rColsToKeep = [];
+            } else if (joinType.indexOf("Right") > -1) {
+                lColsToKeep = [];
+                rColsToKeep = getColNameFromList($rColLis, rTable);
+            }
+        } else {
+            lColsToKeep = getColNameFromList($lColLis, lTable);
+            rColsToKeep = getColNameFromList($rColLis, rTable);
+        }
+        return {
+            left: lColsToKeep,
+            right: rColsToKeep
+        };
+    }
+
+    // for columns to keep/pull
     function getColNameFromList($colLis, table) {
         var colsToKeep = [];
         $colLis.each(function(i) {
@@ -2011,14 +2215,13 @@ window.JoinView = (function($, JoinView) {
         $rightTableDropdown.find('.text').val("");
         activateClauseSection(0);
         deactivateClauseSection(1);
-        isNextNew = true;
+        needsNextStepUpdate = true;
 
         updatePreviewText();
         $joinView.removeClass('nextStep');
         $("#container").removeClass("joinState2");
         updateJoinTableName();
         resetRenames();
-        curTableIds = [];
         $joinView.find(".tableListSection .arg").data("val", "");
     }
 
@@ -2157,6 +2360,9 @@ window.JoinView = (function($, JoinView) {
         var lTable = gTables[tableIds[0]];
         var rTable = gTables[tableIds[1]];
         $(".xcTable").find(".formColNum").remove();
+        if (isCrossJoin()) {
+            return;
+        }
         var $lTable;
         var $rTable;
         if (lTable) {
@@ -2184,13 +2390,18 @@ window.JoinView = (function($, JoinView) {
     }
 
     function updatePreviewText(delay) {
-        var joinType = $joinTypeSelect.find(".text").text();
+        var joinType = getJoinType();
         var lTableName = $leftTableDropdown.find(".text").val();
         var rTableName = $rightTableDropdown.find(".text").val();
         var previewText = '<span class="joinType keyword">' + joinType +
                           '</span> <span class="highlighted">' + lTableName +
                           '</span>, <span class="highlighted">' + rTableName +
-                          '</span><br/><span class="keyword">ON </span>';
+                          '</span>';
+        var crossJoin = isCrossJoin();
+        if (!crossJoin) {
+            previewText += '<br/><span class="keyword">ON </span>';
+        }
+
         var columnPairs = [];
         var pair;
         var lClause;
@@ -2204,6 +2415,10 @@ window.JoinView = (function($, JoinView) {
             updateJoinOnNums();
         }
 
+        if (crossJoin) {
+            $joinView.find('.joinPreview').html(previewText);
+            return;
+        }
 
         $joinView.find(".joinClause").each(function(i) {
             var $joinClause = $(this);
@@ -2337,9 +2552,9 @@ window.JoinView = (function($, JoinView) {
         JoinView.__testOnly__.addClause = addClause;
         JoinView.__testOnly__.checkMatchingColTypes = checkMatchingColTypes;
         JoinView.__testOnly__.estimateJoinSize = estimateJoinSize;
-        JoinView.__testOnly__.checkFirstView = checkFirstView;
+        JoinView.__testOnly__.checkFirstView = checkFirstViewValid;
         JoinView.__testOnly__.validTableNameChecker = validTableNameChecker;
-        JoinView.__testOnly__.submitJoin = submitJoin;
+        JoinView.__testOnly__.submitJoin = submitForm;
         JoinView.__testOnly__.submissionFailHandler = submissionFailHandler;
         JoinView.__testOnly__.deactivateClauseSection = deactivateClauseSection;
         JoinView.__testOnly__.autoResolveCollisions = autoResolveCollisions;

@@ -1200,7 +1200,7 @@
                         }
 
                         &:focus {
-                            border-color: @color-border-pinkish-grey2;
+                            border-color: @color-border-softBlue;
                         }
 
                         &.inActive {
@@ -1328,6 +1328,43 @@
         }
     }
 
+    &.semiJoin {
+        .leftColHeading, .rightColHeading {
+            width: 100%;
+        }
+        .cols {
+            width: 100%;
+        }
+        &.leftSemiJoin {
+            .rightColHeading {
+                display: none;
+            }
+        }
+        &.rightSemiJoin {
+            .leftColHeading {
+                display: none;
+            }
+        }
+        .estimatorWrap {
+            display: none;
+        }
+        #joinActions {
+            margin-top: 15px; // extra margin when estimatorwrap not visible
+        }
+    }
+
+    &.crossJoin {
+        .clauseContainer {
+            > div {
+                display: none;
+                &:first-child {
+                    display: block;
+                }
+            }
+
+        }
+    }
+
     .keepTablesCBWrap {
         cursor: default;
         margin-top: 10px;
@@ -1345,7 +1382,7 @@
         }
 
         .hint {
-            margin-top: 6px;
+            margin-top: 4px;
             margin-right: 6px;
             float: right;
         }

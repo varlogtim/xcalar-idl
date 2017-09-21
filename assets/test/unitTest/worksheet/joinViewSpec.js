@@ -37,6 +37,7 @@ describe("JoinView Test", function() {
                 "status": TableType.Active,
                 "tableCols": []
             });
+
             gTables[tableId2] = table;
 
             WSManager.getTableList = function() {
@@ -67,6 +68,8 @@ describe("JoinView Test", function() {
             expect($("#joinType .text:visible")).to.have.lengthOf(1);
             expect($("#joinType .text").text()).to.equal("Inner Join");
             expect($("#joinType li").length).to.equal(4); // in left right full
+            // expect($("#joinType li").length).to.equal(9); // in left right full
+            // l-semi r-semi l-anti r-anti cross
         });
 
         it("left table name should be selected", function() {
@@ -351,8 +354,10 @@ describe("JoinView Test", function() {
             expect(checkRes.success).to.be.true;
 
         });
+    });
 
-        it("join type menu should work", function() {
+    describe("join type menu", function() {
+        it("basic selection should work", function() {
             expect($("#joinType").find(".list").length).to.equal(1);
             expect($("#joinType").find(".list:visible").length).to.equal(0);
 
@@ -360,15 +365,77 @@ describe("JoinView Test", function() {
 
             expect($("#joinType").find(".list:visible").length).to.equal(1);
             expect($("#joinType").find("li:visible").length).to.equal(4);
+            // expect($("#joinType").find("li:visible").length).to.equal(9);
             expect($("#joinType").find(".text").text()).to.equal("Inner Join");
 
-            $("#joinType").find("li").last().trigger(fakeEvent.mouseup);
+            $("#joinType").find("li").eq(1).trigger(fakeEvent.mouseup);
 
-            expect($("#joinType").find(".text").text()).to.equal("Full Outer Join");
+            expect($("#joinType").find(".text").text()).to.equal("Left Outer Join");
             expect($("#joinType").find(".list:visible").length).to.equal(0);
 
             $("#joinType").find("li").first().trigger(fakeEvent.mouseup);
             expect($("#joinType").find(".text").text()).to.equal("Inner Join");
+        });
+
+        it.skip("selecting semi join should change table selected columns", function() {
+            $("#joinType").find(".text").trigger(fakeEvent.click);
+            var $leftSemiLi = $("#joinType").find("li").filter(function() {
+                return $(this).text() === "Left Semi Join";
+            });
+            var $rightSemiLi = $("#joinType").find("li").filter(function() {
+                return $(this).text() === "Right Semi Join";
+            });
+            var $leftAntiLi = $("#joinType").find("li").filter(function() {
+                return $(this).text() === "Left Anti Semi Join";
+            });
+            var $rightAntiLi = $("#joinType").find("li").filter(function() {
+                return $(this).text() === "Right Anti Semi Join";
+            });
+
+            $joinForm.find(".joinTableList .arg").eq(1).val(tableName2);
+            var col = ColManager.newCol();
+            gTables[tableId2].tableCols.unshift(col);
+            col.isEmptyCol = function() {return false;};
+            col.isDATACol = function() {return false;};
+
+            $("#container").append('<div id="xcTable-' + tableId2 + '"></div>');
+            var $fakeTable = $("#xcTable-" + tableId2);
+            $fakeTable.append('<div class="testdiv col1 modalHighlighted"></div>');
+
+            expect($fakeTable.find(".modalHighlighted").length).to.equal(1);
+
+            $leftSemiLi.trigger(fakeEvent.mouseup);
+            expect($table.find(".modalHighlighted").length).to.be.gt(0);
+            expect($fakeTable.find(".modalHighlighted").length).to.equal(0);
+
+            $rightSemiLi.trigger(fakeEvent.mouseup);
+            expect($table.find(".modalHighlighted").length).to.equal(0);
+            expect($fakeTable.find(".modalHighlighted").length).to.equal(1);
+
+            $leftSemiLi.trigger(fakeEvent.mouseup);
+            expect($table.find(".modalHighlighted").length).to.be.gt(0);
+            expect($fakeTable.find(".modalHighlighted").length).to.equal(0);
+
+            $("#joinType").find("li").first().trigger(fakeEvent.mouseup);
+
+            $rightSemiLi.trigger(fakeEvent.mouseup);
+            expect($table.find(".modalHighlighted").length).to.equal(0);
+            expect($fakeTable.find(".modalHighlighted").length).to.equal(1);
+
+            $("#joinType").find("li").first().trigger(fakeEvent.mouseup);
+            $joinForm.find(".joinTableList .arg").eq(1).val(tableName);
+        });
+
+        it.skip("cross join should work", function() {
+            expect($joinForm.hasClass("crossJoin")).to.be.false;
+            var $li = $("#joinType").find("li").filter(function() {
+                return $(this).text() === "Cross Join";
+            });
+            $li.trigger(fakeEvent.mouseup);
+            expect($joinForm.hasClass("crossJoin")).to.be.true;
+
+            $("#joinType").find("li").first().trigger(fakeEvent.mouseup);
+            expect($joinForm.hasClass("crossJoin")).to.be.false;
         });
     });
 
@@ -879,9 +946,10 @@ describe("JoinView Test", function() {
 
     after(function(done) {
         JoinView.close();
+        $("#menuBar").removeClass("animating");
         xcHelper.centerFocusedTable = cachedCenterFn;
         WSManager.getTableList = cachedGetTableList;
-
+        delete gTables[tableId2];
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             UnitTest.offMinMode();

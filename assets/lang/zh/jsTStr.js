@@ -494,6 +494,10 @@ JoinTStr = {
 'JOIN': '连接',
 'ModifyDesc': '您想修改连接吗？',
 'NoJoin': '无法连接<type>',
+"ColSelectInstr": "请在左表和右表中选择要连接的列。",
+"ColSelectInstrCross": "Cross join does not require join keys since it is " +
+                           "joining every record on the left table with " +
+                           "every record on the right table",
 'MismatchDetail': '无法连接类型为<type1>和<type2>的列'
 };
 ExportTStr = {

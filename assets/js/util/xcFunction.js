@@ -374,6 +374,16 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // join two tables
+    // joinInfo: object with the following attrs:
+            // colNums: array of column numbers to join on,
+            // casts: array of cast types ["string", "boolean", null] etc
+            // pulledColumns: columns to pulled out (front col name)
+            // tableName: table's name
+            // reaname: array of rename object, can be null or empty array
+
+    // options:
+    //          keepTables: boolean, if true will keep src tables in worksheet
+    //          formOpenTime: int, used when undoing
     xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo, newTableName,
                                options)
     {

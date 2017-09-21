@@ -2302,16 +2302,25 @@ MenuHelper.prototype = {
                 if (event.which !== 1) {
                     return;
                 }
+                var $li = $(this);
+
+                // remove selected class from siblings and if able,
+                // add selected class to current li
+                var $lastSelected = $(this).siblings(".selected");
+                if (!$li.hasClass("hint") && !$li.hasClass("unavailable")) {
+                    $lastSelected.removeClass("selected");
+                    $li.addClass("selected");
+                }
+
                 var keepOpen = false;
                 if (options.onSelect) {    // trigger callback
                     // keepOpen be true, false or undefined
-                    keepOpen = options.onSelect($(this));
+                    keepOpen = options.onSelect($li, $lastSelected);
                 }
                 // keep Open may return weird tings, so check for true boolean
-                if (keepOpen === true) {
-                    return;
+                if (!keepOpen) {
+                    self.hideDropdowns();
                 }
-                self.hideDropdowns();
             },
             "mouseenter": function() {
                 $(this).addClass("hover");

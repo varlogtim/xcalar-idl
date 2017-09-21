@@ -573,6 +573,12 @@ JoinTStr = {
     'Estimating': 'Estimating...',
     'JOIN': 'JOIN',
     'ModifyDesc': 'Would you like to modify the join?',
+    "ColSelectInstr": "Please select pairs of columns, one column from the " +
+                      "left table and one column from the right table, " +
+                      "to be joined together.",
+    "ColSelectInstrCross": "Cross join does not require join keys since it is " +
+                           "joining every record on the left table with " +
+                           "every record on the right table",
 
     //with replace
     'NoJoin': 'Cannot join <type>',
