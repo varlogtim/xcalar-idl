@@ -361,7 +361,7 @@ window.TestSuite = (function($, TestSuite) {
         // console.log(arguments);
 
         var caller = checkExists.caller.name;
-
+        var count = 0;
         var interval = setInterval(function() {
             var numItems = elemSelectors.length;
             var allElemsPresent = true;
@@ -409,9 +409,22 @@ window.TestSuite = (function($, TestSuite) {
                 }
             }
             timeElapsed += intervalTime;
+            count++;
+            if (count % 50 === 0) {
+                // every 50 times refocus the window
+                refocusWindow();
+            }
         }, intervalTime);
 
         return (deferred.promise());
+    }
+
+    function refocusWindow() {
+        var newName = window.name + '-2';
+        var options = ''; // customize for your situation
+        var w = window.open('', newName, options);
+        w.document.write("test");
+        w.close();
     }
 
     function randInt(numDigits) {
@@ -859,8 +872,11 @@ window.TestSuite = (function($, TestSuite) {
             })
             .then(function(found) {
                 if (found) {
-                    // remove to make sure the check is after upload is done
-                    $("#udf-manager .udf .text:contains(ymd)").remove();
+                    if (!$("#alertContent:visible .text:contains" +
+                        "('UDF Module currently in use')").length) {
+                        // remove to make sure the check is after upload is done
+                        $("#udf-manager .udf .text:contains(ymd)").remove();
+                    }
                     $("#alertActions .confirm").click();
                 }
                 return checkExists("#udf-manager .udf .text:contains(ymd)");
