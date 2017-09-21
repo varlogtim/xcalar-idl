@@ -2714,7 +2714,6 @@ window.OperationsView = (function($, OperationsView) {
         var allColTypes = [];
         var errorText;
         var $errorInput;
-        var errorType;
         var inputsToCast = [];
         var castText;
         var invalidNonColumnType = false; // when an input does not have a
@@ -2766,7 +2765,15 @@ window.OperationsView = (function($, OperationsView) {
                     if (i > 0) {
                         backColNames += ",";
                     }
-                    backColNames += getBackColName(tempColNames[i].trim());
+                    var backColName = getBackColName(tempColNames[i].trim());
+                    if (!backColName) {
+                        errorText = ErrTStr.InvalidOpNewColumn;
+                        isPassing = false;
+                        $errorInput = $input;
+                        args.push(arg);
+                        return;
+                    }
+                    backColNames += backColName;
                 }
 
                 arg = backColNames;
@@ -2786,10 +2793,9 @@ window.OperationsView = (function($, OperationsView) {
                         allColTypes.push({});
                         errorText = ErrTStr.InvalidColName;
                         $errorInput = $input;
-                        errorType = "invalidCol";
                         isPassing = false;
                     } else {
-                        var allowArrayVal = operatorName === "map";
+                        var allowArrayVal = (operatorName === "map");
                         colTypes = getAllColumnTypesFromArg(frontColName,
                             allowArrayVal);
                         types = parseType(typeid);
@@ -2801,13 +2807,11 @@ window.OperationsView = (function($, OperationsView) {
                             });
                         } else {
                             allColTypes.push({});
-
-                            errorText = ErrWRepTStr.InvalidCol;
-                            errorText = xcHelper.replaceMsg(errorText, {
+                            errorText = xcHelper.replaceMsg(
+                                ErrWRepTStr.InvalidCol, {
                                 "name": frontColName
                             });
                             $errorInput = $input;
-                            errorType = "invalidCol";
                             isPassing = false;
                         }
                     }
@@ -2830,7 +2834,9 @@ window.OperationsView = (function($, OperationsView) {
                                     isPassing = false;
                                     $errorInput = $input;
                                     inputsToCast.push(inputNum);
-                                    castText = errorText;
+                                    if (!castText) {
+                                        castText = errorText;
+                                    }
                                     break;
                                 }
                             }
@@ -2864,7 +2870,6 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     $errorInput = $input;
-                    errorType = "invalidType";
                 } else {
                     var formatArgumentResults = formatArgumentInput(arg,
                                                         typeid,
@@ -2877,21 +2882,24 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
+            var isInvalidColType;
             if (inputsToCast.length) {
                 errorText = castText;
-                errorType = "invalidColType";
+                isInvalidColType = true;
                 $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
+            } else {
+                isInvalidColType = false;
             }
-            handleInvalidArgs(errorType, $errorInput, errorText, groupNum,
+            handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
                               allColTypes, inputsToCast);
         }
 
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
-    function handleInvalidArgs(errorType, $errorInput, errorText, groupNum,
+    function handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
                                        allColTypes, inputsToCast) {
-        if (errorType === "invalidColType") {
+        if (isInvalidColType) {
             var castIsVisible = $activeOpSection.find('.group').eq(groupNum)
                                                 .find('.cast')
                                                 .hasClass('showing');

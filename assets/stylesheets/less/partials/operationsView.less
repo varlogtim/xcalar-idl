@@ -70,9 +70,13 @@
 
     .dropDownList {
         .styleDropDownList(100%, @listHeight);
+
         .text {
             background-color: @color-white;
             font-size: @standardFontSize;
+        }
+        .list {
+            top: @listHeight;
         }
         li {
             font-size: @standardFontSize;
@@ -327,7 +331,9 @@
         border-top: 1px solid @color-border-pinkish-grey2;
         padding-top: 10px;
 
-        &:nth-child(2) { // first .group
+
+
+        &.firstGroup {
             border-width: 0px;
             padding-top: 0px;
             .closeGroup {
@@ -406,9 +412,6 @@
                 }
                 .iconWrapper {
                     display: none;
-                }
-                .list {
-                    top: 26px;
                 }
             }
             .argsSection {
@@ -712,8 +715,6 @@
     @standardFontSize: 12px;
     @commonMargin: 10px;
     .dropDownList {
-        .styleDropDownList(100%, @listHeight);
-
         .textNoCap {
             text-transform: none !important;
         }
@@ -735,7 +736,6 @@
         }
 
         .list {
-            top: 24px;
             text-transform: capitalize;
 
             &.genFunctionMenu {
@@ -779,7 +779,6 @@
             }
             .list {
                 z-index: 11;
-                top: 26px;
             }
         }
     }
@@ -1071,16 +1070,8 @@
 
 
     #joinType {
-
         .text, .list li {
             .font(@weight: 600);
-        }
-        .list {
-            .position(@top: 26px);
-            overflow: hidden;
-        }
-        &.open {
-
         }
     }
 
