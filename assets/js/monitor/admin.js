@@ -711,6 +711,7 @@ window.Admin = (function($, Admin) {
         .then(XFTSupportTools.clusterStart)
         .then(function(ret) {
             // refresh page
+            exitSetupMode();
             if (ret.status === Status.Ok &&
                 ret.logs.indexOf("already running") > -1) {
                 Alert.show({msg: ret.logs, isAlert: true});
@@ -719,10 +720,8 @@ window.Admin = (function($, Admin) {
             }
         })
         .fail(function(err) {
+            exitSetupMode();
             nodeCmdFailHandler('startNode', err);
-        })
-        .always(function() {
-            $("#initialLoadScreen").hide();
         });
     }
 
@@ -730,20 +729,20 @@ window.Admin = (function($, Admin) {
         supportPrep('stopNode')
         .then(XFTSupportTools.clusterStop)
         .then(function() {
+            exitSetupMode();
             if ($('#container').hasClass('supportOnly')) {
                 xcHelper.showSuccess(SuccessTStr.StopCluster);
             } else {
-                var alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                Alert.show({
+                    "title": MonitorTStr.StopNodes,
+                    "msg": SuccessTStr.StopCluster,
                     "lockScreen": true
                 });
             }
         })
         .fail(function(err) {
+            exitSetupMode();
             nodeCmdFailHandler('stopNode', err);
-        })
-        .always(function() {
-            $("#initialLoadScreen").hide();
         });
     }
 
@@ -756,10 +755,8 @@ window.Admin = (function($, Admin) {
             location.reload();
         })
         .fail(function(err) {
+            exitSetupMode();
             nodeCmdFailHandler('restartNode', err);
-        })
-        .always(function() {
-            $("#initialLoadScreen").hide();
         });
     }
 
@@ -848,15 +845,13 @@ window.Admin = (function($, Admin) {
                     };
                     XcSocket.sendMessage("adminAlert", alertOption);
                 }
-                $("#initialLoadScreen").show();
+                enterSetupMode();
                 if (WorkbookManager.getActiveWKBK() != null) {
                     KVStore.commit()
-                    .then(function() {
-                        deferred.resolve();
-                    })
+                    .then(deferred.resolve)
                     .fail(function(err) {
                         console.error(err);
-                        deferred.resolve();
+                        deferred.resolve(); // still resolve
                     });
                 } else {
                     // the first time to use Xcalar and the backend is down
@@ -869,6 +864,16 @@ window.Admin = (function($, Admin) {
             }
         });
         return deferred.promise();
+    }
+
+    function enterSetupMode() {
+        $("#initialLoadScreen").show();
+        $("body").addClass("xc-setup");
+    }
+
+    function exitSetupMode() {
+        $("#initialLoadScreen").hide();
+        $("body").removeClass("xc-setup");
     }
 
     function nodeCmdFailHandler(command, err) {
