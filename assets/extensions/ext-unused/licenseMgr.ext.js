@@ -98,7 +98,7 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
 
     function viewLicense() {
         var ext = new XcSDK.Extension();
-        var licenseTables = [ "license", "owner", "organization", "activation" ]
+        var licenseTables = [ "license", "owner", "organization", "activation", "marketplace" ]
 
         ext.start = function() {
             var deferred = XcSDK.Promise.deferred();
