@@ -180,7 +180,8 @@ CommonTxtTstr = {
 'time': '时间',
 'rows': '行数',
 'percentage': '百分比',
-'YES': '确认'
+'YES': '确认',
+'LogCopied': '日志已复制到剪贴板'
 };
 ErrTStr = {
 'Error': '错误',

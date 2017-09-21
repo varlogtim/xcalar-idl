@@ -217,6 +217,13 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         $logCard.on('click', '.copyLog', function() {
             copyLog();
+            var $btn = $(this).find(".icon");
+            var oldTitle = $btn.attr("data-original-title");
+            xcTooltip.changeText($btn, CommonTxtTstr.LogCopied);
+            xcTooltip.refresh($btn);
+            // the change back of text will not reflect unil user move mouse
+            // out and back
+            xcTooltip.changeText($btn, oldTitle);
             return false;
         });
     }

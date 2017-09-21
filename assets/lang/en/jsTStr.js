@@ -190,7 +190,8 @@ CommonTxtTstr = {
     'time': 'time',
     'rows': 'rows',
     'percentage': 'percentage',
-    'YES': 'YES'
+    'YES': 'YES',
+    'LogCopied': 'Log copied to clipboard'
 };
 
 ErrTStr = {

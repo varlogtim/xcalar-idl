@@ -508,6 +508,13 @@ window.Log = (function($, Log) {
 
         $logButtons.on("click", ".copyLog", function() {
             copyLog();
+            var $btn = $(this);
+            var oldTitle = $btn.attr("data-original-title");
+            xcTooltip.changeText($btn, CommonTxtTstr.LogCopied);
+            xcTooltip.refresh($btn);
+            // the change back of text will not reflect unil user move mouse
+            // out and back
+            xcTooltip.changeText($btn, oldTitle);
         });
 
         $undo.click(function() {
