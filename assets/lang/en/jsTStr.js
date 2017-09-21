@@ -533,6 +533,7 @@ AggTStr = {
     'AggTitle': 'Aggregate: <op>',
     'AggInstr': 'This is the aggregate result for column "<col>". ' +
                 '\r\n The aggregate operation is "<op>".',
+    'AggName': '\r\n The resultant aggregate name is <aggName>.',
     'AggMsg': '{"Value":<val>}'
 };
 

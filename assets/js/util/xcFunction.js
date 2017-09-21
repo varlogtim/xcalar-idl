@@ -86,6 +86,7 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr, aggName) {
         var deferred = jQuery.Deferred();
 
+        var hasAggName = (aggName && aggName[0] === gAggVarPrefix);
         var table = gTables[tableId];
         var tableName = table.getName();
         var frontColName;
@@ -105,8 +106,14 @@ window.xcFunction = (function($, xcFunction) {
             "op": aggrOp
         });
 
+        if (hasAggName) {
+            instr += xcHelper.replaceMsg(AggTStr.AggName, {
+                "aggName": aggName
+            });
+        }
+
         var aggInfo = Aggregates.getAgg(tableId, backColName, aggrOp);
-        if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
+        if (aggInfo != null && !hasAggName) {
             var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
                 "val": xcHelper.numToStr(aggInfo.value)
             });
@@ -146,7 +153,7 @@ window.xcFunction = (function($, xcFunction) {
 
         // backend doesn't take gAggVarPrefix so we will add it back alter
         var hasPrefix = false;
-        if (aggName && aggName[0] === gAggVarPrefix) {
+        if (hasAggName) {
             aggName = aggName.slice(1);
             hasPrefix = true;
         }

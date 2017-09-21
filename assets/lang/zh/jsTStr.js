@@ -462,7 +462,8 @@ AggTStr = {
 'NoCorr': '无数字类型的列可用于相关性计算',
 'NoAgg': '无数字类型的列可用于聚合',
 'AggTitle': '聚合：<op>',
-'AggInstr': '这是列"<col>" 聚合操作<op>的结果\r\n。',
+'AggInstr': '这是列"<col>".\r\b 聚合操作<op>的结果.',
+'AggName': '\r\n 生成的聚合名为<aggName>',
 'AggMsg': '{"value"：<val>}'
 };
 IndexTStr = {
