@@ -60,7 +60,7 @@ window.UExtBizRules = (function(UExtBizRules) {
             var numRules = -1;
             var briModuleName = userIdName.toLowerCase().replace(/[^a-zA-Z0-9]/g,
                                                                '');
-            ext.getNumRows(briTable.getName())
+            ext.getNumRows(briTable.getName(), {})
             .then(function(numRows) {
                 if (numRows > 1000) {
                     return XcSDK.Promise.reject("Please break rules up into " +
