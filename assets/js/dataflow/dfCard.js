@@ -982,6 +982,7 @@ window.DFCard = (function($, DFCard) {
             txId = Transaction.start({
                 "operation": SQLOps.Retina,
                 "sql": SQLOps.Retina,
+                "functionName": retName,
                 "steps": -1
             });
             $dagWrap.data("txid", txId);
