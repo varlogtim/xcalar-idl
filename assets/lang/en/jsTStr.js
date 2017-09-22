@@ -421,6 +421,7 @@ SuccessTStr = {
     "ExtEnable": "Extension Successfully Enabled!",
     "ExtDisable": "Extension Successfully Disabled!",
     "Profile": "Profile Image Saved Successfully!",
+    "BundleGenerated": "Bundle Generated",
     "BundleUploaded": "Bundle generated! Uploaded: ",
     "FlushLog": "Flush Log Successfully!",
 };

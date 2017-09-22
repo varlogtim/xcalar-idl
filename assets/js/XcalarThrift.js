@@ -77,6 +77,7 @@ function thriftLog() {
             error = errRes;
         }
 
+
         if (status == null && httpStatus == null && error == null) {
             // console.log("not an error");
             // not an error
@@ -4215,8 +4216,12 @@ function XcalarSupportGenerate(miniBundle, supportId) {
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle, miniBundle, supportId)
     .then(function(ret) {
-        xcHelper.showSuccess(SuccessTStr.BundleUploaded +
-                             ret.supportBundleSent);
+        Alert.show({
+            title: SuccessTStr.BundleGenerated,
+            msg: SuccessTStr.BundleUploaded + ret.supportBundleSent,
+            isAlert: true
+        });
+
         console.log("Support bundle path: " + ret.bundlePath);
         console.log("Support bundle id: " + ret.supportId);
         console.log("Support bundle set: " + ret.supportBundleSent);

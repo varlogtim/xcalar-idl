@@ -377,6 +377,7 @@ SuccessTStr = {
 "ExtEnable": '成功启用扩展！',
 "ExtDisable": '成功禁用扩展！',
 "Profile": '数据剖面图图片保存成功！',
+"BundleGenerated": "Bundle Generated",
 "BundleUploaded": '支持捆绑包生成成功，上载：',
 "FlushLog": "强制刷新日志成功!",
 };
