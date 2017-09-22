@@ -76,7 +76,7 @@ window.SQLCompiler = (function() {
         "expressions.EqualNullSafe": "eq",
         "expressions.LessThan": "lt",
         "expressions.LessThanOrEqual": "le",
-        "expressions.GreaterThan":  "gt",
+        "expressions.GreaterThan": "gt",
         "expressions.GreaterThanOrEqual": "ge",
         // randomExpressions.scala,
         "expressions.Rand": "genRandom", // XXX a little different
@@ -245,26 +245,26 @@ window.SQLCompiler = (function() {
 
                 var treeNodeClass = treeNode.value.class.substring(
                     "org.apache.spark.sql.catalyst.plans.logical.".length);
-                switch(treeNodeClass) {
-                    case("Project"):
+                switch (treeNodeClass) {
+                    case ("Project"):
                         retStruct = self._pushDownProject(treeNode);
                         break;
-                    case("Filter"):
+                    case ("Filter"):
                         retStruct = self._pushDownFilter(treeNode);
                         break;
-                    case("Join"):
+                    case ("Join"):
                         retStruct = self._pushDownJoin(treeNode);
                         break;
-                    case("Sort"):
+                    case ("Sort"):
                         retStruct = self._pushDownSort(treeNode);
                         break;
-                    case("Aggregate"):
+                    case ("Aggregate"):
                         retStruct = self._pushDownAggregate(treeNode);
                         break;
-                    case("GlobalLimit"):
+                    case ("GlobalLimit"):
                         retStruct = self._pushDownGlobalLimit(treeNode);
                         break;
-                    case("LocalLimit"):
+                    case ("LocalLimit"):
                         retStruct = self._pushDownIgnore(treeNode);
                         break;
                     default:
@@ -321,8 +321,6 @@ window.SQLCompiler = (function() {
         },
 
         _pushDownIgnore: function(node) {
-            var self = this;
-            var deferred = jQuery.Deferred();
             assert(node.children.length === 1);
             return PromiseHelper.resolve({
                 "newTableName": node.children[0].newTableName,
@@ -571,7 +569,7 @@ window.SQLCompiler = (function() {
             } else {
                 // Can't do it :(
                 assert(0);
-                return deferred.resolve("Cannot do it;");
+                return PromiseHelper.resolve("Cannot do it;");
             }
 
             while (andSubtrees.length > 0) {
@@ -587,7 +585,7 @@ window.SQLCompiler = (function() {
                     } else {
                         // Can't do it :(
                         assert(0);
-                        return deferred.resolve("Cannot do it;");
+                        return PromiseHelper.resolve("Cannot do it;");
                     }
                 }
             }
@@ -614,7 +612,6 @@ window.SQLCompiler = (function() {
 
             var leftMapArray = [];
             var rightMapArray = [];
-            var xcSQLObj = new SQLApi();
             var cliArray = [];
 
             while (eqSubtrees.length > 0) {
@@ -876,6 +873,7 @@ window.SQLCompiler = (function() {
     }
 
     function getQualifiersInSubtree(tree) {
+        var tablesSeen = [];
         function getQualifiersRecur(subtree) {
             if (subtree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
@@ -887,7 +885,6 @@ window.SQLCompiler = (function() {
                 getQualifiersRecur(subtree.children[i]);
             }
         }
-        var tablesSeen = [];
         getQualifiersRecur(tree);
         return tablesSeen;
     }

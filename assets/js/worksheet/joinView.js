@@ -155,6 +155,7 @@ window.JoinView = (function($, JoinView) {
                 var joinType = $li.text();
                 var $input = $joinTypeSelect.find(".text");
                 var prevType = $input.text();
+                var tableIds;
                 $input.text(joinType);
                 updatePreviewText();
                 checkNextBtn();
@@ -196,7 +197,7 @@ window.JoinView = (function($, JoinView) {
                     } else if (joinType.indexOf("Semi") > -1) { // semi -> semi
                         if (prevType.indexOf("Right") === -1 &&
                             joinType.indexOf("Right") > -1) {
-                            var tableIds = getTableIds();
+                            tableIds = getTableIds();
                             if (gTables[tableIds[0]]) {
                                 deselectAllTableCols(tableIds[0]);
                                 needsNextStepUpdate = true;
@@ -207,7 +208,7 @@ window.JoinView = (function($, JoinView) {
                             }
                         } else if (prevType.indexOf("Left") === -1 &&
                             joinType.indexOf("Left") > -1) {
-                            var tableIds = getTableIds();
+                            tableIds = getTableIds();
                             if (gTables[tableIds[0]]) {
                                 selectAllTableCols(tableIds[0]);
                                 needsNextStepUpdate = true;
@@ -927,7 +928,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function isCrossJoin() {
-         var type = getJoinType();
+        var type = getJoinType();
         return type.indexOf("Cross") > -1;
     }
 
@@ -2420,7 +2421,7 @@ window.JoinView = (function($, JoinView) {
             return;
         }
 
-        $joinView.find(".joinClause").each(function(i) {
+        $joinView.find(".joinClause").each(function() {
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
             rClause = $joinClause.find(".rightClause").val().trim();

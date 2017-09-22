@@ -657,14 +657,17 @@ window.FnBar = (function(FnBar, $) {
         }
 
         if (fnBarVal.indexOf('=') === 0) {
-            var $table   = $colInput.closest('.dataTable');
-            var tableId  = xcHelper.parseTableId($table);
-            var colNum   = xcHelper.parseColNum($colInput);
-            var table    = gTables[tableId];
+            var $table = $colInput.closest('.dataTable');
+            var tableId = xcHelper.parseTableId($table);
+            var colNum = xcHelper.parseColNum($colInput);
+            var table = gTables[tableId];
             var tableCol = table.tableCols[colNum - 1];
             var colName = tableCol.getBackColName();
-            var frontColName  = tableCol.getFrontColName();
+            var frontColName = tableCol.getFrontColName();
             var cursor = editor.getCursor();
+            var alertTitle;
+            var alertMsg;
+            var confirmFunc;
 
             if (tableCol.isNewCol && frontColName === "") {
                 // when it's new column and do not give name yet
@@ -705,10 +708,9 @@ window.FnBar = (function(FnBar, $) {
 
             // prevent doing a map on an existing column
             if (operation === "map" && !tableCol.isNewCol) {
-                var alertTitle = FnBarTStr.NewColTitle;
-                var alertMsg = FnBarTStr.NewColMsg;
-
-                var confirmFunc = function() {
+                alertTitle = FnBarTStr.NewColTitle;
+                alertMsg = FnBarTStr.NewColMsg;
+                confirmFunc = function() {
                     tableCol.userStr = oldUsrStr;
                     ColManager.addNewCol(colNum, tableId, ColDir.Left, {
                         userStr: '"" ' + fnBarVal
@@ -723,7 +725,7 @@ window.FnBar = (function(FnBar, $) {
                                  confirmFunc, buttonOption);
                 deferred.reject();
             } else {
-                var confirmFunc = function() {
+                confirmFunc = function() {
                     var innerDeferred = jQuery.Deferred();
                     ColManager.execCol(operation, newFuncStr, tableId, colNum)
                     .then(function(ret) {
@@ -744,8 +746,8 @@ window.FnBar = (function(FnBar, $) {
                 // show alert if column in string does not match selected col
                 if (!tableCol.isEmptyCol() &&
                     !checkForSelectedColName(operation, fnBarVal, colName)) {
-                    var alertTitle = AlertTStr.CONFIRMATION;
-                    var alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
+                    alertTitle = AlertTStr.CONFIRMATION;
+                    alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
                         colName: colName
                     });
                     showConfirmAlert($colInput, alertTitle, alertMsg, cursor,

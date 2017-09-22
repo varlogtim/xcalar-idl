@@ -2808,7 +2808,7 @@ window.OperationsView = (function($, OperationsView) {
                         } else {
                             allColTypes.push({});
                             errorText = xcHelper.replaceMsg(
-                                ErrWRepTStr.InvalidCol, {
+                            ErrWRepTStr.InvalidCol, {
                                 "name": frontColName
                             });
                             $errorInput = $input;

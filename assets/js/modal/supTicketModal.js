@@ -333,7 +333,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 try {
                     var logs = JSON.parse(ret.logs);
                     ticketId = logs.ticketId;
-                } catch(err) {
+                } catch (err) {
                     console.error(err);
                 }
 
@@ -497,7 +497,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         for (var i = 0; i < ticket.length; i++) {
             var date = xcHelper.getDate("-", null, ticket[i].time);
             var time = xcHelper.getTime(null, ticket[i].time, true);
-            var id = ticket[i].id;
 
             html += '<div class="innerRow">' +
               '<div class="td">';
@@ -536,7 +535,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var errorLimit = 50 * KB;
 
         if (strLogs.length > 100 * KB) {
-            var strLogLen
             var strErrors = "";
             var numErrorsAdded = 0;
             for (var i = xiLogs.errors.length - 1; i >= 0; i--) {
@@ -553,7 +551,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
 
             var lenRemaining = (100 * KB) - strErrors.length;
-            var strLogs = "";
+            strLogs = "";
             for (var i = xiLogs.logs.length - 1; i >= 0; i--) {
                 var strLog = JSON.stringify(xiLogs.logs[i]);
                 if (strLogs.length + strLog.length < lenRemaining) {

@@ -311,7 +311,6 @@ window.SQLApi = (function() {
 
             options = options || {};
             options.icvMode = false;
-            options.isSql = true;
 
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(finalTable, finalCols, renamedGroupByCols) {

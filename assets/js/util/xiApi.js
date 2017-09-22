@@ -655,7 +655,7 @@ window.XIApi = (function(XIApi) {
         var rTable_index;
         var tempTables = [];
         var joinedCols;
-        var indexColNames = {};
+        // var indexColNames = {};
 
         var lIndexColName;
         var rIndexColName;
@@ -755,7 +755,6 @@ window.XIApi = (function(XIApi) {
 
         options = options || {};
         var isIncSample = options.isIncSample || false;
-        var isSql = options.isSql || false;
         var sampleCols = options.sampleCols || [];
         var icvMode = options.icvMode || false;
         var finalTableName = options.newTableName || null;
@@ -865,16 +864,16 @@ window.XIApi = (function(XIApi) {
                     evalStrs.push(type + "(" + aliasArray[i].aggColName + ")");
                     var colType = null;
                     switch (type) {
-                        case("float"):
+                        case ("float"):
                             colType = ColumnType.float;
                             break;
-                        case("int"):
+                        case ("int"):
                             colType = ColumnType.integer;
                             break;
-                        case("bool"):
+                        case ("bool"):
                             colType = ColumnType.boolean;
                             break;
-                        case("string"):
+                        case ("string"):
                             colType = ColumnType.string;
                             break;
                         default:
