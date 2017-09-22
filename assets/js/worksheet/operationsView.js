@@ -2849,17 +2849,15 @@ window.OperationsView = (function($, OperationsView) {
                 arg = trimmedArg;
                 // leave it
             } else {
+                // checking non column name args such as "hey" or 3, not $col1
                 var checkRes = checkArgTypes(trimmedArg, typeid);
 
                 if (checkRes != null && !invalidNonColumnType) {
                     isPassing = false;
                     invalidNonColumnType = true;
-                    if (checkRes.currentType === "newColumn") {
-                        errorText = ErrTStr.InvalidOpNewColumn;
-                    } else if (checkRes.currentType === "string" &&
+                    if (checkRes.currentType === "string" &&
                         hasUnescapedParens($input.val())) {
-                        // function-like string found but
-                        // invalid format
+                        // function-like string found but invalid format
                         errorText = ErrTStr.InvalidFunction;
                     } else {
                         errorText = ErrWRepTStr.InvalidOpsType;
@@ -3518,6 +3516,7 @@ window.OperationsView = (function($, OperationsView) {
         return types;
     }
 
+    // used for args with column names provided like $col1, and not "hey" or 3
     function validateColInputType(requiredTypes, inputType, $input) {
         if (inputType === "newColumn") {
             return ErrTStr.InvalidOpNewColumn;
@@ -3653,34 +3652,36 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
+    // used for non column name args such as "hey" or 3, not $col1
+    // returning null means no problem found
+    // returning an object means there was a type mismatch
     function checkArgTypes(arg, typeid) {
         var types = parseType(typeid);
         var argType = "string";
 
         if (types.indexOf(ColumnType.string) > -1 ||
-            types.indexOf(ColumnType.mixed) > -1 ||
-            types.indexOf(ColumnType.undefined) > -1)
+            types.indexOf(ColumnType.mixed) > -1)
         {
-            // if it accept string/mixed/undefined, any input
-            // should be valid
+            // if it accepts string/mixed, any input should be valid
             return null;
         }
 
         var tmpArg = arg.toLowerCase();
         var isNumber = !isNaN(Number(arg));
-        var isBoolean = false;
+        var canBeBooleanOrNumber = false;
 
         // boolean is a subclass of number
         if (tmpArg === "true" || tmpArg === "false" ||
             tmpArg === "t" || tmpArg === "f" || isNumber)
         {
-            isBoolean = true;
+            canBeBooleanOrNumber = true;
             argType = "string/boolean/integer/float";
         }
 
         if (types.indexOf(ColumnType.boolean) > -1) {
-            // XXX this part might be buggy
-            if (isBoolean) {
+            // if arg doesn't accept strings but accepts booleans,
+            // then the provided value needs to be a booleanOrNumber
+            if (canBeBooleanOrNumber) {
                 return null;
             } else {
                 return {
@@ -3707,18 +3708,23 @@ window.OperationsView = (function($, OperationsView) {
 
         if (types.indexOf(ColumnType.integer) > -1) {
             if (tmpArg % 1 !== 0) {
-                argType = ColumnType.float;
-
                 return {
                     "validType": types,
-                    "currentType": argType
+                    "currentType": ColumnType.float
                 };
             } else {
                 return null;
             }
         }
 
-        return null;
+        if (types.length === 1 && types[0] === ColumnType.undefined) {
+            return {
+                "validType": types,
+                "currentType": argType
+            };
+        }
+
+        return null; // no known cases for this
     }
 
     function checkIfBlanksAreValid(invalidInputs) {
@@ -4638,14 +4644,22 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.getColNumFromFunc = getColNumFromFunc;
         OperationsView.__testOnly__.isBoolInQuotes = isBoolInQuotes;
         OperationsView.__testOnly__.newColNameCheck = newColNameCheck;
+        OperationsView.__testOnly__.checkArgTypes = checkArgTypes;
         OperationsView.__testOnly__.submitFinalForm = submitFinalForm;
+        OperationsView.__testOnly__.changeParseTypeFn = function(newFn) {
+            var cache = parseType;
+            parseType = newFn;
+            return cache;
+        };
 
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;
         OperationsView.__testOnly__.colNames = colNamesCache;
 
+
     }
     /* End Of Unit Test Only */
+
 
     return (OperationsView);
 }(jQuery, {}));

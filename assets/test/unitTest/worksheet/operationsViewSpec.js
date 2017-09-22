@@ -203,6 +203,167 @@ describe('OperationsView Test', function() {
             expect(fn("\"False")).to.be.false;
             expect(fn("'Falsez'")).to.be.false;
         });
+
+        describe("check arg types", function() {
+            var fn;
+            var parseTypeCache;
+            before(function() {
+                fn = OperationsView.__testOnly__.checkArgTypes;
+                parseTypeCache = OperationsView.__testOnly__.changeParseTypeFn();
+            })
+            it("test when only strings are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["string"];
+                });
+
+                expect(fn("test")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("false")).to.equal(null);
+            });
+
+             it("test when only mixed is valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["mixed"];
+                });
+
+                expect(fn("test")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("false")).to.equal(null);
+            });
+
+            it("test when only booleans are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["boolean"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["boolean"]);
+
+                expect(fn("TrUe")).to.equal(null);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("2.5")).to.equal(null);
+            });
+
+            it("test when only strings and booleans are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["string", "boolean"];
+                });
+
+                expect(fn("test")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("false")).to.equal(null);
+            });
+
+            it("test when only ints are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["integer"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["integer"]);
+
+                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").validType).to.deep.equal(["integer"]);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("-1")).to.equal(null);
+                expect(fn("5.5").currentType).to.equal("float");
+                expect(fn("5.5").validType).to.deep.equal(["integer"]);
+            });
+
+            it("test when only floats are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["float"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["float"]);
+
+                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").validType).to.deep.equal(["float"]);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("5.5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("-1")).to.equal(null);
+            });
+
+            it("test when only floats and ints are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["float", "integer"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["float", "integer"]);
+
+                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").validType).to.deep.equal(["float", "integer"]);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("5.5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("-1")).to.equal(null);
+            });
+
+            it("test when only booleans floats and ints are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["boolean", "float", "integer"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["boolean", "float", "integer"]);
+
+                expect(fn("true")).to.equal(null);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("5.5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("-1")).to.equal(null);
+            });
+
+            it("test when only undefined is valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["undefined"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["undefined"]);
+
+                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").validType).to.deep.equal(["undefined"]);
+
+                expect(fn("5").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("5").validType).to.deep.equal(["undefined"]);
+
+                expect(fn("5.5").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("5.5").validType).to.deep.equal(["undefined"]);
+
+                expect(fn("-1").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("-1").validType).to.deep.equal(["undefined"]);
+            });
+
+            it("test when only somthing weird is valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["newType"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["newType"]);
+
+                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").validType).to.deep.equal(["newType"]);
+
+                expect(fn("5")).to.equal(null);
+                expect(fn("5.5")).to.equal(null);
+            });
+
+            after(function() {
+                OperationsView.__testOnly__.changeParseTypeFn(parseTypeCache);
+            });
+        });
     });
 
     describe('function getAllColumnTypesFromArg (map)', function() {
