@@ -42,7 +42,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
         }
 
-
         var $complimentLi = $menu.find('.complementTable');
         if (tableInfo.type === "filter") {
             if (tableInfo.generatingComplement) {

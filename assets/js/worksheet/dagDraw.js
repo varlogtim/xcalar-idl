@@ -22,15 +22,16 @@ window.DagDraw = (function($, DagDraw) {
         position: integer, used to place dag image
         atStartup: boolean, if true, will append instead of positioning image
     */
-    // options: {savable: boolean}
+    // options: {savable: boolean,
+    //          refresH: boolean, used for tagging
+    // }
     DagDraw.createDagImage = function(nodes, $container, options) {
         options = options || {};
-        var lineageStruct;
         var hasError = false;
         var tree;
+        var nodeIdMap = {};
         var dagDepth;
         var dagImageHtml = "";
-        var nodeIdMap = {};
         var yCoors = [0]; // stores list of depths of branch nodes
         // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
         if (options.refresh) {
@@ -38,7 +39,8 @@ window.DagDraw = (function($, DagDraw) {
             nodeIdMap = nodes.nodeIdMap;
         } else {
             try {
-                lineageStruct = DagFunction.construct(nodes, options.tableId);
+                var lineageStruct = DagFunction.construct(nodes,
+                                                          options.tableId);
                 tree = lineageStruct.tree;
                 nodeIdMap = lineageStruct.nodeIdMap;
             } catch (err) {
@@ -207,18 +209,25 @@ window.DagDraw = (function($, DagDraw) {
         var $dagWrap = $("#dagWrap-" + tableId);
         var dagInfo = $dagWrap.data("allDagInfo");
         var nodeIdMap = dagInfo.nodeIdMap;
+        var $dagTable;
+        var node;
+        var id;
         for (var i = 0; i < tables.length; i++) {
-            var $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
+            $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
                                           tables[i] + "']");
             if (!$dagTable.length) {
                 continue;
             }
-            var id = $dagTable.data("index");
-            var node = nodeIdMap[id];
+            id = $dagTable.data("index");
+            node = nodeIdMap[id];
             if (node.value.tag) {
                 node.value.tag += ",";
             }
             node.value.tag += tagName;
+        }
+        for (id in nodeIdMap) {
+            node = nodeIdMap[id];
+            node.value.display = {};
         }
         var options = {
             refresh: true
