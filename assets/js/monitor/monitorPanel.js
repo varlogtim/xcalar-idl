@@ -14,11 +14,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
         populateNodeInformation();
         setupViewToggling();
 
-        $("#monitorMenu-sys").on("click", ".listInfo", function() {
-            $(this).closest(".listWrap").toggleClass("active");
-        });
-
-        $("#monitorMenu-setup").on("click", ".listInfo", function() {
+        var $menus = $("#monitorMenu-sys").add($("#monitorMenu-setup"))
+                                         .add($("#monitorMenu-settings"));
+        $menus.on("click", ".listInfo", function() {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
