@@ -11,6 +11,7 @@ window.DFParamModal = (function($, DFParamModal){
     var defaultParam;
     var xdpMode;
     var hasChange = false;
+    var isOpen = false;
 
     var paramListTrLen = 3;
     var trTemplate =
@@ -247,6 +248,11 @@ window.DFParamModal = (function($, DFParamModal){
 
     DFParamModal.show = function($currentIcon) {
         var deferred = jQuery.Deferred();
+        if (isOpen) {
+            deferred.reject();
+            return deferred.promise();
+        }
+        isOpen = true;
         type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
@@ -272,6 +278,13 @@ window.DFParamModal = (function($, DFParamModal){
 
         getExportInfo(type)
         .always(function(info) {
+            // async may return after user decides to delete df while waiting
+            if (DFCard.getCurrentDF() !== dfName ||
+                !$currentIcon.closest("body").length) {
+                closeDFParamModal(true);
+                deferred.reject();
+                return;
+            }
             setupInputText(paramValue, info);
             $("#dfParamModal .editableRow .defaultParam").click();
             var draggableInputs = "";
@@ -1688,6 +1701,7 @@ window.DFParamModal = (function($, DFParamModal){
         $dfParamModal.find('.draggableParams').empty();
         $paramLists.empty();
         defaultParam = null;
+        isOpen = false;
     }
 
     /* Unit Test Only */

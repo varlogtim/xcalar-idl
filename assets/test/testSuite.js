@@ -361,7 +361,6 @@ window.TestSuite = (function($, TestSuite) {
         // console.log(arguments);
 
         var caller = checkExists.caller.name;
-        var count = 0;
         var interval = setInterval(function() {
             var numItems = elemSelectors.length;
             var allElemsPresent = true;
@@ -409,22 +408,9 @@ window.TestSuite = (function($, TestSuite) {
                 }
             }
             timeElapsed += intervalTime;
-            count++;
-            if (count % 50 === 0) {
-                // every 50 times refocus the window
-                refocusWindow();
-            }
         }, intervalTime);
 
         return (deferred.promise());
-    }
-
-    function refocusWindow() {
-        var newName = window.name + '-2';
-        var options = ''; // customize for your situation
-        var w = window.open('', newName, options);
-        w.document.write("test");
-        w.close();
     }
 
     function randInt(numDigits) {
@@ -1411,8 +1397,8 @@ window.TestSuite = (function($, TestSuite) {
         $("#aggTab").click();
         checkExists("#aggModal .spinny", null, {notExist: true})
         .then(function() {
-            assert($(".aggTableField:contains('4574')"));
-            assert($(".aggTableField:contains('334')"));
+            assert($(".aggTableField:contains('4574')").length);
+            assert($(".aggTableField:contains('334')").length);
             $("#aggModal .close").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
@@ -1523,10 +1509,14 @@ window.TestSuite = (function($, TestSuite) {
         $df.find(".dagTable.export").click();
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
         var $dfParamModal = $("#dfParamModal");
-        $dfParamModal.find(".addParam").click();
-        $dfParamModal.find(".newParam").val(paramName);
-        $dfParamModal.find(".newParam").focus().focusout();
-        checkExists("#dfParamModal .draggableParams.systemParams:not(.hint)")
+        checkExists("#dfParamModal:visible")
+        .then(function() {
+            $dfParamModal.find(".addParam").click();
+            $dfParamModal.find(".newParam").val(paramName);
+            $dfParamModal.find(".newParam").focus().focusout();
+            return checkExists("#dfParamModal " +
+                                ".draggableParams.systemParams:not(.hint)");
+        })
         .then(function() {
             $dfParamModal.find(".editableRow .defaultParam").click();
             var $draggablePill = $dfParamModal.find('.draggableDiv').eq(0);
@@ -1590,56 +1580,60 @@ window.TestSuite = (function($, TestSuite) {
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
         var $dfParamModal = $("#dfParamModal");
+
         var cancelFileName = fileName + fileName;
-        $('#dagModleParamList').find('.row:first .paramVal')
+        checkExists("#dfParamModal:visible")
+        .then(function() {
+            $('#dagModleParamList').find('.row:first .paramVal')
                                .val(cancelFileName);
-        $dfParamModal.find(".modalBottom .confirm").click();
-        $df.find(".runNowBtn").click();
-        setTimeout(function() {
-            $df.find(".runNowBtn").click(); // Cancel
-            checkExists("#alertModal:visible")
-            .then(function() {
-                if ($("#alertHeader .text").text()
-                      .indexOf("Cancellation Successful") > -1) {
+            $dfParamModal.find(".modalBottom .confirm").click();
+            $df.find(".runNowBtn").click();
+            setTimeout(function() {
+                $df.find(".runNowBtn").click(); // Cancel
+                checkExists("#alertModal:visible")
+                .then(function() {
+                    if ($("#alertHeader .text").text()
+                          .indexOf("Cancellation Successful") > -1) {
+                        return PromiseHelper.resolve();
+                    } else if ($("#alertContent .text").text()
+                                              .indexOf("Operation Canceled") > -1) {
+                        return PromiseHelper.resolve();
+                    } else if ($("#alertContent .text").text()
+                                       .indexOf("Successfully ran dataflow") > -1) {
+                        console.info("Cancelled too late");
+                        return PromiseHelper.resolve();
+                    } else if ($("#alertContent .text").text()
+                                .indexOf("Operation has finished") > -1) {
+                        return PromiseHelper.resolve();
+                    } else if ($("#alertContent .text").text()
+                                .indexOf("Error occurs during Operation") > -1) {
+                        // Failed to cancel. Must wait for df to finish running
+                        // else deleteRetinaTest will fail
+                        console.info("Cancel failed");
+                        return PromiseHelper.reject();
+                    } else {
+                        console.log("Some bug here:");
+                        console.log($("#alertContent .text").text(), $("#alertModal")[0]);
+                        return PromiseHelper.resolve();
+                        //TestSuite.fail(deferred, testName, currentTestNumber);
+                    }
+                })
+                .then(function() {
+                    // Noop here
                     return PromiseHelper.resolve();
-                } else if ($("#alertContent .text").text()
-                                          .indexOf("Operation Canceled") > -1) {
-                    return PromiseHelper.resolve();
-                } else if ($("#alertContent .text").text()
-                                   .indexOf("Successfully ran dataflow") > -1) {
-                    console.info("Cancelled too late");
-                    return PromiseHelper.resolve();
-                } else if ($("#alertContent .text").text()
-                            .indexOf("Operation has finished") > -1) {
-                    return PromiseHelper.resolve();
-                } else if ($("#alertContent .text").text()
-                            .indexOf("Error occurs during Operation") > -1) {
-                    // Failed to cancel. Must wait for df to finish running
-                    // else deleteRetinaTest will fail
-                    console.info("Cancel failed");
-                    return PromiseHelper.reject();
-                } else {
-                    console.log("Some bug here:");
-                    console.log($("#alertContent .text").text(), $("#alertModal")[0]);
-                    return PromiseHelper.resolve();
-                    //TestSuite.fail(deferred, testName, currentTestNumber);
-                }
-            })
-            .then(function() {
-                // Noop here
-                return PromiseHelper.resolve();
-            }, function() {
-                $("#alertActions .confirm").click();
-                return checkExists("#alertModal:visible");
-            })
-            .then(function() {
-                $("#alertActions .confirm").click();
-                TestSuite.pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(error) {
-                TestSuite.fail(deferred, testName, currentTestNumber, error);
-            });
-        }, 100);
+                }, function() {
+                    $("#alertActions .confirm").click();
+                    return checkExists("#alertModal:visible");
+                })
+                .then(function() {
+                    $("#alertActions .confirm").click();
+                    TestSuite.pass(deferred, testName, currentTestNumber);
+                })
+                .fail(function(error) {
+                    TestSuite.fail(deferred, testName, currentTestNumber, error);
+                });
+            }, 100);
+        });
     }
 
     function deleteRetinaTest(deferred, testName, currentTestNumber) {
