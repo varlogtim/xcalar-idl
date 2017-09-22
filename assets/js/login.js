@@ -1,5 +1,6 @@
 Compatible.check();
-if (xcLocalStorage.getItem("noSplashLogin") === "true") {
+if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
+    $("body").hasClass("bodyXI")) {
     $("#loginContainer").show();
     $("#logo").show();
     $("#splashContainer").hide();
@@ -32,7 +33,8 @@ $(document).ready(function() {
         return;
     });
 
-    if (xcLocalStorage.getItem("noSplashLogin") === "true") {
+    if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
+        $("body").hasClass("bodyXI")) {
         setTimeout(function() {
             $("#loginForm").fadeIn(1000);
             $("#logo").fadeIn(1000);
