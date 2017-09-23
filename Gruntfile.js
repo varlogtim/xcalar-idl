@@ -210,6 +210,7 @@ module.exports = function(grunt) {
   grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
-  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("devXD", ['html', 'templateXD', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("devXI", ['html', 'templateXI', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
   grunt.registerTask("test", ['exec:expServer']);
 };

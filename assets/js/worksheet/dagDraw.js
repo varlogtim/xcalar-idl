@@ -149,7 +149,20 @@ window.DagDraw = (function($, DagDraw) {
             datasets: storedInfo.datasets
         };
         $container.data('allDagInfo', allDagInfo);
+        postDagHtmlOperations($container);
     };
+
+    function postDagHtmlOperations($dagWrap) {
+        // add url to data attribute after dagwrap created so we don't expose
+        // url in the html
+        var datasets = $dagWrap.data("allDagInfo").datasets;
+        for (var i in datasets) {
+            var url = datasets[i].url;
+            var nodeId = datasets[i].dagNodeId;
+            var $icon = Dag.getTableIcon($dagWrap, nodeId);
+            $icon.data("url", encodeURI(url));
+        }
+    }
 
     // used for expanding / collapsing tagged group with "node" as header
     DagDraw.recreateDagImage = function($dagWrap, dagInfo, node) {
@@ -1171,6 +1184,7 @@ window.DagDraw = (function($, DagDraw) {
                 dsText = "Dataset ";
                 icon = 'xi_data';
                 storedInfo.datasets[tableName] = dagInfo;
+                dagInfo.dagNodeId = node.value.dagNodeId;
                 pattern = dagInfo.loadInfo.loadArgs.fileNamePattern;
             } else {
                 console.error("unexpected node", "api: " + node.value.api);
@@ -1182,7 +1196,6 @@ window.DagDraw = (function($, DagDraw) {
             dataAttrs += 'data-table="' + originalTableName + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + tId + '" ' +
-                        'data-url="' + encodeURI(dagInfo.url) + '" ' +
                         'data-pattern="' + encodeURI(pattern) + '"';
             tableTitle = dsText + tableName;
             tableTitleTip = tableName;
