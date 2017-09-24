@@ -249,14 +249,16 @@ describe("WorkbookManager Test", function() {
                             state: DgDagStateT.DgDagStateReady
                         }, {
                             state: DgDagStateT.DgDagStateProcessing,
-                            api: 15
+                            api: 15,
+                            numWorkCompleted: 2,
+                            numWorkTotal: 5
                         }, {
                             state: 0
                         }]
                     }
                 });
             };
-            WorkbookManager.__testOnly__.changeIntTime(200, 100);
+            WorkbookManager.__testOnly__.changeIntTime(200);
             var cycle = WorkbookManager.__testOnly__.progressCycle;
             cycle("testName", 200);
 
@@ -265,18 +267,13 @@ describe("WorkbookManager Test", function() {
             })
             .then(function() {
                 expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.true;
-                expect($("#initialLoadScreen .numSteps").text()).to.equal("0/4");
-                expect($("#initialLoadScreen .progressBar").data("pct")).to.equal(50);
+                expect($("#initialLoadScreen .numSteps").text()).to.equal("2/4");
+                expect($("#initialLoadScreen .progressBar").data("pct")).to.equal(40);
 
-                return UnitTest.testFinish(function() {
-                    return $("#initialLoadScreen .numSteps").text() === "2/4";
-                });
-            })
-            .then(function() {
                 XcalarQueryState = cachedQueryState;
                 WorkbookManager.__testOnly__.endProgressCycle();
                 expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
-                WorkbookManager.__testOnly__.changeIntTime(200, 100);
+                WorkbookManager.__testOnly__.changeIntTime(2000);
                 done();
             })
             .fail(function() {
