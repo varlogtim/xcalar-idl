@@ -3633,7 +3633,7 @@ window.xcHelper = (function($, xcHelper) {
     }
 
     // milliSeconds - integer
-    // round - boolean, if true will round to nearest second when value
+    // round - boolean, if true will round down to nearest second when value
     //                  is greater than 1second. 3120 becomes 3s instead of 3.12
     // rejectZero - 0 to be treated as N/A
     xcHelper.getElapsedTimeStr = function(milliSeconds, round, rejectZero) {

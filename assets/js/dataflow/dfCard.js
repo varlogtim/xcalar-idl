@@ -450,6 +450,17 @@ window.DFCard = (function($, DFCard) {
                 });
             }
         });
+
+        $dfCard.on("mouseenter", ".timeSection", function() {
+            // shows progress info for all nodes when hovering over timesection
+            var $dagWrap = $(this).closest(".dagWrap");
+            $dagWrap.find(".dagTable").addClass("hover");
+        });
+
+        $dfCard.on("mouseleave", ".timeSection", function() {
+            var $dagWrap = $(this).closest(".dagWrap");
+            $dagWrap.find(".dagTable").removeClass("hover");
+        });
     }
 
     function deleteDataflow(dfName) {
@@ -530,6 +541,10 @@ window.DFCard = (function($, DFCard) {
                     '<i class="icon xi-close"></i>' +
                     '<div class="spin"></div>' +
                 '</button>' +
+                '<div class="timeSection">' +
+                    '<span class="label"></span>: ' +
+                    '<span class="overallTime"></span>' +
+                '</div>' +
             '</div>' +
         '</div>';
 
@@ -569,8 +584,8 @@ window.DFCard = (function($, DFCard) {
         return deferred.promise();
     }
 
-    function applyDeltaTagsToDag(dataflowName, $wrap) {
-        if ($wrap.hasClass("error")) {
+    function applyDeltaTagsToDag(dataflowName, $dagWrap) {
+        if ($dagWrap.hasClass("error")) {
             return PromiseHelper.reject();
         }
         var deferred = jQuery.Deferred();
@@ -578,7 +593,7 @@ window.DFCard = (function($, DFCard) {
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
         // zation later.
-        var $exportTable = $wrap.find(".export.dagTable");
+        var $exportTable = $dagWrap.find(".export.dagTable");
         var exportId = $exportTable.attr("data-nodeid");
 
         var dataflow = DF.getDataflow(dataflowName);
@@ -609,10 +624,10 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
 
         // Data table moved so that the hasParam class is added correctly
-        $wrap.find(".actionType.export").attr("data-table", "");
+        $dagWrap.find(".actionType.export").attr("data-table", "");
 
         // Add data-paramValue tags to all parameterizable nodes
-        var $loadNodes = $wrap.find(".dagTable.dataStore");
+        var $loadNodes = $dagWrap.find(".dagTable.dataStore");
         $loadNodes.each(function(idx, val) {
             var $val = $(val);
             var paramValue = [decodeURI($val.data("url")),
@@ -620,7 +635,7 @@ window.DFCard = (function($, DFCard) {
             $val.data("paramValue", paramValue);
         });
 
-        var $opNodes = $wrap.find(".actionType.dropdownBox");
+        var $opNodes = $dagWrap.find(".actionType.dropdownBox");
         $opNodes.each(function(idx, val) {
             var $op = $(val);
             $op.data("paramValue", [$op.attr("data-info")]);
@@ -629,10 +644,10 @@ window.DFCard = (function($, DFCard) {
         var selector = '.dagTable.export, .dagTable.dataStore, ' +
                        '.actionType.filter';
         // Attach styling to all nodes that have a dropdown
-        $wrap.find(selector).addClass("parameterizable");
+        $dagWrap.find(selector).addClass("parameterizable");
 
         for (var nodeId in dataflow.parameterizedNodes) {
-            var $tables = $wrap.find('[data-nodeid="' + nodeId + '"]');
+            var $tables = $dagWrap.find('[data-nodeid="' + nodeId + '"]');
             if ($tables.prev().hasClass("filter")) {
                 $tables = $tables.prev();
             }
@@ -651,8 +666,14 @@ window.DFCard = (function($, DFCard) {
         var ignoreNoExist = true;
 
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        .then(function() {
+            $dagWrap.find(".timeSection").show();
+            updateOverallTime(dataflowName, true);
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
 
         return deferred.promise();
     }
@@ -1140,9 +1161,27 @@ window.DFCard = (function($, DFCard) {
             pct: 0,
             curoppct: 0,
             optime: 0,
-            numcompleted: 0
+            numcompleted: 0,
+            starttime: Date.now()
         });
         statusCheckInterval(retName, true);
+        $dagWrap.find(".timeSection").show();
+        $dagWrap.find(".timeSection .label").html(CommonTxtTstr.elapsedTime);
+        $dagWrap.find(".overallTime").html("0s");
+        overallTimeInterval(retName);
+    }
+
+    function overallTimeInterval(retName) {
+        var checkTime = 1000;
+
+        setTimeout(function() {
+            if (!retinasInProgress[retName]) {
+                // retina is finished, no more checking
+                return;
+            }
+            updateOverallTime(retName);
+            overallTimeInterval(retName);
+        }, checkTime);
     }
 
     function statusCheckInterval(retName, firstRun) {
@@ -1176,7 +1215,10 @@ window.DFCard = (function($, DFCard) {
 
         XcalarQueryState(retName, statusesToIgnore)
         .then(function(retInfo) {
-            updateRetinaPctAndColors(retName, retInfo, isComplete);
+            updateNodePctAndColors(retName, retInfo, isComplete);
+            if (isComplete) {
+                updateOverallTime(retName, isComplete);
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1184,19 +1226,36 @@ window.DFCard = (function($, DFCard) {
         return deferred.promise();
     }
 
-    function updateRetinaPctAndColors(retName, retInfo, isComplete) {
+    function updateOverallTime(retName, isComplete) {
+        var $dagWrap = getDagWrap(retName);
+        var time;
+        var timeStr;
+        if (isComplete) {
+            time = $dagWrap.data("optime");
+            timeStr = xcHelper.getElapsedTimeStr(time);
+            $dagWrap.find(".timeSection .label").html(CommonTxtTstr.operationTime);
+        } else {
+            time = Date.now() - $dagWrap.data("starttime");
+            timeStr = xcHelper.getElapsedTimeStr(time, true);
+        }
+        $dagWrap.find(".overallTime").text(timeStr);
+    }
+
+    function updateNodePctAndColors(retName, retInfo, isComplete) {
         var $dagWrap = getDagWrap(retName);
         var nodes = retInfo.queryGraph.node;
         var tableName;
         var state;
         var numCompleted = 0;
         var $dagTable;
-        var progressBar = '<div class="progressBarWrap" data-pct="0">' +
+        var progressBar = '<div class="progressBarWrap" data-pct="0" ' +
+                            'data-starttime="' + Date.now() + '">' +
                             '<div class="progressBar"></div>' +
                          '</div>';
         var progressInfo;
         var cumulativeOpTime = 0;
         var curOpPct = 0;
+        var timeStr;
         for (var i = 0; i < nodes.length; i++) {
             tableName = getTableNameFromStatus(nodes[i]);
             state = DgDagStateTStr[nodes[i].state];
@@ -1209,8 +1268,8 @@ window.DFCard = (function($, DFCard) {
             var time = nodes[i].elapsed.milliseconds;
             cumulativeOpTime += time;
 
-            time = xcHelper.getElapsedTimeStr(time);
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
+                timeStr = xcHelper.getElapsedTimeStr(time);
                 numCompleted++;
                 progressInfo = '<div class="progressInfo" >' +
                                     '<div class="rows"><span class="label">' +
@@ -1220,7 +1279,7 @@ window.DFCard = (function($, DFCard) {
                                         '</span></div>' +
                                     '<div class="time"><span class="label">' +
                                         CommonTxtTstr.time +
-                                     ':</span><span class="value">' + time +
+                                     ':</span><span class="value">' + timeStr +
                                      '</span></div>' +
                                  '</div>';
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
@@ -1229,7 +1288,11 @@ window.DFCard = (function($, DFCard) {
                 if (!$barWrap.length) {
                     $dagTable.append(progressBar);
                     $barWrap = $dagTable.find(".progressBarWrap");
+                    time = 0;
+                } else {
+                    time = Date.now() - $barWrap.data("starttime");
                 }
+                timeStr = xcHelper.getElapsedTimeStr(time, true);
                 var nodePct = Math.round(100 * nodes[i].numWorkCompleted /
                                      nodes[i].numWorkTotal);
                 if (isNaN(nodePct)) {
@@ -1248,8 +1311,8 @@ window.DFCard = (function($, DFCard) {
                                     '<div class="pct"><span class="pct">' +
                                         nodePct + '%</span></div>' +
                                     '<div class="time"><span class="label">' +
-                                        CommonTxtTstr.time +
-                                        ':</span><span class="value">' + time +
+                                        CommonTxtTstr.elapsedTime +
+                                        ':</span><span class="value">' + timeStr +
                                     '</span></div>' +
                                  '</div>';
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));

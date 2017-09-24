@@ -303,6 +303,17 @@
             }
         }
 
+        .timeSection {
+            float: right;
+            min-width: 160px;
+            margin-left: 4px;
+            margin-right: 10px;
+            display: none;
+            .label {
+                text-transform: capitalize;
+            }
+        }
+
         .addScheduleToDataflow .icon {
             font-size: 16px;
         }
@@ -362,7 +373,7 @@
                 display: none;
             }
 
-            &:hover {
+            &:hover, &.hover {
                 .progressInfo {
                     display: block;
                 }

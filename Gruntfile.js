@@ -124,7 +124,7 @@ module.exports = function(grunt) {
     customWatch: {
       normal: {
         files: ['site/**/*.html', '!' + tmpDest + '/*.html', 'Gruntfile.js', 'package.json', 'site/render/template/constructor.template.js'],
-        tasks: ['dev'],
+        tasks: ['devXD'],
         options: {
           atBegin: true,
         }
