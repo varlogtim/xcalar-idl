@@ -287,6 +287,49 @@ html.firefox, html.microsoft {
             box-shadow: 0px 0px 10px 4px @color-dag-glowing;
         }
     }
+
+    .dagTableTip {
+        background-color: @color-bg-white-three;
+        line-height: 12px;
+        .horizontal-align;
+        .position(absolute, @top: -23px);
+        white-space: nowrap;
+        border: 1px solid @color-bg-unselect-gray;
+        font-size: 10px;
+        padding: 1px 4px 2px;
+        .rounded(2px);
+        margin-left:  -3px;
+        text-align: left;
+
+        > div {
+            .flex-display;
+            .justify-content(space-between);
+        }
+
+        &:after, &:before {
+            top: 100%;
+            left: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        &:after {
+            border-color: transparent;
+            border-top-color: @color-bg-white-three;
+            border-width: 6px;
+            margin-left: -6px;
+        }
+        &:before {
+            border-color: transparent;
+            border-top-color: @color-bg-unselect-gray;
+            border-width: 7px;
+            margin-left: -7px;
+        }
+    }
 }
 
 .dataStoreIcon {
@@ -295,6 +338,10 @@ html.firefox, html.microsoft {
     .transform (rotate(-45deg));
     .rounded(2px);
     background-color:  @color-bg-select-blue;
+
+    ~ .dagTableTip {
+        margin-left: -4px;
+    }
 }
 
 .dagIcon {

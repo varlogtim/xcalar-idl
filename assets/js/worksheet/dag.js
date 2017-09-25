@@ -223,8 +223,8 @@ window.Dag = (function($, Dag) {
         $dags.find(".dagTableIcon, .dataStoreIcon").each(function() {
             xcTooltip.changeText($(this), text);
         });
-        var dagId = $dags.data("index");
         $dags.each(function() {
+            var dagId = $(this).data("index");
             var nodeIdMap = $(this).closest(".dagWrap").data("allDagInfo")
                           .nodeIdMap;
             nodeIdMap[dagId].value.state = DgDagStateT.DgDagStateDropped;
@@ -502,15 +502,25 @@ window.Dag = (function($, Dag) {
             var sourceColNames = getSourceColNames(progCol.func);
             $('.columnOriginInfo').remove();
             $dagPanel.find('.highlighted').removeClass('highlighted');
+            $dagPanel.find(".dagTableTip").remove();
             highlightColumnSource($dagWrap, node);
             var storedInfo = {
                 foundTables: {},
-                droppedTables: {}
+                droppedTables: {},
+                lastFoundTable: node.value.dagNodeId,
+                derivedTable: null
             };
 
             findColumnSource(sourceColNames, $dagWrap, node, backName,
                             progCol.isEmptyCol(), true, node,
                             storedInfo);
+
+            var derivedNodeId = storedInfo.derivedTable ||
+                                storedInfo.lastFoundTable;
+            var tip = '<div class="dagTableTip">' +
+                        '<div>' + CommonTxtTstr.Created + '</div>' +
+                      '</div>';
+            Dag.getTableIcon($dagWrap, derivedNodeId).append(tip);
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -1582,6 +1592,7 @@ window.Dag = (function($, Dag) {
 
         $('.columnOriginInfo').remove();
         $dagPanel.find('.highlighted').removeClass('highlighted');
+        $dagPanel.find(".dagTableTip").remove();
         $(document).off('mousedown', closeDagHighlight);
     }
 
@@ -1633,17 +1644,18 @@ window.Dag = (function($, Dag) {
                         srcNames = getSourceColNames(cols[j].func);
                         found = true;
                         storedInfo.foundTables[parentNode.value.dagNodeId] = true;
+                        storedInfo.lastFoundTable = parentNode.value.dagNodeId;
                         isEmpty = cols[j].isEmptyCol();
                         findColumnSource(srcNames, $dagWrap, parentNode,
-                                            backColName,
-                                            isEmpty, found, origNode, storedInfo);
+                                            backColName, isEmpty, found,
+                                            origNode, storedInfo);
 
                         colCreatedHere = cols[j].isEmptyCol() && !isEmptyCol;
-                        if (colCreatedHere) {
+                        if (!colCreatedHere) {
+                            // if colCreatedHere then
                             // this table is where the column became non-empty,
-                             // continue and look through sourceColNames for
-                             // the origin column
-                        } else {
+                            // continue and look through sourceColNames for
+                            // the origin column
                             break;
                         }
                     } else {
@@ -1659,10 +1671,13 @@ window.Dag = (function($, Dag) {
                             isEmpty = cols[j].isEmptyCol();
                             found = true;
                             storedInfo.foundTables[parentNode.value.dagNodeId] = true;
+                            storedInfo.lastFoundTable = parentNode.value.dagNodeId;
+                            if (!storedInfo.derivedTable) {
+                                storedInfo.derivedTable = node.value.dagNodeId;
+                            }
                             findColumnSource(srcNames, $dagWrap, parentNode,
-                                            backColName,
-                                            isEmpty, found, origNode, storedInfo);
-
+                                            backColName, isEmpty, found,
+                                            origNode, storedInfo);
                         }
                     }
 
@@ -1689,12 +1704,13 @@ window.Dag = (function($, Dag) {
             } else if (!isEmptyCol && prevFound) {
                 // has no parents, must be a dataset
                 storedInfo.foundTables[parentNode.value.dagNodeId] = true;
+                storedInfo.lastFoundTable = parentNode.value.dagNodeId;
                 highlightAncestors($dagWrap, parentNode, origNode,
                             storedInfo.foundTables, storedInfo.droppedTables);
                 found = true;
             }
         }
-        if (!found && prevFound) {
+        if (!found && prevFound) { // reached the end, highlight what we found
             highlightAncestors($dagWrap, node, origNode,
                             storedInfo.foundTables, storedInfo.droppedTables);
         }

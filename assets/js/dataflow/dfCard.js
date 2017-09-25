@@ -1248,7 +1248,8 @@ window.DFCard = (function($, DFCard) {
         var state;
         var numCompleted = 0;
         var $dagTable;
-        var progressBar = '<div class="progressBarWrap" data-pct="0" ' +
+        var progressBar = '<div class="progressBarWrap" ' +
+                            'data-pct="0" ' +
                             'data-starttime="' + Date.now() + '">' +
                             '<div class="progressBar"></div>' +
                          '</div>';
@@ -1271,7 +1272,7 @@ window.DFCard = (function($, DFCard) {
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 timeStr = xcHelper.getElapsedTimeStr(time);
                 numCompleted++;
-                progressInfo = '<div class="progressInfo" >' +
+                progressInfo = '<div class="progressInfo dagTableTip" >' +
                                     '<div class="rows"><span class="label">' +
                                         CommonTxtTstr.rows +
                                         ':</span><span class="value">' +
@@ -1307,12 +1308,13 @@ window.DFCard = (function($, DFCard) {
                                                     "linear");
                     $barWrap.data("pct", nodePct);
                 }
-                progressInfo = '<div class="progressInfo" >' +
+                progressInfo = '<div class="progressInfo dagTableTip" >' +
                                     '<div class="pct"><span class="pct">' +
                                         nodePct + '%</span></div>' +
                                     '<div class="time"><span class="label">' +
                                         CommonTxtTstr.elapsedTime +
-                                        ':</span><span class="value">' + timeStr +
+                                        ':</span><span class="value">' +
+                                        timeStr +
                                     '</span></div>' +
                                  '</div>';
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
