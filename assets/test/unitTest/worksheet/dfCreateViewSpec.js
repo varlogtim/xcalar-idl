@@ -58,12 +58,11 @@ describe('DFCreateView Test', function() {
             var $th = $("#xcTable-" + tableId).find('th.col1');
             expect($th.hasClass('modalHighlighted')).to.be.true;
 
-            $th.click(); // deselect
-
+            $th.find(".header").click(); // deselect
             expect($th.hasClass('modalHighlighted')).to.be.false;
             expect($dfView.find('.cols li').eq(0).hasClass('checked')).to.be.false;
 
-            $th.click(); // select
+            $th.find(".header").click(); // select
 
             expect($th.hasClass('modalHighlighted')).to.be.true;
             expect($dfView.find('.cols li').eq(0).hasClass('checked')).to.be.true;
@@ -72,23 +71,23 @@ describe('DFCreateView Test', function() {
         it("shift clicking columns should work", function() {
             var $th = $("#xcTable-" + tableId).find('th.col1');
             expect($th.hasClass('modalHighlighted')).to.be.true;
-            $th.click(); // deselect
+            $th.find(".header").click(); // deselect
             expect($th.hasClass('modalHighlighted')).to.be.false;
 
             var event = {type: "click", "which": 1, shiftKey: true};
             $th = $("#xcTable-" + tableId).find('th.col7');
-            $th.trigger(event);
+            $th.find(".header").trigger(event);
             expect($th.hasClass('modalHighlighted')).to.be.false;
             expect($("#xcTable-" + tableId).find('th.col4').hasClass("modalHighlighted")).to.be.false;
 
             $th = $("#xcTable-" + tableId).find('th.col1');
             expect($th.hasClass('modalHighlighted')).to.be.false;
-            $th.click(); // select
+            $th.find(".header").click(); // select
             expect($th.hasClass('modalHighlighted')).to.be.true;
 
             event = {type: "click", "which": 1, shiftKey: true};
             $th = $("#xcTable-" + tableId).find('th.col7');
-            $th.trigger(event);
+            $th.find(".header").trigger(event);
             expect($th.hasClass('modalHighlighted')).to.be.true;
             expect($("#xcTable-" + tableId).find('th.col4').hasClass("modalHighlighted")).to.be.true;
         });
@@ -131,21 +130,21 @@ describe('DFCreateView Test', function() {
             var listText = "";
             var colText = "";
 
-            selectAll();
+            selectAll(tableId);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
             listText = $dfView.find('.columnsToExport li.checked').text();
             colText = getHighlightedColText();
             expect(listText.length).to.be.gt(20);
             expect(listText).to.equal(colText);
 
-            deselectAll();
+            deselectAll(tableId);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(0);
             listText = $dfView.find('.columnsToExport li.checked').text();
             colText = getHighlightedColText();
             expect(listText.length).to.equal(0);
             expect(listText).to.equal(colText);
 
-            selectAll();
+            selectAll(tableId);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
             listText = $dfView.find('.columnsToExport li.checked').text();
             colText = getHighlightedColText();
@@ -226,7 +225,7 @@ describe('DFCreateView Test', function() {
         it('no columns should produce error', function(done) {
             var $newNameInput = $('#newDFNameInput');
             $newNameInput.val(testDfName + Date.now());
-            DFCreateView.__testOnly__.deselectAll();
+            DFCreateView.__testOnly__.deselectAll(tableId);
 
             submitForm()
             .then(function() {
@@ -245,7 +244,7 @@ describe('DFCreateView Test', function() {
             var cache = XcalarGetRetina;
             XcalarGetRetina = function() { return PromiseHelper.resolve(); };
 
-            DFCreateView.__testOnly__.selectAll();
+            DFCreateView.__testOnly__.selectAll(tableId);
             submitForm()
             .then(function() {
                 done("fail");
@@ -260,7 +259,7 @@ describe('DFCreateView Test', function() {
         it('successful submit should create dataflow', function(done) {
             var $newNameInput = $('#newDFNameInput');
             $newNameInput.val(testDfName);
-            DFCreateView.__testOnly__.selectAll();
+            DFCreateView.__testOnly__.selectAll(tableId);
 
             submitForm()
             .then(function() {
@@ -283,11 +282,10 @@ describe('DFCreateView Test', function() {
         it('duplicate name should be detected', function(done) {
             var $newNameInput = $('#newDFNameInput');
             $newNameInput.val(testDfName);
-            DFCreateView.__testOnly__.selectAll();
+            DFCreateView.__testOnly__.selectAll(tableId);
 
             var df = DF.getDataflow(testDfName);
             expect(df).to.be.an('object');
-
             submitForm()
             .then(function() {
                 expect('succeeded').to.equal('should fail');
@@ -312,7 +310,7 @@ describe('DFCreateView Test', function() {
 
     describe('resetDFView', function() {
         it('resetDFView should work', function() {
-            DFCreateView.__testOnly__.selectAll();
+            DFCreateView.__testOnly__.selectAll(tableId);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
             expect($table.find('.modalHighlighted').length).to.be.gt(0);
             $('#newDFNameInput').val('test');

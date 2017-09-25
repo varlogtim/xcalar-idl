@@ -277,6 +277,7 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     DagFunction.addTable = function(tableId) {
+        var deferred = jQuery.Deferred();
         var wsId = WSManager.getActiveWS();
         var tableType;
 
@@ -288,7 +289,14 @@ window.DagFunction = (function($, DagFunction) {
             tableType = TableType.Archived;
         }
 
-        return WSManager.moveInactiveTable(tableId, wsId, tableType);
+        WSManager.moveInactiveTable(tableId, wsId, tableType)
+        .then(function() {
+            DFCreateView.updateTables(tableId);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     DagFunction.focusTable = function(tableId) {

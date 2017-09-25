@@ -17,46 +17,70 @@
           </div>
           <input id="newDFNameInput" class="text" type="text" spellcheck="false" required>
         </div>
-        <div class="exportColumnsSection formRow empty">
-          <div class="subHeading clearfix">
-            <div class="label"><%= dicts.dataflow.exportHeader %>:</div>
-          </div>
-          <p><%= dicts.dataflow.exportInstr %></p>
-          <div class="checkboxWrap selectAllWrap">
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty fa-13"></i>
-              <i class="icon xi-ckbox-selected fa-13"></i>
-            </div>
-            <div class="text"><%= dicts.common.SelectAll %></div>
-          </div>
-          <div class="columnsToExport columnsWrap clearfix">
-            <ul class="cols"></ul>
-            <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
-          </div>
-          <!-- rename section -->
-          <div class="renameSection clearfix xc-hidden">
+
+        <div class="group firstGroup">
+          <div class="tableListSection clearfix">
             <div class="subHeading clearfix">
-              <div><%= dicts.common.ColRenames %></div>
-            </div>
-            <p><%= dicts.common.ColRenameInstr %></p>
-            <div class="tableRenames">
-              <div class="subSubHeading clearfix">
-                <div><%= dicts.exportView.CurrentColName %></div>
-                <div><%= dicts.exportView.NewColName %></div>
+              <span class="text"><%= dicts.common.Table %>:</span>
+              <div class="iconWrap focusTable">
+                <i class="icon xi-show"></i>
               </div>
-              <div class="renamePart"></div>
+              <i class="icon xi-minus minGroup"></i>
+            </div>
+            <div class="dropDownList tableList">
+              <input type="text" class="text arg" spellcheck="false">
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="exportColumnsSection formRow empty">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.dataflow.exportHeader %>:</div>
+            </div>
+            <p><%= dicts.dataflow.exportInstr %></p>
+            <div class="checkboxWrap selectAllWrap">
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+              <div class="text"><%= dicts.common.SelectAll %></div>
+            </div>
+            <div class="columnsToExport columnsWrap clearfix">
+              <ul class="cols"></ul>
+              <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+            </div>
+            <!-- rename section -->
+            <div class="renameSection clearfix xc-hidden">
+              <div class="subHeading clearfix">
+                <div><%= dicts.common.ColRenames %></div>
+              </div>
+              <p><%= dicts.common.ColRenameInstr %></p>
+              <div class="tableRenames">
+                <div class="subSubHeading clearfix">
+                  <div><%= dicts.exportView.CurrentColName %></div>
+                  <div><%= dicts.exportView.NewColName %></div>
+                </div>
+                <div class="renamePart"></div>
+              </div>
             </div>
           </div>
         </div>
-        <!-- <div class="exportRowOrderSection formRow">
-          <div class="checkboxWrap keepOrderedCBWrap">
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty fa-13"></i>
-              <i class="icon xi-ckbox-selected fa-13"></i>
-            </div>
-            <div class="text">Export Rows in Sorted Order (slow)</div>
-          </div>
-        </div> -->
+        <div class="addArgWrap addArgWrapSmall">
+          <button class="btn btn-small addArg addExport">
+            <i class="icon xi-plus"></i>
+          </button>
+          <span class="text"><%= dicts.dataflow.AdditionalTables %></span>
+        </div>
       </section>
       <!-- Button Section -->
       <section class="bottomSection flexWrap">

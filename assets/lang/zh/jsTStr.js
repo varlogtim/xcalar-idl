@@ -134,7 +134,11 @@ CommonTxtTstr = {
 'NestedArrayVal': '嵌套数组值',
 'Back': '上一步',
 'BackToOrig': '返回原始位置',
+'ClickSelect': 'Click to select',
+'ClickToExpand': 'Click to expand',
 'ClickToOpts': '点击查看选项',
+"ColRenames": "Column Renames",
+"ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
 'Continue': '继续',
 'Copy': '复制',
 'CopyLog': '复制日志',
@@ -511,6 +515,10 @@ ExportTStr = {
 'LocationNotFound': '导出位置未找到',
 'FolderName': '文件名',
 'TargetName': '导出名',
+'ColumnsToExport': 'Columns to Export',
+'NoColumns': 'No columns available for export',
+"CurrentColName": "Current Name",
+"NewColName": "New Name",
 'SuccessInstr': '表\<table>\" 已成功导出为路径 <location> 下的 <file> 文件',
 'ExportOfCol': '从表<table>中导出列',
 'ListTargFail': '列表目标失败',
@@ -693,7 +701,8 @@ DFTStr = {
 "CannotParam": "如果导出成Xcalar表，则无法参数化",
 'NewParam': '新建参数',
 'EnterNewParam': '请在此处输入新参数',
-'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports'
+'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports',
+  "TableAlreadySelected": "This table is already selected."
 };
 DSTStr = {
 'UnknownUser': '未知用户',

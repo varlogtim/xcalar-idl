@@ -86,12 +86,16 @@ window.DagPanel = (function($, DagPanel) {
     // high tolerance - will only move panel only if almost completely covering
     DagPanel.heightForTableReveal = function(noAnimateDelay, onlyIfNeeded,
                                         highTolerance) {
+        var animateDelay = noAnimateDelay ? 0 : 100;
         if ($dagPanel.hasClass('hidden')) {
             // open df by triggering panelSwitch click
             // set dagTopPct to 50 so it opens half way
             dagTopPct = 50;
-            $panelSwitch.click();
-            $('#maximizeDag').removeClass('unavailable');
+            setTimeout(function() {
+                $panelSwitch.click();
+                $('#maximizeDag').removeClass('unavailable');
+            }, animateDelay);
+
             return;
         }
         // new height is in percent
@@ -108,7 +112,6 @@ window.DagPanel = (function($, DagPanel) {
             }
         }
 
-        var animateDelay = noAnimateDelay ? 0 : 100;
         setTimeout(function () {
             $dagPanel.removeClass('noTransform');
             if (dagTopPct > newHeight) {

@@ -1784,6 +1784,10 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap = tableWrapOrId;
             tableId = $tableWrap.data('id');
         }
+        if (!$tableWrap.length) {
+            deferred.reject();
+            return deferred.promise();
+        }
 
         var wsId = WSManager.getWSFromTable(tableId);
         if (wsId !== WSManager.getActiveWS()) {
@@ -2500,6 +2504,8 @@ window.xcHelper = (function($, xcHelper) {
         if (options.type === "table") {
             $target = $target.find('.text');
             value = prefix + $target.data('title');
+        } else if (options.type === "dag") {
+            value = $target.data('tablename');
         } else {
             var $header = $target.closest('.header');
             if ($header.length) {

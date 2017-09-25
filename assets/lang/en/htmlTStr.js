@@ -669,6 +669,7 @@ module.exports = {
         "slightSkew": "Slight skew",
         "heavySkew": "Heavy skew",
         "Columns": "Columns",
+        "AdditionalTables": "Additional tables to export",
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",

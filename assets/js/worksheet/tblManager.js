@@ -2698,11 +2698,18 @@ window.TblManager = (function($, TblManager) {
             if (event.which !== 1) {
                 return;
             }
-            if ($("#container").hasClass("columnPicker")) {
+            if ($("#container").hasClass("columnPicker") &&
+                !$("#container").hasClass("dataflowState")) {
                 // not focus when in modal
                 return;
             }
             var $td = $(this);
+            if ($("#container").hasClass("dataflowState") &&
+                !$td.hasClass("jsonElement")) {
+                // no json modal for regular tds if form is open
+                return;
+            }
+
             clicks++;
             if (clicks === 2 && $td.is($lastTd)) {
                 clicks = 0;

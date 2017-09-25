@@ -870,7 +870,7 @@ html.edge {
     }
 
     &.jsonModalOpen {
-        td.modalHighlighted {
+        td.modalHighlighted.jsonModalOpen, td.modalHighlighted.jsonElement {
             pointer-events: all;
             border-color: @color-table-border-darkened !important;
             position: relative;
@@ -1053,6 +1053,11 @@ html.edge {
                 // columnPicker class disables the select all behavior of the first
                 // column header, but we want it for export
             }
+        }
+    }
+    &.dataflowState {
+        td.jsonElement {
+            pointer-events: initial;
         }
     }
 }

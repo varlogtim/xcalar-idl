@@ -496,15 +496,26 @@ window.JSONModal = (function($, JSONModal) {
 
     function selectAllFields($btn) {
         var $jsonWrap = $btn.closest('.jsonWrap');
+        var index = $jsonWrap.index();
         $jsonWrap.find(".jInfo").each(function() {
             var $checkbox = $(this).children(".jsonCheckbox");
-            $checkbox.addClass("checked");
+            var wasNotChecked = false;
+            if (!$checkbox.hasClass("checked")) {
+                wasNotChecked = true;
+                $checkbox.addClass("checked");
+            }
+
             var $key = $checkbox.siblings('.jKey, .arrayEl');
             if (!$key.length) {
                 $key = $checkbox.siblings();
             }
 
             $key.addClass("keySelected");
+            if (wasNotChecked) {
+                var nameInfo = createJsonSelectionExpression($key);
+                var colName = nameInfo.escapedName;
+                selectedCols[index].push(colName);
+            }
         });
 
         $jsonWrap.find('.submitProject').removeClass('disabled');
@@ -969,7 +980,12 @@ window.JSONModal = (function($, JSONModal) {
     function closeModal(mode) {
         modalHelper.clear({"close": function() {
             // json modal use its own closer
-            $('.modalHighlighted').removeClass('modalHighlighted');
+            if (!$("#container").hasClass("columnPicker")) {
+                $('.modalHighlighted').removeClass('modalHighlighted');
+            } else {
+                $(".jsonElement").removeClass("modalHighlighted");
+            }
+
             $('.jsonModalHighlightBox').remove();
             $(".highlightedCell").removeClass("highlightedCell");
             refCounts = {};
@@ -1739,9 +1755,12 @@ window.JSONModal = (function($, JSONModal) {
         if (isHide) {
             $table = $('.xcTable').removeClass('jsonModalOpen');
             $tableWrap = $('.xcTableWrap').removeClass('jsonModalOpen');
-
-            $table.find('.modalHighlighted')
+            if (!$("#container").hasClass("columnPicker")) {
+                 $table.find('.modalHighlighted')
                   .removeClass('modalHighlighted jsonModalOpen');
+            } else {
+                $(".jsonElement").removeClass("modalHighlighted");
+            }
             $('.modalOpen').removeClass('modalOpen');
             $('.tableCover.jsonCover').remove();
             $tableWrap.find('.xcTbodyWrap').off('scroll.preventScrolling');

@@ -1667,7 +1667,6 @@
     .advancedSection {
         margin-top: 20px;
 
-
         &.collapsed {
             .formRow {
                 display: none;
@@ -1824,6 +1823,75 @@
     }
     .bottomSection {
         padding-bottom: 20px;
+    }
+
+    .subHeading > .focusTable {
+        padding-left: 6px;
+    }
+
+    .tableListSection {
+        .subHeading {
+            .position(relative);
+            .minGroup, .closeGroup {
+                .position(absolute, @top: -6px, @right: 20px);
+            }
+            .closeGroup {
+                right: 0px;
+            }
+        }
+    }
+
+    .group {
+        padding-bottom: 10px;
+
+        &.firstGroup {
+            padding-top: 10px;
+            right: -3px;
+            .tableListSection {
+                .subHeading {
+                    .minGroup {
+                        right: -4px;
+                    }
+                }
+            }
+            .exportColumnsSection {
+                .selectAllWrap {
+                    .position(static);
+                    margin-right: 1px;
+                }
+            }
+        }
+        &.minimized {
+            .subHeading {
+                display: block;
+                .focusTable, .minGroup {
+                    display: none;
+                }
+                .closeGroup {
+                    margin-top: 0px;
+                }
+
+            }
+            .exportColumnsSection {
+                display: none;
+            }
+        }
+        .exportColumnsSection {
+            .position(relative);
+            &.empty {
+                .subHeading .label {
+                    // top: 0px;
+                }
+            }
+            .selectAllWrap {
+                .position(absolute, @top: 6px, @right: 1px);
+                width: 50%;
+            }
+        }
+    }
+
+    .addArgWrap {
+        padding-top: 10px;
     }
 }
 

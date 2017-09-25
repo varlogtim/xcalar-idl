@@ -1448,8 +1448,7 @@ ExportHelper.getTableCols = function(tableId, validTypes) {
 ExportHelper.prototype = {
     setup: function() {
         var self = this;
-        var $renameSection = self.$view.find(".renameSection");
-        $renameSection.on("click", ".renameIcon", function() {
+        self.$view.on("click", ".renameSection .renameIcon", function() {
             self._smartRename($(this).closest(".rename"));
         });
     },
@@ -1464,15 +1463,28 @@ ExportHelper.prototype = {
         $('.xcTableWrap').removeClass('exportMode');
     },
 
-    clearRename: function() {
-        this.$view.find(".renameSection").addClass("xc-hidden")
+    clearRename: function($group) {
+        var $target;
+        if ($group && $group.length) {
+            $target = $group;
+        } else {
+            $target = this.$view;
+        }
+        $target.find(".renameSection").addClass("xc-hidden")
                     .find(".renamePart").empty();
     },
 
-    getExportColumns: function() {
+    getExportColumns: function($group) {
         var self = this;
+        var $target;
+        if ($group && $group.length) {
+            $target = $group;
+        } else {
+            $target = self.$view;
+        }
+
         var colsToExport = [];
-        var $colsToExport = self.$view.find('.columnsToExport');
+        var $colsToExport = $target.find('.columnsToExport');
 
         $colsToExport.find('.cols li.checked').each(function() {
             colsToExport.push($(this).text().trim());
@@ -1481,22 +1493,28 @@ ExportHelper.prototype = {
         return colsToExport;
     },
 
-    checkColumnNames: function(columnNames) {
+    checkColumnNames: function(columnNames, $group) {
         if (columnNames == null) {
             return null;
         }
 
         var self = this;
-        if (self.$view.find(".renameSection").hasClass("xc-hidden")) {
+        var $target;
+        if ($group && $group.length) {
+            $target = $group;
+        } else {
+            $target = this.$view;
+        }
+        if ($target.find(".renameSection").hasClass("xc-hidden")) {
             // when need check name conflict
-            return self._checkNameConflict(columnNames);
+            return self._checkNameConflict(columnNames, $target);
         } else {
             // when in rename step
-            return self._checkRename(columnNames);
+            return self._checkRename(columnNames, $target);
         }
     },
 
-    _checkNameConflict: function(columnNames) {
+    _checkNameConflict: function(columnNames, $target) {
         var self = this;
         var takenName = {};
         var invalidNames = [];
@@ -1519,14 +1537,14 @@ ExportHelper.prototype = {
 
         if (invalidNames.length > 0) {
             // when has name conflict
-            self._addRenameRows(invalidNames);
+            self._addRenameRows(invalidNames, $target);
             return null;
         } else {
             return colNamesAfterCheck;
         }
     },
 
-    _checkRename: function(columnNames) {
+    _checkRename: function(columnNames, $target) {
         var self = this;
         var takenName = {};
         var renameMap = {};
@@ -1537,17 +1555,21 @@ ExportHelper.prototype = {
             takenName[colName] = true;
         });
 
-        var $renameSection = self.$view.find(".renameSection");
+        var $renameSection = $target.find(".renameSection");
         $renameSection.find(".rename").each(function() {
             var $row = $(this);
             var newName = $row.find(".newName").val();
             if (!newName) {
+                $renameSection.closest(".group.minimized").removeClass("minimized");
+                FormHelper.scrollToElement($renameSection);
                 StatusBox.show(ErrTStr.NoEmpty, $row);
                 invalid = true;
                 return false;
             }
 
             if (takenName.hasOwnProperty(newName)) {
+                $renameSection.closest(".group.minimized").removeClass("minimized");
+                FormHelper.scrollToElement($renameSection);
                 StatusBox.show(ErrTStr.NameInUse, $row);
                 invalid = true;
                 return false;
@@ -1575,8 +1597,8 @@ ExportHelper.prototype = {
         return colNamesAfterCheck;
     },
 
-    _addRenameRows: function(columnsToRename) {
-        var $renameSection = this.$view.find(".renameSection");
+    _addRenameRows: function(columnsToRename, $target) {
+        var $renameSection = $target.find(".renameSection");
         var $renamePart = $renameSection.find(".renamePart");
 
         $renamePart.empty();
@@ -1588,12 +1610,13 @@ ExportHelper.prototype = {
         }
 
         $renameSection.removeClass("xc-hidden");
+        $renameSection.closest(".group.minimized").removeClass("minimized");
     },
 
     _smartRename: function($colToRename) {
         var self = this;
         var origName = $colToRename.find(".origName").val();
-        var currentColumNames = self.getExportColumns();
+        var currentColumNames = self.getExportColumns($colToRename.closest(".group"));
         var nameMap = {};
 
         // collect all existing names
@@ -1628,6 +1651,7 @@ function FormHelper($form, options) {
      *      noEvent: if set true, no picker event handler
      *      colCallback: called when click on column
      *      headCallback: called when click on table head
+     *      dagCallback: called when click on dagtable icon
      *      validColTypes: (optional) array of valid column types
      */
     this.$form = $form;
@@ -1655,6 +1679,22 @@ FormHelper.Template = {
                 '<input class="columnName newName arg" type="text" ' +
                   'spellcheck="false"/>' +
             '</div>'
+};
+
+// used for forms in the left panel
+// options: paddingTop: integer, pixels from the top to position
+FormHelper.scrollToElement = function($el, options) {
+    options = options || {};
+    var paddingTop = options.paddingTop || 0;
+    var $container = $el.closest(".mainContent");
+    var $containerTop = $container.offset().top;
+    var $elTop = $el.offset().top;
+    // only scrolls if top of $el is not visible
+    if ($elTop > $containerTop + $container.height() ||
+        $elTop < $containerTop) {
+        var newScrollTop = $elTop + $container.scrollTop() - $containerTop;
+        $container.scrollTop(newScrollTop - paddingTop);
+    }
 };
 
 FormHelper.prototype = {
@@ -1819,6 +1859,14 @@ FormHelper.prototype = {
                 }
                 callback($target);
             });
+
+            $("#dagPanel").on("mousedown.columnPicker", ".dagTable", function(event) {
+                var callback = columnPicker.dagCallback;
+                if (callback == null || !(callback instanceof Function)) {
+                    return;
+                }
+                callback($(this));
+            });
         }
 
         // this should be the last step
@@ -1905,6 +1953,7 @@ FormHelper.prototype = {
                                          .removeAttr("data-tipClasses");
         xcTooltip.remove($noColPickers);
         $("#mainFrame").off("click.columnPicker");
+        $("#dagPanel").off("mousedown.columnPicker");
         $("#container").removeClass(self.state);
         self.state = null;
         self.enableSubmit();
@@ -2307,7 +2356,8 @@ MenuHelper.prototype = {
                 // remove selected class from siblings and if able,
                 // add selected class to current li
                 var $lastSelected = $(this).siblings(".selected");
-                if (!$li.hasClass("hint") && !$li.hasClass("unavailable")) {
+                if (!$li.hasClass("hint") && !$li.hasClass("unavailable") &&
+                    !$li.hasClass("inUse")) {
                     $lastSelected.removeClass("selected");
                     $li.addClass("selected");
                 }
