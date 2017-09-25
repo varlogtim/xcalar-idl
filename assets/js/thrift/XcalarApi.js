@@ -1780,7 +1780,8 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
 
     return (deferred.promise());
 };
-
+// XcalarGroupByWithInput depends on these arguments. If args change here,
+//  make sure to change XcalarGroupByWithInput
 xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStrs,
                                newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
     var workItem = new WorkItem();
@@ -1797,7 +1798,7 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
 
     if (groupByEvalStrs.constructor === Array) {
         workItem.input.groupByInput.numEvals = groupByEvalStrs.length;
-        workItem.input.groupByInput.evalStrs = groupByEvalStr;
+        workItem.input.groupByInput.evalStrs = groupByEvalStrs;
     } else {
         workItem.input.groupByInput.numEvals = 1;
         workItem.input.groupByInput.evalStrs = [groupByEvalStrs];
@@ -2047,6 +2048,8 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
     return (deferred.promise());
 };
 
+// XcalarMapWithInput depends on these arguments. If args change here,
+// make sure to change XcalarMapWithInput
 xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
                                                                  srcTableName, dstTableName,
                                                                  newFieldNames, icvMode) {

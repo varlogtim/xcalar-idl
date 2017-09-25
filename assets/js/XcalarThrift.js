@@ -2357,7 +2357,7 @@ function XcalarGroupByWithInput(txId, inputStruct) {
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    var workItem = xcalarGroupByWorkItem();
+    var workItem = xcalarGroupByWorkItem("", "", [], []);
     workItem.input.groupByInput = inputStruct;
 
     var def1;

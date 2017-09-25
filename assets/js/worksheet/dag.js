@@ -1877,13 +1877,21 @@ window.Dag = (function($, Dag) {
         var sql;
         var txId;
         var idx;
+        var colIndices = [];
         var origColName;
+        var origColNames = [];
         var scrollChecker = new ScollTableChecker();
         $tableIcon = $dagPanel.find(".dagTable[data-tablename='" +
                                             mapTableName + "']");
+        if (op !== XcalarApisT.XcalarApiMap &&
+            op !== XcalarApisT.XcalarApiGroupBy) {
+            console.error("Shouldn't get here");
+            deferred.reject();
+            return deferred.promise();
+        }
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
-                origColNames = xcalarInput.newFieldNames;
+                origColNames = xcHelper.deepCopy(xcalarInput.newFieldNames);
                 for (var i = 0; i < origColNames.length; i++) {
                     xcalarInput.newFieldNames[i] = origColNames[i] + "_er";
                 }
@@ -1945,8 +1953,11 @@ window.Dag = (function($, Dag) {
                 });
                 break;
             case (XcalarApisT.XcalarApiGroupBy):
-                origColName = xcalarInput.newFieldNames[0];
-                xcalarInput.newFieldNames[0] = origColName + "_er";
+                origColNames = xcHelper.deepCopy(xcalarInput.newFieldNames);
+                for (var i = 0; i < origColNames.length; i++) {
+                    xcalarInput.newFieldNames[i] = origColNames[i] + "_er";
+                }
+
                 options = {"replaceColumn": true};
                 // XXX This is going to screw up replay
                 sql = {
@@ -2012,30 +2023,31 @@ window.Dag = (function($, Dag) {
         function postOperation(txId) {
             var newCols = [];
             if (origTableId in gTables) {
-                idx = gTables[origTableId].getColNumByBackName(origColName);
+                for (var i = 0; i < origColNames.length; i++) {
+                    idx = gTables[origTableId].getColNumByBackName(origColNames[i]);
+                    if (idx > -1) {
+                        colIndices.push(idx);
+                    }
+                }
+
+                if (colIndices.length) {
+                    options = {"selectCol": colIndices};
+                } else {
+                    options = {};
+                }
+
                 if (idx < 0) {
                     idx = 1;
-                    options = {};
-                } else {
-                    options = {"selectCol": idx};
                 }
                 var prevCols = gTables[origTableId].tableCols;
-                if (op === XcalarApisT.XcalarApiMap) {
-                    for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
-                        newCols = xcHelper.mapColGenerate(idx,
-                                             xcalarInput.newFieldNames[i],
-                                             xcalarInput.evalStrs[i],
-                                             prevCols,
-                                             options);
-                        prevCols = newCols;
-                    }
-                } else {
-                    newCols = xcHelper.mapColGenerate(idx,
-                                             xcalarInput.newFieldName,
-                                             xcalarInput.evalStr,
-                                             prevCols,
-                                             options);
 
+                for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
+                    newCols = xcHelper.mapColGenerate(idx,
+                                         xcalarInput.newFieldNames[i],
+                                         xcalarInput.evalStrs[i],
+                                         prevCols,
+                                         options);
+                    prevCols = newCols;
                 }
 
             } else {
