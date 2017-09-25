@@ -3550,7 +3550,7 @@ window.xcHelper = (function($, xcHelper) {
             var progCol = table.getColByBackName(key);
             if (progCol) {
                 type = progCol.getType();
-                type = translateFrontTypeToBackType(type);
+                type = translateFrontTypeToBackType(type, progCol.isKnownType());
                 promise = PromiseHelper.resolve(type);
             } else if (table.backTableMeta && table.backTableMeta.valueAttrs) {
                 var colObjs = table.backTableMeta.valueAttrs;
@@ -3585,7 +3585,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // example: converts "string" to 1 via DfFieldTypeT
-    function translateFrontTypeToBackType(frontType) {
+    function translateFrontTypeToBackType(frontType, isKnownType) {
         var type;
         switch (frontType) {
             case (ColumnType.boolean):
@@ -3593,10 +3593,10 @@ window.xcHelper = (function($, xcHelper) {
                 break;
             case (ColumnType.float):
             case (ColumnType.number): // fall through
-                type = DfFieldTypeT.DfFloat64;
+                type = isKnownType ? DfFieldTypeT.DfFloat64 : null;
                 break;
             case (ColumnType.integer):
-                type = DfFieldTypeT.DfInt64;
+                type = isKnownType ? DfFieldTypeT.DfInt64 : null;
                 break;
             case (ColumnType.string):
                 type = DfFieldTypeT.DfString;
