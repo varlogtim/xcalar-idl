@@ -875,7 +875,11 @@ window.DFCard = (function($, DFCard) {
         var df = DF.getDataflow(DFCard.getCurrentDF());
         var $popup = $('#exportColPopup');
         var tableName = $dagTable.data('table') || $dagTable.data('tablename');
-        var cols = df.columns;
+        var nodeId = $dagTable.data("index") + "";
+        var nodeIdMap = $dagTable.closest(".dagWrap").data("allDagInfo")
+                                                     .nodeIdMap;
+        var exportNode = nodeIdMap[nodeId];
+        var cols = exportNode.value.struct.meta.columns;
         var numCols = cols.length;
 
         $popup.find('.tableName').text(tableName);
@@ -885,7 +889,7 @@ window.DFCard = (function($, DFCard) {
         var html = '';
 
         for (var i = 0; i < numCols; i++) {
-            var name = cols[i].backCol;
+            var name = cols[i].name; // or we can show cols[i].headerAlias
             html += '<li>' +
                         '<div title="' + name + '" class="name">' +
                             name + '</div>' +

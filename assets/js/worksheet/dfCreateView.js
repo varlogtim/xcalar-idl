@@ -221,9 +221,13 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function saveDataFlow(dataflowName, columns, tableName) {
-        var dataflowParams = {"columns": columns};
-        var df = new Dataflow(dataflowName, dataflowParams);
-        return DF.addDataflow(dataflowName, df, tableName);
+        var df = new Dataflow(dataflowName);
+        var exportTables = [];
+        exportTables.push({
+            tableName: tableName,
+            columns: columns
+        });
+        return DF.addDataflow(dataflowName, df, exportTables);
     }
 
     function addFormEvents() {

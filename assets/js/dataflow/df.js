@@ -127,8 +127,6 @@ window.DF = (function($, DF) {
 
                 updateDFInfo(retStructs[i]);
 
-                // Populate export column information
-                addColumns(retName);
                 dataflows[retName].updateParamMapInUsed();
             }
             return XcalarListSchedules();
@@ -185,18 +183,15 @@ window.DF = (function($, DF) {
         return (dataflows[dataflowName]);
     };
 
-    DF.addDataflow = function(dataflowName, dataflow, expTableName, options) {
-        var isUpload = false;
-        if (options) {
-            isUpload = options.isUpload;
-        }
+    DF.addDataflow = function(dataflowName, dataflow, exportTables, options) {
+        options = options || {};
         var deferred = jQuery.Deferred();
 
         var innerDef;
-        if (isUpload) {
+        if (options.isUpload) {
             innerDef = PromiseHelper.resolve();
         } else {
-            innerDef = createRetina(dataflowName, dataflow, expTableName);
+            innerDef = createRetina(dataflowName, exportTables);
         }
 
         innerDef
@@ -206,9 +201,6 @@ window.DF = (function($, DF) {
         .then(function(retInfo) {
             dataflows[dataflowName] = dataflow;
             updateDFInfo(retInfo);
-            if (isUpload) {
-                addColumns(dataflowName);
-            }
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
             // no need to commit to kvstore since there's no info stored
@@ -375,7 +367,6 @@ window.DF = (function($, DF) {
         XcalarGetRetina(dfName)
         .then(function(retStruct) {
             updateDFInfo(retStruct);
-            addColumns(dfName);
             return df.updateParamMapInUsed();
         })
         .then(deferred.resolve)
@@ -384,24 +375,29 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
-    function createRetina(retName, df, tableName) {
-        var columns = [];
-        var tableArray = [];
+    function createRetina(retName, exportTables) {
+        var tableArray = []; // array of XcalarApiRetinaDstT
 
-        df.columns.forEach(function(colInfo) {
-            var col = new ExColumnNameT();
-            col.name = colInfo.backCol; // Back col name
-            col.headerAlias = colInfo.frontCol; // Front col name
-            columns.push(col);
-        });
+        for (var i = 0; i < exportTables.length; i++) {
+            var retinaDstTable = new XcalarApiRetinaDstT();
+            retinaDstTable.target = new XcalarApiNamedInputT();
+            retinaDstTable.target.isTable = true;
+            retinaDstTable.target.name = exportTables[i].tableName;
+            var columns = [];
 
-        var retinaDstTable = new XcalarApiRetinaDstT();
-        retinaDstTable.numColumns = columns.length;
-        retinaDstTable.target = new XcalarApiNamedInputT();
-        retinaDstTable.target.isTable = true;
-        retinaDstTable.target.name = tableName;
-        retinaDstTable.columns = columns;
-        tableArray.push(retinaDstTable);
+            for (var j = 0; j < exportTables[i].columns.length; j++) {
+                var col = new ExColumnNameT();
+                col.name = exportTables[i].columns[j].backCol; // Back col name
+                col.headerAlias = exportTables[i].columns[j].frontCol;
+                columns.push(col);
+            }
+
+            retinaDstTable.columns = columns;
+            retinaDstTable.numColumns = columns.length;
+
+            tableArray.push(retinaDstTable);
+        }
+
         return XcalarMakeRetina(retName, tableArray);
     }
 
@@ -417,23 +413,6 @@ window.DF = (function($, DF) {
         for (var i = 0; i < retina.retinaDag.numNodes; i++) {
             var tableName = nodes[i].name.name;
             dataflow.addNodeId(tableName, nodes[i].dagNodeId);
-        }
-    }
-
-    function addColumns(dataflowName) {
-        var dFlow = DF.getDataflow(dataflowName);
-        for (i = 0; i < dFlow.retinaNodes.length; i++) {
-            if (dFlow.retinaNodes[i].api === XcalarApisT.XcalarApiExport) {
-                var exportCols = dFlow.retinaNodes[i].input.exportInput
-                                                           .meta.columns;
-                for (var j = 0; j < exportCols.length; j++) {
-                    var newCol = {};
-                    newCol.frontCol = exportCols[j].headerAlias;
-                    newCol.backCol = exportCols[j].name;
-                    dFlow.columns.push(newCol);
-                }
-                break;
-            }
         }
     }
 
