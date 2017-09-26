@@ -472,11 +472,11 @@ module.exports = {
 
     "supportTicket": {
         "GenSub": "Generate Support Bundle",
-        "GenSupInstr": "Please fill out the form below.",
+        "GenSupInstr": "Please fill out the form below. This requires Internet access.",
         "TypeIssue": "Type of issue",
         "Comments": "Comments",
         "GenTicketBtn": "GENERATE TICKET",
-        "GenBundleTip": "This will be slow and requires internet access",
+        "GenBundleTip": "This will be slow",
         "AdditionalInfo": "Additional (New) Information",
         "RegenBundle": "Regenerate Support Bundle",
         "MiniDump": "Mini Dump",
