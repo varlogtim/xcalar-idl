@@ -357,7 +357,7 @@ ErrWRepTStr = {
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name',
-    'InvalidSampleSize': 'Maximum dataset size is <size>.'
+    'InvalidSampleSize': 'Maximum data source size is <size>.'
 };
 
 DemoTStr = {
@@ -832,7 +832,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please check the validation of path, pattern, dataset size, UDF and try again.',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, data source size, UDF and try again.',
     'NoSingleFilePattern': 'Not supported when importing a single file',
     'CancalPoint': 'Cancel import dataset',
     'DSSourceHint': 'Please try another path or use another protocol.',

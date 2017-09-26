@@ -320,7 +320,7 @@ ErrWRepTStr = {
 'OutputNotExists': '<name>已不存在。',
 'InvalidAggName': '聚合名称必须以<aggPrefix>作为前缀',
 'InvalidAggLength': '聚合名称必须以<aggPrefix>为前缀，后跟用户自定义的名称',
-'InvalidSampleSize': '最大可支持size为<size>的数据集。',
+'InvalidSampleSize': '最大可支持大小为<size>的数据源。',
 'IntInRange': '请输入在<lowerBound>-<upperBound>之间的整数',
 };
 DemoTStr = {
@@ -709,7 +709,7 @@ DSTStr = {
 'NoParse': '无法解析数据集。',
 'NoRecords': '数据集中没有记录。',
 'NoColumns': '未选择列',
-'NoRecrodsHint': '请检查路径，模式，数据集大小，udf的验证，然后重试。',
+'NoRecrodsHint': '请检查路径，模式，数据源大小，udf的验证，然后重试。',
 'CancalPoint': '取消导入数据集',
 'DSSourceHint': '请尝试另一个路径或使用另一个协议。',
 'FileOversize': '文件夹中的文件太多，无法读取，请直接用url导入',
