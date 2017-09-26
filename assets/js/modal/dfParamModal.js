@@ -1596,6 +1596,11 @@ window.DFParamModal = (function($, DFParamModal){
             });
 
             for (; i < retinaNode.paramValue.length; i++) {
+                if (retinaNode.paramType === XcalarApisT.XcalarApiExport &&
+                    i > 1) {
+                    // no need to add export's 3rd param which is export type
+                    break;
+                }
                 if (!$templateVals.eq(i).length) {
                     // more params than there are divs
                     var html = '<div class="boxed medium"></div>';
