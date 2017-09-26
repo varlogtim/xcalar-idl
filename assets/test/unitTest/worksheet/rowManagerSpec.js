@@ -6,6 +6,7 @@ describe('RowManager Test', function() {
     var $table;
 
     before(function(done) {
+        console.clear();
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -15,19 +16,22 @@ describe('RowManager Test', function() {
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
 
-            ExtensionManager.trigger(tableId, "UExtGenRowNum", "genRowNum",
-                {newColName: "rowNum"})
-            .then(function(tName) {
-                oldTableName = tableName;
-                tableName = tName;
-                tableId = xcHelper.getTableId(tableName);
-                $table = $("#xcTable-" + tableId);
+            return ExtensionManager.trigger(tableId, "UExtGenRowNum",
+                                        "genRowNum", {newColName: "rowNum"});
+        })
+        .then(function(tName) {
+            oldTableName = tableName;
+            tableName = tName;
+            tableId = xcHelper.getTableId(tableName);
+            $table = $("#xcTable-" + tableId);
 
-                ColManager.delCol([1,2,3,4,5,6,7,8,9,10,11,12], tableId)
-                .then(function() {
-                    done();
-                });
-            });
+            return ColManager.delCol([1,2,3,4,5,6,7,8,9,10,11,12], tableId);
+        })
+        .then(function() {
+            done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
