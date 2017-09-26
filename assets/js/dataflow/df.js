@@ -527,8 +527,14 @@ window.DF = (function($, DF) {
         };
         if (df) {
             if (df.activeSession) {
+                var newTableName = withoutHashId ? df.newTableName :
+                                                   df.nameWithHash;
+                if (checkExistingTableName(xcHelper.getTableName(newTableName)))
+                {
+                    return null;
+                }
                 res.activeSession = df.activeSession;
-                res.newTableName = withoutHashId? df.newTableName : df.nameWithHash;
+                res.newTableName = newTableName;
             }
             return res;
         } else {
@@ -545,6 +551,14 @@ window.DF = (function($, DF) {
             delete df.nameWithHash;
         }
     };
+
+    function checkExistingTableName(newTableName) {
+        if (!xcHelper.checkDupTableName(newTableName)) {
+            Alert.error(DFTStr.RunFail, ErrTStr.TableConflict);
+            return true;
+        }
+        return false;
+    }
 
 
     /* Unit Test Only */
