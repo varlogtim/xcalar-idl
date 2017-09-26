@@ -249,7 +249,6 @@ window.DFCreateView = (function($, DFCreateView) {
                 toHighlight = true;
             }
 
-
             if (event.shiftKey && focusedListNum != null) {
                 var start = Math.min(focusedListNum, colNum);
                 var end = Math.max(focusedListNum, colNum);

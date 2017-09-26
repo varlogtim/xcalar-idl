@@ -593,35 +593,45 @@ window.DFCard = (function($, DFCard) {
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
         // zation later.
-        var $exportTable = $dagWrap.find(".export.dagTable");
-        var exportId = $exportTable.attr("data-nodeid");
+
 
         var dataflow = DF.getDataflow(dataflowName);
         var retNodes = dataflow.retinaNodes;
         var paramValue = '';
-        var i = 0;
-        for (i = 0; i < retNodes.length; i++) {
-            if (retNodes[i].dagNodeId === exportId) {
-                var meta = retNodes[i].input.exportInput.meta;
-                var specInput = meta.specificInput;
-                var fileName = specInput.sfInput.fileName ||
-                             specInput.udfInput.fileName; // Only one of the
-                             // 3 should have a non "" value
-                             //xx specInput.odbcInput.tableName no longer exists
-                paramValue = [fileName, meta.target.name, meta.target.type];
-                // uploaded retinas do not have params in export node
+
+        var expRetNodes = retNodes.filter(function(node) {
+            return node.api === XcalarApisT.XcalarApiExport;
+        });
+
+
+        $dagWrap.find(".export.dagTable").each(function() {
+            var $exportTable = $(this);
+            var exportId = $exportTable.attr("data-nodeid");
+            for (i = 0; i < expRetNodes.length; i++) {
+                if (expRetNodes[i].dagNodeId === exportId) {
+                    var meta = expRetNodes[i].input.exportInput.meta;
+                    var specInput = meta.specificInput;
+                    var fileName = specInput.sfInput.fileName ||
+                                 specInput.udfInput.fileName; // Only one of the
+                                 // 3 should have a non "" value
+                                 //xx specInput.odbcInput.tableName no longer exists
+                    paramValue = [fileName, meta.target.name, meta.target.type];
+                    // uploaded retinas do not have params in export node
+
+
+                     $exportTable.addClass("export").data("type", "export")
+                        .attr("data-table", $exportTable.attr("data-tablename"))
+                        .data("paramValue", paramValue)
+                        .attr("data-advancedOpts", "default");
+
+                    var $elem = $exportTable.find(".tableTitle");
+                    var expName = xcHelper.stripCSVExt(paramValue[0]);
+                    $elem.text(expName);
+                    xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
+                    break;
+                }
             }
-        }
-
-        $exportTable.addClass("export").data("type", "export")
-                    .attr("data-table", $exportTable.attr("data-tablename"))
-                    .data("paramValue", paramValue)
-                    .attr("data-advancedOpts", "default");
-
-        var $elem = $exportTable.find(".tableTitle");
-        var expName = xcHelper.stripCSVExt(paramValue[0]);
-        $elem.text(expName);
-        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
+        });
 
         // Data table moved so that the hasParam class is added correctly
         $dagWrap.find(".actionType.export").attr("data-table", "");
@@ -1543,6 +1553,9 @@ window.DFCard = (function($, DFCard) {
             var $dagNode = $dagWrap.find('[data-nodeid="' + dagNodeId + '"]');
             if ($dagNode.prev().hasClass("filter")) {
                 $dagNode = $dagNode.prev();
+            }
+            if (!$dagNode.length) {
+                continue;
             }
             var paramVal = $dagNode.data().paramValue;
             var type = $dagNode.data().type;

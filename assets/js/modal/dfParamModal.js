@@ -265,12 +265,19 @@ window.DFParamModal = (function($, DFParamModal){
             "df": dfName
         });
 
-        $dfParamModal.removeClass("type-dataStore type-filter type-export");
+        $dfParamModal.removeClass("type-dataStore type-filter type-export " +
+                                 "multiExport");
         $dfParamModal.addClass("type-" + type);
         if (type === "filter") {
             $dfParamModal.height(550);
         } else {
             $dfParamModal.height(630);
+        }
+
+        if (type === "export") {
+            if ($currentIcon.closest(".dagWrap").hasClass("multiExport")) {
+                $dfParamModal.addClass("multiExport");
+            }
         }
 
         var paramValue = $currentIcon.data('paramValue');
@@ -691,6 +698,13 @@ window.DFParamModal = (function($, DFParamModal){
                                 getParameterInputHTML(1, "medium-small", {export: true}) +
                             '</div>' +
                             '</div>';
+            var tooltipCover = "";
+            if ($dfParamModal.hasClass("multiExport")) {
+                tooltipCover = '<div class="tooltipCover" ' +
+                          'data-toggle="tooltip" data-container="body" ' +
+                          'data-original-title="' +
+                          DFTStr.NoImportMultiExport + '"></div>';
+            }
             advancedOpts = '<div class="optionBox radioButtonGroup">' +
                                 '<div class="radioButton"' +
                                 ' data-option="default">' +
@@ -702,7 +716,8 @@ window.DFParamModal = (function($, DFParamModal){
                                         DFTStr.Default +
                                     '</div>' +
                                 '</div>' +
-                                '<div class="radioButton" data-option="import">' +
+                                '<div class="radioButton" data-option="import" ' +
+                                '>' +
                                     '<div class="radio">' +
                                         '<i class="icon xi-radio-selected"></i>' +
                                         '<i class="icon xi-radio-empty"></i>' +
@@ -711,6 +726,7 @@ window.DFParamModal = (function($, DFParamModal){
                                         DFTStr.Import +
                                     '</div>' +
                                 '</div>' +
+                                tooltipCover +
                             '</div>';
         } else { // not a datastore but a table
             paramValue = paramValue[0];

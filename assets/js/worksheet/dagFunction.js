@@ -59,6 +59,7 @@ window.DagFunction = (function($, DagFunction) {
         this.tag = tag;
         this.state = state;
         this.display = {};
+        this.exportNode = null; // reference to export node if it has one
         return (this);
     };
 
@@ -68,6 +69,7 @@ window.DagFunction = (function($, DagFunction) {
 
     DagFunction.construct = function(nodes, tableId) {
         var valArray = [];
+        var startPoints = [];
         for (var i = 0; i < nodes.length; i++) {
             var apiString = XcalarApisTStr[nodes[i].api];
             var inputName = DagFunction.getInputType(apiString);
@@ -78,26 +80,50 @@ window.DagFunction = (function($, DagFunction) {
             var tag = nodes[i].tag;
             var state = nodes[i].state;
 
+
             // XXX this sometimes has an id of "0", why do we use this method?
             // if (nodes[i].api === XcalarApisT.XcalarApiBulkLoad) {
             //     dagNodeId = nodes[i].input.loadInput.dataset.datasetId;
             // }
-            valArray.push(new TreeValue(nodes[i].api, inputStruct, dagNodeId,
-                                    inputName, name, numParents, tag, state));
+            var treeNode = new TreeValue(nodes[i].api, inputStruct, dagNodeId,
+                                    inputName, name, numParents, tag, state);
+            valArray.push(treeNode);
+            if (nodes[i].api === XcalarApisT.XcalarApiExport && i !== 0) {
+                startPoints.push(treeNode);
+            }
         }
         var allEndPoints = [];
         var lineageStruct = {};
-        var tree = constructTree(valArray[0], valArray, {}, undefined,
+        var trees = [];
+        var alreadySeen = {};
+        var tree = constructTree(valArray[0], valArray, alreadySeen, undefined,
                                  allEndPoints);
         if (!tree) {
             console.info("No creatable tree");
             return;
         }
+        trees.push(tree);
+
+        for (var i = 0; i < startPoints.length; i++) {
+            tree = constructTree(startPoints[i], valArray, alreadySeen,
+                                 undefined, allEndPoints);
+            trees.push(tree);
+        }
+
+        var nodeIdMap = getIdMap(trees);
+
+        // move main treeNode to the front
+        var mainTreeIndex = getIndexOfFullTree(trees);
+        tree = trees[mainTreeIndex];
+        trees.splice(mainTreeIndex, 1);
+        trees.splice(0, 0, tree);
+
         lineageStruct.tree = tree;
+        lineageStruct.trees = trees;
         lineageStruct.endPoints = allEndPoints;
         lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
                                           "TreeNode");
-        lineageStruct.nodeIdMap = getIdMap(tree);
+        lineageStruct.nodeIdMap = nodeIdMap;
         if (tableId) {
             dagLineage[tableId] = lineageStruct;
         }
@@ -360,7 +386,7 @@ window.DagFunction = (function($, DagFunction) {
 
     // Helpers for cloneTreeWithNewValue
     function findXidByDstTableName(valArray, dstName) {
-        for (var i = 0; i<valArray.length; i++) {
+        for (var i = 0; i < valArray.length; i++) {
             var cmpValue = "";
             if (valArray[i].value.api === XcalarApisT.XcalarApiBulkLoad) {
                 cmpValue = valArray[i].value.struct.dataset.name;
@@ -381,6 +407,17 @@ window.DagFunction = (function($, DagFunction) {
         }
         console.error("Cannot find xid!");
         return (-1);
+    }
+
+    function findTreeNodeByTableName(nodeIdMap, dstName) {
+        for (var i in nodeIdMap) {
+            var node = nodeIdMap[i];
+            if (node.value.name === dstName) {
+                return node;
+            }
+        }
+        console.error("Cannot find node by tablename!");
+        return null;
     }
 
     function findTreeValueInValArray(name, valArray) {
@@ -766,6 +803,9 @@ window.DagFunction = (function($, DagFunction) {
             if (parentName in alreadySeen) {
                 parentTree = alreadySeen[parentName];
                 parentTree.children.push(treeNode);
+                if (treeNode.value.api === XcalarApisT.XcalarApiExport) {
+                    parentTree.value.exportNode = treeNode;
+                }
             } else {
                 parentNode = findTreeValueInValArray(parentName, valArray);
                 parentTree = constructTree(parentNode, valArray, alreadySeen,
@@ -778,15 +818,20 @@ window.DagFunction = (function($, DagFunction) {
 
         if (child) {
             treeNode.children.push(child);
+            if (child.value.api === XcalarApisT.XcalarApiExport) {
+                treeNode.value.exportNode = child;
+            }
         }
         alreadySeen[node.name] = treeNode;
         return (alreadySeen[node.name]);
     }
 
     // cretes a map of dagNodIds: node
-    function getIdMap(node) {
+    function getIdMap(trees) {
         var idMap = {};
-        addToMap(node);
+        for (var i = 0; i < trees.length; i++) {
+            addToMap(trees[i]);
+        }
 
         function addToMap(node) {
             idMap[node.value.dagNodeId] = node;
@@ -797,6 +842,22 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
         return idMap;
+    }
+
+    // for multiple exports, finds the real root
+    function getIndexOfFullTree(trees) {
+        if (trees.length === 1) {
+            return 0;
+        }
+        // assumes all the root nodes are exports
+        for (var i = 0; i < trees.length; i++) {
+            var exportParent = trees[i].parents[0];
+            if (exportParent.children.length === 1) {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     function parseAggFromEvalStr(evalStr) {

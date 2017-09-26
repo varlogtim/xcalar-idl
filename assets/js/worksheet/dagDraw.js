@@ -29,37 +29,29 @@ window.DagDraw = (function($, DagDraw) {
         options = options || {};
         var hasError = false;
         var tree;
+        var trees;
         var nodeIdMap = {};
         var dagDepth;
         var dagImageHtml = "";
+        var drawn = {};
         var yCoors = [0]; // stores list of depths of branch nodes
-        // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
+        // [0, 3, 5] corresponds to these xy coordinates: {0, 0}, {3, 1}, {5, 2}
+        // where {0, 0} is the right-top corner of the image
         if (options.refresh) {
             tree = nodes.tree;
+            trees = nodes.trees; // XXX need to implement
             nodeIdMap = nodes.nodeIdMap;
         } else {
             try {
                 var lineageStruct = DagFunction.construct(nodes,
                                                           options.tableId);
                 tree = lineageStruct.tree;
+                trees = lineageStruct.trees;
                 nodeIdMap = lineageStruct.nodeIdMap;
             } catch (err) {
                 console.error(err);
                 hasError = true;
             }
-        }
-
-        var exportNodes =[];
-        for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].api === XcalarApisT.XcalarApiExport) {
-                if (exportNodes.indexOf(nodes[i].dagNodeId) === -1) {
-                    exportNodes.push(nodes[i].dagNodeId);
-                }
-            }
-        }
-        var hasMultipleExport = exportNodes.length > 1;
-        if (hasMultipleExport) {
-            hasError = true;
         }
 
         var initialY = 0.2;
@@ -98,8 +90,13 @@ window.DagDraw = (function($, DagDraw) {
 
                 condenseHeight(tree, {}, yCoors, 0);
                 // get new dagDepth after repositioning
+
+                dagImageHtml += drawDagNode(tree, storedInfo, drawn);
+                positionMultiExportNodes(trees, yCoors, storedInfo, drawn);
+                dagImageHtml += drawMultiExportNodes(trees, yCoors, storedInfo,
+                                                     drawn);
+
                 dagDepth = getDagDepth(tree);
-                dagImageHtml += drawDagNode(tree, storedInfo, {});
             } catch (err) {
                 console.error(err);
                 hasError = true;
@@ -123,6 +120,9 @@ window.DagDraw = (function($, DagDraw) {
             dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
                         'style="height: ' + height + 'px;width: ' + width +
                         'px;">' + dagImageHtml + '</div></div>';
+            if (trees.length > 1) {
+                $container.addClass("multiExport");
+            }
         }
 
         if (options.refresh) {
@@ -136,11 +136,14 @@ window.DagDraw = (function($, DagDraw) {
 
         if (!$container.hasClass('error')) {
             var numNodes = Object.keys(nodeIdMap).length;
-            drawAllLines($container, tree, numNodes, width);
+            drawAllLines($container, trees, numNodes, width);
         }
+
+
 
         var allDagInfo = {
             tree: tree,
+            trees: trees,
             nodeIdMap: nodeIdMap,
             depth: dagDepth,
             groups: storedInfo.groups,
@@ -167,6 +170,7 @@ window.DagDraw = (function($, DagDraw) {
     // used for expanding / collapsing tagged group with "node" as header
     DagDraw.recreateDagImage = function($dagWrap, dagInfo, node) {
         var tree = dagInfo.tree;
+        var trees = dagInfo.trees;
         var initialY = 0.2;
         var yCoors = [0]; // stores list of depths of branch nodes
         var storedInfo = {
@@ -189,6 +193,8 @@ window.DagDraw = (function($, DagDraw) {
 
         adjustNodePositions(tree, storedInfo);
         condenseHeight(tree, {}, yCoors, 0);
+        positionMultiExportNodes(trees, yCoors, storedInfo);
+
         dagDepth = getDagDepth(tree);
         storedInfo.groups = dagInfo.groups;
 
@@ -210,7 +216,7 @@ window.DagDraw = (function($, DagDraw) {
 
         $dagWrap.find(".canvas").remove();
         var numNodes = Object.keys(dagInfo.nodeIdMap).length;
-        drawAllLines($dagWrap, tree, numNodes, width);
+        drawAllLines($dagWrap, dagInfo.trees, numNodes, width);
 
         dagInfo.depth = dagDepth;
         dagInfo.condensedWidth = storedInfo.condensedDepth * Dag.tableWidth -
@@ -330,8 +336,7 @@ window.DagDraw = (function($, DagDraw) {
         return (deferred.promise());
     };
 
-    DagDraw.updateCanvasAfterWidthChange = function($dagWrap, tree, newWidth,
-                                                    collapse, all) {
+    DagDraw.updateCanvasAfterWidthChange = function($dagWrap, roots, newWidth, all) {
         var $dagImage = $dagWrap.find('.dagImage');
         $dagWrap.find('canvas').eq(0).remove();
         xcTooltip.hideAll();
@@ -342,11 +347,11 @@ window.DagDraw = (function($, DagDraw) {
         ctx.strokeStyle = lineColor;
         ctx.lineWidth = strokeWidth;
         ctx.beginPath();
+        var drawn = {};
 
-        if (collapse) {
-            traverseAndDrawLines($dagImage, ctx, tree, newWidth, {});
-        } else { // expanding
-            traverseAndDrawLines($dagImage, ctx, tree, newWidth, {}, all);
+        for (var i = 0; i < roots.length; i++) {
+            traverseAndDrawLines($dagImage, ctx, roots[i], newWidth, drawn,
+                                 all);
         }
 
         ctx.stroke();
@@ -670,6 +675,9 @@ window.DagDraw = (function($, DagDraw) {
             isHiddenTag = true;
             for (var i = 0; i < numChildren; i++) {
                 var child = node.children[i];
+                if (child.value.api === XcalarApisT.XcalarApiExport) {
+                    continue;
+                }
                 var childTags = getTags(child);
                 var matchFound = false;
                 for (var j = 0; j < childTags.length; j++) {
@@ -983,35 +991,44 @@ window.DagDraw = (function($, DagDraw) {
     // as none of the nodes overlap. We check to see if the left side of a
     // branch overlaps with the right side of an existing branch
     // "coors" stores list of depths of branch nodes
-    // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
-    function condenseHeight(node, seen, coors, YCoor) {
+    // [0, 3, 5] corresponds to these x,y coordinates: {0, 0}, {3, 1}, {5, 2}
+    // where {0, 0} is the right-top corner of the image
+    function condenseHeight(node, seen, coors, YCoor, searching) {
         seen[node.value.dagNodeId] = true;
         node.value.display.y = Math.round((YCoor + 0.2) * dagTableOuterHeight);
         for (var i = 0; i < node.parents.length; i++) {
             var parentNode = node.parents[i];
             var nextYCoor = YCoor + i;
-            if (!seen[parentNode.value.dagNodeId]) {
-                if (i > 0) {
-                    var branchDepth = getDagDepthPostPositioning(parentNode,
-                                                                 seen);
-                    var leafDepth = branchDepth + node.value.display.depth;
-                    for (var j = coors.length - 1; j >= 0; j--) {
-                        if (leafDepth >= coors[j]) {
-                            nextYCoor = j + 1;
-                            break;
-                        }
-                    }
-                    var depth = node.value.display.depth;
-                    for (var j = 0; j < parentNode.children.length; j++) {
-                        if (parentNode.children[j].value.display.depth < depth)
-                        {
-                            depth = parentNode.children[j].value.display.depth;
-                        }
-                    }
-                    coors[nextYCoor] = depth;
-                }
-                condenseHeight(parentNode, seen, coors, nextYCoor);
+            if (seen[parentNode.value.dagNodeId]) {
+                continue;
             }
+
+            if (parentNode.value.display.isHiddenTag) {
+                nextYCoor = YCoor;
+                if (i > 0) {
+                    searching = true;
+                }
+            } else if (i > 0 || searching) {
+                searching = false;
+                var branchDepth = getDagDepthPostPositioning(parentNode,
+                                                             seen);
+                var leafDepth = branchDepth + node.value.display.depth;
+                for (var j = coors.length - 1; j >= 0; j--) {
+                    if (leafDepth >= coors[j]) {
+                        nextYCoor = j + 1;
+                        break;
+                    }
+                }
+                var depth = node.value.display.depth;
+                for (var j = 0; j < parentNode.children.length; j++) {
+                    if (parentNode.children[j].value.display.depth < depth)
+                    {
+                        depth = parentNode.children[j].value.display.depth;
+                    }
+                }
+                coors[nextYCoor] = depth;
+            }
+            condenseHeight(parentNode, seen, coors, nextYCoor, searching);
         }
     }
 
@@ -1325,6 +1342,58 @@ window.DagDraw = (function($, DagDraw) {
                     '</div>';
 
         return (originHTML);
+    }
+
+    function positionMultiExportNodes(trees, yCoors, storedInfo) {
+        var dagImageHtml = "";
+        var exportNodes = [];
+        for (var i = 1; i < trees.length; i++) {
+            exportNodes.push(trees[i]);
+        }
+        // sort rightmost to leftMost exportNode
+        exportNodes.sort(function(a, b) {
+            return a.parents[0].value.display.depth -
+                   b.parents[0].value.display.depth;
+        });
+
+        for (var i = 0; i < exportNodes.length; i++) {
+            var node = exportNodes[i];
+            var parentNode = node.parents[0];
+            var nodeDisp = node.value.display;
+            var parentNodeDisp = parentNode.value.display;
+            nodeDisp.condensedDepth = parentNodeDisp.condensedDepth - 1;
+            nodeDisp.depth = parentNodeDisp.depth - 1;
+            nodeDisp.expandedDepth = parentNodeDisp.expandedDepth - 1;
+            nodeDisp.isHidden = parentNodeDisp.isHidden;
+            nodeDisp.tagCollapsed = parentNodeDisp.tagCollapsed;
+            nodeDisp.isInTagGroup = parentNodeDisp.isInTagGroup;
+            nodeDisp.isHiddenTag = parentNodeDisp.isHiddenTag;
+            nodeDisp.x = Math.round(nodeDisp.condensedDepth * Dag.tableWidth);
+            nodeDisp.y = Math.round(parentNodeDisp.y + dagTableOuterHeight);
+
+            var nextYCoor = yCoors[yCoors.length - 1];
+            for (var j = yCoors.length - 1; j >= 0; j--) {
+                if (nodeDisp.depth + 1 >= yCoors[j]) {
+                    nextYCoor = j + 1;
+                    break;
+                }
+            }
+            nodeDisp.y = Math.round((nextYCoor + 0.2) * dagTableOuterHeight);
+            if (!nodeDisp.isHiddenTag) {
+                yCoors[nextYCoor] = nodeDisp.depth;
+            }
+        }
+    }
+
+    function drawMultiExportNodes(trees, yCoors, storedInfo, drawn) {
+        var dagImageHtml = "";
+
+        // make all sure positions get adjusted first before drawing all nodes
+        for (var i = 1; i < trees.length; i++) {
+            dagImageHtml += drawDagNode(trees[i], storedInfo, drawn);
+        }
+
+        return dagImageHtml;
     }
 
     function getCollapsedHtml(group, top, right, depth, groupId, numHidden,
@@ -2064,14 +2133,20 @@ window.DagDraw = (function($, DagDraw) {
         return (canvasHTML[0]);
     }
 
-    function drawAllLines($container, node, numNodes, width) {
+    function drawAllLines($container, roots, numNodes, width) {
         var $dagImage = $container.find('.dagImage');
         var canvas = createCanvas($container);
         var ctx = canvas.getContext('2d');
         ctx.strokeStyle = lineColor;
         ctx.lineWidth = strokeWidth;
         ctx.beginPath();
-        traverseAndDrawLines($dagImage, ctx, node, width, {});
+        var drawn = {};
+        // traverseAndDrawLines($dagImage, ctx, node, width, drawn);
+        // for export
+        for (var i = 0; i < roots.length; i++) {
+            traverseAndDrawLines($dagImage, ctx, roots[i], width, drawn);
+        }
+
         ctx.stroke();
 
         // if more than 1000 nodes, do not make savable, too much lag
@@ -2087,8 +2162,8 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function traverseAndDrawLines($dagImage, ctx, node, width, drawn, all) {
-        if (all ||
-            !node.value.display.isHidden && !node.value.display.isHiddenTag) {
+        if ((all || !node.value.display.isHidden) &&
+            !node.value.display.isHiddenTag) {
             drawDagLines($dagImage, ctx, node, width);
         }
         drawn[node.value.dagNodeId] = true;
@@ -2195,10 +2270,11 @@ window.DagDraw = (function($, DagDraw) {
             // curve style option
             // bendX1 = x1 - ((x1 - x2) / 2);
             // bendY1 = y1;
-            // bendY2 = y2 - ((y2 - y1) / 2);
+            // bendX2 = y2 - ((y2 - y1) / 2);
             // bendY2 = y1;
 
-            bendX1 = x2;
+            // bendX1 = x2;
+            bendX1 = (x2 + x1) / 2;
             bendY1 = y1;
             bendX2 = x2;
             bendY2 = y1;

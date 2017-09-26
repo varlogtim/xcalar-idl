@@ -2584,7 +2584,7 @@ describe("Dag Panel Test", function() {
             $dagWrap.remove();
         });
 
-        it("should handle multiple export nodes", function() {
+        it.skip("should handle multiple export nodes", function() {
             var $dagWrap = $('<div id="dagWrap-testDagWrap" class="dagWrap"></div>');
             var exportNode2 = xcHelper.deepCopy(exportNode);
             exportNode2.dagNodeId = "-1";

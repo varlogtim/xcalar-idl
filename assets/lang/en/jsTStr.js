@@ -813,7 +813,8 @@ DFTStr = {
     'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batch dataflows from this table.',
     'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be ignored.',
     'NewParam': 'New Parameter',
-    'EnterNewParam': 'Enter New Parameter Here'
+    'EnterNewParam': 'Enter New Parameter Here',
+    'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports'
 };
 
 DSTStr = {

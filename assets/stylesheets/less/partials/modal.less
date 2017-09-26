@@ -3025,6 +3025,19 @@ html.microsoft {
         }
     }
 
+    &.multiExport {
+        .advancedOpts {
+            .tooltipCover {
+                width: 50%;
+                height: 20px;
+                .position(absolute, @top: 35px, @left: 0px);
+            }
+            .radioButton[data-option=import] {
+                .xc-disabled;
+            }
+        }
+    }
+
     .flexContainer {
         > div {
             text-align: left;

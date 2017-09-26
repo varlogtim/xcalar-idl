@@ -692,7 +692,8 @@ DFTStr = {
 "ParamNoValue": "请为当前数据流使用的所有参数赋值",
 "CannotParam": "如果导出成Xcalar表，则无法参数化",
 'NewParam': '新建参数',
-'EnterNewParam': '请在此处输入新参数'
+'EnterNewParam': '请在此处输入新参数',
+'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports'
 };
 DSTStr = {
 'UnknownUser': '未知用户',
