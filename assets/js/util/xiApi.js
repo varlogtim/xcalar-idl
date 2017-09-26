@@ -1377,7 +1377,7 @@ window.XIApi = (function(XIApi) {
         var deferred1 = jQuery.Deferred();
         var deferred2 = jQuery.Deferred();
 
-        checkTableIndex(colName, tableName, undefined, txId)
+        checkTableIndex(colName, tableName, txId)
         .then(function() {
             deferred1.resolve.apply(this, arguments);
             deferred2.resolve.apply(this, arguments);
