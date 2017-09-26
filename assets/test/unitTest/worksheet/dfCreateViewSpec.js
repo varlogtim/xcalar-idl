@@ -86,7 +86,7 @@ describe('DFCreateView Test', function() {
             $th.click(); // select
             expect($th.hasClass('modalHighlighted')).to.be.true;
 
-            var event = {type: "click", "which": 1, shiftKey: true};
+            event = {type: "click", "which": 1, shiftKey: true};
             $th = $("#xcTable-" + tableId).find('th.col7');
             $th.trigger(event);
             expect($th.hasClass('modalHighlighted')).to.be.true;
@@ -243,7 +243,7 @@ describe('DFCreateView Test', function() {
 
         it("check duplicate name fail should be handled", function(done) {
             var cache = XcalarGetRetina;
-            XcalarGetRetina = function() {return PromiseHelper.resolve()};
+            XcalarGetRetina = function() { return PromiseHelper.resolve(); };
 
             DFCreateView.__testOnly__.selectAll();
             submitForm()

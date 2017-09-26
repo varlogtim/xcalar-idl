@@ -48,6 +48,12 @@ describe("MonitorLog Test", function() {
         // })
     });
     describe("Get recent logs Test", function() {
+        before(function() {
+            if (!Admin.isAdmin()) {
+                MonitorLog.setup();
+            }
+        });
+
         it("getHost should work", function(done) {
             var oldFunc = XFTSupportTools.getMatchHosts;
             XFTSupportTools.getMatchHosts = function() {
@@ -73,18 +79,28 @@ describe("MonitorLog Test", function() {
         it("getRecentLogs should fail when getMatchHosts rejects", function() {
             $logCard.find(".inputSection .lastRow .xc-input").val(1);
             var oldFunc = XFTSupportTools.getMatchHosts;
+            var oldFlush = XcalarLogLevelSet;
+            XcalarLogLevelSet = function() {
+                return PromiseHelper.resolve();
+            };
             XFTSupportTools.getMatchHosts = function() {
                 return jQuery.Deferred().reject(unknowError).promise();
             };
             $logCard.find(".getRecentLogs").click();
             expect($("#alertContent").is(":visible")).to.equal(true);
             XFTSupportTools.getMatchHosts = oldFunc;
+            XcalarLogLevelSet = oldFlush;
         });
 
         it("getRecentLogs should work", function() {
             $logCard.find(".inputSection .lastRow .xc-input").val(1);
+            var oldFlush = XcalarLogLevelSet;
             var oldFunc1 = XFTSupportTools.getMatchHosts;
             var oldFunc2 = XFTSupportTools.getRecentLogs;
+            XcalarLogLevelSet = function() {
+                return PromiseHelper.resolve();
+            };
+
             XFTSupportTools.getMatchHosts = function() {
                 return jQuery.Deferred().resolve(retHosts).promise();
             };
@@ -98,13 +114,19 @@ describe("MonitorLog Test", function() {
 
             XFTSupportTools.getMatchHosts = oldFunc1;
             XFTSupportTools.getRecentLogs = oldFunc2;
+            XcalarLogLevelSet = oldFlush;
         });
     });
 
     describe("Monitor logs Test", function() {
         it("startMonitorLog should fail when returns unknown error", function() {
+            var oldFlush = XcalarLogLevelSet;
             var oldFunc1 = XFTSupportTools.getMatchHosts;
-            var oldFunc2 = XFTSupportTools.monitorLogs;
+            var oldFunc2 = XFTSupportTools.getRecentLogs;
+            XcalarLogLevelSet = function() {
+                return PromiseHelper.resolve();
+            };
+
             XFTSupportTools.getMatchHosts = function() {
                 return jQuery.Deferred().resolve(retHosts).promise();
             };
@@ -118,10 +140,15 @@ describe("MonitorLog Test", function() {
 
             XFTSupportTools.getMatchHosts = oldFunc1;
             XFTSupportTools.monitorLogs = oldFunc2;
+            XcalarLogLevelSet = oldFlush;
         });
 
         it("startMonitorLog should fail when getMatchHosts has error", function() {
             var oldFunc = XFTSupportTools.getMatchHosts;
+            var oldFlush = XcalarLogLevelSet;
+            XcalarLogLevelSet = function() {
+                return PromiseHelper.resolve();
+            };
             XFTSupportTools.getMatchHosts = function() {
                 return jQuery.Deferred().reject(unknowError).promise();
             };
@@ -130,6 +157,7 @@ describe("MonitorLog Test", function() {
             expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
 
             XFTSupportTools.getMatchHosts = oldFunc;
+            XcalarLogLevelSet = oldFlush;
         });
 
         it("startMonitorLog should work", function() {
@@ -141,6 +169,10 @@ describe("MonitorLog Test", function() {
             }
             var oldFunc1 = XFTSupportTools.getMatchHosts;
             var oldFunc2 = XFTSupportTools.monitorLogs;
+            var oldFlush = XcalarLogLevelSet;
+            XcalarLogLevelSet = function() {
+                return PromiseHelper.resolve();
+            };
             XFTSupportTools.getMatchHosts = function() {
                 return jQuery.Deferred().resolve(retHosts).promise();
             };
@@ -156,6 +188,7 @@ describe("MonitorLog Test", function() {
 
             XFTSupportTools.getMatchHosts = oldFunc1;
             XFTSupportTools.monitorLogs = oldFunc2;
+            XcalarLogLevelSet = oldFlush;
         });
 
         it("appendResultToFocusTab should work", function() {

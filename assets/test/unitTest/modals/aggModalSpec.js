@@ -245,7 +245,7 @@ describe("Agg Modal Test", function() {
             });
         });
 
-         it("should resize corr view work", function() {
+        it("should resize corr view work", function() {
             var $header = $corr.find(".headerContainer");
             var $padding = $header.find(".padding");
             var $bar = $padding.find(".ui-resizable-e").eq(0);

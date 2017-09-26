@@ -210,7 +210,8 @@ describe('OperationsView Test', function() {
             before(function() {
                 fn = OperationsView.__testOnly__.checkArgTypes;
                 parseTypeCache = OperationsView.__testOnly__.changeParseTypeFn();
-            })
+            });
+
             it("test when only strings are valid", function() {
                 OperationsView.__testOnly__.changeParseTypeFn(function() {
                     return ["string"];
@@ -221,7 +222,7 @@ describe('OperationsView Test', function() {
                 expect(fn("false")).to.equal(null);
             });
 
-             it("test when only mixed is valid", function() {
+            it("test when only mixed is valid", function() {
                 OperationsView.__testOnly__.changeParseTypeFn(function() {
                     return ["mixed"];
                 });
@@ -840,7 +841,7 @@ describe('OperationsView Test', function() {
             it("colMenu shouldn't open", function() {
                 $(".xcTable .header").trigger(fakeEvent.mousedown);
                 expect($("#colMenu").is(":visible")).to.be.false;
-            })
+            });
 
             after(function() {
                 $operationsView.find('.groupby .incSample .checkbox').click();
@@ -1051,18 +1052,18 @@ describe('OperationsView Test', function() {
 
                 var firstPass = false;
                 OperationsView.__testOnly__.newColNameCheck()
-                .then(function(res) {
+                .then(function() {
                     firstPass = true;
                     $inputs.eq(3).val("test");
                     cachedFn = ColManager.checkColName;
                     $operationsModal.find(".groupbyGroup").append('<div class="colNameRow testDiv"><input value="test"></div>');
                     ColManager.checkColName = function() {return false;};
-                    return OperationsView.__testOnly__.newColNameCheck()
+                    return OperationsView.__testOnly__.newColNameCheck();
                 })
                 .then(function() {
                     done("failed");
                 })
-                .fail(function(res) {
+                .fail(function() {
                     expect(firstPass).to.be.true;
                     UnitTest.hasStatusBoxWithError(ErrTStr.NameInUse);
                     $operationsModal.find(".testDiv").remove();
@@ -1084,10 +1085,10 @@ describe('OperationsView Test', function() {
                 xcFunction.groupBy = function() {
                     called = true;
                     return PromiseHelper.reject();
-                }
+                };
 
                 var colName = xcHelper.getPrefixColName(prefix, "average_stars");
-                fn([colName, colName, "c"], )
+                fn([colName, colName, "c"])
                 .then(function() {
 
                     done("fail");
@@ -1101,7 +1102,7 @@ describe('OperationsView Test', function() {
 
             after(function() {
                 xcFunction.groupBy = cachedGB;
-            })
+            });
         });
 
         after(function() {
@@ -1834,7 +1835,7 @@ describe('OperationsView Test', function() {
                 xcFunction.filter = function() {
                     called = true;
                     return PromiseHelper.reject();
-                }
+                };
 
                 var colName = xcHelper.getPrefixColName(prefix, "average_stars");
 
@@ -1851,7 +1852,7 @@ describe('OperationsView Test', function() {
 
             after(function() {
                 xcFunction.filter = cachedFilter;
-            })
+            });
         });
 
 
@@ -2426,7 +2427,7 @@ describe('OperationsView Test', function() {
                 var res = OperationsView.__testOnly__.getColNumFromFunc(str);
                 expect(res).to.equal(1);
             });
-        })
+        });
 
         describe('aggregate submit test', function() {
             var submitForm;

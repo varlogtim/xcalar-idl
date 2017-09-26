@@ -76,7 +76,7 @@ describe("Main Menu Test", function() {
         });
 
         it("should resize menu to be bigger", function() {
-            var $bar = $mainMenu.find(".ui-resizable-e").eq(0);
+            var $bar = $mainMenu.find("> .ui-resizable-e").eq(0);
             var width = $mainMenu.width();
             var pageX = $bar.offset().left + width;
             var pageY = $bar.offset().top;
@@ -105,7 +105,7 @@ describe("Main Menu Test", function() {
         });
 
         it("should resize menu to be smaller", function() {
-            var $bar = $mainMenu.find(".ui-resizable-e").eq(0);
+            var $bar = $mainMenu.find("> .ui-resizable-e").eq(0);
             var width = $mainMenu.width();
             var pageX = $bar.offset().left + width;
             var pageY = $bar.offset().top;

@@ -11,6 +11,7 @@ describe("JoinView Test", function() {
     var cachedGetTableList;
 
     before(function(done) {
+        console.clear();
         UnitTest.onMinMode();
         cachedCenterFn = xcHelper.centerFocusedTable;
         cachedGetTableList = WSManager.getTableList;
@@ -196,6 +197,9 @@ describe("JoinView Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                ExtensionManager.trigger = cachedFn;
             });
         });
     });
@@ -385,12 +389,12 @@ describe("JoinView Test", function() {
             var $rightSemiLi = $("#joinType").find("li").filter(function() {
                 return $(this).text() === "Right Semi Join";
             });
-            var $leftAntiLi = $("#joinType").find("li").filter(function() {
-                return $(this).text() === "Left Anti Semi Join";
-            });
-            var $rightAntiLi = $("#joinType").find("li").filter(function() {
-                return $(this).text() === "Right Anti Semi Join";
-            });
+            // var $leftAntiLi = $("#joinType").find("li").filter(function() {
+            //     return $(this).text() === "Left Anti Semi Join";
+            // });
+            // var $rightAntiLi = $("#joinType").find("li").filter(function() {
+            //     return $(this).text() === "Right Anti Semi Join";
+            // });
 
             $joinForm.find(".joinTableList .arg").eq(1).val(tableName2);
             var col = ColManager.newCol();
@@ -578,7 +582,7 @@ describe("JoinView Test", function() {
             expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(0);
 
             // select 1st column
-            var $target = $table.find(".header").eq(1);
+            $target = $table.find(".header").eq(1);
             event = {};
             expect($target.closest(".modalHighlighted").length).to.equal(0);
             JoinView.__testOnly__.colHeaderClick($target, event);
@@ -950,10 +954,14 @@ describe("JoinView Test", function() {
         xcHelper.centerFocusedTable = cachedCenterFn;
         WSManager.getTableList = cachedGetTableList;
         delete gTables[tableId2];
-        UnitTest.deleteAll(tableName, testDs)
+
+        UnitTest.removeOrphanTable()
         .always(function() {
-            UnitTest.offMinMode();
-            done();
+            UnitTest.deleteAll(tableName, testDs)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
         });
     });
 });

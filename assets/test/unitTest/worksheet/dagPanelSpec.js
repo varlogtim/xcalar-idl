@@ -965,7 +965,7 @@ describe("Dag Panel Test", function() {
 
                 UnitTest.testFinish(function() {
                     if (!ifvisible.now()) {
-                        $("#menuBar").removeClass("animating")
+                        $("#menuBar").removeClass("animating");
                     }
                     return !$("#menuBar").hasClass("animating");
                 })
@@ -1273,10 +1273,10 @@ describe("Dag Panel Test", function() {
                     gbCalled = true;
                     expect(input.evalStrs[0].indexOf("count")).to.equal(0);
                     return PromiseHelper.reject();
-                }
+                };
 
                 var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(1);
-                var tId = $actionType.next().data("id");
+                // var tId = $actionType.next().data("id");
                 var tName = $actionType.next().data("tablename");
 
                 Dag.generateIcvTable(
@@ -1305,7 +1305,7 @@ describe("Dag Panel Test", function() {
                     gbCalled = true;
                     expect(input.evalStrs[0].indexOf("count")).to.equal(0);
                     return PromiseHelper.resolve();
-                }
+                };
                 var cachedRefresh = TblManager.refreshTable;
                 TblManager.refreshTable = function() {
                     return PromiseHelper.resolve();
@@ -2361,195 +2361,192 @@ describe("Dag Panel Test", function() {
         var dsNode, indexNode, sortNode, exportNode;
         before(function() {
             dsNode = {
-              "name": {
-                "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed"
-              },
-              "tag": "",
-              "comment": "",
-              "numParent": 0,
-              "dagNodeId": "18014398509488925",
-              "api": 2,
-              "state": 5,
-              "input": {
-                "loadInput": {
-                  "dataset": {
-                    "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
-                    "datasetId": "11793",
-                    "formatType": 1,
-                    "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                    "loadIsComplete": false,
-                    "refCount": 0,
-                    "isListable": false,
-                    "udfName": ""
-                  },
-                  "loadArgs": {
-                    "csv": {
-                      "recordDelim": "\n",
-                      "quoteDelim": "\"",
-                      "linesToSkip": 0,
-                      "fieldDelim": "",
-                      "isCRLF": true,
-                      "hasHeader": false
-                    },
-                    "udfLoadArgs": {
-                      "fullyQualifiedFnName": ""
-                    },
-                    "recursive": false,
-                    "fileNamePattern": "",
-                    "maxSize": 0
-                  },
-                  "dagNodeId": "18014398509488925"
+                "name": {
+                    "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed"
+                },
+                "tag": "",
+                "comment": "",
+                "numParent": 0,
+                "dagNodeId": "18014398509488925",
+                "api": 2,
+                "state": 5,
+                "input": {
+                    "loadInput": {
+                        "dataset": {
+                            "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
+                            "datasetId": "11793",
+                            "formatType": 1,
+                            "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                            "loadIsComplete": false,
+                            "refCount": 0,
+                            "isListable": false,
+                            "udfName": ""
+                        },
+                        "loadArgs": {
+                            "csv": {
+                                "recordDelim": "\n",
+                                "quoteDelim": "\"",
+                                "linesToSkip": 0,
+                                "fieldDelim": "",
+                                "isCRLF": true,
+                                "hasHeader": false
+                            },
+                            "udfLoadArgs": {
+                                "fullyQualifiedFnName": ""
+                            },
+                            "recursive": false,
+                            "fileNamePattern": "",
+                            "maxSize": 0
+                        },
+                        "dagNodeId": "18014398509488925"
+                    }
                 }
-              }
             };
 
             indexNode = {
-              "name": {
-                "name": "yelp_academic_dataset_user_fixed#DP0"
-              },
-              "tag": "indexFromDataset#DP0",
-              "comment": "",
-              "numParent": 1,
-              "dagNodeId": "18014398509489069",
-              "api": 3,
-              "state": 5,
-              "input": {
-                "indexInput": {
-                  "dhtName": "",
-                  "source": {
-                    "isTable": false,
-                    "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                    "nodeId": "18014398509488925"
-                  },
-                  "keyName": "xcalarRecordNum",
-                  "dstTable": {
-                    "tableName": "yelp_academic_dataset_user_fixed#DP0",
-                    "tableId": "18014398509489069"
-                  },
-                  "ordering": 0,
-                  "fatptrPrefixName": "",
-                  "keyType": 0
+                "name": {
+                    "name": "yelp_academic_dataset_user_fixed#DP0"
+                },
+                "tag": "indexFromDataset#DP0",
+                "comment": "",
+                "numParent": 1,
+                "dagNodeId": "18014398509489069",
+                "api": 3,
+                "state": 5,
+                "input": {
+                    "indexInput": {
+                        "dhtName": "",
+                        "source": {
+                            "isTable": false,
+                            "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                            "nodeId": "18014398509488925"
+                        },
+                        "keyName": "xcalarRecordNum",
+                        "dstTable": {
+                            "tableName": "yelp_academic_dataset_user_fixed#DP0",
+                            "tableId": "18014398509489069"
+                        },
+                        "ordering": 0,
+                        "fatptrPrefixName": "",
+                        "keyType": 0
+                    }
                 }
-              }
             };
 
             sortNode = {
-              "name": {
-                "name": "yelp_academic_dataset_user_fixed#DP3"
-              },
-              "tag": "sort#DP3",
-              "comment": "",
-              "numParent": 1,
-              "dagNodeId": "18014398509611722",
-              "api": 3,
-              "state": 5,
-              "input": {
-                "indexInput": {
-                  "dhtName": "",
-                  "source": {
-                    "isTable": true,
-                    "name": "yelp_academic_dataset_user_fixed#DP0",
-                    "nodeId": "18014398509489069"
-                  },
-                  "keyName": "yelp_academic_dataset_user_fixe::type",
-                  "dstTable": {
-                    "tableName": "yelp_academic_dataset_user_fixed#DP3",
-                    "tableId": "18014398509611722"
-                  },
-                  "ordering": 3,
-                  "fatptrPrefixName": "",
-                  "keyType": 0
+                "name": {
+                    "name": "yelp_academic_dataset_user_fixed#DP3"
+                },
+                "tag": "sort#DP3",
+                "comment": "",
+                "numParent": 1,
+                "dagNodeId": "18014398509611722",
+                "api": 3,
+                "state": 5,
+                "input": {
+                    "indexInput": {
+                        "dhtName": "",
+                        "source": {
+                            "isTable": true,
+                            "name": "yelp_academic_dataset_user_fixed#DP0",
+                            "nodeId": "18014398509489069"
+                        },
+                        "keyName": "yelp_academic_dataset_user_fixe::type",
+                        "dstTable": {
+                            "tableName": "yelp_academic_dataset_user_fixed#DP3",
+                            "tableId": "18014398509611722"
+                        },
+                        "ordering": 3,
+                        "fatptrPrefixName": "",
+                        "keyType": 0
+                    }
                 }
-              }
             };
 
             exportNode = {
-              "name": {
-                "name": ".XcalarLRQExport.students#wE1"
-              },
-              "tag": "",
-              "comment": "",
-              "numParent": 1,
-              "dagNodeId": "1273",
-              "api": 33,
-              "state": 1,
-              "input": {
-                "exportInput": {
-                  "srcTable": {
-                    "tableName": "yelp_academic_dataset_user_fixed#DP3",
-                    "tableId": "8299634059700679470"
-                  },
-                  "exportName": "",
-                  "meta": {
-                    "target": {
-                      "type": 1,
-                      "name": "Default"
-                    },
-                    "specificInput": {
-                      "sfInput": {
-                        "fileName": "export-students#wE1.csv",
-                        "format": 2,
-                        "splitRule": {
-                          "type": 1,
-                          "spec": {
-                            "numFiles": 0,
-                            "maxSize": 3665476190
-                          }
+                "name": {
+                    "name": ".XcalarLRQExport.students#wE1"
+                },
+                "tag": "",
+                "comment": "",
+                "numParent": 1,
+                "dagNodeId": "1273",
+                "api": 33,
+                "state": 1,
+                "input": {
+                    "exportInput": {
+                        "srcTable": {
+                            "tableName": "yelp_academic_dataset_user_fixed#DP3",
+                            "tableId": "8299634059700679470"
                         },
-                        "headerType": 1,
-                        "formatArgs": {
-                          "csv": {
-                            "fieldDelim": "\t",
-                            "recordDelim": "\n",
-                            "quoteDelim": "\""
-                          },
-                          "json": {
-                            "array": false
-                          },
-                          "sql": {
-                            "tableName": "",
-                            "dropTable": false,
-                            "createTable": false
-                          }
+                        "exportName": "",
+                        "meta": {
+                            "target": {
+                                "type": 1,
+                                "name": "Default"
+                            },
+                            "specificInput": {
+                                "sfInput": {
+                                    "fileName": "export-students#wE1.csv",
+                                    "format": 2,
+                                    "splitRule": {
+                                        "type": 1,
+                                        "spec": {
+                                            "numFiles": 0,
+                                            "maxSize": 3665476190
+                                        }
+                                    },
+                                    "headerType": 1,
+                                    "formatArgs": {
+                                        "csv": {
+                                            "fieldDelim": "\t",
+                                            "recordDelim": "\n",
+                                            "quoteDelim": "\""
+                                        },
+                                        "json": {
+                                            "array": false
+                                        },
+                                        "sql": {
+                                            "tableName": "",
+                                            "dropTable": false,
+                                            "createTable": false
+                                        }
+                                    }
+                                },
+                                "udfInput": {
+                                    "fileName": "",
+                                    "format": 0,
+                                    "headerType": 0,
+                                    "formatArgs": {
+                                        "csv": {
+                                            "fieldDelim": "",
+                                            "recordDelim": "",
+                                            "quoteDelim": ""
+                                        },
+                                        "json": {
+                                            "array": false
+                                        },
+                                        "sql": {
+                                            "tableName": "",
+                                            "dropTable": false,
+                                            "createTable": false
+                                        }
+                                    }
+                                }
+                            },
+                            "createRule": 1,
+                            "sorted": true,
+                            "numColumns": 2,
+                            "columns": [{
+                                "name": "students::student_name",
+                                "headerAlias": "student_name"
+                            }, {
+                                "name": "students::student_id",
+                                "headerAlias": "student_id"
+                            }]
                         }
-                      },
-                      "udfInput": {
-                        "fileName": "",
-                        "format": 0,
-                        "headerType": 0,
-                        "formatArgs": {
-                          "csv": {
-                            "fieldDelim": "",
-                            "recordDelim": "",
-                            "quoteDelim": ""
-                          },
-                          "json": {
-                            "array": false
-                          },
-                          "sql": {
-                            "tableName": "",
-                            "dropTable": false,
-                            "createTable": false
-                          }
-                        }
-                      }
-                    },
-                    "createRule": 1,
-                    "sorted": true,
-                    "numColumns": 2,
-                    "columns": [
-                      {
-                        "name": "students::student_name",
-                        "headerAlias": "student_name"
-                      },
-                      {
-                        "name": "students::student_id",
-                        "headerAlias": "student_id"
-                      }
-                    ]
-                  }
+                    }
                 }
-              }
             };
         });
 

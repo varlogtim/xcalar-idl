@@ -674,11 +674,31 @@ describe("DFCard Test", function() {
             $wrap.append('<div class="dagTable export"data-nodeid="a"><div class="opInfoText"></div></div>');
             // $wrap.find(".dagTable").data("paramValue", ["<a>"]);
             var cache1 = DF.getDataflow;
-            var paramInfo = [];
             var df = {
-                retinaNodes: [{dagNodeId: "a", input: {exportInput: {meta: {target: {name: "", type:""}, specificInput: {sfInput: {fileName: "<b>"}}}}}}],
-                parameterizedNodes: {"a": {paramType: XcalarApisT.XcalarApiFilter}},
-                colorNodes: function() {return $wrap.find(".dagTable");}
+                retinaNodes: [{
+                    dagNodeId: "a",
+                    input: {
+                        exportInput: {
+                            meta: {
+                                target: {
+                                    name: "",
+                                    type: ""
+                                },
+                                specificInput: {
+                                    sfInput: {
+                                        fileName: "<b>"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }],
+                parameterizedNodes: {
+                    "a": {
+                        paramType: XcalarApisT.XcalarApiFilter
+                    }
+                },
+                colorNodes: function() { return $wrap.find(".dagTable"); }
             };
 
             DF.getDataflow = function() {

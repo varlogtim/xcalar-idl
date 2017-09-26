@@ -1039,16 +1039,16 @@ describe("InstallerCommon Common Test", function() {
         var originValidateSerializationDirectory = InstallerCommon.validateSerializationDirectory;
         var originValidateCredentials = InstallerCommon.validateCredentials;
 
-        InstallerCommon.validateHosts = function($form) {
+        InstallerCommon.validateHosts = function() {
             return PromiseHelper.resolve({"a": "a"});
         };
-        InstallerCommon.validateInstallationDirectory = function($form) {
+        InstallerCommon.validateInstallationDirectory = function() {
             return PromiseHelper.resolve({"b": "b"});
         };
-        InstallerCommon.validateSerializationDirectory = function($form) {
+        InstallerCommon.validateSerializationDirectory = function() {
             return PromiseHelper.resolve({"c": "c"});
         };
-        InstallerCommon.validateCredentials = function($form) {
+        InstallerCommon.validateCredentials = function() {
             return PromiseHelper.resolve({"d": "d"});
         };
 
@@ -1627,13 +1627,13 @@ describe("InstallerCommon Common Test", function() {
         $forms.addClass("hidden");
         $form.removeClass("hidden");
 
-        InstallerCommon.validateHosts = function($form) {
+        InstallerCommon.validateHosts = function() {
             return PromiseHelper.resolve({"a": "a"});
         };
-        InstallerCommon.validateInstallationDirectory = function($form) {
+        InstallerCommon.validateInstallationDirectory = function() {
             return PromiseHelper.resolve({"b": "b"});
         };
-        InstallerCommon.validateCredentials = function($form) {
+        InstallerCommon.validateCredentials = function() {
             return PromiseHelper.resolve({"c": "c"});
         };
         InstallerCommon.__testOnly__.setSendViaHttps(function() {

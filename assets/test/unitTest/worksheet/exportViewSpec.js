@@ -338,7 +338,7 @@ describe('ExportView Test', function() {
             expect($table.find(".header").eq(4).closest(".modalHighlighted").length).to.equal(0);
 
             // select 1st column
-            var $target = $table.find(".header").eq(1);
+            $target = $table.find(".header").eq(1);
             expect($target.closest(".modalHighlighted").length).to.equal(0);
             $target.click();
             expect($target.closest(".modalHighlighted").length).to.equal(1);

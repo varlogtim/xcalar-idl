@@ -2355,7 +2355,8 @@ describe("xcHelper Test", function() {
                 "isNewCol": false,
                 "type": "float"
             });
-
+            progCol1.immediate = true;
+            progCol1.knownType = true;
             var progCol2 = ColManager.newDATACol();
 
             gTables["fakeId"] = new TableMeta({

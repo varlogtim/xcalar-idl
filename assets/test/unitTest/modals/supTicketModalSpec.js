@@ -133,8 +133,6 @@ describe("SupTicketModal Test", function() {
 
         it("ticket id radio buttons should work", function() {
             var $dropdown = $modal.find(".dropDownList");
-            var $input = $dropdown.find(".text");
-
             $dropdown.find("li").filter(function() {
                 return $(this).data("val") === "existing";
             }).trigger(fakeEvent.mouseup);

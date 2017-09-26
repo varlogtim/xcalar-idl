@@ -110,7 +110,7 @@ describe("Monitor Graph Test", function() {
             })
             .then(function() {
                 $monitorPanel.find(".statsHeadingBar").eq(0).click();
-                return  (UnitTest.testFinish(function() {
+                return (UnitTest.testFinish(function() {
                     return $monitorPanel.find(".statsSection ul").eq(0).is(":visible");
                 }));
             })

@@ -116,7 +116,7 @@ describe('FnBar Test', function() {
             });
         });
 
-        describe("Fnbar autocomplete and search should work.", function() {
+        describe("Fnbar autocomplete and search should work", function() {
             it("Search results should work.", function() {
                 FnBar.clear();
                 $fnArea.removeClass("searching");
@@ -263,7 +263,10 @@ describe('FnBar Test', function() {
                     return $(this).find(".displayText").text() === "regex";
                 });
                 $li.click();
-                expect($(".fnbarPre").text().indexOf("regex")).to.equal(5);
+                // expect($(".fnbarPre").text().indexOf("regex")).to.equal(5);
+                var $ele = $("#functionArea pre:contains(regex)");
+                expect($ele.length).to.equal(1);
+                expect($ele.text().indexOf("regex")).to.equal(5);
 
                 FnBar.clear();
             });

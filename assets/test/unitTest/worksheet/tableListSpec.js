@@ -523,7 +523,7 @@ describe('TableList Test', function() {
             var fn = xcHelper.centerFocusedTable;
             xcHelper.centerFocusedTable = function() {
                 called = true;
-            }
+            };
             var $activeLists = $("#activeTableListSection");
             $activeLists.find(".tableListBox .tableName").eq(0).click();
             expect(called).to.be.true;
@@ -717,12 +717,13 @@ describe('TableList Test', function() {
             TableList.tableBulkAction = function() {
                 called = true;
                 return PromiseHelper.reject();
-            }
+            };
             var cachedFn2 = WSManager.addNoSheetTables;
             WSManager.addNoSheetTables = function() {};
 
             TableList.activeTables()
             .then(function() {
+                expect(called).to.be.true;
                 done("fail");
             })
             .fail(function() {
@@ -730,7 +731,7 @@ describe('TableList Test', function() {
                 TableList.tableBulkAction = cachedFn1;
                 WSManager.addNoSheetTables = cachedFn2;
                 done();
-            })
+            });
         });
     });
 
@@ -823,8 +824,8 @@ describe('TableList Test', function() {
             WSManager.getNumCols = fnCache;
 
             gMaxColToPull = maxColCache;
-        })
-    })
+        });
+    });
 
     after(function() {
         gTables = gTableCache;
