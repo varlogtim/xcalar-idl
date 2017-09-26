@@ -7,17 +7,21 @@ window.StatusBox = (function($, StatusBox){
 
     setupListeners();
 
-    // options:
-    //      type: string, "error", "info"
-    //      offsetX: int,
-    //      offsetY: int,
-    //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
-    //      default to the right side of the $target)
-    //      highZindex: boolean, if true will add class to bring statusbox
-    //                  z-index above locked background z-index,
-    //      preventImmediateHide: boolean, if true, will set timeout that will
-    //                          prevent closing for a split second (useful if
-    //                          scroll event tries to close status box)
+    /*
+     * options:
+     *      type: string, "error", "info"
+     *      offsetX: int,
+     *      offsetY: int,
+     *      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
+     *      default to the right side of the $target)
+     *      highZindex: boolean, if true will add class to bring statusbox
+     *                  z-index above locked background z-index,
+     *      preventImmediateHide: boolean, if true, will set timeout that will
+     *                          prevent closing for a split second (useful if
+     *                          scroll event tries to close status box)
+     *      persist: if set true, the box will not hide unless click
+     *               on close button
+     */
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
@@ -134,6 +138,12 @@ window.StatusBox = (function($, StatusBox){
             $statusBox.addClass("hasDetail");
             $statusBox.find(".detailContent").text(options.detail);
         }
+
+        if (options.persist) {
+            $statusBox.addClass("persist");
+        } else {
+            $statusBox.removeClass("persist");
+        }
     };
 
     StatusBox.forceHide = function() {
@@ -148,9 +158,11 @@ window.StatusBox = (function($, StatusBox){
 
     function setupListeners() {
         $("#statusBox").mousedown(function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            StatusBox.forceHide();
+            if (notPersist()) {
+                event.stopPropagation();
+                event.preventDefault();
+                StatusBox.forceHide();
+            }
         });
 
         $("#statusBox .detailAction").mousedown(function(event) {
@@ -161,12 +173,11 @@ window.StatusBox = (function($, StatusBox){
     }
 
     function hideStatusBox(event) {
+        var id = $(event.target).attr('id');
         if (event.data && event.data.target) {
-            var id = $(event.target).attr('id');
-
             if (id === "statusBoxClose" ||
                 !$(event.target).is(event.data.target) ||
-                event.type === "keydown")
+                notPersist() && event.type === "keydown")
             {
                 $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
@@ -174,11 +185,15 @@ window.StatusBox = (function($, StatusBox){
                 clear();
             }
 
-        } else {
+        } else if (id === "statusBoxClose" || notPersist()) {
             $doc.off('mousedown', hideStatusBox);
             $doc.off('keydown', hideStatusBox);
             clear();
         }
+    }
+
+    function notPersist() {
+        return !$statusBox.hasClass("persist");
     }
 
     function clear() {

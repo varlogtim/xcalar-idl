@@ -643,7 +643,8 @@ window.Workbook = (function($, Workbook) {
             errorText = JSON.stringify(error);
         }
         StatusBox.show(errorText, $ele, false, {
-            "detail": log
+            "detail": log,
+            "persist": true
         });
     }
 
