@@ -51,55 +51,51 @@ describe("Profile-Profile Selector Test", function() {
             // case 1
             var chartBuilder = ProfileChart.new({type: "bar", bucketSize: 0});
             ProfileSelector.__testOnly__.setChartBuilder(chartBuilder);
-            var res = getNumFltOpt(FltOp.Filter, "test", {}, true);
+            var res = getNumFltOpt(FltOp.Filter, "test", [], true);
             expect(res).to.be.an("object");
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString).to.equal("not(exists(test))");
             // case 2
-            res = getNumFltOpt(FltOp.Filter, "test", {1: true}, true);
+            res = getNumFltOpt(FltOp.Filter, "test", [[1]], true);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("or(eq(test, 1), not(exists(test)))");
             // case 3
-            res = getNumFltOpt(FltOp.Filter, "test", {
-                1: true,
-                2: true
-            });
+            res = getNumFltOpt(FltOp.Filter, "test", [[1, 2]]);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("and(ge(test, 1), le(test, 2))");
             // case 4
-            res = getNumFltOpt(FltOp.Exclude, "test", {1: true});
+            res = getNumFltOpt(FltOp.Exclude, "test", [[1]]);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("neq(test, 1)");
             // case 5
-            res = getNumFltOpt(FltOp.Exclude, "test", {
-                1: true,
-                2: true
-            });
+            res = getNumFltOpt(FltOp.Exclude, "test", [[1, 2]]);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("or(lt(test, 1), gt(test, 2))");
             // case 6
-            res = getNumFltOpt("wrongOperator", "test", {});
-            expect(res).to.be.null;
+            res = getNumFltOpt("wrongOperator", "test", []);
+            expect(res.operator).to.equal("wrongOperator");
+            expect(res.filterString).to.equal("");
             // case 7 (change bucket size to 1)
             chartBuilder = ProfileChart.new({type: "bar", bucketSize: 1});
             ProfileSelector.__testOnly__.setChartBuilder(chartBuilder);
 
-            res = getNumFltOpt(FltOp.Filter, "test", {1: true}, false, 1);
+            res = getNumFltOpt(FltOp.Filter, "test", [[1]], false);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("and(ge(test, 1), lt(test, 2))");
             // case 8
-            res = getNumFltOpt(FltOp.Exclude, "test", {1: true}, false, 1);
+            res = getNumFltOpt(FltOp.Exclude, "test", [[1]], false);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("or(lt(test, 1), ge(test, 2))");
             // case 9
-            res = getNumFltOpt("wrongOperator", "test", {}, false, 1);
-            expect(res).to.be.null;
+            res = getNumFltOpt("wrongOperator", "test", [[1]], false);
+            expect(res.operator).to.equal("wrongOperator");
+            expect(res.filterString).to.equal("");
         });
 
         after(function() {

@@ -1509,7 +1509,7 @@ window.Profile = (function($, Profile, d3) {
         var filterTableId = curTableId;
         var colName = statsCol.colName;
         var options = ProfileSelector.filter(operator, statsCol);
-        if (options != null) {
+        if (options != null && options.filterString) {
             var colNum = gTables[filterTableId].getColNumByBackName(colName);
             closeProfileModal();
             xcFunction.filter(colNum, filterTableId, options);

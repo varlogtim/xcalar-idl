@@ -36,8 +36,9 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         var isString = (profileInfo.type === "string");
         var chartType = chartBuilder.getType();
 
-        var prevRowNum;
-        var isContinuous = true;
+        var prevRowNum = null;
+        var groups = [];
+        var groupIdx = -1;
 
         getChart().selectAll(".area.selected").each(function(d) {
             if (chartType === "pie") {
@@ -59,18 +60,27 @@ window.ProfileSelector = (function(ProfileSelector, $) {
                     uniqueVals[val] = true;
                 }
 
-                if (prevRowNum == null) {
-                    prevRowNum = rowNum;
-                } else if (isContinuous) {
-                    isContinuous = (rowNum - 1 === prevRowNum);
-                    prevRowNum = rowNum;
+                if (prevRowNum == null || (rowNum - 1 !== prevRowNum)) {
+                    groupIdx++;
                 }
+                groups[groupIdx] = groups[groupIdx] || [];
+                groups[groupIdx].push(val);
+                prevRowNum = rowNum;
             }
         });
 
-        if (isTypeNumber(profileInfo.type) && noSort && isContinuous) {
+        var hasContinousGroup = false;
+        groups = groups.filter(function(group) {
+            var hasVal = (group != null);
+            if (hasVal && group.length > 1) {
+                hasContinousGroup = true;
+            }
+            return hasVal;
+        });
+
+        if (isTypeNumber(profileInfo.type) && noSort && hasContinousGroup) {
             // this suit for numbers
-            return getNumFltOpt(operator, colName, uniqueVals, isExist);
+            return getNumFltOpt(operator, colName, groups, isExist);
         } else if (noBucket) {
             return xcHelper.getFilterOptions(operator, colName,
                                              uniqueVals, isExist);
@@ -568,7 +578,30 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         };
     }
 
-    function getNumFltOpt(operator, colName, uniqueVals, isExist) {
+    function getNumFltOpt(operator, colName, groups, isExist) {
+        var str = "";
+        groups.forEach(function(group) {
+            var fltStr = getNumFltOptHelper(operator, colName, group);
+            if (!str) {
+                str = fltStr;
+            } else if (operator === FltOp.Filter) {
+                str = "or(" + str + ", " + fltStr + ")";
+            } else if (operator === FltOp.Exclude) {
+                str = "and(" + str + ", " + fltStr + ")";
+            }
+        });
+
+        if (isExist) {
+            str = fltExist(operator, colName, str);
+        }
+
+        return {
+            "operator": operator,
+            "filterString": str
+        };
+    }
+
+    function getNumFltOptHelper(operator, colName, vals) {
         // this suit for numbers that are unsorted by count
         var min = Number.MAX_VALUE;
         var max = -Number.MAX_VALUE;
@@ -576,14 +609,14 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         var count = 0;
         var bucketSize = chartBuilder.getBuckSize() || 0;
 
-        for (var val in uniqueVals) {
+        vals.forEach(function(val) {
             var num = Number(val);
             var lowerBound = chartBuilder.getLowerBound(num);
             var upperBound = chartBuilder.getUpperBound(num);
             min = Math.min(lowerBound, min);
             max = Math.max(upperBound, max);
             count++;
-        }
+        });
 
         if (bucketSize === 0) {
             if (operator === FltOp.Filter) {
@@ -603,7 +636,7 @@ window.ProfileSelector = (function(ProfileSelector, $) {
                     str = "neq(" + colName + ", " + min + ")";
                 }
             } else {
-                return null;
+                return "";
             }
         } else {
             // bucket case
@@ -620,22 +653,11 @@ window.ProfileSelector = (function(ProfileSelector, $) {
                               "ge(" + colName + ", " + max + "))";
                 }
             } else {
-                return null;
+                return "";
             }
         }
 
-        if (isExist) {
-            if (count > 0) {
-                str = fltExist(operator, colName, str);
-            } else {
-                str = fltExist(operator, colName);
-            }
-        }
-
-        return {
-            "operator": operator,
-            "filterString": str
-        };
+        return str;
     }
 
     function getChart() {
