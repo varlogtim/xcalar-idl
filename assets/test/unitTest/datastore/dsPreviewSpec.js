@@ -1223,6 +1223,7 @@ describe("Dataset-DSPreview Test", function() {
         it("Should toggle UDF", function() {
             var isUseUDF = DSPreview.__testOnly__.isUseUDF;
             var $checkbox = $udfCheckbox.find(".checkbox");
+            var $detect = $("#dsForm-detect");
 
             // test 1
             DSPreview.__testOnly__.toggleUDF(true);
@@ -1230,6 +1231,7 @@ describe("Dataset-DSPreview Test", function() {
             expect($checkbox.hasClass("checked")).to.be.true;
             expect(isUseUDF()).to.be.true;
             expect(isUseUDFWithFunc()).to.be.false;
+            expect($detect.hasClass("xc-hidden")).to.be.true;
 
             // test 2
             DSPreview.__testOnly__.toggleUDF(false);
@@ -1237,6 +1239,7 @@ describe("Dataset-DSPreview Test", function() {
             expect($checkbox.hasClass("checked")).to.be.false;
             expect(isUseUDF()).to.be.false;
             expect(isUseUDFWithFunc()).to.be.false;
+            expect($detect.hasClass("xc-hidden")).to.be.false;
         });
 
         it("Should have default UDF", function() {

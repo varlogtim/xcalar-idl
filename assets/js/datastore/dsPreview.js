@@ -594,15 +594,18 @@ window.DSPreview = (function($, DSPreview) {
     function toggleUDF(usUDF) {
         var $checkbox = $("#udfCheckbox").find(".checkbox");
         var $udfArgs = $("#udfArgs");
+        var $detect = $("#dsForm-detect");
 
         if (usUDF) {
             $form.addClass("udf");
             $checkbox.addClass("checked");
             $udfArgs.addClass("active");
+            $detect.addClass("xc-hidden");
         } else {
             $form.removeClass("udf");
             $checkbox.removeClass("checked");
             $udfArgs.removeClass("active");
+            $detect.removeClass("xc-hidden");
         }
     }
 
@@ -1090,13 +1093,13 @@ window.DSPreview = (function($, DSPreview) {
         var $pattern = $section.find(".pattern");
         var $input = $pattern.find("input");
         if (isPreviewSingleFile()) {
-            $pattern.addClass("unavailable");
+            $pattern.children(":not(.refreshPreview)").addClass("unavailable");
             $input.prop("disabled", true);
             xcTooltip.add($input, {
                 "title": DSTStr.NoSingleFilePattern
             });
         } else {
-            $pattern.removeClass("unavailable");
+            $pattern.children(":not(.refreshPreview)").removeClass("unavailable");
             $input.prop("disabled", false);
             xcTooltip.remove($input);
         }
