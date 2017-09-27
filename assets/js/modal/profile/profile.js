@@ -358,6 +358,7 @@ window.Profile = (function($, Profile, d3) {
             if (event.which !== 1) {
                 return;
             }
+            event.stopPropagation();
             var $option = $(this);
             if ($option.hasClass("filter")) {
                 filterSelectedValues(FltOp.Filter);
