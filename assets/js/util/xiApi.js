@@ -748,7 +748,7 @@ window.XIApi = (function(XIApi) {
     XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
         if (txId == null || gbArgs == null || groupByCols == null ||
             tableName == null || gbArgs[0].newColName == null ||
-            gbArgs[0].aggColName.length < 1 || gbArgs[0].operator == null)
+            gbArgs[0].aggColName.length < 1)
         {
             return PromiseHelper.reject("Invalid args in groupby");
         }
@@ -786,7 +786,6 @@ window.XIApi = (function(XIApi) {
         var indexedColName;
         var finalTable;
         var isMultiGroupby = (groupByCols.length !== 1);
-        var unstrippedIndexedColName;
         var renamedGroupByCols = [];
 
         var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
@@ -797,7 +796,6 @@ window.XIApi = (function(XIApi) {
         .then(function(resTable, resCol, tempTablesInIndex) {
             // table name may have changed after sort!
             indexedTable = resTable;
-            unstrippedIndexedColName = resCol;
             indexedColName = xcHelper.stripColName(resCol);
             tempTables = tempTables.concat(tempTablesInIndex);
 
@@ -805,43 +803,31 @@ window.XIApi = (function(XIApi) {
             if (finalTableName == null) {
                 finalTableName = getNewTableName(tableName, "-GB");
             }
-            var promises = [];
             var gbTableName = finalTableName;
-            var sample = isIncSample;
-            for (var i = 0; i < gbArgs.length; i++) {
-                if (gbArgs.length > 1) {
-                    gbTableName = getNewTableName(finalTableName);
-                }
-                if (i > 0) {
-                    // only do sample on first groupby
-                    sample = false;
-                }
-                var newKeyFieldName = xcHelper.parsePrefixColName(indexedColName)
-                                              .name;
-                if (sample) {
-                    // incSample does not take renames
-                    newKeyFieldName = null;
-                }
-                promises.push(XcalarGroupBy(gbArgs[i].operator,
-                    gbArgs[i].newColName, gbArgs[i].aggColName,
-                    indexedTable, gbTableName, sample, icvMode, newKeyFieldName,
-                    txId));
-            }
-            return PromiseHelper.when.apply(window, promises);
+            // incSample does not take renames
+            var newKeyFieldName = isIncSample
+                                  ? null
+                                  : xcHelper.parsePrefixColName(indexedColName)
+                                            .name;
+            var operators = [];
+            var newColNames = [];
+            var aggColNames = [];
+
+            gbArgs.forEach(function(gbArg) {
+                operators.push(gbArg.operator);
+                newColNames.push(gbArg.newColName);
+                aggColNames.push(gbArg.aggColName);
+            });
+
+            return XcalarGroupBy(operators, newColNames, aggColNames,
+                                indexedTable, gbTableName, isIncSample,
+                                icvMode, newKeyFieldName,txId);
         })
         .then(function() {
-            var args = arguments;
             if (!isIncSample) {
                 indexedColName = xcHelper.parsePrefixColName(indexedColName)
                                          .name;
             }
-
-            return groupByJoinHelper(txId, indexedColName,
-                                unstrippedIndexedColName, finalTableName,
-                                    gbArgs, args, isIncSample);
-        })
-        .then(function(retTableName) {
-            finalTableName = retTableName;
             if (isMultiGroupby && !isIncSample) {
                 // multi group by should extract column from groupby table
                 return extractColFromMap(tableName, finalTableName, groupByCols,
@@ -2037,62 +2023,6 @@ window.XIApi = (function(XIApi) {
             finalCols[numNewCols + numGroupByCols] = dataCol;
         }
         return finalCols;
-    }
-
-    function groupByJoinHelper(txId, indexedColName, unstrippedIndexedColName,
-                                finalTableName, gbArgs,
-                                args, isIncSample) {
-        var deferred = jQuery.Deferred();
-        if (gbArgs.length < 2) {
-            return PromiseHelper.resolve(finalTableName);
-        }
-
-        var parsedIndexedColName = xcHelper.parsePrefixColName(
-                                    indexedColName).name;
-        // the 2nd, 3rd etc group by table doesn't use isIncSample
-        // so we need the parsedColName
-
-        var promises = [];
-        var lCols = [indexedColName];
-        var rCols = [parsedIndexedColName];
-        finalTableName = args[0].tableName;
-        if (isIncSample) {
-            lCols = [unstrippedIndexedColName];
-        }
-
-        for (var i = 1; i < gbArgs.length; i++) {
-            var lTableInfo = {
-                "tableName": finalTableName,
-                "columns": lCols
-            };
-
-            var newName = xcHelper.randName(parsedIndexedColName + "_GB", 3);
-            var renameMap = xcHelper.getJoinRenameMap(parsedIndexedColName,
-                                                  newName);
-
-            var rTableInfo = {
-                "tableName": args[i].tableName,
-                "columns": rCols,
-                "rename": [renameMap]
-            };
-
-            finalTableName = getNewTableName(finalTableName);
-            var joinOptions = {
-                newTableName: finalTableName
-            };
-            promises.push(XIApi.join.bind(null, txId,
-            JoinOperatorT.InnerJoin, lTableInfo, rTableInfo, joinOptions));
-        }
-
-        // TODO: instead of a chain of joining to the previous table, we can do
-        // A-B -> AB, C-D -> CD, then AB-CD -> ABCD
-        PromiseHelper.chain(promises)
-        .then(function() {
-            deferred.resolve(finalTableName);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     // used after a multi-group by to split the concated column

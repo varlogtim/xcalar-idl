@@ -2392,7 +2392,7 @@ function XcalarGroupByWithInput(txId, inputStruct) {
     return (deferred.promise());
 }
 
-function XcalarGroupBy(operator, newColName, oldColName, tableName,
+function XcalarGroupBy(operators, newColNames, aggColNames, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName,
                        txId) {
     if (Transaction.checkCanceled(txId)) {
@@ -2400,26 +2400,45 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     }
 
     var deferred = jQuery.Deferred();
-    var evalStr;
+    var evalStrs = [];
 
-    XIApi.genAggStr(oldColName, operator)
-    .then(function(res) {
-        evalStr = res;
-        if (evalStr === "") {
+
+    operators = (operators instanceof Array)
+                ? operators
+                : [operators];
+    newColNames = (newColNames instanceof Array)
+                    ? newColNames
+                    : [newColNames];
+    aggColNames = (aggColNames instanceof Array)
+                    ? aggColNames
+                    : [aggColNames];
+
+    if (operators.length !== newColNames.length ||
+        operators.length !== aggColNames.length) {
+        return PromiseHelper.reject("invalid args");
+    }
+
+    for (var i = 0, len = operators.length; i < len; i++) {
+        var op = operators[i];
+        if (!op) {
+            // XXX to do, check if the operator is valid as XIApi.genAggStr
             return PromiseHelper.reject("Wrong operator! " + operator);
-        } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+        }
+        op = op.slice(0, 1).toLowerCase() + op.slice(1);
+        var evalStr = op + "(" + aggColNames[i] + ")";
+        if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             return PromiseHelper.reject("Eval string too long");
         }
+        evalStrs.push(evalStr);
+    }
 
-        return getUnsortedTableName(tableName, null, txId);
-    })
+    getUnsortedTableName(tableName, null, txId)
     .then(function(unsortedTableName) {
         if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
+            return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
-                                             evalStr, newColName, incSample,
+                                             evalStrs, newColNames, incSample,
                                              icvMode, newKeyFieldName);
         var def1;
         if (Transaction.isSimulate(txId)) {
@@ -2428,7 +2447,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
             });
         } else {
             def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
-                                 evalStr, newColName, incSample, icvMode,
+                                 evalStrs, newColNames, incSample, icvMode,
                                  newKeyFieldName);
         }
         var def2 = XcalarGetQuery(workItem);
