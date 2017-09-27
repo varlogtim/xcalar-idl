@@ -6,9 +6,18 @@
       </div>
   </div>
 </div>
+<% } else {%>
+<div id="splashContainer">
+  <div id="animation_container" style="background-color:rgba(255, 255, 255, 0); width:550px; height:400px">
+  <video width="550" height="400" autoplay style="display:none;">
+    <source src="../video/XI_Flat_splash_middle.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  </div>
+</div>
 <% } %>
 <% if (dicts.product == "XI") { %>
-<div id="logo" class="xc-logo" style="display: block !important;">
+<div id="logo" class="xc-logo">
 <% } else { %>
 <div id="logo" class="xc-logo">
 <% } %>
@@ -20,7 +29,7 @@
     <% } %>
 </div>
 <% if (dicts.product == "XI") { %>
-<div id="loginContainer" style="display:block !important;">
+<div id="loginContainer" >
 <% } else { %>
 <div id="loginContainer">
 <% } %>

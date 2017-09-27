@@ -1,6 +1,6 @@
 Compatible.check();
 if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
-    $("body").hasClass("bodyXI")) {
+    ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {
     $("#loginContainer").show();
     $("#logo").show();
     $("#splashContainer").hide();
@@ -34,7 +34,7 @@ $(document).ready(function() {
     });
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
-        $("body").hasClass("bodyXI")) {
+        ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {
         setTimeout(function() {
             $("#loginForm").fadeIn(1000);
             $("#logo").fadeIn(1000);

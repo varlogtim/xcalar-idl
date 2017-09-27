@@ -34,6 +34,9 @@ body {
     color: @color-white;
     // font-size: 0; /* Need to use this to get rid of stupid white space */
     .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+    &.bodyXIVideo {
+        background: #225c7b;
+    }
 }
 
 form {
@@ -130,6 +133,27 @@ header {
 }
 
 .bodyXI {
+    #logo {
+        display: block;
+    }
+}
+
+.bodyXIVideo {
+    #splashContainer {
+        .flex-display;
+    }
+    video {
+        display: block !important;
+    }
+    #logo {
+        display: none;
+    }
+}
+
+.bodyXI:not(.bodyXIVideo) {
+    #splashContainer {
+        display: none;
+    }
     #loadingBar {
         .innerBar {
             .keyframe(slideRight, {
