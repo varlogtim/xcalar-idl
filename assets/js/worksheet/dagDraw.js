@@ -1617,11 +1617,20 @@ window.DagDraw = (function($, DagDraw) {
                     info.tooltip = joinText + " Join between table &quot;" +
                                    parentNames[0] + "&quot; and table &quot;" +
                                    parentNames[1] + "&quot; where ";
+                    var invalidColFound = false;
                     for (var i = 0; i < lSrcCols.length; i++) {
                         if (i > 0) {
                             info.tooltip += ", " ;
                         }
                         info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
+                        if (!lSrcCols[i] || !rSrcCols[i]) {
+                            invalidColFound = true;
+                        }
+                    }
+                    if (invalidColFound) {
+                        info.tooltip = joinText + " Join between table &quot;" +
+                                   parentNames[0] + "&quot; and table &quot;" +
+                                   parentNames[1] + "&quot;";
                     }
                     info.column = parentNames[0] + ", " + parentNames[1];
                     info.opText = info.column;
@@ -1825,6 +1834,10 @@ window.DagDraw = (function($, DagDraw) {
             if (node.value.api === XcalarApisT.XcalarApiIndex) {
                 return node.value.struct.keyName;
             } else {
+                if (!node.parents.length) {
+                    // one case is when we reach a retina project node
+                    return null;
+                }
                 return getSrcIndex(node.parents[0]);
             }
         }
