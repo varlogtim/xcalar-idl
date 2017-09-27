@@ -239,6 +239,7 @@ window.ColManager = (function($, ColManager) {
         var newTablCols = table.tableCols;
         var colNums = [];
         var newTableName;
+        var usedName = {};
 
         colTypeInfos.forEach(function(colTypeInfo) {
             var colNum = colTypeInfo.colNum;
@@ -254,6 +255,8 @@ window.ColManager = (function($, ColManager) {
 
             // Note: it's intended to overwrite the column
             var fieldName = xcHelper.stripColName(frontName);
+            fieldName = xcHelper.autoName(fieldName, usedName);
+            usedName[fieldName] = true;
             mapStrs.push(mapStr);
             fieldNames.push(fieldName);
             colNums.push(colNum);
