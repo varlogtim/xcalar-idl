@@ -292,7 +292,7 @@ ErrTStr = {
     'IcvAlt': 'Failed to generate erroneous rows (ER) table. Please use map ' +
               'with show erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
-    'RetinaFailed': 'Failed to upload retina',
+    'RetinaFailed': 'Failed to upload dataflow',
     'ConfigParamNotFound': 'Parameter not found.',
     'ConfigParamExists': 'Parameter already exists',
     'SchedHourWrong': 'Hour must be between 1 and 12',
