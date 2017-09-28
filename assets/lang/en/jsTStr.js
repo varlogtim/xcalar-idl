@@ -1143,8 +1143,8 @@ SQLTStr = {
 
 LoginConfigTStr = {
     "LoginConfigSavedSuccess": "Login configuration saved successfully!",
-    "PasswordMismatch": "The passwords entered did not match!",
-    "EmptyPasswordError": "You need to enter a password!",
-    "EmptyUsernameError": "You need to enter a username!",
-    "EmptyEmailError": "You need to enter a email!"
+    "PasswordMismatch": "The passwords entered did not match.",
+    "EmptyPasswordError": "You need to enter a password.",
+    "EmptyUsernameError": "You need to enter a username.",
+    "EmptyEmailError": "You need to enter an email address."
 }
