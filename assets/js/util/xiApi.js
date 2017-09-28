@@ -415,12 +415,12 @@ window.XIApi = (function(XIApi) {
                 var maxPadding = 'repeat("0", len(cut(string(' + inside +
                               '),1,".")))';
 
-                var curNumDigits = 'len(cut(string(sub(' + actualString + ',' +
-                                  minAggVarName + ')),1,"."))';
+                var curNumDigits = 'len(cut(string(' + actualString +
+                                   '),1,"."))';
 
                 var mapStr = 'concat(substring(' + maxPadding + ',' +
-                             curNumDigits + ',0),string(sub(' + actualString +
-                             ',' + minAggVarName + ')))';
+                             curNumDigits + ',0),string(' + actualString +
+                             '))';
 
                 colName = "XC_SORT_COL_" + tableId + "_" + index;
                 fromTableName = curTableName;
