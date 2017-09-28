@@ -174,10 +174,6 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
-
-        if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            $("#monitorDsSampleInput").find("li:contains(TB)").hide();
-        }
     }
 
     function saveLastPrefs() {
@@ -291,21 +287,6 @@ window.UserSettings = (function($, UserSettings) {
         //     }
         // });
 
-        var $dsSampleLimit = $('#monitorDsSampleInput');
-        new MenuHelper($dsSampleLimit.find(".dropDownList"), {
-            "onSelect": function($li) {
-                var $input = $li.closest(".dropDownList").find(".unit");
-                $input.val($li.text());
-                updateDsPreviewLimitInput();
-            },
-            "container": $("#monitorGenSettingsCard"),
-            "bounds": $("#monitor-settings")
-        }).setupListeners();
-
-        $dsSampleLimit.on('change', '.size', function() {
-            updateDsPreviewLimitInput();
-        });
-
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -338,25 +319,6 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    function updateDsPreviewLimitInput() {
-        var $dsSampleLimit = $("#monitorDsSampleInput");
-        var size = getDsSampleLimitValue();
-        var error = DataStore.checkSampleSize(size);
-        if (error != null) {
-            StatusBox.show(error, $dsSampleLimit, false);
-
-            var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
-            setDsSampleLimitValue(dsSampleLimit);
-        } else {
-            UserSettings.setPref("DsDefaultSampleSize", size, true);
-            var advanceOption = DSPreview.getAdvanceOption();
-            advanceOption.modify({
-                previewSize: size
-            });
-            UserSettings.logChange();
-        }
-    }
-
     function setEnableCreateTable(enable) {
         var $checkbox = $("#enableCreateTable");
         var $btn = $("#importDataForm .confirm.createTable");
@@ -374,7 +336,6 @@ window.UserSettings = (function($, UserSettings) {
         var showFile = UserSettings.getPref("fileEnabled");
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
-        var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
         var hideSysOps = UserSettings.getPref("hideSysOps");
@@ -405,24 +366,7 @@ window.UserSettings = (function($, UserSettings) {
 
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
-        setDsSampleLimitValue(dsSampleLimit);
         setEnableCreateTable(enableCreateTable);
-    }
-
-    function getDsSampleLimitValue() {
-        var $dsSampleLimit = $('#monitorDsSampleInput');
-        var $sizeInput = $dsSampleLimit.find('.size');
-        var $unitInput = $dsSampleLimit.find('.dropDownList').find('.unit');
-        var sizeVal = $sizeInput.val() || 0;
-        var unitVal = $unitInput.val();
-
-        return xcHelper.getPreviewSize(sizeVal, unitVal);
-    }
-
-    function setDsSampleLimitValue(fullVal) {
-        var size = xcHelper.sizeTranslator(fullVal, true);
-        $('#monitorDsSampleInput').find(".size").val(size[0]);
-        $('#monitorDsSampleInput').find(".unit").val(size[1]);
     }
 
     function restoreMainTabs() {

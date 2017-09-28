@@ -41,12 +41,7 @@ describe("Dataset-Datastore Module Test", function() {
     });
 
     it("Should check sample size in modeling mode", function() {
-        var oldFunc = XVM.getLicenseMode;
         var oldgMaxSampleSize = gMaxSampleSize;
-        XVM.getLicenseMode = function() {
-            return XcalarMode.Mod;
-        };
-
         gMaxSampleSize = 100;
 
         // normal case
@@ -61,7 +56,6 @@ describe("Dataset-Datastore Module Test", function() {
         expect(error).to.equal(res);
 
         gMaxSampleSize = oldgMaxSampleSize;
-        XVM.getLicenseMode = oldFunc;
     });
 
     it("Should not check sample size in other mode", function() {

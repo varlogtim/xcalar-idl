@@ -1802,15 +1802,13 @@ describe("Persistent Constructor Test", function() {
             var genSettings = new GenSettings();
             var baseSettings = genSettings.getBaseSettings();
 
-            expect(Object.keys(baseSettings).length).to.equal(7);
+            expect(Object.keys(baseSettings).length).to.equal(6);
             expect(baseSettings).to.have.property("hideDataCol")
             .and.to.be.false;
             expect(baseSettings).to.have.property("monitorGraphInterval")
             .and.to.equal(3);
             expect(baseSettings).to.have.property("commitInterval")
             .and.to.equal(120);
-            expect(baseSettings).to.have.property("DsDefaultSampleSize")
-            .and.to.equal(10 * GB);
             expect(baseSettings).to.have.property("enableCreateTable").and.to.be.false;
             expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
             expect(baseSettings).to.have.property("hideXcUDF").and.to.be.false;
@@ -1824,7 +1822,6 @@ describe("Persistent Constructor Test", function() {
                 }
             };
             var userConfigParams = {
-                "DsDefaultSampleSize": 2000,
                 "commitInterval": 600
             };
             // modified base settings should be
@@ -1837,11 +1834,10 @@ describe("Persistent Constructor Test", function() {
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(7);
+            expect(Object.keys(baseSettings)).to.have.length(6);
             expect(baseSettings["hideDataCol"]).to.be.false;
             expect(baseSettings["monitorGraphInterval"]).to.equal(9);
             expect(baseSettings["commitInterval"]).to.equal(600);
-            expect(baseSettings["DsDefaultSampleSize"]).to.equal(2000);
             expect(baseSettings["enableCreateTable"]).to.be.false;
             expect(baseSettings["hideSysOps"]).to.be.false;
             expect(baseSettings["hideXcUDF"]).to.be.false;

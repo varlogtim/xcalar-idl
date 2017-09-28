@@ -220,7 +220,7 @@ describe("Ephemeral Constructor Test", function() {
         it("Should reset options", function() {
             advanceOption.reset();
 
-            var defaultVal = UserSettings.getPref("DsDefaultSampleSize");
+            var defaultVal = gMaxSampleSize;
             var size = xcHelper.sizeTranslator(defaultVal, true);
             expect(size[0]).to.be.gt(0);
             expect(size[1]).to.be.a("string").and.to.have.length(2);

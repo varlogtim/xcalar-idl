@@ -97,11 +97,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");
                     $menu.find(".menuSection.setup").removeClass("xc-hidden");
-                    if ($('#monitor-setup').hasClass('firstTouch')) {
-                        var firstTouch = true;
-                        $('#monitor-setup').removeClass('firstTouch');
-                        MonitorConfig.refreshParams(firstTouch);
-                    }
                     title += MonitorTStr.Setup;
                     break;
                 case ("settingsButton"):

@@ -237,10 +237,10 @@ DSFormAdvanceOption.prototype = {
             $limit.find(".radioButton[data-option='custom']").click();
         } else if (this.isInteractiveMod) {
             $limit.find(".radioButton[data-option='custom']").click();
-            previewSize = UserSettings.getPref('DsDefaultSampleSize');
+            previewSize = gMaxSampleSize;
         } else {
             $limit.find(".radioButton[data-option='default']").click();
-            previewSize = UserSettings.getPref('DsDefaultSampleSize');
+            previewSize = gMaxSampleSize;
         }
 
         this._changePreivewSize(previewSize);

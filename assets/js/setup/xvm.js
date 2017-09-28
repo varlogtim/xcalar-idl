@@ -354,7 +354,6 @@ window.XVM = (function(XVM) {
         if (licenseMode === XcalarMode.Demo) {
             $("#dataStoresTab #outButton").addClass("xc-hidden");
             xcTooltip.changeText($("#importDataButton"), TooltipTStr.PointDemo);
-            $("#monitorDsSampleInput").closest(".optionSet").hide();
         }
     };
 

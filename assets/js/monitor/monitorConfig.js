@@ -19,20 +19,15 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         .then(function(res) {
             var params = res.parameter;
             for (var i = 0; i < params.length; i++) {
-                // making default sample size a user setting
-                if (params[i].paramName.toLowerCase() !==
-                    "dsdefaultsamplesize") {
-                    // XXX there is a backend error that case this
-                    // should remove it after the fix
-                    var paramName = params[i].paramName.toLowerCase();
-                    paramsCache[paramName] = params[i];
-                }
+                var paramName = params[i].paramName.toLowerCase();
+                paramsCache[paramName] = params[i];
             }
 
             if (firstTouch) {
+                $("#monitor-setup").removeClass("firstTouch");
                 setupVisibleParamsList();
             }
-            deferred.resolve(res);
+            deferred.resolve(paramsCache);
         })
         .fail(deferred.reject);
         return deferred.promise();

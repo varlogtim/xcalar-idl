@@ -47,6 +47,7 @@ window.xcManager = (function(xcManager, $) {
             firstTimeUser = isFirstTimeUser;
         })
         .then(setupSession)
+        .then(setupConfigParams)
         .then(function() {
             StatusMessage.updateLocation(true,
                                         StatusMessageTStr.SettingExtensions);
@@ -451,6 +452,54 @@ window.xcManager = (function(xcManager, $) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function setupConfigParams() {
+        var deferred = jQuery.Deferred();
+
+        MonitorConfig.refreshParams(true)
+        .then(function(params) {
+            try {
+                var paraName = "maxinteractivedatasize";
+                var size = Number(params[paraName].paramValue);
+                setMaxSampleSize(size);
+            } catch (error) {
+                console.error("error case", error);
+                setMaxSampleSize(null);
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            setMaxSampleSize(null);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    function setMaxSampleSize(size) {
+        if (size != null) {
+            gMaxSampleSize = size;
+        } else {
+            // when set size from backend fails
+            var mode = XVM.getLicenseMode();
+            var maxSize;
+            switch (mode) {
+                case XcalarMode.Mod:
+                case XcalarMode.Demo:
+                    maxSize = "10GB";
+                    break;
+                case XcalarMode.Oper:
+                case XcalarMode.Unlic:
+                    maxSize = "1TB";
+                    break;
+                default:
+                    console.error("error case");
+                    maxSize = "10GB";
+                    break;
+            }
+            gMaxSampleSize = xcHelper.textToBytesTranslator(maxSize);
+        }
     }
 
     function setupExtensions() {

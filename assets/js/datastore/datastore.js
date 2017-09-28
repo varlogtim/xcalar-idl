@@ -13,26 +13,18 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.initialize = function() {
-        if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            gMaxSampleSize = xcHelper.textToBytesTranslator("10GB");
-        }
-
         DSPreview.initialize();
         DSUploader.initialize();
     };
 
     DataStore.checkSampleSize = function(previewSize) {
-        if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            if (previewSize <= gMaxSampleSize) {
-                return null;
-            } else {
-                var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
-                    "size": xcHelper.sizeTranslator(gMaxSampleSize)
-                });
-                return error;
-            }
-        } else {
+        if (previewSize <= gMaxSampleSize) {
             return null;
+        } else {
+            var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
+                "size": xcHelper.sizeTranslator(gMaxSampleSize)
+            });
+            return error;
         }
     };
 

@@ -271,35 +271,6 @@ describe("User Setting Test", function() {
             expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
         });
 
-        it("should change ds sample size", function() {
-            var oldSize = UserSettings.getPref("DsDefaultSampleSize");
-            var $input = $("#monitorDsSampleInput .size");
-            var oldVal = $input.val();
-            var newVal = Number(oldVal) ? 0 : 1;
-            $input.focus().val(newVal).change();
-            expect(UserSettings.getPref("DsDefaultSampleSize"))
-            .not.to.equal(oldSize);
-            // change back
-            $input.focus().val(oldVal).change();
-
-            expect(UserSettings.getPref("DsDefaultSampleSize"))
-            .to.equal(oldSize);
-        });
-
-        it("should select ds sample size unit", function() {
-            var $dropDownList = $("#monitorDsSampleInput .dropDownList");
-            var $input = $dropDownList.find("input");
-            var oldVal = $input.val();
-
-            var $li = $dropDownList.find("li:contains(MB)");
-            $li.trigger(fakeEvent.mouseup);
-            expect($input.val()).to.equal("MB");
-            // change back
-            $li = $dropDownList.find("li:contains(" + oldVal + ")");
-            $li.trigger(fakeEvent.mouseup);
-            expect($input.val()).to.equal(oldVal);
-        });
-
         it("should click save button to save", function() {
             var oldFunc = KVStore.commit;
             var test = false;

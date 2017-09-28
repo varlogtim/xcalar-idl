@@ -1253,7 +1253,6 @@
                     "hideDataCol": false,
                     "monitorGraphInterval": 3, // in seconds
                     "commitInterval": 120, // in seconds
-                    "DsDefaultSampleSize": 10 * GB,
                     "enableCreateTable": false,
                     "hideSysOps": false,
                     "hideXcUDF": false
