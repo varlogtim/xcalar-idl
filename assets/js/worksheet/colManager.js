@@ -235,6 +235,7 @@ window.ColManager = (function($, ColManager) {
         xcHelper.lockTable(tableId, txId);
 
         var mapStrs = [];
+        var oldNames = [];
         var fieldNames = [];
         var newTablCols = table.tableCols;
         var colNums = [];
@@ -260,6 +261,7 @@ window.ColManager = (function($, ColManager) {
             mapStrs.push(mapStr);
             fieldNames.push(fieldName);
             colNums.push(colNum);
+            oldNames.push(backName);
 
             var mapOptions = {
                 "replaceColumn": true,
@@ -283,6 +285,15 @@ window.ColManager = (function($, ColManager) {
             var newTableId = xcHelper.getTableId(newTableName);
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
+            // because the name can dup when change type,
+            // need to remove old profile meta
+            var profilInfo = Profile.getCache()[newTableId];
+            fieldNames.forEach(function(newColName, index) {
+                if (newColName === oldNames[index]) {
+                    delete profilInfo[newColName];
+                }
+            });
+
             xcHelper.unlockTable(tableId);
             Transaction.done(txId, {
                 "msgTable": newTableId,
