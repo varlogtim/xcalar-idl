@@ -68,6 +68,12 @@ module.exports = function(grunt) {
       login: {
         src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
         dest: destMap["login.html"]
+      },
+      // This is for one time use in our usability test and a temporary solution
+      // Comment this out after the test
+      mixpanel: {
+        src: ['assets/js/mixpanel.js'],
+        dest: 'index.html'
       }
     },
 
@@ -207,7 +213,7 @@ module.exports = function(grunt) {
 
   // used for prod
   grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'htmlmin', 'prettify', 'ctor']);
-  grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'tags:mixpanel', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
   grunt.registerTask("devXD", ['html', 'templateXD', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
