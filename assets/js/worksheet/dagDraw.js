@@ -1619,6 +1619,13 @@ window.DagDraw = (function($, DagDraw) {
                         sampleStr = " (Sample not included)";
                     }
                     evalStr = value.evalStrs[0];
+                    var evalStrs = value.evalStrs;
+                    evalStr = "";
+                    for (var i = 0; i < evalStrs.length; i++) {
+                        evalStr += evalStrs[i] + ", ";
+                    }
+                    evalStr = evalStr.slice(0, -2);
+
                     parenIndex = evalStr.indexOf("(");
                     var type = evalStr.substr(0, parenIndex);
                     info.type = "groupBy" + type;
@@ -1830,7 +1837,12 @@ window.DagDraw = (function($, DagDraw) {
                         if (gbNode.value.struct.includeSrcTableSample) {
                             sampleStr = " (Sample included)";
                         }
-                        evalStr = gbNode.value.struct.evalStrs[0];
+                        var evalStrs = gbNode.value.struct.evalStrs;
+                        evalStr = "";
+                        for (var i = 0; i < evalStrs.length; i++) {
+                            evalStr += evalStrs[i] + ", ";
+                        }
+                        evalStr = evalStr.slice(0, -2);
                         aggs.push(evalStr);
                     }
                 }
