@@ -13,6 +13,7 @@
 /xcalar-design/*
 /node_modules/*
 /services/**/node_modules/*
+assets/js/api/**/node_modules/*
 index.html
 unitTest.html
 install.html

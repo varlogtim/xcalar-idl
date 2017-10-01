@@ -128,11 +128,65 @@ function checkStores(data) {
     return query;
 }
 
+app.post("/sqlApi", function(req, res) {
+    xc.sqlApi()
+    .then(function(output) {
+        console.log("sql finishes", output);
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql error", error);
+        res.status(500).send(error);
+    });
+});
+
+app.post("/sql", function(req, res) {
+    var sql = req.body.sql;
+    xc.sql(sql)
+    .then(function(output) {
+        console.log("sql finishes", output);
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql error", error);
+        res.status(500).send(error);
+    });
+});
+
+app.post("/xcedf/load", function(req, res) {
+    var path = req.body.path;
+    console.log("load sql path", path);
+    xc.sqlLoad(path)
+    .then(function(output) {
+        console.log("sql load finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql load error", error);
+        res.status(500).send(error);
+    });
+});
+
+app.post("/xcedf/query", function(req, res) {
+    var execid = req.body.execid;
+    var plan = req.body.plan;
+    var limit = req.body.limit;
+    xc.sqlPlan(execid, plan, limit)
+    .then(function(output) {
+        console.log("sql plan finishes", output);
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql plan error", error);
+        res.status(500).send(error);
+    });
+});
+
 var httpServer = http.createServer(app);
 httpServer.listen(port, function() {
     hostname = process.env.DEPLOY_HOST;
     if (!hostname) {
         hostname = "localhost";
     }
-    console.log("All ready");
+    console.log("All ready, listen on port:", port);
 });

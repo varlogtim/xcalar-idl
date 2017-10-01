@@ -1,0 +1,178 @@
+Instructions:
+1. Put the restful folder under XCALARDIR/xcalar-gui/services/expServer/, for example: /opt/xcalar/xcalar-gui/services/expServer/
+
+2. need a session by user "sql", you can use xcalar-gui to login as sql and create an active workbook
+
+3. node resultfulServer.js, this will bring up an expServer on port 12130
+
+
+Note:
+XC_TABLENAME_table is the key to map dataframe to xcalar table,
+it will send back to dataframe in load call, and in the query call, need to have a same XC_TABLENAME_table attribute
+
+Sample API call:
+url: http://skywalker.int.xcalar.com:12130/xcedf/load
+body: {path: file:///netstore/datasets/yelp/user/}
+
+url: http://skywalker.int.xcalar.com:12130/xcedf/query
+body: {
+    execid: 1,
+    plan: [ {
+  "class" : "org.apache.spark.sql.catalyst.plans.logical.Filter",
+  "num-children" : 1,
+  "condition" : [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.And",
+    "num-children" : 2,
+    "left" : 0,
+    "right" : 1
+  }, {
+    "class" : "org.apache.spark.sql.catalyst.expressions.IsNotNull",
+    "num-children" : 1,
+    "child" : 0
+  }, {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "REVIEW_COUNT",
+    "dataType" : "double",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2420,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    },
+    "qualifier" : "yelp"
+  }, {
+    "class" : "org.apache.spark.sql.catalyst.expressions.GreaterThan",
+    "num-children" : 2,
+    "left" : 0,
+    "right" : 1
+  }, {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "REVIEW_COUNT",
+    "dataType" : "double",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2420,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    },
+    "qualifier" : "yelp"
+  }, {
+    "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
+    "num-children" : 0,
+    "value" : "10.0",
+    "dataType" : "double"
+  } ],
+  "child" : 0
+}, {
+  "class" : "org.apache.spark.sql.execution.LogicalRDD",
+  "num-children" : 0,
+  "output" : [ [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "USER_ID",
+    "dataType" : "string",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2417,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "AVERAGE_STARS",
+    "dataType" : "double",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2418,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "TYPE",
+    "dataType" : "string",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2419,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "REVIEW_COUNT",
+    "dataType" : "double",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2420,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "YELPING_SINCE",
+    "dataType" : "string",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2421,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "NAME",
+    "dataType" : "string",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2422,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "FANS",
+    "dataType" : "double",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2423,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ], [ {
+    "class" : "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+    "num-children" : 0,
+    "name" : "XC_TABLENAME_SQL20425",
+    "dataType" : "string",
+    "nullable" : true,
+    "metadata" : { },
+    "exprId" : {
+      "product-class" : "org.apache.spark.sql.catalyst.expressions.ExprId",
+      "id" : 2424,
+      "jvmId" : "f370555c-76b6-49ec-b750-4949a5aa5fd4"
+    }
+  } ] ],
+  "rdd" : null,
+  "outputPartitioning" : {
+    "product-class" : "org.apache.spark.sql.catalyst.plans.physical.UnknownPartitioning",
+    "numPartitions" : 0
+  },
+  "outputOrdering" : [ ],
+  "session" : null
+} ]
+}
