@@ -257,7 +257,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var node = apiTopResult.topOutputPerNode[i];
 
             // usrNodeCpu
-            var usrCpuPct = node.parentCpuUsageInPercent;
+            var usrCpuPct = node.cpuUsageInPercent;
             usrCpu.used += usrCpuPct;
             usrCpu.total += 100;
             usrCpuPct = Math.round(usrCpuPct * 100) / 100;

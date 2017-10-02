@@ -18,6 +18,7 @@ describe("Monitor Graph Test", function() {
                     numNodes: 1,
                     topOutputPerNode: [{
                         "childrenCpuUsageInPercent": 5,
+                        "cpuUsageInPercent": 10,
                         "parentCpuUsageInPercent": 10,
 
                         "memUsageInPercent": 60,
