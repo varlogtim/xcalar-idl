@@ -167,6 +167,17 @@ window.TblMenu = (function(TblMenu, $) {
             }
         });
 
+        $tableMenu.on('mouseup', '.copyTableName', function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+            var valArray = [];
+            var tblName = $(".tblTitleSelected .tableName").val();
+            var tblId = $(".tblTitleSelected .hashName").text();
+            valArray.push(tblName + tblId);
+            copyToClipboard(valArray);
+        });
+
         // xx currently not visible
         $tableMenu.on('mouseup', '.copyColNames', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {

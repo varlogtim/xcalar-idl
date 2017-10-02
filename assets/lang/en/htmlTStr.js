@@ -147,6 +147,7 @@ module.exports = {
         "CollapseDF": "Collapse tables",
         "CollapseAllDF": "Collapse all tables",
         "ComplementTable": "Create complement table",
+        "CopyTbl": "Copy table name",
         "CPCell": "Copy to clipboard",
         "CPColNames": "Copy column names",
         "CreateDF": "Create batch dataflow",

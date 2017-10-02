@@ -23,6 +23,7 @@ module.exports = {
         "CollapseDF": "收缩表",
         "CollapseAllDF": "收缩所有表",
         "ComplementTable": "创建补集表",
+        "CopyTbl": "复制表格名",
         "CreateDF": "创建批量数据流",
         "CreateParamQuery": "创建参数化操作",
         "CreateTarget": "新建导出目标",
