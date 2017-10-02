@@ -288,11 +288,13 @@ window.ColManager = (function($, ColManager) {
             // because the name can dup when change type,
             // need to remove old profile meta
             var profilInfo = Profile.getCache()[newTableId];
-            fieldNames.forEach(function(newColName, index) {
-                if (newColName === oldNames[index]) {
-                    delete profilInfo[newColName];
-                }
-            });
+            if (profilInfo != null) {
+                fieldNames.forEach(function(newColName, index) {
+                    if (newColName === oldNames[index]) {
+                        delete profilInfo[newColName];
+                    }
+                });
+            }
 
             xcHelper.unlockTable(tableId);
             Transaction.done(txId, {
