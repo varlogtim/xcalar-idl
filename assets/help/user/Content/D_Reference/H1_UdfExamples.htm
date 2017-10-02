@@ -180,7 +180,7 @@
                                             <li value="3">UDF for exporting data, which is called an export UDF.</li>
                                         </ul>
                                         <h2>Example of a UDF for a database operation</h2>
-                                        <p>Suppose you have the following table in <span class="GeneralProductName">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
+                                        <p>Suppose you have the following table in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -215,9 +215,9 @@
                                             <p class="CLIoutput">&#160;&#160;&#160;&#160;&#160;return weekday</p>
                                         </div>
                                         <p>The <span class="UIelement">getWeekday</span> function takes a column and a date-time format string as input. The Python built-in <span class="UIelement">time</span> module, which is imported into <span class="UIelement">calendar</span>, parses the input. The output from <span class="UIelement">calendar</span> is a new table with the Weekday column showing the day of week for each event.</p>
-                                        <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Design</span> users to use.</p>
+                                        <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> users to use.</p>
                                         <h3>Running the UDF</h3>
-                                        <p>In <span class="GeneralProductName">Xcalar Design</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">"%Y-%m-%d"</span> as the second argument.</p>
+                                        <p>In <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">"%Y-%m-%d"</span> as the second argument.</p>
                                         <p>The process for running a UDF is the same as  other database functions. For more information about the Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
                                         <h3>Result of running the UDF</h3>
                                         <p>The following table is created with an additional column showing the day of week for each date:</p>

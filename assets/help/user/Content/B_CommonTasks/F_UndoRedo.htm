@@ -172,7 +172,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Undoing, redoing, and repeating an operation</h1>
-                                        <p>In <span class="GeneralProductName">Xcalar Design</span>, after you perform an operation, you can undo it. After you undo an operation, you can redo it.</p>
+                                        <p>In <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>, after you perform an operation, you can undo it. After you undo an operation, you can redo it.</p>
                                         <p>Repeating an operation means redoing an operation that has not been undone.&#160;For example, after you sort one column alphabetically, you might want to repeat the sorting on another column.</p>
                                         <p>This section describes how to undo and redo an operation in one of two ways. It requires an understanding of table statuses and dataflow graphs. If you are not familiar with these topics, you can get information from these sections:</p>
                                         <ul>
@@ -188,7 +188,7 @@
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you minimize a column, you can undo the minimizing by clicking <span class="UIelement">Undo</span>. The column is restored to its original width.</div>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you change the order of the worksheets in the Active Worksheet List, you can click <span class="UIelement">Undo</span> to return the worksheets to the original order.</div>
                                         <p> If a table is created by an operation such as filter, undoing the operation does not remove the table. Instead, the table is included in the Temporary Table list, and clicking a Redo button makes this temporary table active again.</p>
-                                        <p>The temporary table exists for as long as the operation can be redone. If after you undo the operation, you perform another action, <span class="GeneralProductName">Xcalar Design</span> drops the temporary table.</p>
+                                        <p>The temporary table exists for as long as the operation can be redone. If after you undo the operation, you perform another action, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> drops the temporary table.</p>
                                         <div class="Example"><span class="label">EXAMPLE:</span> In a table named Airlines#pT149, you use the Map function to change the data type of a column to Integer. The Airlines#pT150 table is created as a result. Suppose you undo the Map function, Airlines#pT150 is removed from the dataflow graph but retained as a temporary table viewable on the Temporary Table List. You can redo the Map function to make Airlines#pT150 active again.&#160;However, if after undoing the Map function, you perform a filter operation, Airlines#pT150 is dropped and cannot be recovered.</div>
                                         <h2><a name="Using"></a>Using the dataflow graph</h2>
                                         <p>This section describes another way for undoing an operation, which requires an understanding of table statuses and dataflow graphs. If you are not familiar with these concepts, read the following topics:</p>
@@ -202,7 +202,7 @@
                                         <p>The following example illustrates how to undo a Map operation:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> (<span class="UIelement">dataflow graph</span> icon) in the lower-right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</p>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> (<span class="UIelement">dataflow graph</span> icon) in the lower-right corner of the <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> window.</p>
                                             </li>
                                             <li value="2">
                                                 <p>In the dataflow graph, click the table before the Map operation. A list of options is displayed in a pop-up menu. Click <span class="UIelement">Revert to this table</span>.</p>
@@ -212,7 +212,7 @@
                                             </li>
                                             <li value="3">To hide the dataflow graph, click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> again or click the <span class="UIelement">Close</span> button in the upper right corner of the dataflow graph panel.</li>
                                         </ol>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> removes from the dataflow graph all tables listed to the right of the table to which you revert. In this example, airlines3#XS47 is removed from the dataflow graph and added to the Temporary Tables list. This table is kept as a temporary table until you drop it.</p>
+                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> removes from the dataflow graph all tables listed to the right of the table to which you revert. In this example, airlines3#XS47 is removed from the dataflow graph and added to the Temporary Tables list. This table is kept as a temporary table until you drop it.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Clicking <span class="UIelement">Revert to this table</span> is considered an operation. You can undo or redo this operation through the <span class="UIelement">Undo</span> or <span class="UIelement">Redo</span> button, just as you do with other operations.</div>
                                         <h2>Repeating an operation</h2>
                                         <p>You can repeat an operation that requires only one mouse click. For example, after you cast one column to integer, you can select another column and perform the same type casting operation. You can select multiple columns for the repeated operation.</p>

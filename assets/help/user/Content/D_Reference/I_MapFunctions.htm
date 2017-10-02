@@ -176,6 +176,14 @@
                                         <p>This section describes the function categories supported by the Map operation. If the input type is shown as Any, the data type can be boolean, float, integer, or string.</p>
                                         <p>For information about how to start a Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;Boolean values are treated as integers in a Map function. For example, you can apply the mult function to multiply a Boolean value by a number.</div>
+                                        <h2><a name="About"></a>About date and time formats</h2>
+                                        <p>Some functions  require you to enter date or time formats in the input and output fields. You specify year, month, day, hour, minute, and second as %Y, %m, %d, %H, %M, and %S, respectively. </p>
+                                        <p>Some specifiers use uppercase and lowercase letters to distinguish between  the long and short form of the same name. For example, %b is an abbreviated month name such as Aug, and %B is a full month name such as August. </p>
+                                        <p>For a date to be displayed as <span class="UIelement">Sat, April 07, 2007</span> in a table column, specify the following format as the output format:</p>
+                                        <p class="userInput">%a, %B %d, %Y </p>
+                                        <p>For a complete list of specifiers that you can use in a <span class="GeneralProductName3">Xcalar</span> function, see  the following document:</p>
+                                        <p><a href="http://www.cplusplus.com/reference/ctime/strftime/">http://www.cplusplus.com/reference/ctime/strftime/</a>
+                                        </p>
                                         <h2>Arithmetic functions</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" style="width: 82px;" />
@@ -471,6 +479,7 @@
                                             </tbody>
                                         </table>
                                         <h2>Conversion functions</h2>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;Functions for converting date and time strings require an input or output format. For more information about how to specify the format, see <a href="#About" class="MCXref xref">About date and time formats</a>.</div>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column1" />
                                             <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column2" />
@@ -486,16 +495,58 @@
                                             </thead>
                                             <tbody>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ipAddrToInt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts an IPv4&#160;address (with the specified number of octets) to an integer.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">convertDate</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts the date from one format to another.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">macAddrToInt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Converts a MAC&#160;address (with the specified number of octets) to an integer.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">String</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">Integer</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">convertFromUnixTS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts from a UNIX timestamp to another time format.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">convertToUnixTS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts a timestamp to a UNIX timestamp.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">dateAddDay</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Adds a specified number of days to a date. The number can be negative.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">dateAddInterval</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Adds a time interval (specified in the number of years, the number of months, and the number of days) to a date. The numbers can be negative.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">dateAddMonth</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Adds a specified number of months to a date. The number can be negative.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">dateAddYear</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Adds a specified number of years to a date. The number can be negative.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ipAddrToInt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts an IPv4&#160;address (with the specified number of octets) to an integer.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">macAddrToInt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Converts a MAC&#160;address (with the specified number of octets) to an integer.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Integer</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -846,14 +897,6 @@
                                         <h2>User-defined functions</h2>
                                         <p>User-defined functions (UDFs)&#160;are functions that you or other users of the cluster create and upload. <span class="GeneralProductName3">Xcalar</span> is shipped with several <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs in the default module. This section describes the <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The data type of all UDF output is string.</div>
-                                        <h3>About date and time formats</h3>
-                                        <p>Some functions in this section require you to enter date or time formats in the input and output fields. You specify year, month, day, hour, minute, and second as %Y, %m, %d, %H, %M, and %S, respectively. </p>
-                                        <p>Some specifiers use uppercase and lowercase letters to distinguish between  the long and short form of the same name. For example, %b is an abbreviated month name such as Aug, and %B is a full month name such as August. </p>
-                                        <p>For a date to be displayed as <span class="UIelement">Sat, April 07, 2007</span> in a table column, specify the following format as the output format:</p>
-                                        <p class="userInput">%a, %B %d, %Y </p>
-                                        <p>For a complete list of specifiers that you can use in a <span class="GeneralProductName3">Xcalar</span> function, see  the following document:</p>
-                                        <p><a href="http://www.cplusplus.com/reference/ctime/strftime/">http://www.cplusplus.com/reference/ctime/strftime/</a>
-                                        </p>
                                         <h3>convertFormats</h3>
                                         <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -925,7 +968,7 @@
                                             </tbody>
                                         </table>
                                         <h3>openExcel</h3>
-                                        <p>This function is not to be invoked by <span class="GeneralProductName3">Xcalar</span> users. It is called by <span class="GeneralProductName">Xcalar Design</span> when you select the file format to be Excel during the dataset creation step. </p>
+                                        <p>This function is not to be invoked by <span class="GeneralProductName3">Xcalar</span> users. It is called by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> when you select the file format to be Excel during the dataset creation step. </p>
                                         <h3>convertExcelTime</h3>
                                         <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />

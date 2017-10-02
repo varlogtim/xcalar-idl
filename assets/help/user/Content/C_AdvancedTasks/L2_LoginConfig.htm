@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Common tasks">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Searching for a table or column</title>
+        <meta name="author" content="" /><title>Understanding and changing login configuration (Xcalar admin only)</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -171,16 +171,54 @@
                                         </div>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Searching for a table or column</h1>
-                                        <p> <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> provides a search bar for you to locate a table or  column that contains the search string in its name. The search bar changes into the function bar when a column is selected. For information about the function bar, see <a href="../C_AdvancedTasks/D_FunctionBar.htm" class="MCXref xref" xrefformat="{para}">Using the function  bar</a>. </p>
-                                        <p>The following screenshot illustrates the location of the search bar.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/search-bar.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="847" data-mc-height="660" src="../Resources/Images/XD_screenshots/search-bar_thumb_0_150.png" tabindex="" /></a>
-                                        </p>
-                                        <h2>Understanding the search bar</h2>
-                                        <p>You can search for a string in a table name or a column header in the active worksheet. </p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;<span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> does not support searching for values in table cells. </div>
-                                        <p>The search is case insensitive. To move from one search result to the next, press the <span class="UIelement">Return</span> or <span class="UIelement">Enter</span> key.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;Only the column names are searched; the column prefixes are not. For example, if a column's complete name is air11::Carrier, it is not returned as a match when you search for the string, air.</div>
+                                        <h1>Understanding and changing login configuration (<span class="GeneralProductName3">Xcalar</span> admin only)</h1>
+                                        <p>If you ran the <span class="GeneralProductName3">Xcalar</span> GUI&#160;Installer to install your <span class="GeneralProductName3">Xcalar</span> cluster, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> authenticates users through the Lightweight Directory Access Protocol (LDAP) server, according to the LDAP&#160;information you provided during installation. </p>
+                                        <p>If you deployed a <span class="GeneralProductName3">Xcalar</span> cluster  from Microsoft Azure Marketplace, for user authentication, you can use Azure Active Directory (Azure AD). </p>
+                                        <p>This topic describes how to change the user authentication method through the <span class="UIelement">Login Configuration</span> modal window in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>.</p>
+                                        <h2>Displaying the <span class="UIelement">Login Configuration</span> modal window</h2>
+                                        <p>To display the <span class="UIelement">Login Configuration</span> modal window, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">Log in to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> as the admin user.</li>
+                                            <li value="2">Click the <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) in the Monitor.</li>
+                                            <li value="3">Click <span class="UIelement">Login Configuration</span>.</li>
+                                        </ol>
+                                        <p>The rest of this topic discusses the tasks you can perform in the <span class="UIelement">Login Configuration</span> modal window. After you fill out the required information in the <span class="UIelement">Login Configuration</span> modal window, click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>. Your changes take effect immediately.</p>
+                                        <h2>Enabling or disabling an authentication method</h2>
+                                        <p>In the <span class="UIelement">Login Configuration</span> modal window, you can enable or disable LDAP&#160;or Azure AD authentication. </p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;For users to log in to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>, you must enable at least one authentication method. If you disable both LDAP&#160;and Azure AD, no users can access <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. You can, however, log in as the default admin user, provided that you have set up this account. For information about the default admin user account, see <a href="#Understa" class="MCXref xref" xrefformat="{para}">Understanding the default admin user account</a>. If you cannot use the default admin user account, call <span class="GeneralCompanyNameShort">Xcalar</span> for information about accessing your cluster again.</div>
+                                        <h2>Enabling or disabling LDAP authentication</h2>
+                                        <p>You can disable LDAP if you want to use Azure AD for authentication.</p>
+                                        <p>If you enable LDAP in the <span class="UIelement">Login Configuration</span> modal window, you can configure the LDAP server by filling out the LDAP fields as you did when running the <span class="GeneralProductName3">Xcalar</span> GUI&#160;Installer.</p>
+                                        <h2>Enabling or disabling Azure AD&#160;authentication</h2>
+                                        <p>You can disable Azure AD if you want to use LDAP&#160;for authentication. Alternatively, you can enable both Azure AD&#160;and LDAP.</p>
+                                        <p>If you enable Azure AD, follow the on-screen instructions to fill out the <span class="UIelement">TENANT</span> and <span class="UIelement">CLIENT&#160;ID</span>&#160;fields  in the <span class="UIelement">Login Configuration</span> modal window.</p>
+                                        <h2><a name="Understa"></a>Understanding the default admin user account</h2>
+                                        <p>Regardless of the user authentication method, you must set up an admin user account in the directory services database before you can log in to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> as an admin user. This user account, which you create during the <span class="GeneralProductName3">Xcalar</span> installation process, provides additional privileges, such as the privilege to access the <span class="UIelement">Setup</span> icon in the Monitor. </p>
+                                        <p>In addition, you can create a default admin user account, whose credentials are stored locally on your cluster. This account enables you to log in if for any reason both LDAP and Azure AD are not usable or are disabled. After logging in as the default admin user, you can enable an authentication method or reconfigure LDAP&#160;or Azure AD&#160;to resolve problems related to directory services. </p>
+                                        <h3>Creating the default admin user account</h3>
+                                        <p>To create the default admin user account, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">Click the check box for <span class="UIelement">ENABLE&#160;DEFAULT&#160;ADMIN&#160;USER ACCOUNT</span>.</li>
+                                            <li value="2">
+                                                <p>Enter the following information:</p>
+                                                <ul>
+                                                    <li value="1">User name.</li>
+                                                    <li value="2">User password, which must consist of at least one non-blank character.</li>
+                                                    <li value="3">Email address.</li>
+                                                </ul>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>.</li>
+                                        </ol>
+                                        <h3>Changing the default admin user account information</h3>
+                                        <p>For an existing default admin user account, if you need to change the account information, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">If the default admin user account is not enabled, click the check box for <span class="UIelement">ENABLE&#160;DEFAULT&#160;ADMIN&#160;USER ACCOUNT</span>.</li>
+                                            <li value="2">
+                                                <p>Change the user name, user password, or email address.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;You can change the password without providing the existing password. This step is useful, for example, if you forget your password and want to reset it.</div>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>.</li>
+                                        </ol>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

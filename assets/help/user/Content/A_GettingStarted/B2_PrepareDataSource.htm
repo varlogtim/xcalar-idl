@@ -60,7 +60,6 @@
 }
 
 </style>
-        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -173,23 +172,20 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1><a name="Prerequi"></a>Preparing the data source</h1>
-                                        <p>To use <span class="GeneralProductName3">Xcalar</span> reliably and predictably, you must make sure that your data source meets the requirements described in this topic. You might need to prepare your data files so that <span class="GeneralProductName">Xcalar Design</span> can properly extract the metadata from them and can present the data in a readable format appropriate for data modeling. </p>
-                                        <h2>Data accessibility</h2>
-                                        <p>Importing a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be stored at a location accessible to all <span class="GeneralProductName3">Xcalar</span> nodes for <span class="GeneralProductName">Xcalar Design</span> to import them.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;After you import a data source, changing the path to the data source renders your data inaccessible after a cluster restart.&#160;For example, if you rename the data source file or the directory containing the file, and then restart the cluster, <span class="GeneralProductName">Xcalar Design</span> can no longer  locate the data source when trying to import data. This failure means that you cannot use the workbook containing tables created from the data source. To avoid this problem, name carefully each component of the path to the data source file so that the path does not require any changes after <span class="GeneralProductName">Xcalar Design</span> imports the file.</div>
+                                        <p>To use <span class="GeneralProductName3">Xcalar</span> reliably and predictably, you must make sure that your data source meets the requirements described in this topic. You might need to prepare your data files so that <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can properly extract the metadata from them and can present the data in a readable format appropriate for data modeling. </p>
                                         <h2>Importing multiple files</h2>
-                                        <p>The data source can be a file or a directory. If you import a directory, <span class="GeneralProductName">Xcalar Design</span> imports data in all files in the directory, unless a search pattern is specified. You can also import subdirectories recursively. </p>
+                                        <p>The data source can be a file or a directory. If you import a directory, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports data in all files in the directory, unless a search pattern is specified. You can also import subdirectories recursively. </p>
                                         <p>If you want to create a single dataset from multiple files, place the files in one directory.</p>
                                         <p>For example, suppose you want to import airline data gathered in 2015 and 2016, which is in two files. To create a dataset with records from both files, follow one of these steps:</p>
                                         <ul>
                                             <li value="1">Create a directory named AirlinesData and place both files in the directory. Then import the AirlinesData directory. </li>
                                             <li value="2">
-                                                <p>Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralProductName">Xcalar Design</span> to import only these files by specifying a search pattern. Only files with names matching the pattern will be processed.</p>
+                                                <p>Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to import only these files by specifying a search pattern. Only files with names matching the pattern will be processed.</p>
                                                 <p>You can use an asterisk (*) as a wild card character in the search pattern. In this example, you can specify the following pattern:</p>
                                                 <p class="userInput">airlines201*.csv</p>
                                                 <p>Alternatively, use a regular expression (regex) pattern. In this example, you can specify the following regex pattern:</p>
                                                 <p class="userInput">airlines201.\.csv</p>
-                                                <p>Preparing the source files by renaming enables you to create one dataset with records from only airlines2015.csv and airlines2016.csv. If other files such as Airlines2000.csv or airlines2015.xls exist in the same directory, <span class="GeneralProductName">Xcalar Design</span> disregards them as their names do not match the specified pattern.</p>
+                                                <p>Preparing the source files by renaming enables you to create one dataset with records from only airlines2015.csv and airlines2016.csv. If other files such as Airlines2000.csv or airlines2015.xls exist in the same directory, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> disregards them as their names do not match the specified pattern.</p>
                                             </li>
                                         </ul>
                                         <h3>Verifying the file format or schema</h3>
@@ -198,156 +194,16 @@
                                             <li value="1">All files are in the same format. For example, they must be all JSON&#160;files or XML&#160;files. </li>
                                             <li value="2">If the file format is CSV, the files must have the same schema. </li>
                                         </ul>
-                                        <p>To instruct <span class="GeneralProductName">Xcalar Design</span> to import the files that meet the requirements, use file name pattern matching to limit the files to be processed.</p>
-                                        <h2><a name="Understa"></a>Ensuring the same data is visible to all nodes</h2>
-                                        <p>You must prepare the data source so that all nodes of the cluster can access the same data. The exact procedure for preparing the data source depends on the protocol for data access. </p>
-                                        <div class="Note"><span class="label">NOTE</span>: For some protocols, only the <span class="GeneralCompanyNameShort">Xcalar</span> cluster administrator, who has the appropriate access privileges to the cluster, can carry out the procedure described in this section.</div>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> supports the protocols described in the following table. </p>
-                                        <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
-                                            <col style="width: 50%;" class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col style="width: 50%;" class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Protocol shown in <span class="GeneralProductName">Xcalar Design</span></th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">file:///</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">File</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">hdfs://</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Hadoop Distributed File System (HDFS)</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">s3://</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Amazon Simple Storage Service (S3) </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">azblob://</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Microsoft Azure</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">mapr://</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">MapR</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <p>The following sections describe what you must do for your data to be accessible to all nodes of the <span class="GeneralCompanyNameShort">Xcalar</span> cluster.</p>
-                                        <h4>Using file:///</h4>
-                                        <p>If you select <span class="UIelement">file:///</span> to access data in shared storage that is visible to all nodes (for example, through a Network File System (NFS) in a network attached storage (NAS) environment), verify that the directory structure for accessing the shared storage is identical across all nodes. </p>
-                                        <p>For example, if your data resides in an NFS&#160;file system, all nodes must mount the same file system using the same path name as the mount point. That is, the same file system must be mounted on all nodes, and the mount point on all nodes must be the same (for example, /mnt/datasets). Similarly, if the data source files are local files, they must be stored under the same name and they must have identical contents. For example, to import a local file named /datasets/file1, <span class="GeneralProductName">Xcalar Design</span> must be able to find /datasets/file1 on each node, and /datasets/file1 must contain the same contents across all nodes.</p>
-                                        <p>The following list describes the possible scenarios where importing a shared file system fails:</p>
-                                        <ul>
-                                            <li value="1">The nodes use different mount points for the same NFS&#160;file system. For example, some nodes mount the file system as /mnt/dataset1 and some nodes mount the file system as /mnt/dataset2.</li>
-                                            <li value="2">All nodes have the same mount point (/mnt/datasets) but it points to different file systems. For example, /mnt/datasets on some nodes point to a file system on host1 and the same mount point on other nodes point to a file system on host2.</li>
-                                        </ul>
-                                        <h4>Using hdfs://</h4>
-                                        <p>If you select <span class="UIelement">hdfs://</span> to access data in an HDFS&#160;file system (for example, on a Hortonworks or Cloudera platform), verify that the host with the HDFS file system is accessible to all nodes of the cluster. Contact your Hadoop administrator to obtain the host name of the machine with the HDFS&#160;file system. You cannot use <span class="GeneralProductName">Xcalar Design</span> to list all the hosts on which an HDFS file system is installed. </p>
-                                        <h4>Using s3://</h4>
-                                        <p>The S3 instance needs to be configured for S3 access. This is because <span class="GeneralProductName3">Xcalar</span> connects not only to your local S3 bucket, but also to any other S3 accounts that you have access to.</p>
-                                        <p>To configure S3, establish an SSH connection with each <span class="GeneralProductName3">Xcalar</span> cluster node. Then follow these steps:</p>
-                                        <ol>
-                                            <li value="1">Make sure that you have installed the Amazon Web Services (AWS) Command Line Interface (CLI). If not, follow the instructions to install it at <a href="https://aws.amazon.com/cli/">https://aws.amazon.com/cli/</a>.</li>
-                                            <li value="2">To set up your credentials and default region, enter the following command:</li>
-                                            <p class="userInput">aws configure</p>
-                                            <p>The command displays several prompts for you to enter the access key, default region name, and so on. After you finish responding to the prompts, configuration files are generated in the correct locations for you.</p>
-                                        </ol>
-                                        <p>For detailed information and other ways to configure S3, visit the following website:</p>
-                                        <p><a href="http://boto3.readthedocs.io/en/latest/guide/configuration.html#configuring-credentials">http://boto3.readthedocs.io/en/latest/guide/configuration.html#configuring-credentials</a>
-                                        </p>
-                                        <h4>Using azblob://</h4>
-                                        <p>If your data is in Microsoft Azure Storage, for each storage account, follow these steps to make the data in the account accessible to <span class="GeneralProductName3">Xcalar</span>:</p>
-                                        <ol>
-                                            <li value="1">Use a web browser to go to  your Azure Storage accounts management web page.</li>
-                                            <li value="2">Click your storage account name.</li>
-                                            <li value="3">Navigate to the shared access signature (SAS)&#160;page.</li>
-                                            <li value="4">
-                                                <p>Set the SAS&#160;parameters as follows for generating the SAS token:</p>
-                                                <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
-                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
-                                                    <thead>
-                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Parameter</th>
-                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Setting</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed services</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Blob</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Allowed resource types</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Container, Object</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed permissions</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Read, List</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Start and expiry date/time</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Start time and end time for the time period when your <span class="GeneralProductName3">Xcalar</span> cluster can access the data</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Allowed protocols</td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">HTTPS only</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </li>
-                                            <li value="5">
-                                                <p>After the SAS token is generated, copy the token (not the signature) to your computer's clipboard. You will need to paste the token in the next step.</p>
-                                                <p>The following is an example of a SAS token with a Start Time set to 2017-09-18 00:00;00 and End Time set to 2017-12-01 00:00:00:</p>
-                                                <p class="userInput">?sv=2017-04-17&amp;ss=b&amp;srt=co&amp;sp=rl&amp;se=2017-12-01T00:00:00Z&amp;st=2017-09-18T00:00:00Z&amp;spr=https&amp;sig=xO0OwmPaIe27S0jy%2Fqr%2FbRs6WXj3%2BP84fGr4%2Bh%2BE5Qs%3D</p>
-                                            </li>
-                                            <li value="6">
-                                                <p>Enter the following string in the /etc/xcalar/default.cfg file on each <span class="GeneralProductName3">Xcalar</span> cluster node. The SAS token is the token you copied in the preceding step.</p>
-                                                <p class="userInput">AzBlob.&lt;Azure Storage account name&gt;.sasToken=&lt;SAS token&gt;</p>
-                                                <p>For example, enter the following string in the /etc/xcalar/default.cfg file:</p>
-                                                <p class="userInput">AzBlob.myaccount.sasToken=?sv=2017-04-17&amp;ss=b&amp;srt=co&amp;sp=rl&amp;se=2017-12-01T00:00:00Z&amp;st=2017-09-18T00:00:00Z&amp;spr=https&amp;sig=xO0OwmPaIe27S0jy%2Fqr%2FbRs6WXj3%2BP84fGr4%2Bh%2BE5Qs%3D<![CDATA[
-]]></p>
-                                                <p>In this example, the Azure Storage account name is myaccount. Be sure to use the appropriate account name for your Azure Storage.</p>
-                                            </li>
-                                            <li value="7">Save the /etc/xcalar/default.cfg file.</li>
-                                            <li value="8">Restart <span class="GeneralProductName3">Xcalar</span> to make the change to /etc/xcalar/default.cfg take effect.</li>
-                                        </ol>
-                                        <h4>Using mapr://</h4>
-                                        <p>If the data source is on a MapR cluster,  follow these steps to enable authorized MapR cluster users to access the data from <span class="GeneralProductName">Xcalar Design</span>:</p>
-                                        <ol>
-                                            <li value="1">Verify that the <span class="GeneralCompanyNameShort">Xcalar</span> users who want to access data on a MapR cluster have  their usernames and passwords for the MapR cluster.</li>
-                                            <li value="2">For each <span class="GeneralCompanyNameShort">Xcalar</span> cluster node, follow these steps to set up the MapR client:<ol style="list-style-type: lower-alpha;"><li value="1"><p>Install the appropriate MapR client package from the MapR website. For example, install the following package from MapR:</p><p>mapr-client-5.2.0.39122.GA-1.x86_64.rpm</p><p>Make sure that the client package version matches your MapR cluster version.</p></li><li value="2"><p>Enter the following command, which uses the MapR configure script, on the <span class="GeneralCompanyNameShort">Xcalar</span> cluster node to configure the MapR client against the MapR cluste:</p><p class="userInput">/opt/mapr/server/configure.sh -c -C mapr-cldb-node -secure -N my-mapr-cluster</p><p>In the actual command, substitute your MapR cluster name for  my-mapr-cluster. </p></li><li value="3"><p>Enter the following command to copy the cluster ssl_truststore to the client node:</p><p class="userInput">scp admin@mapr-cldb-node:/opt/mapr/conf/ssl_truststore /opt/mapr/conf</p></li></ol></li>
-                                            <li value="3">
-                                                <p>(Optional) Follow these steps to verify that each user can log in to the MapR cluster:</p>
-                                                <ol style="list-style-type: lower-alpha;">
-                                                    <li value="1">
-                                                        <p>Enter the maprlogin. The following example is for a user named myuser:</p>
-                                                        <p class="userInput">maprlogin password -user myuser</p>
-                                                        <p>In the actual command, substitute the MapR user's username for myuser.</p>
-                                                    </li>
-                                                    <li value="2">Enter the MapR user's password for the MapR cluster.</li>
-                                                    <li value="3">If the login is successful, you can be sure that the user can access the data on the MapR cluster from <span class="GeneralProductName">Xcalar Design</span>. </li>
-                                                    <li value="4">
-                                                        <p>Enter the following command to log out of the MapR cluster:</p>
-                                                        <p class="userInput">maprlogin logout</p>
-                                                    </li>
-                                                </ol>
-                                            </li>
-                                        </ol>
-                                        <h4>If data source is not shared</h4>
-                                        <p>If your data is stored in a  shared-nothing environment, you can still create a dataset on <span class="GeneralProductName3">Xcalar</span> for the data by using the <span class="GeneralCompanyNameShort">Xcalar</span> SDK. For more information about the SDK, contact <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</p>
+                                        <p>To instruct <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to import the files that meet the requirements, use file name pattern matching to limit the files to be processed.</p>
                                         <h2><a name="Before"></a>Creating a first row as column headers</h2>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The information about creating a first row as column headers is not applicable if the data to be imported is in JSON&#160;format.</div>
-                                        <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the values on the first row of your data file as column headers. If the values are not appropriate as column headers, create a first row, which you can promote as column headers. For information about naming conventions for column headers, see <a href="#Preparin" class="MCXref xref">Preparing the first row as column header</a>. (If you do not provide the column headers, <span class="GeneralProductName">Xcalar Design</span> uses  column0, column1, and so on, as default column headers.)</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you import a directory, the first row created must be the same for <em>each file</em> in the directory. <span class="GeneralProductName">Xcalar Design</span> processes data files in parallel; the order of the files being processed is not predetermined. If all the files contain the same first row,  the desired column headers will be used when <span class="GeneralProductName">Xcalar Design</span> promotes the first row.</div>
-                                        <p>Column headers improve readability of the tables created by <span class="GeneralProductName">Xcalar Design</span>. In addition, if you  use an import UDF, be aware that after <span class="GeneralProductName">Xcalar Design</span> imports the data, the table columns are ordered differently than the columns in the data source. (A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> imports the data is called an import UDF.) If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
-                                        <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you import it, <span class="GeneralProductName">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the table displayed in <span class="GeneralProductName">Xcalar Design</span>. If, before parsing, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                        <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the values on the first row of your data file as column headers. If the values are not appropriate as column headers, create a first row, which you can promote as column headers. For information about naming conventions for column headers, see <a href="#Preparin" class="MCXref xref" xrefformat="{para}">Preparing the first row as column header</a>. (If you do not provide the column headers, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> uses  column0, column1, and so on, as default column headers.)</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you import a directory, the first row created must be the same for <em>each file</em> in the directory. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> processes data files in parallel; the order of the files being processed is not predetermined. If all the files contain the same first row,  the desired column headers will be used when <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> promotes the first row.</div>
+                                        <p>Column headers improve readability of the tables created by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. In addition, if you  use an import UDF, be aware that after <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports the data, the table columns are ordered differently than the columns in the data source. (A UDF for parsing data when <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports the data is called an import UDF.) If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
+                                        <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you import it, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the table displayed in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. If, before parsing, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>.</div>
                                         <h2><a name="Preparin"></a>Preparing the first row as column header</h2>
                                         <p>Before you promote the first row, make sure that the first row of the source file does not contain illegal characters. If there are illegal characters, edit the first row to remove the illegal characters. Alternatively, you can import the data source by using a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters.</p>
-                                        <p>In addition, make sure that the column headers based on the first row follow the <span class="GeneralProductName">Xcalar Design</span> naming conventions. Otherwise, you might see unexpected operation results. </p>
+                                        <p>In addition, make sure that the column headers based on the first row follow the <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> naming conventions. Otherwise, you might see unexpected operation results. </p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
@@ -375,12 +231,12 @@
                                             </div>
                                         </div>
                                         <h2>Determining the quoting character to use in CSV or text files</h2>
-                                        <p>If your data source is a CSV&#160;or text file, check to see if the data source contains a double quote mark (") that should be interpreted literally. By default, <span class="GeneralProductName">Xcalar Design</span> considers the quote mark as a character to surround a string value. If the quote mark in your data source should be parsed literally, you must override <span class="GeneralProductName">Xcalar Design</span>'s default  by specifying no character as the quoting character.</p>
+                                        <p>If your data source is a CSV&#160;or text file, check to see if the data source contains a double quote mark (") that should be interpreted literally. By default, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> considers the quote mark as a character to surround a string value. If the quote mark in your data source should be parsed literally, you must override <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>'s default  by specifying no character as the quoting character.</p>
                                         <h2>Unicode encoding</h2>
                                         <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without user-defined functions (UDFs).</p>
                                         <h2>Next step</h2>
-                                        <p>Import a data source by using the instructions in the following topic:</p>
-                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.2.2 (with custom settings)</a> <![CDATA[ ]]></p>
+                                        <p>Import a data source by following the instructions in this topic:</p>
+                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Detailed steps for Xcalar 1.2.2 (with custom settings)</a> <![CDATA[ ]]></p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

@@ -173,7 +173,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Parameterizing operations</h1>
                                         <p>This topic is applicable for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span> only.</p>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> supports parameterization of operations. This feature enables you to re-use an existing dataflow with customized values, eliminating the need for building a dataflow from scratch. Specifically, you can take advantage of an existing batch dataflow to accomplish the following goals:</p>
+                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports parameterization of operations. This feature enables you to re-use an existing dataflow with customized values, eliminating the need for building a dataflow from scratch. Specifically, you can take advantage of an existing batch dataflow to accomplish the following goals:</p>
                                         <ul>
                                             <li value="1">apply the entire series of operations defined by a batch dataflow to another dataset.</li>
                                             <li value="2">substitute a filter function for an existing one in a batch dataflow.</li>
@@ -197,7 +197,7 @@
                                         </ol>
                                         <p>The exact steps might vary depending on the type of operation being parameterized.</p>
                                         <h2>Changing a batch dataflow without a parameter</h2>
-                                        <p>&#160;<span class="GeneralProductName">Xcalar Design</span> allows you to customize a batch dataflow without creating a parameter. For information about customizing a batch dataflow through parameterization, see <a href="#Passing" class="MCXref xref" xrefformat="{para}">Passing a parameter </a>. If you do not want to create a parameter, you can type the desired value where a parameter should be placed.</p>
+                                        <p>&#160;<span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> allows you to customize a batch dataflow without creating a parameter. For information about customizing a batch dataflow through parameterization, see <a href="#Passing" class="MCXref xref" xrefformat="{para}">Passing a parameter </a>. If you do not want to create a parameter, you can type the desired value where a parameter should be placed.</p>
                                         <div class="Note"><span class="label">Recommendation</span>: Define a parameter instead of entering the value directly because having a parameter provides a convenient way to update a particular value. You can also re-use the same parameter for other items in the dataflow. For example, you can use the same parameter in the data source path name and in the export file name to maintain consistency.  </div>
                                         <h2>Parameter naming guidelines</h2>
                                         <p>When creating a parameter, remember to choose a name that describes the meaning of the parameter. </p>
@@ -316,7 +316,7 @@
                                         <p>The following example illustrates how a batch dataflow is parameterized to create different export files based on the same batch dataflow.</p>
                                         <p>The batch dataflow named FlightInfo  consists of these operations:</p>
                                         <ul>
-                                            <li value="1"><span class="GeneralProductName">Xcalar Design</span> imports a data source containing flight information from various air carriers and creates a table with four columns, such as day of the week, air time, and so on.</li>
+                                            <li value="1"><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports a data source containing flight information from various air carriers and creates a table with four columns, such as day of the week, air time, and so on.</li>
                                             <li value="2">Smart type casting is used to cast the correct data type for each column.</li>
                                             <li value="3">A filter is used to include only rows from Sunday (1 in the DayOfWeek_integer column).</li>
                                             <li value="4">An export file is created with all the columns.</li>
