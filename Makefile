@@ -16,6 +16,7 @@ PRODUCTNAME=xcalar-design
 ifeq ($(product),XI)
 PRODUCTNAME=xcalar-insight
 endif
+#export PRODUCTNAME=$(PRODUCTNAME)
 
 all: generateHtml build prod alert
 
@@ -34,9 +35,10 @@ build: $(DESTDIR) generateHtml
 	@echo "=== Removing old prod folder if any ==="
 	@rm -rf xcalar-gui
 	@rm -rf $(PRODUCTNAME)
+	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
 	@mkdir -p $(DESTDIR)/$(PRODUCTNAME)
-	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/js/constructor/xcalar-idl
+	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/js/constructor/xcalar-idl
 	@echo "=== Removing unused files ==="
 	@rm -f $(DESTDIR)/$(PRODUCTNAME)/assets/js/thrift/mgmttestactual.js
 	@echo "=== Compile Less ==="
