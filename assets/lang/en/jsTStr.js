@@ -1156,4 +1156,8 @@ LoginConfigTStr = {
     "EmptyPasswordError": "You need to enter a password.",
     "EmptyUsernameError": "You need to enter a username.",
     "EmptyEmailError": "You need to enter an email address."
-}
+};
+
+JupyterTStr = {
+    "JupNotebook": "Jupiter Notebook"
+};

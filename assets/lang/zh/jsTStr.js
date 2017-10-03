@@ -997,5 +997,8 @@ LoginConfigTStr = {
     "EmptyPasswordError": "您需要输入密码",
     "EmptyUsernameError": "您需要输入用户名",
     "EmptyEmailError": "您需要输入邮件"
-}
+};
 
+JupyterTStr = {
+    "JupNotebook": "Jupiter Notebook"
+};

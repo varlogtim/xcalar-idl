@@ -220,6 +220,9 @@ window.StatusMessage = (function($, StatusMessage) {
                 case ("monitorTab"):
                     panelName = MonitorTStr.Monitor;
                     break;
+                case ("jupyterTab"):
+                    panelName = JupyterTStr.JupNotebook;
+                    break;
                 default:
                     break;
             }

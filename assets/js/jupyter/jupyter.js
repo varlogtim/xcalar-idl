@@ -1,13 +1,17 @@
 window.JupyterPanel = (function($, JupyterPanel) {
 
     var $frameLocation = $("#jupyterPanel .mainContent");
+    var $jupyterPanel;
     JupyterPanel.setup = function() {
-
+        $jupyterPanel = $("#jupyterPanel");
+        setupTopBarDropdown();
     };
 
     JupyterPanel.initialize = function() {
         if (window.jupyterNode == null || window.jupyterNode === "") {
-            window.jupyterNode = "http://cantor.int.xcalar.com:8889";
+            var tempName = hostname.slice(0, hostname.lastIndexOf(":"));
+            window.jupyterNode = tempName + ":8889";
+            // window.jupyterNode = "http://holmes.int.xcalar.com:8889";
         }
         function loadJupyterNotebook(wkbkName) {
             $.ajax({
@@ -67,6 +71,27 @@ window.JupyterPanel = (function($, JupyterPanel) {
         $("#jupyterNotebook")[0].contentWindow.postMessage(
                                           JSON.stringify(tableStruct), "*");
     };
+
+    function setupTopBarDropdown() {
+        var $jupMenu = $jupyterPanel.find(".jupyterMenu");
+        xcMenu.add($jupMenu);
+
+        $jupyterPanel.on("click", ".jupyterMenuIcon", function() {
+            var $menuIcon = $(this);
+
+            xcHelper.dropdownOpen($menuIcon, $jupMenu, {
+                "offsetX": -7,
+                // "floating": true,
+                "toClose": function() {
+                    return $jupMenu.is(":visible");
+                },
+                "callback": function() {
+
+                }
+            });
+        });
+
+    }
 
     return (JupyterPanel);
 }(jQuery, {}));
