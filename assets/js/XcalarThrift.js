@@ -141,7 +141,7 @@ function thriftLog() {
 
     // case other than connection reset and no mem,
     // return first error
-    return errorLists[0];
+    return errorLists.length ? errorLists[0] : {};
 
     function parseLog(log) {
         if (!log) {

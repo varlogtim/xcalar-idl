@@ -347,8 +347,9 @@ window.RowManager = (function($, RowManager) {
     // resets invalid resultsetIds
     function setAbsolute(table, rowPosition, retry) {
         var deferred = jQuery.Deferred();
+        var resultSetId = String(table.resultSetId);
 
-        XcalarSetAbsolute(table.resultSetId, rowPosition)
+        XcalarSetAbsolute(resultSetId, rowPosition)
         .then(deferred.resolve)
         .fail(function(error) {
             // invalid result set ID may need to be refreshed
