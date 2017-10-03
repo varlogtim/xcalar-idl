@@ -79,7 +79,8 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             $.ajax({
                 "type": "POST",
                 "contentType": "application/json",
-                "url": "https://zd.xcalar.net/license/api/v1.0/secure/addlicense",
+                //"url": "https://zd.xcalar.net/license/api/v1.0/secure/addlicense",
+                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/secure/addlicense",
                 "crossdomain": true,
                 "data": JSON.stringify(data),
                 "success": function () {

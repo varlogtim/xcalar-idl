@@ -1,7 +1,8 @@
 import json
 import urllib2
 
-licenseServerApiEndpoint = "https://zd.xcalar.net/license/api/v1.0/secure/list"
+#licenseServerApiEndpoint = "https://zd.xcalar.net/license/api/v1.0/secure/list"
+licenseServerApiEndpoint = "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/secure/list"
 
 def getTable(filePath, inStream, tableName = "license"):
     inObj = json.loads(inStream.read())
