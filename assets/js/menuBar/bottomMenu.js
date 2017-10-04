@@ -103,6 +103,7 @@ window.BottomMenu = (function($, BottomMenu) {
             "minWidth": 295,
             "minHeight": 300,
             "start": function() {
+                $("#container").addClass("menuResizing");
                 if (!$menuPanel.hasClass("poppedOut")) {
                     poppedOut = false;
                 } else {
@@ -153,6 +154,7 @@ window.BottomMenu = (function($, BottomMenu) {
                     $menuPanel.addClass("small");
                 }
                 refreshEditor();
+                $("#container").removeClass("menuResizing");
             },
             "resize": function(event, ui) {
                 if (ui.size.width > smallWidth) {
