@@ -147,6 +147,8 @@ window.SQLCompiler = (function() {
         "expressions.aggregate.AggregateExpression": null
     };
 
+    var tablePrefix = "XC_TABLENAME_";
+
     function assert(st) {
         if (!st) {
             debugger;
@@ -159,7 +161,6 @@ window.SQLCompiler = (function() {
             // These are leaf nodes
             // Find the RDD that has a name XC_TABLENAME_ prefix
             var rdds = value.output;
-            var prefix = "XC_TABLENAME_";
             for (var i = 0; i < rdds.length; i++) {
                 var evalStr = genEvalStringRecur(SQLCompiler.genTree(undefined,
                     rdds[i].slice(0)));
@@ -167,8 +168,8 @@ window.SQLCompiler = (function() {
                     debugger;
                     console.info(rdds[i]);
                 }
-                if (evalStr.indexOf(prefix) === 0) {
-                    this.newTableName = evalStr.substring(prefix.length);
+                if (evalStr.indexOf(tablePrefix) === 0) {
+                    this.newTableName = evalStr.substring(tablePrefix.length);
                     break;
                 }
             }
@@ -797,14 +798,20 @@ window.SQLCompiler = (function() {
                 var parentOpName = condTree.parent.value.class.substring(
                     condTree.value.class.indexOf("expressions."));
                 if (parentOpName === "expressions.Cast") {
+                    // This should be casting according to the parent's type
                     outStr += convertSparkTypeToXcalarType(
-                              condTree.value.dataType) + "(";
+                              condTree.parent.value.dataType) + "(";
                 }
             }
             if (condTree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
-                outStr += condTree.value.name.replace(/[\(|\)]/g, "_").toUpperCase();
+                if (condTree.value.name.indexOf(tablePrefix) !== 0) {
+                    outStr += condTree.value.name.replace(/[\(|\)]/g, "_")
+                                      .toUpperCase();
+                } else {
+                    outStr += condTree.value.name;
+                }
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string") {

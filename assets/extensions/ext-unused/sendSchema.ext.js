@@ -60,7 +60,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
                 mapFn = "string";
             }
             var mapStr = mapFn + "(" + col.backName + ")";
-            var newColName = getDerivedColName(col.backName);
+            var newColName = getDerivedColName(col.backName).toUpperCase();
 
             ext.map(mapStr, tableName, newColName, ext.createTempTableName())
             .then(function(tableAfterMap) {
@@ -108,6 +108,10 @@ window.UExtSendSchema = (function(UExtSendSchema) {
                 // project the processed prefix columns and the original
                 // original derived columns
                 var newTableName = ext.createTableName(null, null, srcTableName);
+                var hashIdx = newTableName.lastIndexOf("#");
+                var tableNamePart = newTableName.substring(0, hashIdx);
+                var hashPart = newTableName.substring(hashIdx);
+                newTableName = tableNamePart.toUpperCase() + hashPart;
                 return ext.project(tableInfo.colsToProject, derivedTable,
                     newTableName);
             })
