@@ -86,7 +86,7 @@ $(document).mousedown(function(event) {
         "Timestamp": (new Date()).getTime()
     });
 });
-$("input").change(function(event) {
+$(document).on("change", "input", function(event) {
     mixpanel.track("InputEvent", {
         "Content": $(this).val(),
         "Element": getElementPath(event.target),
