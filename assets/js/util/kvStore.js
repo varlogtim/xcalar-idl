@@ -8,7 +8,7 @@ window.KVStore = (function($, KVStore) {
     var commitCnt = 0;
 
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
-    // gSettingsKey
+    // gSettingsKey, gNotebookKey
     KVStore.setup = function(keys) {
         for (var keyName in keys) {
             KVStore[keyName] = keys[keyName];

@@ -2,6 +2,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     var $frameLocation = $("#jupyterPanel .mainContent");
     var $jupyterPanel;
+    var currNotebook;
     JupyterPanel.setup = function() {
         $jupyterPanel = $("#jupyterPanel");
         setupTopBarDropdown();
@@ -13,28 +14,47 @@ window.JupyterPanel = (function($, JupyterPanel) {
             window.jupyterNode = tempName + ":8889";
             // window.jupyterNode = "http://holmes.int.xcalar.com:8889";
         }
-        function loadJupyterNotebook(wkbkName) {
+        function loadJupyterNotebook(lastLocation) {
+            var url;
+            // var lastLocation = xcLocalStorage.getItem("jupyterNotebook");
+            if (lastLocation) {
+                url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python2#";
+            } else {
+                url = jupyterNode + "/tree#";
+            }
+
             $.ajax({
-                url: jupyterNode + "/notebooks/" + wkbkName + ".ipynb?kernel_name=python2#",
+                url: url,
                 dataType: "jsonp",
                 timeout: 5000,
 
                 success: function() {
-                    $("#jupyterNotebook").attr("src", jupyterNode + "/notebooks/" + wkbkName + ".ipynb?kernel_name=python2#");
+                    $("#jupyterNotebook").attr("src", url);
                 },
                 error: function(parsedjson) {
-                    if (parsedjson.status === 404) {
-                        $("#jupyterNotebook").attr("src", jupyterNode + "/notebooks/XcalarTemplate.ipynb?kernel_name=python2#");
-                    } else if (parsedjson.status === 200) {
-                        $("#jupyterNotebook").attr("src", jupyterNode + "/notebooks/" + wkbkName + ".ipynb?kernel_name=python2#");
+                    if (parsedjson.status === 200) {
+                        $("#jupyterNotebook").attr("src", url);
                     } else {
-                        $("#jupyterNotebook").attr("src", jupyterNode + "/notebooks/XcalarTemplate.ipynb?kernel_name=python2#");
+                        $("#jupyterNotebook").attr("src", jupyterNode +jupyterNode + "/tree#");
                     }
                 }
             });
         }
 
-        loadJupyterNotebook(WorkbookManager.getActiveWKBK());
+        KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
+        .then(function(lastLocation) {
+            var last;
+            try {
+                last = $.parseJSON(lastLocation);
+            } catch(err) {
+                console.error(err);
+            }
+            loadJupyterNotebook(last);
+        })
+        .fail(function() {
+            loadJupyterNotebook();
+        });
+
 
         window.addEventListener("message", function(event) {
             var struct = event.data;
@@ -43,6 +63,12 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 switch (s.action) {
                     case ("resend"):
                         JupyterPanel.sendInit();
+                        break;
+                    case ("newUntitled"):
+                        JupyterPanel.sendInit(true, s.publishTable, s.tableName);
+                        break;
+                    case ("updateLocation"):
+                        storeLocation(s);
                         break;
                     default:
                         console.error("Unsupported action:" + s.action);
@@ -53,13 +79,16 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     };
 
-    JupyterPanel.sendInit = function() {
+    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName) {
         var workbookStruct = {action: "init",
-              username: userIdName,
-              userid: userIdUnique,
-              sessionname: WorkbookManager.getWorkbook(
+                newUntitled: newUntitled,
+                publishTable: publishTable,
+                tableName: tableName,
+                username: userIdName,
+                userid: userIdUnique,
+                sessionname: WorkbookManager.getWorkbook(
                             WorkbookManager.getActiveWKBK()).name,
-              sessionid: WorkbookManager.getActiveWKBK()
+                sessionid: WorkbookManager.getActiveWKBK()
         };
         $("#jupyterNotebook")[0].contentWindow
                       .postMessage(JSON.stringify(workbookStruct), "*");
@@ -67,10 +96,20 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     JupyterPanel.publishTable = function(tableName) {
         var tableStruct = {action: "publishTable",
-                          tableName: tableName};
+                      tableName: tableName};
         $("#jupyterNotebook")[0].contentWindow.postMessage(
-                                          JSON.stringify(tableStruct), "*");
+                                      JSON.stringify(tableStruct), "*");
     };
+
+    function storeLocation(info) {
+        if (info.location === "tree") {
+            currNotebook = "";
+        } else if (info.location === "notebook") {
+            currNotebook = info.lastNotebook;
+        }
+        return KVStore.put(KVStore.gNotebookKey, JSON.stringify(currNotebook),
+                            true, gKVScope.WKBK);
+    }
 
     function setupTopBarDropdown() {
         var $jupMenu = $jupyterPanel.find(".jupyterMenu");
@@ -90,7 +129,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }
             });
         });
-
     }
 
     return (JupyterPanel);

@@ -745,11 +745,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gStorageKey = generateKey(wkbkId, "gInfo", version);
         var gLogKey = generateKey(wkbkId, "gLog", version);
         var gErrKey = generateKey(wkbkId, "gErr", version);
+        var gNotebookKey = generateKey(wkbkId, "gNotebook", version);
 
         return {
             "gStorageKey": gStorageKey,
             "gLogKey": gLogKey,
-            "gErrKey": gErrKey
+            "gErrKey": gErrKey,
+            "gNotebookKey": gNotebookKey,
         };
     }
 
