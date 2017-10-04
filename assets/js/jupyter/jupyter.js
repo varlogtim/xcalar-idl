@@ -10,7 +10,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     JupyterPanel.initialize = function() {
         if (window.jupyterNode == null || window.jupyterNode === "") {
-            var tempName = hostname.slice(0, hostname.lastIndexOf(":"));
+            var colIndex = hostname.lastIndexOf(":");
+            if (colIndex < 6) {
+                colIndex = hostname.length;
+            }
+            var tempName = hostname.slice(0, colIndex);
             window.jupyterNode = tempName + ":8889";
             // window.jupyterNode = "http://holmes.int.xcalar.com:8889";
         }
@@ -110,6 +114,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             true, gKVScope.WKBK);
     }
 
+    JupyterPanel.appendStub = function(stubName) {
+        var stubStruct = {action: "stub", stubName: stubName};
+        $("#jupyterNotebook")[0].contentWindow.postMessage(JSON.stringify(stubStruct), "*");
+    }
     function setupTopBarDropdown() {
         var $jupMenu = $jupyterPanel.find(".jupyterMenu");
         xcMenu.add($jupMenu);
@@ -127,6 +135,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
                 }
             });
+        });
+        $jupyterPanel.on("click", ".jupyterMenuText", function(){
+            $(".jupyterMenuIcon").click();
+        });
+        $jupyterPanel.on("click", ".jupyterMenu li", function() {
+            var stubName = $(this).attr("data-action");
+            JupyterPanel.appendStub(stubName);
         });
     }
 

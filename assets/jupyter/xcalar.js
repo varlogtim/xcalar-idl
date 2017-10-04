@@ -31,17 +31,20 @@ define(function() {
                 var request = {action: "resend"};
                 parent.postMessage(JSON.stringify(request), "*");
             }
-
+            var username;
+            var userid;
+            var sessionName;
+            var sessionId;
             function receiveMessage(event) {
                 window.alert = function() {};
                 alert = function() {};
                 var struct = JSON.parse(event.data);
                 switch (struct.action) {
                     case ("init"):
-                        var username = struct.username;
-                        var userid = struct.userid;
-                        var sessionName = struct.sessionname;
-                        var sessionId = struct.sessionid;
+                        username = struct.username;
+                        userid = struct.userid;
+                        sessionName = struct.sessionname;
+                        sessionId = struct.sessionid;
                         var notebookName = Jupyter.notebook.get_notebook_name();
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName);
@@ -54,11 +57,35 @@ define(function() {
                     case ("publishTable"):
                         appendPublishTableStub(struct.tableName);
                         break;
+                    case ("stub"):
+                        var stubName = struct.stubName;
+                        appendStub(stubName);
+                        break;
                     default:
                         break;
                 }
             }
-
+            // Add all stub cases here
+            function appendStub(stubName) {
+                var text;
+                switch (stubName) {
+                    case ("connWorkbook"):
+                        text = '%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. First create a XcalarApi object to do anything\nxcalarApi = XcalarApi()\n';
+                        text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                        break;
+                    case ("udfTemplate"):
+                        text = '# PLEASE TAKE NOTE:\n# UDFs can only support\n# return values of\n# type String.\n# Function names that\n# start with __ are\n# considered private\n# functions and will not\n# be directly invokable.\ndef main():\n    # You can modify the function name.\n    # Your code starts from here';
+                        break;
+                    default:
+                        return;
+                }
+                var index = Jupyter.notebook.get_selected_index();
+                if (!Jupyter.notebook.get_selected_cell().get_text()) {
+                    index -= 1;
+                }
+                var cell = Jupyter.notebook.insert_cell_below('code', index);
+                cell.set_text(text);
+            }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
                 var text = '#DO NOT RENAME THE NOTEBOOK!\n%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. First create a XcalarApi object to do anything\nxcalarApi = XcalarApi()\n';
