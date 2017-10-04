@@ -664,7 +664,7 @@ describe("Ephemeral Constructor Test", function() {
 
         before(function() {
             var fakeHtml =
-            '<div id="unitst-view">' +
+            '<div id="unitst-view" class="mainContent">' +
                 '<div class="columnsToExport">' +
                     '<ul class="cols">' +
                         '<li class="checked">' +

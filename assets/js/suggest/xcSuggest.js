@@ -596,9 +596,11 @@ window.xcSuggest = (function($, xcSuggest) {
     };
 
     xcSuggest.detectFieldDelimiter = function(rawStr) {
-        var commaCount = coutCharOccurrence(rawStr, ",");
-        var tabCount = coutCharOccurrence(rawStr, "\\t");
-        var pipCount = coutCharOccurrence(rawStr, "\\|");
+        // first line is a good reference of delimiter
+        var firstLine = rawStr.split(/(\r|\n)/)[0];
+        var commaCount = coutCharOccurrence(firstLine, ",");
+        var tabCount = coutCharOccurrence(firstLine, "\\t");
+        var pipCount = coutCharOccurrence(firstLine, "\\|");
 
         // when has pip
         if (pipCount > commaCount && pipCount > tabCount) {
