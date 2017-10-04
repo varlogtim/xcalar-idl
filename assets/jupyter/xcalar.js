@@ -15,6 +15,7 @@ define(function() {
             modifyElements();
 
             if (params["needsTemplate"] === "true") {
+                // brand new workbook
                 var publishTable = params["publishTable"] === "true";
                 var tableName;
                 if (publishTable) {
@@ -24,6 +25,10 @@ define(function() {
                                publishTable: publishTable,
                                tableName: tableName};
                 console.log("Telling parent new untitled notebook created");
+                parent.postMessage(JSON.stringify(request), "*");
+            } else {
+                // accessing an existing notebook
+                var request = {action: "resend"};
                 parent.postMessage(JSON.stringify(request), "*");
             }
 

@@ -16,7 +16,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
         function loadJupyterNotebook(lastLocation) {
             var url;
-            // var lastLocation = xcLocalStorage.getItem("jupyterNotebook");
             if (lastLocation) {
                 url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python2#";
             } else {
@@ -35,7 +34,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     if (parsedjson.status === 200) {
                         $("#jupyterNotebook").attr("src", url);
                     } else {
-                        $("#jupyterNotebook").attr("src", jupyterNode +jupyterNode + "/tree#");
+                        $("#jupyterNotebook").attr("src", jupyterNode + "/tree#");
                     }
                 }
             });
