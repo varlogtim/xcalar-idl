@@ -81,7 +81,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
         setTimeout(function() {
-            if (!connected) {
+            if (connected) {
                 // Send the request to socket
                 sendReqToSocket();
             }
