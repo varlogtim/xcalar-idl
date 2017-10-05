@@ -121,20 +121,54 @@ window.TblMenu = (function(TblMenu, $) {
             ExportView.show(tableId);
         });
 
-        $tableMenu.on('mouseup', '.jupyterTable', function(event) {
+        $subMenu.on('mouseup', '.jupyterFullTable', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
             var tableName = gTables[tableId].tableName;
-            var columns = gTables[tableId].getAllCols(true);
-            var colNames = [];
-            for (var i = 0; i < columns.length; i++) {
-                colNames.push(columns[i].backName);
-            }
             $("#jupyterTab").click();
-            JupyterPanel.publishTable(tableName, colNames);
+            JupyterPanel.publishTable(tableName);
         });
+
+        $subMenu.on('keypress', '.jupyterSampleTable input', function(event) {
+            if (event.which !== keyCode.Enter) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            var tableName = gTables[tableId].tableName;
+            var $input = $(this);
+            var numRows = $input.val().trim();
+            var max = Math.min(10000, gTables[tableId].resultSetCount);
+
+            var isValid = xcHelper.validate([
+                {
+                    "$ele": $input,
+                    "side": "left"
+                },
+                {
+                    "$ele": $input,
+                    "error": xcHelper.replaceMsg(JupyterTStr.SampleNumError,
+                                                {number: max}),
+                    "side": "left",
+                    "check": function () {
+                        return (numRows < 1 || numRows > max);
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return false;
+            }
+
+            $("#jupyterTab").click();
+            JupyterPanel.publishTable(tableName, numRows);
+            $input.val("");
+            $input.blur();
+            xcMenu.close($allMenus);
+        });
+
+
 
         $tableMenu.on('mouseup', '.exitOp', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {

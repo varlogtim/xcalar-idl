@@ -5,7 +5,7 @@ define(['base/js/namespace'], function(Jupyter) {
         return;
     }
 
-     var request = {
+    var request = {
         action: "updateLocation",
         location: "tree",
         lastNotebook: null
@@ -41,20 +41,21 @@ define(['base/js/namespace'], function(Jupyter) {
         var struct = JSON.parse(event.data);
         switch(struct.action) {
             case("publishTable"):
-               publishTable(struct.tableName);
+               publishTable(struct.tableName, struct.numRows);
                break;
             default:
                break;
         }
     }
 
-    function publishTable(tableName) {
+    function publishTable(tableName, numRows) {
+        numRows = numRows || 0;
         Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
         .then(function(data) {
             var encodedTableName = encodeURIComponent(tableName);
             var url = "/notebooks/" + data.path + "?kernel_name=python2&" +
                         "needsTemplate=true&publishTable=true&" +
-                        "tableName=" + encodedTableName;
+                        "tableName=" + encodedTableName + "&numRows=" + numRows;
             window.location.href = url;
         });
     }

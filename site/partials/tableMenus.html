@@ -8,7 +8,7 @@
     <li class="deleteTable"><%= dicts.MenuTStr.DelTbl %></li>
     <li class="exportTable"><%= dicts.MenuTStr.ExportTbl %><span class="ellipsis">...</span></li>
     <% if (dicts.product == "XI") { %>
-      <li class="jupyterTable"><%= dicts.MenuTStr.Jupyter %></li>
+      <li class="jupyterTable parentMenu" data-submenu="jupyterTable"><%= dicts.MenuTStr.Jupyter %></li>
     <% } %>
     <li class="multiCast"><%= dicts.MenuTStr.SmartCast %><span class="ellipsis">...</span></li>
     <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
@@ -95,7 +95,19 @@
         <ul class="list wsList"></ul>
       </div>
     </li>
-    <div class="subMenuArea"></div>
+  </ul>
+  <ul class="jupyterTable">
+    <li class="jupyterFullTable">
+      Full Table
+    </li>
+    <li class="clickable jupyterSampleTable">
+      <span data-toggle="tooltip" data-placement="top" data-container="body" title="Select the number of rows to sample from this table">Partial Table</span>
+      <div class="dropDownList">
+        <input class="numRows" type="number" max="10000" maxlength="5" min="1"
+          step="1"
+          placeholder="number of rows" spellcheck="false" />
+      </div>
+    </li>
   </ul>
   <ul class="sortByName">
     <li class="sortForward">
@@ -106,7 +118,6 @@
       <i class="icon blue fa-15 xi-arrowtail-down sortDown"></i>
       <%= dicts.MenuTStr.SortDesc %>
     </li>
-    <div class="subMenuArea"></div>
   </ul>
   <ul class="sortByType">
     <li class="sortForward">
@@ -117,7 +128,6 @@
       <i class="icon blue fa-15 xi-arrowtail-down sortDown"></i>
       <%= dicts.MenuTStr.SortDesc %>
     </li>
-    <div class="subMenuArea"></div>
   </ul>
   <ul class="sortByPrefix">
     <li class="sortForward">
@@ -128,7 +138,6 @@
       <i class="icon blue fa-15 xi-arrowtail-down sortDown"></i>
       <%= dicts.MenuTStr.SortDesc %>
     </li>
-    <div class="subMenuArea"></div>
   </ul>
   <ul class="resizeCols">
     <li class="sizeToHeader">
@@ -140,7 +149,6 @@
     <li class="sizeToFitAll">
       <%= dicts.MenuTStr.ResizeToAll %>
     </li>
-    <div class="subMenuArea"></div>
   </ul>
   <ul class="advancedOptions">
     <li class="addNoDelete" data-toggle="tooltip" data-placement="bottom"
@@ -164,9 +172,7 @@
     <li class="skewDetails">
       <%= dicts.MenuTStr.Skew %><span class="ellipsis">...</span>
     </li>
-    <div class="subMenuArea"></div>
   </ul>
-  <div class="subMenuArea"></div>
 </div>
 <!-- END TABLE MENU -->
 
@@ -515,7 +521,6 @@
       Advanced<span class="ellipsis">...</span>
     </li>
   </ul>
-  <div class="subMenuArea"></div>
   <div class="scrollArea top">
     <div class="arrow"></div>
   </div>

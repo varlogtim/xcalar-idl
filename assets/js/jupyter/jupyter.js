@@ -45,7 +45,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         JupyterPanel.sendInit();
                         break;
                     case ("newUntitled"):
-                        JupyterPanel.sendInit(true, s.publishTable, s.tableName);
+                        JupyterPanel.sendInit(true, s.publishTable, s.tableName, s.numRows);
                         break;
                     case ("updateLocation"):
                         storeLocation(s);
@@ -59,11 +59,17 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     };
 
-    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName) {
+    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName, numRows) {
+        var colNames = [];
+        if (publishTable && tableName) {
+            colNames = getCols(tableName);
+        }
         var workbookStruct = {action: "init",
                 newUntitled: newUntitled,
                 publishTable: publishTable,
                 tableName: tableName,
+                colNames: colNames,
+                numRows: numRows,
                 username: userIdName,
                 userid: userIdUnique,
                 sessionname: WorkbookManager.getWorkbook(
@@ -74,13 +80,25 @@ window.JupyterPanel = (function($, JupyterPanel) {
                       .postMessage(JSON.stringify(workbookStruct), "*");
     };
 
-    JupyterPanel.publishTable = function(tableName, colNames) {
+    JupyterPanel.publishTable = function(tableName, numRows) {
+        var colNames = getCols(tableName);
         var tableStruct = {action: "publishTable",
                       tableName: tableName,
-                      colNames: colNames};
+                      colNames: colNames,
+                      numRows: numRows};
         $("#jupyterNotebook")[0].contentWindow.postMessage(
                                       JSON.stringify(tableStruct), "*");
     };
+
+    function getCols(tableName) {
+        var tableId = xcHelper.getTableId(tableName);
+        var columns = gTables[tableId].getAllCols(true);
+        var colNames = [];
+        for (var i = 0; i < columns.length; i++) {
+            colNames.push(columns[i].backName);
+        }
+        return colNames;
+    }
 
     function loadJupyterNotebook(lastLocation) {
         var url;

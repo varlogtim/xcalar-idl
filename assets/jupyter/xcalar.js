@@ -18,12 +18,15 @@ define(function() {
                 // brand new workbook
                 var publishTable = params["publishTable"] === "true";
                 var tableName;
+                var numRows = "0";
                 if (publishTable) {
                     tableName = decodeURIComponent(params["tableName"]);
+                    numRows = params["numRows"];
                 }
                 var request = {action: "newUntitled",
                                publishTable: publishTable,
-                               tableName: tableName};
+                               tableName: tableName,
+                               numRows: numRows};
                 console.log("Telling parent new untitled notebook created");
                 parent.postMessage(JSON.stringify(request), "*");
             } else {
@@ -49,13 +52,13 @@ define(function() {
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName);
                             if (struct.publishTable) {
-                                appendPublishTableStub(struct.tableName, struct.colNames);
+                                appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                             }
                             Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
                         }
                         break;
                     case ("publishTable"):
-                        appendPublishTableStub(struct.tableName, struct.colNames);
+                        appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                         break;
                     case ("stub"):
                         var stubName = struct.stubName;
@@ -95,17 +98,27 @@ define(function() {
                 Jupyter.notebook.save_notebook();
             }
 
-            function appendPublishTableStub(tableName, colNames) {
+            function appendPublishTableStub(tableName, colNames, numRows) {
                 var text = '#Publish table as pandas dataframe\n';
+                if (numRows && numRows > 0) {
+                    text += 'ROW_LIMIT = ' + numRows + '\n';
+                    text += 'rowCount = 0\n';
+                }
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
                 var filterDict = 'filtered_row = {k:v for k,v in row.iteritems() if k in [';
                 for (var i = 0; i<colNames.length;i++) {
-                    filterDict += '"' + colNames[i] + '",'
+                    filterDict += '"' + colNames[i] + '",';
                 }
                 filterDict += ']}';
                 text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '")\n';
                 tableName = tableName.replace(/#/g, "_");
-                text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
+                text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n';
+
+                if (numRows && numRows > 0) {
+                    text += '    rowCount += 1\n';
+                    text += '    if rowCount > ROW_LIMIT:\n        break\n';
+                }
+                text += '    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
                 text += tableName + '_pd' + ' = pd.DataFrame.from_dict(' + tableName + ')\n' + tableName + "_pd";
 
                 var lastCell = Jupyter.notebook.get_cell(-1);

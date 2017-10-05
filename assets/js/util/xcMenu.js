@@ -23,18 +23,6 @@ window.xcMenu = (function(xcMenu, $) {
                 "bottomPadding": 4
             });
 
-            $subMenu.on('mousedown', '.subMenuArea', function(event) {
-                if (event.which !== 1) {
-                    return;
-                }
-                xcMenu.close($allMenus);
-            });
-            $subMenu.on('mouseenter', '.subMenuArea', function() {
-                var className = $(this).siblings(':visible').attr('class');
-                $mainMenu.find('.' + className).addClass('selected');
-                clearTimeout(hideTimeout);
-            });
-
             // prevents input from closing unless you hover over a different li
             // on the main column menu
             // $subMenu.find('input').on({

@@ -900,18 +900,12 @@
 .subMenu {
     &.left {
         margin-left: -325px;
-
-        .subMenuArea {
-            right: 0;
-            left: auto;
-        }
     }
 }
 
-.moveTable {
+.moveTable, .jupyterTable {
     li {
        overflow: visible;
-
     }
     .dropDownList {
         .size(@width: 100%, @height: 28px);
@@ -944,17 +938,6 @@ ul.menu.leftColMenu::before {
     &.subColSelected {
         background-color: @color-selectedCell-dark;
     }
-}
-
-.subMenuArea {
-    .position(absolute, @top: -30px, @left: 14px);
-    .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
-    z-index: -1;
-    cursor: default;
-}
-
-.leftColMenu .subMenuArea {
-    .position(@right: 0, @left: auto);
 }
 
 ul.leftColMenu {
