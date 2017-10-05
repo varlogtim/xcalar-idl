@@ -16,7 +16,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             }
             var tempName = hostname.slice(0, colIndex);
             window.jupyterNode = tempName + ":8889";
-            // window.jupyterNode = "http://holmes.int.xcalar.com:8889";
+            window.jupyterNode = "http://cantor.int.xcalar.com:8889";
         }
         function loadJupyterNotebook(lastLocation) {
             var url;
