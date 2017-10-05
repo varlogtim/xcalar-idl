@@ -148,6 +148,12 @@ define(function() {
                     });
                 });
 
+                // rework "kill and exit" - direct to tree after shutting down
+                // notebook
+                $("#kill_and_exit").click(function() {
+                    window.location.href = "/tree";
+                });
+
                 // lets xcalar know if rename occurs
                 $('#notebook_name').bind("DOMSubtreeModified",function(){
                     if (!$(this).text()) {
@@ -159,17 +165,6 @@ define(function() {
                         lastNotebook: Jupyter.notebook.get_notebook_name()
                     };
                     parent.postMessage(JSON.stringify(request), "*");
-                });
-
-                // lets xcalar know it's navigating away
-                $(window).unload(function () {
-                    var request = {
-                        action: "updateLocation",
-                        location: "navigting away",
-                        lastNotebook: Jupyter.notebook.get_notebook_name()
-                    };
-                    parent.postMessage(JSON.stringify(request), "*");
-                    return false;
                 });
             }
 

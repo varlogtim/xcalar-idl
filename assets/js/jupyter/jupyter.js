@@ -18,31 +18,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
             window.jupyterNode = tempName + ":8889";
             window.jupyterNode = "http://cantor.int.xcalar.com:8889";
         }
-        function loadJupyterNotebook(lastLocation) {
-            var url;
-            if (lastLocation) {
-                url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python2#";
-            } else {
-                url = jupyterNode + "/tree#";
-            }
-
-            $.ajax({
-                url: url,
-                dataType: "jsonp",
-                timeout: 5000,
-
-                success: function() {
-                    $("#jupyterNotebook").attr("src", url);
-                },
-                error: function(parsedjson) {
-                    if (parsedjson.status === 200) {
-                        $("#jupyterNotebook").attr("src", url);
-                    } else {
-                        $("#jupyterNotebook").attr("src", jupyterNode + "/tree#");
-                    }
-                }
-            });
-        }
 
         KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
         .then(function(lastLocation) {
@@ -52,6 +27,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
             } catch(err) {
                 console.error(err);
             }
+            currNotebook = last || "";
+            toggleJupyterMenu();
             loadJupyterNotebook(last);
         })
         .fail(function() {
@@ -104,14 +81,49 @@ window.JupyterPanel = (function($, JupyterPanel) {
                                       JSON.stringify(tableStruct), "*");
     };
 
+    function loadJupyterNotebook(lastLocation) {
+        var url;
+        if (lastLocation) {
+            url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python2#";
+        } else {
+            url = jupyterNode + "/tree#";
+        }
+
+        $.ajax({
+            url: url,
+            dataType: "jsonp",
+            timeout: 5000,
+
+            success: function() {
+                $("#jupyterNotebook").attr("src", url);
+            },
+            error: function(parsedjson) {
+                if (parsedjson.status === 200) {
+                    $("#jupyterNotebook").attr("src", url);
+                } else {
+                    $("#jupyterNotebook").attr("src", jupyterNode + "/tree#");
+                }
+            }
+        });
+    }
+
     function storeLocation(info) {
         if (info.location === "tree") {
             currNotebook = "";
         } else if (info.location === "notebook") {
             currNotebook = info.lastNotebook;
         }
+        toggleJupyterMenu();
         return KVStore.put(KVStore.gNotebookKey, JSON.stringify(currNotebook),
                             true, gKVScope.WKBK);
+    }
+
+    function toggleJupyterMenu() {
+        if (currNotebook) {
+            $jupyterPanel.find(".topBar .rightArea").removeClass("xc-hidden");
+        } else {
+            $jupyterPanel.find(".topBar .rightArea").addClass("xc-hidden");
+        }
     }
 
     JupyterPanel.appendStub = function(stubName) {

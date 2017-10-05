@@ -5,6 +5,13 @@ define(['base/js/namespace'], function(Jupyter) {
         return;
     }
 
+     var request = {
+        action: "updateLocation",
+        location: "tree",
+        lastNotebook: null
+    };
+    parent.postMessage(JSON.stringify(request), "*");
+
     // hide the log out button on the upper right
     $("#login_widget").remove();
 
