@@ -426,8 +426,15 @@
                 return deferred.promise();
             },
 
-            getAllCols: function() {
-                return this.tableCols;
+            getAllCols: function(onlyValid) {
+                if (onlyValid) { // ignores datacol and empty cols
+                    return this.tableCols.filter(function(col) {
+                        var name = col.backName.trim();
+                        return name.length && !col.isDATACol();
+                    });
+                } else {
+                    return this.tableCols;
+                }
             },
 
             addCol: function(colNum, progCol) {
