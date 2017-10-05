@@ -127,9 +127,13 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var tableName = gTables[tableId].tableName;
-
+            var columns = gTables[tableId].getAllCols(true);
+            var colNames = [];
+            for (var i = 0; i < columns.length; i++) {
+                colNames.push(columns[i].backName);
+            }
             $("#jupyterTab").click();
-            JupyterPanel.publishTable(tableName);
+            JupyterPanel.publishTable(tableName, colNames);
         });
 
         $tableMenu.on('mouseup', '.exitOp', function(event) {

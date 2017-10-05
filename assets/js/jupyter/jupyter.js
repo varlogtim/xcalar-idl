@@ -74,9 +74,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
                       .postMessage(JSON.stringify(workbookStruct), "*");
     };
 
-    JupyterPanel.publishTable = function(tableName) {
+    JupyterPanel.publishTable = function(tableName, colNames) {
         var tableStruct = {action: "publishTable",
-                      tableName: tableName};
+                      tableName: tableName,
+                      colNames: colNames};
         $("#jupyterNotebook")[0].contentWindow.postMessage(
                                       JSON.stringify(tableStruct), "*");
     };

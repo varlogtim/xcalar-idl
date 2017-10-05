@@ -49,13 +49,13 @@ define(function() {
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName);
                             if (struct.publishTable) {
-                                appendPublishTableStub(struct.tableName);
+                                appendPublishTableStub(struct.tableName, struct.colNames);
                             }
                             Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
                         }
                         break;
                     case ("publishTable"):
-                        appendPublishTableStub(struct.tableName);
+                        appendPublishTableStub(struct.tableName, struct.colNames);
                         break;
                     case ("stub"):
                         var stubName = struct.stubName;
@@ -95,12 +95,17 @@ define(function() {
                 Jupyter.notebook.save_notebook();
             }
 
-            function appendPublishTableStub(tableName) {
+            function appendPublishTableStub(tableName, colNames) {
                 var text = '#Publish table as pandas dataframe\n';
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
+                var filterDict = 'filtered_row = {k:v for k,v in row.iteritems() if k in [';
+                for (var i = 0; i<colNames.length;i++) {
+                    filterDict += '"' + colNames[i] + '",'
+                }
+                filterDict += ']}';
                 text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '")\n';
                 tableName = tableName.replace(/#/g, "_");
-                text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n    ' + tableName + '.append(row)\n';
+                text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
                 text += tableName + '_pd' + ' = pd.DataFrame.from_dict(' + tableName + ')\n' + tableName + "_pd";
 
                 var lastCell = Jupyter.notebook.get_cell(-1);
