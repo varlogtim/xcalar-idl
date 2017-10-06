@@ -68,6 +68,16 @@ define(function() {
                         break;
                 }
             }
+            function insertCellToSelected(text) {
+                var index = Jupyter.notebook.get_selected_index();
+                if (!Jupyter.notebook.get_selected_cell().get_text()) {
+                    index -= 1;
+                }
+                var cell = Jupyter.notebook.insert_cell_below('code', index);
+                cell.set_text(text);
+                cell.focus_cell();
+                return cell;
+            }
             // Add all stub cases here
             function appendStub(stubName) {
                 var text;
@@ -77,17 +87,23 @@ define(function() {
                         text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
                         break;
                     case ("udfTemplate"):
-                        text = '# PLEASE TAKE NOTE:\n# UDFs can only support\n# return values of\n# type String.\n# Function names that\n# start with __ are\n# considered private\n# functions and will not\n# be directly invokable.\ndef main():\n    # You can modify the function name.\n    # Your code starts from here';
+                        text = '# PLEASE TAKE NOTE:\n'
+                             + '# UDFs can only support return values of type String.\n'
+                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n'
+                             + 'def yourUDF(col1, col2, col3):\n'
+                             + '    # You can modify the function name.\n'
+                             + '    # Your code starts from here. This is an example code.\n'
+                             + '    return str(col1) + str(col2) + str(col3)\n'
+                             + '    pass\n\n'
+                             + '# Test your code with a sample of the table\n'
+                             + '# DO NOT MODIFY THIS CODE HERE\n'
+                             + 'for index, row in dataframeName.iterrows():\n'
+                             + '    assert(yourUDF(row[colName1], row[colName2], row[colName3]))';
                         break;
                     default:
                         return;
                 }
-                var index = Jupyter.notebook.get_selected_index();
-                if (!Jupyter.notebook.get_selected_cell().get_text()) {
-                    index -= 1;
-                }
-                var cell = Jupyter.notebook.insert_cell_below('code', index);
-                cell.set_text(text);
+                insertCellToSelected(text);
             }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
@@ -99,19 +115,32 @@ define(function() {
             }
 
             function appendPublishTableStub(tableName, colNames, numRows) {
-                var text = '#Publish table as pandas dataframe\n';
+                var text = '#Publish table as pandas dataframe\nfrom collections import OrderedDict\n';
                 if (numRows && numRows > 0) {
                     text += 'ROW_LIMIT = ' + numRows + '\n';
                     text += 'rowCount = 0\n';
                 }
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
-                var filterDict = 'filtered_row = {k:v for k,v in row.iteritems() if k in [';
+                //var filterDict = 'filtered_row = {k:v for k,v in row.iteritems() if k in [';
+                var filterDict = 'col_list = [';
                 for (var i = 0; i<colNames.length;i++) {
                     filterDict += '"' + colNames[i] + '",';
                 }
-                filterDict += ']}';
+                filterDict += ']\n    kv_list = []\n'
+                filterDict += '    for k in col_list:\n'
+                            + '        if k not in row:\n'
+                            + '            kv_list.append((k, None))\n'
+                            + '        else:\n'
+                            + '            kv_list.append((k, row[k]))\n'
+                            + '            if type(row[k]) is list:\n'
+                            + '                for i in range(len(row[k])):\n'
+                            + '                    subKey = k + "[" + str(i) + "]"\n'
+                            + '                    if subKey in col_list:\n'
+                            + '                        row[subKey] = row[k][i]\n'
+                            + '    filtered_row = OrderedDict(kv_list)\n'
                 text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '")\n';
                 tableName = tableName.replace(/#/g, "_");
+                var dfName = tableName + '_pd';
                 text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n';
 
                 if (numRows && numRows > 0) {
@@ -119,20 +148,20 @@ define(function() {
                     text += '    if rowCount > ROW_LIMIT:\n        break\n';
                 }
                 text += '    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
-                text += tableName + '_pd' + ' = pd.DataFrame.from_dict(' + tableName + ')\n' + tableName + "_pd";
+                text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n'
+                      + dfName;
 
-                var lastCell = Jupyter.notebook.get_cell(-1);
-                if (lastCell.get_text() === "") {
-                    cell = lastCell;
-                } else {
-                    cell = Jupyter.notebook.insert_cell_at_bottom("code");
-                }
-                cell.set_text(text);
-                cell.execute();
+                // var lastCell = Jupyter.notebook.get_cell(-1);
+                // if (lastCell.get_text() === "") {
+                //     cell = lastCell;
+                // } else {
+                //     cell = Jupyter.notebook.insert_cell_at_bottom("code");
+                // }
+                insertCellToSelected(text).execute();
                 Jupyter.notebook.save_notebook();
 
-                var newCell = Jupyter.notebook.insert_cell_at_bottom("code");
-                newCell.code_mirror.focus();
+                // var newCell = Jupyter.notebook.insert_cell_at_bottom("code");
+                // newCell.code_mirror.focus();
             }
 
             // listeners are found by $._data(element, "events" ); we turn off
@@ -198,8 +227,44 @@ define(function() {
                 return params;
             }
 
-
+            // We probably want to put these codes in another file.
             window.addEventListener("message", receiveMessage, false);
+            $(document).on("change", "textarea", function(event) {
+                var message = {
+                    action: "mixpanel",
+                    event: "InputEvent",
+                    property: {
+                        "Content": $(this).val(),
+                        "Element": getElementPath(event.target),
+                        "Timestamp": (new Date()).getTime()
+                    }
+                };
+                parent.postMessage(JSON.stringify(message), "*");
+            });
+            function getElementPath(element) {
+                try {
+                    var path = $(element).prop("outerHTML").match(/<.*(class|name|id)="[^"]*"/g);
+                    path = path ? path[0] + ">" : "";
+                    var parents = $(element).parentsUntil("body");
+                    $.each(parents, function(i, val) {
+                        var parentHtml = $(parents[i]).clone().children().remove().end()
+                                         .prop("outerHTML")
+                                         .match(/<.*(class|name|id)="[^"]*"/g);
+                        parentHtml = parentHtml ? parentHtml[0] + ">" : "";
+                        if (parentHtml.length + path.length > 255) {
+                            return path;
+                        }
+                        path = parentHtml + " ==> " + path;
+                    });
+                    return path;
+                } catch(err) {
+                    // Do not affect our use with XD
+                    return "Error case: " + err;
+                }
+            }
+            // Those codes end up here
+
+
             window.alert = function() {};
         }
     };

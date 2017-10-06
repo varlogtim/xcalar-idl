@@ -49,6 +49,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     case ("updateLocation"):
                         storeLocation(s);
                         break;
+                    case ("mixpanel"):
+                        if (mixpanel) {
+                            mixpanel.track(s.event, s.property);
+                        }
+                        break;
                     default:
                         console.error("Unsupported action:" + s.action);
                 }
@@ -94,7 +99,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         var columns = gTables[tableId].getAllCols(true);
         var colNames = [];
         for (var i = 0; i < columns.length; i++) {
-            colNames.push(columns[i].backName);
+            colNames.push(columns[i].backName.replace("\\",""));
         }
         return colNames;
     }
