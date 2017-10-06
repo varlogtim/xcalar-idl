@@ -45,7 +45,7 @@ window.UExtDerivedConversion = (function(UExtDerivedConversion) {
             }
             var mapStr = mapFn + "(" + col.backName + ")";
             var newColName = ext.createUniqueCol(srcTableName,
-                col.backName.replace('::', '_'), false);
+                col.backName.replace('::', '_').replace(/\./g, '_'), false);
 
             ext.map(mapStr, tableName, newColName, ext.createTempTableName())
             .then(function(tableAfterMap) {
