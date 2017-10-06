@@ -74,6 +74,11 @@ module.exports = function(grunt) {
       mixpanel: {
         src: ['assets/js/mixpanel.js'],
         dest: 'index.html'
+      },
+      // This is for Azure Deployment and all trial use cases
+      mixpanelAzure: {
+        src: ['assets/js/mixpanelAzure.js'],
+        dest: destMap["login.html"]
       }
     },
 
@@ -221,8 +226,8 @@ module.exports = function(grunt) {
   grunt.registerTask("reloadLessXI", ['concurrent:set6']);
 
   // used for prod
-  grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'htmlmin', 'prettify', 'ctor']);
-  grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'tags:mixpanel', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'tags:mixpanel', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
   grunt.registerTask("devXD", ['html', 'templateXD', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
