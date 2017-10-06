@@ -233,8 +233,10 @@
 <!-- jupyter -->
 <% if (dicts.product == "XI") { %>
 <script src="assets/js/jupyter/jupyter.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/modal/jupyterFinalizeModal.js" type="text/javascript" <%= tag %>></script>
 <% } else { %>
 <script src="assets/js/noJupyter/noJupyter.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/noJupyter/noJupyterFinalizeModal.js" type="text/javascript" <%= tag %>></script>
 <% } %>
 
 <!-- end of jupyter -->

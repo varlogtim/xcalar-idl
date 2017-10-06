@@ -1263,6 +1263,7 @@ window.Log = (function($, Log) {
             case (SQLOps.ProfileAgg):
             case (SQLOps.ProfileStats):
             case (SQLOps.Project):
+            case (SQLOps.Finalize):
             case (SQLOps.Ext):
             case (SQLOps.Query):
                 return true;

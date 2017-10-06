@@ -116,6 +116,13 @@ window.Redo = (function($, Redo) {
                                         worksheet));
     };
 
+    redoFuncs[SQLOps.Finalize] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return (TblManager.refreshTable([options.newTableName], null,
+                                        [options.tableName],
+                                        worksheet));
+    };
+
     redoFuncs[SQLOps.Ext] = function(options) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code

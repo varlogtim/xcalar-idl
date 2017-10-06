@@ -1051,5 +1051,12 @@ module.exports = {
         "TypeMsg": "\"Type message here and press enter to send\"",
         "EmailInfo": "This email address will be used to receive copy of chat messages",
         "EmailError": "Invalid email address"
+    },
+
+    "jupyter": {
+        "RenameCols": "Prefixed columns were found in your table. You can rename these columns before publishing your table to Jupyter.",
+        "OriginalName": "Original Name",
+        "NewName": "New Name",
+        "PUBLISH": "PUBLISH",
     }
 };

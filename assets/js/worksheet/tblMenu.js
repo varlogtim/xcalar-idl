@@ -127,7 +127,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var tableName = gTables[tableId].tableName;
-            $("#jupyterTab").click();
             JupyterPanel.publishTable(tableName);
         });
 
@@ -161,7 +160,6 @@ window.TblMenu = (function(TblMenu, $) {
                 return false;
             }
 
-            $("#jupyterTab").click();
             JupyterPanel.publishTable(tableName, numRows);
             $input.val("");
             $input.blur();

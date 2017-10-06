@@ -135,6 +135,13 @@ module.exports = function(grunt) {
           atBegin: true,
         }
       },
+      normalXI: {
+        files: ['site/**/*.html', '!' + tmpDest + '/*.html', 'Gruntfile.js', 'package.json', 'site/render/template/constructor.template.js'],
+        tasks: ['devXI'],
+        options: {
+          atBegin: true,
+        }
+      },
 
       withReload: {
         options: {
@@ -166,6 +173,7 @@ module.exports = function(grunt) {
       set3: [ 'customWatch:normal', 'customWatch:less'],
       set4: ['customWatch:withReload', 'customWatch:normal', 'customWatch:less'],
       set5: ['customWatch:withReloadCssOnly', 'customWatch:normal','customWatch:less'],
+      set6: ['customWatch:withReload', 'customWatch:normalXI', 'customWatch:less'],
     },
 
     exec: {
@@ -210,6 +218,7 @@ module.exports = function(grunt) {
   grunt.registerTask("watchLess", ['concurrent:set3']);
   grunt.registerTask("reloadLess", ['concurrent:set4']);
   grunt.registerTask("reloadCSSLess", ['concurrent:set5']);
+  grunt.registerTask("reloadLessXI", ['concurrent:set6']);
 
   // used for prod
   grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'htmlmin', 'prettify', 'ctor']);

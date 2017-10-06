@@ -319,6 +319,7 @@ var SQLOps = {
     ChangeType: "changeType",
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
+    Finalize: "finalizeTable",
     Ext: "extension",
     MarkPrefix: "markPrefix",
     Replay: "Replay"

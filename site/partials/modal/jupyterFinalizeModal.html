@@ -1,0 +1,40 @@
+<div id="jupyterFinalizeModal" class="modalContainer">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text">Finalize Table
+    </span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- Instruction -->
+  <section class="modalInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text"><%= dicts.jupyter.RenameCols %></div>
+  </section>
+  <!-- Main Section -->
+  <section class="modalMain">
+    <div class="columnsSection">
+      <div class="leftSide columnSide">
+        <div class="subHeading"><%= dicts.jupyter.OriginalName %></div>
+        <div class="colSection leftColSection"></div>
+      </div>
+      <div class="rightSide columnSide">
+        <div class="subHeading"><%= dicts.jupyter.NewName %></div>
+        <div class="colSection rightColSection"></div>
+      </div>
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn confirm"><%= dicts.jupyter.PUBLISH %></button>
+    <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
+  </section>
+</div>
+<!-- End of Delete Table Modal -->

@@ -16,6 +16,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             }
             var tempName = hostname.slice(0, colIndex);
             window.jupyterNode = tempName + ":8889";
+            window.jupyterNode = "http://cantor.int.xcalar.com:8889";
         }
 
         KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
@@ -84,14 +85,25 @@ window.JupyterPanel = (function($, JupyterPanel) {
                       .postMessage(JSON.stringify(workbookStruct), "*");
     };
 
-    JupyterPanel.publishTable = function(tableName, numRows) {
+    JupyterPanel.publishTable = function(tableName, numRows, renamed) {
         var colNames = getCols(tableName);
-        var tableStruct = {action: "publishTable",
-                      tableName: tableName,
-                      colNames: colNames,
-                      numRows: numRows};
-        $("#jupyterNotebook")[0].contentWindow.postMessage(
+        var needsRename = false;
+        if (!renamed) {
+            needsRename = checkColsNeedRename(tableName);
+        }
+
+        if (needsRename) {
+            var tableId = xcHelper.getTableId(tableName);
+            JupyterFinalizeModal.show(tableId);
+        } else {
+            $("#jupyterTab").click();
+            var tableStruct = {action: "publishTable",
+                          tableName: tableName,
+                          colNames: colNames,
+                          numRows: numRows};
+            $("#jupyterNotebook")[0].contentWindow.postMessage(
                                       JSON.stringify(tableStruct), "*");
+        }
     };
 
     function getCols(tableName) {
@@ -102,6 +114,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
             colNames.push(columns[i].backName.replace("\\",""));
         }
         return colNames;
+    }
+
+    function checkColsNeedRename(tableName) {
+        var tableId = xcHelper.getTableId(tableName);
+        var columns = gTables[tableId].getAllCols(true);
+        for (var i = 0; i < columns.length; i++) {
+            if (columns[i].getBackColName().indexOf(gPrefixSign) > -1 && (
+                columns[i].getType() !== ColumnType.object &&
+                columns[i].getType() !== ColumnType.array)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function loadJupyterNotebook(lastLocation) {
@@ -157,12 +182,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
         var $jupMenu = $jupyterPanel.find(".jupyterMenu");
         xcMenu.add($jupMenu);
 
-        $jupyterPanel.on("click", ".jupyterMenuIcon", function() {
+        $jupyterPanel.on("click", ".topBar .dropdownBox", function() {
             var $menuIcon = $(this);
 
             xcHelper.dropdownOpen($menuIcon, $jupMenu, {
                 "offsetX": -7,
-                // "floating": true,
                 "toClose": function() {
                     return $jupMenu.is(":visible");
                 },
@@ -171,9 +195,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }
             });
         });
-        $jupyterPanel.on("click", ".jupyterMenuText", function(){
-            $(".jupyterMenuIcon").click();
-        });
+
         $jupyterPanel.on("click", ".jupyterMenu li", function() {
             var stubName = $(this).attr("data-action");
             JupyterPanel.appendStub(stubName);

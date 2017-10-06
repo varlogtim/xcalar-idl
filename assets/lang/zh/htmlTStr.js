@@ -976,5 +976,12 @@ module.exports = {
         "TypeMsg": "\"请在此输入消息，键入回车发送消息\"",
         "EmailInfo": "此邮箱地址将用于接受消息记录的备份",
         "EmailError": "请输入正确的邮箱地址"
+    },
+
+    "jupyter": {
+        "RenameCols": "Prefixed columns were found in your table. You can rename these columns before publishing your table to Jupyter.",
+        "OriginalName": "Original Name",
+        "NewName": "New Name",
+        "PUBLISH": "PUBLISH",
     }
 }

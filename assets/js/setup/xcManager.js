@@ -539,6 +539,7 @@ window.xcManager = (function(xcManager, $) {
         SkewInfoModal.setup();
         LoginConfigModal.setup();
         LiveHelpModal.setup();
+        JupyterFinalizeModal.setup();
     }
 
     function setupUserArea() {

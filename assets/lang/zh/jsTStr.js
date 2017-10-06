@@ -53,6 +53,8 @@ StatusMessageTStr = {
 'CurrReplay': 'Currently Replaying',
 'CompReplay': 'Completed Replaying',
 "PleaseWait": "Please wait",
+'Finalize': "Finalizing table",
+'FinalizeFailed': "Finalize failed",
 'ActionSuccess': '操作成功！',
 'ActionFailed': '操作失败！'
 };
@@ -1001,6 +1003,7 @@ LoginConfigTStr = {
 
 JupyterTStr = {
     "JupNotebook": "Jupiter Notebook",
+    "PrefixNoRename": "Object and array type columns cannot be renamed",
       // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };

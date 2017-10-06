@@ -1761,6 +1761,56 @@ html.microsoft {
 }
 /* End of Special Case In Alert Modal */
 
+#jupyterFinalizeModal {
+    .size(@width: 600px, @height: 600px, @min-width: 400px, @min-height: 400px);
+    .modalMain {
+        .size(@height: ~"calc(100% - 162px)");
+        overflow: auto;
+        background: @color-bg-white-three;
+    }
+    .modalBottom {
+        .size(@height: 70px);
+    }
+    .columnsSection {
+        .flex-display;
+        margin: 0px 5%;
+    }
+    .columnSide {
+        .flex(1 0 50%);
+        padding: 20px;
+        .subHeading {
+            font-size: 12px;
+            font-weight: 700;
+            height: 26px;
+        }
+    }
+    .leftSide {
+        overflow: hidden;
+        .text-selection;
+    }
+    .rightSide {
+        .subHeading {
+            margin-left: 10px;
+        }
+    }
+    .column {
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+        .textOverflowOneLine;
+    }
+    .arg {
+        height: 26px;
+        line-height: 26px;
+        font-size: 12px;
+        background: @color-white;
+        &.readonly {
+            border-color: @color-bg-white-three;
+            background: @color-bg-white-three;
+        }
+    }
+}
+
 /* Delete Table Modal */
 #deleteTableModal {
     .size(@width: 600px, @height: 608px, @min-width: 520px, @min-height: 500px);

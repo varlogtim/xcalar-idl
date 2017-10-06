@@ -300,6 +300,17 @@ window.Undo = (function($, Undo) {
                                         refreshOptions);
     };
 
+    undoFuncs[SQLOps.Finalize] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
+        return TblManager.refreshTable([options.tableName], null,
+                                        [options.newTableName], worksheet, null,
+                                        refreshOptions);
+    };
+
     undoFuncs[SQLOps.Ext] = function(options, isMostRecent) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
