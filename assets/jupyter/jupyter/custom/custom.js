@@ -30,7 +30,7 @@ define(['base/js/namespace'], function(Jupyter) {
         $("#kernel-python2 a").click(function() {
             Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
             .then(function(data) {
-                var url = "/notebooks/" + data.path + "?kernel_name=python2&needsTemplate=true?";
+                var url = "/notebooks/" + data.path + "?kernel_name=python2&needsTemplate=true";
                 window.location.href = url;
             });
         });
