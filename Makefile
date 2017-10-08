@@ -12,7 +12,7 @@ $(error "XLRGUIDIR is not set! Bailing...")
 endif
 
 product=XD
-PRODUCTNAME=xcalar-design
+PRODUCTNAME=xcalar-gui
 ifeq ($(product),XI)
 PRODUCTNAME=xcalar-insight
 endif
@@ -38,7 +38,7 @@ build: $(DESTDIR) generateHtml
 	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
 	@mkdir -p $(DESTDIR)/$(PRODUCTNAME)
-	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/js/constructor/xcalar-idl
+	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-gui --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/js/constructor/xcalar-idl
 	@echo "=== Removing unused files ==="
 	@rm -f $(DESTDIR)/$(PRODUCTNAME)/assets/js/thrift/mgmttestactual.js
 	@echo "=== Compile Less ==="
