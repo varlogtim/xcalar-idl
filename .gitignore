@@ -37,3 +37,4 @@ install-tarball.html
 /assets/js/constructor/README
 /assets/lang/en/jsTStrXI.js
 /assets/lang/zh/jsTStrXI.js
+*.tar.gz
