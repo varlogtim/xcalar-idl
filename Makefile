@@ -33,7 +33,6 @@ $(DESTDIR):
 
 build: $(DESTDIR) generateHtml
 	@echo "=== Removing old prod folder if any ==="
-	@rm -rf xcalar-gui
 	@rm -rf $(PRODUCTNAME)
 	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
