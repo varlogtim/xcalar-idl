@@ -41,12 +41,10 @@ window.xcHelper = (function($, xcHelper) {
         if (classNames == null) {
             console.error("Unexpected element to parse row", $tr);
             return null;
-        } else if (classNames.indexOf("tempRow") > -1) {
-            keyword = "tempRow";
         }
+        var rowClass = classNames.split(" ")[0];
 
-        var index = classNames.indexOf(keyword);
-        var substring = classNames.substring(index + keyword.length);
+        var substring = classNames.substring(keyword.length);
         var rowNum = parseInt(substring);
 
         if (isNaN(rowNum)) {
