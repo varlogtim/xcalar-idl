@@ -86,19 +86,33 @@ define(function() {
                         text = '%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. First create a XcalarApi object to do anything\nxcalarApi = XcalarApi()\n';
                         text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
                         break;
-                    case ("udfTemplate"):
+                    case ("basicUDF"):
                         text = '# PLEASE TAKE NOTE:\n'
                              + '# UDFs can only support return values of type String.\n'
                              + '# Function names that start with __ are considered private functions and will not be directly invokable.\n'
                              + 'def yourUDF(col1, col2, col3):\n'
                              + '    # You can modify the function name.\n'
                              + '    # Your code starts from here. This is an example code.\n'
-                             + '    return str(col1) + str(col2) + str(col3)\n'
-                             + '    pass\n\n'
+                             + '    return str(col1) + str(col2) + str(col3)\n\n'
                              + '# Test your code with a sample of the table\n'
                              + '# DO NOT MODIFY THIS CODE HERE\n'
                              + 'for index, row in dataframeName.iterrows():\n'
                              + '    assert(yourUDF(row[colName1], row[colName2], row[colName3]))';
+                        break;
+                    case ("importUDF"):
+                        text = 'import io\n'
+                             + 'def convertUTF_32(filepath, instream):\n'
+                             + '    # This UDF sample is to import utf-32 encoded data to Xcalar.\n'
+                             + '    # "instream" is equivalent to "with open(filepath) as instream".\n'
+                             + '    # In this case we need to specify the encoding so we create a new one instead of using the default.\n'
+                             + '    ins = io.open(filepath, "r", encoding = "utf-32")\n'
+                             + '    headers = ins.next()[:-1].split("\\t")\n'
+                             + '    for line in ins:\n'
+                             + '        splitLine = line[:-1].split("\\t")\n'
+                             + '        row = {}\n'
+                             + '        for i in xrange(len(splitLine)):\n'
+                             + '            row[headers[i]] = splitLine[i]\n'
+                             + '        yield row';
                         break;
                     default:
                         return;
@@ -121,7 +135,6 @@ define(function() {
                     text += 'rowCount = 0\n';
                 }
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
-                //var filterDict = 'filtered_row = {k:v for k,v in row.iteritems() if k in [';
                 var filterDict = 'col_list = [';
                 for (var i = 0; i<colNames.length;i++) {
                     filterDict += '"' + colNames[i] + '",';
@@ -151,17 +164,8 @@ define(function() {
                 text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n'
                       + dfName;
 
-                // var lastCell = Jupyter.notebook.get_cell(-1);
-                // if (lastCell.get_text() === "") {
-                //     cell = lastCell;
-                // } else {
-                //     cell = Jupyter.notebook.insert_cell_at_bottom("code");
-                // }
                 insertCellToSelected(text).execute();
                 Jupyter.notebook.save_notebook();
-
-                // var newCell = Jupyter.notebook.insert_cell_at_bottom("code");
-                // newCell.code_mirror.focus();
             }
 
             // listeners are found by $._data(element, "events" ); we turn off
