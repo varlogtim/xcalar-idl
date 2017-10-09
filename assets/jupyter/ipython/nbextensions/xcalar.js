@@ -139,7 +139,7 @@ define(function() {
                             + '                        row[subKey] = row[k][i]\n'
                             + '    filtered_row = OrderedDict(kv_list)\n'
                 text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '")\n';
-                tableName = tableName.replace(/#/g, "_");
+                tableName = tableName.replace(/[#-]/g, "_");
                 var dfName = tableName + '_pd';
                 text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n';
 
