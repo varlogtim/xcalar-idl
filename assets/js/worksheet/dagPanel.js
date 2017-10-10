@@ -466,6 +466,10 @@ window.DagPanel = (function($, DagPanel) {
                 // if dag does not have ready state, don't show dropdown
                 return;
             }
+            if ($("#container").hasClass("dataflowState") &&
+                event.which === 1) {
+                return;
+            }
 
             var tableName = $dagTable.find('.tableTitle').text().trim();
             var tableId = $dagTable.data('id');

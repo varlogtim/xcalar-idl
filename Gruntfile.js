@@ -256,7 +256,7 @@ module.exports = function(grunt) {
   grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'tags:mixpanel', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
-  grunt.registerTask("devXD", ['html', 'templateXD', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
-  grunt.registerTask("devXI", ['html', 'templateXI', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("devXD", ['html', 'templateXD', 'clean', 'tags:index', 'tags:login', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("devXI", ['html', 'templateXI', 'clean', 'tags:index', 'tags:login', 'htmlmin', 'prettify', 'ctor']);
   grunt.registerTask("test", ['exec:expServer']);
 };

@@ -10,7 +10,8 @@ window.Dag = (function($, Dag) {
     Dag.condenseOffset = 0.3; // condense icon offsets table x-coor by 30%
     Dag.canvasLimit = 32767;
     Dag.canvasAreaLimit = 268435456; // browsers can't support more
-
+    var dagTableHeight = 40;
+    var dagTableOuterHeight = dagTableHeight + 30;
     /* options:
         wsId: string, worksheet for dag image to belong to (used for placement)
         position: integer, used to place dag image
@@ -365,6 +366,7 @@ window.Dag = (function($, Dag) {
         var idMap = allDagInfo.nodeIdMap;
         var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
+        var sets = allDagInfo.sets;
         var groups = allDagInfo.groups;
         var $dagImage = $dagWrap.find('.dagImage');
         var dagImageWidth = $dagImage.outerWidth();
@@ -377,8 +379,9 @@ window.Dag = (function($, Dag) {
         var $groupOutline;
         var $expandWrap;
 
-        // move the tables
-        expandShiftTables(tree, $dagWrap);
+        for (var i = sets.length - 1; i >= 0; i--) {
+            expandShiftTables(sets[i], $dagWrap);
+        }
 
         // move the group outlines and icons
         for (var i in groups) {
@@ -403,10 +406,17 @@ window.Dag = (function($, Dag) {
         $dagImage.outerWidth(newWidth);
 
         var imageHeight = 0;
+        for (var i = 0; i < sets.length; i++) {
+            if (!sets[i].value.display.isHiddenTag) {
+                // XXX need variables
+                var height =sets[i].value.display.y + (dagTableOuterHeight * 0.8) + 30;
+                imageHeight = Math.max(height, imageHeight);
+            }
+        }
         for (var i = 0; i < trees.length; i++) {
             if (!trees[i].value.display.isHiddenTag) {
                 // XXX need variables
-                var height = trees[i].value.display.y + (70 * 0.8) + 30;
+                var height = trees[i].value.display.y + (dagTableOuterHeight * 0.8) + 30;
                 imageHeight = Math.max(height, imageHeight);
             }
         }
@@ -440,6 +450,7 @@ window.Dag = (function($, Dag) {
         var idMap = allDagInfo.nodeIdMap;
         var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
+        var sets = allDagInfo.sets;
         var groups = allDagInfo.groups;
         var $dagImage = $dagWrap.find('.dagImage');
         var dagImageWidth = $dagImage.outerWidth();
@@ -454,7 +465,9 @@ window.Dag = (function($, Dag) {
         var $dagTableWrap;
         var tooltip;
 
-        collapseShiftTables(tree, $dagWrap);
+        for (var i = 0; i < sets.length; i++) {
+            collapseShiftTables(sets[i], $dagWrap);
+        }
 
         $dagImage.find('.dagTable.dataStore').parent().removeClass('hidden');
 
@@ -1129,7 +1142,6 @@ window.Dag = (function($, Dag) {
 
     function expandGroup(groupInfo, $dagWrap, $expandIcon) {
         var allDagInfo = $dagWrap.data('allDagInfo');
-        var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
         var group = groupInfo.group;
         var $dagImage = $dagWrap.find('.dagImage');

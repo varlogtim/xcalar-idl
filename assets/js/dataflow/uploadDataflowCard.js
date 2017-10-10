@@ -215,6 +215,9 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         UploadDataflowCard.__testOnly__ = {};
         UploadDataflowCard.__testOnly__.changeFilePath = changeFilePath;
         UploadDataflowCard.__testOnly__.submitForm = submitForm;
+        UploadDataflowCard.__testOnly__.setFile = function(f) {
+            file = f;
+        };
     }
     /* End Of Unit Test Only */
 

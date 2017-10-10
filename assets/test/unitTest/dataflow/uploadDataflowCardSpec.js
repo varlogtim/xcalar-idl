@@ -199,16 +199,17 @@ describe("Upload Dataflow Test", function() {
         });
 
         it("should handle large file size error", function(done) {
-            $("#dataflow-browse")[0].files[0] = {size: 2 * MB};
             UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+            UploadDataflowCard.__testOnly__.setFile({size: 2 * MB});
             UploadDataflowCard.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
             .fail(function() {
                 UnitTest.hasAlertWithTitle(DSTStr.UploadLimit);
-                $("#dataflow-browse")[0].files[0] = {size: 1 * KB};
+
                 UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+                UploadDataflowCard.__testOnly__.setFile({size: 1 * KB});
                 done();
             });
         });

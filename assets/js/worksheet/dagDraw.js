@@ -31,23 +31,26 @@ window.DagDraw = (function($, DagDraw) {
         var tree;
         var trees;
         var nodeIdMap = {};
-        var dagDepth;
+        var dagDepth = 0;
         var dagImageHtml = "";
         var drawn = {};
-        var yCoors = [0]; // stores list of depths of branch nodes
+        var lineageStruct;
+        var sets = [];
+        var yCoors = []; // stores list of depths of branch nodes
         // [0, 3, 5] corresponds to these xy coordinates: {0, 0}, {3, 1}, {5, 2}
         // where {0, 0} is the right-top corner of the image
         if (options.refresh) {
             tree = nodes.tree;
             trees = nodes.trees; // XXX need to implement
             nodeIdMap = nodes.nodeIdMap;
+            sets = nodes.sets;
         } else {
             try {
-                var lineageStruct = DagFunction.construct(nodes,
-                                                          options.tableId);
+                lineageStruct = DagFunction.construct(nodes, options.tableId);
                 tree = lineageStruct.tree;
                 trees = lineageStruct.trees;
                 nodeIdMap = lineageStruct.nodeIdMap;
+                sets = lineageStruct.sets;
             } catch (err) {
                 console.error(err);
                 hasError = true;
@@ -55,6 +58,7 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         var initialY = 0.2;
+        var curY = initialY;
         var storedInfo = {
             x: 0,
             y: 0,
@@ -70,33 +74,50 @@ window.DagDraw = (function($, DagDraw) {
 
         if (!hasError) {
             var depth = 0;
+            var tempDepth = 0;
             var condensedDepth = 0;
-            dagDepth = getDagDepth(tree);
-            var dagOptions = {condensed: dagDepth > condenseLimit};
+            for (var i = 0; i < sets.length; i++) {
+                tempDepth = Math.max(tempDepth, getDagDepth(sets[i]));
+            }
+            var dagOptions = {condensed: tempDepth > condenseLimit};
             var isChildHidden = false; // is parent node in a collapsed state
             var group = [];
             var tagGroup = [];
-
+            var condenseSeen = {};
+            var exportsPositioned = {};
+            var exportsDrawn = {};
             try {
-                setNodePositions(tree, storedInfo, depth, condensedDepth,
-                                isChildHidden, group, tagGroup, initialY,
+                for (var i = 0; i < sets.length; i++) {
+                    setNodePositions(sets[i], storedInfo, depth, condensedDepth,
+                                isChildHidden, group, tagGroup, curY,
                                 dagOptions);
-                if (!storedInfo.heightsDrawn[storedInfo.height]) {
-                    storedInfo.height--;
+
+                    if (!storedInfo.heightsDrawn[storedInfo.height]) {
+                        storedInfo.height--;
+                    }
+                    yCoors.push(0);
+
+                    // adjust positions of nodes so that descendents will never be to
+                    // the left or parallel of their ancestors
+                    adjustNodePositions(sets[i], storedInfo);
+
+                    condenseHeight(sets[i], condenseSeen, yCoors, curY - initialY);
+                    // get new dagDepth after repositioning
+                    positionMultiExportNodes(trees, yCoors, sets,
+                                             exportsPositioned, condenseSeen);
+
+
+                    curY = yCoors.length + initialY;
                 }
-                // adjust positions of nodes so that descendents will never be to
-                // the left or parallel of their ancestors
-                adjustNodePositions(tree, storedInfo);
 
-                condenseHeight(tree, {}, yCoors, 0);
-                // get new dagDepth after repositioning
+                for (var i = 0; i < sets.length; i++) {
+                    dagImageHtml += drawDagNode(sets[i], storedInfo, drawn);
+                    dagDepth = Math.max(dagDepth, getDagDepth(sets[i]));
 
-                dagImageHtml += drawDagNode(tree, storedInfo, drawn);
-                positionMultiExportNodes(trees, yCoors, storedInfo, drawn);
-                dagImageHtml += drawMultiExportNodes(trees, yCoors, storedInfo,
-                                                     drawn);
+                }
+                dagImageHtml += drawMultiExportNodes(trees, storedInfo,
+                                                          drawn, sets, exportsDrawn);
 
-                dagDepth = getDagDepth(tree);
             } catch (err) {
                 console.error(err);
                 hasError = true;
@@ -104,7 +125,6 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         var height = yCoors.length * dagTableOuterHeight + 30;
-        // var height = (storedInfo.height + 1) * dagTableOuterHeight + 30;
         var width = storedInfo.condensedDepth * Dag.tableWidth - 150;
 
         if (hasError) {
@@ -139,8 +159,6 @@ window.DagDraw = (function($, DagDraw) {
             drawAllLines($container, trees, numNodes, width);
         }
 
-
-
         var allDagInfo = {
             tree: tree,
             trees: trees,
@@ -149,7 +167,8 @@ window.DagDraw = (function($, DagDraw) {
             groups: storedInfo.groups,
             tagGroups: storedInfo.tagGroups,
             condensedWidth: width,
-            datasets: storedInfo.datasets
+            datasets: storedInfo.datasets,
+            sets: sets
         };
         $container.data('allDagInfo', allDagInfo);
         postDagHtmlOperations($container);
@@ -171,8 +190,10 @@ window.DagDraw = (function($, DagDraw) {
     DagDraw.recreateDagImage = function($dagWrap, dagInfo, node) {
         var tree = dagInfo.tree;
         var trees = dagInfo.trees;
+        var sets = dagInfo.sets;
         var initialY = 0.2;
-        var yCoors = [0]; // stores list of depths of branch nodes
+        var curY = initialY;
+        var yCoors = []; // stores list of depths of branch nodes
         var storedInfo = {
             x: 0,
             y: 0,
@@ -183,21 +204,25 @@ window.DagDraw = (function($, DagDraw) {
             drawn: {},
             datasets: {}
         };
-
-        var isChildHidden = false;
-        resetNodePositions(tree, storedInfo, 0, 0, 0,
-                                isChildHidden, initialY);
-        if (!storedInfo.heightsDrawn[storedInfo.height]) {
-            storedInfo.height--;
+        var condenseSeen = {};
+        var exportsSeen = {};
+        var dagDepth = 0;
+        for (var i = 0; i < sets.length; i++) {
+            var isChildHidden = false;
+            resetNodePositions(sets[i], storedInfo, 0, 0, 0,
+                                    isChildHidden, curY);
+            if (!storedInfo.heightsDrawn[storedInfo.height]) {
+                storedInfo.height--;
+            }
+            yCoors.push(0);
+            adjustNodePositions(sets[i], storedInfo);
+            condenseHeight(sets[i], condenseSeen, yCoors, curY - initialY);
+            positionMultiExportNodes(trees, yCoors, dagInfo.sets, exportsSeen, condenseSeen);
+            curY = yCoors.length + initialY;
+            dagDepth = Math.max(dagDepth, getDagDepth(sets[i]));
         }
 
-        adjustNodePositions(tree, storedInfo);
-        condenseHeight(tree, {}, yCoors, 0);
-        positionMultiExportNodes(trees, yCoors, storedInfo);
-
-        dagDepth = getDagDepth(tree);
         storedInfo.groups = dagInfo.groups;
-
 
         var width = storedInfo.depth * Dag.tableWidth - 150;
         var height = yCoors.length * dagTableOuterHeight + 30;
@@ -893,7 +918,6 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-
     // XXX can optimize this function
     // adjust positions of nodes so that descendents will never be to the left
     // of their ancestors
@@ -902,18 +926,29 @@ window.DagDraw = (function($, DagDraw) {
         for (var i = 0; i < parents.length; i++) {
             var parent = parents[i];
             if (!node.value.display.isHidden &&
-                !node.value.display.isHiddenTag &&
-                node.value.display.depth > parent.value.display.depth - 1) {
-                var diff = node.value.display.depth -
-                           parent.value.display.depth;
-                var condDiff = node.value.display.condensedDepth -
-                                parent.value.display.condensedDepth;
-                var expandDiff = node.value.display.expandedDepth -
-                                 parent.value.display.expandedDepth;
-                var seen = {};
-                adjustNodePositionsHelper(parent, diff + 1,
-                                          expandDiff + 1, condDiff + 1,
-                                          storedInfo, seen);
+                !node.value.display.isHiddenTag) {
+                if (node.value.display.depth > parent.value.display.depth - 1) {
+                    var diff = node.value.display.depth -
+                               parent.value.display.depth;
+                    var condDiff = node.value.display.condensedDepth -
+                                    parent.value.display.condensedDepth;
+                    var expandDiff = node.value.display.expandedDepth -
+                                     parent.value.display.expandedDepth;
+                    var seen = {};
+                    adjustNodePositionsHelper(parent, diff + 1,
+                                              expandDiff + 1, condDiff + 1,
+                                              storedInfo, seen);
+
+
+                } else if (node.value.display.expandedDepth >
+                    parent.value.display.expandedDepth - 1) {
+                    var expandDiff = node.value.display.expandedDepth -
+                                     parent.value.display.expandedDepth;
+                    var seen = {};
+                    adjustNodePositionsHelper(parent, 0,
+                                              expandDiff + 1, 0,
+                                              storedInfo, seen);
+                }
             }
             adjustNodePositions(parent, storedInfo);
         }
@@ -922,6 +957,7 @@ window.DagDraw = (function($, DagDraw) {
 
     function adjustNodePositionsHelper(node, amount, expandAmount, condAmount,
                                         storedInfo, seen) {
+
         if (seen[node.value.dagNodeId]) {
             return;
         }
@@ -1010,8 +1046,7 @@ window.DagDraw = (function($, DagDraw) {
                 }
             } else if (i > 0 || searching) {
                 searching = false;
-                var branchDepth = getDagDepthPostPositioning(parentNode,
-                                                             seen);
+                var branchDepth = getDagDepthPostPositioning(parentNode, seen);
                 var leafDepth = branchDepth + node.value.display.depth;
                 for (var j = coors.length - 1; j >= 0; j--) {
                     if (leafDepth >= coors[j]) {
@@ -1021,11 +1056,14 @@ window.DagDraw = (function($, DagDraw) {
                 }
                 var depth = node.value.display.depth;
                 for (var j = 0; j < parentNode.children.length; j++) {
-                    if (parentNode.children[j].value.display.depth < depth)
-                    {
+                    if (parentNode.children[j].value.display.depth <= depth) {
                         depth = parentNode.children[j].value.display.depth;
+                        if (!node.value.display.isHiddenTag) {
+                            depth++;
+                        }
                     }
                 }
+
                 coors[nextYCoor] = depth;
             }
             condenseHeight(parentNode, seen, coors, nextYCoor, searching);
@@ -1344,23 +1382,31 @@ window.DagDraw = (function($, DagDraw) {
         return (originHTML);
     }
 
-    function positionMultiExportNodes(trees, yCoors, storedInfo) {
+    function positionMultiExportNodes(trees, yCoors, sets, exportsSeen, seen) {
         var dagImageHtml = "";
         var exportNodes = [];
         for (var i = 1; i < trees.length; i++) {
+            if (sets.indexOf(trees[i]) > -1 ||
+                exportsSeen[trees[i].value.dagNodeId]) {
+                continue;
+            }
             exportNodes.push(trees[i]);
         }
         // sort rightmost to leftMost exportNode
         exportNodes.sort(function(a, b) {
-            return a.parents[0].value.display.depth -
-                   b.parents[0].value.display.depth;
+            return b.parents[0].value.display.depth -
+                   a.parents[0].value.display.depth;
         });
 
         for (var i = 0; i < exportNodes.length; i++) {
             var node = exportNodes[i];
             var parentNode = node.parents[0];
+            if (!seen[parentNode.value.dagNodeId]) {
+                continue;
+            }
             var nodeDisp = node.value.display;
             var parentNodeDisp = parentNode.value.display;
+
             nodeDisp.condensedDepth = parentNodeDisp.condensedDepth - 1;
             nodeDisp.depth = parentNodeDisp.depth - 1;
             nodeDisp.expandedDepth = parentNodeDisp.expandedDepth - 1;
@@ -1382,15 +1428,22 @@ window.DagDraw = (function($, DagDraw) {
             if (!nodeDisp.isHiddenTag) {
                 yCoors[nextYCoor] = nodeDisp.depth;
             }
+            exportsSeen[node.value.dagNodeId] = true;
         }
     }
 
-    function drawMultiExportNodes(trees, yCoors, storedInfo, drawn) {
+    function drawMultiExportNodes(trees, storedInfo, drawn, sets, exportsSeen) {
         var dagImageHtml = "";
 
         // make all sure positions get adjusted first before drawing all nodes
         for (var i = 1; i < trees.length; i++) {
+            if (sets.indexOf(trees[i]) > -1 || exportsSeen[trees[i].value.dagNodeId] ||
+                $.isEmptyObject(trees[i].value.display)) {
+                continue;
+            }
+
             dagImageHtml += drawDagNode(trees[i], storedInfo, drawn);
+            exportsSeen[trees[i].value.dagNodeId] = true;
         }
 
         return dagImageHtml;
@@ -1556,8 +1609,6 @@ window.DagDraw = (function($, DagDraw) {
 
     function getDagNodeInfo(node, key) {
         var parenIndex;
-        // var commaIndex;
-        // var filterType;
         var evalStr;
         var value = node.value.struct;
         var info = {
@@ -1887,6 +1938,7 @@ window.DagDraw = (function($, DagDraw) {
         var lSrcCols = [];
         var rSrcCols = [];
         var groupLeaves = getGroupLeaves(node);
+
         for (var i = 0; i < groupLeaves.length; i++) {
             if (groupLeaves[i].value.api === XcalarApisT.XcalarApiMap) {
                 if (i === 0) {

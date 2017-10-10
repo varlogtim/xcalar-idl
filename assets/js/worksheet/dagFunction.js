@@ -57,6 +57,7 @@ window.DagFunction = (function($, DagFunction) {
         this.name = name;
         this.numParents = numParents;
         this.tag = tag;
+        this.tags = [];
         this.state = state;
         this.display = {};
         this.exportNode = null; // reference to export node if it has one
@@ -114,12 +115,15 @@ window.DagFunction = (function($, DagFunction) {
 
         // move main treeNode to the front
         var mainTreeIndex = getIndexOfFullTree(trees);
+
         tree = trees[mainTreeIndex];
         trees.splice(mainTreeIndex, 1);
         trees.splice(0, 0, tree);
+        var sets = getSets(trees);
 
         lineageStruct.tree = tree;
         lineageStruct.trees = trees;
+        lineageStruct.sets = sets;
         lineageStruct.endPoints = allEndPoints;
         lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
                                           "TreeNode");
@@ -859,13 +863,26 @@ window.DagFunction = (function($, DagFunction) {
         }
         // assumes all the root nodes are exports
         for (var i = 0; i < trees.length; i++) {
-            var exportParent = trees[i].parents[0];
-            if (exportParent.children.length === 1) {
+            var exportSrc = trees[i].parents[0];
+            if (exportSrc.children.length === 1) {
                 return i;
             }
         }
 
         return 0;
+    }
+
+    function getSets(trees) {
+        var sets = [trees[0]];
+        if (trees.length> 1) {
+            for (var i = 1; i < trees.length; i++) {
+                var exportSrc = trees[i].parents[0];
+                if (exportSrc.children.length === 1) {
+                    sets.push(trees[i]);
+                }
+            }
+        }
+        return sets;
     }
 
     function parseAggFromEvalStr(evalStr) {

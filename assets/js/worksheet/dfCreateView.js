@@ -40,9 +40,7 @@ window.DFCreateView = (function($, DFCreateView) {
                             if (originalText !== newTableName) {
                                 $input.trigger("change");
                             }
-
                         }
-
                     }
                 }
             }
@@ -448,6 +446,7 @@ window.DFCreateView = (function($, DFCreateView) {
         scrollToBottom();
         $dfView.find('.group').last().find('.tableList .text').focus();
         formHelper.refreshTabbing();
+        $dfView.find('.group').last().find('.tableList .text').focus();
     }
 
     function removeGroup($group) {
@@ -565,6 +564,7 @@ window.DFCreateView = (function($, DFCreateView) {
         var tableList = "";
         var selectedTables = getSelectedTables();
         var classNames = "";
+
         for (var i = 0; i < dfTablesCache.length; i++) {
             var tableName = dfTablesCache[i];
             if (selectedTables.indexOf(tableName) > -1) {
@@ -577,8 +577,41 @@ window.DFCreateView = (function($, DFCreateView) {
                     ' data-original-title="' + tableName + '"' +
                     ' data-toggle="tooltip"' +
                     ' data-container="body">' +
-                        dfTablesCache[i] +
+                        tableName +
                     '</li>';
+        }
+        var otherTableList = "";
+        var otherTables = [];
+        for (var i in gTables) {
+            var table = gTables[i];
+            if (table.isActive()) {
+                var tableName = table.getName();
+                if (dfTablesCache.indexOf(tableName) === -1) {
+                    otherTables.push(tableName);
+                }
+            }
+        }
+        otherTables.sort();
+
+        for (var i = 0; i < otherTables.length; i++) {
+            var tableName = otherTables[i];
+            if (selectedTables.indexOf(tableName) > -1) {
+                classNames = " inUse";
+            } else {
+                classNames = "";
+            }
+            otherTableList +=
+                    '<li class="tooltipOverflow' + classNames + '"' +
+                    ' data-original-title="' + tableName + '"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-container="body">' +
+                        tableName +
+                    '</li>';
+
+        }
+        if (otherTableList.length) {
+            tableList = '<div class="sectionLabel">Dataflow tables</div>' + tableList;
+            tableList += '<div class="sectionLabel">Other</div>' + otherTableList;
         }
         return tableList;
     }

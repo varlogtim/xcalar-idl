@@ -41,8 +41,12 @@ describe("DFParamModal Test", function() {
             tableName = nTName;
             tableId = xcHelper.getTableId(nTName);
             var columns = [{backCol: colName, frontCol: "average_stars"}];
+            var exportTables = [{
+                columns: columns,
+                tableName: nTName
+            }];
 
-            return DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName);
+            return DF.addDataflow(testDfName, new Dataflow(testDfName), exportTables);
         })
         .then(function() {
             $("#dataflowTab .mainTab").click();

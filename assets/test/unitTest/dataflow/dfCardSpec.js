@@ -24,6 +24,11 @@ describe("DFCard Test", function() {
             return $("#dfViz .cardMain").children().length !== 0;
         })
         .then(function() {
+            return UnitTest.testFinish(function() {
+                return $("#dfViz .cardMain .refreshIcon").length === 0;
+            });
+        })
+        .then(function() {
             oldRefresh = DataflowPanel.refresh;
             DataflowPanel.refresh = function() {};
 
@@ -123,12 +128,18 @@ describe("DFCard Test", function() {
             setTimeout(function() {
                 $("#closeDag").click();
                 $("#dataflowTab .mainTab").click();
-                setTimeout(function() {
-                    UnitTest.deleteAll(tableName, testDs)
-                    .always(function() {
-                        done();
-                    });
-                }, 100);
+                UnitTest.testFinish(function() {
+                    return $("#dfMenu").find(".numGroups").text() > 0;
+                })
+                .then(function() {
+                    setTimeout(function() {
+                        UnitTest.deleteAll(tableName, testDs)
+                        .always(function() {
+                            done();
+                        });
+                    }, 100);
+                });
+
             }, 600);
         })
         .fail(function() {
@@ -671,7 +682,7 @@ describe("DFCard Test", function() {
 
         it("applyDeltaTagsToDag should work", function() {
             var $wrap = $('<div class="dagWrap"></div>');
-            $wrap.append('<div class="dagTable export"data-nodeid="a"><div class="opInfoText"></div></div>');
+            $wrap.append('<div class="dagTable export" data-nodeid="a"><div class="opInfoText"></div></div>');
             // $wrap.find(".dagTable").data("paramValue", ["<a>"]);
             var cache1 = DF.getDataflow;
             var df = {
@@ -691,13 +702,16 @@ describe("DFCard Test", function() {
                                 }
                             }
                         }
-                    }
+                    },
+                    api: XcalarApisT.XcalarApiExport,
+                    name: {name: "testName"}
                 }],
                 parameterizedNodes: {
                     "a": {
-                        paramType: XcalarApisT.XcalarApiFilter
+                        paramType: XcalarApisT.XcalarApiExport
                     }
                 },
+                parameters: [],
                 colorNodes: function() { return $wrap.find(".dagTable"); }
             };
 
@@ -708,6 +722,52 @@ describe("DFCard Test", function() {
 
             DFCard.__testOnly__.applyDeltaTagsToDag("", $wrap);
             expect($wrap.find(".dagTable").hasClass("parameterizable")).to.be.true;
+            expect($wrap.find(".dagTable").data("paramValue")[0]).to.equal("<b>");
+            DF.getDataflow = cache1;
+        });
+
+        it("applyDeltaTagsToDag should work with filter", function() {
+            var $wrap = $('<div class="dagWrap"></div>');
+            $wrap.append('<div class="actionType dropdownBox filter" data-info="<c>"></div><div class="dagTable filter" data-nodeid="a"><div class="opInfoText"></div></div>');
+            var cache1 = DF.getDataflow;
+            var df = {
+                retinaNodes: [{
+                    dagNodeId: "a",
+                    input: {
+                        exportInput: {
+                            meta: {
+                                target: {
+                                    name: "",
+                                    type: ""
+                                },
+                                specificInput: {
+                                    sfInput: {
+                                        fileName: "<b>"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    api: XcalarApisT.XcalarApiFilter,
+                    name: {name: "testName"}
+                }],
+                parameterizedNodes: {
+                    "a": {
+                        paramType: XcalarApisT.XcalarApiFilter
+                    }
+                },
+                parameters: [],
+                colorNodes: function() { return $wrap.find(".dagTable"); }
+            };
+
+            DF.getDataflow = function() {
+                return df;
+            };
+
+
+            DFCard.__testOnly__.applyDeltaTagsToDag("", $wrap);
+            expect($wrap.find(".actionType").hasClass("parameterizable")).to.be.true;
+            expect($wrap.find(".actionType").data("paramValue")[0]).to.equal("<c>");
             expect($wrap.find(".dagTable .opInfoText").text()).to.equal("<Parameterized>");
             DF.getDataflow = cache1;
         });
