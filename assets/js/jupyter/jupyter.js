@@ -61,6 +61,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             Alert.show(s.options);
                         }
                         break;
+                    case ("sendToUDFEditor"):
+                        var code = s.code;
+                        BottomMenu.openSection(2);
+                        var editor = UDF.getEditor();
+                        UDF.clear();
+                        editor.setValue(s.code);
+                        break;
                     default:
                         console.error("Unsupported action:" + s.action);
                 }

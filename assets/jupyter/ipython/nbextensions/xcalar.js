@@ -14,6 +14,13 @@ define(function() {
             var params = parseQueryString(urlQuery);
             modifyElements();
 
+            $(document).on("click", ".sendToUDF", function () {
+                var code = Jupyter.notebook.get_selected_cell().get_text();
+                code = trimUDFCode(code);
+                var request = {action: "sendToUDFEditor", code: code};
+                parent.postMessage(JSON.stringify(request), "*");
+            });
+
             if (params["needsTemplate"] === "true") {
                 // brand new workbook
                 var publishTable = params["publishTable"] === "true";
@@ -70,7 +77,7 @@ define(function() {
                         break;
                 }
             }
-            function insertCellToSelected(text) {
+            function insertCellToSelected(text, stubName) {
                 var index = Jupyter.notebook.get_selected_index();
                 if (!Jupyter.notebook.get_selected_cell().get_text()) {
                     index -= 1;
@@ -78,6 +85,12 @@ define(function() {
                 var cell = Jupyter.notebook.insert_cell_below('code', index);
                 cell.set_text(text);
                 cell.focus_cell();
+                if (stubName == "basicUDF"|| stubName == "importUDF") {
+                    var button = '<input class="sendToUDF" type="button" ' +
+                                'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
+                                'value="Send to UDF Editor"/>';
+                    $(".cell").eq(index + 1).append(button);
+                }
                 return cell;
             }
             // Add all stub cases here
@@ -144,7 +157,7 @@ define(function() {
                     default:
                         return;
                 }
-                insertCellToSelected(text);
+                insertCellToSelected(text, stubName);
             }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
@@ -320,6 +333,15 @@ define(function() {
                     options: options,
                 };
                 parent.postMessage(JSON.stringify(message), "*");
+            }
+
+            // for sending to udf panel
+            function trimUDFCode(code) {
+                var lines = code.split("\n");
+                if (lines[lines.length - 6] === "# Test your code with a sample of the table") {
+                    lines = lines.slice(0, lines.length - 6);
+                }
+                return lines.join("\n");
             }
 
             // We probably want to put these codes in another file.
