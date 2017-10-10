@@ -314,6 +314,7 @@ define(function() {
                 }
                 return params;
             }
+            window.addEventListener("message", receiveMessage, false);
 
             function showSessionWarning(errors) {
                 var options = {
@@ -345,7 +346,6 @@ define(function() {
             }
 
             // We probably want to put these codes in another file.
-            window.addEventListener("message", receiveMessage, false);
             $(document).on("change", "textarea", function(event) {
                 var message = {
                     action: "mixpanel",

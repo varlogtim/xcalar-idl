@@ -49,6 +49,7 @@
 
 mixpanel.init("574bbb62b63c814dd820da904059fb94");
 var lastBlur;
+var jupyterFocus;
 function getElementPath(element) {
     try {
         var path = $(element).prop("outerHTML").match(/<.*(class|name|id)="[^"]*"/g);
@@ -78,14 +79,36 @@ $(window).load(function() {
             "$last_name": name
         });
     }
-    console.log("loaded");
+});
+$(document).on("click", ".topMenuBarTab", function(event) {
+    var timestamp = (new Date()).getTime();
+    if (!jupyterFocus && $(this).attr("id") == "jupyterTab") {
+        jupyterFocus = timestamp;
+    } else if (jupyterFocus) {
+        mixpanel.track("jupyterFocus", {
+            "Time": timestamp - jupyterFocus,
+            "Timestamp": timestamp
+        });
+        jupyterFocus = undefined;
+    }
 });
 $(document).mousedown(function(event) {
     mixpanel.track("ClickEvent", {
         "Element": getElementPath(event.target),
-        "Timestamp": (new Date()).getTime()
+        "Timestamp": (new Date()).getTime(),
+        "TriggeredByUser": event.hasOwnProperty("originalEvent")
     });
 });
+// This is to catch click events triggered by code
+$(document).click(function(event) {
+    if (!event.hasOwnProperty("originalEvent")) {
+        mixpanel.track("ClickEvent", {
+            "Element": getElementPath(event.target),
+            "Timestamp": (new Date()).getTime(),
+            "TriggeredByUser": false
+        });
+    }
+})
 $(document).on("change", "input", function(event) {
     mixpanel.track("InputEvent", {
         "Content": $(this).val(),
@@ -95,12 +118,21 @@ $(document).on("change", "input", function(event) {
 });
 $(window).blur(function() {
     lastBlur = (new Date()).getTime();
+    if ($("#jupyterTab").hasClass("active")) {
+        mixpanel.track("jupyterFocus", {
+            "Time": lastBlur - jupyterFocus,
+            "Timestamp": lastBlur
+        });
+    }
 });
 $(window).focus(function() {
     var timestamp = (new Date()).getTime();
     var time = (timestamp - lastBlur)/1000 + " s";
-    mixpanel.track("focusLostEvent",{
+    mixpanel.track("focusLostEvent", {
         "Time": time,
         "Timestamp": timestamp
     });
+    if ($("#jupyterTab").hasClass("active")) {
+        jupyterFocus = timestamp;
+    }
 });
