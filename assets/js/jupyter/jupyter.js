@@ -174,10 +174,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
     }
 
-    JupyterPanel.appendStub = function(stubName) {
-        var stubStruct = {action: "stub", stubName: stubName};
+    JupyterPanel.appendStub = function(stubName, args) {
+        var stubStruct = {action: "stub", stubName: stubName, args: args};
         $("#jupyterNotebook")[0].contentWindow.postMessage(JSON.stringify(stubStruct), "*");
-    }
+    };
+
     function setupTopBarDropdown() {
         var $jupMenu = $jupyterPanel.find(".jupyterMenu");
         xcMenu.add($jupMenu);
@@ -198,7 +199,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         $jupyterPanel.on("click", ".jupyterMenu li", function() {
             var stubName = $(this).attr("data-action");
-            JupyterPanel.appendStub(stubName);
+            if (stubName === "basicUDF") {
+                JupyterUDFModal.show();
+            } else {
+                JupyterPanel.appendStub(stubName);
+            }
         });
     }
 

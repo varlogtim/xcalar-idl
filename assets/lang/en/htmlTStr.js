@@ -1058,5 +1058,6 @@ module.exports = {
         "OriginalName": "Original Name",
         "NewName": "New Name",
         "PUBLISH": "PUBLISH",
+        "TemplateInstr": "Fill in the fields below prior to creating a UDF template."
     }
 };

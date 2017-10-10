@@ -27,6 +27,48 @@
       </li>
     </ul>
   </div>
+  <div id="jupyterUDFTemplateModal" class="modalContainer">
+    <!-- Header -->
+    <header class="modalHeader">
+      <span class="text">UDF Template
+      </span>
+      <div class="close">
+        <i class="icon xi-close"></i>
+      </div>
+    </header>
+    <!-- Instruction -->
+    <section class="modalInstruction">
+      <i class="icon xi-info-circle"></i>
+      <div class="text"><%= dicts.jupyter.TemplateInstr %></div>
+    </section>
+    <!-- Main Section -->
+    <section class="modalMain">
+      <div class="row">
+        <label>
+          <span class="text">Function name:</span>
+          <input class="xc-input arg fnName" type="text" spellcheck="false">
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          <span class="text">Table name:</span>
+          <input class="xc-input arg tableName" type="text" spellcheck="false">
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          <span class="text">Columns:</span>
+          <input class="xc-input arg columns" type="text" spellcheck="false" placeholder="comma separated">
+        </label>
+      </div>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn confirm"><%= dicts.common.CONFIRM %></button>
+      <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
+    </section>
+  </div>
+  <!-- End of UDF Template Modal -->
 
 </div>
 <!-- END DATAFLOW PANEL-->

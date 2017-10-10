@@ -540,6 +540,7 @@ window.xcManager = (function(xcManager, $) {
         LoginConfigModal.setup();
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();
+        JupyterUDFModal.setup();
     }
 
     function setupUserArea() {

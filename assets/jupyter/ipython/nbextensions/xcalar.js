@@ -62,7 +62,7 @@ define(function() {
                         break;
                     case ("stub"):
                         var stubName = struct.stubName;
-                        appendStub(stubName);
+                        appendStub(stubName, struct.args);
                         break;
                     default:
                         break;
@@ -79,7 +79,7 @@ define(function() {
                 return cell;
             }
             // Add all stub cases here
-            function appendStub(stubName) {
+            function appendStub(stubName, args) {
                 var text;
                 switch (stubName) {
                     case ("connWorkbook"):
@@ -89,15 +89,40 @@ define(function() {
                     case ("basicUDF"):
                         text = '# PLEASE TAKE NOTE:\n'
                              + '# UDFs can only support return values of type String.\n'
-                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n'
-                             + 'def yourUDF(col1, col2, col3):\n'
+                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n';
+                        var colsArg = "";
+                        var retStr = "";
+                        var assertStr = "";
+                        var udfName;
+                        var dfName;
+                        if (args && args.columns) {
+                            for (var i = 0; i < args.columns.length; i++) {
+                                colsArg += "col" + i + ", ";
+                                retStr += "str(col" + i + ") + ";
+                                assertStr += 'row["' + args.columns[i] + '"], ';
+                            }
+                            colsArg = colsArg.slice(0, -2);
+                            retStr = retStr.slice(0, -3);
+                            assertStr = assertStr.slice(0, -2);
+                            udfName = args.fnName;
+                            dfName = args.tableName;
+                        } else {
+                            colsArg = "col1, col2, col3";
+                            retStr = "str(col1) + str(col2) + str(col3)";
+                            assertStr += 'row[colName1], row[colName2], row[colName3]';
+                            udfName = "yourUDF";
+                            dfName = "dataframeName";
+                        }
+                        text += 'def ' + udfName + '(' + colsArg + '):\n'
                              + '    # You can modify the function name.\n'
                              + '    # Your code starts from here. This is an example code.\n'
-                             + '    return str(col1) + str(col2) + str(col3)\n\n'
+                             + '    return ' + retStr + '\n\n'
                              + '# Test your code with a sample of the table\n'
                              + '# DO NOT MODIFY THIS CODE HERE\n'
-                             + 'for index, row in dataframeName.iterrows():\n'
-                             + '    assert(yourUDF(row[colName1], row[colName2], row[colName3]))';
+                             + 'for index, row in ' + dfName + '.iterrows():\n'
+                             + '    assert(' + udfName + '(' + assertStr + '))\n'
+                             + '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n'
+                             + '    print (' + udfName + '(' + assertStr + '))';
                         break;
                     case ("importUDF"):
                         text = 'import io\n'

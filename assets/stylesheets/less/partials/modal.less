@@ -1811,6 +1811,48 @@ html.microsoft {
     }
 }
 
+#jupyterUDFTemplateModal {
+    .size(@width: 400px, @height: 290px);
+    font-size: 12px;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
+
+    .modalHeader {
+        height: 30px;
+        line-height: 30px;
+        .close {
+            top: 5px;
+        }
+    }
+    .modalInstruction {
+        height: 50px;
+        .text {
+            line-height: 29px;
+        }
+    }
+    .modalMain {
+        padding: 20px;
+    }
+    .modalBottom {
+        padding-right: 10px;
+    }
+    .row {
+        margin-bottom: 10px;
+        .text {
+            width: 100px;
+            height: 26px;
+            line-height: 26px;
+            display: inline-block;
+            float: left;
+        }
+    }
+    input {
+        width: ~"calc(100% - 100px)";
+        font-size: 12px;
+        height: 26px;
+        line-height: 26px;
+    }
+}
+
 /* Delete Table Modal */
 #deleteTableModal {
     .size(@width: 600px, @height: 608px, @min-width: 520px, @min-height: 500px);
