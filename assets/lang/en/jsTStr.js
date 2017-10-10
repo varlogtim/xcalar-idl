@@ -1163,6 +1163,7 @@ LoginConfigTStr = {
 JupyterTStr = {
     "JupNotebook": "Jupiter Notebook",
     "PrefixNoRename": "Object and array type columns cannot be renamed",
+
     // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };

@@ -55,6 +55,8 @@ define(function() {
                                 appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                             }
                             Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
+                        } else {
+                            validateSessionCells();
                         }
                         break;
                     case ("publishTable"):
@@ -248,6 +250,46 @@ define(function() {
                 };
             }
 
+            // checks for cells that have session info not related to current
+            // session
+            function validateSessionCells() {
+                var cells = Jupyter.notebook.get_cells();
+                var errors = [];
+                for (var i = 0; i < cells.length; i++) {
+                    var text = cells[i].get_text();
+                    var lines = text.split("\n");
+                    for (var j = 0; j < lines.length; j++) {
+                        if (lines[j].indexOf("workbook = Session(xcalarApi") === 0) {
+                            var cellWBInfo = parseSessInfoFromLine(lines[j]);
+                            if (cellWBInfo.username !== '"' + username + '"' ||
+                                cellWBInfo.userid !== "" + userid ||
+                                cellWBInfo.sessionName !== '"' + sessionName + '"') {
+                                errors.push(
+                                    {line: lines[j],
+                                    lineIndex: j + 1,
+                                    cellIndex: i + 1,
+                                    cell: cells[i]}
+                                );
+                            }
+                        }
+                    }
+                }
+                if (errors.length) {
+                    showSessionWarning(errors);
+                }
+            }
+
+            function parseSessInfoFromLine(line) {
+
+                line = line.slice(line.indexOf("("), line.indexOf(")"));
+                line = line.split(",");
+                return {
+                    username: $.trim(line[1]),
+                    userid: $.trim(line[3]),
+                    sessionName: $.trim(line[5])
+                };
+            }
+
             function parseQueryString(queryString) {
                 var params = {}, queries, temp, i, l;
                 // Split into key/value pairs
@@ -258,6 +300,26 @@ define(function() {
                     params[temp[0]] = temp[1];
                 }
                 return params;
+            }
+
+            function showSessionWarning(errors) {
+                var options = {
+                    title: "Warning",
+                    msg: "An invalid workbook connection was found. Please " +
+                         "update the following workbook connection by " +
+                         "selecting 'Connect to Xcalar Workbook' from the " +
+                         "Code Samples menu.\n" + "Found: " + errors[0].line +
+                         "\n" + "Expected: " + 'workbook = Session(xcalarApi, "' +
+                        username + '", "' + username + '", ' + userid +
+                        ', True, "' + sessionName + '")' ,
+                    isAlert: true,
+                    sizeToText: true
+                };
+                var message = {
+                    action: "alert",
+                    options: options,
+                };
+                parent.postMessage(JSON.stringify(message), "*");
             }
 
             // We probably want to put these codes in another file.

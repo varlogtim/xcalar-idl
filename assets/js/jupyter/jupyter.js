@@ -55,6 +55,12 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             mixpanel.track(s.event, s.property);
                         }
                         break;
+                    case ("alert"):
+                        if ($jupyterPanel.is(":visible")) {
+                            $("#alertModal").height(300);
+                            Alert.show(s.options);
+                        }
+                        break;
                     default:
                         console.error("Unsupported action:" + s.action);
                 }
