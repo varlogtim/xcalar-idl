@@ -16,7 +16,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
             }
             var tempName = hostname.slice(0, colIndex);
             window.jupyterNode = tempName + ":8889";
-            window.jupyterNode = "http://cantor.int.xcalar.com:8889";
         }
 
         KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
