@@ -56,8 +56,8 @@ describe("MonitorConfig Test", function() {
             $paramName.val($existingParam.val()).trigger(fakeEvent.enter);
             UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamExists);
 
-            $paramName.val("buffercachememlocking").trigger(fakeEvent.enter);
-            expect($paramName.val()).to.equal("BufferCacheMemLocking");
+            $paramName.val("TestMode").trigger(fakeEvent.enter);
+            expect($paramName.val()).to.equal("TestMode");
             expect($paramName.closest(".formRow").hasClass("nameIsSet")).to.be.true;
             expect($paramName.closest(".formRow").find(".newVal").val()).to.equal("");
             expect($paramName.closest(".formRow").hasClass("uneditable")).to.be.true;
@@ -74,7 +74,7 @@ describe("MonitorConfig Test", function() {
         it("submit should handle no empty case", function() {
             var $paramName = $configCard.find('.paramName').last();
             $paramName.closest(".formRow").removeClass("uneditable");
-            $paramName.val("buffercachememlocking");
+            $paramName.val("TestMode");
             $paramName.closest(".formRow").find(".newVal").val("").trigger(fakeEvent.enterKeydown);
             $('#paramSettingsSave').click();
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
