@@ -84,12 +84,14 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         columnsList.setupListeners();
     };
 
-    JupyterUDFModal.show = function() {
+    JupyterUDFModal.show = function(type) {
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
             return;
         }
+        $modal.removeClass("type-map type-newImport type-testImport");
+        $modal.addClass("type-" + type);
 
         modalHelper.setup();
     };
@@ -110,7 +112,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
 
     function submitForm() {
         var isValid;
-        var $args = $modal.find(".arg");
+        var $args = $modal.find(".arg:visible");
         $args.each(function() {
             var $input = $(this);
             isValid = xcHelper.validate({
@@ -123,18 +125,33 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         if (!isValid) {
             return;
         }
-        var columns = $modal.find(".columns").val().split(",");
-        columns = columns.map(function(colName) {
-            return $.trim(colName);
-        });
-        var tableName = $modal.find(".tableName").val();
-        var args = {
-            fnName: $modal.find(".fnName").val(),
-            tableName: tableName,
-            columns: columns,
-            allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName))
-        };
-        JupyterPanel.appendStub("basicUDF", args);
+        if ($modal.hasClass("type-map")) {
+            var columns = $modal.find(".columns").val().split(",");
+            columns = columns.map(function(colName) {
+                return $.trim(colName);
+            });
+            var tableName = $modal.find(".tableName:visible").val();
+            var args = {
+                fnName: $modal.find(".fnName:visible").val(),
+                tableName: tableName,
+                columns: columns,
+                allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName))
+            };
+            JupyterPanel.appendStub("basicUDF", args);
+        } else if ($modal.hasClass("type-newImport")) {
+            var args = {
+                fnName: $modal.find(".fnName:visible").val()
+            };
+            JupyterPanel.appendStub("importUDF", args);
+        } else if ($modal.hasClass("type-testImport")) {
+            var args = {
+                url: $modal.find(".url:visible").val(),
+                moduleName: $modal.find(".moduleName:visible").val(),
+                fnName: $modal.find(".fnName:visible").val()
+            };
+            JupyterPanel.appendStub("testImportUDF", args);
+        }
+
         closeModal();
     }
 

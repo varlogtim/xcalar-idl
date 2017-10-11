@@ -113,8 +113,11 @@ define(function() {
                         var tableStub = "";
                         if (args && args.columns) {
                             for (var i = 0; i < args.columns.length; i++) {
-                                colsArg += "col" + i + ", ";
-                                retStr += "str(col" + i + ") + ";
+                                var colVar = args.columns[i].split(/[\[\]\.\\#]/g).filter(function(str) {
+                                                return (str !== "");
+                                            }).join("_")
+                                colsArg += colVar + ", ";
+                                retStr += "str(" + colVar + ") + ";
                                 assertStr += 'row["' + args.columns[i] + '"], ';
                             }
                             colsArg = colsArg.slice(0, -2);
@@ -142,24 +145,56 @@ define(function() {
                              + '    print(' + udfName + '(' + assertStr + '))';
                         break;
                     case ("importUDF"):
-                        text = 'def csvToJson(inp, ins):\n' +
-                            '    hasHeader = True\n' +
-                            '    fieldDelim = ","\n' +
-                            '    for line in ins:\n' +
-                            '        line = line.strip()\n' +
-                            '        if len(line) < 1:\n' +
-                            '            continue\n' +
-                            '        record = {}\n' +
-                            '        if hasHeader:\n' +
-                            '            headers = line.split(fieldDelim)\n' +
-                            '            hasHeader = False\n' +
-                            '            continue\n' +
-                            '        vals = line.split(fieldDelim)\n' +
-                            '        if not headers:\n' +
-                            '            headers = ["column" + str(i + 1) for i in xrange(len(vals))]\n' +
-                            '        for i in xrange(len(headers)):\n' +
-                            '            record[headers[i]] = vals[i]\n' +
-                            '        yield record\n';
+                        text = 'def ' + args.fnName + '(inp, ins):\n' +
+                                '    hasHeader = False\n' +
+                                '    fieldDelim = ","\n' +
+                                '    headers = None\n' +
+                                '    for line in ins:\n' +
+                                '        record = {}\n' +
+                                '        if hasHeader:\n' +
+                                '            headers = line.split(fieldDelim)\n' +
+                                '            hasHeader = False\n' +
+                                '            continue\n' +
+                                '        vals = line.split(fieldDelim)\n' +
+                                '        if not headers:\n' +
+                                '            headers = ["column" + str(i + 1) for i in xrange(len(vals))]\n' +
+                                '        for i in xrange(len(headers)):\n' +
+                                '            record[headers[i]] = vals[i]\n' +
+                                '        yield record\n' +
+                                '\n' +
+                                '# DO NOT MODIFY\n' +
+                                'import inspect\n' +
+                                'inspect.isgeneratorfunction(' + args.fnName + ')';
+                        break;
+                    case("testImportUDF"):
+                        text = 'from xcalar.compute.api.Dataset import *\n' +
+                                'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
+                                'import random\n' +
+                                '\n' +
+                                'userName = "' + username + '"\n' +
+                                'tempDatasetName = userName + "." + str(random.randint(10000,99999)) + "jupyterDS" + str(random.randint(10000,99999))\n' +
+                                'dataset = Dataset(xcalarApi,\n' +
+                                '    "' + args.url + '",\n' +
+                                '    tempDatasetName,\n' +
+                                '    DfFormatTypeT.DfFormatJson,\n' +
+                                '    "",\n' +
+                                '    False,\n' +
+                                '    "' + args.moduleName + ':' + args.fnName + '",\n' +
+                                '    0)\n' +
+                                '\n' +
+                                'dataset.load()\n' +
+                                '\n' +
+                                'resultSet = ResultSet(xcalarApi, datasetName=dataset.name)\n' +
+                                '\n' +
+                                'ROW_LIMIT=100\n' +
+                                'numSeen = 0\n' +
+                                'for row in resultSet:\n' +
+                                '    numSeen += 1\n' +
+                                '    if (numSeen > ROW_LIMIT):\n' +
+                                    '    break\n' +
+                                '    print row\n' +
+                                '\n' +
+                                'dataset.delete()';
                         break;
                     default:
                         return;
@@ -353,6 +388,8 @@ define(function() {
                 var lines = code.split("\n");
                 if (lines[lines.length - 31] === "# Test your code with a sample of the table") {
                     lines = lines.slice(0, lines.length - 31);
+                } else if (lines[lines.length - 3] === "# DO NOT MODIFY") {
+                    lines = lines.slice(0, lines.length - 3);
                 }
                 return lines.join("\n");
             }

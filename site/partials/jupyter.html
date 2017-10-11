@@ -23,7 +23,10 @@
         Map UDF
       </li>
       <li class="dataStoreInfo" data-action="importUDF">
-        Import UDF (Azure Blob)
+        Create Import UDF
+      </li>
+      <li class="dataStoreInfo" data-action="testImportUDF">
+        Test Existing Import UDF (Azure Blob)
       </li>
     </ul>
   </div>
@@ -43,47 +46,69 @@
     </section>
     <!-- Main Section -->
     <section class="modalMain">
-      <div class="row">
-        <span class="label">Function name:</span>
-        <input class="xc-input arg fnName" type="text" spellcheck="false">
-      </div>
-      <div class="row">
-        <span class="label">Table name:</span>
-        <!-- <input class="xc-input arg tableName" type="text" spellcheck="false"> -->
-        <div class="dropDownList tableList">
-          <input type="text" class="text arg tableName readonly" readonly spellcheck="false">
-          <div class="iconWrapper">
-            <i class="icon xi-arrow-down"></i>
-          </div>
-          <div class="list">
-            <ul>
-            </ul>
-            <div class="scrollArea top">
-              <div class="arrow"></div>
+      <div class="mapForm form">
+        <div class="row">
+          <span class="label">Function name:</span>
+          <input class="xc-input arg fnName" type="text" spellcheck="false">
+        </div>
+        <div class="row">
+          <span class="label">Table name:</span>
+          <!-- <input class="xc-input arg tableName" type="text" spellcheck="false"> -->
+          <div class="dropDownList tableList">
+            <input type="text" class="text arg tableName readonly" readonly spellcheck="false">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
             </div>
-            <div class="scrollArea bottom">
-              <div class="arrow"></div>
+            <div class="list">
+              <ul>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="label">Columns:</span>
+          <div class="dropDownList columnsList">
+            <input type="text" class="xc-input text arg columns readonly" readonly spellcheck="false">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="row">
-        <span class="label">Columns:</span>
-        <div class="dropDownList columnsList">
-          <input type="text" class="xc-input text arg columns readonly" readonly spellcheck="false">
-          <div class="iconWrapper">
-            <i class="icon xi-arrow-down"></i>
-          </div>
-          <div class="list">
-            <ul>
-            </ul>
-            <div class="scrollArea top">
-              <div class="arrow"></div>
-            </div>
-            <div class="scrollArea bottom">
-              <div class="arrow"></div>
-            </div>
-          </div>
+      <div class="newImportForm form">
+        <div class="row">
+          <span class="label">Function name:</span>
+          <input class="xc-input arg fnName" type="text" spellcheck="false">
+        </div>
+      </div>
+      <div class="testImportForm form">
+        <div class="row">
+          <span class="label">Full Path:</span>
+          <input class="xc-input arg url" type="text" spellcheck="false" placeholder="azblob://mystoragecontainer1234/myfolder/">
+        </div>
+         <div class="row">
+          <span class="label">Module name:</span>
+          <input class="xc-input arg moduleName" type="text" spellcheck="false">
+        </div>
+         <div class="row">
+          <span class="label">Function name:</span>
+          <input class="xc-input arg fnName" type="text" spellcheck="false">
         </div>
       </div>
     </section>

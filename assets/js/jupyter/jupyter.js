@@ -212,9 +212,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
         $jupyterPanel.on("click", ".jupyterMenu li", function() {
             var stubName = $(this).attr("data-action");
             if (stubName === "basicUDF") {
-                JupyterUDFModal.show();
-            } else {
-                JupyterPanel.appendStub(stubName);
+                JupyterUDFModal.show("map");
+            } else if (stubName === "importUDF") {
+                JupyterUDFModal.show("newImport");
+            } else if (stubName === "testImportUDF") {
+                JupyterUDFModal.show("testImport");
             }
         });
     }
