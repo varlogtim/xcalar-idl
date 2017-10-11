@@ -88,7 +88,7 @@ define(function() {
                 if (stubName == "basicUDF"|| stubName == "importUDF") {
                     var button = '<input class="sendToUDF" type="button" ' +
                                 'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
-                                'value="Send to UDF Editor"/>';
+                                'value="Copy to UDF Editor"/>';
                     $(".cell").eq(index + 1).append(button);
                 }
                 return cell;
@@ -135,9 +135,8 @@ define(function() {
                              + '# Test your code with a sample of the table\n'
                              + '# DO NOT MODIFY THIS CODE HERE\n'
                              + 'for index, row in ' + dfName + '.iterrows():\n'
-                             + '    assert(' + udfName + '(' + assertStr + '))\n'
                              + '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n'
-                             + '    print (' + udfName + '(' + assertStr + '))';
+                             + '    print(' + udfName + '(' + assertStr + '))';
                         break;
                     case ("importUDF"):
                         text = 'import io\n'
@@ -339,8 +338,8 @@ define(function() {
             // for sending to udf panel
             function trimUDFCode(code) {
                 var lines = code.split("\n");
-                if (lines[lines.length - 6] === "# Test your code with a sample of the table") {
-                    lines = lines.slice(0, lines.length - 6);
+                if (lines[lines.length - 5] === "# Test your code with a sample of the table") {
+                    lines = lines.slice(0, lines.length - 5);
                 }
                 return lines.join("\n");
             }

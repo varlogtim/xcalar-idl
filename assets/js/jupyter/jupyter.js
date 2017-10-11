@@ -106,7 +106,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         if (needsRename) {
             var tableId = xcHelper.getTableId(tableName);
-            JupyterFinalizeModal.show(tableId);
+            JupyterFinalizeModal.show(tableId, numRows);
         } else {
             $("#jupyterTab").click();
             var tableStruct = {action: "publishTable",
