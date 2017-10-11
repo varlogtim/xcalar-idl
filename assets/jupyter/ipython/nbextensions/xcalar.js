@@ -110,6 +110,7 @@ define(function() {
                         var assertStr = "";
                         var udfName;
                         var dfName;
+                        var tableStub = "";
                         if (args && args.columns) {
                             for (var i = 0; i < args.columns.length; i++) {
                                 colsArg += "col" + i + ", ";
@@ -120,7 +121,8 @@ define(function() {
                             retStr = retStr.slice(0, -3);
                             assertStr = assertStr.slice(0, -2);
                             udfName = args.fnName;
-                            dfName = args.tableName;
+                            dfName = args.tableName.replace(/[#-]/g, "_") + '_pd';
+                            tableStub = getPublishTableStub(args.tableName, args.allCols, 100);
                         } else {
                             colsArg = "col1, col2, col3";
                             retStr = "str(col1) + str(col2) + str(col3)";
@@ -134,24 +136,30 @@ define(function() {
                              + '    return ' + retStr + '\n\n'
                              + '# Test your code with a sample of the table\n'
                              + '# DO NOT MODIFY THIS CODE HERE\n'
+                             + tableStub
                              + 'for index, row in ' + dfName + '.iterrows():\n'
                              + '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n'
                              + '    print(' + udfName + '(' + assertStr + '))';
                         break;
                     case ("importUDF"):
-                        text = 'import io\n'
-                             + 'def convertUTF_32(filepath, instream):\n'
-                             + '    # This UDF sample is to import utf-32 encoded data to Xcalar.\n'
-                             + '    # "instream" is equivalent to "with open(filepath) as instream".\n'
-                             + '    # In this case we need to specify the encoding so we create a new one instead of using the default.\n'
-                             + '    ins = io.open(filepath, "r", encoding = "utf-32")\n'
-                             + '    headers = ins.next()[:-1].split("\\t")\n'
-                             + '    for line in ins:\n'
-                             + '        splitLine = line[:-1].split("\\t")\n'
-                             + '        row = {}\n'
-                             + '        for i in xrange(len(splitLine)):\n'
-                             + '            row[headers[i]] = splitLine[i]\n'
-                             + '        yield row';
+                        text = 'def csvToJson(inp, ins):\n' +
+                            '    hasHeader = True\n' +
+                            '    fieldDelim = ","\n' +
+                            '    for line in ins:\n' +
+                            '        line = line.strip()\n' +
+                            '        if len(line) < 1:\n' +
+                            '            continue\n' +
+                            '        record = {}\n' +
+                            '        if hasHeader:\n' +
+                            '            headers = line.split(fieldDelim)\n' +
+                            '            hasHeader = False\n' +
+                            '            continue\n' +
+                            '        vals = line.split(fieldDelim)\n' +
+                            '        if not headers:\n' +
+                            '            headers = ["column" + str(i + 1) for i in xrange(len(vals))]\n' +
+                            '        for i in xrange(len(headers)):\n' +
+                            '            record[headers[i]] = vals[i]\n' +
+                            '        yield record\n';
                         break;
                     default:
                         return;
@@ -168,6 +176,15 @@ define(function() {
             }
 
             function appendPublishTableStub(tableName, colNames, numRows) {
+                var text = getPublishTableStub(tableName, colNames, numRows);
+                tableName = tableName.replace(/[#-]/g, "_");
+                var dfName = tableName + '_pd';
+                text += dfName + "\n";
+                insertCellToSelected(text).execute();
+                Jupyter.notebook.save_notebook();
+            }
+
+            function getPublishTableStub(tableName, colNames, numRows) {
                 var text = '#Publish table as pandas dataframe\nfrom collections import OrderedDict\n';
                 if (numRows && numRows > 0) {
                     text += 'ROW_LIMIT = ' + numRows + '\n';
@@ -200,11 +217,8 @@ define(function() {
                     text += '    if rowCount > ROW_LIMIT:\n        break\n';
                 }
                 text += '    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
-                text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n'
-                      + dfName;
-
-                insertCellToSelected(text).execute();
-                Jupyter.notebook.save_notebook();
+                text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n';
+                return text;
             }
 
             // listeners are found by $._data(element, "events" ); we turn off
@@ -292,7 +306,6 @@ define(function() {
             }
 
             function parseSessInfoFromLine(line) {
-
                 line = line.slice(line.indexOf("("), line.indexOf(")"));
                 line = line.split(",");
                 return {
@@ -338,8 +351,8 @@ define(function() {
             // for sending to udf panel
             function trimUDFCode(code) {
                 var lines = code.split("\n");
-                if (lines[lines.length - 5] === "# Test your code with a sample of the table") {
-                    lines = lines.slice(0, lines.length - 5);
+                if (lines[lines.length - 31] === "# Test your code with a sample of the table") {
+                    lines = lines.slice(0, lines.length - 31);
                 }
                 return lines.join("\n");
             }

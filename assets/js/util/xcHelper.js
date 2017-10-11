@@ -3283,6 +3283,17 @@ window.xcHelper = (function($, xcHelper) {
         return (colNameMap);
     };
 
+    xcHelper.getColNameList = function(tableId) {
+        var colNameList = [];
+        var cols = gTables[tableId].getAllCols(true);
+        var name;
+        for (var i = 0; i < cols.length; i++) {
+            name = $.trim(cols[i].backName);
+            colNameList.push(name);
+        }
+        return (colNameList);
+    }
+
     xcHelper.disableMenuItem = function($menuLi, tooltipOptions) {
         $menuLi.addClass("unavailable");
         xcTooltip.add($menuLi, tooltipOptions);

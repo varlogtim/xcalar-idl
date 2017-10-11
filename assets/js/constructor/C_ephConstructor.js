@@ -2365,7 +2365,7 @@ MenuHelper.prototype = {
                 var keepOpen = false;
                 if (options.onSelect) {    // trigger callback
                     // keepOpen be true, false or undefined
-                    keepOpen = options.onSelect($li, $lastSelected);
+                    keepOpen = options.onSelect($li, $lastSelected, event);
                 }
                 // keep Open may return weird tings, so check for true boolean
                 if (!keepOpen) {

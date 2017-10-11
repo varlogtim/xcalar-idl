@@ -23,7 +23,7 @@
         Map UDF
       </li>
       <li class="dataStoreInfo" data-action="importUDF">
-        Import UDF
+        Import UDF (Azure Blob)
       </li>
     </ul>
   </div>
@@ -44,22 +44,47 @@
     <!-- Main Section -->
     <section class="modalMain">
       <div class="row">
-        <label>
-          <span class="text">Function name:</span>
-          <input class="xc-input arg fnName" type="text" spellcheck="false">
-        </label>
+        <span class="label">Function name:</span>
+        <input class="xc-input arg fnName" type="text" spellcheck="false">
       </div>
       <div class="row">
-        <label>
-          <span class="text">Table name:</span>
-          <input class="xc-input arg tableName" type="text" spellcheck="false">
-        </label>
+        <span class="label">Table name:</span>
+        <!-- <input class="xc-input arg tableName" type="text" spellcheck="false"> -->
+        <div class="dropDownList tableList">
+          <input type="text" class="text arg tableName readonly" readonly spellcheck="false">
+          <div class="iconWrapper">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list">
+            <ul>
+            </ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="row">
-        <label>
-          <span class="text">Columns:</span>
-          <input class="xc-input arg columns" type="text" spellcheck="false" placeholder="comma separated">
-        </label>
+        <span class="label">Columns:</span>
+        <div class="dropDownList columnsList">
+          <input type="text" class="xc-input text arg columns readonly" readonly spellcheck="false">
+          <div class="iconWrapper">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list">
+            <ul>
+            </ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <!-- Button Section -->
