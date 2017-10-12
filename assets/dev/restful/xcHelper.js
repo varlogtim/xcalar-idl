@@ -19,6 +19,21 @@
         global.gDSPrefix = '.XcalarDS.';
         global.gDemoMemory = false;
         global.gEnableLocalFiles = false;
+        global.gEnableJoinKeyCheck = false;
+        global.JoinCompoundOperatorTStr = {
+            LeftSemiJoin: "Left Semi Join",
+            RightSemiJoin: "Right Semi Join",
+            LeftAntiSemiJoin: "Left Anti Semi Join",
+            RightAntiSemiJoin: "Right Anti Semi Join",
+            CrossJoin: "Cross Join"
+        };
+        global.JoinCompoundOperator = {
+            "Left Semi Join": 10,
+            "Right Semi Join": 11,
+            "Left Anti Semi Join": 12,
+            "Right Anti Semi Join": 13,
+            "Cross Join": 14,
+        };
     }
 
     xcHelper.reload = function() {

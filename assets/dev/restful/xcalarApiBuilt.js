@@ -1776,9 +1776,6 @@ function convertToDerivedColAndGetSchema(txId, tableName, dstTable) {
 
 exports.sqlPlan = function(execid, planStr, rowsToFetch) {
     var deferred = jQuery.Deferred();
-    if (sqlTable == null) {
-        return deferred.reject("no sql table to use").promise();
-    }
     if (rowsToFetch == null) {
         rowsToFetch = 10; // default to be 10
     }
