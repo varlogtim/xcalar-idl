@@ -63,6 +63,13 @@
             <div class="label"><%= dicts.login.password %></div>
           </label>
         </div>
+         <% if (dicts.product == "XI") { %>
+        <div class="part termPart termPartInsight clearfix">
+          <div class="text">
+            <label>By logging in I am agreeing to the <a href="http://www.xcalar.com" target="_blank"><%= dicts.login.terms %></a></label>
+          </div>
+        </div>
+        <% } %>
         <!-- <div class="passwordForgot">Forgot your password?</div> -->
         <input id="loginButton" class="btn login" type="submit" value="<%= dicts.login.login %>">
         <!-- XX SIGN UP TEMPORARILY HIDDEN -->
