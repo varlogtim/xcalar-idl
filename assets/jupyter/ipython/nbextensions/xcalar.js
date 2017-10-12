@@ -144,6 +144,7 @@ define(function() {
                         break;
                     case ("importUDF"):
                         text =  'def ' + args.fnName + '(inp, ins):\n' +
+                                '    # FILL IN YOUR FUNCTION HERE\n' +
                                 '    pass\n' +
                                 '\n' +
                                 '\n' +
@@ -191,14 +192,9 @@ define(function() {
                                 '\n' +
                                 'dataset.load()\n' +
                                 '\n' +
-                                'resultSet = ResultSet(xcalarApi, datasetName=dataset.name)\n' +
+                                'resultSet = ResultSet(xcalarApi, datasetName=dataset.name, maxRecords=100)\n' +
                                 '\n' +
-                                'ROW_LIMIT=100\n' +
-                                'numSeen = 0\n' +
                                 'for row in resultSet:\n' +
-                                '    numSeen += 1\n' +
-                                '    if (numSeen > ROW_LIMIT):\n' +
-                                '        break\n' +
                                 '    print row\n' +
                                 '\n' +
                                 'dataset.delete()\n' +
@@ -229,9 +225,9 @@ define(function() {
 
             function getPublishTableStub(tableName, colNames, numRows) {
                 var text = '#Publish table as pandas dataframe\nfrom collections import OrderedDict\n';
+                var rowLimit = "";
                 if (numRows && numRows > 0) {
-                    text += 'ROW_LIMIT = ' + numRows + '\n';
-                    text += 'rowCount = 0\n';
+                    rowLimit = ", maxRecords=" + numRows;
                 }
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
                 var filterDict = 'col_list = [';
@@ -250,15 +246,10 @@ define(function() {
                             + '                    if subKey in col_list:\n'
                             + '                        row[subKey] = row[k][i]\n'
                             + '    filtered_row = OrderedDict(kv_list)\n'
-                text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '")\n';
+                text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '"' + rowLimit + ')\n';
                 tableName = tableName.replace(/[#-]/g, "_");
                 var dfName = tableName + '_pd';
                 text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n';
-
-                if (numRows && numRows > 0) {
-                    text += '    rowCount += 1\n';
-                    text += '    if rowCount > ROW_LIMIT:\n        break\n';
-                }
                 text += '    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
                 text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n';
                 return text;
@@ -394,8 +385,8 @@ define(function() {
             // for sending to udf panel
             function trimUDFCode(code) {
                 var lines = code.split("\n");
-                if (lines[lines.length - 31] === "# Test your code with a sample of the table") {
-                    lines = lines.slice(0, lines.length - 31);
+                if (lines[lines.length - 26] === "# Test your code with a sample of the table") {
+                    lines = lines.slice(0, lines.length - 26);
                 } else if (lines[lines.length - 25] === "# DO NOT MODIFY BELOW THIS LINE") {
                     lines = lines.slice(0, lines.length - 25);
                 }
