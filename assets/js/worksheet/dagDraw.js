@@ -1839,8 +1839,8 @@ window.DagDraw = (function($, DagDraw) {
                         }
                         var evalStrs = gbNode.value.struct.evalStrs;
                         evalStr = "";
-                        for (var i = 0; i < evalStrs.length; i++) {
-                            evalStr += evalStrs[i] + ", ";
+                        for (var j = 0; j < evalStrs.length; j++) {
+                            evalStr += evalStrs[j] + ", ";
                         }
                         evalStr = evalStr.slice(0, -2);
                         aggs.push(evalStr);
