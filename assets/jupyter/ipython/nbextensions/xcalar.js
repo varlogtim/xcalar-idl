@@ -113,9 +113,7 @@ define(function() {
                         var tableStub = "";
                         if (args && args.columns) {
                             for (var i = 0; i < args.columns.length; i++) {
-                                var colVar = args.columns[i].split(/[\[\]\.\\#]/g).filter(function(str) {
-                                                return (str !== "");
-                                            }).join("_")
+                                var colVar = args.columns[i].replace(/[^a-zA-Z0-9 ]/g, "_");
                                 colsArg += colVar + ", ";
                                 retStr += "str(" + colVar + ") + ";
                                 assertStr += 'row["' + args.columns[i] + '"], ';
