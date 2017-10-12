@@ -13,6 +13,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $commentSection = $modal.find(".commentSection");
 
         modalHelper = new ModalHelper($modal, {
+            noEnter: true,
             afterResize: function() {
                 if (!$ticketIdSection.hasClass("closed")) {
                     showHideCommentExpandIcon();
