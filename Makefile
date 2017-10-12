@@ -37,7 +37,7 @@ build: $(DESTDIR) generateHtml
 	@rm -rf prod
 	@echo "=== Creating new prod folder ==="
 	@mkdir -p $(DESTDIR)/$(PRODUCTNAME)
-	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-gui --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/js/constructor/xcalar-idl
+	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-gui --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/help/user --exclude assets/js/constructor/xcalar-idl
 	@echo "=== Removing unused files ==="
 	@rm -f $(DESTDIR)/$(PRODUCTNAME)/assets/js/thrift/mgmttestactual.js
 	@echo "=== Compile Less ==="
@@ -48,6 +48,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/testSuite.less > $(PRODUCTNAME)/assets/stylesheets/css/testSuite.css
 	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/installer.less > $(PRODUCTNAME)/assets/stylesheets/css/installer.css
 	@rm -rf $(DESTDIR)/$(PRODUCTNAME)/assets/stylesheets/less
+	mv $(DESTDIR)/$(PRODUCTNAME)/assets/help/$(product) $(DESTDIR)/$(PRODUCTNAME)/assets/help/user
 	@echo "=== Cleaning up non prod stuff ==="
 	@rm -rf $(DESTDIR)/$(PRODUCTNAME)/assets/dev
 	@rm -f $(DESTDIR)/$(PRODUCTNAME)/services/expServer/awsWriteConfig.json

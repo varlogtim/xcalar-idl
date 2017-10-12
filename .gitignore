@@ -28,8 +28,8 @@ install-tarball.html
 /js/
 .swp
 /services/expServer/*.tar.gz
-/assets/help/user/Content/SearchInsight.htm
-/assets/help/admin/Content/SearchInsight.htm
+/assets/help/xd/Content/SearchInsight.htm
+/assets/help/xi/Content/SearchInsight.htm
 /services/test/report/*
 /services/appMarketplace/extensionUploader.html
 /assets/js/constructor/B_constructorDefine.js
@@ -39,3 +39,4 @@ install-tarball.html
 /assets/lang/en/jsTStrXI.js
 /assets/lang/zh/jsTStrXI.js
 *.tar.gz
+/assets/help/user

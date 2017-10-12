@@ -1,5 +1,6 @@
 genHTML = require('./site/render/genHTML.js');
 genCtor = require('./site/render/genConstructor.js');
+exec = require('child_process').exec;
 tmpDest = 'site/tmp';
 prettifyOptions = {
   options: {
@@ -215,6 +216,31 @@ module.exports = function(grunt) {
   grunt.registerTask('ctor', function() {
     genCtor(true);
   });
+
+  grunt.registerTask('uiTeamXiHelp', function() {
+    var done = this.async();
+    exec('cp -rf assets/help/XI assets/help/user', function (err, stdout, stderr) {
+      if (err) {
+        // node couldn't execute the command
+        console.log("Could not build xi help!");
+        done(err);
+      }
+      done();
+    });
+  });
+
+  grunt.registerTask('uiTeamXdHelp', function() {
+    var done = this.async();
+    exec('cp -rf assets/help/XD assets/help/user', function (err, stdout, stderr) {
+      if (err) {
+        // node couldn't execute the command
+        console.log("Could not build xd help!");
+        done(err);
+      }
+      done();
+    });
+  });
+
 
   grunt.renameTask('watch', 'customWatch');
   grunt.registerTask("watch", ['customWatch:normal']);

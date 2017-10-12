@@ -100,4 +100,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or not sys.argv[1] == "debug":
         catFilesTogether()
         replacePathsInHtml()
-    genSearchInsight("assets/help/user/Content/Search.htm")
+    searchFilePath = "assets/help/user/Content/Search.htm"
+    #if os.path.isfile(searchFilePath):
+    genSearchInsight(searchFilePath)
