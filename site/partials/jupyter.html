@@ -6,7 +6,7 @@
     </div>
     <div class="rightArea">
     	<div class="xc-action dropdownBox">
-    		<span class="jupyterMenuText">Code Samples</span>
+    		<span class="jupyterMenuText">Code Snippets</span>
       	<i class="icon  xi-down jupyterMenuIcon"></i>
     	</div>
     </div>
@@ -20,7 +20,7 @@
         Connect to Xcalar Workbook
       </li>
       <li class="dataStoreInfo" data-action="basicUDF">
-        Map UDF
+        Create Map UDF
       </li>
       <li class="dataStoreInfo" data-action="importUDF">
         Create Import UDF
@@ -104,11 +104,41 @@
         </div>
          <div class="row">
           <span class="label">Module name:</span>
-          <input class="xc-input arg moduleName" type="text" spellcheck="false">
+          <div class="dropDownList udfModuleList">
+            <input type="text" class="text arg moduleName readonly" readonly spellcheck="false">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
         </div>
          <div class="row">
           <span class="label">Function name:</span>
-          <input class="xc-input arg fnName" type="text" spellcheck="false">
+          <div class="dropDownList udfFnList">
+            <input type="text" class="text arg fnName readonly" readonly spellcheck="false">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

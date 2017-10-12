@@ -2,6 +2,8 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
     var $modal;    // $("#jupyterUDFTemplateModal")
     var modalHelper;
     var cols = [];
+    var $udfModuleList;
+    var $udfFnList;
 
     JupyterUDFModal.setup = function() {
         $modal = $("#jupyterUDFTemplateModal");
@@ -82,6 +84,33 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             }
         });
         columnsList.setupListeners();
+
+        $udfModuleList = $modal.find(".udfModuleList");
+        new MenuHelper($udfModuleList, {
+            "onSelect": function($li) {
+                var module = $li.text();
+                $udfModuleList.find(".moduleName").val(module);
+                $udfFnList.find(".fnName").val("");
+                StatusBox.forceHide();
+            }
+        }).setupListeners();
+
+        $udfFnList = $modal.find(".udfFnList");
+        new MenuHelper($udfFnList, {
+            "onOpen": function() {
+                var moduleName = $udfModuleList.find(".moduleName").val();
+                $udfFnList.find("li").hide();
+                if (moduleName) {
+                    $udfFnList.find('li[data-module="' + moduleName  + '"]').show();
+                } else {
+                    StatusBox.show(ErrTStr.NoEmpty, $udfModuleList.find(".moduleName"), true);
+                }
+            },
+            "onSelect": function($li) {
+                var fn = $li.text();
+                $udfFnList.find(".fnName").val(fn);
+            }
+        }).setupListeners();
     };
 
     JupyterUDFModal.show = function(type) {
@@ -96,6 +125,11 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         modalHelper.setup();
     };
 
+    JupyterUDFModal.refreshUDF = function(listXdfsObj) {
+        var udfObj = xcHelper.getUDFList(listXdfsObj);
+        $udfModuleList.find("ul").html(udfObj.moduleLis);
+        $udfFnList.find("ul").html(udfObj.fnLis);
+    };
 
     function closeModal() {
         modalHelper.clear();
