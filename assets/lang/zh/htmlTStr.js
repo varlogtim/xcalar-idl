@@ -590,6 +590,7 @@ module.exports = {
         "signup": "注册",
         "signupHeader": "注册Xcalar Design!",
         "terms": "条款",
+        "eula": "EULA",
         "username": "用户名",
         "usernameLower": "用户名"
     },

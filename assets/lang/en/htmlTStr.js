@@ -986,6 +986,7 @@ module.exports = {
         "confirmPassword": "Confirm Password",
         "IAgree": "I agree to the",
         "terms": "Terms & Conditions",
+        "eula": "EULA",
         "alreadyAccount": "Already have an account?"
     },
 
