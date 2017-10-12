@@ -191,7 +191,7 @@ define(function() {
                                 'for row in resultSet:\n' +
                                 '    numSeen += 1\n' +
                                 '    if (numSeen > ROW_LIMIT):\n' +
-                                    '    break\n' +
+                                '        break\n' +
                                 '    print row\n' +
                                 '\n' +
                                 'dataset.delete()';

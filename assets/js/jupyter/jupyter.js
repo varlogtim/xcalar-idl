@@ -3,6 +3,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
     var $frameLocation = $("#jupyterPanel .mainContent");
     var $jupyterPanel;
     var currNotebook;
+
     JupyterPanel.setup = function() {
         $jupyterPanel = $("#jupyterPanel");
         setupTopBarDropdown();
@@ -217,6 +218,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 JupyterUDFModal.show("newImport");
             } else if (stubName === "testImportUDF") {
                 JupyterUDFModal.show("testImport");
+            } else {
+                JupyterPanel.appendStub(stubName);
             }
         });
     }
