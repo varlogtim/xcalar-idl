@@ -145,7 +145,14 @@ define(function() {
                              + '    print(' + udfName + '(' + assertStr + '))';
                         break;
                     case ("importUDF"):
-                        text = 'def ' + args.fnName + '(inp, ins):\n' +
+                        text =  'def ' + args.fnName + '(inp, ins):\n' +
+                                '    pass\n' +
+                                '\n' +
+                                '\n' +
+                                '# DO NOT MODIFY BELOW THIS LINE\n' +
+                                '\n' +
+                                '#The following function is a sample of how a streaming UDF should be written\n' +
+                                'def __sampleCsvReader(inp, ins):\n' +
                                 '    hasHeader = False\n' +
                                 '    fieldDelim = ","\n' +
                                 '    headers = None\n' +
@@ -162,9 +169,11 @@ define(function() {
                                 '            record[headers[i]] = vals[i]\n' +
                                 '        yield record\n' +
                                 '\n' +
-                                '# DO NOT MODIFY\n' +
                                 'import inspect\n' +
-                                'inspect.isgeneratorfunction(' + args.fnName + ')';
+                                'if inspect.isgeneratorfunction(' + args.fnName + '):\n' +
+                                '    print "Your generator function looks good. Try it on a file!"\n' +
+                                'else:\n' +
+                                '    print "You must return a generator. Please try again"';
                         break;
                     case("testImportUDF"):
                         text = 'from xcalar.compute.api.Dataset import *\n' +
@@ -194,7 +203,8 @@ define(function() {
                                 '        break\n' +
                                 '    print row\n' +
                                 '\n' +
-                                'dataset.delete()';
+                                'dataset.delete()\n' +
+                                'print "End of UDF"';
                         break;
                     default:
                         return;
@@ -388,8 +398,8 @@ define(function() {
                 var lines = code.split("\n");
                 if (lines[lines.length - 31] === "# Test your code with a sample of the table") {
                     lines = lines.slice(0, lines.length - 31);
-                } else if (lines[lines.length - 3] === "# DO NOT MODIFY") {
-                    lines = lines.slice(0, lines.length - 3);
+                } else if (lines[lines.length - 25] === "# DO NOT MODIFY BELOW THIS LINE") {
+                    lines = lines.slice(0, lines.length - 25);
                 }
                 return lines.join("\n");
             }

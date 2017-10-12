@@ -968,7 +968,8 @@ UDFTStr = {
     "NameHint": "Module name (lowercase)",
     "AppName": "XPU App name (lowercase)",
     "NoTemplate": "Cannot find the module",
-    "InValidName": "Module name should start with a letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)"
+    "InValidName": "Module name should start with a letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
+    "InValidFnName": "Function name should start with a letter or underscore and contain only letters, digits or underscores(_)"
 };
 
 TblTStr = {

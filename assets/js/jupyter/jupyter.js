@@ -1,5 +1,4 @@
 window.JupyterPanel = (function($, JupyterPanel) {
-
     var $frameLocation = $("#jupyterPanel .mainContent");
     var $jupyterPanel;
     var currNotebook;

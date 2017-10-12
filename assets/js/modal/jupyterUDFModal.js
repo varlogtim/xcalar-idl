@@ -159,6 +159,14 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         if (!isValid) {
             return;
         }
+        var fnName =  $modal.find(".fnName:visible").val();
+
+        var isFnNameValid = xcHelper.checkNamePattern("udfFn", "check", fnName);
+        if (!isFnNameValid) {
+            StatusBox.show(UDFTStr.InValidFnName, $modal.find(".fnName:visible"), true);
+            return;
+        }
+
         if ($modal.hasClass("type-map")) {
             var columns = $modal.find(".columns").val().split(",");
             columns = columns.map(function(colName) {

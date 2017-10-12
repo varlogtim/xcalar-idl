@@ -832,7 +832,8 @@ UDFTStr = {
 "NameHint": '模块名称（小写）',
 "AppName": 'XPU应用程序名称（小写）',
 "NoTemplate": "无法找到模快",
-"InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）"
+"InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
+"InValidFnName": "Function name should start with a letter or underscore and contain only letters, digits or underscores(_)"
 };
 TblTStr = {
 'Create': '创建表',

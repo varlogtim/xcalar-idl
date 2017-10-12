@@ -2055,6 +2055,9 @@ window.xcHelper = (function($, xcHelper) {
             case "udf":
                 namePattern = /^[a-z_][a-zA-Z0-9_-]*$/;
                 break;
+            case "udfFn":
+                namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
+                break;
             default:
                 namePattern = /^[a-zA-Z0-9_-]+$/;
                 antiNamePattern = /[^a-zA-Z0-9_-]/;
