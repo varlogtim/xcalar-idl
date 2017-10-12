@@ -1162,13 +1162,11 @@ describe("Dataset-DSObj Test", function() {
             };
             unlockDS(testDS.getId())
             .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.be.an("object");
-                expect(error.error).to.equal("test");
                 UnitTest.hasAlertWithTitle(AlertTStr.Error);
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -1198,13 +1196,11 @@ describe("Dataset-DSObj Test", function() {
             };
             lockDS(testDS.getId())
             .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.be.an("object");
-                expect(error.error).to.equal("test");
                 UnitTest.hasAlertWithTitle(AlertTStr.Error);
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
