@@ -69,6 +69,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             $monitorPanel.find(".donutLegendInfo .unitSize .num").text(val[0]);
             $monitorPanel.find(".donutLegendInfo .unitSize .unit").text(val[1]);
             var pct = Math.round(rawVal * 100 / ramTotal);
+            pct = pct || 0;
             $monitorPanel.find(".donutLegendInfo .pctSize .num").text(pct);
 
             if (index === numMemItems - 1) {
@@ -188,6 +189,9 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             ramTotal = stats.total;
         } else {
             data = [stats.used, stats.total - stats.used];
+            if (stats.total - stats.used === 0) {
+                data[1] = 1;
+            }
         }
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
@@ -237,6 +241,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
     // updates the large text in the middle of the donut
     function updateDonutMidText(selector, num, duration, index, pct) {
+        num = num || 0;
         var $sizeType = $(selector).next();
         var type = $sizeType.text();
         var sizeOption = {base2: true};
@@ -337,6 +342,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                 }
 
                 var pct = Math.round(usedNum / max * 100);
+                pct = pct || 0;
                 var bars = getPctBarHtml(pct);
 
                 listHTML += '<li>' + bars +
