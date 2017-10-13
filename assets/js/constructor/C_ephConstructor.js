@@ -342,6 +342,9 @@ function DSFormController() {
 DSFormController.prototype = {
     set: function(options) {
         options = options || {};
+        if (options.targetName != null) {
+            this.targetName = options.targetName;
+        }
 
         if (options.path != null) {
             this.path = options.path;
@@ -361,6 +364,10 @@ DSFormController.prototype = {
 
         delete this.path;
         delete this.format;
+    },
+
+    getTargetName: function() {
+        return this.targetName;
     },
 
     getPath: function() {

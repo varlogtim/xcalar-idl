@@ -264,7 +264,6 @@ window.Shortcuts = (function($, Shortcuts) {
     function dsForm() {
         var $filePath = $("#filePath");
         var $fileName = $("#fileName");
-        var protocol = FileProtocol.nfs;
         var filePath = "";
         $filePath.on('keyup.shortcut', function() {
             var val = $(this).val();
@@ -350,7 +349,7 @@ window.Shortcuts = (function($, Shortcuts) {
                 }
 
                 $("#dsForm-path .credential").addClass("xc-hidden");
-                $("#fileProtocol input").val(protocol);
+                $("#dsForm-target input").val(gDefaultSharedRoot);
                 $filePath.val(filePath);
 
                 $fileName.val(file + Math.ceil(Math.random() * 1000));
@@ -575,7 +574,7 @@ window.Shortcuts = (function($, Shortcuts) {
             dsName = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);
             var $formatDropdown = $("#fileFormatMenu");
             var filePath = filePathMap[name];
-            $("#fileProtocol input").val(FileProtocol.nfs);
+            $("#dsForm-target input").val(gDefaultSharedRoot);
             $("#filePath").val(filePath);
             $("#dsForm-path").find('.confirm').click(); // go to next step
             $formatDropdown.find('li[name="JSON"]').click();

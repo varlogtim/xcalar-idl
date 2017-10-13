@@ -322,6 +322,7 @@ module.exports = {
         "Table": "表",
         "TableName": "表名",
         "Tables": "表",
+        "Target": "目标",
         "Type": "类型",
         "URL": "URL",
         "UserName": "用户名",
@@ -384,7 +385,8 @@ module.exports = {
         "Datasets": "数据集",
         "Import": "Import Datasets",
         "Point": "导入数据源",
-        "Protocol": "数据源协议",
+        "Target": "数据源",
+        "Targets": "数据源",
         "Retry": "重试",
         "RetryLimit": "请设置数据源大小限制，然后重试。",
         "RetryPoint": "请修改数据导入参数（例如，调整数据源大小限制），然后重试",
@@ -427,7 +429,7 @@ module.exports = {
         "LineDelim": "行分隔符",
         "Minimize": "最小化/最大化",
         "PARSER": "可视化数据解析器",
-        "PathInstr": "选择数据源协议，然后浏览并选择数据源，或直接输入数据源路径，然后单击“下一步”按钮。",
+        "PathInstr": "选择数据源目标，然后浏览并选择数据源，或直接输入数据源路径，然后单击“下一步”按钮。",
         "Pattern": "模式",
         "Quoting": "引用字符",
         "REDETECT": "自动检测格式",
@@ -475,6 +477,15 @@ module.exports = {
         "Records": "行数",
         "SelectLater": "稍后选择列",
         "SelectLaterHint": "创建一个表，而不选择任何列"
+    },
+    "dsTarget": {
+        "Create": "添加数据目标",
+        "CreateInstr": "请选择目标类型，填写目标名称，并填写相应的信息",
+        "Type": "类型",
+        "AdditionalInfo": "其他信息",
+        "TargetInfo": "数据目标信息",
+        "TargetInfoInstr": "以下是所选目标的详细信息。 要创建新目标, 请点击左边栏上方的创建按钮。",
+        "DELETETARGET": "删除目标"
     },
     "dsUploader": {
         "AddFile": "添加文件/创建数据集",

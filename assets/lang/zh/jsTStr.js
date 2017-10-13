@@ -401,6 +401,7 @@ FailTStr = {
 "RmDF": "删除批量数据流失败。",
 "RmSched": "删除调度器失败",
 "FlushLog": "强制刷新日志失败!",
+"Target": "添加目标失败"
 };
 
 ThriftTStr = {
@@ -740,6 +741,7 @@ DSTStr = {
 'DS': '数据集',
 'IN': '数据集',
 'OUT': '导出目标',
+'TARGET': '数据源目标',
 'Export': '导出方式',
 'DelDS': '删除数据集',
 'DelDSFail': '删除数据集失败',
@@ -752,7 +754,7 @@ DSTStr = {
 'NoColumns': '未选择列',
 'NoRecrodsHint': '请检查路径，模式，数据源大小，udf的验证，然后重试。',
 'CancalPoint': '取消导入数据集',
-'DSSourceHint': '请尝试另一个路径或使用另一个协议。',
+'DSSourceHint': '请尝试另一个路径或使用另一个数据源目标。',
 'FileOversize': '文件夹中的文件太多，无法读取，请直接用url导入',
 'InvalidHDFS': '无效的hdfs路径，有效格式为：hostname / pathtofile',
 'Excel': 'EXCEL',
@@ -824,6 +826,14 @@ DSParserTStr = {
 "NoKey": '没有键被选中',
 "FileSizeWarn": "您的文件超过500MB， 可视化数据解析器需要较长时间解析数据。请将文件分成小份，或者直接使用streaming UDF读取",
 "Proceed": "继续"
+};
+DSTargetTStr = {
+"DEL": "删除目标",
+"DelFail": "目标删除失败",
+"NoDelete": "无法删除默认目标",
+// with replace
+"DelConfirmMsg": "您确定要删除<target>吗?",
+"TargetExists": "目标<target>已存在",
 };
 DSExportTStr = {
 'ExportFail': '无法添加导出目标',

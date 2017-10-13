@@ -236,13 +236,13 @@ window.DSTable = (function($, DSTable) {
         var numEntries = dsObj.getNumEntries();
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
 
-        path = xcHelper.encodeDisplayURL(path);
         $path.text(path);
         xcTooltip.changeText($path, path);
         xcTooltip.enable($path);
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
+        $("#dsInfo-target").text(dsObj.getTargetName());
         // there is no fail case
         getDSSize(dsObj, isLoading)
         .then(function(size) {

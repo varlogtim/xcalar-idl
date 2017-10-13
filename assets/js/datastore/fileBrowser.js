@@ -20,10 +20,10 @@ window.FileBrowser = (function($, FileBrowser) {
     var subUpperFileLimit = 25000; // file limit if not chrome
     var sortFileLimit = 25000; // do not allow sort if over 25k
     var oldBrowserError = "Deferred From Old Browser";
+    var defaultPath = "/";
     /* End Of Contants */
 
-    var defaultPath = FileProtocol.hdfs;
-    var historyPath;
+    var historyPathCache = {};
     var curFiles = [];
     var allFiles = [];
     var sortKey = defaultSortKey;
@@ -67,7 +67,7 @@ window.FileBrowser = (function($, FileBrowser) {
         clearAll();
     };
 
-    FileBrowser.show = function(protocol, path) {
+    FileBrowser.show = function(targetName, path) {
         var deferred = jQuery.Deferred();
 
         clearAll();
@@ -76,19 +76,12 @@ window.FileBrowser = (function($, FileBrowser) {
         addKeyBoardEvent();
         fileBrowserId = xcHelper.randName("browser");
 
-        if (protocol == null) {
-            // this is an error case
-            console.error("No protocol!!");
-            protocol = FileProtocol.nfs;
-        }
 
-        var res = changeProtocol(protocol, path);
-        protocol = res[0];
-        path = res[1];
-        path = getPathWithProtocol(protocol, path);
+        setTarget(targetName);
+        path = path || getHistoryPath(targetName);
 
         var paths = parsePath(path);
-        setPath(getShortPath(paths[paths.length - 1]));
+        setPath(paths[paths.length - 1]);
 
         retrievePaths(path)
         .then(function() {
@@ -288,7 +281,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 var $input = $(this);
                 var currentVal = $input.val();
-                var path = defaultPath + currentVal;
+                var path = currentVal;
 
                 if (key === keyCode.Enter) {
                     if (!path.endsWith("/")) {
@@ -327,7 +320,6 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         var deferred = jQuery.Deferred();
-
         retrievePaths(path)
         .then(deferred.resolve)
         .fail(function(error) {
@@ -550,14 +542,13 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function getCurrentPath() {
-        var path = $pathLists.find("li:first-of-type").text();
-        return xcHelper.decodeDisplayURL(defaultPath, path);
+    function getCurrentTarget() {
+        return $pathSection.find(".targetName").text();
     }
 
-    function getShortPath(path) {
-        // for example: file:///var/ will return var/
-        return path.split(defaultPath)[1];
+    function getCurrentPath() {
+        var path = $pathLists.find("li:first-of-type").text();
+        return path;
     }
 
     function getGridUnitName($grid) {
@@ -571,13 +562,11 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function appendPath(path, noPathUpdate) {
-        var shortPath = getShortPath(path);
-
         if (!noPathUpdate) {
-            setPath(shortPath);
+            setPath(path);
         }
 
-        $pathLists.prepend('<li>' + xcHelper.encodeDisplayURL(path) + '</li>');
+        $pathLists.prepend('<li>' + path + '</li>');
     }
 
     function clearAll() {
@@ -633,7 +622,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         console.error(error);
         var msg = xcHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
-            "path": xcHelper.encodeDisplayURL(path)
+            "path": path
         });
         if (typeof error === "object" && error.log) {
             msg += " " + AlertTStr.Error + ": " + error.log;
@@ -661,56 +650,22 @@ window.FileBrowser = (function($, FileBrowser) {
         return paths;
     }
 
-    function changeProtocol(protocol, path) {
-        // for any edage case, use default file path
-        var isValidProtocol = false;
-        for (var key in FileProtocol) {
-            if (protocol === FileProtocol[key]) {
-                isValidProtocol = true;
-                break;
-            }
-        }
-        if (!isValidProtocol) {
-            // for any edage case, use default file protocol
-            console.warn("Unsupported file path extension? Defaulting to",
-                         FileProtocol.nfs);
-            protocol = FileProtocol.nfs;
-        }
-
-        if (protocol === FileProtocol.hdfs ||
-            protocol === FileProtocol.mapR) {
-            // this assume the path follow the hdfs format (has check in dsForm)
-            var index = path.indexOf("/");
-            protocol += path.substring(0, index + 1);
-            path = path.substring(index + 1);
-        }
-
-        var displayProtocol = xcHelper.encodeDisplayURL(protocol);
-        $pathSection.find(".defaultPath").text(displayProtocol);
-        defaultPath = protocol;
-
-        return [protocol, path];
+    function setTarget(targetName) {
+        $pathSection.find(".targetName").text(targetName);
     }
 
-    function getPathWithProtocol(protocol, path) {
-        if (!path) {
-            if (historyPath && historyPath.startsWith(protocol)) {
-                // when use the same protocol
-                path = historyPath;
-            } else {
-                // when no history path or use new protocol
-                path = protocol;
-            }
-        } else {
-            path = protocol + path;
-        }
+    function getHistoryPath(targetName) {
+        return historyPathCache[targetName] || "/";
+    }
 
-        return path;
+    function setHistoryPath(targetName, path) {
+        historyPathCache[targetName] = path;
     }
 
     function listFiles(path) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
+        var targetName = getCurrentTarget();
         var curBrowserId = fileBrowserId;
 
         $fileBrowser.addClass("loadMode");
@@ -718,7 +673,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $loadSection.show();
         }, 500);
 
-        XcalarListFiles(path, false)
+        XcalarListFiles({targetName: targetName, path: path})
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
                 cleanContainer();
@@ -774,10 +729,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var oldPath = getCurrentPath();
         var path = $newPath.text();
-        path = xcHelper.decodeDisplayURL(defaultPath, path);
+
         listFiles(path)
         .then(function() {
-            setPath(getShortPath(path));
+            setPath(path);
             $pathLists.find("li").removeClass("select");
             $newPath.addClass("select");
             // remove all previous siblings
@@ -810,6 +765,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function sumbitForm($ds) {
         // load dataset
+        var targetName = getCurrentTarget();
         var curDir = getCurrentPath();
         if (($ds == null || $ds.length === 0) && curDir === defaultPath) {
             var $confirmBtn = $fileBrowser.find(".confirm");
@@ -819,7 +775,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return;
         }
 
-        historyPath = curDir;
+        setHistoryPath(targetName, curDir);
 
         var path = null;
         var format = null;
@@ -834,8 +790,9 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         var options = {
+            "targetName": targetName,
             "path": path,
-            "format": format,
+            "format": format
         };
 
         clearAll();
@@ -1113,6 +1070,10 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function retrievePaths(path, noPathUpdate) {
+        if (!path.startsWith(defaultPath)) {
+            path = defaultPath + path;
+        }
+
         var paths = parsePath(path);
         // cannot parse the path
         if (paths.length === 0) {
@@ -1487,11 +1448,11 @@ window.FileBrowser = (function($, FileBrowser) {
         if ($grid.length === 0) {
             return;
         }
-        var isFolder = $grid.hasClass("folder");
-        var currentPath = getCurrentPath();
-        var gridName = getGridUnitName($grid);
-        var url = currentPath + gridName;
-        FilePreviewer.show(url, isFolder);
+        FilePreviewer.show({
+            targetName: getCurrentTarget(),
+            path: getCurrentPath() + getGridUnitName($grid),
+            isFolder: $grid.hasClass("folder")
+        });
     }
 
     function getFolderInfo($grid) {
@@ -1504,6 +1465,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
 
         FileInfoModal.show({
+            "targetName": getCurrentTarget(),
             "path": path,
             "name": name,
             "modified": mTime,
@@ -1518,14 +1480,15 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.getCurFiles = function() {
             return curFiles;
         };
+        FileBrowser.__testOnly__.setTarget = setTarget;
+        FileBrowser.__testOnly__.getCurrentTarget = getCurrentTarget;
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
-        FileBrowser.__testOnly__.getShortPath = getShortPath;
+        FileBrowser.__testOnly__.setHistoryPath = setHistoryPath;
+        FileBrowser.__testOnly__.getHistoryPath = getHistoryPath;
         FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
         FileBrowser.__testOnly__.appendPath = appendPath;
         FileBrowser.__testOnly__.filterFiles = filterFiles;
         FileBrowser.__testOnly__.sortFiles = sortFiles;
-        FileBrowser.__testOnly__.getPathWithProtocol = getPathWithProtocol;
-        FileBrowser.__testOnly__.changeProtocol = changeProtocol;
         FileBrowser.__testOnly__.goToPath = goToPath;
         FileBrowser.__testOnly__.focusOn = focusOn;
         FileBrowser.__testOnly__.isDS = isDS;

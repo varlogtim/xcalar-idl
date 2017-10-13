@@ -523,8 +523,13 @@ window.DS = (function ($, DS) {
         DS.focusOn($grid)
         .then(function() {
             var args = dsObj.getPointArgs();
-            args.push(txId);
-            return XcalarLoad.apply(this, args);
+            var datasetName = args[2];
+            var options = args[3];
+
+            options.path = args[0];
+            options.format = args[1];
+            options.targetName = dsObj.getTargetName();
+            return XcalarLoad(datasetName, options, txId);
         })
         .then(function(ret) {
             // if ret.numBytes doesn't exist, size will be set later by calling
@@ -1152,7 +1157,7 @@ window.DS = (function ($, DS) {
                 if (searchHash.hasOwnProperty(obj.fullName)) {
                     // restore a ds
                     ds = searchHash[obj.fullName];
-                    format = parseDSFormat(ds);
+                    format = xcHelper.parseDSFormat(ds);
                     obj = $.extend(obj, {
                         "format": format,
                         "path": ds.url,
@@ -1178,7 +1183,7 @@ window.DS = (function ($, DS) {
 
             if (ds != null) {
                 var options = uneditableDS[dsName];
-                format = parseDSFormat(ds);
+                format = xcHelper.parseDSFormat(ds);
                 options = $.extend({}, options, {
                     "format": format,
                     "path": ds.url,
@@ -1201,19 +1206,6 @@ window.DS = (function ($, DS) {
         refreshDS();
         DataStore.update();
         checkUnlistableDS(unlistableDS);
-    }
-
-    function parseDSFormat(ds) {
-        var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-        if (format === "JSON" && (isExcelUDF(ds.udfName))) {
-            format = "Excel";
-        }
-        return format;
-    }
-
-    function isExcelUDF(udfName) {
-        return (udfName === "default:openExcelWithHeader")
-                || (udfName === "default:openExcel");
     }
 
     function checkUnlistableDS(unlistableDS) {
@@ -1285,7 +1277,7 @@ window.DS = (function ($, DS) {
 
     function setupGridViewButtons() {
         // click to toggle list view and grid view
-        $("#dataViewBtn, #exportViewBtn").click(function() {
+        $("#dataViewBtn, #exportViewBtn, #dsTarget-view").click(function() {
             var $btn = $(this);
             var isListView;
 
@@ -1826,8 +1818,9 @@ window.DS = (function ($, DS) {
 
     // toggle between list view and grid view
     function toggleDSView(isListView, noRefreshTooltip) {
-        var $btn = $("#dataViewBtn, #exportViewBtn");
-        var $allGrids = $gridView.add($("#dsExportListSection .gridItems"));
+        var $btn = $("#dataViewBtn, #exportViewBtn, #dsTarget-view");
+        var $allGrids = $gridView.add($("#dsExportListSection .gridItems"))
+                                 .add($("#dsTarget-list .gridItems"));
         // includes import and export grids
         xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
 

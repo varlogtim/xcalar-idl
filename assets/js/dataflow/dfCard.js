@@ -1497,7 +1497,10 @@ window.DFCard = (function($, DFCard) {
             if (ret.numTargets === 1) {
                 var url = ret.targets[0].specificInput.sfInput.url ||
                           ret.targets[0].specificInput.udfInput.url;
-                XcalarListFiles(FileProtocol.nfs + url, false)
+                XcalarListFiles({
+                    targetName: gDefaultSharedRoot,
+                    path: url
+                })
                 .then(function(result) {
                     for (var i = 0; i < result.numFiles; i++) {
                         if (result.files[i].name === fileName) {

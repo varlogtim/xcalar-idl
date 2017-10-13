@@ -1850,6 +1850,7 @@
             new attr:
                 udfQuery: (object), extra udf args,
                 locked: (boolean), is dataset locked or not
+                targetName: (string), the src of targetName
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1862,6 +1863,9 @@
 
                 if (options.locked != null) {
                     self.locked = options.locked;
+                }
+                if (options.targetName != null) {
+                    self.targetName = options.targetName;
                 }
             }
             return self;
@@ -1951,6 +1955,10 @@
                 }
 
                 return path;
+            },
+
+            getTargetName: function() {
+                return this.targetName;
             },
 
             getPointArgs: function() {

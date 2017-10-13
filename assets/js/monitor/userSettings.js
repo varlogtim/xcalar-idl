@@ -274,19 +274,6 @@ window.UserSettings = (function($, UserSettings) {
             UserSettings.logChange();
         });
 
-        // XXX temporary hidden
-        // $("#enableFileBox").click(function() {
-        //     var $checkbox = $(this);
-        //     $checkbox.toggleClass('checked');
-        //     if ($checkbox.hasClass("checked")) {
-        //         UserSettings.setPref('fileEnabled', true, true);
-        //         $("#fileProtocolMenu").find('li[name="file"]').show();
-        //     } else {
-        //         UserSettings.setPref('fileEnabled', false, true);
-        //         $("#fileProtocolMenu").find('li[name="file"]').hide();
-        //     }
-        // });
-
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -333,7 +320,6 @@ window.UserSettings = (function($, UserSettings) {
 
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref("hideDataCol");
-        var showFile = UserSettings.getPref("fileEnabled");
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
@@ -356,12 +342,6 @@ window.UserSettings = (function($, UserSettings) {
             $("#hideSysOps").addClass("checked");
         } else {
             $("#hideSysOps").removeClass("checked");
-        }
-
-        if (showFile) {
-            $("#enableFileBox").addClass("checked");
-        } else {
-            $("#fileProtocolMenu").find('li[name="file"]').hide();
         }
 
         monIntervalSlider.setSliderValue(graphInterval);

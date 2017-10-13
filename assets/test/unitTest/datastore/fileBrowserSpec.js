@@ -1,13 +1,13 @@
 describe("Dataset-File Browser Test", function() {
     var $fileBrowser;
     var $pathLists;
-    var defaultPath;
+    var $pathSection;
     var $mainTabCache;
 
     before(function(){
         $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
-        defaultPath = FileProtocol.hdfs;
+        $pathSection = $("#fileBrowserPath");
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
@@ -52,6 +52,24 @@ describe("Dataset-File Browser Test", function() {
             ];
         });
 
+        it('should get current target', function() {
+            var $section = $pathSection.find(".targetName");
+            var oldVal = $section.text();
+            $section.text("testTarget");
+            var res = FileBrowser.__testOnly__.getCurrentTarget();
+            expect(res).to.equal("testTarget");
+            $section.text(oldVal);
+        });
+
+        it('should set current target', function() {
+            var $section = $pathSection.find(".targetName");
+            var oldVal = $section.text();
+            FileBrowser.__testOnly__.setTarget("testTarget2");
+            var res = FileBrowser.__testOnly__.getCurrentTarget();
+            expect(res).to.equal("testTarget2");
+            $section.text(oldVal);
+        });
+
         it('Should get current path', function() {
             $pathLists.prepend('<li id="fileBrowserTestLi">test</li>');
             var res = FileBrowser.__testOnly__.getCurrentPath();
@@ -59,10 +77,15 @@ describe("Dataset-File Browser Test", function() {
             $pathLists.find("li:first-of-type").remove();
         });
 
-        it('Should get short path', function() {
-            var testPath = defaultPath + "abc.test";
-            var res = FileBrowser.__testOnly__.getShortPath(testPath);
-            expect(res).to.equal("abc.test");
+        it("should get history path", function() {
+            var res = FileBrowser.__testOnly__.getHistoryPath("testTarget");
+            expect(res).to.equal("/"); // default value
+        });
+
+        it("should set history path", function() {
+            FileBrowser.__testOnly__.setHistoryPath("testTarget", "testPath");
+            var res = FileBrowser.__testOnly__.getHistoryPath("testTarget");
+            expect(res).to.equal("testPath"); // default value
         });
 
         it('Should get grid\'s name', function() {
@@ -81,12 +104,12 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it('Should append path', function() {
-            var testPath =  defaultPath + "test";
+            var testPath =  "/test";
             FileBrowser.__testOnly__.appendPath(testPath);
             var $li = $pathLists.find("li:first-of-type");
             var $pathText = $("#fileBrowserPath .text");
             expect($li.text()).to.equal(testPath);
-            expect($pathText.val()).to.equal("test");
+            expect($pathText.val()).to.equal("/test");
             $li.remove();
             $pathText.val("");
         });
@@ -129,62 +152,6 @@ describe("Dataset-File Browser Test", function() {
             expect(res[2].name).to.equal("test2.json");
         });
 
-        it("Should get path with protocol", function() {
-            var getPathWithProtocol = FileBrowser.__testOnly__.getPathWithProtocol;
-            var res = getPathWithProtocol("a///", "b");
-            expect(res).to.equal("a///b");
-            // case 2
-            res = getPathWithProtocol("a///");
-            expect(res).to.equal("a///");
-        });
-
-        it('Should change protocol', function() {
-            var changeProtocol = FileBrowser.__testOnly__.changeProtocol;
-            var $defaultPath = $("#fileBrowserPath .defaultPath");
-            var prevSource = $defaultPath.text();
-            // error case
-            var res = changeProtocol("error protocol", "path");
-            expect($defaultPath.text()).to.equal("file:///");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("file:///");
-            expect(res[1]).to.equal("path");
-            // case 1
-            res = changeProtocol("file:///", "path1");
-            expect($defaultPath.text()).to.equal("file:///");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("file:///");
-            expect(res[1]).to.equal("path1");
-            // case 2
-            res = changeProtocol(FileProtocol.s3, "path2");
-            expect($defaultPath.text()).to.equal("s3://");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("s3://");
-            expect(res[1]).to.equal("path2");
-            // case 3
-            res = changeProtocol(FileProtocol.azblob, "path3");
-            expect($defaultPath.text()).to.equal("azblob://");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("azblob://");
-            expect(res[1]).to.equal("path3");
-            // case 4
-            res = changeProtocol(FileProtocol.hdfs, "host/path4");
-            expect($defaultPath.text()).to.equal("hdfs://host/");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("hdfs://host/");
-            expect(res[1]).to.equal("path4");
-            // case 5
-            res = changeProtocol(FileProtocol.mapR, "user:password@host:port/path5");
-            expect($defaultPath.text())
-            .to.equal("mapr://redacted:redacted@host:port/");
-            expect(res).to.be.an("array");
-            expect(res[0]).to.equal("mapr://user:password@host:port/");
-            expect(res[1]).to.equal("path5");
-
-            // clear up case
-            changeProtocol(prevSource);
-            expect($defaultPath.text()).to.equal(prevSource);
-        });
-
         it('Should handle redirect error', function(done) {
             FileBrowser.__testOnly__.redirectHandler("testPath")
             .then(function() {
@@ -214,8 +181,8 @@ describe("Dataset-File Browser Test", function() {
             var $grid = $("#notExistGrid");
             var test = null;
 
-            FilePreviewer.show = function(url) {
-                test = url;
+            FilePreviewer.show = function(options) {
+                test = options.path;
             };
 
             previewDS($grid);
@@ -276,26 +243,29 @@ describe("Dataset-File Browser Test", function() {
             };
             // error case
             // use default path
-            $pathLists.prepend("<li>" + FileProtocol.nfs + "</li>");
+            $pathLists.prepend("<li>/</li>");
             sumbitForm();
             expect(test).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFile);
 
             // normal case 1
-            $pathLists.prepend("<li>abc:///</li>");
+            $pathSection.find(".targetName").text(gDefaultSharedRoot);
+            $pathLists.prepend("<li>/test/</li>");
             sumbitForm();
             expect(test).to.be.an("object");
-            expect(test.path).to.equal("abc:///");
+            expect(test.targetName).to.equal(gDefaultSharedRoot);
+            expect(test.path).to.equal("/test/");
             expect(test.format).to.be.null;
 
             // normal case 2
-            $pathLists.prepend("<li>abc:///</li>");
+            $pathLists.prepend("<li>/</li>");
             var $ds = $('<div>' +
                             '<div class="fileName" data-name="test.csv"></div>' +
                         '</div>');
             sumbitForm($ds);
             expect(test).to.be.an("object");
-            expect(test.path).to.equal("abc:///test.csv");
+            expect(test.targetName).to.equal(gDefaultSharedRoot);
+            expect(test.path).to.equal("/test.csv");
             expect(test.format).to.equal("CSV");
 
             DSPreview.show = oldFunc;
@@ -352,7 +322,7 @@ describe("Dataset-File Browser Test", function() {
         before(function() {
             oldFunc = XcalarListFiles;
             goToPath = FileBrowser.__testOnly__.goToPath;
-            $li = $('<li>' + "file:///netstore/datasets/" + '</li>');
+            $li = $('<li>' + "/netstore/datasets/" + '</li>');
         });
 
         it('Should go to path', function(done) {
@@ -428,7 +398,7 @@ describe("Dataset-File Browser Test", function() {
                 return PromiseHelper.reject({"error": errorMsg});
             };
 
-            FileBrowser.show(FileProtocol.nfs)
+            FileBrowser.show(gDefaultSharedRoot)
             .then(function() {
                 done("fail");
             })
@@ -448,7 +418,7 @@ describe("Dataset-File Browser Test", function() {
                 return PromiseHelper.reject({"error": errorMsg});
             };
 
-            FileBrowser.show(FileProtocol.nfs, "test/")
+            FileBrowser.show(gDefaultSharedRoot, "/test/")
             .then(function() {
                 done("fail");
             })
@@ -475,10 +445,10 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it('Should show the filebrowser', function(done) {
-            FileBrowser.show(FileProtocol.nfs)
+            FileBrowser.show(gDefaultSharedRoot)
             .then(function() {
                 var $li = $pathLists.find("li:first-of-type");
-                expect($li.text()).to.equal("file:///");
+                expect($li.text()).to.equal("/");
                 assert.isTrue($fileBrowser.is(":visible"));
                 done();
             })
@@ -626,7 +596,7 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("Should click confirm to sumbitForm", function(done) {
-            FileBrowser.show(FileProtocol.nfs)
+            FileBrowser.show(gDefaultSharedRoot)
             .then(function() {
                 var $grid = findGrid("netstore");
                 $grid.click(); // focus on it
@@ -642,7 +612,7 @@ describe("Dataset-File Browser Test", function() {
 
         it("Should dblclick a dataset to sumbitForm", function(done) {
             var sp500 = testDatasets.sp500;
-            FileBrowser.show(FileProtocol.nfs, sp500.url)
+            FileBrowser.show(sp500.targetName, sp500.path)
             .then(function() {
                 var $grid = findGrid("sp500.csv");
                 $grid.trigger(jQuery.Event("dblclick"));
@@ -664,7 +634,7 @@ describe("Dataset-File Browser Test", function() {
     describe("Sort Behavior Test", function() {
         before(function(done) {
             // not using the cached history
-            FileBrowser.show(FileProtocol.nfs, "netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore")
             .then(function() {
                 done();
             })
@@ -767,7 +737,7 @@ describe("Dataset-File Browser Test", function() {
 
         before(function(done) {
             // not using the cached history
-            FileBrowser.show(FileProtocol.nfs, "netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore")
             .then(function() {
                 // make sure it's focused
                 var $grid = findGrid("netstore");
@@ -835,7 +805,7 @@ describe("Dataset-File Browser Test", function() {
         before(function(done) {
             $pathSection = $("#fileBrowserPath");
             // not using the cached history
-            FileBrowser.show(FileProtocol.nfs, "netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore")
             .then(function() {
                 done();
             })
@@ -868,7 +838,7 @@ describe("Dataset-File Browser Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($input.val()).to.equal("netstore/");
+                expect($input.val()).to.equal("/netstore/");
                 done();
             })
             .fail(function() {
@@ -878,7 +848,7 @@ describe("Dataset-File Browser Test", function() {
 
         it("Should retrive path by input", function(done) {
             var $input = $pathSection.find(".text");
-            $input.val("").trigger("keyup");
+            $input.val("/").trigger("keyup");
 
             var checkFunc = function() {
                 var $grid = findGrid("netstore");
@@ -905,7 +875,7 @@ describe("Dataset-File Browser Test", function() {
         before(function(done) {
             $pathSection = $("#fileBrowserPath");
             // not using the cached history
-            FileBrowser.show(FileProtocol.nfs, "netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore")
             .then(function() {
                 // remove active focus
                 $("#innerFileBrowserContainer").click();
@@ -1024,7 +994,7 @@ describe("Dataset-File Browser Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 var $input = $("#fileBrowserPath").find(".text");
-                expect($input.val()).to.equal("netstore/");
+                expect($input.val()).to.equal("/netstore/");
                 done();
             })
             .fail(function() {
@@ -1074,7 +1044,7 @@ describe("Dataset-File Browser Test", function() {
         before(function(done) {
             $fileBrowserMenu = $("#fileBrowserMenu");
             // not using the cached history
-            FileBrowser.show(FileProtocol.nfs, "netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore/")
             .then(function() {
                 done();
             })

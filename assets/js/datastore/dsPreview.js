@@ -140,7 +140,10 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#preview-parser").click(function() {
             if (isPreviewSingleFile()) {
-                DSParser.show(loadArgs.getPath());
+                DSParser.show({
+                    targetName: loadArgs.getTargetName(),
+                    path: loadArgs.getPath()
+                });
             } else {
                 previewFileSelect(true);
             }
@@ -393,14 +396,7 @@ window.DSPreview = (function($, DSPreview) {
         // back button
         $form.on("click", ".cancel", function() {
             var path = loadArgs.getPath();
-            var protocol;
-            for (var key in FileProtocol) {
-                protocol = FileProtocol[key];
-                if (path.startsWith(protocol)) {
-                    path = path.substring(protocol.length);
-                    break;
-                }
-            }
+            var targetName = loadArgs.getTargetName();
 
             resetForm();
             clearPreviewTable();
@@ -409,7 +405,7 @@ window.DSPreview = (function($, DSPreview) {
             } else if (backToFormCard) {
                 DSForm.show({"noReset": true});
             } else {
-                FileBrowser.show(protocol, path);
+                FileBrowser.show(targetName, path);
             }
         });
 
@@ -651,7 +647,7 @@ window.DSPreview = (function($, DSPreview) {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
         $form.find(".checkbox.checked").removeClass("checked");
-        // keep the current protocol
+
         loadArgs.reset();
         advanceOption.reset();
         detectArgs = {
@@ -776,7 +772,7 @@ window.DSPreview = (function($, DSPreview) {
         var skipRows = res.skipRows;
 
         var header = loadArgs.useHeader();
-
+        var targetName = loadArgs.getTargetName();
         var loadURL = loadArgs.getPath();
         var advanceArgs = advanceOption.getArgs();
         if (advanceArgs == null) {
@@ -810,8 +806,12 @@ window.DSPreview = (function($, DSPreview) {
         .then(function() {
             // XXX temp fix to preserve CSV header order
             headers = (format !== formatMap.JSON) ? headers : null;
+            if (format === "Excel" && header) {
+                udfFunc = "openExcelWithHeader";
+            }
             var pointArgs = {
                 "name": dsName,
+                "targetName": targetName,
                 "format": format,
                 "path": loadURL,
                 "pattern": pattern,
@@ -1468,6 +1468,7 @@ window.DSPreview = (function($, DSPreview) {
         var udfFunc = options.udfFunc || null;
         var udfQuery = options.udfQuery || null;
 
+        var targetName = loadArgs.getTargetName();
         var loadURL = loadArgs.getPath();
         var dsName = $("#dsForm-dsName").val();
         if (!dsName) {
@@ -1475,13 +1476,13 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var advanceArgs = advanceOption.getArgs();
-        var isRecur = false;
+        var recursive = false;
         var isRegex = false;
         var pattern = null;
         var previewSize = null;
 
         if (advanceArgs != null) {
-            isRecur = advanceArgs.isRecur;
+            recursive = advanceArgs.isRecur;
             isRegex = advanceArgs.isRegex;
             pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
             previewSize = advanceArgs.previewSize;
@@ -1511,7 +1512,7 @@ window.DSPreview = (function($, DSPreview) {
             "dsName": dsName,
             "moduleName": udfModule,
             "funcName": udfFunc,
-            "isRecur": isRecur
+            "recursive": recursive
         };
 
         var txId = Transaction.start({
@@ -1520,11 +1521,11 @@ window.DSPreview = (function($, DSPreview) {
             "steps": 1
         });
 
-        setURL(loadURL, pattern);
+        setPreviewInfo(targetName, loadURL, pattern);
 
         var curPreviewId = updatePreviewId();
         var def = isFirstTime
-                  ? checkIsFolder(loadURL)
+                  ? checkIsFolder(targetName, loadURL)
                   : PromiseHelper.resolve();
 
         var urlToPreview;
@@ -1534,7 +1535,13 @@ window.DSPreview = (function($, DSPreview) {
         .then(function() {
             var previewFile = loadArgs.getPreviewFile();
             if (isFirstTime || previewFile == null || options.changePattern) {
-                return getURLToPreview(loadURL, isRecur, pattern, curPreviewId);
+                var args = {
+                    targetName: targetName,
+                    path: loadURL,
+                    recursive: recursive,
+                    fileNamePattern: pattern
+                };
+                return getURLToPreview(args, curPreviewId);
             } else {
                 return PromiseHelper.resolve(previewFile);
             }
@@ -1555,17 +1562,20 @@ window.DSPreview = (function($, DSPreview) {
                 initialLoadArgStr = loadArgs.getArgStr();
             }
 
+            var args = {
+                targetName: targetName,
+                path: urlToPreview,
+                recursive: recursive,
+                fileNamePattern: pattern
+            };
             if (hasUDF) {
-                return loadDataWithUDF(txId, urlToPreview, dsName, {
-                    "moduleName": udfModule,
-                    "funcName": udfFunc,
-                    "isRecur": isRecur,
-                    "maxSampleSize": previewSize,
-                    "fileNamePattern": pattern,
-                    "udfQuery": udfQuery
-                });
+                args.moduleName = udfModule;
+                args.funcName = udfFunc;
+                args.maxSampleSize = previewSize;
+                args.udfQuery = udfQuery;
+                return loadDataWithUDF(txId, dsName, args);
             } else {
-                return loadData(urlToPreview, pattern, isRecur);
+                return loadData(args);
             }
         })
         .then(function(result) {
@@ -1627,26 +1637,26 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function checkIsFolder(path) {
+    function checkIsFolder(targetName, url) {
         var deferred =jQuery.Deferred();
         // Note: for all error case, we set isViewFolder to be true
         // to allow user change the pattern
         isViewFolder = true;
 
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length - 1);
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length - 1);
         }
 
-        var lastIndex = path.lastIndexOf("/");
+        var lastIndex = url.lastIndexOf("/");
         if (lastIndex < 0) {
             console.error("error case");
             isViewFolder = true;
             return PromiseHelper.resolve();
         }
 
-        var url = path.substring(0, lastIndex + 1);
-        var fileName = path.substring(lastIndex + 1, path.length);
-        XcalarListFiles(url)
+        var path = url.substring(0, lastIndex + 1);
+        var fileName = url.substring(lastIndex + 1, url.length);
+        XcalarListFiles({targetName: targetName, path: path})
         .then(function(res) {
             var numFiles = res.numFiles;
             var files = res.files;
@@ -1678,14 +1688,14 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getURLToPreview(url, isRecur, pattern, curPreviewId) {
+    function getURLToPreview(args, curPreviewId) {
         if (!isViewFolder) {
             // single file case
-            return PromiseHelper.resolve(url);
+            return PromiseHelper.resolve(args.path);
         }
 
         var deferred = jQuery.Deferred();
-        XcalarPreview(url, pattern, isRecur, 1, 0)
+        XcalarPreview(args, 1, 0)
         .then(function(res) {
             if (!isValidPreviewId(curPreviewId)) {
                 return PromiseHelper.reject({
@@ -1693,7 +1703,7 @@ window.DSPreview = (function($, DSPreview) {
                 });
             }
 
-            var path = url.endsWith("/") ? url : url + "/";
+            var path = args.path.endsWith("/") ? args.path : args.path + "/";
             path += res.relPath;
             setPreviewFile(path);
             deferred.resolve(path);
@@ -1709,9 +1719,9 @@ window.DSPreview = (function($, DSPreview) {
         return dsName;
     }
 
-    function setURL(url, pattern) {
-        var displayURL = xcHelper.encodeDisplayURL(url);
-        $("#preview-url").find(".text").text(displayURL);
+    function setPreviewInfo(targetName, url, pattern) {
+        $("#preview-target").find(".text").text(targetName);
+        $("#preview-url").find(".text").text(url);
         var $pattern = $("#preview-pattern");
         if (!pattern) {
             $pattern.addClass("xc-hidden");
@@ -1727,7 +1737,7 @@ window.DSPreview = (function($, DSPreview) {
         var fullURL = loadArgs.getPath();
         var enable;
 
-        $file.find(".text").text(xcHelper.encodeDisplayURL(path));
+        $file.find(".text").text(path);
         if (!loadArgs.getPreviewFile()) {
             // set the path to be preview file if not set yet
             loadArgs.setPreviewFile(path);
@@ -1758,42 +1768,42 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function previewFileSelect(isParseMode) {
-        var loadURL = loadArgs.getPath();
         var previewFile = $("#preview-file").find(".text").text();
         var advanceArgs = advanceOption.getArgs();
-        var isRecur = false;
+        var recursive = false;
         var isRegex = false;
         var pattern = null;
 
         if (advanceArgs != null) {
-            isRecur = advanceArgs.isRecur;
+            recursive = advanceArgs.isRecur;
             isRegex = advanceArgs.isRegex;
             pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
         } else {
             console.error("error case");
         }
 
-        PreviewFileModal.show(loadURL, {
+        PreviewFileModal.show({
+            "targetName": loadArgs.getTargetName(),
+            "path": loadArgs.getPath(),
             "previewFile": previewFile,
-            "isRecur": isRecur,
-            "pattern": pattern,
+            "recursive": recursive,
+            "fileNamePattern": pattern,
             "isParseMode": isParseMode
         });
     }
 
-    function loadData(loadURL, pattern, isRecur) {
+    function loadData(args) {
         var deferred = jQuery.Deferred();
         var buffer;
         var totalDataSize;
 
-        XcalarPreview(loadURL, pattern, isRecur, numBytesRequest, 0)
+        XcalarPreview(args, numBytesRequest, 0)
         .then(function(res) {
             if (res && res.buffer) {
                 buffer = res.buffer;
                 totalDataSize = res.totalDataSize;
                 var rowsToShow = getRowsToPreivew();
-                return getDataFromPreview(loadURL, pattern, isRecur,
-                                          buffer, rowsToShow);
+                return getDataFromPreview(args, buffer, rowsToShow);
             }
         })
         .then(function(extraBuffer) {
@@ -1807,8 +1817,9 @@ window.DSPreview = (function($, DSPreview) {
         })
         .fail(function(error) {
             if (typeof error === "object" &&
-                error.status === StatusT.StatusUdfExecuteFailed) {
-                XcalarListFilesWithPattern(loadURL, pattern, isRecur)
+                error.status === StatusT.StatusUdfExecuteFailed)
+            {
+                XcalarListFiles(args)
                 .then(function() {
                     // when it's not list error
                     deferred.reject(error);
@@ -1825,7 +1836,7 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getDataFromPreview(loadURL, pattern, isRecur, buffer, rowsToShow) {
+    function getDataFromPreview(args, buffer, rowsToShow) {
         var bytesNeed = getBytesNeed(buffer, rowsToShow);
         if (bytesNeed <= 0) {
             // when has enough cache to show rows
@@ -1836,7 +1847,7 @@ window.DSPreview = (function($, DSPreview) {
         var offSet = buffer.length;
 
         console.info("too small rows, request", bytesNeed);
-        XcalarPreview(loadURL, pattern, isRecur, bytesNeed, offSet)
+        XcalarPreview(args, bytesNeed, offSet)
         .then(function(res) {
             var buffer = null;
             if (res && res.buffer) {
@@ -1949,33 +1960,12 @@ window.DSPreview = (function($, DSPreview) {
 
 
     // load with UDF always return JSON format
-    /*
-     * options (example):
-        {
-            "moduleName": udfModule,
-            "funcName": udfFunc,
-            "isRecur": isRecur,
-            "maxSampleSize": previewSize,
-            "fileNamePattern": pattern,
-            "udfQuery": udfQuery
-        };
-     */
-    function loadDataWithUDF(txId, loadURL, dsName, options) {
+    function loadDataWithUDF(txId, dsName, options) {
         var deferred = jQuery.Deferred();
-        var format = formatMap.JSON;
-        var defaultOptions = {
-            "fieldDelim": "",
-            "recordDelim": "\n",
-            "hasHeader": false,
-            "quoteChar": gDefaultQDelim,
-            "skipRows": 0
-        };
-        options = $.extend(defaultOptions, options);
-
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        XcalarLoad(loadURL, format, tempDSName, options, txId)
+        XcalarLoad(tempDSName, options, txId)
         .then(function() {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })
@@ -2042,6 +2032,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function fetchMoreRowsFromPreview(rowsToAdd) {
+        var targetName = loadArgs.getTargetName();
         var loadURL = loadArgs.getPreviewFile();
         var buffer = rawData;
 
@@ -2059,7 +2050,13 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var rowsToShow = getRowsToPreivew() + rowsToAdd;
-        return getDataFromPreview(loadURL, pattern, isRecur, buffer, rowsToShow);
+        var args = {
+            targetName: targetName,
+            path: loadURL,
+            fileNamePattern: pattern,
+            recursive: isRecur
+        };
+        return getDataFromPreview(args, buffer, rowsToShow);
     }
 
     function autoPreview() {

@@ -291,7 +291,7 @@ window.TestSuite = (function($, TestSuite) {
             var self = this;
             var deferred = jQuery.Deferred();
             $("#importDataButton").click(); // button to initiate import dataset
-            $("#fileProtocol input").val(FileProtocol.nfs);
+            $("#dsForm-target input").val(gDefaultSharedRoot);
             $("#filePath").val(url);
             $("#dsForm-path").find(".confirm").click(); // go to the next step
 

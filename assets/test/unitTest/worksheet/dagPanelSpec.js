@@ -787,9 +787,7 @@ describe("Dag Panel Test", function() {
                     var text = $("#dagSchema .content").text();
                     expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
                     expect(text.indexOf('"size": "384KB"')).to.be.gt(-1);
-                    expect(text.indexOf('"udf": ""')).to.be.gt(-1);
-                    expect(text.indexOf('"csv":')).to.equal(-1);
-                    expect(text.indexOf('"format": "json"')).to.be.gt(-1);
+                    expect(text.indexOf('"default:parseCsv"')).to.equal(-1);
                 });
             });
 
@@ -2351,20 +2349,24 @@ describe("Dag Panel Test", function() {
                 "api": 2,
                 "state": 5,
                 "input": {
-                    "loadInput" : {
-                        "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
-                        "fileNamePattern": "",
-                        "udf": "",
-                        "dest": "XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                        "size": 0,
-                        "format": "json",
-                        "recordDelim": "\n",
-                        "fieldDelim": "",
-                        "quoteDelim": "\"",
-                        "linesToSkip": 0,
-                        "crlf": true,
-                        "header": false,
-                        "recursive": false
+                    "loadInput": {
+                        "dagNodeId": "11793",
+                        "datasetName": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                        "loadArgs": {
+                            "sourceArgs": {
+                                "fileNamePattern": "",
+                                "recursive": false,
+                                "targetName": "Default Shared Root",
+                                "path": "/netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
+                            },
+                            "parseArgs": {
+                                "parserFnName": "default:parseCSV",
+                                "parserArgJSON": '{"recordDelim":"\n","fieldDelim":"\t","isCRLF":true,"linesToSkip":0,"quoteDelim":"\"","hasHeader":false}'
+                            },
+                            "fileNamePattern": "",
+                            "maxSize": 1099511627776
+                        },
+                        "dagNodeId": "18014398509488925"
                     }
                 }
             };

@@ -1400,7 +1400,13 @@ describe("Dataset-DSObj Test", function() {
                     }]
                 });
             };
-            XcalarLoad("file:///test", "JSON", "testDS", null, 1)
+
+            var options = {
+                tagetName: gDefaultSharedRoot,
+                path: "/test",
+                format: "JSON"
+            };
+            XcalarLoad("testDS", options, 1)
             .then(function(ret) {
                 expect(getDatasetsCalled).to.be.true;
                 expect(ret).to.be.an("object");

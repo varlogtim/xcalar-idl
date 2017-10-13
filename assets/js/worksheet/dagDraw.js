@@ -1261,7 +1261,8 @@ window.DagDraw = (function($, DagDraw) {
                 icon = 'xi_data';
                 storedInfo.datasets[tableName] = dagInfo;
                 dagInfo.dagNodeId = node.value.dagNodeId;
-                pattern = dagInfo.loadInfo.fileNamePattern;
+                // pattern = dagInfo.loadInfo.fileNamePattern;
+                pattern = dagInfo.loadInfo.loadArgs.sourceArgs.fileNamePattern;
             } else {
                 console.error("unexpected node", "api: " + node.value.api);
                 tableClasses += "unexpectedNode ";
@@ -1693,11 +1694,24 @@ window.DagDraw = (function($, DagDraw) {
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('loadInput'):
-                    info.url = value.url;
+                    // info.url = value.url;
+                    // var loadInfo = xcHelper.deepCopy(value);
+                    // info.loadInfo = loadInfo;
+                    // loadInfo.name = loadInfo.dest;
+                    // delete loadInfo.dest;
+                    info.url = value.loadArgs.sourceArgs.path;
                     var loadInfo = xcHelper.deepCopy(value);
                     info.loadInfo = loadInfo;
-                    loadInfo.name = loadInfo.dest;
-                    delete loadInfo.dest;
+                    loadInfo.url = loadInfo.loadArgs.sourceArgs.path;
+                    loadInfo.format = xcHelper.parseDSFormat(loadInfo);
+                    loadInfo.name = loadInfo.datasetName;
+                    if (loadInfo.loadArgs) {
+                        var udf = loadInfo.loadArgs.parseArgs.parserFnName;
+                        if (loadInfo.format === "JSON" && udf !== "default:parseJson") {
+                            loadInfo.loadArgs.udf = loadInfo.loadArgs.parseArgs.parserFnName;
+                            delete loadInfo.loadArgs.parseArgs.parserFnName;
+                        }
+                    }
                     delete loadInfo.dataset;
                     delete loadInfo.dagNodeId;
                     break;

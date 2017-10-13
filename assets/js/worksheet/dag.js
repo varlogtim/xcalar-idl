@@ -644,14 +644,17 @@ window.Dag = (function($, Dag) {
         //     delete loadInfo.loadArgs.csv;
         // }
 
-
-        loadInfo.recordDelim = loadInfo.recordDelim
-                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-        loadInfo.quoteDelim = loadInfo.quoteDelim
-                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-        loadInfo.fieldDelim = loadInfo.fieldDelim
-                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-
+        if (loadInfo.loadArgs && loadInfo.loadArgs.csv) {
+            loadInfo.loadArgs.csv.recordDelim =
+                    loadInfo.loadArgs.csv.recordDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+            loadInfo.loadArgs.csv.quoteDelim =
+                    loadInfo.loadArgs.csv.quoteDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+            loadInfo.loadArgs.csv.fieldDelim =
+                    loadInfo.loadArgs.csv.fieldDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        }
 
         loadInfo.name = tableName;
 

@@ -314,10 +314,12 @@ describe("Ephemeral Constructor Test", function() {
             expect(Object.keys(controller).length).to.equal(0);
 
             controller.set({
+                "targetName": "testTarget",
                 "path": "testPath",
                 "format": "testFormat"
             });
 
+            expect(controller.getTargetName()).to.equal("testTarget");
             expect(controller.getPath()).to.equal("testPath");
             expect(controller.getFormat()).to.equal("testFormat");
 
@@ -349,14 +351,15 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.getPreviewFile()).to.equal("testFile");
 
             controller.reset();
-            expect(Object.keys(controller).length).to.equal(5);
+            expect(Object.keys(controller).length).to.equal(6);
+            expect(controller.getTargetName()).to.equal("testTarget");
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
             expect(controller.useHeader()).to.be.false;
             expect(controller.getQuote()).to.equal("\"");
             expect(controller.getPreviewFile()).to.be.null;
             expect(controller.getArgStr())
-            .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
+            .to.equal('{"targetName":"testTarget","hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
         });
     });
 

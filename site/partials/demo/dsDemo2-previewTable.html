@@ -2,12 +2,9 @@
   <!-- Preview Section -->
   <header class="titleSection">
     <div class="title">Previewing</div>
-    <div class="info">
-      <% if (dicts.tutor.name == "datastoreTut1Demo") { %>
-      <div id="preview-url" class="url">demo:///sample.csv</div>
-      <% } else { %>
-       <div id="preview-url" class="url">file:///datasets/sample.csv</div>
-      <% } %>
+    <div class="url">
+      <div id="preview-target" class="textOverflowOneLine"><%= dicts.ds.Target %>: <span class="text">Default Shared Root</div>
+      <div id="preview-url" class="textOverflowOneLine">| <%= dicts.common.Path %>: <span class="text">/sample.csv</div>
       <div id="dsForm-highlighter" class="buttonGroup loadHidden hidden">
         <button class="rmHightLight btn btn-small xc-disabled" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-undo-highlight fa-15"></i>

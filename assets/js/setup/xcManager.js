@@ -56,6 +56,9 @@ window.xcManager = (function(xcManager, $) {
         .then(setupSession)
         .then(setupConfigParams)
         .then(function() {
+            return PromiseHelper.alwaysResolve(DSTargetManager.refreTargets(true));
+        })
+        .then(function() {
             StatusMessage.updateLocation(true,
                                         StatusMessageTStr.SettingExtensions);
             DataStore.initialize();

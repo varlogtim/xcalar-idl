@@ -88,6 +88,7 @@ module.exports = {
         "Table": "Table",
         "TableName": "Table name",
         "Tables": "Tables",
+        "Target": "Target",
         "Type": "Type",
         "URL": "URL",
         "UserName": "User name",
@@ -536,13 +537,24 @@ module.exports = {
         "Datasets": "Datasets",
         "Import": "Import Datasets",
         "DSIn": "DATASETS",
-        "Protocol": "Data Source Protocol",
+        "Target": "Data Target",
+        "Targets": "Data Targets",
         "Retry": "Retry",
         "RetryPoint": "Please try to import data with different parameters (for example, a larger data source size)",
         "RetryLimit": "Please set the data source size limit and try again.",
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Locked By"
+    },
+
+    "dsTarget": {
+        "Create": "Create Data Target",
+        "CreateInstr": "Select a target type and choose a name for your data target. Provided any additional information as needed.",
+        "Type": "Target Type",
+        "AdditionalInfo": "Additional Information",
+        "TargetInfo": "Data Target Information",
+        "TargetInfoInstr": "Details about the selected data target are provided below. To create a new target, click the button on the top left corner of the left panel.",
+        "DELETETARGET": "DELTE TARGET"
     },
 
     // keep in sync with the FileProtocol in enums.js
@@ -580,7 +592,7 @@ module.exports = {
     },
 
     "dsForm": {
-        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
+        "PathInstr": "Select data target, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
         "filePath": "Data Source Path",
         "DSName": "Dataset Name",
         "fileNameTitle": "A valid name with no special characters",

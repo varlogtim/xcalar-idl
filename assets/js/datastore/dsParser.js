@@ -7,7 +7,7 @@ window.DSParser = (function($, DSParser) {
     var $dataPreview;
     var $previewContent;
     var buffers = [];
-    var curUrl;
+    var curArgs;
     var keys;
     var previewMetaSet; // set of previewMeta in different  format
     var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines, numChar
@@ -70,15 +70,16 @@ window.DSParser = (function($, DSParser) {
         setupKeyBox();
     };
 
-    DSParser.show = function(url) {
+    DSParser.show = function(options) {
+        options = options || {};
         var deferred = jQuery.Deferred();
         var $btn = $("#preview-parser");
         xcHelper.disableSubmit($btn);
 
-        checkFileSize(url)
+        checkFileSize(options)
         .then(function() {
             DSForm.switchView(DSForm.View.Parser);
-            resetView(url);
+            resetView(options);
             return refreshView();
         })
         .then(deferred.resolve)
@@ -90,10 +91,10 @@ window.DSParser = (function($, DSParser) {
         return deferred.promise();
     };
 
-    function checkFileSize(url) {
+    function checkFileSize(options) {
         var deferred = jQuery.Deferred();
 
-        XcalarListFiles(url)
+        XcalarListFiles(options)
         .then(function(res) {
             try {
                 var size = res.files[0].attr.size;
@@ -151,11 +152,11 @@ window.DSParser = (function($, DSParser) {
         return promise;
     }
 
-    function resetView(url, isChangeFormat) {
+    function resetView(options, isChangeFormat) {
         $previewContent.html("");
         var $fileName = $parserCard.find(".topSection .filename");
-        $fileName.text(url);
-        xcTooltip.changeText($fileName, url);
+        $fileName.text(options.path);
+        xcTooltip.changeText($fileName, options.path);
         if (!isChangeFormat) {
             $formatList.find("input").val("");
             previewMetaSet = {};
@@ -168,7 +169,7 @@ window.DSParser = (function($, DSParser) {
         previewMeta = null;
         fetchId++;
         boxFetchId++;
-        curUrl = url;
+        curArgs = options;
         resetRowInput();
         $dataPreview.find(".sizer").height(0);
         $previewContent.parent().height("auto");
@@ -194,7 +195,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function refreshFormat() {
-        resetView(curUrl, true);
+        resetView(curArgs, true);
         return refreshView(true);
     }
 
@@ -693,9 +694,9 @@ window.DSParser = (function($, DSParser) {
             $parserCard.addClass("fetchingRows");
         }
 
-        var url = curUrl;
+        var args = curArgs;
         var promise = (newContent && !noDetect)
-                      ? detectFormat(url)
+                      ? detectFormat(args)
                       : PromiseHelper.resolve();
         fetchId++;
         var curFetchId = fetchId;
@@ -707,7 +708,7 @@ window.DSParser = (function($, DSParser) {
             }
 
             if (newContent) {
-                return beautifier(url);
+                return beautifier(args.path);
             } else {
                 return PromiseHelper.resolve();
             }
@@ -732,8 +733,11 @@ window.DSParser = (function($, DSParser) {
 
             updateRowNumCol(pageNum, numPages, previewMeta, scrollTop);
 
-            return XcalarPreview(previewMeta.parsedPath, null, false, numBytes,
-                                 offset);
+            var previewArgs = {
+                targetName: args.targetName,
+                path: previewMeta.parsedPath
+            };
+            return XcalarPreview(previewArgs, numBytes, offset);
         })
         .then(function(res) {
             if (curFetchId !== fetchId) {
@@ -773,7 +777,9 @@ window.DSParser = (function($, DSParser) {
         meta.startPage = 0; // first visible page
         meta.endPage = 0; // last visible page
         meta.numPages = meta.lineLengths.length;
-        meta.parsedPath = isText ? curUrl : parseNoProtocolPath(meta.tmpPath);
+        meta.parsedPath = isText
+                          ? curArgs.path
+                          : parseNoProtocolPath(meta.tmpPath);
         meta.lineHeight = lineHeight;
         meta.pageHeight = lineHeight * linesPerPage;
         meta.scale = 1; // in case preview height exceeds maximum div height
@@ -825,7 +831,11 @@ window.DSParser = (function($, DSParser) {
 
         updateRowNumCol(start, 2, meta);
 
-        XcalarPreview(meta.parsedPath, null, false, numBytes, newOffset)
+        var args = {
+            targetName: curArgs.targetName,
+            path: meta.parsedPath
+        };
+        XcalarPreview(args, numBytes, newOffset)
         .then(function(res) {
             if (meta.meta) {
                 if (curFetchId === fetchId) {
@@ -885,7 +895,11 @@ window.DSParser = (function($, DSParser) {
 
         updateRowNumCol(pageNum, numPages, previewMeta.meta, scrollTop);
 
-        XcalarPreview(parsedPath, null, false, numBytes, newOffset)
+        var args = {
+            targetName: curArgs.targetName,
+            path: parsedPath
+        };
+        XcalarPreview(args, numBytes, newOffset)
         .then(function(res) {
             if (curFetchId === boxFetchId) {
                 previewMeta.meta.startPage = pageNum;
@@ -1525,10 +1539,10 @@ window.DSParser = (function($, DSParser) {
         $parserCard.find(".errorSection.error").text(error);
     }
 
-    function detectFormat(url) {
+    function detectFormat(args) {
         var deferred = jQuery.Deferred();
         var numBytes = 500;
-        XcalarPreview(url, null, false, numBytes, 0)
+        XcalarPreview(args, numBytes, 0)
         .then(function(res) {
             var content = res.buffer.trim();
             var $li;
@@ -1585,7 +1599,7 @@ window.DSParser = (function($, DSParser) {
         } else if (getFormat() === "PLAIN TEXT") {
             var $lineText = $("#plainTextBox input");
             var lineDelim = xcHelper.delimiterTranslate($lineText);
-            DSPreview.backFromParser(curUrl, {
+            DSPreview.backFromParser(curArgs.path, {
                 "delimiter": lineDelim
             });
             cleanupCard();
@@ -1614,7 +1628,7 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.alwaysResolve(UDF.refresh());
         })
         .then(function() {
-            DSPreview.backFromParser(curUrl, {
+            DSPreview.backFromParser(curArgs.path, {
                 "moduleName": udfName
             });
             deferred.resolve();

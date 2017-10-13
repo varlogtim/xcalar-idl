@@ -21,10 +21,7 @@ window.FileInfoModal = (function($, FileInfoModal) {
 
     FileInfoModal.show = function(options) {
         options = options || {};
-        var isFolder = options.isFolder;
-        var path = options.path;
-
-        if (isCurrentPath(path)) {
+        if (isCurrentTargetAndPath(options)) {
             // get info of the same folder/ds
             return;
         }
@@ -32,31 +29,27 @@ window.FileInfoModal = (function($, FileInfoModal) {
         modalHelper.setup();
         autoResizeLabel();
 
-        $modal.data("path", options.path);
-        if (isFolder) {
+        setTargetAndPath(options);
+        if (options.isFolder) {
             $modal.addClass("folder").removeClass("ds");
         } else {
             $modal.addClass("ds").removeClass("folder");
         }
 
         setBasicInfo(options);
-        getFolderCount(path, isFolder);
+        getFolderCount(options);
     };
 
     function setBasicInfo(options) {
-        var attrs = ["name", "path", "size", "modified"];
+        var attrs = ["name", "targetName", "path", "size", "modified"];
         attrs.forEach(function(attr) {
             var val = options[attr] || "--";
-            if (attr === "path") {
-                val = xcHelper.encodeDisplayURL(val);
-            }
-
             $modal.find("." + attr + " .text").text(val);
         });
     }
 
-    function getFolderCount(path, isFolder) {
-        if (!isFolder) {
+    function getFolderCount(options) {
+        if (!options.isFolder) {
             $modal.find(".count .text").text("--");
             return PromiseHelper.resolve();
         }
@@ -65,16 +58,16 @@ window.FileInfoModal = (function($, FileInfoModal) {
         var $count = $modal.find(".count .text");
         $count.text("...").addClass("animatedEllipsis");
 
-        XcalarListFiles(path)
+        XcalarListFiles(options)
         .then(function(res) {
-            if (isCurrentPath(path)) {
+            if (isCurrentTargetAndPath(options)) {
                 $count.text(res.numFiles).removeClass("animatedEllipsis");
             }
             deferred.resolve();
         })
         .fail(function(error) {
             console.log("list file failed", error);
-            if (isCurrentPath(path)) {
+            if (isCurrentTargetAndPath(options)) {
                 $count.text("--").removeClass("animatedEllipsis");
             }
             deferred.reject(error);
@@ -83,8 +76,20 @@ window.FileInfoModal = (function($, FileInfoModal) {
         return deferred.promise();
     }
 
-    function isCurrentPath(path) {
-        return path != null && path === $modal.data("path");
+    function isCurrentTargetAndPath(options) {
+        var targetName = options.targetName;
+        var path = options.path;
+        return targetName != null &&
+               targetName === $modal.data("targetName") &&
+               path != null &&
+               path === $modal.data("path");
+    }
+
+    function setTargetAndPath(options) {
+        if (options.targetName && options.path) {
+            $modal.data("targetName", options.targetName);
+            $modal.data("path", options.path);
+        }
     }
 
     function autoResizeLabel() {
@@ -109,7 +114,7 @@ window.FileInfoModal = (function($, FileInfoModal) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         FileInfoModal.__testOnly__ = {};
-        FileInfoModal.__testOnly__.isCurrentPath = isCurrentPath;
+        FileInfoModal.__testOnly__.isCurrentTargetAndPath = isCurrentTargetAndPath;
     }
     /* End Of Unit Test Only */
 

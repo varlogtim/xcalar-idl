@@ -1,0 +1,102 @@
+<!-- dsTarget create card -->
+<div id="dsTarget-create-card" class="cardContainer">
+  <!-- header -->
+  <div class="cardHeader">
+    <header class="title"><%= dicts.dsTarget.Create %></header>
+  </div>
+  <!-- instuction -->
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text defaultText">
+      <span><%= dicts.dsTarget.CreateInstr %></span>
+    </div>
+  </div>
+  <!-- cardMain -->
+  <div class="cardMain">
+    <form id="dsTarget-form" target="_blank" autocomplete="off">
+      <!-- Top Form -->
+      <div class="formSection no-selection">
+        <!-- target name -->
+        <div class="formRow">
+          <label for="dsTarget-name"><%= dicts.common.Name %>:</label>
+          <input id="dsTarget-name" class="xc-input" name="dsTarget-name" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" autofocus>
+        </div>
+        <!-- target path -->
+        <div class="formRow">
+          <label for="type"><%= dicts.dsTarget.Type %>:</label>
+          <div id="dsTarget-type" class="dropDownList">
+            <input class="text" type="text" value="" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <ul class="list"></ul>
+          </div>
+        </div>
+      </div>
+      <!-- end of top form -->
+      <!-- middle form -->
+      <div class="formSection no-selection description xc-hidden">
+          <header class="formTitle"><%= dicts.common.Descrip %></header>
+          <div class="formRow"></div>
+      </div>
+      <!-- end of middle form -->
+      <!-- Bottom Form -->
+      <div class="formSection no-selection params xc-hidden">
+        <header class="formTitle"><%= dicts.dsTarget.AdditionalInfo %></header>
+        <div class="formContent"></div>
+      </div>
+      <!-- end of bottom form -->
+      <div class="formButton">
+        <button id="dsTarget-submit" class="btn" type="submit"><%= dicts.common.ADD %></button>
+        <button id="dsTarget-reset" class="btn btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
+      </div>
+    </form>
+  </div>
+  <!-- end card main -->
+</div>
+<!-- end of dsTarget create card -->
+
+<!-- dsTarget info card -->
+<div id="dsTarget-info-card" class="cardContainer xc-hidden">
+  <!-- header -->
+  <div class="cardHeader">
+    <header class="title"><%= dicts.dsTarget.TargetInfo %></header>
+  </div>
+  <!-- instuction -->
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text">
+      <span><%= dicts.dsTarget.TargetInfoInstr %></span>
+    </div>
+  </div>
+  <!-- cardMain -->
+  <div class="cardMain">
+    <form target="_blank" autocomplete="off">
+      <!-- Top Form -->
+      <div class="formSection">
+        <!-- target name -->
+        <div class="formRow name">
+          <label><%= dicts.common.Name %>:</label>
+          <span class="text"></span>
+        </div>
+        <!-- target type -->
+        <div class="formRow type">
+          <label><%= dicts.dsTarget.Type %>:</label>
+          <span class="text"></span>
+        </div>
+      </div>
+      <!-- end of Top Form -->
+      <!-- Bottom Form -->
+      <div class="formSection params">
+        <header class="formTitle"><%= dicts.dsTarget.AdditionalInfo %></header>
+        <div class="formContent"></div>
+      </div>
+      <!-- end of Bottom form -->
+      <div class="formButton">
+        <button id="dsTarget-delete" class="btn" type="button"><%= dicts.dsTarget.DELETETARGET %></button>
+      </div>
+    </form>
+  </div>
+  <!-- end card main -->
+</div>
+<!-- end of dsTarget info card -->

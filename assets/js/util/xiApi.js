@@ -238,6 +238,9 @@
         var udfQuery = formatArgs.udfQuery;
 
         var options = {
+            "targetName": dsArgs.targetName,
+            "path": url,
+            "format": format,
             "fieldDelim": fieldDelim,
             "recordDelim": recordDelim,
             "schemaMode": schemaMode,
@@ -253,7 +256,7 @@
             "schemaFile": schemaFile
         };
 
-        return XcalarLoad(url, format, dsName, options, txId);
+        return XcalarLoad(dsName, options, txId);
     };
 
     XIApi.indexFromDataset = function(txId, dsName, newTableName, prefix) {

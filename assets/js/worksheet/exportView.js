@@ -474,7 +474,10 @@ window.ExportView = (function($, ExportView) {
         if (filePath === "") {
             deferred.resolve(false);
         } else {
-            XcalarListFiles(FileProtocol.nfs + filePath, false)
+            XcalarListFiles({
+                targetName: gDefaultSharedRoot,
+                path: filePath
+            })
             .then(function(result) {
                 // var dupFound = false;
                 for (var i = 0; i < result.numFiles; i++) {

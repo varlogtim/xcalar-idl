@@ -10,8 +10,8 @@ describe("PreviewFileModal Test", function() {
         var oldFunc;
 
         before(function() {
-            oldFunc = XcalarListFilesWithPattern;
-            XcalarListFilesWithPattern = function() {
+            oldFunc = XcalarListFiles;
+            XcalarListFiles = function() {
                 return PromiseHelper.reject({"error": "test"});
             };
         });
@@ -36,7 +36,7 @@ describe("PreviewFileModal Test", function() {
         });
 
         after(function() {
-            XcalarListFilesWithPattern = oldFunc;
+            XcalarListFiles = oldFunc;
         });
     });
 
@@ -44,11 +44,11 @@ describe("PreviewFileModal Test", function() {
         var oldFunc;
 
         before(function() {
-            oldFunc = XcalarListFilesWithPattern;
+            oldFunc = XcalarListFiles;
         });
 
         it("Should list single file", function(done) {
-            XcalarListFilesWithPattern = function() {
+            XcalarListFiles = function() {
                 return PromiseHelper.resolve({
                     "files": [{
                         "name": "test1"
@@ -57,9 +57,11 @@ describe("PreviewFileModal Test", function() {
             };
 
             var options = {
-                "pattern": "test"
+                targetName: gDefaultSharedRoot,
+                path: "/test1",
+                fileNamePattern: "test"
             };
-            PreviewFileModal.show("file:///test1", options)
+            PreviewFileModal.show(options)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($modal.hasClass("parseMode")).to.be.false;
@@ -89,7 +91,7 @@ describe("PreviewFileModal Test", function() {
         });
 
         it("Should list multiple files", function(done) {
-            XcalarListFilesWithPattern = function() {
+            XcalarListFiles = function() {
                 return PromiseHelper.resolve({
                     "files": [{
                         "name": "test1",
@@ -102,10 +104,12 @@ describe("PreviewFileModal Test", function() {
             };
 
             var options = {
-                "previewFile": "file:///folder/test2",
-                "isParseMode": true
+                targetName: gDefaultSharedRoot,
+                path: "/folder/",
+                previewFile: "/folder/test2",
+                isParseMode: true
             };
-            PreviewFileModal.show("file:///folder", options)
+            PreviewFileModal.show(options)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($modal.hasClass("parseMode")).to.be.true;
@@ -135,7 +139,7 @@ describe("PreviewFileModal Test", function() {
         });
 
         after(function() {
-            XcalarListFilesWithPattern = oldFunc;
+            XcalarListFiles = oldFunc;
         });
     });
 
@@ -145,8 +149,8 @@ describe("PreviewFileModal Test", function() {
 
         before(function() {
             $searchBar = $modal.find(".searchbarArea");
-            oldFunc = XcalarListFilesWithPattern;
-            XcalarListFilesWithPattern = function() {
+            oldFunc = XcalarListFiles;
+            XcalarListFiles = function() {
                 return PromiseHelper.resolve({
                     "files": [{
                         "name": "test1"
@@ -156,7 +160,11 @@ describe("PreviewFileModal Test", function() {
         });
 
         it("Should show modal with seach bar closed", function(done) {
-            PreviewFileModal.show("file:///test1")
+            var options = {
+                targetName: gDefaultSharedRoot,
+                path: "/test1"
+            };
+            PreviewFileModal.show(options)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($searchBar.hasClass("closed")).to.be.true;
@@ -198,7 +206,7 @@ describe("PreviewFileModal Test", function() {
         });
 
         after(function() {
-            XcalarListFilesWithPattern = oldFunc;
+            XcalarListFiles = oldFunc;
         });
     });
 

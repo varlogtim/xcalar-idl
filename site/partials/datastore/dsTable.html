@@ -28,13 +28,16 @@
           <span class="divider">|</span>
           <span><%= dicts.common.Size %>:</span>
           <span id="dsInfo-size">43MB</span>
+          <span class="divider">|</span>
+           <span><%= dicts.dsForm.Format %>:</span>
+          <span id="dsInfo-format">CSV</span>
         </div>
         <div class="contentSection">
-          <span><%= dicts.dsForm.Format %>:</span>
-          <span id="dsInfo-format">CSV</span>
+          <span><%= dicts.ds.Target %>:</span>
+          <span id="dsInfo-target">Default Shared Root</span>
           <span class="divider">|</span>
           <span><%= dicts.dsTable.Path %>:</span>
-          <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">file:///datasets/sample.csv</span>
+          <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">/datasets/sample.csv</span>
         </div>
       </div>
       <!-- right part -->
@@ -85,10 +88,13 @@
           <span class="divider">|</span>
           <span><%= dicts.common.Size %>:</span>
           <span id="dsInfo-size">N/A</span>
-        </div>
-        <div class="contentSection">
+          <span class="divider">|</span>
           <span><%= dicts.dsForm.Format %>:</span>
           <span id="dsInfo-format"></span>
+        </div>
+        <div class="contentSection">
+          <span><%= dicts.ds.Target %>:</span>
+          <span id="dsInfo-target"></span>
           <span class="divider">|</span>
           <span><%= dicts.dsTable.Path %>:</span>
           <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">N/A</span>

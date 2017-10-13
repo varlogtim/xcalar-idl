@@ -10,6 +10,7 @@ window.DataStore = (function($, DataStore) {
         DSTable.setup();
         DSCart.setup();
         DSExport.setup();
+        DSTargetManager.setup();
     };
 
     DataStore.initialize = function() {
@@ -65,24 +66,35 @@ window.DataStore = (function($, DataStore) {
             var $panel = $("#datastorePanel");
             var $title = $panel.find(".topBar .title");
             var $menu = $("#datastoreMenu");
+            $panel.removeClass("in")
+                  .removeClass("out")
+                  .removeClass("target");
+            $menu.find(".menuSection").addClass("xc-hidden");
 
-            if ($button.attr("id") === "outButton") {
+            var id = $button.attr("id");
+            if (id === "outButton") {
                 var $exportView = $("#datastore-out-view");
-                $panel.removeClass("in").addClass("out");
+                $panel.addClass("out");
                 $title.text(DSTStr.OUT);
-                $menu.find(".out").removeClass("xc-hidden")
-                    .end()
-                    .find(".in").addClass("xc-hidden");
+                $menu.find(".out").removeClass("xc-hidden");
                 if ($exportView.hasClass("firstTouch")) {
                     DSExport.refresh(true);
                     $exportView.removeClass("firstTouch");
                 }
+            } else if (id === "targetButton") {
+                var $targetView = $("#datastore-target-view");
+                $panel.addClass("target");
+                $menu.find(".target").removeClass("xc-hidden");
+                $title.text(DSTStr.TARGET);
+                if ($targetView.hasClass("firstTouch")) {
+                    DSTargetManager.getTargetTypeList();
+                    $targetView.removeClass("firstTouch");
+                }
             } else {
-                $panel.removeClass("out").addClass("in");
+                // inButton
+                $panel.addClass("in");
                 $title.text(DSTStr.IN);
-                $menu.find(".in").removeClass("xc-hidden")
-                    .end()
-                    .find(".out").addClass("xc-hidden");
+                $menu.find(".in").removeClass("xc-hidden");
                 DSTable.refresh();
                 DSCart.refresh();
             }

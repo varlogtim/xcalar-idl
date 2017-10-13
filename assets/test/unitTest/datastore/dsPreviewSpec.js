@@ -390,7 +390,10 @@ describe("Dataset-DSPreview Test", function() {
         it("getURLToPreview should work", function(done) {
             var meta = DSPreview.__testOnly__.get();
             var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({"path": "file:///url"});
+            meta.loadArgs.set({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url",
+            });
             DSPreview.__testOnly__.set(null, null, true);
             var id = DSPreview.__testOnly__.get().id;
             var oldPreview = XcalarPreview;
@@ -398,9 +401,12 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve({"relPath": "file/test"});
             };
 
-            DSPreview.__testOnly__.getURLToPreview("file:///url", null, null, id)
+            DSPreview.__testOnly__.getURLToPreview({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url"
+            }, id)
             .then(function(path) {
-                expect(path).equal("file:///url/file/test");
+                expect(path).equal("/url/file/test");
                 done();
             })
             .fail(function() {
@@ -415,11 +421,18 @@ describe("Dataset-DSPreview Test", function() {
         it("getURLToPreview should return single file url", function(done) {
             var meta = DSPreview.__testOnly__.get();
             var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({"path": "file:///url"});
+            meta.loadArgs.set({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url",
+            });
             DSPreview.__testOnly__.set(null, null, false);
-            DSPreview.__testOnly__.getURLToPreview("file:///test")
+            
+            DSPreview.__testOnly__.getURLToPreview({
+                "targetName": gDefaultSharedRoot,
+                "path": "/test"
+            })
             .then(function(path) {
-                expect(path).equal("file:///test");
+                expect(path).equal("/test");
                 done();
             })
             .fail(function() {
@@ -433,14 +446,20 @@ describe("Dataset-DSPreview Test", function() {
         it("getURLToPreview should fail with wrong id", function(done) {
             var meta = DSPreview.__testOnly__.get();
             var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({"path": "file:///url"});
+            meta.loadArgs.set({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url",
+            });
             DSPreview.__testOnly__.set(null, null, true);
             var oldPreview = XcalarPreview;
             XcalarPreview = function() {
-                return PromiseHelper.resolve({"relPath": "file/test"});
+                return PromiseHelper.resolve({"relPath": "/test"});
             };
 
-            DSPreview.__testOnly__.getURLToPreview("file:///url", null, null, "wrongId")
+            DSPreview.__testOnly__.getURLToPreview({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url"
+            }, "wrongId")
             .then(function() {
                 done("fail");
             })
@@ -458,14 +477,19 @@ describe("Dataset-DSPreview Test", function() {
         it("getURLToPreview should handle fail case", function(done) {
             var meta = DSPreview.__testOnly__.get();
             var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({"path": "file:///url"});
+            meta.loadArgs.set({
+                "targetName": gDefaultSharedRoot,
+                "path": "/url",
+            });
             DSPreview.__testOnly__.set(null, null, true);
             var oldPreview = XcalarPreview;
             XcalarPreview = function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.getURLToPreview("file:///url")
+            DSPreview.__testOnly__.getURLToPreview({
+                "targetName": gDefaultSharedRoot,
+            })
             .then(function() {
                 done("fail");
             })
@@ -1755,7 +1779,10 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should click cancel to back to form", function() {
-            loadArgs.set({path: "file:///abc"});
+            loadArgs.set({
+                targetName: gDefaultSharedRoot,
+                path: "/abc"
+            });
             var $button = $form.find(".cancel");
             var oldGetLicense = XVM.getLicenseMode;
             var oldUpload = DSUploader.show;
@@ -1776,7 +1803,10 @@ describe("Dataset-DSPreview Test", function() {
             test1 = false;
 
             // case 2
-            loadArgs.set({path: "file:///abc"});
+            loadArgs.set({
+                targetName: gDefaultSharedRoot,
+                path: "/abc"
+            });
             XVM.getLicenseMode = function() { return XcalarMode.Oper; };
             DSPreview.__testOnly__.setBackToFormCard(true);
             $button.click();
@@ -1786,7 +1816,10 @@ describe("Dataset-DSPreview Test", function() {
             test2 = false;
 
             // case 3
-            loadArgs.set({path: "file:///abc"});
+            loadArgs.set({
+                targetName: gDefaultSharedRoot,
+                path: "/abc"
+            });
             DSPreview.__testOnly__.setBackToFormCard(false);
             $button.click();
             expect(test1).to.be.false;
@@ -1812,8 +1845,10 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("DSPreview.show() should work", function(done) {
-            var path = testDatasets.sp500.path;
-            DSPreview.show({"path": path}, true)
+            DSPreview.show({
+                "targetName": testDatasets.sp500.targetName,
+                "path": testDatasets.sp500.path
+            }, true)
             .then(function() {
                 expect($previewTable.html()).not.to.equal("");
                 expect($formatText.data("format")).to.equal("CSV");

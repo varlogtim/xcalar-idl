@@ -456,6 +456,7 @@ FailTStr = {
     "RmDF": "Remove Batch Dataflow Failed.",
     "RmSched": "Delete Schedule Failed.!",
     "FlushLog": "Flush Log Failed!",
+    "Target": "Add Target Failed"
 };
 
 ThriftTStr = {
@@ -873,6 +874,7 @@ DSTStr = {
     'DS': 'Datasets',
     'IN': 'DATASETS',
     'OUT': 'EXPORT TARGETS',
+    'TARGET': 'DATA TARGETS',
     'Export': 'EXPORT FORM',
     'DelDS': 'Delete Dataset',
     'DelDSFail': 'Delete Dataset Failed',
@@ -887,7 +889,7 @@ DSTStr = {
     'NoRecrodsHint': 'Please check the validation of path, pattern, data source size, UDF and try again.',
     'NoSingleFilePattern': 'Not supported when importing a single file',
     'CancalPoint': 'Cancel import dataset',
-    'DSSourceHint': 'Please try another path or use another protocol.',
+    'DSSourceHint': 'Please try another path or use another data target.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
@@ -964,6 +966,15 @@ DSParserTStr = {
     "NoKey": "No keys are selected",
     "FileSizeWarn": "Your file size is greater than 500MB, the recommended maximum. The visual parser will take very long to run. Please break your file into logical chunks, or read it directly using a streaming UDF",
     "Proceed": "Proceed (slow)"
+};
+
+DSTargetTStr = {
+    "DEL": "DELETE TARGET",
+    "DelFail": "Target Deletion Failed",
+    "NoDelete": "Cannot delete default target",
+    // with replace
+    "DelConfirmMsg": "Are you sure you want to delete <target>?",
+    "TargetExists": "Data target <target> already exists",
 };
 
 DSExportTStr = {

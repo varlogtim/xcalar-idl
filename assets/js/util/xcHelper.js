@@ -162,6 +162,29 @@
         return (type);
     };
 
+    xcHelper.parseDSFormat = function(ds) {
+        var isExcelUDF = function(udfName) {
+            return (udfName === "default:openExcelWithHeader")
+                    || (udfName === "default:openExcel");
+        };
+        var format;
+        try {
+            var udf = ds.loadArgs.parseArgs.parserFnName;
+            if (isExcelUDF(udf)) {
+                format = "Excel";
+            } else if (udf === "default:parseCsv") {
+                format = "CSV";
+            } else {
+                format = "JSON";
+            }
+        } catch (e) {
+            console.error("parse format error", e);
+            format = "Unknown";
+        }
+
+        return format;
+    };
+
     xcHelper.prefixRegExKey = function(searchKey) {
         // backend use re.match, so if you do "xlsx",
         // it's in backend it actually do "^xlsx"

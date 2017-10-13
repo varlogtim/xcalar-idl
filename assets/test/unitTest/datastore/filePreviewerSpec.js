@@ -128,7 +128,10 @@ describe("Dataset-File Previewer Test", function() {
     describe("Show Preview Test", function() {
         before(function() {
             // need open filebrowser for the UI simulate
-            FileBrowser.show(FileProtocol.nfs);
+            FileBrowser.show({
+                targetName: gDefaultSharedRoot,
+                path: "/"
+            });
         });
 
         it("FilePreviewer.isOpen should work", function() {
@@ -140,7 +143,10 @@ describe("Dataset-File Previewer Test", function() {
         });
 
         it("should not show preview with invalid url", function(done) {
-            FilePreviewer.show("invalid url")
+            FilePreviewer.show({
+                targetName: gDefaultSharedRoot,
+                path: "invalid url"
+            })
             .then(function() {
                 done("fail");
             })
@@ -151,8 +157,11 @@ describe("Dataset-File Previewer Test", function() {
         });
 
         it("should error when preview folder", function(done) {
-            var url = testDatasets.sp500.path;
-            FilePreviewer.show(url, true)
+            FilePreviewer.show({
+                targetName: testDatasets.sp500.targetName,
+                path: testDatasets.sp500.path,
+                isFolder: true
+            })
             .then(function() {
                 expect($fileBrowserPreview.find(".errorSection").text())
                 .to.equal(ErrTStr.NoFolderPreview);
@@ -164,8 +173,10 @@ describe("Dataset-File Previewer Test", function() {
         });
 
         it("should preview with valid url", function(done) {
-            var url = testDatasets.sp500.path;
-            FilePreviewer.show(url)
+            FilePreviewer.show({
+                targetName: testDatasets.sp500.targetName,
+                path: testDatasets.sp500.path
+            })
             .then(function() {
                 expect($fileBrowserPreview.find(".preview").text())
                 .not.equal("");

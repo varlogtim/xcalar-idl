@@ -550,13 +550,19 @@ XcalarUpdateLicense = function(newLicense) {
     return deferred.promise();
 };
 
-// Call this exactly with the url and isRecur that you
-XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offset) {
+/*
+ * sourceArgs:
+ *  targetName: "Default Shared Root"
+ *  path: some path
+ *  fileNamePattern: ""
+ *  recursive: false
+ */
+XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
-    url = xcHelper.encodeURL(url);
+    sourceArgs.path = xcHelper.encodeURL(sourceArgs.path);
 
     if (offset == null) {
         offset = 0;
@@ -567,12 +573,14 @@ XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offse
         return (deferred.promise());
     }
 
-    if (fileNamePattern == null) {
-        fileNamePattern = "";
+    if (sourceArgs.fileNamePattern == null) {
+        sourceArgs.fileNamePattern = "";
+    }
+    if (!(sourceArgs.recursive === true)) {
+        sourceArgs.recursive = false;
     }
 
-    xcalarPreview(tHandle, url, fileNamePattern, isRecur,
-                    numBytesRequested, offset)
+    xcalarPreview(tHandle, sourceArgs, numBytesRequested, offset)
     .then(function(ret) {
         // previewOutput has a jsonOutput field which is a json formatted string
         // which has several fields of interest:
@@ -607,6 +615,9 @@ XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offse
 /*
  * options (example):
     {
+        "targetName": "Default Shared Root",
+        "path": "..",
+        "format": "CSV",
         "fieldDelim": "",
         "recordDelim": "\n",
         "hasHeader": false, // Deprecated
@@ -627,10 +638,22 @@ XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offse
         ]
     }
  */
-XcalarLoad = function(url, format, datasetName, options, txId) {
+XcalarLoad = function(datasetName, options, txId) {
     options = options || {};
+
+    var targetName = options.targetName;
+    var url = options.path;
+    var format = options.format;
     var fieldDelim = options.fieldDelim;
     var recordDelim = options.recordDelim;
+    var hasHeader = options.hasHeader;
+    var moduleName = options.moduleName;
+    var funcName = options.funcName;
+    var isRecur = options.isRecur;
+    var maxSampleSize = options.maxSampleSize;
+    var quoteChar = options.quoteChar;
+    var skipRows = options.skipRows;
+    var fileNamePattern = options.fileNamePattern;
     var schemaMode;
 
     if (options.hasOwnProperty("hasHeader")) {
@@ -640,32 +663,9 @@ XcalarLoad = function(url, format, datasetName, options, txId) {
     } else {
         schemaMode = options.schemaMode;
     }
-
-    var typedColumns = [];
-    if (options.hasOwnProperty("typedColumns")) {
-        typedColumns = options.typedColumns;
-    }
-    var moduleName = options.moduleName;
-    var funcName = options.funcName;
-    var isRecur = options.isRecur;
-    var maxSampleSize = options.maxSampleSize;
-    var quoteChar = options.quoteChar;
-    var skipRows = options.skipRows;
-    var fileNamePattern = options.fileNamePattern;
+    schemaMode = CsvSchemaModeTStr[schemaMode];
 
     url = xcHelper.encodeURL(url);
-
-    if (options.udfQuery && typeof options.udfQuery === "object") {
-        var queryData = encodeQueryData(options.udfQuery);
-        if (queryData) {
-            url += "?" + queryData;
-        }
-    }
-
-    if (recordDelim === "\r\n") {
-        // we already turn on CRLF
-        recordDelim = "\n";
-    }
 
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
@@ -716,52 +716,64 @@ XcalarLoad = function(url, format, datasetName, options, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    var formatType;
-    switch (format) {
-        case ("JSON"):
-            formatType = DfFormatTypeT.DfFormatJson;
-            break;
-        case ("rand"):
-            console.error("No longer supported");
-            return PromiserHelper.reject("Rand format no longer supported");
-        case ("raw"):
-            // recordDelim = "\n";
-            // No field delim
-            fieldDelim = ""; // jshint ignore:line
-            // fallthrough
-        case ("CSV"):
-            formatType = DfFormatTypeT.DfFormatCsv;
-            break;
-        case ("Excel"):
-            formatType = DfFormatTypeT.DfFormatJson;
-            fieldDelim = "\t";
-            recordDelim = "\n";
-            moduleName = "default";
-            funcName = hasHeader ? "openExcelWithHeader" : "openExcel";
-            break;
-        default:
-            formatType = DfFormatTypeT.DfFormatUnknown;
-            break;
-    }
-
-    var loadArgs = new XcalarApiDfLoadArgsT();
-    loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-    loadArgs.csv.recordDelim = recordDelim;
-    loadArgs.csv.fieldDelim = fieldDelim;
-    loadArgs.csv.isCRLF = true;
-    loadArgs.csv.linesToSkip = skipRows;
-    loadArgs.csv.quoteDelim = quoteChar;
-    loadArgs.recursive = isRecur;
-    loadArgs.fileNamePattern = fileNamePattern;
-    loadArgs.csv.schemaFile = ""; // Not used yet. Wait for backend to implement;
-    loadArgs.csv.schemaMode = schemaMode;
-    loadArgs.csv.typedColumns = typedColumns;
+    var parserFnName;
+    var parserArgJson = {};
     if (moduleName !== "" && funcName !== "") {
-        loadArgs.udfLoadArgs = new XcalarApiUdfLoadArgsT();
-        loadArgs.udfLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
+        // udf case
+        parserFnName = moduleName + ":" + funcName;
+        if (options.udfQuery && typeof options.udfQuery === "object") {
+            parserArgJson = options.udfQuery;
+        }
+    } else {
+        // csv args
+        // {
+        //     "recordDelim": recordDelim,
+        //     "quoteDelim": quoteDelim,
+        //     "linesToSkip": linesToSkip,
+        //     "fieldDelim": fieldDelim,
+        //     "isCRLF": isCrlf,
+        //     "hasHeader": hasHeader,
+        // }
+        switch (format) {
+            case ("JSON"):
+                parserFnName = "default:parseJson";
+                break;
+            case ("raw"):
+                // recordDelim = "\n";
+                // No field delim
+                fieldDelim = ""; // jshint ignore:line
+                // fallthrough
+            case ("CSV"):
+                if (recordDelim === "\r\n") {
+                    // we already turn on CRLF
+                    recordDelim = "\n";
+                }
+                parserFnName = "default:parseCsv";
+                parserArgJson.recordDelim = recordDelim;
+                parserArgJson.fieldDelim = fieldDelim;
+                parserArgJson.isCRLF = true;
+                parserArgJson.linesToSkip = skipRows;
+                parserArgJson.quoteDelim = quoteChar;
+                parserArgJson.hasHeader = (hasHeader === true) ? true : false;
+                parserArgJson.schemaFile = ""; // Not used yet. Wait for backend to implement;
+                parserArgJson.schemaMode = schemaMode;
+                break;
+            default:
+                return PromiseHelper.reject("Error Format");
+        }
     }
+    
+    var sourceArgs = new DataSourceArgsT();
+    sourceArgs.targetName = targetName;
+    sourceArgs.path = url;
+    sourceArgs.fileNamePattern = fileNamePattern;
+    sourceArgs.recursive = isRecur;
 
-    if (maxSampleSize == null) {
+    var parseArgs = new ParseArgsT();
+    parseArgs.parserFnName = parserFnName;
+    parseArgs.parserArgJson = JSON.stringify(parserArgJson);
+
+    if (!maxSampleSize) {
         maxSampleSize = gMaxSampleSize;
     }
 
@@ -769,24 +781,17 @@ XcalarLoad = function(url, format, datasetName, options, txId) {
         console.log("Max sample size set to: ", maxSampleSize);
     }
 
-    if (gDemoMemory) {
-        url = url.replace("localfile:///", "memory://");
-        url = url.replace("file:///", "memory://");
-    } else if (gEnableLocalFiles) {
-        url = url.replace("file:///", "localfile:///");
-    }
-
     var def;
-    var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
-                                      maxSampleSize, loadArgs);
+    var workItem = xcalarLoadWorkItem(datasetName, sourceArgs,
+                                      parseArgs, maxSampleSize);
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
-                          loadArgs);
+        def = xcalarLoad(tHandle, datasetName, sourceArgs,
+                            parseArgs, maxSampleSize);
     }
     var query = XcalarGetQuery(workItem);
-    Transaction.startSubQuery(txId, 'Import Dataset',
+    Transaction.startSubQuery(txId, "Import Dataset",
                               parseDS(datasetName), query);
     def
     .then(function(ret) {
@@ -853,12 +858,6 @@ XcalarLoad = function(url, format, datasetName, options, txId) {
         }
 
         return res;
-    }
-
-    function encodeQueryData(data) {
-        return Object.keys(data).map(function(key) {
-            return [key, data[key]].map(encodeURIComponent).join("=");
-        }).join("&");
     }
 };
 
@@ -1289,7 +1288,6 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, ordering,
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    var dhtName = ""; // XXX TODO fill in later
     var promise;
     if (unsorted) {
         promise = PromiseHelper.resolve(srcTablename);
@@ -3006,45 +3004,33 @@ XcalarCommentDagNodes = function(comment, dagNodeNames) {
     return (deferred.promise());
 };
 
-XcalarListFilesWithPattern = function (url, isRecur, namePattern) {
+/*
+ * sourceArgs:
+ *  targetname: "Default Shared Root",
+ *  path: "/",
+ *  fileNampattern: ""
+ *  recursive: false
+ */
+XcalarListFiles = function(args) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    url = xcHelper.encodeURL(url);
-
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return deferred.promise();
-    }
-
-    xcalarListFiles(tHandle, url, isRecur, namePattern)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarListFiles", error);
-        Log.errorLog("List Files", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-};
-
-XcalarListFiles = function(url, isRecur) {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
-    url = xcHelper.encodeURL(url);
 
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
 
-    var namePatternArray = getNamePattern(url, isRecur);
-    url = namePatternArray[0];
-    var namePattern = namePatternArray[1];
+    // var path = xcHelper.encodeURL(args.path);
+    var recursive = (args.recursive === true) ? true : false;
+    // var namePatternArray = getNamePattern(path, recursive);
+    var sourceArgs = new DataSourceArgsT();
+    sourceArgs.targetName = args.targetName;
+    sourceArgs.path = xcHelper.encodeURL(args.path);
+    sourceArgs.fileNamePattern = args.fileNamePattern;
+    sourceArgs.recursive = recursive;
 
-    xcalarListFiles(tHandle, url, isRecur, namePattern)
+    xcalarListFiles(tHandle, sourceArgs)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListFiles", error);
@@ -3054,31 +3040,30 @@ XcalarListFiles = function(url, isRecur) {
 
     return (deferred.promise());
 
-    function getNamePattern(userUrl, isRecur) {
-        // XXX Test: folder loading ending with / and without
-        // XXX test: single file
-        // XXX test: folder with *, file with *
-        // Find location of first *
-        var star = userUrl.indexOf("*");
-        if (star === -1 && !isRecur) {
-            return [userUrl, ""];
-        }
+    // function getNamePattern(userUrl, isRecur) {
+    //     // XXX Test: folder loading ending with / and without
+    //     // XXX test: single file
+    //     // XXX test: folder with *, file with *
+    //     // Find location of first *
+    //     var star = userUrl.indexOf("*");
+    //     if (star === -1 && !isRecur) {
+    //         return [userUrl, ""];
+    //     }
 
-        if (star === -1) {
-            star = userUrl.length - 1;
-        }
+    //     if (star === -1) {
+    //         star = userUrl.length - 1;
+    //     }
 
-        for (var i = star; i >= 0; i--) {
-            if (userUrl[i] === "/") {
-                return [userUrl.substring(0, i + 1),
-                        userUrl.substring(i + 1, userUrl.length)];
-            }
-        }
-
-        // if code goes here, error case
-        console.error("error case!");
-        return [userUrl, ""];
-    }
+    //     for (var i = star; i >= 0; i--) {
+    //         if (userUrl[i] === "/") {
+    //             return [userUrl.substring(0, i + 1),
+    //                     userUrl.substring(i + 1, userUrl.length)];
+    //         }
+    //     }
+    //     // if code goes here, error case
+    //     console.error("error case!");
+    //     return [userUrl, ""];
+    // }
 };
 
 // XXX TODO THIS NEEDS TO HAVE A Log.add
@@ -4541,4 +4526,73 @@ XcalarLogLevelSet = function(loglevel, logFlush) {
     });
 
     return (deferred.promise());
+};
+
+/*
+ * targetName: "mgmtdtest target";
+ * targetType: "shared";
+ * targetParams = {"mountpoint": "/netstore"};
+ */
+XcalarTargetCreate = function(targetType, targetName, targetParams) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarTargetCreate(tHandle, targetType, targetName, targetParams)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTargetCreate", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetDelete = function(targetName) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarTargetDelete(tHandle, targetName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTargetDelete", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetList = function() {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarTargetList(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTargetList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarTargetTypeList = function() {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarTargetTypeList(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTargetTypeList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
 };

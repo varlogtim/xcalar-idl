@@ -15,7 +15,8 @@ assert = chai.assert;
 
 var testDatasets = {
     "sp500": {
-        "path": "file:///netstore/datasets/sp500.csv",
+        "targetName": gDefaultSharedRoot,
+        "path": "/netstore/datasets/sp500.csv",
         "url": "netstore/datasets/sp500.csv",
         "format": "CSV",
         "fieldDelim": "\t",
@@ -27,7 +28,8 @@ var testDatasets = {
     },
 
     "schedule": {
-        "path": "file:///netstore/datasets/indexJoin/schedule/",
+        "targetName": gDefaultSharedRoot,
+        "path": "/netstore/datasets/indexJoin/schedule/",
         "url": "netstore/datasets/indexJoin/schedule/",
         "format": "JSON",
         "moduleName": "",
@@ -36,7 +38,8 @@ var testDatasets = {
     },
 
     "fakeYelp": {
-        "path": "file:///netstore/datasets/unittest/test_yelp.json",
+        "targetName": gDefaultSharedRoot,
+        "path": "/netstore/datasets/unittest/test_yelp.json",
         "url": "netstore/datasets/unittest/test_yelp.json",
         "format": "JSON",
         "moduleName": "",

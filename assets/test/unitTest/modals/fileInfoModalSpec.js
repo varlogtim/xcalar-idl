@@ -9,16 +9,20 @@ describe("FileInfoModal Test", function() {
     });
 
     it("isCurrentPath should work", function() {
-        var isCurrentPath = FileInfoModal.__testOnly__.isCurrentPath;
+        var isCurrentTargetAndPath = FileInfoModal.__testOnly__.isCurrentTargetAndPath;
+        $modal.data("targetName", "target");
         $modal.data("path", "test");
-        expect(isCurrentPath("test")).to.be.true;
-        expect(isCurrentPath("test2")).to.be.false;
+        expect(isCurrentTargetAndPath({targetName: "target", path: "test"}))
+        .to.be.true;
+        expect(isCurrentTargetAndPath({targetName: "target", path: "test2"}))
+        .to.be.false;
         $modal.removeData("path");
     });
 
     it("should show ds info", function() {
         FileInfoModal.show({
-            "path": "file:///test",
+            "targetName": "target",
+            "path": "/test",
             "name": "test",
             "modified": "testDate",
             "isFolder": false,
@@ -26,9 +30,11 @@ describe("FileInfoModal Test", function() {
         });
 
         assert.isTrue($modal.is(":visible"));
-        expect($modal.data("path")).to.equal("file:///test");
+        expect($modal.data("targetName")).to.equal("target");
+        expect($modal.data("path")).to.equal("/test");
+        expect($modal.find(".targetName .text").text()).to.equal("target");
         expect($modal.find(".name .text").text()).to.equal("test");
-        expect($modal.find(".path .text").text()).to.equal("file:///test");
+        expect($modal.find(".path .text").text()).to.equal("/test");
         expect($modal.find(".modified .text").text()).to.equal("testDate");
         expect($modal.find(".size .text").text()).to.equal("testSize");
         expect($modal.find(".count .text").text()).to.equal("--");
@@ -36,13 +42,15 @@ describe("FileInfoModal Test", function() {
 
     it("should keep if trigger again", function() {
         FileInfoModal.show({
-            "path": "file:///test",
+            "targetName": "target",
+            "path": "/test",
             "name": "test",
             "modified": "testDate",
             "isFolder": false,
             "size": "testSize"
         });
-        expect($modal.data("path")).to.equal("file:///test");
+        expect($modal.data("targetName")).to.equal("target");
+        expect($modal.data("path")).to.equal("/test");
     });
 
     it("should show folder info", function(done) {
@@ -55,7 +63,8 @@ describe("FileInfoModal Test", function() {
         };
 
         FileInfoModal.show({
-            "path": "file:///testFolder",
+            "targetName": "target",
+            "path": "/testFolder",
             "name": "testFolder",
             "modified": "testDate2",
             "isFolder": true
@@ -65,10 +74,12 @@ describe("FileInfoModal Test", function() {
             return test === true;
         })
         .then(function() {
-            expect($modal.data("path")).to.equal("file:///testFolder");
+            expect($modal.data("targetName")).to.equal("target");
+            expect($modal.data("path")).to.equal("/testFolder");
+            expect($modal.find(".targetName .text").text()).to.equal("target");
             expect($modal.find(".name .text").text()).to.equal("testFolder");
             expect($modal.find(".path .text").text())
-            .to.equal("file:///testFolder");
+            .to.equal("/testFolder");
             expect($modal.find(".modified .text").text()).to.equal("testDate2");
             expect($modal.find(".count .text").text()).to.equal("100");
             expect($modal.find(".size .text").text()).to.equal("--");
@@ -87,7 +98,8 @@ describe("FileInfoModal Test", function() {
         };
 
         FileInfoModal.show({
-            "path": "file:///testFolder2",
+            "targetName": "target",
+            "path": "/testFolder2",
             "name": "testFolder2",
             "modified": "testDate2",
             "isFolder": true

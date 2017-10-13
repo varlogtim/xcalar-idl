@@ -1,5 +1,5 @@
 window.FilePreviewer = (function(FilePreviewer, $) {
-    var urlToPreview = null;
+    var previewArgs = null;
     var $fileBrowserPreview; // $("#fileBrowserPreview")
     var idCount = 0;
     var initialOffset = 0;
@@ -15,15 +15,15 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         addEventListener();
     };
 
-    FilePreviewer.show = function(url, isFolder) {
+    FilePreviewer.show = function(options) {
         cleanPreviewer();
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
-        if (isFolder) {
+        if (options.isFolder) {
             handleError(ErrTStr.NoFolderPreview);
             return PromiseHelper.resolve();
         } else {
-            return initialPreview(url);
+            return initialPreview(options);
         }
     };
 
@@ -37,7 +37,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     };
 
     function cleanPreviewer() {
-        urlToPreview = null;
+        previewArgs = null;
         initialOffset = 0;
         totalSize = 0;
         $fileBrowserPreview.find(".preview").empty();
@@ -50,17 +50,17 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         inPreviewMode();
     }
 
-    function initialPreview(url) {
-        urlToPreview = url;
+    function initialPreview(options) {
+        previewArgs = options;
         var offset = 0;
         return previewFile(offset);
     }
 
     function previewFile(offset) {
-        var url = urlToPreview;
-        if (url == null) {
-            console.error("invliad url");
-            return PromiseHelper.reject("invliad url");
+        var args = previewArgs;
+        if (args == null) {
+            console.error("invliad arguments");
+            return PromiseHelper.reject("invliad arguments");
         }
 
         var deferred = jQuery.Deferred();
@@ -71,7 +71,10 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         var wasHexMode = isInHexMode();
         var timer = inLoadMode();
 
-        XcalarPreview(url, null, false, numBytesToRequest, offset)
+        args.recursive = false;
+        args.fileNamePattern = "";
+
+        XcalarPreview(args, numBytesToRequest, offset)
         .then(function(res) {
             if (!isValidId(perviewerId)) {
                 return PromiseHelper.reject(outDateError);

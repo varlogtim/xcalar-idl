@@ -33,7 +33,6 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.initialize = function() {
         // reset anything browser may have autofilled
-        setProtocol(FileProtocol.hdfs);
         resetForm();
         DSPreview.update();
     };
@@ -99,91 +98,41 @@ window.DSForm = (function($, DSForm) {
         return DSPreview.clear();
     };
 
-    function isValidPathToBrowse(protocol, path) {
-        path = path.trim();
-
-        if (protocol === FileProtocol.hdfs) {
-            var match = path.match(/^.*?\//);
-
-            if (match != null && match[0] !== "/") {
-                return true;
-            } else {
-                StatusBox.show(DSTStr.InvalidHDFS, $filePath, true);
-                return false;
-            }
-        } else if (protocol === FileProtocol.mapR) {
-            var $credential = $pathCard.find(".credential");
-            var isValid = xcHelper.validate([
-                {
-                    "$ele": $credential.find(".hostname input")
-                },
-                {
-                    "$ele": $credential.find(".username input")
-                },
-                {
-                    "$ele": $credential.find(".password input")
-                }
-            ]);
-            return isValid;
-        }
-
-        return true;
+    function isValidPathToBrowse() {
+        var isValid = xcHelper.validate([{
+            $ele: $("#dsForm-target").find(".text")
+        }]);
+        return isValid;
     }
 
     function isValidToPreview() {
         var isValid = xcHelper.validate([{
-            "$ele": $filePath
+            $ele: $filePath
         }]);
-
-        if (isValid) {
-            return true;
-        } else {
-            return false;
-        }
+        return isValid;
     }
 
-    function getProtocol() {
-        return $("#fileProtocol input").val();
+    function getDataTarget() {
+        return $("#dsForm-target input").val();
     }
 
-    function setProtocol(protocol) {
-        $("#fileProtocol input").val(protocol);
-        var $credential = $pathCard.find(".credential");
-        if (protocol === FileProtocol.mapR) {
-            $credential.removeClass("xc-hidden");
-        } else {
-            $credential.addClass("xc-hidden");
-        }
+    function setDataTarget(targetName) {
+        $("#dsForm-target input").val(targetName);
     }
 
     function getFilePath() {
         var path = $filePath.val().trim();
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
         return path;
     }
 
-    function getCredentials(protocol) {
-        if (protocol !== FileProtocol.mapR) {
-            return null;
-        }
-
-        var $credential = $pathCard.find(".credential");
-        var hostname = $credential.find(".hostname input").val();
-        var port = $credential.find(".port input").val();
-        var username = $credential.find(".username input").val();
-        var password = $credential.find(".password input").val();
-        var host = port ? (hostname + ":" + port) : hostname;
-
-        return {
-            "credential": username + ":" + password,
-            "host": host
-        };
-    }
-
     function setupPathCard() {
-        //set up dropdown list for protocol
-        new MenuHelper($("#fileProtocol"), {
+        //set up dropdown list for data target
+        new MenuHelper($("#dsForm-target"), {
             "onSelect": function($li) {
-                setProtocol($li.text());
+                setDataTarget($li.text());
             },
             "container": "#dsFormView",
             "bounds": "#dsFormView"
@@ -211,42 +160,28 @@ window.DSForm = (function($, DSForm) {
 
     function resetForm() {
         $filePath.val("").focus();
-        var protocol = getProtocol() || FileProtocol.nfs;
-        setProtocol(protocol);
-    }
-
-    function getFullPath(protocol, path) {
-        var credentials = getCredentials(protocol);
-        var fullPath;
-        if (credentials == null) {
-            fullPath = path;
-        } else {
-            path = path.startsWith("/") ? path.substring(1) : path;
-            fullPath = credentials.credential + "@" +
-                       credentials.host + "/" + path;
-        }
-        return fullPath;
+        var targetName = getDataTarget() || "";
+        setDataTarget(targetName);
     }
 
     function goToBrowse() {
-        var protocol = getProtocol();
-        var path = getFilePath();
-        if (!isValidPathToBrowse(protocol, path)) {
+        if (!isValidPathToBrowse()) {
             return;
         }
-        var fullPath = getFullPath(protocol, path);
-        FileBrowser.show(protocol, fullPath);
+        var targetName = getDataTarget();
+        var path = getFilePath();
+        FileBrowser.show(targetName, path);
     }
 
     function goToPreview() {
-        var protocol = getProtocol();
-        var path = getFilePath();
-        if (!isValidPathToBrowse(protocol, path) || !isValidToPreview()) {
+        if (!isValidPathToBrowse() || !isValidToPreview()) {
             return;
         }
-
+        var targetName = getDataTarget();
+        var path = getFilePath();
         DSPreview.show({
-            "path": protocol + getFullPath(protocol, path),
+            targetName: targetName,
+            "path": path,
             "format": xcHelper.getFormat(path),
         }, true);
     }
@@ -256,10 +191,8 @@ window.DSForm = (function($, DSForm) {
         DSForm.__testOnly__ = {};
         DSForm.__testOnly__.resetForm = resetForm;
         DSForm.__testOnly__.getFilePath = getFilePath;
-        DSForm.__testOnly__.getCredentials = getCredentials;
-        DSForm.__testOnly__.getFullPath = getFullPath;
-        DSForm.__testOnly__.setProtocol = setProtocol;
-        DSForm.__testOnly__.getProtocol = getProtocol;
+        DSForm.__testOnly__.setDataTarget = setDataTarget;
+        DSForm.__testOnly__.getDataTarget = getDataTarget;
         DSForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
         DSForm.__testOnly__.isValidToPreview = isValidToPreview;
     }

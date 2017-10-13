@@ -248,7 +248,7 @@ describe("XcalarThrift Test", function() {
         xcalarPreview = function() {
             return PromiseHelper.reject({"xcalarStatus": 1, "log": "1234"});
         };
-        XcalarPreview("file:///")
+        XcalarPreview({"targetName": gDefaultSharedRoot, "path": "/"})
         .then(function() {
             done("fail");
         })
@@ -270,7 +270,7 @@ describe("XcalarThrift Test", function() {
         xcalarPreview = function() {
             return PromiseHelper.reject({"httpStatus": 500});
         };
-        XcalarPreview("file:///")
+        XcalarPreview({"targetName": gDefaultSharedRoot, "path": "/"})
         .then(function() {
             done("fail");
         })

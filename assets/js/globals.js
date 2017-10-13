@@ -74,6 +74,7 @@ gDSPrefix = '.XcalarDS.';
 gHiddenColumnWidth = 15;
 gTurnOnPrefix = true;
 gUploadChunkSize = 45 * MB;
+gDefaultSharedRoot = "Default Shared Root";
 
 // ======== Support Parameters ======== //
 gExportNoCheck = false;

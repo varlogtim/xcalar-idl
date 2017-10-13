@@ -25,25 +25,25 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         setupSearch();
     };
 
-    PreviewFileModal.show = function(url, options) {
-        var deferred = jQuery.Deferred();
+    PreviewFileModal.show = function(options) {
+        options = options || {};
 
         modalHelper.setup();
         $modal.removeClass("error").addClass("loading");
         modalId = xcHelper.randName("previewFile");
 
-        options = options || {};
-        var pattern = options.pattern;
+        var deferred = jQuery.Deferred();
+        var path = options.path;
         var currentId = modalId;
 
         setupMode(options.isParseMode);
-        setupInstruction(url, pattern);
+        setupInstruction(options);
 
-        XcalarListFilesWithPattern(url, options.isRecur, pattern)
+        XcalarListFiles(options)
         .then(function(res) {
             if (currentId === modalId) {
                 $modal.removeClass("loading");
-                loadFiles(url, res.files, options.previewFile);
+                loadFiles(path, res.files, options.previewFile);
             }
             deferred.resolve();
         })
@@ -65,13 +65,13 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         }
     }
 
-    function setupInstruction(url, pattern) {
+    function setupInstruction(options) {
         var $instruct = $modal.find(".modalInstruction");
-        $instruct.find(".url b").text(xcHelper.encodeDisplayURL(url));
+        $instruct.find(".url b").text(options.path);
 
-        if (pattern) {
+        if (options.fileNamePattern) {
             $instruct.find(".pattern").removeClass("xc-hidden")
-                     .find("b").text(pattern);
+                     .find("b").text(options.fileNamePattern);
         } else {
             $instruct.find(".pattern").addClass("xc-hidden");
         }
@@ -154,7 +154,6 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     }
 
     function loadFiles(url, files, activeFilePath) {
-        url = xcHelper.encodeDisplayURL(url);
         var htmls = ["", "", ""];
         var paths = [];
         var nameMap = {};
