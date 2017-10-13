@@ -339,9 +339,6 @@ window.KVStore = (function($, KVStore) {
                 return DSUploader.restore(gPendingUploads);
             })
             .then(function() {
-                return SupTicketModal.restore();
-            })
-            .then(function() {
                 if (isEmpty) {
                     console.info("KVStore is empty!");
                 } else {

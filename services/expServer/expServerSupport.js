@@ -702,6 +702,31 @@ function submitTicket(contents) {
     return deferredOut.promise();
 }
 
+function getTickets(contents) {
+    var deferred = jQuery.Deferred();
+    // using POST unless we figure out how to configure GET request with AWS
+    jQuery.ajax({
+        "type": "POST",
+        "data": contents,
+        "contentType": "application/json",
+        "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesklist",
+        "cache": false,
+        success: function(data) {
+            xcConsole.log(data);
+            deferred.resolve({
+                "status": httpStatus.OK,
+                "logs": JSON.stringify(data)
+            });
+        },
+        error: function(err) {
+            xcConsole.log(err);
+            deferred.reject(err);
+            return;
+        }
+    });
+    return deferred.promise();
+}
+
 function hasLogFile(filePath) {
     var deferred = jQuery.Deferred();
     fs.access(filePath, function(err) {
@@ -792,6 +817,7 @@ if (process.env.NODE_ENV === "test") {
 exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
+exports.getTickets = getTickets;
 exports.removeSessionFiles = removeSessionFiles;
 exports.slaveExecuteAction = slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;

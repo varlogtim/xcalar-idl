@@ -139,6 +139,13 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
         return sendRequest(action, url, content);
     };
 
+    XFTSupportTools.getTickets = function(inputStr) {
+        var action = "POST";
+        var url = "/service/gettickets";
+        var content = {"contents": inputStr};
+        return sendRequest(action, url, content);
+    };
+
     function isHTTP() {
         if (window.location.protocol === "http:") {
             return "true";

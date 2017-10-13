@@ -74,14 +74,40 @@ describe("SupTicketModal Test", function() {
         });
 
         it("SupTicketModal.Restore work", function(done) {
-            var list = '{"time": 12345, "id": 1, "comment": "abc"},' +
-                        '{"time": 12346, "id": 2, "comment": "' + longStr + '"},' +
-                        '{"time": 12345, "id": 1, "comment": "ghi"},' +
-                        '{"time": 12347, "id": 1, "comment": "jkl"},';
-            var kvStoreCache = KVStore.get;
-            KVStore.get = function() {
-                return PromiseHelper.resolve(list);
+            var ret1 = {
+                logs: JSON.stringify({tickets: [
+                    {"created_at": 12345, "updated_at": 12456, "id": 1, "comment": "abc"},
+                    {"created_at": 12348, "id": 2, "comment": longStr}
+                ]})
             };
+
+            var ret2 = {
+                logs: JSON.stringify({comments: [
+                    {"created_at": 12345, "id": 1, "comment": "abc"},
+                    {"created_at": 12346, "id": 1, "comment": "ghi"},
+                    {"created_at": 12347, "id": 1, "comment": "jkl"}
+                ]})
+            };
+
+             var ret3 = {
+                logs: JSON.stringify({comments: [
+                    {"created_at": 12348, "id": 2, "comment": longStr}
+                ]})
+            };
+
+            var cache1 = XFTSupportTools.getTickets;
+            var count = 0;
+            XFTSupportTools.getTickets = function() {
+                count++;
+                if (count === 1) {
+                    return PromiseHelper.resolve(ret1);
+                } else if (count === 2) {
+                    return PromiseHelper.resolve(ret2);
+                } else if (count === 3) {
+                    return PromiseHelper.resolve(ret3);
+                }
+            };
+
             SupTicketModal.restore()
             .then(function() {
                 expect($ticketIdSection.find(".tableBody .row").length).to.equal(2);
@@ -89,10 +115,10 @@ describe("SupTicketModal Test", function() {
                 expect($ticketIdSection.find(".tableBody .row").eq(0).find(".innerRow").length).to.equal(1);
                 expect($ticketIdSection.find(".tableBody .row").eq(1).find(".innerRow").length).to.equal(3);
                 expect($ticketIdSection.find(".tableBody .comments .text").eq(0).text()).to.equal(longStr);
-                expect($ticketIdSection.find(".tableBody .comments .text").eq(1).text()).to.equal("abc");
+                expect($ticketIdSection.find(".tableBody .comments .text").eq(1).text()).to.equal("You: abc");
 
 
-                KVStore.get = kvStoreCache;
+                XFTSupportTools.getTickets = cache1;
                 done();
             })
             .fail(function() {
@@ -102,18 +128,14 @@ describe("SupTicketModal Test", function() {
 
         it("parseTicketList() should work", function() {
             var fn = SupTicketModal.__testOnly__.parseTicketList;
-            var list = fn();
-            expect(list).to.deep.equal([]);
-            list = fn("unquoted");
-            expect(list).to.deep.equal([]);
-            list = fn("\"test\",");
-            expect(list).to.deep.equal(["test"]);
+            list = fn([{"created_at": 1, "updated_at": 2}, {"created_at": 1, "updated_at": 1}]);
+            expect(list[0].hasUpdate).to.equal(true);
+            expect(list[0].author).to.equal("user");
         });
 
         it("getTickets() errors should work", function(done) {
-            var cachedKV = KVStore.append;
-            var getCalled = false;
-            KVStore.get = function() {
+            var cache1 = XFTSupportTools.getTickets;
+            XFTSupportTools.getTickets = function() {
                 getCalled = true;
                 return PromiseHelper.reject();
             };
@@ -122,7 +144,7 @@ describe("SupTicketModal Test", function() {
             .then(function(ret) {
                 expect(getCalled).to.be.true;
                 expect(ret).to.deep.equal([]);
-                KVStore.get = cachedKV;
+                XFTSupportTools.getTickets = cache1;
                 $("#debugAlert .xi-close").click();
                 done();
             })

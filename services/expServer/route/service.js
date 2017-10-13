@@ -149,6 +149,19 @@ router.post("/service/ticket", function(req, res) {
     });
 });
 
+router.post("/service/gettickets", function(req, res) {
+    xcConsole.log("Get Tickets");
+    var contents = req.body.contents;
+    support.getTickets(contents)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
+});
+
+
 router.get("/service/matchedHosts", function(req, res) {
     xcConsole.log("Find matched Hosts");
     support.getMatchedHosts(req.query)

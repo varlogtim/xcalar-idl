@@ -3803,6 +3803,10 @@ html.microsoft {
         }
     }
 
+    .refresh {
+        .position(absolute, @right: 27px, @top: 27px)
+    }
+
     .ticketIDSection, .commentSection {
         background: @color-table-header-gray;
     }
@@ -3845,7 +3849,7 @@ html.microsoft {
 
         .tableHeader {
             background-color: @color-bg-white-gray;
-            font-size: 13px;
+            font-size: 12px;
             padding-right: 11px;
             .row {
                 .flex-display;
@@ -3890,13 +3894,17 @@ html.microsoft {
             }
         }
         .th, .td {
-            .flex(0 1 130px);
-            min-width: 130px;
+            .flex(0 1 90px);
+            min-width: 90px;
             padding: 7px 4px 7px 14px;
             line-height: @rowHeight - 14px;
             border-left: 1px solid @color-border-pinkish-grey2;
             &:first-child {
                 border-left: none;
+            }
+            &:nth-child(3) {
+                .flex(0 1 130px);
+                min-width: 130px;
             }
             &:last-child {
                 .flex(3 1 260px);

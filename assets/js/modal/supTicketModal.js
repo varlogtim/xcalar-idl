@@ -5,6 +5,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var $ticketIdSection;
     var $commentSection;
     var tickets = [];
+    var firstTouch = true;
 
     SupTicketModal.setup = function() {
         $modal = $("#supTicketModal");
@@ -37,9 +38,29 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     function getTickets() {
         var deferred = jQuery.Deferred();
-        KVStore.get(KVStore.gTktKey, gKVScope.USER)
-        .then(function(ticketList) {
-            var oldTickets = parseTicketList(ticketList);
+
+        var reqStr = JSON.stringify({userId: userIdUnique});
+        XFTSupportTools.getTickets(reqStr)
+        .then(function(ret) {
+            var oldTickets = [];
+            if (ret.logs) {
+                var logs = JSON.parse(ret.logs);
+                if (logs.tickets) {
+                    oldTickets = parseTicketList(logs.tickets);
+                }
+            }
+
+            oldTickets.sort(sort);
+            function sort(a, b) {
+                if (a.created_at < b.created_at) {
+                    return 1;
+                } else if (a.created_at > b.created_at) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+
             deferred.resolve(oldTickets);
         })
         .fail(function(err) {
@@ -50,65 +71,88 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     function parseTicketList(ticketList) {
-        var parsedTickets = [];
-
-        if (ticketList == null) {
-            return parsedTickets;
-        }
-
-        try {
-            var len = ticketList.length;
-            if (ticketList.charAt(len - 1) === ",") {
-                ticketList = ticketList.substring(0, len - 1);
+        ticketList.forEach(function(ticket) {
+            ticket.created_at = Date.parse(ticket.created_at);
+            if (ticket.updated_at) {
+                ticket.updated_at = Date.parse(ticket.updated_at);
+                if (ticket.created_at !== ticket.updated_at) {
+                    ticket.hasUpdate = true;
+                }
             }
-            var tktStr = "[" + ticketList + "]";
-            parsedTickets= JSON.parse(tktStr);
-        } catch (error) {
-            xcConsole.error("parse log failed", error);
-        }
+            ticket.author = "user";
+            ticket.author_id = ticket.submitter_id;
+        });
 
-        return parsedTickets;
+        return ticketList;
     }
-
 
     SupTicketModal.restore = function() {
         var deferred = jQuery.Deferred();
+        modalHelper.addWaitingBG();
         // always resolves
         getTickets()
         .then(function(oldTickets) {
-            // group tickets by id and then sort by date
-            var ticketMap = {};
-            for (var i = 0; i < oldTickets.length; i++) {
-                var oldTicket = oldTickets[i];
-                if (!ticketMap[oldTicket.id]) {
-                    ticketMap[oldTicket.id] = [];
-                }
-                ticketMap[oldTicket.id].push(oldTicket);
-            }
-            tickets = [];
-            for (var i in ticketMap) {
-                ticketMap[i].sort(sort);
-                tickets.push(ticketMap[i]);
-            }
-            tickets = tickets.sort(function(a, b) {
-                return sort(b[0], a[0]);
-            });
-            function sort(a, b) {
-                if (a.time > b.time) {
-                    return 1;
-                } else if (a.time < b.time) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-
+            return getComments(oldTickets);
+        })
+        .then(function(oldTickets) {
+            tickets = oldTickets;
             listTickets();
+            modalHelper.removeWaitingBG();
             deferred.resolve();
         });
 
         return deferred.promise();
     };
+
+    function getComments(oldTickets) {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        for (var i = 0; i < oldTickets.length; i++) {
+            var ticket = oldTickets[i];
+            if (ticket.hasUpdate) {
+                promises.push(SupTicketModal.getTicket(ticket.id));
+            } else {
+                promises.push(PromiseHelper.resolve(ticket));
+            }
+        }
+
+        PromiseHelper.when.apply(window, promises)
+        .then(function() {
+            var tixs = arguments;
+            var allTix = [];
+            for (var i = 0; i < tixs.length; i++) {
+                if (!tixs[i]) {
+                    continue;
+                }
+
+                var tixGroup = tixs[i];
+                var userId = oldTickets[i].author_id;
+                var modifiedTicket = [];
+                modifiedTicket.push(oldTickets[i]);
+                if (tixGroup) {
+                    for (var j = 1; j < tixGroup.length; j++) {
+                        tixGroup[j].created_at = Date.parse(tixGroup[j].created_at);
+                        if (tixGroup[j].author_id === userId ||
+                            tixGroup[j].from === "user") {
+                            tixGroup[j].author = "user";
+                        } else {
+                            tixGroup[j].author = "xcalar";
+                        }
+                        modifiedTicket.push(tixGroup[j]);
+                    }
+                }
+
+                allTix.push(modifiedTicket);
+            }
+            deferred.resolve(allTix);
+        })
+        .fail(function() {
+            console.error(arguments);
+            deferred.reject(arguments);
+        });
+
+        return deferred.promise();
+    }
 
     function setupListeners() {
         // type dropdown
@@ -129,7 +173,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
-                    showHideCommentExpandIcon();
+                    if (firstTouch) {
+                        SupTicketModal.restore()
+                        .then(function() {
+                            firstTouch = false;
+                            showHideCommentExpandIcon();
+                        });
+                    } else {
+                        showHideCommentExpandIcon();
+                    }
                 } else { // New
                     $ticketIdSection.addClass("closed");
                     $modal.find(".genBundleRow").find(".label")
@@ -200,6 +252,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var download = true;
             submitForm(download);
         });
+
+        $modal.find(".refresh").click(function() {
+            SupTicketModal.restore()
+            .then(function() {
+                showHideCommentExpandIcon();
+            });
+        });
     }
 
     function showHideCommentExpandIcon() {
@@ -213,7 +272,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
     }
 
-
     function listTickets() {
         var html = "";
         for (var i = 0; i < tickets.length; i++) {
@@ -226,6 +284,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     '</div>';
         }
         $ticketIdSection.find(".tableBody").html(html);
+        $ticketIdSection.find(".tableBody").scrollTop(0);
     }
 
     function setupTogglingActiveSections() {
@@ -350,13 +409,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 ticket = {
                     id: ticketId,
                     comment: comment,
-                    time: time
+                    created_at: time
                 };
                 var ticketStr = JSON.stringify(ticket) + ",";
-                return KVStore.append(KVStore.gTktKey, ticketStr, true,
-                                      gKVScope.USER);
-            })
-            .then(function() {
                 appendTicketToList(ticket);
                 xcHelper.showSuccess(SuccessTStr.SubmitTicket);
                 if (!$modal.hasClass("bundleError")) {
@@ -396,6 +451,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     function appendTicketToList(ticket) {
         var ticketId = ticket.id;
         var groupFound = false;
+        ticket.author = "user";
         for (var i = 0; i < tickets.length; i++) {
             var curId = tickets[i][0].id;
             if (curId === ticketId) {
@@ -464,6 +520,27 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return deferred.promise();
     }
 
+    SupTicketModal.getTicket = function(ticketId) {
+        var deferred = jQuery.Deferred();
+
+        var reqStr = JSON.stringify({ticketId: ticketId});
+        XFTSupportTools.getTickets(reqStr)
+        .then(function(ret) {
+            var ticket;
+            if (ret.logs) {
+                ticket = JSON.parse(ret.logs).comments;
+            } else {
+                ticket = [];
+            }
+            deferred.resolve(ticket);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    };
+
     function downloadTicket(ticketObj) {
         ticketObj.time = new Date();
         xcHelper.downloadAsFile("xcalarTicket.txt", JSON.stringify(ticketObj));
@@ -495,9 +572,10 @@ window.SupTicketModal = (function($, SupTicketModal) {
             className += " invalid";
         }
         var html = '<div class="row ' + className + '">';
+
         for (var i = 0; i < ticket.length; i++) {
-            var date = xcHelper.getDate("-", null, ticket[i].time);
-            var time = xcHelper.getTime(null, ticket[i].time, true);
+            var date = xcHelper.getDate("-", null, ticket[i].created_at);
+            var time = xcHelper.getTime(null, ticket[i].created_at, true);
 
             html += '<div class="innerRow">' +
               '<div class="td">';
@@ -511,13 +589,30 @@ window.SupTicketModal = (function($, SupTicketModal) {
                             '<div class="label">' + ticket[i].id + '</div>' +
                           '</div>' +
                         '</div>';
+
             }
 
-            html += '</div>' +
-              '<div class="td">' + date + ' ' + time + '</div>' +
+            html += '</div>';
+            var comment = xcHelper.escapeHTMLSpecialChar(ticket[i].comment);
+            if (i === 0) {
+                if (ticket.length > 1) {
+                    comment = "<b>You:</b> " + comment;
+                }
+                var status = ticket[i].status || "open";
+                html += '<div class="td status">' + status + '</div>';
+            } else {
+                html += '<div class="td status"></div>';
+                if (ticket[i].author === "user") {
+                    comment = "<b>You:</b> " + comment;
+                } else {
+                    comment = "<b>Xcalar:</b> " + comment;
+                }
+            }
+
+            html += '<div class="td">' + date + ' ' + time + '</div>' +
               '<div class="td comments">' +
                 '<div class="text">' +
-                  xcHelper.escapeHTMLSpecialChar(ticket[i].comment) +
+                    comment +
                 '</div>' +
                 '<span class="expand">' +
                   '<i class="icon xi-arrow-down fa-7"></i>' +
