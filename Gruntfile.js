@@ -63,7 +63,7 @@ module.exports = function(grunt) {
     // tags is for dev use only
     tags: {
       index: {
-        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
+        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css', 'assets/js/mixpanel.js'],
         dest: 'index.html'
       },
       login: {
@@ -252,7 +252,7 @@ module.exports = function(grunt) {
   grunt.registerTask("reloadLessXI", ['concurrent:set6']);
 
   // used for prod
-  grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
+  grunt.registerTask("renderXD", ['html', 'templateXD', 'clean', 'tags:mixpanel', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
   grunt.registerTask("renderXI", ['html', 'templateXI', 'clean', 'tags:mixpanel', 'tags:mixpanelAzure', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev

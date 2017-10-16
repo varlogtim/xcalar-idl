@@ -19,6 +19,7 @@ module.exports = {
         "ClusterName": "Cluster Name",
         "ColRenames": "Column Renames",
         "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
+        "Columns": "Columns",
         "ComeSoon": "Coming Soon",
         "CompleteExc": "complete!",
         "Comma": "Comma",
@@ -38,6 +39,7 @@ module.exports = {
         "Existing": "Existing",
         "Exit": "Exit",
         "File": "File",
+        "FunctionName": "Function Name",
         "Header": "Header",
         "Help": "Help",
         "Generate": "Generate",
@@ -83,6 +85,7 @@ module.exports = {
         "START": "START",
         "Supports": "Support",
         "Table": "Table",
+        "TableName": "Table name",
         "Tables": "Tables",
         "Type": "Type",
         "URL": "URL",
@@ -296,6 +299,7 @@ module.exports = {
         "Manager": "Manager",
         "MyUDF": "My UDFs",
         "Module": "UDF Module",
+        "ModuleName": "Module name",
         "NameHint": "Module name (lowercase)",
         "SelectTemplate": "Select Module",
         "Template": "Modify",
@@ -1059,6 +1063,13 @@ module.exports = {
         "OriginalName": "Original Name",
         "NewName": "New Name",
         "PUBLISH": "PUBLISH",
-        "TemplateInstr": "Fill in the fields below prior to creating a UDF template."
+        "TemplateInstr": "Fill in the fields below prior to creating a UDF template.",
+        "ConnectWB": "Connect to Xcalar Workbook",
+        "CreateUDF": "Create Map UDF",
+        "CreateImportUDF": "Create Import UDF",
+        "TestImportUDF": "Test Existing Import UDF (Azure Blob)",
+        "UDFTemplate": "UDF Template",
+        "JupyterNotebook": "Jupyter Notebook",
+        "CodeSnippets": "Code Snippets"
     }
 };

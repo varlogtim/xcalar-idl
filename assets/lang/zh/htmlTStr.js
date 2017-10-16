@@ -161,6 +161,7 @@ module.exports = {
         "Header": "UDF(自定义函数)",
         "Manager": "管理UDF",
         "Module": "模块",
+        "ModuleName": "Module name",
         "MyUDF": "我的UDFs",
         "NameHint": "模块名称（英文小写）",
         "SelectTemplate": "选择模块",
@@ -234,6 +235,7 @@ module.exports = {
         "Cancel": "取消",
         "CLEAR": "清空",
         "CLOSE": "关闭",
+        "Columns": "Columns",
         "CONFIRM": "确认",
         "CONFIRMRESTART": "确认并重启",
         "CONFIRMSAVE": "确认并保存",
@@ -260,6 +262,7 @@ module.exports = {
         "Existing": "Existing",
         "Exit": "退出",
         "File": "文件",
+        "FunctionName": "Function Name",
         "Generate": "生成",
         "Header": "标题",
         "Help": "帮助",
@@ -300,6 +303,7 @@ module.exports = {
         "SortBy": "排序方式",
         "Supports": "支持",
         "Table": "表",
+        "TableName": "Table name",
         "Tables": "表",
         "Type": "类型",
         "URL": "URL",
@@ -984,6 +988,13 @@ module.exports = {
         "OriginalName": "Original Name",
         "NewName": "New Name",
         "PUBLISH": "PUBLISH",
-        "TemplateInstr": "Fill in the fields below prior to creating a UDF template."
+        "TemplateInstr": "Fill in the fields below prior to creating a UDF template.",
+        "ConnectWB": "Connect to Xcalar Workbook",
+        "CreateUDF": "Create Map UDF",
+        "CreateImportUDF": "Create Import UDF",
+        "TestImportUDF": "Test Existing Import UDF (Azure Blob)",
+        "UDFTemplate": "UDF Template",
+        "JupyterNotebook": "Jupyter Notebook",
+        "CodeSnippets": "Code Snippets"
     }
 }

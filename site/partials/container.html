@@ -40,10 +40,7 @@
 
   <!-- START MAIN PANELS -->
   include "workbook.html"
-<% if (dicts.product == "XI") { %>
   include "jupyter.html"
-<% } else { %>
-<% } %>
   include "workspace.html"
   include "monitor/monitor.html"
   include "datastore/datastore.html"
@@ -129,9 +126,6 @@
   include "modal/skewInfoModal.html"
   include "modal/loginConfigModal.html"
   include "modal/liveHelpModal.html"
-  <% if (dicts.product == "XI") { %>
-    include "modal/jupyterFinalizeModal.html"
-  <% } else { %>
-  <% } %>
+  include "modal/jupyterFinalizeModal.html"
 </div>
 <!-- END CONTAINER -->

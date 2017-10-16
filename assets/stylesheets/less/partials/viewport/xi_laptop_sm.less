@@ -38,6 +38,17 @@
 }
 
 @media screen and (max-height: 630px) {
+    // for jupyter's extra tab
+
+    .topMenuBarTab .mainTab, #bottomMenuBarTabs .bottomMenuBarTab {
+        height: 45px;
+        .mainTab {
+            height: 45px;
+        }
+    }
+}
+// for jupyter's extra tab
+@media screen and (max-height: 680px) {
     #menuBar {
         .topMenuBarTab:not(.active) {
             max-height: @height-mainTab + 1; // for IE
@@ -55,37 +66,6 @@
             ::-webkit-scrollbar-thumb {
                 -webkit-box-shadow: none;
                 background-color: rgb(67, 88, 113) !important; // xi2 temp
-            }
-        }
-    }
-    // for jupyter's extra tab
-    .bodyXI {
-        .mainTab, #bottomMenuBarTabs .bottomMenuBarTab {
-            height: 45px;
-        }
-    }
-}
-// for jupyter's extra tab
-@media screen and (max-height: 680px) {
-    .bodyXI {
-        #menuBar {
-            .topMenuBarTab:not(.active) {
-                max-height: @height-mainTab + 1; // for IE
-                overflow: hidden;
-            }
-            .subTabs {
-                max-height: @height-subTab * 3;
-                overflow: auto;
-                overflow-x: hidden; // prevents horz scrollbar in IE11
-            }
-            .topMenuBarTab {
-                ::-webkit-scrollbar-track {
-                    background: rgba(0, 0, 0, 0.7);
-                }
-                ::-webkit-scrollbar-thumb {
-                    -webkit-box-shadow: none;
-                    background-color: rgb(67, 88, 113) !important; // xi2 temp
-                }
             }
         }
     }

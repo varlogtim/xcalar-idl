@@ -2,11 +2,11 @@
 <div id="jupyterPanel" class="mainPanel">
   <div class="topBar">
     <div class="rightHeaderArea">
-      <div class="title">Jupyter Notebook</div>
+      <div class="title"><%= dicts.jupyter.JupyterNotebook %></div>
     </div>
     <div class="rightArea">
     	<div class="xc-action dropdownBox">
-    		<span class="jupyterMenuText">Code Snippets</span>
+    		<span class="jupyterMenuText"><%= dicts.jupyter.CodeSnippets %></span>
       	<i class="icon  xi-down jupyterMenuIcon"></i>
     	</div>
     </div>
@@ -17,23 +17,23 @@
   <div class="menu jupyterMenu">
     <ul>
       <li class="dataStroeInfo" data-action="connWorkbook">
-        Connect to Xcalar Workbook
+        <%= dicts.jupyter.ConnectWB %>
       </li>
       <li class="dataStoreInfo" data-action="basicUDF">
-        Create Map UDF
+        <%= dicts.jupyter.CreateUDF %>
       </li>
       <li class="dataStoreInfo" data-action="importUDF">
-        Create Import UDF
+        <%= dicts.jupyter.CreateImportUDF %>
       </li>
       <li class="dataStoreInfo" data-action="testImportUDF">
-        Test Existing Import UDF (Azure Blob)
+        <%= dicts.jupyter.TestImportUDF %>
       </li>
     </ul>
   </div>
   <div id="jupyterUDFTemplateModal" class="modalContainer">
     <!-- Header -->
     <header class="modalHeader">
-      <span class="text">UDF Template
+      <span class="text"><%= dicts.jupyter.UDFTemplate %>
       </span>
       <div class="close">
         <i class="icon xi-close"></i>
@@ -48,11 +48,11 @@
     <section class="modalMain">
       <div class="mapForm form">
         <div class="row">
-          <span class="label">Function name:</span>
+          <span class="label"><%= dicts.common.FunctionName %>:</span>
           <input class="xc-input arg fnName" type="text" spellcheck="false">
         </div>
         <div class="row">
-          <span class="label">Table name:</span>
+          <span class="label"><%= dicts.common.TableName %>:</span>
           <!-- <input class="xc-input arg tableName" type="text" spellcheck="false"> -->
           <div class="dropDownList tableList">
             <input type="text" class="text arg tableName readonly" readonly spellcheck="false">
@@ -72,7 +72,7 @@
           </div>
         </div>
         <div class="row">
-          <span class="label">Columns:</span>
+          <span class="label"><%= dicts.common.Columns %>:</span>
           <div class="dropDownList columnsList">
             <input type="text" class="xc-input text arg columns readonly" readonly spellcheck="false">
             <div class="iconWrapper">
@@ -93,17 +93,17 @@
       </div>
       <div class="newImportForm form">
         <div class="row">
-          <span class="label">Function name:</span>
+          <span class="label"><%= dicts.common.FunctionName %>:</span>
           <input class="xc-input arg fnName" type="text" spellcheck="false">
         </div>
       </div>
       <div class="testImportForm form">
         <div class="row">
-          <span class="label">Full Path:</span>
+          <span class="label"><%= dicts.dsParser.Full %>:</span>
           <input class="xc-input arg url" type="text" spellcheck="false" placeholder="azblob://mystoragecontainer1234/myfolder/">
         </div>
          <div class="row">
-          <span class="label">Module name:</span>
+          <span class="label"><%= dicts.UDF.ModuleName %>:</span>
           <div class="dropDownList udfModuleList">
             <input type="text" class="text arg moduleName readonly" readonly spellcheck="false">
             <div class="iconWrapper">
@@ -122,7 +122,7 @@
           </div>
         </div>
          <div class="row">
-          <span class="label">Function name:</span>
+          <span class="label"><%= dicts.common.FunctionName %> test:</span>
           <div class="dropDownList udfFnList">
             <input type="text" class="text arg fnName readonly" readonly spellcheck="false">
             <div class="iconWrapper">
