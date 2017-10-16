@@ -1062,11 +1062,18 @@ window.JSONModal = (function($, JSONModal) {
             $jsonModal.addClass('truncatedText');
         } else {
             $jsonModal.removeClass('truncatedText');
+
             try {
                 jsonObj = JSON.parse(text);
             } catch (error) {
+                var rowNum = xcHelper.parseRowNum($jsonTd);
+                var msg = xcHelper.replaceMsg(JsonModalTStr.SyntaxErrorDesc, {
+                    row: rowNum
+                });
+                var err = {error: msg, log: "Data: " + text};
                 console.error(error, text);
                 closeModal();
+                Alert.error(JsonModalTStr.SyntaxErrorTitle, err);
                 return;
             }
             if (type === ColumnType.mixed) {

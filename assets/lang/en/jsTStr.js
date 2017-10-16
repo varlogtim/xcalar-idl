@@ -1115,7 +1115,11 @@ JsonModalTStr = {
     'XcOriginated': 'Xcalar Originated',
     'XcOriginatedTip': 'View Xcalar generated fields',
     'PrefixedField': 'Prefixed Fields',
-    'Derived': 'Derived'
+    'Derived': 'Derived',
+    "SyntaxErrorTitle": "Error parsing data",
+        // with replace
+    "SyntaxErrorDesc": "An error occured while parsing the data from row <row>."
+
 };
 
 SQLTStr = {

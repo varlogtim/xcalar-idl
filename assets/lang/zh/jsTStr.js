@@ -957,7 +957,10 @@ JsonModalTStr = {
 'XcOriginated': 'Xcalar起源于',
 'XcOriginatedTip': '查看Xcalar生成的列',
 'PrefixedField': '含前缀的列',
-'Derived': '派生列'
+'Derived': '派生列',
+"SyntaxErrorTitle": "Error parsing data",
+        // with replace
+"SyntaxErrorDesc": "An error occured while parsing the data from row <row>."
 };
 SQLTStr = {
     "AddNewCol": "Add New Column",
