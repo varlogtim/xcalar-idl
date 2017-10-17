@@ -642,14 +642,11 @@ function getXlrRoot(filePath) {
     return deferred.promise();
 }
 
-function getLicense(filePath) {
+function getLicense() {
     var deferredOut = jQuery.Deferred();
-    getXlrRoot()
-    .then(function(location) {
-        var licenseLocation = location + "/config/license.txt";
-        if (filePath) {
-            licenseLocation = filePath;
-        }
+    var location = process.env.XCE_LICENSEDIR;
+    var licenseLocation = location + "/XcalarLic.key";
+    try {
         fs.readFile(licenseLocation, 'utf8', function(err, data) {
             var retMsg;
             try {
@@ -664,10 +661,11 @@ function getLicense(filePath) {
                 deferredOut.reject(retMsg);
             }
         });
-    })
-    .fail(function() {
-        deferredOut.reject();
-    });
+    } catch (error) {
+        retMsg = {"status": httpStatus.BadRequest,
+                  "error": error};
+        deferredOut.reject(retMsg);
+    }
     return deferredOut.promise();
 }
 
