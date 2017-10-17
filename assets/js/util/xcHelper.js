@@ -503,10 +503,14 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // get unique column name
-    xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol) {
+    // othercols can be an array of unavailable column names that aren't in
+    // the current table but will be part of a descendent table
+    xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol,
+                                       otherCols) {
         if (colName == null) {
             return xcHelper.randName("NewCol");
         }
+        otherCols = otherCols || [];
 
         var parseName = xcHelper.parsePrefixColName(colName);
         colName = parseName.name;
@@ -516,7 +520,8 @@ window.xcHelper = (function($, xcHelper) {
             return colName;
         }
 
-        if (!table.hasCol(colName, parseName.prefix, onlyCheckPulledCol)) {
+        if (!table.hasCol(colName, parseName.prefix, onlyCheckPulledCol) &&
+            otherCols.indexOf(colName) === -1) {
             return colName;
         }
 
@@ -526,7 +531,8 @@ window.xcHelper = (function($, xcHelper) {
             ++tryCount;
             newColName = colName + "_" + tryCount;
 
-            if (!table.hasCol(newColName, parseName.prefix)) {
+            if (!table.hasCol(newColName, parseName.prefix) &&
+                otherCols.indexOf(newColName) === -1) {
                 break;
             }
         }

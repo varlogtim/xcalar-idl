@@ -805,8 +805,7 @@ window.XIApi = (function(XIApi) {
             }
             var gbTableName = finalTableName;
             // incSample does not take renames
-            var newKeyFieldName = isIncSample
-                                  ? null
+            var newKeyFieldName = isIncSample ? null
                                   : xcHelper.parsePrefixColName(indexedColName)
                                             .name;
             var operators = [];
@@ -821,7 +820,7 @@ window.XIApi = (function(XIApi) {
 
             return XcalarGroupBy(operators, newColNames, aggColNames,
                                 indexedTable, gbTableName, isIncSample,
-                                icvMode, newKeyFieldName,txId);
+                                icvMode, newKeyFieldName, txId);
         })
         .then(function() {
             if (!isIncSample) {

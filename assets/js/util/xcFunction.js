@@ -523,7 +523,10 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
-    // gbArgs is array of {operator, aggCol, newColName} objects
+    // gbArgs is array of {operator:str, aggCol:str, newColName:str,
+    //                     cast:null or str} objects
+    // options:  isIncSample: boolean, isJoin: boolean, icvMode: boolean,
+    //           formOpenTime: int, columnsToKeep: array of colnums, casts
     xcFunction.groupBy = function(tableId, gbArgs, groupByCols, options) {
         // Validation
         if (tableId == null ||
@@ -539,8 +542,9 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
         var isIncSample = options.isIncSample || false;
         var isJoin = options.isJoin || false;
+        var table = gTables[tableId];
 
-        var tableName = gTables[tableId].getName();
+        var tableName = table.getName();
 
         var finalTableName;
         var finalTableCols;
@@ -603,10 +607,33 @@ window.xcFunction = (function($, xcFunction) {
             "icvMode": options.icvMode
         };
 
-        XIApi.groupBy(txId, gbArgs, groupByCols, tableName, groupByOpts)
+        // do not pass in the cast property
+        var groupByArgs = [];
+        gbArgs.forEach(function(gbArg) {
+            groupByArgs.push({
+                operator: gbArg.operator,
+                aggColName: gbArg.aggColName,
+                newColName: gbArg.newColName
+            });
+        });
+
+        var castPromise;
+        if (groupByArgs.length === 1 && gbArgs[0].cast) {
+            groupByArgs[0].aggColName = xcHelper.castStrHelper(
+                                        gbArgs[0].aggColName, gbArgs[0].cast);
+            castPromise = PromiseHelper.resolve(tableName);
+        } else {
+            castPromise = castCols();
+        }
+
+        castPromise
+        .then(function(castTableName) {
+            return XIApi.groupBy(txId, groupByArgs, groupByCols, castTableName,
+                                 groupByOpts);
+        })
         .then(function(nTableName, nTableCols, renamedGBCols) {
             if (isJoin) {
-                var dataColNum = gTables[tableId].getColNumByBackName("DATA");
+                var dataColNum = table.getColNumByBackName("DATA");
                 return groupByJoinHelper(nTableName, nTableCols, dataColNum,
                                          isIncSample, renamedGBCols);
             } else {
@@ -657,6 +684,55 @@ window.xcFunction = (function($, xcFunction) {
 
             deferred.reject(error);
         });
+
+        // cast before doing the group by
+        function castCols() {
+            var takenNames = [];
+            groupByArgs.forEach(function(gbArg) {
+                takenNames.push(gbArg.newColName);
+            });
+            var promises = [];
+            var mapStrs = [];
+            var newCastNames = [];
+            var castTableCols = table.tableCols;
+            for (var i = 0; i < groupByArgs.length; i++) {
+                if (gbArgs[i].cast) {
+                    var parsedName = xcHelper.parsePrefixColName(
+                                                groupByArgs[i].aggColName).name;
+                    var newCastName = xcHelper.getUniqColName(tableId,
+                                                parsedName, false, takenNames);
+                    takenNames.push(newCastName);
+                    var mapStr = xcHelper.castStrHelper(gbArgs[i].aggColName,
+                                                        gbArgs[i].cast);
+                    mapStrs.push(mapStr);
+                    newCastNames.push(newCastName);
+                    var colNum = table.getColNumByBackName(
+                                        groupByArgs[i].aggColName);
+                    var mapOptions = {
+                        "replaceColumn": true,
+                        "resize": true,
+                        "type": gbArgs[i].cast
+                    };
+                    castTableCols = xcHelper.mapColGenerate(colNum, newCastName,
+                                            mapStr, castTableCols, mapOptions);
+                    groupByArgs[i].aggColName = newCastName;
+                }
+            }
+            if (mapStrs.length) {
+                var innerDeferred = jQuery.Deferred();
+                XIApi.map(txId, mapStrs, tableName, newCastNames)
+                .then(function(castTableName) {
+                    TblManager.setOrphanTableMeta(castTableName, castTableCols);
+                    innerDeferred.resolve(castTableName);
+                })
+                .fail(function() {
+                    innerDeferred.reject(tableName);
+                });
+                return innerDeferred.promise();
+            } else {
+                return PromiseHelper.resolve(tableName);
+            }
+        }
 
         // TODO when multi-groupby we can use the unsplit table instead of
         // splitting and then concatting again

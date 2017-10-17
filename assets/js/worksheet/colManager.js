@@ -251,8 +251,6 @@ window.ColManager = (function($, ColManager) {
             var backName = progCol.getBackColName();
 
             var mapStr = xcHelper.castStrHelper(backName, colType);
-            // var fieldName = xcHelper.stripColName(frontName) + "_" + colType;
-            // fieldName = xcHelper.getUniqColName(tableId, fieldName);
 
             // Note: it's intended to overwrite the column
             var fieldName = xcHelper.stripColName(frontName);

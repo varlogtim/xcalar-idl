@@ -320,7 +320,6 @@ window.DSExport = (function($, DSExport) {
         var $activeInputs = $exportTargetEditCard.find("input:enabled");
         $activeInputs.addClass("tempDisabled").prop("disabled", true);
 
-
         $gridView.find(".gridArea .active").removeClass("active");
         $grid.addClass("active");
         var name = $grid.data("name");

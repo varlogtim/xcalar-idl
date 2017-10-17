@@ -1791,15 +1791,16 @@ window.OperationsView = (function($, OperationsView) {
         }
         if (isNewCol && colName !== "") {
             autoGenColName = currentCol.getFrontColName();
+            autoGenColName = xcHelper.stripColName(autoGenColName);
         } else {
             if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
-                autoGenColName = getAutoGenColName(tempName + "_udf");
+                autoGenColName = tempName + "_udf";
             } else {
-                autoGenColName = getAutoGenColName(tempName + "_" + func);
+                autoGenColName = tempName + "_" + func;
             }
+            autoGenColName = xcHelper.stripColName(autoGenColName);
+            autoGenColName = getAutoGenColName(autoGenColName);
         }
-
-        autoGenColName = xcHelper.stripColName(autoGenColName);
 
         $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList')
@@ -1835,6 +1836,9 @@ window.OperationsView = (function($, OperationsView) {
         var fnName = $argSection.closest(".groupbyGroup")
                                 .find(".functionsList input").val();
         var autoGenColName = $aggArg.val().trim();
+        if (xcHelper.hasValidColPrefix(autoGenColName)) {
+            autoGenColName = parseColPrefixes(autoGenColName);
+        }
         autoGenColName = xcHelper.parsePrefixColName(autoGenColName).name;
         autoGenColName = getAutoGenColName(autoGenColName + "_" + fnName);
         autoGenColName = xcHelper.stripColName(autoGenColName);
@@ -3189,19 +3193,21 @@ window.OperationsView = (function($, OperationsView) {
             }
             operatorsFound[operators[i] + "#" + aggCol] = true;
 
-            colTypeInfo = colTypeInfos[i] || [];
-            jQuery.each(colTypeInfo, function(index, colInfo) {
-                if (colInfo.argNum === aggColIndex) {
-                    aggCol = xcHelper.castStrHelper(aggCol, colInfo.type);
-                    // stop looping
-                    return false;
-                }
-            });
-
             gbArgs.push({
                 operator: operators[i],
                 aggColName: aggCol,
-                newColName: args[i][numArgs - 1]
+                newColName: args[i][numArgs - 1],
+                cast: null
+            });
+
+            colTypeInfo = colTypeInfos[i] || [];
+
+            jQuery.each(colTypeInfo, function(index, colInfo) {
+                if (colInfo.argNum === aggColIndex) {
+                    gbArgs[i].cast = colInfo.type;
+                    // stop looping
+                    return false;
+                }
             });
         }
 

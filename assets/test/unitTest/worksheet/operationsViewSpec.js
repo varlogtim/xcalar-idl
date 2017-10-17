@@ -1914,7 +1914,7 @@ describe('OperationsView Test', function() {
                 $funcLis = $functionsMenu.find('li:visible').filter(function() {
                     return ($(this).text().indexOf(':') === -1);
                 });
-                expect($funcLis.text()).to.equal("subsubstring");
+                expect($funcLis.text()).to.equal("subsubstringsubstringIndex");
             });
 
             it('mapFilter keydown up/down actions should work', function() {
@@ -1971,7 +1971,7 @@ describe('OperationsView Test', function() {
             it('clicking away from category list should reset func list', function() {
                 expect($functionsMenu.find('li:visible').text()).to.equal("sub");
                 $operationsView.find('.map .catFuncHeadings').trigger(fakeEvent.mousedown);
-                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstring");
+                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstringsubstringIndex");
                 expect($categoryMenu.find("li.active")).to.have.length(0);
                 $filterInput.val('').trigger(fakeEvent.input);
             });
