@@ -279,7 +279,10 @@ module.exports = {
         "ProfileSortDec": "Descending by frequency",
         "ProfileSortAsc": "Ascending alphabetically by value",
         "ProfileSortDesc": "Descending alphabetically by value",
-        "ChooseUdfModule": "Please choose a module first" // used in jststr
+        "ChooseUdfModule": "Please choose a module first", // used in jststr
+        "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+        "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
+        "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues."
     },
 
     "workspaceBar": {
@@ -485,7 +488,12 @@ module.exports = {
         "AdditionalInfo": "Additional (New) Information",
         "RegenBundle": "Regenerate Support Bundle",
         "MiniDump": "Mini Dump",
-        "MiniDumpTip": "You must select Regenerate Support Bundle first"
+        "MiniDumpTip": "You must select Regenerate Support Bundle first",
+        "Severity": "Severity",
+        "Severity1": "Cluster is down",
+        "Severity2": "Functionality is compromised",
+        "Severity3": "General information request",
+        "Severity4": "Feature request"
     },
 
     "query": {

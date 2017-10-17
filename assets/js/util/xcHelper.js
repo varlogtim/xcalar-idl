@@ -911,6 +911,7 @@ window.xcHelper = (function($, xcHelper) {
         if (delimiter == null) {
             delimiter = "-";
         }
+
         date = d.toLocaleDateString().replace(/\//g, delimiter);
         return date;
     };

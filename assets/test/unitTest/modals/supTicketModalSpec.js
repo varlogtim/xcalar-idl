@@ -17,7 +17,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should toggle dropdown list", function(){
-            var $dropdown = $modal.find(".dropDownList");
+            var $dropdown = $modal.find(".issueList");
             var $input = $dropdown.find(".text");
             $($dropdown.find("li").get().reverse()).each(function() {
                 var $li = $(this);
@@ -154,7 +154,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("ticket id radio buttons should work", function() {
-            var $dropdown = $modal.find(".dropDownList");
+            var $dropdown = $modal.find(".issueList");
             $dropdown.find("li").filter(function() {
                 return $(this).data("val") === "existing";
             }).trigger(fakeEvent.mouseup);
@@ -413,7 +413,7 @@ describe("SupTicketModal Test", function() {
             KVStore.append = function() {
                 return PromiseHelper.resolve();
             };
-            var $dropdown = $modal.find(".dropDownList");
+            var $dropdown = $modal.find(".issueList");
             $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
             $modal.find(".genBundleBox .checkbox").addClass("checked");
 
@@ -427,7 +427,7 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should provide error if no id selected", function() {
-            var $dropdown = $modal.find(".dropDownList");
+            var $dropdown = $modal.find(".issueList");
             $dropdown.find("li").eq(1).trigger(fakeEvent.mouseup);
 
             $ticketIdSection.find(".radioButton").removeClass("active");

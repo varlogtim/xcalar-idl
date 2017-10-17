@@ -2,7 +2,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var $modal;  // $("#supTicketModal");
     var modalHelper;
     var $issueList; // $modal.find('.issueList');
+    var $severityList; // $modal.find('.severityList');
     var $ticketIdSection;
+    var $severitySection;
     var $commentSection;
     var tickets = [];
     var firstTouch = true;
@@ -10,13 +12,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
     SupTicketModal.setup = function() {
         $modal = $("#supTicketModal");
         $issueList = $modal.find('.issueList');
+        $severityList = $modal.find('.severityList');
         $ticketIdSection = $modal.find(".ticketIDSection");
+        $severitySection = $modal.find(".severitySection");
         $commentSection = $modal.find(".commentSection");
 
         modalHelper = new ModalHelper($modal, {
             noEnter: true,
             afterResize: function() {
-                if (!$ticketIdSection.hasClass("closed")) {
+                if (!$ticketIdSection.hasClass("xc-hidden")) {
                     showHideCommentExpandIcon();
                 }
             }
@@ -43,6 +47,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         XFTSupportTools.getTickets(reqStr)
         .then(function(ret) {
             var oldTickets = [];
+
             if (ret.logs) {
                 var logs = JSON.parse(ret.logs);
                 if (logs.tickets) {
@@ -167,9 +172,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
                 $input.val(newVal);
                 if (newVal === CommonTxtTstr.Existing) {
-                    $ticketIdSection.removeClass("closed");
-                    $modal.find(".genBundleRow").find(".label")
-                                .text("3. " + MonitorTStr.AdditionalInfo + ":");
+                    $ticketIdSection.removeClass("xc-hidden");
+                    $severitySection.addClass("xc-hidden");
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
@@ -183,14 +187,22 @@ window.SupTicketModal = (function($, SupTicketModal) {
                         showHideCommentExpandIcon();
                     }
                 } else { // New
-                    $ticketIdSection.addClass("closed");
-                    $modal.find(".genBundleRow").find(".label")
-                                .text("2. " + MonitorTStr.AdditionalInfo + ":");
+                    $ticketIdSection.addClass("xc-hidden");
+                    $severitySection.removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
-                    $modal.find("textArea").focus();
                 }
             },
             "container": "#supTicketModal"
+        }).setupListeners();
+
+        new MenuHelper($severityList, {
+            "onSelect": function($li) {
+                var newVal = $li.data("val");
+                var textVal = $li.text().trim();
+                $severityList.find(".text").val(textVal);
+                $severityList.find(".text").data("val", newVal);
+                $modal.find("textArea").focus();
+            }
         }).setupListeners();
 
         // ticket id radio buttons
@@ -351,12 +363,14 @@ window.SupTicketModal = (function($, SupTicketModal) {
             genBundle = true;
         }
         var comment = $modal.find('.xc-textArea').val().trim();
+        var severity = $severityList.find(".text").data("val");
 
         var ticketObj = {
             "type": issueType,
             "ticketId": ticketId,
             "server": document.location.href,
             "comment": comment,
+            "severity": severity,
             "userIdName": userIdName,
             "userIdUnique": userIdUnique,
             "sessionName": WorkbookManager.getActiveWKBK(),
@@ -551,7 +565,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.find('.genBundleRow .checkbox').removeClass('checked');
         $modal.find('.xc-textArea').val("");
         $modal.find('.issueList .text').val("New");
-        $ticketIdSection.addClass("closed");
+        $ticketIdSection.addClass("xc-hidden");
+        $severitySection.removeClass("xc-hidden");
         $modal.find(".genBundleRow").find(".label").text("2. " +
                                     MonitorTStr.AdditionalInfo + ":");
 

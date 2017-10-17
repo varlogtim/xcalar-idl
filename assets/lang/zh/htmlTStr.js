@@ -149,7 +149,10 @@ module.exports = {
         "SelectFile": "首先选择一个.tar.gz文件",
         "SwitchToListView": "列表视图",
         "SystemGood": "系统正常",
-        "ToggleAdvanced": "切换高级选项"
+        "ToggleAdvanced": "切换高级选项",
+        "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+        "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
+        "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues."
     },
     "UDF": {
         "ADD": "添加UDF",
@@ -865,7 +868,12 @@ module.exports = {
         "AdditionalInfo": "Additional (New) Information",
         "RegenBundle": "Regenerate Support Bundle",
         "MiniDump": "Mini Dump",
-        "MiniDumpTip": "You must select Regenerate Support Bundle first"
+        "MiniDumpTip": "You must select Regenerate Support Bundle first",
+        "Severity": "Severity",
+        "Severity1": "Cluster is down",
+        "Severity2": "Functionality is compromised",
+        "Severity3": "General information request",
+        "Severity4": "Feature request"
     },
     "tutor": {
         "datastoreTut1": {

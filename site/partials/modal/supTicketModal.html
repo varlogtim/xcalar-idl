@@ -40,7 +40,28 @@
       </div>
     </div>
   </section>
-  <section class="modalMain ticketIDSection closed">
+  <section class="modalMain severitySection">
+    <div class="formRow">
+      <span class="label">2. <%= dicts.supportTicket.Severity %>:</span>
+      <div class="dropDownList yesclickable severityList">
+        <input class="text" type="text" spellcheck="false" disabled="disabled" value="4 - <%= dicts.supportTicket.Severity4 %>" data-val="4">
+        <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+        </div>
+        <div class="list">
+          <ul>
+            <li data-val="4">4 - <%= dicts.supportTicket.Severity4 %></li>
+            <li data-val="3">3 - <%= dicts.supportTicket.Severity3 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity3 %>"></i></li>
+            <li data-val="2">2 - <%= dicts.supportTicket.Severity2 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity2 %>"></i></li>
+            <li data-val="1">1 - <%= dicts.supportTicket.Severity1 %><i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.Severity1 %>"></i></li>
+          </ul>
+          <div class="scrollArea top"><div class="arrow"></div></div>
+          <div class="scrollArea bottom"><div class="arrow"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="modalMain ticketIDSection xc-hidden">
     <div class="formRow">
       <span class="label">2. <%= dicts.monitor.SelectTicket %>:</span>
       <div class="refresh">
@@ -66,7 +87,7 @@
   </section>
   <section class="modalSubMain commentSection">
     <div class="formRow genBundleRow">
-      <span class="label">2. <%= dicts.supportTicket.AdditionalInfo %>:</span>
+      <span class="label">3. <%= dicts.supportTicket.AdditionalInfo %>:</span>
       <div class="options">
         <div class="checkboxSection genBundleBox" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
           <div class="text"><%= dicts.supportTicket.RegenBundle %>?</div>
