@@ -26,7 +26,7 @@ var paths = {
     dsUploadWorker: 'assets/js/worker/dsUploadWorker.js',
     helpUserGuide: 'assets/help/user/Content/Home.htm',
     helpUserContent: 'assets/help/user/Content/',
-    helpUserSearch: 'assets/help/user/Content/SearchInsight.htm#search-',
+    helpUserSearch: 'assets/help/user/Content/SearchInsight.htm?q=',
     favicon: "assets/images/xc-favicon.png",
     faviconUnsave: "assets/images/xc-favicon-unsave.gif",
 };
