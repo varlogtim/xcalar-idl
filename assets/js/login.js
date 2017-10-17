@@ -11,6 +11,8 @@ var waadAuthContext;
 $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
+    var isWaadResolved = false;
+    var splashMissedHiding = false;
     setupHostName();
 
     waadSetup()
@@ -30,7 +32,17 @@ $(document).ready(function() {
 
         xcSessionStorage.setItem("xcalar-username", user.userName);
         window.location = paths.indexAbsolute;
-        return;
+    })
+    .always(function() {
+        isWaadResolved = true;
+        if (splashMissedHiding) {
+            $("#splashContainer").fadeOut(1000);
+            setTimeout(function() {
+                $("#loginContainer").fadeIn(1000);
+                $("#logo").fadeIn(1000);
+                focusOnFirstEmptyInput();
+            }, 800);
+        }
     });
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
@@ -180,7 +192,7 @@ $(document).ready(function() {
                 // This means we logged in successfully
                 deferred.resolve(true);
             } else {
-                $("#waadLoginForm").removeClass("xc-hidden");
+                $("body").addClass("waadEnabled");
                 deferred.resolve(false);
             }
         })
@@ -198,14 +210,17 @@ $(document).ready(function() {
         $('#loadingBar .innerBar').removeClass('animated');
 
         setTimeout(function() {
-            $("#splashContainer").fadeOut(1000);
+            if (isWaadResolved) {
+                $("#splashContainer").fadeOut(1000);
+                setTimeout(function() {
+                    $("#loginContainer").fadeIn(1000);
+                    $("#logo").fadeIn(1000);
+                    focusOnFirstEmptyInput();
+                }, 800);
+            } else {
+                splashMissedHiding = true;
+            }
         }, animTime);
-
-        setTimeout(function() {
-            $("#loginContainer").fadeIn(1000);
-            $("#logo").fadeIn(1000);
-            focusOnFirstEmptyInput();
-        }, animTime + 800);
     }
 
     function focusOnFirstEmptyInput() {

@@ -169,10 +169,22 @@ header {
     }
 }
 
+.waadEnabled {
+    #formArea {
+        width: 650px;
+        padding-left: 0px;
+    }
+
+    #waadLoginForm {
+        display: block;
+    }
+}
+
 #formArea {
    width: 600px;
    margin: 0 auto;
    padding-left: 50px;
+   .flex-display;
 }
 
 
@@ -185,8 +197,12 @@ header {
 
 #loginForm {
     display: none;
+    .flex(1 0 auto);
 }
 
+#waadLoginForm {
+    display: none;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -320,8 +336,41 @@ input:-webkit-autofill:focus {
     }
 }
 
+#waadLoginForm {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-left: 1px solid #378CB3;
+    margin-left: 40px;
+    padding-left: 40px;
+    .btnLabel {
+        width: 30px;
+        float: left;
+        line-height: 40px;
+        text-indent: 4px;
+        pointer-events: none;
+        color: @color-font-softGrayBlue;
+        text-transform: uppercase;
+    }
+}
+
 #loginWAADButton {
-    width: 213px;
+    border: none !important;
+    background-color: transparent;
+    padding: 0px;
+    position: relative;
+    top: -1px;
+    float: left;
+    margin: 0px;
+    width: auto;
+    height: 40px;
+    &:hover, &:focus, &:active, &:visited {
+        background-color: transparent;
+        border: none !important;
+        outline: none !important;
+    }
+    img {
+        height: 100%;
+    }
 }
 
 .submitSection {

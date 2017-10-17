@@ -282,7 +282,7 @@ p.nominalBounds = new cjs.Rectangle(-190.9,-1,220.5,220.5);
 	}
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape}]}).to({state:[{t:this.shape_1}]},1).to({state:[{t:this.shape_2}]},1).to({state:[{t:this.shape_3}]},1).to({state:[{t:this.shape_4}]},1).to({state:[{t:this.shape_5}]},1).to({state:[{t:this.shape_6}]},1).to({state:[{t:this.shape_7}]},1).to({state:[{t:this.shape_8}]},1).to({state:[{t:this.shape_9}]},1).to({state:[{t:this.shape_10}]},1).to({state:[{t:this.shape_11}]},1).to({state:[{t:this.shape_12}]},1).to({state:[{t:this.shape_13}]},1).to({state:[{t:this.shape_14}]},1).wait(106));
-
+	this.loop = 0;
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = new cjs.Rectangle(28.2,0.8,301.1,51.2);
 
@@ -333,7 +333,7 @@ p.nominalBounds = new cjs.Rectangle(28.2,0.8,301.1,51.2);
 	this.instance_2._off = true;
 
 	this.timeline.addTween(cjs.Tween.get(this.instance_2).wait(21).to({_off:false},0).to({x:231.3,y:80.1,alpha:1},5,cjs.Ease.get(-1)).to({x:132.6,y:195.4},4).to({x:8.7,y:335.1,alpha:0},5,cjs.Ease.get(1)).wait(108));
-
+	this.loop = 0;
 }).prototype = p = new cjs.MovieClip();
 p.nominalBounds = null;
 // library properties:
@@ -345,9 +345,12 @@ lib.properties = {
 	opacity: 0.00,
 	webfonts: {},
 	manifest: [
-		{src:"../images/login/stroke_blue.png?1487845710380", id:"stroke_blue"}
+		{src:"../images/login/stroke_blue.png?1487845710380", id:"stroke_blue", loop: 0}
 	],
-	preloads: []
+	preloads: [],
+	loop: 0,
+	autoReset: false,
+	stop: true
 };
 
 

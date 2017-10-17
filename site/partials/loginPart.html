@@ -48,7 +48,7 @@
   </div>
   <div class="outerWrap">
     <div id="formArea">
-      <form id="loginForm" autocomplete="off">
+      <form id="loginForm" class="clearfix" autocomplete="off">
         <div class="section">
           <label for="loginNameBox">
             <input name="noautocomplete" type="text" class="input" autocomplete="off" style="display: none;">
@@ -122,8 +122,10 @@
         </div>
       </form>
       <!-- Login with Azure AD -->
-      <form id="waadLoginForm" autocomplete="off" class="xc-hidden">
-        <input id="loginWAADButton" class="btn login" type="submit" value="<%= dicts.login.waadLogin %>">
+      <form id="waadLoginForm" class="clearfix" autocomplete="off">
+       <button id="loginWAADButton" class="btn login" type="submit">
+         <img src="../images/login/sign-in-with-microsoft-light.png">
+       </button>
       </form>
     </div>
   </div>
