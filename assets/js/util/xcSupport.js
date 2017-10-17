@@ -56,9 +56,63 @@ window.XcSupport = (function(XcSupport, $) {
         return fullUsername;
     };
 
-    XcSupport.holdSession = function() {
-        return sessionHoldCheck();
+    XcSupport.holdSession = function(alreadyStarted) {
+        var deferred = jQuery.Deferred();
+        var promise = (alreadyStarted === true)
+                      ? PromiseHelper.resolve(false)
+                      : XcSocket.checkUserExists();
+
+        promise
+        .then(sessionHoldAlert)
+        .then(function() {
+            XcSocket.registerUser();
+            commitFlag = randCommitFlag();
+            // hold the session
+            return XcalarKeyPut(KVStore.commitKey, commitFlag,
+                                false, gKVScope.FLAG);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
+
+    function sessionHoldAlert(userExist) {
+        var deferred = jQuery.Deferred();
+        if (userExist) {
+            var $initScreen = $("#initialLoadScreen");
+            var isVisible = $initScreen.is(":visible");
+            if (isVisible) {
+                $initScreen.hide();
+            }
+            // when seesion is hold by others
+            Alert.show({
+                "title": WKBKTStr.Hold,
+                "msg": WKBKTStr.HoldMsg,
+                "buttons": [{
+                    "name": CommonTxtTstr.Back,
+                    "className": "cancel",
+                    "func": function() {
+                        deferred.reject(WKBKTStr.Hold);
+                    }
+                },
+                {
+                    "name": WKBKTStr.Release,
+                    "className": "cancel",
+                    "func": function() {
+                        if (isVisible) {
+                            $initScreen.show();
+                        }
+                        deferred.resolve();
+                    }
+                }],
+                "noCancel": true
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
+    }
 
     XcSupport.releaseSession = function() {
         var deferred = jQuery.Deferred();
@@ -76,25 +130,10 @@ window.XcSupport = (function(XcSupport, $) {
         .then(function() {
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
         })
-        .then(function() {
-            xcSessionStorage.removeItem(username);
-            deferred.resolve();
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
-    };
-
-    // in case you are hold forever
-    XcSupport.forceReleaseSession = function() {
-        xcSessionStorage.removeItem(username);
-        XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
-        .then(function() {
-            location.reload();
-        })
-        .fail(function(error) {
-            console.error(error);
-        });
     };
 
     XcSupport.commitCheck = function(isFromHeatbeatCheck) {
@@ -451,45 +490,6 @@ window.XcSupport = (function(XcSupport, $) {
         });
     };
 
-    function sessionHoldCheck() {
-        var deferred = jQuery.Deferred();
-
-        holdCheckHelper()
-        .then(function() {
-            commitFlag = randCommitFlag();
-            // hold the session
-            return XcalarKeyPut(KVStore.commitKey, commitFlag, false, gKVScope.FLAG);
-        })
-        .then(function() {
-            // mark as hold in browser tab
-            xcSessionStorage.setItem(username, "hold");
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return (deferred.promise());
-
-        function holdCheckHelper() {
-            var innerDeferred = jQuery.Deferred();
-
-            XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
-            .then(function(val) {
-                if (val == null || val.value === defaultCommitFlag) {
-                    innerDeferred.resolve();
-                } else if (xcSessionStorage.getItem(username) === "hold") {
-                    // when this browser tab hold the seesion and not release
-                    console.warn("Session not release last time...");
-                    innerDeferred.resolve();
-                } else {
-                    innerDeferred.reject(WKBKTStr.Hold);
-                }
-            })
-            .fail(innerDeferred.reject);
-
-            return (innerDeferred.promise());
-        }
-    }
-
     function checkConnection() {
         // if we get this status, there may not be a connection to the backend
         // if xcalargetversion doesn't work then it's very probably that
@@ -550,8 +550,6 @@ window.XcSupport = (function(XcSupport, $) {
 
         // hide all modal
         $(".modalContainer:not(.locked)").hide();
-        // this browser tab does not hold any more
-        xcSessionStorage.removeItem(username);
         // user should force to logout
         xcSessionStorage.removeItem("xcalar-username");
 

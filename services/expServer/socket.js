@@ -22,6 +22,11 @@ module.exports = function(server) {
             io.sockets.emit("system-allUsers", users);
         });
 
+        socket.on("checkUser", function(userName, callback) {
+            var exist = users.hasOwnProperty(userName);
+            callback(exist);
+        });
+
         socket.on("disconnect", function() {
             var userName = socket.userName;
             if (userName != null && users.hasOwnProperty(userName)) {

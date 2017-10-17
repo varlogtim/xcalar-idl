@@ -5,7 +5,7 @@ window.xcConsole = (function(xcConsole, $) {
     var logs = [];
 
     xcConsole.log = function() {
-        if (isBrowserMicrosoft) {
+        if (isBrowserMicrosoft || isBrowserSafari) {
             return;
         }
         var stack = stackTrace();

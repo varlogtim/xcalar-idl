@@ -1026,7 +1026,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         setupKVStore(newWKBKId);
         // rehold the session as KVStore's key changed
-        XcSupport.holdSession()
+        XcSupport.holdSession(true)
         .then(function() {
             activeWKBKId = newWKBKId;
             return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);

@@ -487,7 +487,7 @@ window.TblManager = (function($, TblManager) {
             RowScroller.empty();
         }
 
-        if ($('.xcTableWrap:not(.inActive').length === 0) {
+        if ($('.xcTableWrap:not(.inActive)').length === 0) {
             RowScroller.empty();
         }
 

@@ -34,6 +34,7 @@ window.xcManager = (function(xcManager, $) {
         Admin.initialize();
         xcSuggest.setup();
         documentReadyGeneralFunction();
+        XcSocket.init();
 
         var firstTimeUser;
 
@@ -85,9 +86,6 @@ window.xcManager = (function(xcManager, $) {
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
             XVM.alertLicenseExpire();
-            // start socket
-            XcSocket.init();
-
             // get initial memory usage
             XcSupport.memoryCheck();
             // start heartbeat check
@@ -127,52 +125,34 @@ window.xcManager = (function(xcManager, $) {
             Workbook.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
-            XcSocket.init();
-
-            if (firstTimeUser) {
-                Admin.addNewUser();
-                // when it's new user first time login
-                Alert.show({
-                    "title": DemoTStr.title,
-                    "msg": NewUserTStr.msg,
-                    "buttons": [{
-                        "name": AlertTStr.CLOSE,
-                        "className": "cancel"
-                    },
-                    {
-                        "name": NewUserTStr.openGuide,
-                        "className": "confirm",
-                        "func": function() {
-                            var url = "https://university.xcalar.com/" +
-                                    "confluence/display/XU/Self-Paced+Training";
-                            window.open(url, "_blank");
-                        }
-                    }],
-                    "noCancel": true
-                });
-            }
-        } else if (error === WKBKTStr.Hold) {
-            locationText = WKBKTStr.Hold;
-            // when seesion is hold by others
-            Alert.show({
-                "title": WKBKTStr.Hold,
-                "msg": WKBKTStr.HoldMsg,
-                "buttons": [{
-                    "name": CommonTxtTstr.Back,
-                    "className": "cancel",
-                    "func": function() {
-                        logoutRedirect();
-                    }
-                },
-                {
-                    "name": WKBKTStr.Release,
-                    "className": "cancel",
-                    "func": function() {
-                        XcSupport.forceReleaseSession();
-                    }
-                }],
-                "noCancel": true
+            XcSupport.holdSession()
+            .then(function() {
+                if (firstTimeUser) {
+                    Admin.addNewUser();
+                    // when it's new user first time login
+                    Alert.show({
+                        "title": DemoTStr.title,
+                        "msg": NewUserTStr.msg,
+                        "buttons": [{
+                            "name": AlertTStr.CLOSE,
+                            "className": "cancel"
+                        },
+                        {
+                            "name": NewUserTStr.openGuide,
+                            "className": "confirm",
+                            "func": function() {
+                                var url = "https://university.xcalar.com/" +
+                                        "confluence/display/XU/Self-Paced+Training";
+                                window.open(url, "_blank");
+                            }
+                        }],
+                        "noCancel": true
+                    });
+                }
             });
+        } else if (error === WKBKTStr.Hold) {
+            // when seesion is hold by others and user choose to log out
+            logoutRedirect();
         } else if (isNotNullObj &&
                    error.status != null &&
                    error.status === StatusT.StatusSessionNotFound)
@@ -270,7 +250,7 @@ window.xcManager = (function(xcManager, $) {
 
     xcManager.forceLogout = function() {
         xcManager.removeUnloadPrompt();
-        logoutRedirect(true);
+        logoutRedirect();
     };
 
     xcManager.removeUnloadPrompt = function() {
@@ -1362,13 +1342,8 @@ window.xcManager = (function(xcManager, $) {
         return false;
     }
 
-    function logoutRedirect(releaseHold) {
+    function logoutRedirect() {
         xcSessionStorage.removeItem("xcalar-username");
-        if (releaseHold) {
-            var username = XcSupport.getUser();
-            xcSessionStorage.removeItem(username);
-        }
-
         var waadUser = null;
         var waadAuthContext;
         var waadConfig = getWaadConfigFromLocalStorage();
