@@ -1621,10 +1621,15 @@ ExportHelper.prototype = {
 
         // collect all existing names
         currentColumNames.forEach(function(columnName) {
-            nameMap[columnName] = true;
+            if (columnName !== origName) {
+                nameMap[columnName] = true;
+            }
         });
 
         $colToRename.siblings(".rename").each(function() {
+            if ($(this).find(".origName").is($colToRename.find(".origName"))) {
+                return true;
+            }
             var columnName = $(this).find(".newName").val();
             if (columnName) {
                 nameMap[columnName] = true;
@@ -1632,7 +1637,12 @@ ExportHelper.prototype = {
         });
 
         var parsedResult = xcHelper.parsePrefixColName(origName);
-        var newName = parsedResult.prefix + "-" + parsedResult.name;
+        var newName;
+        if (parsedResult.prefix) {
+            newName = parsedResult.prefix + "-" + parsedResult.name;
+        } else {
+            newName = parsedResult.name;
+        }
         var validName = xcHelper.autoName(newName, nameMap);
         $colToRename.find(".newName").val(validName);
     }

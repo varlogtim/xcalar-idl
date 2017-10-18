@@ -503,14 +503,14 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // get unique column name
-    // othercols can be an array of unavailable column names that aren't in
+    // takenNames can be an object of unavailable column names that aren't in
     // the current table but will be part of a descendent table
     xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol,
-                                       otherCols) {
+                                       takenNames, colNumToIgnore) {
         if (colName == null) {
             return xcHelper.randName("NewCol");
         }
-        otherCols = otherCols || [];
+        takenNames = takenNames || {};
 
         var parseName = xcHelper.parsePrefixColName(colName);
         colName = parseName.name;
@@ -520,19 +520,25 @@ window.xcHelper = (function($, xcHelper) {
             return colName;
         }
 
-        if (!table.hasCol(colName, parseName.prefix, onlyCheckPulledCol) &&
-            otherCols.indexOf(colName) === -1) {
-            return colName;
+        if (!takenNames.hasOwnProperty(colName)) {
+            if (!table.hasCol(colName, parseName.prefix, onlyCheckPulledCol)) {
+                return colName;
+            } else if (colNumToIgnore != null &&
+                table.getColNumByBackName(colName) === colNumToIgnore) {
+                return colName;
+            }
         }
 
         var newColName;
         var tryCount = 0;
-        while (tryCount <= 50) {
-            ++tryCount;
+        var maxTry = 50;
+
+        while (tryCount <= maxTry) {
+            tryCount;
             newColName = colName + "_" + tryCount;
 
             if (!table.hasCol(newColName, parseName.prefix) &&
-                otherCols.indexOf(newColName) === -1) {
+                !takenNames.hasOwnProperty(newColName)) {
                 break;
             }
         }
@@ -543,6 +549,24 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             return newColName;
         }
+    };
+
+    xcHelper.autoName = function(origName, checkMap, maxTry) {
+        var validName = origName;
+        var tryCnt = 0;
+        if (maxTry == null) {
+            maxTry = 20;
+        }
+
+        while (checkMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
+            tryCnt++;
+            validName = origName + tryCnt;
+        }
+
+        if (tryCnt > maxTry) {
+            validName = xcHelper.randName(origName);
+        }
+        return validName;
     };
 
     // extract op and arguments from a string delimited by delimiter
@@ -2682,24 +2706,6 @@ window.xcHelper = (function($, xcHelper) {
         return s.replace(/[\u00A0-\u9999<>\&]/g, function(i) {
             return '&#' + i.charCodeAt(0) + ';';
         });
-    };
-
-    xcHelper.autoName = function(origName, checkMap, maxTry) {
-        var validName = origName;
-        var tryCnt = 0;
-        if (maxTry == null) {
-            maxTry = 20;
-        }
-
-        while (checkMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
-            tryCnt++;
-            validName = origName + tryCnt;
-        }
-
-        if (tryCnt > maxTry) {
-            validName = xcHelper.randName(origName);
-        }
-        return validName;
     };
 
     xcHelper.getTempUDFPrefix = function() {

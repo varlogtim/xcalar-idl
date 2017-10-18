@@ -687,9 +687,9 @@ window.xcFunction = (function($, xcFunction) {
 
         // cast before doing the group by
         function castCols() {
-            var takenNames = [];
+            var takenNames = {};
             groupByArgs.forEach(function(gbArg) {
-                takenNames.push(gbArg.newColName);
+                takenNames[gbArg.newColName] = true;
             });
             var promises = [];
             var mapStrs = [];
@@ -699,9 +699,10 @@ window.xcFunction = (function($, xcFunction) {
                 if (gbArgs[i].cast) {
                     var parsedName = xcHelper.parsePrefixColName(
                                                 groupByArgs[i].aggColName).name;
+                    parsedName = xcHelper.stripColName(parsedName);
                     var newCastName = xcHelper.getUniqColName(tableId,
                                                 parsedName, false, takenNames);
-                    takenNames.push(newCastName);
+                    takenNames[newCastName] = true;
                     var mapStr = xcHelper.castStrHelper(gbArgs[i].aggColName,
                                                         gbArgs[i].cast);
                     mapStrs.push(mapStr);

@@ -254,7 +254,8 @@ window.ColManager = (function($, ColManager) {
 
             // Note: it's intended to overwrite the column
             var fieldName = xcHelper.stripColName(frontName);
-            fieldName = xcHelper.autoName(fieldName, usedName);
+            fieldName = xcHelper.getUniqColName(tableId, fieldName, false,
+                                                usedName, colNum);
             usedName[fieldName] = true;
             mapStrs.push(mapStr);
             fieldNames.push(fieldName);

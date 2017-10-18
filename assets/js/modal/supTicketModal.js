@@ -746,7 +746,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
             deferred.reject(err);
         });
         return deferred.promise();
-    }
+    };
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         SupTicketModal.__testOnly__ = {};
@@ -755,7 +756,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         SupTicketModal.__testOnly__.submitForm = submitForm;
         SupTicketModal.__testOnly__.parseTicketList = parseTicketList;
         SupTicketModal.__testOnly__.getTickets = getTickets;
-        SupTicketModal.__testOnly__.trimRecentLogs = trimRecentLogs;
+        SupTicketModal.__testOnly__.trimRecentLogs = SupTicketModal.trimRecentLogs;
     }
     /* End Of Unit Test Only */
 
