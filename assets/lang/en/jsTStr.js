@@ -487,6 +487,8 @@ AlertTStr = {
     "LicenseExpire": "Your license expires on:",
     "XcalarAdmin": "Your Xcalar Admin is:",
     "TicketError": "Sorry, we couldn't generate a ticket at the moment.",
+    "EmailEnabled": "Send Email",
+    "EmailDisabled": "Send some messages first",
     "EmailSending": "Sending email...",
     "EmailSent": "Success! All messages have been sent to your email address.",
     "EmailFunc": "You can click the left top button at anytime to send a " +

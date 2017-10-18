@@ -9,13 +9,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     var thread;
     var ticketId;
     var connected = false;
-    // A flag which controls whether to display this modal or not
-    var flag = true;
     // Initial setup
     LiveHelpModal.setup = function() {
-        if (flag) {
-            $("#userMenu").find(".liveHelp").hide();
-        }
         $modal = $("#liveHelpModal");
         modalHelper = new ModalHelper($modal, {
             "sizeToDefault": true,
@@ -24,11 +19,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             "noEnter": true
         });
         addModalEvents();
-    };
-    // Only for Beta to force the modal to be shown, also give it an email to
-    // customize auto-sending emails
-    LiveHelpModal.forceShow = function(customizedEmail) {
-        $("#userMenu").find(".liveHelp").show();
     };
     // Three steps for user to connect to liveHelp:
     // 1. Request a connection
@@ -46,6 +36,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 $modal.find(".chatBox").hide();
                 $modal.find(".emailInfo").show();
                 $modal.find(".emailError").hide();
+                $modal.find(".sendEmail").attr("data-original-title", AlertTStr.EmailDisabled);
+                $modal.find(".sendEmail").addClass("email-disabled");
+                $modal.find(".sendEmail").hide();
                 // Auto-filling username and email
                 $modal.find(".name").val(userName);
                 var autoFillEmail = XcSupport.getUser();
@@ -79,11 +72,16 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
+        $modal.find(".sendEmail").show();
         //$modal.find(".sendMsg").prop("disabled", true);
         clearInput();
     }
     function sendReqToSocket() {
-        socket.emit("liveHelpConn", userName);
+        var opts = {
+            userName: userName,
+            email: email
+        }
+        socket.emit("liveHelpConn", opts);
     }
     // Support is ready to chat
     function readyToChat(readyOpts) {
@@ -100,7 +98,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         };
         var licenseKey;
         var expiration;
-        var admins;
+        var admin;
         SupTicketModal.fetchLicenseInfo()
         .then(function(licenseObj) {
             licenseKey = licenseObj.key;
@@ -111,11 +109,11 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             try {
                 var logs = JSON.parse(ret.logs);
                 ticketId = logs.ticketId;
-                admins = logs.admins;
+                admin = logs.admin;
                 info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
                        AlertTStr.LicenseKey + "\n" + licenseKey + "\n\n" +
                        AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
-                       AlertTStr.XcalarAdmin + "\n" + admins;
+                       AlertTStr.XcalarAdmin + "\n" + admin;
             } catch (err) {
                 info = AlertTStr.TicketError;
             }
@@ -126,10 +124,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .always(function() {
             appendMsg(info, "sysMsg");
         });
-    }
-    // Support is disconnected, user needs to wait to be served
-    function returnToWait() {
-        requestConn(false);
     }
     // Only for sending messages
     function submitForm() {
@@ -151,6 +145,10 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (type !== "sysMsg") {
             content = xcHelper.escapeHTMLSpecialChar(content);
             row = "<div class='" + type + "Sender'><p>" + sender + "</p></div>" + row;
+            if($modal.find(".sendEmail").hasClass("email-disabled")) {
+                $modal.find(".sendEmail").removeClass("email-disabled");
+                $modal.find(".sendEmail").attr("data-original-title", AlertTStr.EmailEnabled);
+            }
         }
         content = content.replace(/\n/g,"</br>");
         var $content = $modal.find(".chatMsg");
@@ -184,7 +182,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                     from: 'support@xcalar.com',
                     to: dest,
                     subject: 'Support Chat History for ' + fullName,
-                    text: content
+                    text: "=====Your ticket ID is " + ticketId + "=====\n"+content
                 };
                 appendMsg(AlertTStr.EmailSending, "sysMsg");
                 sendEmail(mailOpts);
@@ -313,14 +311,14 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             });
         }
     }
-    // Leave the conversation, reset liveHelp modal
-    function closeModal() {
-        if (socket) {
-            socket.disconnect();
-        }
+    LiveHelpModal.updateTicket = function() {
         var content = "";
         $modal.find(".userMsg, .supportMsg").each(function(i,e) {
-            content += $(e).text() + "\n";
+            if($(e).hasClass("userMsg")) {
+                content += "You: " + $(e).text() + "\n\n";
+            } else {
+                content += "Xcalar: " + $(e).text() + "\n\n";
+            }
         });
         var ticketObj = {
             "ticketId": ticketId,
@@ -333,6 +331,15 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .then(function(licenseObj) {
             SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
         });
+    }
+    // Leave the conversation, reset liveHelp modal
+    function closeModal() {
+        if (socket) {
+            socket.disconnect();
+        }
+        // Auto-send email when user leaves
+        LiveHelpModal.autoSendEmail();
+        LiveHelpModal.updateTicket();
         connected = false;
         $modal.find(".reqConn").show();
         $modal.find(".chatMsg").html("");
@@ -356,12 +363,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
         return pattern.test(emailAddress);
     }
+    LiveHelpModal.autoSendEmail = function() {
+        // Only enable auto-sending email when modal is shown
+        if ($modal.is(":visible") && isValidEmail(email)) {
+            prepareEmail(email);
+        }
+    };
     /* Unit Test Only */
     if (window.unitTestMode) {
         LiveHelpModal.__testOnly__ = {};
         LiveHelpModal.__testOnly__.connected = connected;
         LiveHelpModal.__testOnly__.readyToChat = readyToChat;
-        LiveHelpModal.__testOnly__.returnToWait = returnToWait;
         LiveHelpModal.__testOnly__.getSendEmail = sendEmail;
         LiveHelpModal.__testOnly__.setSendEmail = function(func) {
             sendEmail = func;

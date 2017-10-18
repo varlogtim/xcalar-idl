@@ -27,10 +27,6 @@ describe("LiveHelp Modal Test", function() {
         testMsg = "testing\n\n\n\n\n";
     });
     describe("Basic API Test", function() {
-        it("Should force show liveHelp in menu", function() {
-            LiveHelpModal.forceShow();
-            expect($menu.css("display")).to.equal("list-item");
-        });
         it("Should show liveHelp", function() {
             LiveHelpModal.show();
             assert.isTrue($modal.is(":visible"));

@@ -728,7 +728,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 success: function(data) {
                     if (data.hasOwnProperty("expiration")) {
                         deferred.resolve({"key": key,
-                                          "expiration":data.expiration});
+                                          "expiration": data.expiration,
+                                          "organization": data.organization});
                     } else {
                         deferred.reject();
                     }

@@ -133,7 +133,7 @@ module.exports = {
         "About": "About",
         "Help": "Help",
         "HelpDocs": "Help docs",
-        "LiveHelp": "Live Help"
+        "LiveHelp": "Live Chat"
     },
 
     "MenuTStr": {
@@ -1055,12 +1055,12 @@ module.exports = {
     },
 
     "liveHelp": {
-        "Title": "Live Help",
+        "Title": "Live Chat",
         "Instruction": "Welcome! Please enter the information below before " +
                        "we can help you.",
         "Name": "Name:",
         "Email": "Email:",
-        "SendEmail": "\"Send Email\"",
+        "SendEmail": "\"Send some messages first\"",
         "TypeMsg": "\"Type message here and press enter to send\"",
         "EmailInfo": "This email address will be used to receive copy of chat messages",
         "EmailError": "Invalid email address"

@@ -258,6 +258,7 @@ window.xcManager = (function(xcManager, $) {
             // do not call unload again, but keep auto-sending email for liveHelp
             // auto-send check is then implemented in liveHelpModal.js
             LiveHelpModal.autoSendEmail();
+            LiveHelpModal.updateTicket();
         };
     };
 
@@ -859,6 +860,7 @@ window.xcManager = (function(xcManager, $) {
         };
         window.onunload = function() {
             LiveHelpModal.autoSendEmail();
+            LiveHelpModal.updateTicket();
         };
 
         var winResizeTimer;
