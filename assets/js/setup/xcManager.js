@@ -118,7 +118,6 @@ window.xcManager = (function(xcManager, $) {
     function handleSetupFail(error, firstTimeUser) {
         var locationText = StatusMessageTStr.Error;
         var isNotNullObj = error && (typeof error === "object");
-
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
             $("#initialLoadScreen").hide();
@@ -126,7 +125,7 @@ window.xcManager = (function(xcManager, $) {
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
             XcSupport.holdSession()
-            .then(function() {
+            .always(function() {
                 if (firstTimeUser) {
                     Admin.addNewUser();
                     // when it's new user first time login
