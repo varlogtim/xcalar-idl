@@ -534,7 +534,7 @@ window.xcHelper = (function($, xcHelper) {
         var maxTry = 50;
 
         while (tryCount <= maxTry) {
-            tryCount;
+            tryCount++;
             newColName = colName + "_" + tryCount;
 
             if (!table.hasCol(newColName, parseName.prefix) &&
