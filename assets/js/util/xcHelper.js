@@ -42,8 +42,6 @@ window.xcHelper = (function($, xcHelper) {
             console.error("Unexpected element to parse row", $tr);
             return null;
         }
-        var rowClass = classNames.split(" ")[0];
-
         var substring = classNames.substring(keyword.length);
         var rowNum = parseInt(substring);
 

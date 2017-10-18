@@ -396,9 +396,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var ticket;
             var bundleSendAttempted = false;
 
-            Ticket.fetchLicenseInfo()
+            SupTicketModal.fetchLicenseInfo()
             .then(function(licenseObj) {
-                return SupTicketModal.submitTicket(ticketObj, licenseObj)
+                return SupTicketModal.submitTicket(ticketObj, licenseObj);
             })
             .then(function(ret) {
                 if (ret.logs.indexOf("error") > -1) {
@@ -698,7 +698,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                          '"errors":[' + strErrors + ']}';
         }
         return strLogs;
-    }
+    };
 
     SupTicketModal.submitTicket = function (ticketObj, licenseObj, noTop, noLog) {
         ticketObj.license = licenseObj;
@@ -720,7 +720,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
+    };
+
     SupTicketModal.fetchLicenseInfo = function() {
         var deferred = jQuery.Deferred();
         XFTSupportTools.getLicense()

@@ -250,6 +250,11 @@ describe("SupTicketModal Test", function() {
             xcHelper.showSuccess = function(input) {
                 successMsg = input;
             };
+
+            var $dropdown = $modal.find(".issueList");
+            $dropdown.find("li").filter(function() {
+                return $(this).data("val") === "new";
+            }).trigger(fakeEvent.mouseup);
         });
 
         it("should trim large logs", function() {
@@ -272,7 +277,7 @@ describe("SupTicketModal Test", function() {
             Log.getAllLogs = cacheFn;
         });
 
-        it("should handle submit bandle error", function(done) {
+        it("should handle submit bundle error", function(done) {
             var test = false;
             XcalarSupportGenerate = function() {
                 test = true;
@@ -325,14 +330,12 @@ describe("SupTicketModal Test", function() {
                 }
             };
 
-            SupTicketModal.__testOnly__.submitTicket(ticketObj)
+            SupTicketModal.submitTicket(ticketObj)
             .then(function(res) {
                 expect(res).to.be.an("object");
-                expect(Object.keys(res).length).to.equal(10);
+                expect(Object.keys(res).length).to.equal(9);
                 expect(res).to.have.property("topInfo")
                 .and.to.equal("test api top");
-                expect(res).to.have.property("license")
-                .and.to.equal("test license");
                 expect(res).to.have.property("userIdName");
                 expect(res).to.have.property("userIdUnique");
                 expect(res).to.have.property("sessionName");
@@ -399,6 +402,7 @@ describe("SupTicketModal Test", function() {
             var cache2 = XFTSupportTools.fileTicket;
             var cache3 = XFTSupportTools.getLicense;
             var cache4 = KVStore.append;
+            var cache5 = SupTicketModal.fetchLicenseInfo;
             var supGenCalled = false;
             XcalarSupportGenerate = function() {
                 supGenCalled = true;
@@ -410,8 +414,12 @@ describe("SupTicketModal Test", function() {
             XFTSupportTools.getLicense = function() {
                 return PromiseHelper.resolve();
             };
+
             KVStore.append = function() {
                 return PromiseHelper.resolve();
+            };
+            SupTicketModal.fetchLicenseInfo = function() {
+                return PromiseHelper.resolve({key: "key", "expiration": ""});
             };
             var $dropdown = $modal.find(".issueList");
             $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
@@ -424,6 +432,7 @@ describe("SupTicketModal Test", function() {
             XFTSupportTools.fileTicket = cache2;
             XFTSupportTools.getLicense = cache3;
             KVStore.append = cache4;
+            SupTicketModal.fetchLicenseInfo = cache5;
         });
 
         it("should provide error if no id selected", function() {
@@ -451,9 +460,20 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve();
             };
 
+            var cache2 = SupTicketModal.fetchLicenseInfo;
+            SupTicketModal.fetchLicenseInfo = function() {
+                return PromiseHelper.resolve({key: "key", "expiration": ""});
+            };
+
             SupTicketModal.__testOnly__.submitForm()
             .then(function() {
-                expect(successMsg).to.equal(SuccessTStr.SubmitTicket);
+                return UnitTest.testFinish(function() {
+                    return $("#alertHeader").find(".text").text().trim() ===
+                            SuccessTStr.SubmitTicket;
+                });
+            })
+            .then(function() {
+                Alert.forceClose();
                 // should close modal after submit
                 assert.isFalse($modal.is(":visible"));
                 done();
@@ -463,6 +483,7 @@ describe("SupTicketModal Test", function() {
             })
             .always(function() {
                 KVStore.append = cachedKV;
+                SupTicketModal.fetchLicenseInfo = cache2;
             });
         });
 

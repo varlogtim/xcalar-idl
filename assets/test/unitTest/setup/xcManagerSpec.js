@@ -26,19 +26,33 @@ describe("xcManager Test", function() {
             XcSocket.init = function(){};
         });
 
-        it("should handle no wkbk error", function() {
+        it("should handle no wkbk error", function(done) {
             var oldFunc = Workbook.forceShow;
             var test = false;
             Workbook.forceShow = function() { test = true; };
+            var oldHold = XcSupport.holdSession;
+            XcSupport.holdSession = function() {
+                return PromiseHelper.resolve();
+            };
 
             handleSetupFail(WKBKTStr.NoWkbk, true);
-            expect(title).to.equal(DemoTStr.title);
-            expect(test).to.be.true;
-            // viewLocation is created everytime,
-            // so cannot cache the view first
-            expect($("#viewLocation").text().includes(WKBKTStr.Location))
-            .to.be.true;
-            Workbook.forceShow = oldFunc;
+            UnitTest.testFinish(function() {
+                return title === DemoTStr.title;
+            })
+            .then(function() {
+               expect(title).to.equal(DemoTStr.title);
+                expect(test).to.be.true;
+                // viewLocation is created everytime,
+                // so cannot cache the view first
+                expect($("#viewLocation").text().includes(WKBKTStr.Location))
+                .to.be.true;
+                Workbook.forceShow = oldFunc;
+                XcSupport.holdSession = oldHold;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
         it("should handle workbook hold error", function() {

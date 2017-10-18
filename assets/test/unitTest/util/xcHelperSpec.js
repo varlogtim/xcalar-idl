@@ -32,12 +32,16 @@ describe("xcHelper Test", function() {
         var $el = $('<div class="row1"></div>');
         var res = xcHelper.parseRowNum($el);
         expect(res).to.equal(1);
-        // case 2 (normal to see the console.error)
+         // case 2
+        var $el = $('<div class="row2 tempRow"></div>');
+        var res = xcHelper.parseRowNum($el);
+        expect(res).to.equal(2);
+        // case 3 (normal to see the console.error)
         $el = $("<div></div>");
         res = xcHelper.parseRowNum($el);
         expect(res).to.be.null;
-        // case 3
-        $el = $('<div class="col1"></div>');
+        // case 4
+        $el = $('<div class="column1"></div>');
         res = xcHelper.parseRowNum($el);
         expect(res).to.be.null;
     });
