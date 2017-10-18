@@ -482,7 +482,11 @@ AlertTStr = {
     'LeaveConMsg': 'You are about to leave the conversation. Please confirm: ',
     "SuppLeft": "It seems that our support is disconnected.",
     "WaitChat": "Searching for an available Xcalar agent...",
-    "StartChat": "You are now connected to Agent ",
+    "CaseId": "Your case ID is:",
+    "LicenseKey": "Your license key is:",
+    "LicenseExpire": "Your license expires on:",
+    "XcalarAdmin": "Your Xcalar Admin is:",
+    "TicketError": "Sorry, we couldn't generate a ticket at the moment.",
     "EmailSending": "Sending email...",
     "EmailSent": "Success! All messages have been sent to your email address.",
     "EmailFunc": "You can click the left top button at anytime to send a " +

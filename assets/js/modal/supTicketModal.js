@@ -396,7 +396,10 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var ticket;
             var bundleSendAttempted = false;
 
-            submitTicket(ticketObj)
+            Ticket.fetchLicenseInfo()
+            .then(function(licenseObj) {
+                return SupTicketModal.submitTicket(ticketObj, licenseObj)
+            })
             .then(function(ret) {
                 if (ret.logs.indexOf("error") > -1) {
                     ticketError(genBundle, bundleSendAttempted);
@@ -512,28 +515,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return deferred.promise();
     }
 
-    function submitTicket(ticketObj) {
-        function promiseHandler(topRet, licRet) {
-            // Even if it fails and returns undef, we continue with the values
-            ticketObj.topInfo = topRet;
-            ticketObj.license = licRet;
-            var logStr = trimRecentLogs();
-            var ticketStr = JSON.stringify(ticketObj);
-            ticketStr = ticketStr.slice(0, -1);
-            ticketStr += ',"xiLog":' + logStr + "}";
-            return XFTSupportTools.fileTicket(ticketStr);
-        }
-        var deferred = jQuery.Deferred();
-        var topProm = XcalarApiTop(1000);
-        var licProm = XFTSupportTools.getLicense();
-        PromiseHelper.when(topProm, licProm)
-        .then(promiseHandler, promiseHandler)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     SupTicketModal.getTicket = function(ticketId) {
         var deferred = jQuery.Deferred();
 
@@ -640,7 +621,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     // stringify logs and take up to 100KB worth of logs and errors
-    function trimRecentLogs() {
+    SupTicketModal.trimRecentLogs = function() {
         var xiLogs = Log.getAllLogs(true);
         var strLogs = JSON.stringify(xiLogs);
         var errorLimit = 50 * KB;
@@ -698,11 +679,57 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return strLogs;
     }
 
+    SupTicketModal.submitTicket = function (ticketObj, licenseObj, noTop, noLog) {
+        ticketObj.license = licenseObj;
+        var deferred = jQuery.Deferred();
+        PromiseHelper.alwaysResolve(XcalarApiTop(1000))
+        .then(function(ret) {
+            if (!noTop) {
+                ticketObj.topInfo = ret;
+            }
+            var ticketStr = JSON.stringify(ticketObj);
+            if (!noLog) {
+                var logStr = SupTicketModal.trimRecentLogs();
+                ticketStr = ticketStr.slice(0, -1);
+                ticketStr += ',"xiLog":' + logStr + "}";
+            }
+            return XFTSupportTools.fileTicket(ticketStr);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+    SupTicketModal.fetchLicenseInfo = function() {
+        var deferred = jQuery.Deferred();
+        XFTSupportTools.getLicense()
+        .then(function(data) {
+            var key = data.logs;
+            jQuery.ajax({
+                "type": "GET",
+                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/keyinfo/" + encodeURIComponent(key),
+                success: function(data) {
+                    if (data.hasOwnProperty("expiration")) {
+                        deferred.resolve({"key": key,
+                                          "expiration":data.expiration});
+                    } else {
+                        deferred.reject();
+                    }
+                },
+                error: function(error) {
+                    deferred.reject(error);
+                }
+            });
+        })
+        .fail(function(err) {
+            deferred.reject(err);
+        });
+        return deferred.promise();
+    }
     /* Unit Test Only */
     if (window.unitTestMode) {
         SupTicketModal.__testOnly__ = {};
         SupTicketModal.__testOnly__.submitBundle = submitBundle;
-        SupTicketModal.__testOnly__.submitTicket = submitTicket;
         SupTicketModal.__testOnly__.downloadTicket = downloadTicket;
         SupTicketModal.__testOnly__.submitForm = submitForm;
         SupTicketModal.__testOnly__.parseTicketList = parseTicketList;

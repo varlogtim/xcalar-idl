@@ -1131,7 +1131,7 @@ ModalHelper.prototype = {
         var deferred = jQuery.Deferred();
         var options = $.extend(this.options, extraOptions) || {};
         var $modal = this.$modal;
-        var numModalsOpen = $('.modalContainer:visible:not(#aboutModal)').length;
+        var numModalsOpen = $('.modalContainer:visible:not(#aboutModal):not(#liveHelpModal)').length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.removeClass("noBackground");
