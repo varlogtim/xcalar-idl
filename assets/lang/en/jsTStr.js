@@ -740,6 +740,10 @@ MonitorTStr = {
     "OtherUsers": "Other Users' Tables",
     "YourTables": "Your Tables",
     "Datasets": "Shared Datasets",
+    "TicketSuccess": "Your ticket was submitted successfully.",
+    "TicketId": "Ticket ID",
+    "AcctAdmin": "Account Admin",
+    "AcctAdmins": "Account Admins",
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

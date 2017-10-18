@@ -407,15 +407,27 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 }
 
                 var ticketId;
+                var admins;
+
                 try {
                     var logs = JSON.parse(ret.logs);
                     ticketId = logs.ticketId;
+                    admins = logs.admins;
                 } catch (err) {
                     console.error(err);
                 }
 
                 if (!ticketId) {
                     ticketId = "N/A";
+                }
+                if (!admins) {
+                    admins = "N/A";
+                }
+                var adminStr = "";
+                if (admins.indexOf(",") > -1) {
+                    adminStr = MonitorTStr.AcctAdmins + ": " + admins;
+                } else {
+                    adminStr = MonitorTStr.AcctAdmin + ": " + admins;
                 }
 
                 if (genBundle) {
@@ -430,7 +442,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 };
                 var ticketStr = JSON.stringify(ticket) + ",";
                 appendTicketToList(ticket);
-                xcHelper.showSuccess(SuccessTStr.SubmitTicket);
+                var msg = MonitorTStr.TicketSuccess + "<br/>" +
+                                    MonitorTStr.TicketId + ": " + ticketId +
+                                    "<br/>" + adminStr;
+
+                Alert.show({
+                    title: SuccessTStr.SubmitTicket,
+                    msgTemplate: msg,
+                    isAlert: true
+                });
                 if (!$modal.hasClass("bundleError")) {
                     closeModal();
                 }
@@ -492,6 +512,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
         $("#monitor-genSub").addClass("xc-disabled");
 
+        // xcalarSupportGenerate has an alert on success
         XcalarSupportGenerate(false, ticketId)
         .then(deferred.resolve)
         .fail(function(err) {
