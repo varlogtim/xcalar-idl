@@ -459,7 +459,9 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(url, name, format, 
     workItem.input.loadInput.dataset.name = name;
     workItem.input.loadInput.dataset.formatType = format;
     workItem.input.loadInput.loadArgs = loadArgs;
-    workItem.input.loadInput.loadArgs.maxSize = maxSampleSize;
+    if (loadArgs) {
+        workItem.input.loadInput.loadArgs.maxSize = maxSampleSize;
+    }
     return (workItem);
 };
 
@@ -875,6 +877,7 @@ xcalarCommentDagNodes = runEntity.xcalarCommentDagNodes = function(thriftHandle,
     .then(function(result) {
         // statusOutput is a status
         var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
 
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -1780,8 +1783,7 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
 
     return (deferred.promise());
 };
-// XcalarGroupByWithInput depends on these arguments. If args change here,
-//  make sure to change XcalarGroupByWithInput
+
 xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStrs,
                                newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
     var workItem = new WorkItem();
@@ -1796,18 +1798,22 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     workItem.input.groupByInput.dstTable.tableName = dstTableName;
     workItem.input.groupByInput.dstTable.tableId = XcalarApiTableIdInvalidT;
 
-    if (groupByEvalStrs.constructor === Array) {
-        workItem.input.groupByInput.numEvals = groupByEvalStrs.length;
-        workItem.input.groupByInput.evalStrs = groupByEvalStrs;
-    } else {
-        workItem.input.groupByInput.numEvals = 1;
-        workItem.input.groupByInput.evalStrs = [groupByEvalStrs];
+    if (groupByEvalStrs) {
+        if (groupByEvalStrs.constructor === Array) {
+            workItem.input.groupByInput.numEvals = groupByEvalStrs.length;
+            workItem.input.groupByInput.evalStrs = groupByEvalStrs;
+        } else {
+            workItem.input.groupByInput.numEvals = 1;
+            workItem.input.groupByInput.evalStrs = [groupByEvalStrs];
+        }
     }
 
-    if (newFieldNames.constructor === Array) {
-        workItem.input.groupByInput.newFieldNames = newFieldNames;
-    } else {
-        workItem.input.groupByInput.newFieldNames = [newFieldNames];
+    if (newFieldNames) {
+        if (newFieldNames.constructor === Array) {
+            workItem.input.groupByInput.newFieldNames = newFieldNames;
+        } else {
+            workItem.input.groupByInput.newFieldNames = [newFieldNames];
+        }
     }
 
     workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
@@ -2048,8 +2054,6 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
     return (deferred.promise());
 };
 
-// XcalarMapWithInput depends on these arguments. If args change here,
-// make sure to change XcalarMapWithInput
 xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
                                                                  srcTableName, dstTableName,
                                                                  newFieldNames, icvMode) {
@@ -2061,18 +2065,22 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
 
     workItem.api = XcalarApisT.XcalarApiMap;
 
-    if (evalStrs.constructor === Array) {
-        workItem.input.mapInput.numEvals = evalStrs.length;
-        workItem.input.mapInput.evalStrs = evalStrs;
-    } else {
-        workItem.input.mapInput.numEvals = 1;
-        workItem.input.mapInput.evalStrs = [evalStrs];
+    if (evalStrs) {
+        if (evalStrs.constructor === Array) {
+            workItem.input.mapInput.numEvals = evalStrs.length;
+            workItem.input.mapInput.evalStrs = evalStrs;
+        } else {
+            workItem.input.mapInput.numEvals = 1;
+            workItem.input.mapInput.evalStrs = [evalStrs];
+        }
     }
 
-    if (newFieldNames.constructor === Array) {
-        workItem.input.mapInput.newFieldNames = newFieldNames;
-    } else {
-        workItem.input.mapInput.newFieldNames = [newFieldNames];
+    if (newFieldNames) {
+        if (newFieldNames.constructor === Array) {
+            workItem.input.mapInput.newFieldNames = newFieldNames;
+        } else {
+            workItem.input.mapInput.newFieldNames = [newFieldNames];
+        }
     }
 
     workItem.input.mapInput.srcTable.tableName = srcTableName;
@@ -2272,9 +2280,11 @@ xcalarAddExportTargetWorkItem = runEntity.xcalarAddExportTargetWorkItem = functi
 
 xcalarAddExportTarget = runEntity.xcalarAddExportTarget = function(thriftHandle, target) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarAddExportTarget(target.hdr.name = " + target.hdr.name +
-                ", target.hdr.type = " + ExTargetTypeTStr[target.hdr.type] +
-                ")");
+    if (verbose) {
+        console.log("xcalarAddExportTarget(target.hdr.name = " + target.hdr.name +
+                    ", target.hdr.type = " + ExTargetTypeTStr[target.hdr.type] +
+                    ")");
+    }
 
     var workItem = xcalarAddExportTargetWorkItem(target);
 
@@ -2310,9 +2320,11 @@ xcalarRemoveExportTargetWorkItem = runEntity.xcalarRemoveExportTargetWorkItem = 
 
 xcalarRemoveExportTarget = runEntity.xcalarRemoveExportTarget = function(thriftHandle, targetHdr) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarRemoveExportTarget(targetHdr.name = " + targetHdr.name +
-                ", targetHdr.type = " + ExTargetTypeTStr[targetHdr.type] +
-                ")");
+    if (verbose) {
+        console.log("xcalarRemoveExportTarget(targetHdr.name = " + targetHdr.name +
+                    ", targetHdr.type = " + ExTargetTypeTStr[targetHdr.type] +
+                    ")");
+    }
 
     var workItem = xcalarRemoveExportTargetWorkItem(targetHdr);
 
@@ -2525,7 +2537,9 @@ xcalarMakeRetinaWorkItem = runEntity.xcalarMakeRetinaWorkItem = function(retinaN
 
     workItem.api = XcalarApisT.XcalarApiMakeRetina;
     workItem.input.makeRetinaInput.retinaName = retinaName;
-    workItem.input.makeRetinaInput.numTables = tableArray.length;
+    if (tableArray) {
+        workItem.input.makeRetinaInput.numTables = tableArray.length;
+    }
     workItem.input.makeRetinaInput.tableArray = tableArray;
     return (workItem);
 };
@@ -2754,7 +2768,9 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
     workItem.input.executeRetinaInput.queryName = queryName;
-    workItem.input.executeRetinaInput.numParameters = parameters.length;
+    if (parameters) {
+        workItem.input.executeRetinaInput.numParameters = parameters.length;
+    }
     workItem.input.executeRetinaInput.parameters = parameters;
     workItem.input.executeRetinaInput.exportToActiveSession = exportToActiveSession;
     workItem.input.executeRetinaInput.dstTable.tableName = newTableName;
@@ -2768,8 +2784,8 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName +
-                    "exportToActiveSession = " + exportToActiveSession +
-                    "newTableName = " + newTableName + ")");
+                    ", exportToActiveSession = " + exportToActiveSession +
+                    ", newTableName = " + newTableName + ")");
         for (var ii = 0; ii < parameters.length; ii++) {
             parameter = parameters[ii];
             console.log(parameter.parameterName + " = " + parameter.parameterValue);
@@ -3256,48 +3272,6 @@ xcalarApiGetMemoryUsage = runEntity.xcalarApiGetMemoryUsage = function(thriftHan
     })
     .fail(function(error) {
         console.log("xcalarApiGetMemoryUsage() caught exception: ", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-xcalarApiMemoryWorkItem = runEntity.xcalarApiMemoryWorkItem = function(tagName) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.memoryInput = new XcalarApiMemoryInputT();
-
-    workItem.api = XcalarApisT.XcalarApiMemory;
-    workItem.input.memoryInput.tagName = tagName;
-    return (workItem);
-};
-
-xcalarApiMemory = runEntity.xcalarApiMemory = function(thriftHandle, tagName) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiMemory(tagName = ", tagName, ")");
-    }
-
-    var workItem = xcalarApiMemoryWorkItem(tagName);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var memOutput = result.output.outputResult.memoryOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            memOutput = new XcalarApiMemoryOutputT();
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-        }
-
-        deferred.resolve(memOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarApiMemory() caught exception: ", error);
         deferred.reject(handleRejection(error));
     });
 
@@ -4080,7 +4054,9 @@ xcalarApiStartFuncTestWorkItem = runEntity.xcalarApiStartFuncTestWorkItem = func
     workItem.input.startFuncTestInput.runAllTests = runAllTests;
     workItem.input.startFuncTestInput.runOnAllNodes = runOnAllNodes;
     workItem.input.startFuncTestInput.testNamePatterns = testNamePatterns;
-    workItem.input.startFuncTestInput.numTestPatterns = testNamePatterns.length;
+    if (testNamePatterns) {
+        workItem.input.startFuncTestInput.numTestPatterns = testNamePatterns.length;
+    }
 
     return (workItem);
 };
@@ -4351,7 +4327,7 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() +
-                    "logFlushLevel = " + logFlushLevel + "logFlushPeriod = " +
+                    ", logFlushLevel = " + logFlushLevel + "logFlushPeriod = " +
                     logFlushPeriod + ")");
     }
 

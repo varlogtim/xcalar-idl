@@ -12,7 +12,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var deferred = jQuery.Deferred();
         initializeVariable();
         setupSessionCancel();
-
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
         .then(activateWorkbook)

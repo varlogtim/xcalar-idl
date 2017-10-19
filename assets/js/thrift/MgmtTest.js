@@ -143,6 +143,16 @@ PromiseHelper = (function(PromiseHelper, $) {
 
 }({}, jQuery));
 
+window.Function.prototype.bind = function() {
+    var fn = this;
+    var args = Array.prototype.slice.call(arguments);
+    var obj = args.shift();
+    return (function() {
+        return (fn.apply(obj,
+                args.concat(Array.prototype.slice.call(arguments))));
+    });
+};
+
 (function($, TestSuite) {
     "use strict";
 
@@ -3267,28 +3277,6 @@ PromiseHelper = (function(PromiseHelper, $) {
         test.trivial(xcalarApiGetMemoryUsage(thriftHandle, "test", 1));
     }
 
-    function testMemory(test) {
-        xcalarApiMemory(thriftHandle, null)
-        .done(function(memOutput) {
-            var ii;
-            for (ii = 0; ii < memOutput.numNodes; ii++) {
-                var jj;
-                var nodeOutput = memOutput.memOutputPerNode[ii];
-                console.log("\tNode Id: ", nodeOutput.nodeId);
-                console.log("\tNum Tags: ", nodeOutput.numTags);
-                for (jj = 0; jj < nodeOutput.numTags; jj++) {
-                    var tagOutput = nodeOutput.memOutputPerTag[jj];
-                    console.log("\t", tagOutput.locName, "\t", tagOutput.tagName, "\t", tagOutput.memUsageInBytes);
-                }
-                console.log("\n\n");
-            }
-            test.pass();
-        })
-        .fail(function(status) {
-            test.fail(StatusTStr[status]);
-        });
-    }
-
     function testListXdfs(test) {
         xcalarApiListXdfs(thriftHandle, "*", "*")
         .done(function(listXdfsOutput) {
@@ -3954,6 +3942,60 @@ PromiseHelper = (function(PromiseHelper, $) {
         test.trivial(xcalarLogLevelGet(thriftHandle));
     }
 
+    function testApisWithNoArgs(test) {
+        // This test calls Xcalar APIs without arguments. Some APIs are not suppose to
+        // have arguments and so require them.  We don't differentiate between the two
+        // as the goal of the test is to ensure that mgmtd and usrnode don't crash.
+        // Some APIs are handled in the mgmtd where the lack of arguments leads to a
+        // workItem not being allocated.  Other APIs make it to usrnode and should have
+        // errors returned.
+
+        var saveVerbose = verbose;
+        // Turn off "verbose" otherwise handlers will try to log nonexistent arguments
+        // and trap.
+        verbose = false;
+
+        var apiList = [];
+
+        for (var prop in window) {
+            if (prop.indexOf("xcalar") === 0 &&
+                window[prop] instanceof Function &&
+                prop.indexOf("WorkItem") === -1) {
+                // XXX: Make necesary changes to allow these APIs to accommodate
+                // this test.
+                if (prop === "xcalarConnectThrift" ||
+                    prop === "xcalarApiGetQuery") continue;
+                // Deprecated API which hasn't been removed
+                if (prop === "xcalarGetStatsByGroupId") continue;
+                // Don't run without arguments as full size support bundle is
+                // generated.
+                if (prop === "xcalarApiSupportGenerate") continue;
+                apiList.push(window[prop]);
+            }
+        }
+        function testApi(apiFunc) {
+            var deferred = jQuery.Deferred();
+            apiFunc(thriftHandle)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        var promArray = [];
+
+        for (var i = 0; i < apiList.length; i++) {
+            var prom = testApi.bind(test, apiList[i]);
+            promArray.push(prom);
+        }
+        console.log("Calling " + promArray.length + " APIs with no arguments");
+        PromiseHelper.chain(promArray)
+        .then(function() {
+            verbose = saveVerbose;
+            test.pass();
+        })
+        .fail(test.fail);
+
+    }
+
     function testFuncDriverRun(test) {
         xcalarApiStartFuncTest(thriftHandle, false, false, false, ["libhello::*"])
         .done(function(startFuncTestOutput) {
@@ -3964,7 +4006,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             if (startFuncTestOutput.testOutputs[0].testName != "libhello::hello") {
                 test.fail("We got a bogus test name: " + startFuncTestOutput.testOutputs[0].testName);
             }
-
             if (startFuncTestOutput.testOutputs[0].status != StatusT.StatusOk) {
                 test.fail(startFuncTestOutput.testOutputs[0].testName + " failed with status: " +
                           StatusTStr[startFuncTestOutput.testOutputs[0].status] + " (" +
@@ -4026,6 +4067,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testApisWithNoArgs, "call Xcalar APIs without args", defaultTimeout, TestCaseEnabled, "");
 
     // This actually starts our sessions, so run this before any test
     // that requires sessions
@@ -4160,7 +4203,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testTop, "top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPerNodeTop, "per node top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetMemoryUsage, "get memory usage test", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testApps, "Apps test", defaultTimeout, TestCaseEnabled, "");

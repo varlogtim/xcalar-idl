@@ -603,7 +603,8 @@ StatusT = {
   'StatusBufferOnFailed' : 594,
   'StatusCantUnbufferLogs' : 595,
   'StatusLogFlushPeriodFailure' : 596,
-  'StatusInvalidLogLevel' : 597
+  'StatusInvalidLogLevel' : 597,
+  'StatusNoDsUsers' : 598
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1202,5 +1203,6 @@ StatusTStr = {0 : 'Success',
 594 : 'Attempt to buffer logs failed',
 595 : 'Failure to unbuffer logs is fatal',
 596 : 'Failure in updating periodic log flushing',
-597 : 'The specified log level is not valid'
+597 : 'The specified log level is not valid',
+598 : 'There are no users of the dataset'
 };

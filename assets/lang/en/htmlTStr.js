@@ -1056,13 +1056,13 @@ module.exports = {
 
     "liveHelp": {
         "Title": "Live Chat",
-        "Instruction": "Welcome! Please enter the information below before " +
-                       "we can help you.",
+        "Instruction": "Please enter the information below to start a chat",
         "Name": "Name:",
         "Email": "Email:",
-        "SendEmail": "\"Send some messages first\"",
+        "SendEmail": "\"Type a message first\"",
         "TypeMsg": "\"Type message here and press enter to send\"",
-        "EmailInfo": "This email address will be used to receive copy of chat messages",
+        "EmailInfo": "A copy of your chat log will be sent to this email " +
+                     "address",
         "EmailError": "Invalid email address"
     },
 

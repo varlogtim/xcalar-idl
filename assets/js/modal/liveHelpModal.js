@@ -36,7 +36,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 $modal.find(".chatBox").hide();
                 $modal.find(".emailInfo").show();
                 $modal.find(".emailError").hide();
-                $modal.find(".sendEmail").attr("data-original-title", AlertTStr.EmailDisabled);
+                $modal.find(".sendEmail").attr("data-original-title",
+                                               AlertTStr.EmailDisabled);
                 $modal.find(".sendEmail").addClass("email-disabled");
                 $modal.find(".sendEmail").hide();
                 // Auto-filling username and email
@@ -56,7 +57,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (!autoResend) {
             // If the client is not connected to socket yet
             if (!connected) {
-                var url = "http://xcalar-livechat.westus2.cloudapp.azure.com:12124/";
+                var url = "http://xcalar-livechat.westus2.cloudapp.azure.com" +
+                          ":12124/";
                 socket = io.connect(url);
                 addSocketEvent();
             }
@@ -80,7 +82,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         var opts = {
             userName: userName,
             email: email
-        }
+        };
         socket.emit("liveHelpConn", opts);
     }
     // Support is ready to chat
@@ -103,7 +105,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .then(function(licenseObj) {
             licenseKey = licenseObj.key;
             expiration = licenseObj.expiration;
-            return SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
+            return SupTicketModal.submitTicket(ticketObj, licenseObj, true,
+                                               true);
         })
         .then(function(ret) {
             try {
@@ -144,10 +147,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         var row = "<div class='" + type + "'></div>";
         if (type !== "sysMsg") {
             content = xcHelper.escapeHTMLSpecialChar(content);
-            row = "<div class='" + type + "Sender'><p>" + sender + "</p></div>" + row;
+            row = "<div class='" + type + "Sender'>" +
+                    "<p>" + sender + "</p></div>" + row;
             if($modal.find(".sendEmail").hasClass("email-disabled")) {
                 $modal.find(".sendEmail").removeClass("email-disabled");
-                $modal.find(".sendEmail").attr("data-original-title", AlertTStr.EmailEnabled);
+                $modal.find(".sendEmail").attr("data-original-title",
+                                               AlertTStr.EmailEnabled);
             }
         }
         content = content.replace(/\n/g,"</br>");
@@ -182,7 +187,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                     from: 'support@xcalar.com',
                     to: dest,
                     subject: 'Support Chat History for ' + fullName,
-                    text: "=====Your ticket ID is " + ticketId + "=====\n"+content
+                    text: "=====Your ticket ID is " + ticketId + "=====\n" +
+                          content
                 };
                 appendMsg(AlertTStr.EmailSending, "sysMsg");
                 sendEmail(mailOpts);
@@ -250,7 +256,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 // If the new height is below max-height, adjust accordingly
                 if (newHeight <= 200) {
                     $(sendArea).height($(sendArea).height() + toIncrease);
-                    $(chatMsg).css("height", "calc(100% - " + (newHeight + 10) + "px");
+                    $(chatMsg).css("height", "calc(100% - " + (newHeight + 10) +
+                                   "px");
                 } else {
                     // Set to max-height
                     $(sendArea).height(200);
@@ -266,7 +273,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             // If it is not on reqConn UI, ask the user if he needs all messages
             // to be sent to his email
             if (!$modal.find(".reqConn").is(":visible")) {
-                var confirmation = AlertTStr.LeaveConMsg + "<a class='confirmClose'>" +
+                var confirmation = AlertTStr.LeaveConMsg +
+                                   "<a class='confirmClose'>" +
                                    CommonTxtTstr.YES + "</a>";
                 appendMsg(confirmation, "sysMsg");
                 $modal.on("click", ".confirmClose", function() {
@@ -322,7 +330,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         var ticketObj = {
             "ticketId": ticketId,
-            "comment": "======This ticket is auto-generated from LiveChat=====\n"+ content,
+            "comment": "======This ticket is auto-generated from LiveChat" +
+                       "=====\n"+ content,
             "userIdName": userIdName,
             "userIdUnique": userIdUnique,
             "severity": 4
@@ -331,7 +340,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .then(function(licenseObj) {
             SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
         });
-    }
+    };
     // Leave the conversation, reset liveHelp modal
     function closeModal() {
         if (socket) {
