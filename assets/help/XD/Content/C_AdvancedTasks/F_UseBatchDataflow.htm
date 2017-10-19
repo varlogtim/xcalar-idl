@@ -197,7 +197,7 @@ Scheduling, which is described in <a href="F1_ScheduleBatchDataflow.htm" class="
 The actual result of running a batch dataflow depends on your selection under <span class="UIelement">Advanced Export Options</span> in the graph before you run the batch dataflow:</p>
                                         <ul>
                                             <li value="1">
-                                                <p><span class="UIelement">Export to export target</span>):&#160;The export folder shown in the batch dataflow graph is saved to the default export target or a user-defined target that you can specify in the <span class="UIelement">Parameterize Operation</span> modal window. For information about parameterizing, see <a href="#Specifyi" class="MCXref xref" xrefformat="{para}">Renaming the export folder shown in a batch dataflow graph</a>. By default, the table is exported to a folder at the default export target.</p>
+                                                <p><span class="UIelement">Export to export target</span>:&#160;The export folder shown in the batch dataflow graph is saved to the default export target or a user-defined target that you can specify in the <span class="UIelement">Parameterize Operation</span> modal window. For information about parameterizing, see <a href="#Specifyi" class="MCXref xref" xrefformat="{para}">Renaming the export folder shown in a batch dataflow graph</a>. By default, the table is exported to a folder at the default export target.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:The name of the export file must not be a duplicate. For example, if running the batch dataflow for the first time creates a file named export-airlines1#L811.csv, re-running the batch dataflow fails because the dataflow attempts to create an export file with the same name. To avoid duplicating names, before re-running a dataflow, either rename the existing export file (for example, to export-airlines00#L811.csv) or parameterize the name for the export file to be created. </div>
                                             </li>
                                             <li value="2">
@@ -242,8 +242,7 @@ The actual result of running a batch dataflow depends on your selection under <s
                                             </li>
                                         </ol>
                                         <p>The following screenshot illustrates how you can specify the export folder name and export target name.</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/export-file-name-for-batch-dataflow.png" />
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/export-file-name-for-batch-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="925" data-mc-height="683" src="../Resources/Images/XD_screenshots/export-file-name-for-batch-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Running a batch dataflow</h2>
                                         <p>Follow these steps to run a batch dataflow:</p>
@@ -293,7 +292,7 @@ The actual result of running a batch dataflow depends on your selection under <s
                                         <h3>Downloading</h3>
                                         <p>To download a batch dataflow, click <img src="../Resources/Images/XD_assets/xd-download-batch-dataflow.png" /> for the selected batch dataflow in the batch dataflow list. </p>
                                         <p>The following screenshot shows the icons for downloading and uploading batch dataflows.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/download-upload-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1586" data-mc-height="611" src="../Resources/Images/XD_screenshots/download-upload-dataflow_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/download-upload-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1641" data-mc-height="560" src="../Resources/Images/XD_screenshots/download-upload-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Uploading</h3>
                                         <p>You can upload a batch dataflow that was downloaded from the same <span class="GeneralProductName3">Xcalar</span> cluster or any other <span class="GeneralProductName3">Xcalar</span> cluster. If the dataflow file has a UDF&#160;associated with it (for example, a UDF is used in one of the operations in the dataflow), the UDFs of the cluster are affected in one of the following ways:</p>

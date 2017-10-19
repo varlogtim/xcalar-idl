@@ -5,7 +5,15 @@
         <meta name="description" content="" />
         <meta name="author" content="" /><title></title>
         <link href="../Stylesheets/StylesForHomePage.css" rel="stylesheet" type="text/css" />
-    </head>
+		<link href="../../Fonts/open-sans.regular.ttf" rel="stylesheet" type="text/css">
+		</link>
+		<link href="../../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" type="text/css">
+		</link>
+		<link href="../../Fonts/OpenSans-Light.ttf" rel="stylesheet" type="text/css">
+		</link>
+		<link href="../../Fonts/OpenSans-Bold.ttf" rel="stylesheet" type="text/css">
+		</link>
+	</head>
     <body>
         <div class="body">
             <div id="contentBody" class="off-canvas-main">

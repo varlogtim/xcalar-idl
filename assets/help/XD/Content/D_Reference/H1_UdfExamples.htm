@@ -287,7 +287,7 @@ def xmlToJson1(fullPath, xmlStream):
                                         </div>
                                         <p>This module imports a third-party module named <span class="UIelement">xmltodict</span> and defines a function named <span class="UIelement">xmlToJson1</span>. This function has two parameters:</p>
                                         <ul>
-                                            <li value="1">The <span class="UIelement">xmlString</span> parameter is a string containing the full contents of the data source. </li>
+                                            <li value="1">The <span class="UIelement">xmlStream</span> parameter is a string containing the full contents of the data source. </li>
                                             <li value="2">The <span class="UIelement">fullPath</span> parameter  is a string, which is the full pathname to the data source.</li>
                                         </ul>
                                         <p>The return value of the function will be used in the place of the actual file contents.</p>
@@ -301,7 +301,7 @@ def xmlToJson1(fullPath, xmlStream):
                                         </ol>
                                         <p>For more information about importing a data source, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Importing data from a data source</a>.</p>
                                         <h3>Result of running the import UDF</h3>
-                                        <p>Suppose the data source is a file named <span class="UIelement">bookstore</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">bookstore</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data being imported. If you create a table with all columns from the dataset, your worksheet contains the following table:</p>
+                                        <p>Suppose the data source is a file named <span class="UIelement">bookstore</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">bookstore</span> are passed to the UDF&#160;in <span class="UIelement">xmlStream</span>. The function returns a string containing the corresponding JSON&#160;data being imported. If you create a table with all columns from the dataset, your worksheet contains the following table:</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-streaming-example-output.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1165" data-mc-height="185" src="../Resources/Images/XD_screenshots/udf-streaming-example-output_thumb_0_40.png" tabindex="" /></a>
                                         </p>
                                         <h2><a name="Example"></a>Example of using a UDF when exporting</h2>
@@ -365,7 +365,7 @@ def main(inStruct):
                                             <li value="1">Click the <span class="UIelement">Export Targets</span> icon to display the <span class="UIelement">Export Targets</span> panel.</li>
                                             <li value="2">Type the target name. For example, you can specify ExcelTarget as the target name.</li>
                                             <li value="3">Select UDF as the export target.</li>
-                                            <li value="4">In the <span class="UIelement">Additional Information</span> section, enter the path to the file system in which the UDF will write its output. For example, enter /nas/exports_excel, which is a shared directory that all nodes of the <span class="GeneralProductName3">Xcalar</span> cluster can write to.</li>
+                                            <li value="4">In the <span class="UIelement">Additional Information</span> section, enter the path to the file system in which the UDF will write its output. For example, enter /nas/exports_excel, which is a shared directory that <MadCap:conditionalText data-mc-conditions="General.XDHelp">all nodes of the <span class="GeneralProductName3">Xcalar</span> cluster</MadCap:conditionalText> can write to.</li>
                                             <li value="5">Select the write_to_excel module, and leave the UDF function name as main.</li>
                                             <li value="6">Click <span class="UIelement">ADD</span>.</li>
                                         </ol>

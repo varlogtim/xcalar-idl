@@ -174,11 +174,11 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Making source data accessible</h1>
                                         <p>Importing a data source means telling <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be stored at a location accessible to all <span class="GeneralProductName3">Xcalar</span> nodes for <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to import them.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;After you import data from a file to <span class="GeneralProductName3">Xcalar</span>, changing the path to the file renders your data inaccessible after a cluster restart.&#160;For example, if you rename the source data file or the directory containing the file, and then restart the cluster, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can no longer  locate the data source when trying to import the data. This failure means that you cannot use the workbook containing tables created from the data. Therefore, name carefully each component of the path to the source data file so that the path does not require any changes after the import.</div>
-                                        <p>This topic describes the steps for ensuring that the source data files are accessible for <span class="GeneralProductName3">Xcalar</span> to import. Some of these steps require configuring the storage system where the source data files reside. If you do not have the appropriate access privileges, contact your system administrator to set up the source data files for you.</p>
+                                        <div class="Note" data-mc-conditions="General.XDHelp"><span class="label">IMPORTANT</span>:&#160;After you import data from a file to <span class="GeneralProductName3" data-mc-conditions="General.XDHelp">Xcalar</span>, changing the path to the file renders your data inaccessible after a cluster restart.&#160;For example, if you rename the source data file or the directory containing the file, and then restart the cluster, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can no longer  locate the data source when trying to import the data. This failure means that you cannot use the workbook containing tables created from the data. Therefore, name carefully each component of the path to the source data file so that the path does not require any changes after the import.</div>
+                                        <p>This topic describes the steps for ensuring that the source data files are accessible for <span class="GeneralProductName3" data-mc-conditions="General.XDHelp">Xcalar</span> to import. Some of these steps require configuring the storage system where the source data files reside. If you do not have the appropriate access privileges, contact your system administrator to set up the source data files for you.</p>
                                         <h2><a name="Understa"></a>Protocols used for accessing source data files</h2>
                                         <p>You must prepare the data source so that all nodes of the cluster can access the same data. The exact procedure for preparing the data source depends on the protocol for data access. </p>
-                                        <div class="Note"><span class="label">NOTE</span>: For some protocols, only the <span class="GeneralCompanyNameShort">Xcalar</span> cluster administrator, who has the appropriate access privileges to the cluster, can carry out the procedure described in this section.</div>
+                                        <div class="Note" data-mc-conditions="General.XDHelp"><span class="label">NOTE</span>: For some protocols, only the <span class="GeneralCompanyNameShort">Xcalar</span> cluster administrator, who has the appropriate access privileges to the cluster, can carry out the procedure described in this section.</div>
                                         <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports the protocols described in the following table. </p>
                                         <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                             <col style="width: 50%;" class="TableStyle-SimpleTable-Column-Column1" />
@@ -190,11 +190,11 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                <tr class="TableStyle-SimpleTable-Body-Body1" data-mc-conditions="General.XDHelp">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">file:///</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">File</td>
                                                 </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                <tr class="TableStyle-SimpleTable-Body-Body2" data-mc-conditions="General.XDHelp">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">hdfs://</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Hadoop Distributed File System (HDFS)</td>
                                                 </tr>
@@ -206,23 +206,23 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">azblob://</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Microsoft Azure</td>
                                                 </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                <tr class="TableStyle-SimpleTable-Body-Body1" data-mc-conditions="General.XDHelp">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">mapr://</td>
                                                     <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">MapR</td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                         <p>The following sections describe what you must do for your data to be accessible to all nodes of the <span class="GeneralProductName3">Xcalar</span> cluster.</p>
-                                        <h2>Using file:///</h2>
-                                        <p>If you select <span class="UIelement">file:///</span> to access data in shared storage that is visible to all nodes (for example, through a Network File System (NFS) in a network attached storage (NAS) environment), verify that the directory structure for accessing the shared storage is identical across all nodes. </p>
-                                        <p>For example, if your data resides in an NFS&#160;file system, all nodes must mount the same file system using the same path name as the mount point. That is, the same file system must be mounted on all nodes, and the mount point on all nodes must be the same (for example, /mnt/datasets). Similarly, if the source data files are local files, they must be stored under the same name and they must have identical contents. For example, to import a local file named /datasets/file1, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> must be able to find /datasets/file1 on each node, and /datasets/file1 must contain the same contents across all nodes.</p>
-                                        <p>The following list describes the possible scenarios where importing a shared file system fails:</p>
+                                        <h2 data-mc-conditions="General.XDHelp">Using file:///</h2>
+                                        <p data-mc-conditions="General.XDHelp">If you select <span class="UIelement">file:///</span> to access data in shared storage that is visible to all nodes (for example, through a Network File System (NFS) in a network attached storage (NAS) environment), verify that the directory structure for accessing the shared storage is identical across all nodes. </p>
+                                        <p data-mc-conditions="General.XDHelp">For example, if your data resides in an NFS&#160;file system, all nodes must mount the same file system using the same path name as the mount point. That is, the same file system must be mounted on all nodes, and the mount point on all nodes must be the same (for example, /mnt/datasets). Similarly, if the source data files are local files, they must be stored under the same name and they must have identical contents. For example, to import a local file named /datasets/file1, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> must be able to find /datasets/file1 on each node, and /datasets/file1 must contain the same contents across all nodes.</p>
+                                        <p data-mc-conditions="General.XDHelp">The following list describes the possible scenarios where importing a shared file system fails:</p>
                                         <ul>
-                                            <li value="1">The nodes use different mount points for the same NFS&#160;file system. For example, some nodes mount the file system as /mnt/dataset1 and some nodes mount the file system as /mnt/dataset2.</li>
-                                            <li value="2">All nodes have the same mount point (/mnt/datasets) but it points to different file systems. For example, /mnt/datasets on some nodes point to a file system on host1 and the same mount point on other nodes point to a file system on host2.</li>
+                                            <li value="1" data-mc-conditions="General.XDHelp">The nodes use different mount points for the same NFS&#160;file system. For example, some nodes mount the file system as /mnt/dataset1 and some nodes mount the file system as /mnt/dataset2.</li>
+                                            <li value="2" data-mc-conditions="General.XDHelp">All nodes have the same mount point (/mnt/datasets) but it points to different file systems. For example, /mnt/datasets on some nodes point to a file system on host1 and the same mount point on other nodes point to a file system on host2.</li>
                                         </ul>
-                                        <h2>Using hdfs://</h2>
-                                        <p>If you select <span class="UIelement">hdfs://</span> to access data in an HDFS&#160;file system (for example, on a Hortonworks or Cloudera platform), verify that the host with the HDFS file system is accessible to all nodes of the cluster. Contact your Hadoop administrator to obtain the host name of the machine with the HDFS&#160;file system. You cannot use <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to list all the hosts on which an HDFS file system is installed. </p>
+                                        <h2 data-mc-conditions="General.XDHelp">Using hdfs://</h2>
+                                        <p data-mc-conditions="General.XDHelp">If you select <span class="UIelement">hdfs://</span> to access data in an HDFS&#160;file system (for example, on a Hortonworks or Cloudera platform), verify that the host with the HDFS file system is accessible to all nodes of the cluster. Contact your Hadoop administrator to obtain the host name of the machine with the HDFS&#160;file system. You cannot use <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to list all the hosts on which an HDFS file system is installed. </p>
                                         <h2>Using s3://</h2>
                                         <p>The S3 instance needs to be configured for S3 access. This is because <span class="GeneralProductName3">Xcalar</span> connects not only to your local S3 bucket, but also to any other S3 accounts that you have access to.</p>
                                         <p>To configure S3, establish an SSH connection with each <span class="GeneralProductName3">Xcalar</span> cluster node. Then follow these steps:</p>
@@ -236,13 +236,14 @@
                                         <p><a href="http://boto3.readthedocs.io/en/latest/guide/configuration.html#configuring-credentials">http://boto3.readthedocs.io/en/latest/guide/configuration.html#configuring-credentials</a>
                                         </p>
                                         <h2>Using azblob://</h2>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;This section is required if you store your source data files in your own Azure Storage account. If you deploy <span class="GeneralProductName3">Xcalar</span> from Microsoft Azure Marketplace, <span class="GeneralProductName3">Xcalar</span> automatically creates an Azure Storage account for you. For <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to access the files in the  Xcalar-created storage account, you do not need to follow the steps in this section.</div>
                                         <p>If your data is in Microsoft Azure Storage, for each storage account, follow these steps to make the data in the account accessible to <span class="GeneralProductName3">Xcalar</span>:</p>
                                         <ol>
                                             <li value="1">Use a web browser to go to  your Azure Storage accounts management web page.</li>
                                             <li value="2">Click your storage account name.</li>
                                             <li value="3">Navigate to the shared access signature (SAS)&#160;page.</li>
                                             <li value="4">
-                                                <p>Set the SAS&#160;parameters as follows for generating the SAS token:</p>
+                                                <p>Set the SAS&#160;parameters as follows to generate the SAS token. Leave all other parameters not listed in the following table at their defaults.</p>
                                                 <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -254,24 +255,12 @@
                                                     </thead>
                                                     <tbody>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed services</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Blob</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Start and expiry date/time</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Start time and end time for the time period when your <span class="GeneralProductName3">Xcalar</span> cluster can access the data</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Allowed resource types</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Service, Container, Object</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Allowed permissions</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Read, List</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Start and expiry date/time</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Start time and end time for the time period when your <span class="GeneralProductName3">Xcalar</span> cluster can access the data</td>
-                                                        </tr>
-                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Allowed protocols</td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">HTTPS only</td>
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">Allowed protocols</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">HTTPS only</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -289,15 +278,15 @@
 </p>
                                                 <p>In this example, the Azure Storage account name is myaccount. Be sure to use the appropriate account name for your Azure Storage.</p>
                                             </li>
-                                            <li value="7">Save the /etc/xcalar/default.cfg file.</li>
-                                            <li value="8">Restart <span class="GeneralProductName3">Xcalar</span> to make the change to /etc/xcalar/default.cfg take effect.</li>
+                                            <li value="7">After you finish adding the SAS token for each storage account, save the /etc/xcalar/default.cfg file. </li>
+                                            <li value="8">Restart the cluster to make the change in the /etc/xcalar/default.cfg file take effect. For information about restarting the cluster, see <a href="../C_AdvancedTasks/L_UseSetup.htm" class="MCXref xref">Using Setup (Xcalar admin only)</a></li>
                                         </ol>
-                                        <h2>Using mapr://</h2>
-                                        <p>If the data source is on a MapR cluster,  follow these steps to enable authorized MapR cluster users to access the data from <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:</p>
+                                        <h2 data-mc-conditions="General.XDHelp">Using mapr://</h2>
+                                        <p data-mc-conditions="General.XDHelp">If the data source is on a MapR cluster,  follow these steps to enable authorized MapR cluster users to access the data from <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:</p>
                                         <ol>
-                                            <li value="1">Verify that the <span class="GeneralCompanyNameShort">Xcalar</span> users who want to access data on a MapR cluster have  their usernames and passwords for the MapR cluster.</li>
-                                            <li value="2">For each <span class="GeneralCompanyNameShort">Xcalar</span> cluster node, follow these steps to set up the MapR client:<ol style="list-style-type: lower-alpha;"><li value="1"><p>Install the appropriate MapR client package from the MapR website. For example, install the following package from MapR:</p><p>mapr-client-5.2.0.39122.GA-1.x86_64.rpm</p><p>Make sure that the client package version matches your MapR cluster version.</p></li><li value="2"><p>Enter the following command, which uses the MapR configure script, on the <span class="GeneralCompanyNameShort">Xcalar</span> cluster node to configure the MapR client against the MapR cluste:</p><p class="userInput">/opt/mapr/server/configure.sh -c -C mapr-cldb-node -secure -N my-mapr-cluster</p><p>In the actual command, substitute your MapR cluster name for  my-mapr-cluster. </p></li><li value="3"><p>Enter the following command to copy the cluster ssl_truststore to the client node:</p><p class="userInput">scp admin@mapr-cldb-node:/opt/mapr/conf/ssl_truststore /opt/mapr/conf</p></li></ol></li>
-                                            <li value="3">
+                                            <li value="1" data-mc-conditions="General.XDHelp">Verify that the <span class="GeneralCompanyNameShort">Xcalar</span> users who want to access data on a MapR cluster have  their usernames and passwords for the MapR cluster.</li>
+                                            <li value="2" data-mc-conditions="General.XDHelp">For each <span class="GeneralCompanyNameShort">Xcalar</span> cluster node, follow these steps to set up the MapR client:<ol style="list-style-type: lower-alpha;"><li value="1"><p data-mc-conditions="General.XDHelp">Install the appropriate MapR client package from the MapR website. For example, install the following package from MapR:</p><p data-mc-conditions="General.XDHelp">mapr-client-5.2.0.39122.GA-1.x86_64.rpm</p><p data-mc-conditions="General.XDHelp">Make sure that the client package version matches your MapR cluster version.</p></li><li value="2"><p data-mc-conditions="General.XDHelp">Enter the following command, which uses the MapR configure script, on the <span class="GeneralCompanyNameShort">Xcalar</span> cluster node to configure the MapR client against the MapR cluste:</p><p class="userInput" data-mc-conditions="General.XDHelp">/opt/mapr/server/configure.sh -c -C mapr-cldb-node -secure -N my-mapr-cluster</p><p data-mc-conditions="General.XDHelp">In the actual command, substitute your MapR cluster name for  my-mapr-cluster. </p></li><li value="3"><p data-mc-conditions="General.XDHelp">Enter the following command to copy the cluster ssl_truststore to the client node:</p><p class="userInput" data-mc-conditions="General.XDHelp">scp admin@mapr-cldb-node:/opt/mapr/conf/ssl_truststore /opt/mapr/conf</p></li></ol></li>
+                                            <li value="3" data-mc-conditions="General.XDHelp">
                                                 <p>(Optional) Follow these steps to verify that each user can log in to the MapR cluster:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">
@@ -314,8 +303,8 @@
                                                 </ol>
                                             </li>
                                         </ol>
-                                        <h2>If data source is not shared</h2>
-                                        <p>If your data is stored in a  shared-nothing environment, you can still create a dataset on <span class="GeneralProductName3">Xcalar</span> for the data by using the <span class="GeneralCompanyNameShort">Xcalar</span> SDK. For more information about the SDK, contact <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</p>
+                                        <h2 data-mc-conditions="General.XDHelp">If data source is not shared</h2>
+                                        <p data-mc-conditions="General.XDHelp">If your data is stored in a  shared-nothing environment, you can still create a dataset on <span class="GeneralProductName3">Xcalar</span> for the data by using the <span class="GeneralCompanyNameShort">Xcalar</span> SDK. For more information about the SDK, contact <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</p>
                                         <h2>Next step</h2>
                                         <p>Prepare the data in the source data files  by following the instructions in this topic:</p>
                                         <p><a href="B2_PrepareDataSource.htm" class="MCXref xref">Preparing the data source</a>

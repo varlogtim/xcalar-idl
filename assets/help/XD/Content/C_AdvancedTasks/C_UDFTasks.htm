@@ -183,14 +183,14 @@
                                         <p>Both methods require that you display the <span class="UIelement">User Defined Function</span> panel.</p>
                                         <h3>Displaying the UDF&#160;panel</h3>
                                         <p>Click  <img src="../Resources/Images/XD_assets/xd-udf-icon.png" /> to display the <span class="UIelement">User Defined Function</span> panel.&#160;The following screenshot shows the location of the UDF icon.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="532" data-mc-height="648" src="../Resources/Images/XD_screenshots/udf-icon-location_thumb_0_150.png" tabindex="" /></a>
+                                        <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="532" data-mc-height="648" src="../Resources/Images/XD_screenshots/udf-icon-location_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following screenshot shows  the <span class="UIelement">User Defined Function</span> panel. </p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/udf-panel.png" />
                                         </p>
                                         <h3>Typing the code directly</h3>
-                                        <p>Follow these steps to write the UDF in the panel and then save it to <span class="GeneralProductName3">Xcalar</span>:</p>
+                                        <p>Follow these steps to write the UDF in the panel and then save it:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
                                             <li value="2">Click the drop-down arrow to display a list of existing modules. Select one to use it as a template. Alternatively, select <span class="UIelement">Blank function</span> if you want to type in an empty file.</li>
@@ -205,7 +205,7 @@
                                         </ol>
                                         <div class="Note"><span class="label">TIP</span>: When editing a UDF, you can use the keyboard shortcut appropriate for your  operating system to search for or replace a string. For example, if you run <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> in a browser on Microsoft Windows, press the Ctrl and F keys to search for a string, and the Ctrl, Shift, and F keys to replace a string.</div>
                                         <h3>Uploading  files</h3>
-                                        <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to your cluster:</p>
+                                        <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to <MadCap:conditionalText data-mc-conditions="General.XDHelp">your cluster</MadCap:conditionalText>:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
                                             <li value="2">Click <span class="UIelement">Browse File</span>, which enables you to navigate to the folder on your computer that contains the file. Then select the file. The contents of the selected file are displayed in the <span class="UIelement">User Defined Function</span> panel.</li>
@@ -219,7 +219,7 @@
                                         <h2>About Python code parsing</h2>
                                         <p>When you try to add a UDF, it is parsed by the Python interpreter. If there are parse errors, they are reported to you and the UDF is not added.</p>
                                         <h2>Downloading a module</h2>
-                                        <p>Follow these steps to download a   UDF&#160;module from the cluster to your computer:</p>
+                                        <p>Follow these steps to download a   UDF&#160;module from <MadCap:conditionalText data-mc-conditions="General.XDHelp">your cluster</MadCap:conditionalText> to your computer:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer.</li>
@@ -232,7 +232,7 @@
                                             <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/XD_assets/xd-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName3">Xcalar</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing.</li></ul></li>
                                         </ol>
                                         <h3>Effect of changing a UDF on workbook re-activation</h3>
-                                        <p>When you re-activate a workbook, <span class="GeneralProductName3">Xcalar</span> must re-create each table in the workbook  according to the information contained in the table's dataflow. If a dataflow contains a UDF that has been changed since the table was created, the table displayed in the re-activated workbook might contain values different from the original ones.</p>
+                                        <p>When you re-activate a workbook, <span class="GeneralProductName3" data-mc-conditions="General.XDHelp">Xcalar</span> must re-create each table in the workbook  according to the information contained in the table's dataflow. If a dataflow contains a UDF that has been changed since the table was created, the table displayed in the re-activated workbook might contain values different from the original ones.</p>
                                         <h3>Effects of changing a UDF on a batch dataflow</h3>
                                         <p>If a batch dataflow contains a UDF and that UDF has been changed, <span class="GeneralProductName3">Xcalar</span> uses the modified UDF, not the original UDF when the batch dataflow was created, during the execution of the batch dataflow.</p>
                                         <h2>Deleting a module</h2>
@@ -243,10 +243,10 @@
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-trashcan.png" /> to delete the module.</li>
                                         </ol>
                                         <h2><a name="Effects"></a>Effects of UDF deletion on workbooks and batch dataflows</h2>
-                                        <p>The following list describes what happens after you remove a function from a UDF module or delete a UDF module from the cluster. Because UDFs are shared by all users on the cluster, all users who have applied the UDF are affected in the same way.</p>
+                                        <p>The following list describes what happens after you remove a function from a UDF module or delete a UDF module from <MadCap:conditionalText data-mc-conditions="General.XDHelp">the cluster</MadCap:conditionalText>. Because UDFs are shared by all users on the cluster, all users who have applied the UDF are affected in the same way.</p>
                                         <ul>
                                             <li value="1">
-                                                <p>When <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> tries to re-activate a workbook (for example, after <span class="GeneralProductName2">Xcalar Compute Engine</span> is restarted or when you switch from one workbook to another):</p>
+                                                <p>When <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> tries to re-activate a workbook (for example, after <MadCap:conditionalText data-mc-conditions="General.XDHelp"><span class="GeneralProductName2">Xcalar Compute Engine</span></MadCap:conditionalText> is restarted or when you switch from one workbook to another):</p>
                                                 <p>If the workbook contains a temporary or active table that is dependent on the  UDF, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> displays an error message reporting that the UDF cannot be found. As a result, the workbook cannot be activated until you re-create the UDF&#160;with the same name. </p>
                                                 <p>A table is considered to be dependent on the UDF&#160;if one of these conditions applies:</p>
                                                 <ul>

@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Detailed steps for Xcalar 1.2.2 (with custom settings)</title>
+        <meta name="author" content="" /><title>Detailed steps for importing data to Xcalar Design (with custom settings)</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -172,7 +172,7 @@
                                         </div>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Detailed steps for <span class="GeneralProductFullVersion">Xcalar 1.2.2</span> (with custom settings)</h1>
+                                        <h1>Detailed steps for importing data to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> (with custom settings)</h1>
                                         <p>This section provides detailed information about the steps up to the point where you can start performing operations in tables presented in a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> workbook. Read this section if you want to better understand the fields that are displayed when you start using <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> and if you want to override default settings when importing your data source.</p>
                                         <div class="Note"><span class="label">IMPORTANT</span>:&#160;You must follow the instructions in <a href="B2_PrepareDataSource.htm" class="MCXref xref">Preparing the data source</a> before you start using <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to import data.</div>
                                         <h2>Starting <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span></h2>
@@ -211,7 +211,7 @@
                                         <ol>
                                             <li value="1">
                                                 <p>Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Datasets</span> icon). Its location is shown in the following screenshot:</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" style="mc-thumbnail: popup;" tabindex="" /></a>
+                                                <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="2">
@@ -259,7 +259,7 @@
                                             </li>
                                             <li value="6">
                                                 <p>(Optional)&#160;Specify values for the advanced options as described in <a href="#About" class="MCXref xref">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="659" data-mc-height="418" src="../Resources/Images/XD_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="624" data-mc-height="393" src="../Resources/Images/XD_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="7">
@@ -387,7 +387,7 @@
                                         <ul>
                                             <li value="1">
                                                 <p><span class="UIelement">Entire file/folder</span>:&#160;If this option is selected, the maximum dataset size is 1 TB, by default. Due to the high limit, it is likely that <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can import all the data in the entire data source, whether it is a file or a folder.  This option is particularly useful for interactive analysis.</p>
-                                                <p>If you are not the cluster administrator, consult your administrator to determine the current maximum dataset size. If you are the cluster administrator, you can set the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter through the <span class="UIelement">Setup</span> icon of the Monitor. For information about setting parameter values, see <a href="../C_AdvancedTasks/L_UseSetup.htm#Configur" class="MCXref xref">Configuring parameters</a>.  </p>
+                                                <p>If you are not the <MadCap:conditionalText data-mc-conditions="General.XDHelp">cluster</MadCap:conditionalText>  administrator, consult your administrator to determine the current maximum dataset size. If you are the administrator, you can set the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter through the <span class="UIelement">Setup</span> icon of the Monitor. For information about setting parameter values, see <a href="../C_AdvancedTasks/L_UseSetup.htm#Configur" class="MCXref xref">Configuring parameters</a>.  </p>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160; If your data source is a 900-GB file or a folder consisting of files that add up to 900 GB, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can import all data in the data source because the dataset size is below the 1-TB limit. If your data source is a 1.2 TB  file, the attempt to import it fails. If your data source is a folder consisting of files that add up to 1.2 TB, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports as many files in the folder as possible until the 1-TB limit is reached, provided that the smallest file in the folder is less than 1 TB.</div>
                                             </li>
                                             <li value="2">
@@ -400,7 +400,8 @@
                                         </ul>
                                         <p>You now have a dataset referencing your data source. The dataset is listed in the <span class="UIelement">Datasets</span> section of the left panel. </p>
                                         <h2>Next step</h2>
-                                        <p>You are now ready to create a table according to the instructions in <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</p>
+                                        <p>To create a table from a dataset, see <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</p>
+                                        <p>To perform tasks associated with datasets, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing datasets</a>.</p>
                                         <div class="Note"><span class="label">NOTE</span>: If you prefer to create a dataset and a table at the same time in the future, you can enable an option in the <span class="UIelement">General Settings</span> window. For information about changing a setting, see <a href="../C_AdvancedTasks/K_Monitor.htm#Setting" class="MCXref xref">Changing the environment settings for Xcalar Design</a>.</div>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
