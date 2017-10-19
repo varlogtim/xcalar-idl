@@ -498,6 +498,9 @@ window.JSONModal = (function($, JSONModal) {
         var $jsonWrap = $btn.closest('.jsonWrap');
         var index = $jsonWrap.index();
         $jsonWrap.find(".jInfo").each(function() {
+            if ($(this).hasClass("pulled")) {
+                return true;
+            }
             var $checkbox = $(this).children(".jsonCheckbox");
             var wasNotChecked = false;
             if (!$checkbox.hasClass("checked")) {
@@ -541,6 +544,10 @@ window.JSONModal = (function($, JSONModal) {
                                  .data('numTotalFields');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
+        if (numTotalFields === 0) {
+              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                        .text(JsonModalTStr.AllFieldsPulled);
+        }
         selectedCols[$jsonWrap.index()] = [];
     }
 
@@ -589,6 +596,10 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .text(numSelected + '/' + numTotalFields +
                                             ' ' + JsonModalTStr.FieldsPull);
+        if (numTotalFields === 0) {
+              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                        .text(JsonModalTStr.AllFieldsPulled);
+        }
         if (numSelected === 0) {
             $jsonWrap.find('.submitProject').addClass('disabled');
             $jsonWrap.find('.clearAll').addClass('disabled');
@@ -618,6 +629,9 @@ window.JSONModal = (function($, JSONModal) {
                 var $els = $();
                 $cboxes.each(function() {
                     var $checkbox = $(this);
+                    if ($checkbox.parent().hasClass("pulled")) {
+                        return true;
+                    }
                     var $key = $checkbox.siblings('.jKey, .arrayEl');
                     if (!$key.length) {
                         $key = $checkbox.siblings();
@@ -1209,7 +1223,6 @@ window.JSONModal = (function($, JSONModal) {
                 prettyJson = '"' + prettyJson + '"';
             }
         } else {
-            // var checkboxes = true;
             var groups;
 
             if (isArray) {
@@ -1245,6 +1258,7 @@ window.JSONModal = (function($, JSONModal) {
             setPrefixTabs(groups);
         }
 
+        markPulledCols($jsonTd, $jsonArea, isArray, isDataCol, location);
         addDataToJsonWrap($jsonTd, isArray);
     }
 
@@ -1571,6 +1585,7 @@ window.JSONModal = (function($, JSONModal) {
 
         var numMainFields = $jsonWrap.find('.primary').find('.mainKey').length;
         var numTotalFields = $jsonWrap.find('.primary').find('.jInfo').length;
+        numTotalFields -= $jsonWrap.find(".pulled").length;
         $jsonWrap.find('.projectModeBar .numColsSelected')
                  .data('numMainFields', numMainFields)
                  .text('0/' + numMainFields + ' ' +
@@ -1578,7 +1593,60 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .data('numTotalFields', numTotalFields)
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
+        if (numTotalFields === 0) {
+              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                        .text(JsonModalTStr.AllFieldsPulled);
+        }
+    }
 
+    function markPulledCols($jsonTd, $jsonArea, isArray, isDATACol, colName) {
+        var $jsonWrap = $jsonArea.find('.jsonWrap:last');
+        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var table =  gTables[tableId];
+        var cols = table.getAllCols(true);
+        $jsonWrap.find(".jsonCheckbox").each(function() {
+            var $checkbox = $(this);
+            if ($checkbox.hasClass('prefixCheckbox')) {
+                return true;
+            } else {
+                var $key = $checkbox.siblings('.jKey, .arrayEl');
+                if (!$key.length) {
+                    $key = $checkbox.siblings();
+                }
+                if ($key.length) {
+                    var backName = createJsonSelectionExpression($key).escapedName;
+                    backName = xcHelper.escapeDblQuoteForHTML(backName);
+                    if (!isDataCol) {
+                        backName = parseUnnestTd(backName, colName, isArray);
+                    }
+                    $checkbox.closest(".jsonBlock").attr("data-backname", backName);
+                }
+            }
+        });
+
+        cols.forEach(function(progCol) {
+            var backName = progCol.getBackColName();
+            backName = xcHelper.escapeDblQuoteForHTML(backName);
+            backName = xcHelper.escapeColName(backName);
+            var $checkbox = $jsonWrap.find('.jsonBlock[data-backname="' +
+                                        backName + '"]').addClass("pulled")
+                                     .children(".jsonCheckbox");
+            var left = parseInt($checkbox.css("left")) + 5;
+            $checkbox.after('<i class="icon xi-tick" style="left:' + left +
+                            'px;"></i>');
+        });
+    }
+
+    function parseUnnestTd(name, colName, isArray) {
+        var openSymbol = "";
+
+        if (!isArray) {
+            openSymbol = ".";
+        }
+
+        var escapedColName = colName + openSymbol + name;
+
+        return escapedColName;
     }
 
     // location  is either a tablename if datacol, or column name

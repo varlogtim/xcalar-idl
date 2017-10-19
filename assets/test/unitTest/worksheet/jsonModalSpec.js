@@ -82,7 +82,7 @@ describe('JsonModal Test', function() {
 
         it('object in mixed col should work', function(done) {
             var $td = $table.find('.row0 .col11');
-            $td.find('.displayedData').html('{"a":"b"}');
+            $td.find('.originalData').html('{"a":"b"}');
             JSONModal.show($td, {type: "mixed"});
             // allow modal to fade in
             setTimeout(function() {
@@ -100,7 +100,7 @@ describe('JsonModal Test', function() {
 
         it('array in mixed col should work', function(done) {
             var $td = $table.find('.row0 .col11');
-            $td.find('.displayedData').html('["a","b"]');
+            $td.find('.originalData').html('["a","b"]');
             JSONModal.show($td, {type: "mixed"});
             // allow modal to fade in
             setTimeout(function() {
@@ -540,23 +540,24 @@ describe('JsonModal Test', function() {
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/21 fields selected to pull");
+            expect($jsonWrap.find(".pulled").length).to.equal(14);
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
         });
 
         it('selecting a field should work', function() {
-            $jsonWrap.find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/21 fields selected to pull");
+            $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/7 fields selected to pull");
         });
 
         it('select and deselect all should work', function() {
             $jsonWrap.find('.selectAll').click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("21/21 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("7/7 fields selected to pull");
 
-            $jsonWrap.find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("20/21 fields selected to pull");
+            $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("6/7 fields selected to pull");
 
             $jsonWrap.find('.clearAll').click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/21 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
         });
 
         it('clicking on json key element should select key', function() {
@@ -570,14 +571,14 @@ describe('JsonModal Test', function() {
         });
 
         it('back to select mode', function() {
-            $jsonWrap.find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/21 fields selected to pull");
+            $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/7 fields selected to pull");
 
             $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/21 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
 

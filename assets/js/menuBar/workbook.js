@@ -842,7 +842,7 @@ window.Workbook = (function($, Workbook) {
                         ' title="' + WKBKTStr.Duplicate + '">' +
                             '<i class="icon xi-duplicate"></i>' +
                         '</div></div>' +
-                        '<div class="vertBarBtn">' + stopTab + '</div>' +
+                        stopTab +
                     '</div>' +
                 '</div>' +
             '</div>';

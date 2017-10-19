@@ -940,6 +940,7 @@ JsonModalTStr = {
 'Duplicate': '复制此面板',
 'FieldsPull': '提取列',
 'FieldsSelected': '选定项目的领域',
+'AllFieldsPulled': 'All fields are pulled',
 'MultiSelectMode': '多选模式',
 'Original': '原始的',
 'OriginalTip': '查看原始数据列',

@@ -1105,6 +1105,7 @@ JsonModalTStr = {
     'Duplicate': 'Duplicate this panel',
     'FieldsPull': 'fields selected to pull',
     'FieldsSelected': 'fields selected to project',
+    'AllFieldsPulled': 'All fields are pulled',
     'MultiSelectMode': 'Multi Select Mode',
     'Original': 'Original',
     'OriginalTip': 'View the original data fields',

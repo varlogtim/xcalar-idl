@@ -179,6 +179,15 @@
         opacity: 0;
     }
 
+    .pulled {
+        .xi-tick {
+            .position(absolute, @top: 4px); // left being set in js
+            font-size: 7px;
+            color: @color-font-softBlue;
+            display: none;
+        }
+    }
+
     .jsonDragArea {
         .size(@width: 100%, @height: 30px);
         .cursor-move;
@@ -306,14 +315,6 @@
                         }
                     }
                 }
-                .jKey {
-                    // pointer-events: none;
-                    // cursor: default;
-                    &:hover {
-                        background-color: transparent;
-                        box-shadow: none;
-                    }
-                }
 
                 .jObject > .jArray > .jsonBlock > .jKey {
                     cursor: pointer;
@@ -403,6 +404,20 @@
                     width: ~"calc(100% - 192px)";
                 }
             }
+
+            .pulled {
+                > span {
+                    pointer-events: none;
+                }
+
+                > .jsonCheckbox {
+                    display: none !important;
+                }
+
+                .xi-tick {
+                    display: block;
+                }
+            }
         }
 
         &.projectMode {
@@ -422,14 +437,6 @@
                             background-color: transparent;
                             box-shadow: none;
                         }
-                    }
-                }
-                .jKey {
-                    // pointer-events: none;
-                    // cursor: default;
-                    &:hover {
-                        background-color: transparent;
-                        box-shadow: none;
                     }
                 }
 

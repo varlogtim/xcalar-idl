@@ -1417,7 +1417,6 @@ window.ColManager = (function($, ColManager) {
         var knf = false;
         var truncLimit = 1000; // the character limit for the data td
         var colTruncLimit = 500; // the character limit for other tds
-
         var tdClass = "clickable";
         var isDATACol = false;
 
