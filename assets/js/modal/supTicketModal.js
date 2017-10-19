@@ -407,12 +407,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 }
 
                 var ticketId;
-                var admins;
+                var admin;
 
                 try {
                     var logs = JSON.parse(ret.logs);
                     ticketId = logs.ticketId;
-                    admins = logs.admins;
+                    admin = logs.admin;
                 } catch (err) {
                     console.error(err);
                 }
@@ -420,14 +420,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 if (!ticketId) {
                     ticketId = "N/A";
                 }
-                if (!admins) {
-                    admins = "N/A";
-                }
-                var adminStr = "";
-                if (admins.indexOf(",") > -1) {
-                    adminStr = MonitorTStr.AcctAdmins + ": " + admins;
-                } else {
-                    adminStr = MonitorTStr.AcctAdmin + ": " + admins;
+                if (!admin) {
+                    admin = "N/A";
                 }
 
                 if (genBundle) {
@@ -444,7 +438,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 appendTicketToList(ticket);
                 var msg = MonitorTStr.TicketSuccess + "<br/>" +
                                     MonitorTStr.TicketId + ": " + ticketId +
-                                    "<br/>" + adminStr;
+                                    "<br/>" + MonitorTStr.AcctAdmin + ": " +
+                                    admin;
 
                 Alert.show({
                     title: SuccessTStr.SubmitTicket,
