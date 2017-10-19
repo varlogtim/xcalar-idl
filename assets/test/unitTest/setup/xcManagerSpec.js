@@ -55,13 +55,6 @@ describe("xcManager Test", function() {
             });
         });
 
-        it("should handle workbook hold error", function() {
-            handleSetupFail(WKBKTStr.Hold);
-            expect(title).to.equal(WKBKTStr.Hold);
-            expect($("#viewLocation").text().includes(WKBKTStr.Hold))
-            .to.be.true;
-        });
-
         it("should handle session not found error", function() {
             handleSetupFail({"status": StatusT.StatusSessionNotFound});
             expect(title).to.equal(WKBKTStr.NoOldWKBK);
