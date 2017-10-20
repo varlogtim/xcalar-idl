@@ -1,12 +1,17 @@
 window.TblMenu = (function(TblMenu, $) {
+    var colMenuMap;
+    var tableMenuMap;
+    var cellMenuMap;
+
     TblMenu.setup = function() {
         try {
-            xcMenu.add($('#tableMenu'));
-            xcMenu.add($('#colMenu'));
-            xcMenu.add($('#cellMenu'));
+            xcMenu.add($('#tableMenu'), {hotkeys: menuHotKeys});
+            xcMenu.add($('#colMenu'), {hotkeys: menuHotKeys});
+            xcMenu.add($('#cellMenu'), {hotkeys: menuHotKeys});
             addTableMenuActions();
             addColMenuActions();
             addPrefixColumnMenuActions();
+            setupHotKeys();
         } catch (error) {
             console.error(error);
         }
@@ -484,9 +489,16 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNum  = $colMenu.data('colNum');
+
+            var colNums;
+            if ($(this).hasClass("multiColumn")) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums  = [$colMenu.data('colNum')];
+            }
+
             var tableId = $colMenu.data('tableId');
-            ColManager.delCol([colNum], tableId);
+            ColManager.delCol(colNums, tableId);
         });
 
         $subMenu.on('click', '.inputAction', function() {
@@ -1040,15 +1052,6 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         // multiple columns
-        $colMenu.on('mouseup', '.hideColumns', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var columns = $colMenu.data('columns');
-            var tableId = $colMenu.data('tableId');
-            ColManager.delCol(columns, tableId);
-        });
-
         $colMenu.on('mouseup', '.minimizeColumns', function(event) {
             if (event.which !== 1) {
                 return;
@@ -1102,7 +1105,6 @@ window.TblMenu = (function(TblMenu, $) {
                 default:
                     break;
             }
-
         });
     }
 
@@ -1220,8 +1222,117 @@ window.TblMenu = (function(TblMenu, $) {
         return (cells);
     }
 
+    function setupHotKeys() {
+        tableMenuMap = {
+            a: "advancedOptions",
+            b: "createDf",
+            c: "corrAgg",
+            d: "deleteTable",
+            e: "exportTable",
+            h: "archiveTable",
+            j: "jupyterTable",
+            m: "hideTable",
+            s: "multiCast",
+            u: "unhideTable",
+            x: "exitOp"
+        };
+
+        colMenuMap = {
+            a: "aggregate",
+            c: "corrAgg",
+            d: "hideColumn.newColumn",
+            e: "extensions",
+            f: "filter",
+            g: "groupby",
+            h: "hideColumn",
+            j: "join",
+            m: "map",
+            p: "profile",
+            s: "sort",
+            t: "changeDataType",
+            x: "exitOp"
+        };
+
+        cellMenuMap = {
+            c: "tdCopy",
+            e: "tdExclude",
+            f: "tdFilter",
+            p: "tdUnnest",
+            x: "tdJsonModal"
+        };
+    }
+
     TblMenu.sortColumn = sortColumn;
 
+    function menuHotKeys(event, $menu) {
+        var key = event.which;
+        var letter = letterCode[key];
+        var menuMap;
+        if ($menu.attr("id") === "colMenu") {
+            menuMap = colMenuMap;
+        } else if ($menu.attr("id") === "tableMenu") {
+            menuMap = tableMenuMap;
+        } else {
+            menuMap = cellMenuMap;
+        }
+        if (event.which === keyCode.Alt) {
+            toggleHotKeys(event, $menu, menuMap);
+        }
+
+        if (!letter) {
+            return;
+        }
+
+        if (menuMap.hasOwnProperty(letter)) {
+            var menuAction = menuMap[letter];
+            var $li = $menu.find("." + menuAction +
+                            ":visible:not('.unavailable')").eq(0);
+            if (!$li.length) {
+                return;
+            }
+            event.preventDefault();
+            if ($li.hasClass("parentMenu")) {
+                $li.trigger(fakeEvent.mouseenter);
+            } else {
+                $li.trigger(fakeEvent.mouseup);
+            }
+        }
+    }
+
+    function toggleHotKeys(event, $menu, menuMap) {
+        event.preventDefault();
+        if ($menu.hasClass("showingHotKeys")) {
+            for (var letter in menuMap) {
+                var $labels = $menu.find("." + menuMap[letter]).find(".label");
+                $labels.each(function() {
+                    var $label = $(this);
+                    var text = $label.text();
+                    $label.text(text);
+                });
+            }
+            $menu.removeClass("showingHotKeys");
+        } else {
+            for (var letter in menuMap) {
+                var $labels = $menu.find("." + menuMap[letter]).find(".label");
+                $labels.each(function() {
+                    var $label = $(this);
+                    if ($label.find(".underline").length) {
+                        return true;
+                    }
+                    var text = $label.text();
+                    var keyIndex = text.toLowerCase().indexOf(letter);
+                    if (keyIndex === -1) {
+                        return true;
+                    }
+                    var html = text.slice(0, keyIndex) +
+                                '<span class="underline">' + text[keyIndex] +
+                                '</span>' + text.slice(keyIndex + 1);
+                    $label.html(html);
+                });
+            }
+            $menu.addClass("showingHotKeys");
+        }
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {

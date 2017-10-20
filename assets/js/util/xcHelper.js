@@ -3800,10 +3800,17 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         if (options.classes != null) {
+            var showingHotKeys = false;
+            if ($menu.hasClass("showingHotKeys")) {
+                showingHotKeys = true;
+            }
             var className = options.classes.replace("header", "");
             $menu.attr("class", "menu " + className);
             if ($subMenu) {
                 $subMenu.attr("class", "menu subMenu " + className);
+            }
+            if (showingHotKeys) {
+                $menu.addClass("showingHotKeys");
             }
         }
 
@@ -4033,20 +4040,20 @@ window.xcHelper = (function($, xcHelper) {
         {
             // when it's only on one column and column is formatted
             if (isMultiCell) {
-                $tdFilter.text('Filter pre-formatted values');
-                $tdExclude.text('Exclude pre-formatted values');
+                $tdFilter.find(".label").text('Filter pre-formatted values');
+                $tdExclude.find(".label").text('Exclude pre-formatted values');
             } else {
-                $tdFilter.text('Filter pre-formatted value');
-                $tdExclude.text('Exclude pre-formatted value');
+                $tdFilter.find(".label").text('Filter pre-formatted value');
+                $tdExclude.find(".label").text('Exclude pre-formatted value');
             }
             options.classes += " long";
         } else {
             if (isMultiCell) {
-                $tdFilter.text('Filter these values');
-                $tdExclude.text('Exclude these values');
+                $tdFilter.find(".label").text('Filter these values');
+                $tdExclude.find(".label").text('Exclude these values');
             } else {
-                $tdFilter.text('Filter this value');
-                $tdExclude.text('Exclude this value');
+                $tdFilter.find(".label").text('Filter this value');
+                $tdExclude.find(".label").text('Exclude this value');
             }
         }
 

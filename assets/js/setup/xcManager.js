@@ -834,6 +834,7 @@ window.xcManager = (function(xcManager, $) {
                     checkUndoRedo(event);
                     break;
                 default:
+                    tableKeyEvents(event);
                     break;
             }
 
@@ -1357,6 +1358,34 @@ window.xcManager = (function(xcManager, $) {
         }
 
         return false;
+    }
+
+    function tableKeyEvents(event) {
+        // only being used for ctrl+o to open column dropdown
+        if (!(isSystemMac && event.metaKey) &&
+            !(!isSystemMac && event.ctrlKey))
+        {
+            return;
+        }
+        if (letterCode[event.which] !== "o") {
+            return;
+        }
+
+        if ($('#workspacePanel').hasClass('active') &&
+            !$('#modalBackground').is(":visible") &&
+            !$('textarea:focus').length &&
+            !$('input:focus').length) {
+
+            var $th = $(".xcTable th.selectedCell");
+            if ($th.length > 0) {
+                event.preventDefault();
+            }
+            if ($th.length !== 1) {
+                return;
+            }
+
+            $th.find(".dropdownBox").trigger(fakeEvent.click);
+        }
     }
 
     function logoutRedirect() {

@@ -174,6 +174,7 @@ module.exports = {
         "ExitJoin": "Exit Join",
         "ExitExt": "Exit Extension",
         "ExitDF": "Exit Dataflow",
+        "ExitSort": "Exit Sort",
         "ExpandAllDags": "Expand collapsed tables",
         "ExpandAllDagsAll": "Expand all collapsed tables",
         "ExportTbl": "Export table",
@@ -182,6 +183,7 @@ module.exports = {
         "FltCell": "Filter this value",
         "FocusTbl": "Find table in worksheet",
         "Format": "Format",
+        "FullTable": "Full Table",
         "GB": "Group by",
         "GenIcv": "Create erroneous rows table",
         "GenER": "Create ER table",
@@ -209,6 +211,7 @@ module.exports = {
         "Open": "Open",
         "OpenImage": "Open image in new tab",
         "Optional": "Optional",
+        "PartialTable": "Partial Table",
         "Percent": "Percent",
         "Preview": "Preview",
         "Profile": "Profile",
@@ -1078,6 +1081,8 @@ module.exports = {
         "TestImportUDF": "Test Existing Import UDF (Azure Blob)",
         "UDFTemplate": "UDF Template",
         "JupyterNotebook": "Jupyter Notebook",
-        "CodeSnippets": "Code Snippets"
+        "CodeSnippets": "Code Snippets",
+        "SelectSampleRows": "Select the number of rows to sample from this table",
+        "NumRows": "number of rows"
     }
 };

@@ -728,10 +728,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colMenu.find('.hideColumn').trigger(rightMouseup);
+                $colMenu.find('.hideColumn').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.hideColumn').trigger(fakeEvent.mouseup);
+                $colMenu.find('.hideColumn').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.delCol = cachedFunc;
@@ -840,10 +840,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colMenu.find('.functions.groupby').trigger(rightMouseup);
+                $colMenu.find('.functions.groupby').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.functions.groupby').trigger(fakeEvent.mouseup);
+                $colMenu.find('.functions.groupby').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 OperationsView.show = cachedFunc;
@@ -1438,10 +1438,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colMenu.find('.hideColumns').trigger(rightMouseup);
+                $colMenu.find('.hideColumn').last().trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.hideColumns').trigger(fakeEvent.mouseup);
+                $colMenu.find('.hideColumn').last().trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.delCol = cachedFunc;

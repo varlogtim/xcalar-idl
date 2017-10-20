@@ -45,6 +45,7 @@ module.exports = {
         "ExitJoin": "退出连接",
         "ExitMap": "退出映射",
         "ExitSmartCast": "退出数据类型探测",
+        "ExitSort": "Exit Sort",
         "ExpandAllDags": "展开表",
         "ExpandAllDagsAll": "展开所以表",
         "ExportTbl": "导出表",
@@ -53,6 +54,7 @@ module.exports = {
         "FltCell": "过滤此值",
         "FocusTbl": "在工作表中查找表格",
         "Format": "格式",
+        "FullTable": "Full Table",
         "GB": "组",
         "GenIcv": "生成完整性约束冲突异常表",
         "GenER": "Create ER table",
@@ -80,6 +82,7 @@ module.exports = {
         "Open": "打开",
         "OpenImage": "在新标签页中打开图像",
         "Optional": "可选的",
+        "PartialTable": "Partial Table",
         "Percent": "百分比",
         "Preview": "预览",
         "Profile": "数据概况",
@@ -275,6 +278,7 @@ module.exports = {
         "Maximize": "最大化",
         "Minimize": "最小化",
         "NA": "N/A",
+        "New": "New",
         "NEW": "新建",
         "NEXT": "下一步",
         "Name": "名称",
@@ -304,6 +308,7 @@ module.exports = {
         "Service": "服务",
         "Size": "大小",
         "SortBy": "排序方式",
+        "START": "START",
         "Supports": "支持",
         "Table": "表",
         "TableName": "Table name",
@@ -368,6 +373,7 @@ module.exports = {
     "ds": {
         "DSIn": "数据集",
         "Datasets": "数据集",
+        "Import": "Import Datasets",
         "Point": "导入数据源",
         "Protocol": "数据源协议",
         "Retry": "重试",
@@ -514,7 +520,7 @@ module.exports = {
     "fileBrowser": {
         "Offset": "偏移",
         "SearchHint": "正则表达式搜索",
-        "SkipToOfXfset": "跳转至",
+        "SkipToOffset": "跳转至",
         "Up": "返回",
         "filePathHint": "点击查看历史记录",
         "header": "浏览数据源",
@@ -533,7 +539,14 @@ module.exports = {
         "uninstallWizard": "卸载向导",
         "uninstallWizardContent": "从您指定集群上卸载Xcalar。",
         "upgradeWizard": "升级向导",
-        "upgradeWizardContent": "升级到最近版本的Xcalar。升级选项仅在当前Xcalar集群已存在并且关闭时可用。"
+        "upgradeWizardContent": "升级到最近版本的Xcalar。升级选项仅在当前Xcalar集群已存在并且关闭时可用。",
+        "title": "Error",
+        "instrUp": "An error has occurred.",
+        "instrDown": "Please review the following error(s).",
+        "errorCode": "Error Code:",
+        "description": "Description:",
+        "errorMessage": "Error Message:",
+        "showHide": "Show/Hide error log"
     },
     "joinView": {
         "ADDCLAUSE": "添加连接条件",
@@ -783,7 +796,9 @@ module.exports = {
     "queryGraph": {
         "field": "列名",
         "numRows": "行数",
-        "type": "类型"
+        "type": "类型",
+        "node": "Node",
+        "numRowsPct": "Num Rows (percent)"
     },
     "sched": {
         "biweekly": "每两周",
@@ -1003,6 +1018,8 @@ module.exports = {
         "TestImportUDF": "Test Existing Import UDF (Azure Blob)",
         "UDFTemplate": "UDF Template",
         "JupyterNotebook": "Jupyter Notebook",
-        "CodeSnippets": "Code Snippets"
+        "CodeSnippets": "Code Snippets",
+        "SelectSampleRows": "Select the number of rows to sample from this table",
+        "NumRows": "number of rows"
     }
 }

@@ -3,9 +3,11 @@ window.xcMenu = (function(xcMenu, $) {
     // behaviors include highlighting lis on hover, opening submenus on hover
 
     var closeCallback;
+    var hotKeyFns = {}; // menuId: callbackFn
 
     // options:
     //  keepOpen: if set true, main menu will not close when click the li
+    //  hotKeys: callback function for hotkeys
     xcMenu.add = function($mainMenu, options) {
         var $subMenu;
         var $allMenus = $mainMenu;
@@ -216,6 +218,11 @@ window.xcMenu = (function(xcMenu, $) {
                 scrollerOnly: true
             });
         }
+
+        if (options.hotkeys && $mainMenu.attr("id") &&
+            $("html").attr("lang") === "en-US") {
+            hotKeyFns[$mainMenu.attr("id")] = options.hotkeys;
+        }
     };
 
     xcMenu.show = function($menu, callback) {
@@ -298,11 +305,16 @@ window.xcMenu = (function(xcMenu, $) {
         if (!options.allowSelection) {
             $('body').addClass('noSelection');
         }
-        $(document).on('keydown.menuNavigation', function(event) {
-            listHighlight(event);
-        });
         var $lis = $menu.find('li:visible:not(.unavailable)');
         var numLis = $lis.length;
+
+        $(document).on('keydown.menuNavigation', listHighlight);
+        var menuId = $menu.attr("id");
+        if (menuId && hotKeyFns[menuId]) {
+            $(document).on("keydown.menuHotKeys", function(event) {
+                hotKeyFns[menuId](event, $menu);
+            });
+        }
 
         function listHighlight(event) {
             var keyCodeNum = event.which;
@@ -501,6 +513,7 @@ window.xcMenu = (function(xcMenu, $) {
 
     xcMenu.removeKeyboardNavigation = function() {
         $(document).off('keydown.menuNavigation');
+        $(document).off('keydown.menuHotKeys');
         $('body').removeClass('noSelection');
     };
 
