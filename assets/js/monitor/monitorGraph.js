@@ -347,7 +347,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var xVal = allStats[i].used;
 
             if (i === cpuIndex) { // cpu %
-                xVal /= numNodes;
                 xVal = Math.min(100, xVal);
                 yMax = 100;
             } else { // memory
