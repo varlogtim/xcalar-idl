@@ -65,6 +65,7 @@ window.XcSupport = (function(XcSupport, $) {
         promise
         .then(sessionHoldAlert)
         .then(function() {
+            xcSessionStorage.removeItem(XcSupport.getUser());
             XcSocket.registerUser();
             commitFlag = randCommitFlag();
             // hold the session
@@ -80,34 +81,44 @@ window.XcSupport = (function(XcSupport, $) {
     function sessionHoldAlert(userExist) {
         var deferred = jQuery.Deferred();
         if (userExist) {
-            var $initScreen = $("#initialLoadScreen");
-            var isVisible = $initScreen.is(":visible");
-            if (isVisible) {
-                $initScreen.hide();
-            }
-            // when seesion is hold by others
-            Alert.show({
-                "title": WKBKTStr.Hold,
-                "msg": WKBKTStr.HoldMsg,
-                "buttons": [{
-                    "name": CommonTxtTstr.Back,
-                    "className": "cancel",
-                    "func": function() {
-                        deferred.reject(WKBKTStr.Hold);
-                    }
-                },
-                {
-                    "name": WKBKTStr.Release,
-                    "className": "cancel",
-                    "func": function() {
-                        if (isVisible) {
-                            $initScreen.show();
+            var lastLogInTime = xcSessionStorage.getItem(XcSupport.getUser());
+            lastLogInTime = Number(lastLogInTime);
+            // 25000 is the pingInterval for socket io if it's long polling
+            // see: https://socket.io/docs/server-api/
+            if (lastLogInTime && new Date().getTime() - lastLogInTime <= 25000) {
+                // in this case consider as a refresh case
+                deferred.resolve();
+
+            } else {
+                var $initScreen = $("#initialLoadScreen");
+                var isVisible = $initScreen.is(":visible");
+                if (isVisible) {
+                    $initScreen.hide();
+                }
+                // when seesion is hold by others
+                Alert.show({
+                    "title": WKBKTStr.Hold,
+                    "msg": WKBKTStr.HoldMsg,
+                    "buttons": [{
+                        "name": CommonTxtTstr.Back,
+                        "className": "cancel",
+                        "func": function() {
+                            deferred.reject(WKBKTStr.Hold);
                         }
-                        deferred.resolve();
-                    }
-                }],
-                "noCancel": true
-            });
+                    },
+                    {
+                        "name": WKBKTStr.Release,
+                        "className": "cancel",
+                        "func": function() {
+                            if (isVisible) {
+                                $initScreen.show();
+                            }
+                            deferred.resolve();
+                        }
+                    }],
+                    "noCancel": true
+                });
+            }
         } else {
             deferred.resolve();
         }

@@ -847,6 +847,7 @@ window.xcManager = (function(xcManager, $) {
 
         window.onbeforeunload = function() {
             xcManager.unload(true);
+            xcSessionStorage.setItem(XcSupport.getUser(), new Date().getTime());
             if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
             } else if (backspaceIsPressed) {
