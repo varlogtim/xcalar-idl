@@ -8,21 +8,35 @@ describe("LiveHelp Modal Test", function() {
     var oldSendReqToSocket;
     var oldSendEmail;
     var oldSendMsgToSocket;
+    var oldSubmitTicket;
+    var oldFetchLicenseInfo;
     before(function(){
         UnitTest.onMinMode();
         oldSendReqToSocket = LiveHelpModal.__testOnly__.getSendReqToSocket;
         oldSendEmail = LiveHelpModal.__testOnly__.getSendEmail;
         oldSendMsgToSocket = LiveHelpModal.__testOnly__.getSendMsgToSocket;
+        oldFetchLicenseInfo = SupTicketModal.fetchLicenseInfo;
+        oldSubmitTicket = SupTicketModal.submitTicket;
         LiveHelpModal.__testOnly__.setSendReqToSocket(function() {});
         LiveHelpModal.__testOnly__.setSendEmail(function() {});
         LiveHelpModal.__testOnly__.setSendMsgToSocket(function() {});
+        SupTicketModal.fetchLicenseInfo = function() {
+            return jQuery.Deferred().resolve({"key":"test","expiration":"test"})
+                   .promise();
+        };
+        SupTicketModal.submitTicket = function(){
+            return jQuery.Deferred()
+                   .resolve({"logs":'{"ticketId":"test","admin":"test"}'})
+                   .promise();
+        };
 
         $modal = $("#liveHelpModal");
         $menu = $("#userMenu").find(".liveHelp");
         supportName = "testSupport";
         userName = "testUser";
         readyOpts = {
-            "supportName": supportName
+            "supportName": "Xcalar",
+            "thread": "testThread"
         };
         testMsg = "testing\n\n\n\n\n";
     });
@@ -58,11 +72,10 @@ describe("LiveHelp Modal Test", function() {
 
             assert.isFalse($modal.find(".reqConn").is(":visible"));
             assert.isTrue($modal.find(".chatBox").is(":visible"));
-            assert.isTrue($modal.find(".sendMsg").prop("disabled"));
         });
-        it("Should be ready to chat", function() {
-            LiveHelpModal.__testOnly__.readyToChat(readyOpts);
-            expect($modal.find(".sysMsg").last().text()).to.include(AlertTStr.StartChat);
+        it("Should submit ticket", function() {
+            LiveHelpModal.__testOnly__.submitTicket();
+            expect($modal.find(".sysMsg").last().text()).to.include(AlertTStr.CaseId);
         });
         // When type messages as input
         it("Should be able to auto-size the send area", function() {
@@ -81,7 +94,7 @@ describe("LiveHelp Modal Test", function() {
         it("Should be able to send message", function() {
             var keyEvent = $.Event("keypress", {which: keyCode.Enter});
             $modal.find(".sendMsg").trigger(keyEvent);
-            expect($modal.find(".userMsg").last().text()).to.equal(testMsg);
+            expect($modal.find(".userMsg").last().text()).to.equal(testMsg.trim());
         });
         it("Should clear input after sending", function() {
             expect($modal.find(".sendMsg").val()).to.be.empty;
@@ -130,17 +143,13 @@ describe("LiveHelp Modal Test", function() {
             }, 500);
         });
     });
-    describe("Function Test", function() {
-        it("Should return to wait when support leaves", function() {
-            LiveHelpModal.__testOnly__.returnToWait();
-            expect($modal.find(".sysMsg").last().text()).to.equal(AlertTStr.WaitChat);
-        });
-    });
 
     after(function() {
         UnitTest.offMinMode();
         LiveHelpModal.__testOnly__.setSendReqToSocket(oldSendReqToSocket);
         LiveHelpModal.__testOnly__.setSendEmail(oldSendEmail);
         LiveHelpModal.__testOnly__.setSendMsgToSocket(oldSendMsgToSocket);
+        SupTicketModal.submitTicket = oldSubmitTicket;
+        SupTicketModal.fetchLicenseInfo = oldFetchLicenseInfo;
     });
 });

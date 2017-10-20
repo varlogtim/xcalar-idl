@@ -8,6 +8,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     var socket;
     var thread;
     var ticketId;
+    var firstMsg;
     var connected = false;
     // Initial setup
     LiveHelpModal.setup = function() {
@@ -69,8 +70,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             if (connected) {
                 // Send the request to socket
                 sendReqToSocket();
+                firstMsg = true;
             }
         }, 1000);
+        timer = setTimeout(function() {
+            appendMsg(AlertTStr.NoSupport, "sysMsg");
+            var confirmation = AlertTStr.SubmitTicket +
+                               "<a class='confirmTicket'>" +
+                               CommonTxtTstr.YES + "</a>";
+            appendMsg(confirmation, "sysMsg");
+            firstMsg = false;
+        }, 120000)
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
@@ -81,52 +91,10 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function sendReqToSocket() {
         var opts = {
             userName: userName,
-            email: email
+            email: email,
+            fullName: fullName
         };
         socket.emit("liveHelpConn", opts);
-    }
-    // Support is ready to chat
-    function readyToChat(readyOpts) {
-        // clearInterval(timer);
-        // $modal.find(".sendMsg").prop("disabled", false);
-        var info;
-        thread = readyOpts.thread;
-        var ticketObj = {
-            "ticketId": null,
-            "comment": "======This ticket is auto-generated from LiveChat=====",
-            "userIdName": userIdName,
-            "userIdUnique": userIdUnique,
-            "severity": 4
-        };
-        var licenseKey;
-        var expiration;
-        var admin;
-        SupTicketModal.fetchLicenseInfo()
-        .then(function(licenseObj) {
-            licenseKey = licenseObj.key;
-            expiration = licenseObj.expiration;
-            return SupTicketModal.submitTicket(ticketObj, licenseObj, true,
-                                               true);
-        })
-        .then(function(ret) {
-            try {
-                var logs = JSON.parse(ret.logs);
-                ticketId = logs.ticketId;
-                admin = logs.admin;
-                info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
-                       AlertTStr.LicenseKey + "\n" + licenseKey + "\n\n" +
-                       AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
-                       AlertTStr.XcalarAdmin + "\n" + admin;
-            } catch (err) {
-                info = AlertTStr.TicketError;
-            }
-        })
-        .fail(function(err) {
-            info = AlertTStr.TicketError;
-        })
-        .always(function() {
-            appendMsg(info, "sysMsg");
-        });
     }
     // Only for sending messages
     function submitForm() {
@@ -184,7 +152,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             });
             if (content) {
                 var mailOpts = {
-                    from: 'support@xcalar.com',
+                    from: 'support-internal@xcalar.com',
                     to: dest,
                     subject: 'Support Chat History for ' + fullName,
                     text: "=====Your ticket ID is " + ticketId + "=====\n" +
@@ -277,12 +245,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                                    "<a class='confirmClose'>" +
                                    CommonTxtTstr.YES + "</a>";
                 appendMsg(confirmation, "sysMsg");
-                $modal.on("click", ".confirmClose", function() {
-                    closeModal();
-                });
             } else {
                 closeModal();
             }
+        });
+
+        $modal.on("click", ".confirmClose", function() {
+            closeModal();
+        });
+        $modal.on("click", ".confirmTicket", function() {
+            submitTicket(true);
+            $modal.find(".confirmTicket").addClass("xc-disabled");
         });
         // Click on minimize button
         $modal.on("click", ".minimize", minimize);
@@ -319,6 +292,56 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             });
         }
     }
+    function submitTicket(triggerPd) {
+        appendMsg(AlertTStr.WaitTicket, "sysMsg");
+        var info;
+        var success = true;
+        var ticketObj = {
+            "ticketId": null,
+            "comment": "======This ticket is auto-generated from LiveChat=====",
+            "userIdName": userIdName,
+            "userIdUnique": userIdUnique,
+            "severity": 4,
+            "fromChat": true,
+            "triggerPd": triggerPd
+        };
+        var licenseKey;
+        var expiration;
+        var admin;
+        SupTicketModal.fetchLicenseInfo()
+        .then(function(licenseObj) {
+            licenseKey = licenseObj.key;
+            expiration = licenseObj.expiration;
+            return SupTicketModal.submitTicket(ticketObj, licenseObj, true,
+                                               true);
+        })
+        .then(function(ret) {
+            try {
+                var logs = JSON.parse(ret.logs);
+                ticketId = logs.ticketId;
+                admin = logs.admin;
+                info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
+                       AlertTStr.LicenseKey + "\n" + licenseKey + "\n\n" +
+                       AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
+                       AlertTStr.XcalarAdmin + "\n" + admin;
+            } catch (err) {
+                success = false;
+            }
+        })
+        .fail(function(err) {
+            success = false;
+        })
+        .always(function() {
+            if (!success) {
+                info = AlertTStr.TicketError;
+                appendMsg(info, "sysMsg");
+                $modal.find(".confirmTicket").removeClass("xc-disabled");
+                appendMsg(AlertTStr.SubmitTicket, "sysMsg");
+            } else {
+                appendMsg(info, "sysMsg");
+            }
+        });
+    }
     LiveHelpModal.updateTicket = function() {
         var content = "";
         $modal.find(".userMsg, .supportMsg").each(function(i,e) {
@@ -328,18 +351,22 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 content += "Xcalar: " + $(e).text() + "\n\n";
             }
         });
-        var ticketObj = {
-            "ticketId": ticketId,
-            "comment": "======This ticket is auto-generated from LiveChat" +
-                       "=====\n"+ content,
-            "userIdName": userIdName,
-            "userIdUnique": userIdUnique,
-            "severity": 4
-        };
-        SupTicketModal.fetchLicenseInfo()
-        .then(function(licenseObj) {
-            SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
-        });
+        if (content != ""&& ticketId) {
+            var ticketObj = {
+                "ticketId": ticketId,
+                "comment": "======This ticket is auto-generated from LiveChat" +
+                           "=====\n"+ content,
+                "userIdName": userIdName,
+                "userIdUnique": userIdUnique,
+                "severity": 4,
+                "fromChat": true,
+                "triggerPd": false
+            };
+            SupTicketModal.fetchLicenseInfo()
+            .then(function(licenseObj) {
+                SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
+            });
+        }
     };
     // Leave the conversation, reset liveHelp modal
     function closeModal() {
@@ -350,6 +377,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         LiveHelpModal.autoSendEmail();
         LiveHelpModal.updateTicket();
         connected = false;
+        thread = null;
+        ticketId = null;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
         $modal.find(".reqConn").show();
         $modal.find(".chatMsg").html("");
         clearInput();
@@ -363,9 +396,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         // For user, simply append message
         socket.on("liveChatMsg", function(message) {
             appendMsg(message.content, "supportMsg", message.sender);
+            if (firstMsg) {
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                submitTicket();
+                firstMsg = false;
+            }
         });
-        socket.on("readyToChat", function(readyOpts) {
-            readyToChat(readyOpts);
+        socket.on("joinRoom", function(room) {
+            thread = room;
         });
     }
     function isValidEmail(emailAddress) {
@@ -382,7 +423,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     if (window.unitTestMode) {
         LiveHelpModal.__testOnly__ = {};
         LiveHelpModal.__testOnly__.connected = connected;
-        LiveHelpModal.__testOnly__.readyToChat = readyToChat;
+        LiveHelpModal.__testOnly__.submitTicket = submitTicket;
         LiveHelpModal.__testOnly__.getSendEmail = sendEmail;
         LiveHelpModal.__testOnly__.setSendEmail = function(func) {
             sendEmail = func;

@@ -481,7 +481,6 @@ AlertTStr = {
                      'you can force the current initialization to overwrite ' +
                      'any concurrent / previously disrupted initialization.',
     'LeaveConMsg': 'You are about to leave the conversation. Please confirm: ',
-    "SuppLeft": "It seems that our support is disconnected.",
     "WaitChat": "Searching for an available Xcalar agent...",
     "CaseId": "Your case ID is:",
     "LicenseKey": "Your license key is:",
@@ -493,7 +492,10 @@ AlertTStr = {
     "EmailSending": "Sending email...",
     "EmailSent": "Success! All messages have been sent to your email address.",
     "EmailFunc": "You can click the left top button at anytime to send a " +
-                 "copy of all messages to your email address."
+                 "copy of all messages to your email address.",
+    "NoSupport": "Oops..We couldn't find an avaialble agent for you.",
+    "SubmitTicket": "Do you want to create a support ticket? ",
+    "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you."
 };
 
 ErrorMessageTStr = {
