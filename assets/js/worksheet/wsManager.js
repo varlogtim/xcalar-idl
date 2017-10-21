@@ -1420,7 +1420,7 @@ window.WSManager = (function($, WSManager) {
 
     function createWorkshetObj(worksheetId, worsheetName, worksheetIndex) {
         if (worksheetGroup.has(worksheetId)) {
-            console.error("Worksheet", ws, "already exists");
+            console.error("Worksheet", worksheetId, "already exists");
             return;
         }
 

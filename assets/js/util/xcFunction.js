@@ -405,12 +405,14 @@ window.xcFunction = (function($, xcFunction) {
         var lTable = gTables[lTableId];
         var lTableName = lTable.getName();
         lJoinInfo.tablePos = WSManager.getTableRelativePosition(lTableId);
+        lJoinInfo.ws = WSManager.getWSFromTable(lTableId);
 
         var rTableId = rJoinInfo.tableId;
         var rColNums = rJoinInfo.colNums;
         var rTable = gTables[rTableId];
         var rTableName = rTable.getName();
         rJoinInfo.tablePos = WSManager.getTableRelativePosition(rTableId);
+        rJoinInfo.ws = WSManager.getWSFromTable(rTableId);
 
         var lColNames = lColNums.map(function(colNum) {
             return lTable.getCol(colNum).getBackColName();

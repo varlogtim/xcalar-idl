@@ -714,6 +714,7 @@ window.xcManager = (function(xcManager, $) {
         function syncTableMetaWithWorksheet(backTableSet) {
             var promises = [];
             var worksheetList = WSManager.getWSList();
+            var activeTables = {};
 
             worksheetList.forEach(function(worksheetId) {
                 var worksheet = WSManager.getWSById(worksheetId);
@@ -726,6 +727,7 @@ window.xcManager = (function(xcManager, $) {
                         promises.push(restoreActiveTable.bind(window, tableId,
                                                 worksheetId, failures));
                     }
+                    activeTables[tableId] = true;
                 });
 
                 // check archived tables
@@ -755,12 +757,25 @@ window.xcManager = (function(xcManager, $) {
 
                 worksheet.tempHiddenTables.forEach(function(tableId) {
                     checkIfHasTableMeta(tableId, backTableSet);
+                    activeTables[tableId] = true;
                 });
 
                 worksheet.archivedTables.forEach(function(tableId) {
                     checkIfHasTableMeta(tableId, backTableSet);
                 });
             });
+
+            for (var i in gTables) {
+                var table = gTables[i];
+                if (table.isActive()) {
+                    var tableId = table.getId();
+                    if (!activeTables[tableId]) {
+                        console.error("active table without worksheet",
+                                       tableId);
+                        table.beOrphaned();
+                    }
+                }
+            }
 
             return promises;
         }

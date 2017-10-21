@@ -149,8 +149,8 @@ window.Undo = (function($, Undo) {
         var lJoinInfo = options.lJoinInfo;
         var rJoinInfo = options.rJoinInfo;
 
-        var lTableWorksheet = WSManager.getWSFromTable(lJoinInfo.tableId);
-        var rTableWorksheet = WSManager.getWSFromTable(rJoinInfo.tableId);
+        var lTableWorksheet = lJoinInfo.ws;
+        var rTableWorksheet = rJoinInfo.ws;
 
         var leftTable = {
             name: options.lTableName,
@@ -609,8 +609,7 @@ window.Undo = (function($, Undo) {
         } else if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
                 TblManager.sendTableToOrphaned(tId, {
-                    "remove": true,
-                    "keepInWS": true
+                    "remove": true
                 });
             });
             return TableList.refreshOrphanList();
