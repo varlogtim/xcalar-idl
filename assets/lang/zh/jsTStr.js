@@ -50,11 +50,11 @@ StatusMessageTStr = {
 'StoredProc': '执行存储操作',
 'StoredProcFailed': '执行存储操作失败',
 'SettingExtensions': '加载插件',
-'CurrReplay': 'Currently Replaying',
-'CompReplay': 'Completed Replaying',
-"PleaseWait": "Please wait",
-'Finalize': "Finalizing table",
-'FinalizeFailed': "Finalize failed",
+'CurrReplay': '当前加载',
+'CompReplay': '加载成功',
+"PleaseWait": "请稍等",
+'Finalize': "发布表",
+'FinalizeFailed': "发布失败",
 'ActionSuccess': '操作成功！',
 'ActionFailed': '操作失败！'
 };
@@ -124,8 +124,8 @@ TooltipTStr = {
 'Undo': '撤消：<op>',
 'NoUndo': '最后一次操作<op>，无法撤消',
 'Redo': '重做：<op>',
-'ShowGroupTables': 'Click to reveal the <number> operations involved in the <op> operation',
-'HideGroupTables': 'Click to hide the <number> operations involved in the <op> operation',
+'ShowGroupTables': '点击查看<op>操作包含的<number>个操作',
+'HideGroupTables': '点击隐藏<op>操作包含的<number>个操作',
 'LowMemInTable': '警告！集群内存不足。单击此按钮删除表。',
 'LowMemInDS': '警告！集群内存不足。请删除无用的数据集。',
 'LowMemByOthers': '集群中的其他用户已经超过分配给表的最佳内存。请联系管理员。',
@@ -136,11 +136,11 @@ CommonTxtTstr = {
 'NestedArrayVal': '嵌套数组值',
 'Back': '上一步',
 'BackToOrig': '返回原始位置',
-'ClickSelect': 'Click to select',
-'ClickToExpand': 'Click to expand',
+'ClickSelect': '点击选择',
+'ClickToExpand': '点击展开',
 'ClickToOpts': '点击查看选项',
-"ColRenames": "Column Renames",
-"ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
+"ColRenames": "列重命名",
+"ColRenameInstr": "您选择的列名有重复。请重命名重复的列名。",
 'Continue': '继续',
 'Copy': '复制',
 'CopyLog': '复制日志',
@@ -149,13 +149,13 @@ CommonTxtTstr = {
 'Default': 'default',
 'DefaultVal': '默认值',
 'RevertDefaultVal': '恢复为默认值',
-'elapsedTime': 'elapsed time',
-'Existing': 'Existing',
-'Exit': '出口',
+'elapsedTime': '耗时',
+'Existing': '存在',
+'Exit': '退出',
 'GenTicket': '生成服务支持券',
 'HoldToDrag': '点击并按住拖动',
 'ClickSelect': '单击选择',
-'Ignore': 'Ignore',
+'Ignore': '忽略',
 'Immediates': '派生列',
 'ImmediatesPlural': '派生列',
 'InP': '进行中',
@@ -167,7 +167,7 @@ CommonTxtTstr = {
 'NEWCOLUMN': '新列',
 'NEXT': '下一步',
 'NumCol': '列数',
-'operationTime': 'operation time',
+'operationTime': '操作时间',
 'OpFail': '操作失败',
 'Optional': '可选的',
 'Preview': '预览',
@@ -631,13 +631,13 @@ MonitorTStr = {
 "RestartMsg": "请重启Xcalar使修改的参数生效",
 "FreeRAM": "未使用的内存",
 "FreeXcalarMem": "未使用的Xcalar内存",
-"OtherUsers": "Other Users",
-"YourTables": "Your Tables",
+"OtherUsers": "其他用户",
+"YourTables": "您的表",
 "Datasets": "Datasets",
-"TicketSuccess": "Your ticket was submitted successfully.",
-"TicketId": "Ticket ID",
-"AcctAdmin": "Account Admin",
-"AcctAdmins": "Account Admins",
+"TicketSuccess": "您的支持票已成功提交。",
+"TicketId": "支持票ID",
+"AcctAdmin": "账户管理员",
+"AcctAdmins": "账户管理员",
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',
@@ -647,9 +647,9 @@ MonitorTStr = {
 'AdminAlert': '管理员提醒',
 "FlushLog": "强制刷新日志",
 "FlushLogMsg": "您确定要强制刷新日志吗？",
-"AdditionalInfo": "Additional (New) Information",
-"NoTickets": "No tickets found",
-"SelectExistingTicket": "Select an existing ticket"
+"AdditionalInfo": "附加(新)信息",
+"NoTickets": "找不到支持票",
+"SelectExistingTicket": "选择已有的支持票"
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',
@@ -846,7 +846,7 @@ UDFTStr = {
 "AppName": 'XPU应用程序名称（小写）',
 "NoTemplate": "无法找到模快",
 "InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
-"InValidFnName": "Function name should start with a letter or underscore and contain only letters, digits or underscores(_)"
+"InValidFnName": "函数名应以以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）"
 };
 TblTStr = {
 'Create': '创建表',
@@ -950,7 +950,7 @@ JsonModalTStr = {
 'Duplicate': '复制此面板',
 'FieldsPull': '提取列',
 'FieldsSelected': '选定项目的领域',
-'AllFieldsPulled': 'All fields are pulled',
+'AllFieldsPulled': '所有列都已提取',
 'MultiSelectMode': '多选模式',
 'Original': '原始的',
 'OriginalTip': '查看原始数据列',
@@ -972,9 +972,9 @@ JsonModalTStr = {
 'XcOriginatedTip': '查看Xcalar生成的列',
 'PrefixedField': '含前缀的列',
 'Derived': '派生列',
-"SyntaxErrorTitle": "Error parsing data",
+"SyntaxErrorTitle": "解析数据出错",
         // with replace
-"SyntaxErrorDesc": "An error occured while parsing the data from row <row>."
+"SyntaxErrorDesc": "解析行<row>数据时出错。"
 };
 SQLTStr = {
     "AddNewCol": "Add New Column",
@@ -1021,7 +1021,7 @@ LoginConfigTStr = {
 
 JupyterTStr = {
     "JupNotebook": "Jupiter Notebook",
-    "PrefixNoRename": "Object and array type columns cannot be renamed",
+    "PrefixNoRename": "对象和数组类型的列无法重命名",
       // with replace
-    "SampleNumError": "Please select 1 to <number> rows to sample."
+    "SampleNumError": "请选择1至<number>的行作为样本。"
 };
