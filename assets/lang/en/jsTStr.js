@@ -1011,6 +1011,7 @@ ColTStr = {
     'LongName': 'Column Name is too long, please use fewer than 255 characters.',
     'NoOperateArray': 'Cannot directly operate on entire arrays',
     'NoOperateObject': 'Cannot directly operate on entire objects',
+    'NoOperateNestedArray': 'Cannot directly operate on nested array values',
     'NoOperateGeneral': 'Cannot directly operate on columns of this type',
     // With Replace
     'SplitColWarnMsg': 'About <num> columns will be generated, do you still ' +

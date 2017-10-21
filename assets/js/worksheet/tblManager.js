@@ -2379,6 +2379,9 @@ window.TblManager = (function($, TblManager) {
             var colNum = xcHelper.parseColNum($th);
             var table = gTables[tableId];
             var progCol = table.tableCols[colNum - 1];
+            var colType = progCol.getType();
+            var isMultiColumn = false;
+            var isNewCol = false;
 
             xcTooltip.hideAll();
             resetColMenuInputs($el);
@@ -2404,6 +2407,7 @@ window.TblManager = (function($, TblManager) {
             if ($th.hasClass('newColumn') ||
                 options.classes.indexOf('type') === -1) {
                 options.classes += " type-newColumn";
+                isNewCol = true;
                 if ($el.closest('.flexWrap').siblings('.editable').length) {
                     options.classes += " type-untitled";
                 }
@@ -2425,11 +2429,12 @@ window.TblManager = (function($, TblManager) {
             options.classes += " sizedTo" + progCol.sizedTo;
 
             if ($('th.selectedCell').length > 1) {
+                isMultiColumn = true;
                 options.classes += " type-multiColumn";
                 options.multipleColNums = [];
-                var tableCols = gTables[tableId].tableCols;
+                var tableCols = table.tableCols;
                 var types = {};
-                var tempType = "type-" + tableCols[colNum - 1].type;
+                var tempType = "type-" + colType;
                 types[tempType] = true;
 
                 var tempColNum;
@@ -2448,15 +2453,71 @@ window.TblManager = (function($, TblManager) {
                         options.classes += " " + tempType;
                     }
                 });
+            } else {
+                options.classes += " type-singleColumn";
             }
 
             if (isRightClick) {
-                options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 34};
+                options.mouseCoors = {"x": event.pageX,
+                                      "y": $el.offset().top + 34};
             } else {
                 options.offsetX = 5;
             }
 
-            xcHelper.dropdownOpen($el, $("#colMenu"), options);
+            var $menu = $("#colMenu");
+            var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                    ".join, .map, .operations, .profile, .corrAgg, " +
+                    ".extensions, .changeDataType, .format, .roundToFixed");
+            $lis.removeClass("unavailable");
+            xcTooltip.remove($lis);
+            if (colType === ColumnType.object || colType === ColumnType.array) {
+                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
+                    ".map, .operations, .profile, .corrAgg, .extensions, " +
+                    ".changeDataType, .format, .roundToFixed");
+                $lis.addClass("unavailable");
+                if (colType === ColumnType.object) {
+                    xcTooltip.add($lis, {
+                        title: ColTStr.NoOperateObject
+                    });
+                } else if (colType === ColumnType.array) {
+                    xcTooltip.add($lis, {
+                        title: ColTStr.NoOperateArray
+                    });
+                }
+            } else if (isNewCol) {
+                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                    ".join, .operations, .profile, .corrAgg, .extensions, " +
+                    ".changeDataType, .format, .roundToFixed");
+                $lis.addClass("unavailable");
+                xcTooltip.add($lis, {
+                    title: ErrTStr.InvalidOpNewColumn
+                });
+            } else if (colType === ColumnType.mixed) {
+                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                    ".join, .operations, .profile, .corrAgg,  " +
+                    ".roundToFixed");
+                $lis.addClass("unavailable");
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateGeneral
+                });
+            } else if (progCol.isChildOfArray()) {
+                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                    ".join, .map, .operations, .profile, .corrAgg, " +
+                    ".extensions, .changeDataType, .roundToFixed");
+                $lis.addClass("unavailable");
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateNestedArray
+                });
+            } else if ([ColumnType.integer, ColumnType.float, ColumnType.string,
+                      ColumnType.boolean, ColumnType.number]
+                      .indexOf(colType) === -1) {
+                $lis.addClass("unavailable");
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateGeneral
+                });
+            }
+
+            xcHelper.dropdownOpen($el, $menu, options);
         });
 
         $thead.on('mousedown', '.colGrab', function(event) {

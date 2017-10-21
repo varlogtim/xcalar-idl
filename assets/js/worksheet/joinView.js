@@ -2180,6 +2180,15 @@ window.JoinView = (function($, JoinView) {
     }
 
     function addClause(noAnimation, tableId, colNum) {
+
+        var progCol;
+        if (tableId) {
+            progCol = gTables[tableId].getCol(colNum);
+            if (validTypes.indexOf(progCol.getType()) === -1) {
+                return;
+            }
+        }
+
         var $newClause = $(multiClauseTemplate);
         var tableIds = getTableIds();
         if (gTables[tableIds[0]]) {
@@ -2195,7 +2204,6 @@ window.JoinView = (function($, JoinView) {
 
         var $div = $newClause.insertBefore($joinView.find('.addClause'));
         if (tableId) {
-            var progCol = gTables[tableId].getCol(colNum);
             var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
         } else if (gTables[tableIds[0]]) {
@@ -2251,6 +2259,7 @@ window.JoinView = (function($, JoinView) {
             // select li and fill left table name dropdown
             var tableName = gTables[origTableId].getName();
             $leftTableDropdown.find('.text').val(tableName);
+            $leftTableDropdown.find('.text').data("val", tableName);
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === tableName);
             }).addClass('selected');
@@ -2377,12 +2386,12 @@ window.JoinView = (function($, JoinView) {
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
             rClause = $joinClause.find(".rightClause").val().trim();
-            if (lTable) {
+            if (lTable && lClause) {
                 var lColNum = lTable.getColNumByFrontName(lClause);
                 $lTable.find("th.col" + lColNum + ' .header')
                        .append('<span class="formColNum">' + (i + 1) + '</span>');
             }
-            if (rTable) {
+            if (rTable && rClause) {
                 var rColNum = rTable.getColNumByFrontName(rClause);
                 $rTable.find("th.col" + rColNum + ' .header')
                    .append('<span class="formColNum">' + (i + 1) + '</span>');

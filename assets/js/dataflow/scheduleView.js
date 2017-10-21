@@ -2,6 +2,7 @@ window.Scheduler = (function(Scheduler, $) {
     var $scheduleDetail;   // $("#scheduleDetail");
     var $scheduleSettings; // $("#scheduleSettings");
     var $modScheduleForm;  // $('#modifyScheduleForm');
+    var $scheduleResults;
     var $timePicker;
     var $dateInput;
     var $timeInput;

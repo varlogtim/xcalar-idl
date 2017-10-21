@@ -13,7 +13,7 @@
         position: static;
     }
 
-    .textAlign, .sort, .multiSort, .changeFormat, .typeList, .resize {
+    .textAlign, .sort, .changeFormat, .typeList, .resize {
         .xi-tick {
             float: right;
             margin-right: 2px;
@@ -233,7 +233,6 @@
     cursor: pointer;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
     .dropDown;
-    // display: block !important;
 
     &.locked {
         cursor: auto;
@@ -444,7 +443,7 @@
         font-size: 14px;
     }
 
-    .sort .fasjIcon, .multiSort .fasjIcon {
+    .sort .fasjIcon {
         font-size: 16px;
         margin-left: -3px;
         margin-top: -1px;
@@ -457,7 +456,7 @@
         display: none;
     }
 
-    .changeDataType, .multiChangeDataType {
+    .changeDataType {
         li.flexContainer {
             height: 28px;
             padding: 0;
@@ -478,7 +477,7 @@
         }
     }
 
-    .sort, .multiSort {
+    .sort {
         // indexed column cannot sort
         .indexedColumn & {
             display: none;
@@ -506,15 +505,7 @@
         display: none;
     }
 
-    .maximize {
-        display: none;
-    }
-
     .roundToFixed {
-        display: none;
-    }
-
-    .splitCol {
         display: none;
     }
 
@@ -540,6 +531,10 @@
         }
     }
 
+    .splitCol {
+        display: none;
+    }
+
     &.type-string {
         .splitCol {
             display: block;
@@ -555,105 +550,41 @@
         }
     }
 
-    &.type-multiColumn:not(.subMenu) {
-        li {
-            display: none !important;
-        }
-    }
-
-    &.type-multiColumn {
-        .multiColumn {
-            &.hideColumn, &.minimizeColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions, &.multiGroupby, &.multiJoin, &.corrAgg,
-            &.multiSort {
-                display: list-item !important;
-                li {
-                    display: list-item !important;
-                }
+    &.type-singleColumn {
+        .label {
+            &.single {
+                display: inline;
             }
-            &.divider {
-                display: block;
-            }
-        }
-
-        .multiTextAlign {
-            li {
-                display: list-item !important;
-                &.flexContainer {
-                    .flex-display !important;
-                }
-            }
-        }
-
-        &.type-hidden {
-            .maximizeColumns {
-                display: list-item !important;
-            }
-            .minimizeColumns {
-                display: none !important;
-            }
-        }
-
-        &.type-object, &.type-array, &.type-undefined {
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-        &.type-object, &.type-newColumn, &.childOfArray, &.type-array,
-        &.type-undefined {
-            .multiGroupby, .multiJoin, .multiSort {
-                display: none !important;
-            }
-        }
-
-        &.type-newColumn {
-            .newColumn {
+            &.multiple {
                 display: none;
             }
-            .hideColumn {
-                display: block;
-            }
-        }
-
-        &.type-string.type-integer.type-float.type-boolean {
-            // case that no type to change
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-
-        .multiColumn.roundToFixed, .multiColumn.format {
-            display: none;
-        }
-
-        &.type-integer, &.type-float {
-            .multiColumn.format {
-                display: list-item !important;
-            }
-        }
-        &.type-float {
-            .multiColumn.roundToFixed {
-                display: list-item !important;
-            }
         }
     }
+    &.type-multiColumn {
+        .label {
+            &.single {
+                display: none;
+            }
+            &.multiple {
+                display: inline;
+            }
+        }
 
-    &.type-string {
-        .format {
+        .splitCol {
+            display: none;
+        }
+        li.sort:not(.parentMenu), .revSort {
             display: none;
         }
     }
 
-    &.type-array {
-        .aggregate {
-            display: none;
-        }
+    .format {
+        display: none;
+    }
+
+    &.type-number, &.type-mixed, &.type-integer, &.type-float {
         .format {
-            display: none;
+            display: list-item;
         }
     }
 
@@ -661,68 +592,19 @@
         .roundToFixed {
             display: list-item;
         }
-        .multiColumn.roundToFixed {
+    }
+
+    &.type-data {
+        li {
             display: none;
         }
-    }
-
-    &.type-emptyTable .map {
-        display: none !important;
-    }
-
-    &.type-object, &.type-newColumn, &.childOfArray, &.type-array {
-        .sort, .aggregate, .groupby, .filter, .join, .map, .operations,
-        .profile, .corrAgg
-        {
-            display: none;
-        }
-    }
-
-    // show map option
-    &.type-mixed {
-        .sort, .aggregate, .groupby, .filter, .join, .profile, .corrAgg {
-            display: none;
-        }
-    }
-
-    &.type-undefined, {
-        .sort, .aggregate, .groupby, .join, .operations, .profile, .corrAgg
-        {
-            display: none;
-        }
-    }
-
-    &.type-undefined, &.type-newColumn {
-        .operations, .map {
+        .addColumn, .minimize, .textAlign, .resize {
             display: list-item;
         }
     }
 
-    &.type-object, &.type-array, &.type-undefined, &.type-newColumn {
-        .changeDataType, .format, .roundToFixed, .extensions {
-            display: none;
-        }
-    }
-
-    &.childOfArray {
-        .functions, .changeDataType,  .splitCol, .extensions {
-            display: none;
-        }
-    }
-
-    &.type-object, &.childOfArray, {
-        .functionsDivider {
-            display: none;
-        }
-    }
-
-    &.type-data {
-        .sort, .aggregate, .groupby, .filter, .join, .hideColumn,
-        .rename, .map, .operations,
-        .changeDataType, .profile, .corrAgg, .divider, .format, .roundToFixed,
-        .extensions {
-            display: none;
-        }
+    .maximize {
+        display: none;
     }
 
     &.type-hidden {

@@ -98,7 +98,7 @@ window.SortView = (function($, SortView) {
             resetForm();
             setColumnCache(tableId);
             for (var i = 0; i < colNums.length; i++) {
-                selectCol(colNums[i]);
+                selectCol(colNums[i], true);
             }
         }
 
@@ -198,11 +198,14 @@ window.SortView = (function($, SortView) {
         }
     }
 
-    function selectCol(colNum) {
-        var $table = $("#xcTable-" + curTableId);
-        $table.find(".col" + colNum).addClass("modalHighlighted");
+    function selectCol(colNum, firstTime) {
         var type = colTypes[colNum];
         var isInValidType = validTypes.indexOf(type) === -1;
+        if (firstTime && isInValidType) {
+            return;
+        }
+        var $table = $("#xcTable-" + curTableId);
+        $table.find(".col" + colNum).addClass("modalHighlighted");
         var order = colOrders[colNum] ||
                     XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending];
         var isInitialOrder = (order === colOrders[colNum]);

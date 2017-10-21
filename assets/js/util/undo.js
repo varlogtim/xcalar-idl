@@ -140,7 +140,15 @@ window.Undo = (function($, Undo) {
         var joinOptions = options.options || {};
         if (joinOptions.keepTables) {
             var tableId = xcHelper.getTableId(options.newTableName);
-            return (TblManager.sendTableToUndone(tableId, {'remove': true}));
+            TblManager.sendTableToUndone(tableId, {'remove': true})
+            .then(function() {
+                if (isMostRecent && joinOptions.formOpenTime) {
+                    JoinView.show(null, null, true, joinOptions.formOpenTime);
+                }
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         }
 
         var currTableId = xcHelper.getTableId(options.newTableName);

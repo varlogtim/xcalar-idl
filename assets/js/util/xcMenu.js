@@ -169,7 +169,7 @@ window.xcMenu = (function(xcMenu, $) {
         function showSubMenu($li, subMenuClass) {
             if ($li.hasClass('selected')) {
                 $subMenu.show();
-                var $targetSubMenu = $subMenu.find('.' + subMenuClass);
+                var $targetSubMenu = $subMenu.find('ul.' + subMenuClass);
                 var visible = false;
                 if ($targetSubMenu.is(':visible')) {
                     visible = true;

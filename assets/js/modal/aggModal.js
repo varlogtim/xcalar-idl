@@ -2,6 +2,7 @@ window.AggModal = (function($, AggModal) {
     var $aggModal;     // $("#aggModal")
     var $quickAgg;     // $("#aggModal-quickAgg")
     var $corr;         // $("#aggModal-corr")
+    var $backToProfile;
 
     var modalHelper;
 

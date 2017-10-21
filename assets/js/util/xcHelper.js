@@ -3957,8 +3957,9 @@ window.xcHelper = (function($, xcHelper) {
                 updateColDropdown($menu, $subMenu, tableId, options);
                 if (options.multipleColNums) {
                     $menu.data('columns', options.multipleColNums);
+                    $menu.data('colNums', options.multipleColNums);
                 } else {
-                    $menu.data('columns', []);
+                    $menu.data('colNums', [options.colNum]);
                 }
                 $subMenu.find('.sort').removeClass('unavailable');
                 TblManager.unHighlightCells();
@@ -3983,8 +3984,6 @@ window.xcHelper = (function($, xcHelper) {
         xcTooltip.remove($lis);
         var isKnownType = progCol.isKnownType();
         if (isKnownType && !options.multipleColNums) {
-            // var type = progCol.getType();
-            // var $li;
             $subMenu.find(".changeDataType").addClass("isKnownType");
         } else {
             $subMenu.find(".changeDataType").removeClass("isKnownType");
@@ -4153,6 +4152,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     }
 
+    // for tds
     function checkIfAlreadyUnnested($unnestLi, tableId, options) {
         if ($unnestLi.hasClass("hidden")) {
             return;

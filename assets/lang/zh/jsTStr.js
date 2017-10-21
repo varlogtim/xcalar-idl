@@ -869,6 +869,7 @@ ColTStr = {
 'LongName': '列名过长，请使用少于255个字符。',
 'NoOperateArray': '不能直接在整个数值上操作',
 'NoOperateObject': '不能直接在整个对象上操作',
+'NoOperateNestedArray': 'Cannot directly operate on nested array values',
 'NoOperateGeneral': '不能直接操作这种类型的列',
 'SplitColWarnMsg': '将生成大约<num>列，您还想继续操作吗？'
 };

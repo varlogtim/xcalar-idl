@@ -753,6 +753,7 @@ window.OperationsView = (function($, OperationsView) {
     // options
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
+    // triggerColNum: colNum that triggered the opmodal
     OperationsView.show = function(currTableId, currColNums, operator,
                                    options) {
         options = options || {};
@@ -777,8 +778,11 @@ window.OperationsView = (function($, OperationsView) {
             // changes mainMenu and assigns activeOpSection
             showOpSection();
             resetForm();
-
-            colNum = currColNums[0];
+            if (options.triggerColNum != null) {
+                colNum = options.triggerColNum;
+            } else {
+                colNum = currColNums[0];
+            }
             currentCol = gTables[tableId].getCol(colNum);
             colName = currentCol.getFrontColName(true);
             isNewCol = currentCol.isNewCol;
@@ -1004,13 +1008,12 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function populateGroupOnFields(colNums) {
-        $activeOpSection.find('.gbOnArg').val(gColPrefix + colName);
-        checkHighlightTableCols($activeOpSection.find('.gbOnArg'));
-
-        for (var i = 1; i < colNums.length; i++) {
+        for (var i = 0; i < colNums.length; i++) {
             var progCol = gTables[tableId].getCol(colNums[i]);
             if (!progCol.isNewCol) {
-                addGroupOnArg(0);
+                if (i > 0) {
+                    addGroupOnArg(0)
+                }
                 var name = progCol.getFrontColName(true);
                 $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
                 checkHighlightTableCols($activeOpSection.find('.gbOnArg').last());
@@ -1026,7 +1029,6 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function toggleOperationsViewDisplay(isHide) {
-        // var $table = $('.xcTable');
         var $tableWrap = $('.xcTableWrap');
         if (isHide) {
             $("#mainFrame").off('mousedown.keepInputFocused');

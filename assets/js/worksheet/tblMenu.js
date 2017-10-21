@@ -5,9 +5,9 @@ window.TblMenu = (function(TblMenu, $) {
 
     TblMenu.setup = function() {
         try {
-            xcMenu.add($('#tableMenu'), {hotkeys: menuHotKeys});
-            xcMenu.add($('#colMenu'), {hotkeys: menuHotKeys});
-            xcMenu.add($('#cellMenu'), {hotkeys: menuHotKeys});
+            xcMenu.add($('#tableMenu'), {hotkeys: hotKeyTrigger});
+            xcMenu.add($('#colMenu'), {hotkeys: hotKeyTrigger});
+            xcMenu.add($('#cellMenu'), {hotkeys: hotKeyTrigger});
             addTableMenuActions();
             addColMenuActions();
             addPrefixColumnMenuActions();
@@ -170,8 +170,6 @@ window.TblMenu = (function(TblMenu, $) {
             $input.blur();
             xcMenu.close($allMenus);
         });
-
-
 
         $tableMenu.on('mouseup', '.exitOp', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
@@ -484,13 +482,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
 
-            var colNums;
-            if ($(this).hasClass("multiColumn")) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums  = [$colMenu.data('colNum')];
-            }
-
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
             ColManager.delCol(colNums, tableId);
         });
@@ -540,22 +532,16 @@ window.TblMenu = (function(TblMenu, $) {
             var format = $(this).data("format");
             var formats = [];
             var colNums = [];
+            var allColNums = $colMenu.data('colNums');
+            var table = gTables[tableId];
 
-            if ($li.closest('.multiFormat').length !== 0) {
-                var allColNums = $colMenu.data('columns');
-                var table = gTables[tableId];
-
-                allColNums.forEach(function(colNum) {
-                    var progCol = table.getCol(colNum);
-                    if (progCol.isNumberCol()) {
-                        formats.push(format);
-                        colNums.push(colNum);
-                    }
-                });
-            } else {
-                colNums = [$colMenu.data('colNum')];
-                formats.push(format);
-            }
+            allColNums.forEach(function(colNum) {
+                var progCol = table.getCol(colNum);
+                if (progCol.isNumberCol()) {
+                    formats.push(format);
+                    colNums.push(colNum);
+                }
+            });
 
             ColManager.format(colNums, tableId, formats);
         });
@@ -581,16 +567,9 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var tableId = $colMenu.data('tableId');
-            var colNums;
-            var decimals = [];
+            var colNums = $colMenu.data('colNums');
+            var decimals = getDecimals(tableId, decimal, colNums);
 
-            if ($input.closest('.multiRoundToFixed').length !== 0) {
-                colNums = $colMenu.data('columns');
-                decimals = getDecimals(tableId, decimal, colNums);
-            } else {
-                colNums = [$colMenu.data('colNum')];
-                decimals.push(decimal);
-            }
             ColManager.roundToFixed(colNums, tableId, decimals);
             xcMenu.close($allMenus);
         });
@@ -602,16 +581,8 @@ window.TblMenu = (function(TblMenu, $) {
             // chagne round to default value
             var tableId = $colMenu.data('tableId');
             var $li = $(this);
-            var decimals = [];
-            var colNums;
-
-            if ($li.closest('.multiRoundToFixed').length !== 0) {
-                colNums = $colMenu.data('columns');
-                decimals = getDecimals(tableId, -1, colNums);
-            } else {
-                colNums = [$colMenu.data('colNum')];
-                decimals.push(-1);
-            }
+            var colNums = $colMenu.data('colNums');
+            var decimals = getDecimals(tableId, -1, colNums);
 
             ColManager.roundToFixed(colNums, tableId, decimals);
         });
@@ -693,31 +664,25 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
-            ColManager.minimizeCols([colNum], tableId);
+            ColManager.minimizeCols(colNums, tableId);
         });
 
         $colMenu.on('mouseup', '.maximize', function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
-            ColManager.maximizeCols([colNum], tableId);
+            ColManager.maximizeCols(colNums, tableId);
         });
 
         $colMenu.on('mouseup', '.corrAgg', function(event) {
             if (event.which !== 1) {
                 return;
             }
-
-            if ($(this).hasClass('multiColumn')) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
-
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
             AggModal.corrAgg(tableId, colNums, colNums);
         });
@@ -727,12 +692,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var $li = $(this);
-            var colNums;
-            if ($li.closest('.multiTextAlign').length !== 0) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
             ColManager.textAlign(colNums, tableId, $li.attr("class"));
         });
@@ -742,12 +702,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var $li = $(this);
-            var colNum;
-            if ($li.closest('.multiResize').length !== 0) {
-                colNum = $colMenu.data('columns');
-            } else {
-                colNum = $colMenu.data('colNum');
-            }
+            var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
             var resizeTo;
 
@@ -761,7 +716,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             // could be long process so we allow the menu to close first
             setTimeout(function() {
-                TblManager.resizeColumns(tableId, resizeTo, colNum);
+                TblManager.resizeColumns(tableId, resizeTo, colNums);
             }, 0);
         });
 
@@ -775,22 +730,15 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum;
             // xx need to use data or class instead of text in case of language
             var newType = $li.find(".label").text().toLowerCase();
-            if ($li.closest(".multiChangeDataType").length !== 0) {
-                var colNums = $colMenu.data("columns");
-                for (var i = 0, len = colNums.length; i < len; i++) {
-                    colNum = colNums[i];
-                    colTypeInfos.push({
-                        "colNum": colNum,
-                        "type": newType
-                    });
-                }
-            } else {
-                colNum = $colMenu.data("colNum");
+            var colNums = $colMenu.data("colNums");
+            for (var i = 0, len = colNums.length; i < len; i++) {
+                colNum = colNums[i];
                 colTypeInfos.push({
                     "colNum": colNum,
                     "type": newType
                 });
             }
+
             var tableId = $colMenu.data('tableId');
             ColManager.changeType(colTypeInfos, tableId);
         });
@@ -799,14 +747,8 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNums;
+            var colNums = $colMenu.data("colNums");
             var tableId = $colMenu.data('tableId');
-
-            if ($(this).closest(".multiSort").length) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
             sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
         });
 
@@ -814,14 +756,9 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNums;
+            var colNums = $colMenu.data("colNums");
             var tableId = $colMenu.data('tableId');
 
-            if ($(this).closest(".multiSort").length) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
             sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
         });
 
@@ -829,14 +766,8 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var colNums;
+            var colNums = $colMenu.data("colNums");
             var tableId = $colMenu.data('tableId');
-
-            if ($(this).closest(".multiSort").length) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
 
             SortView.show(colNums, tableId);
         });
@@ -846,13 +777,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var $li = $(this);
-            var colNums;
-            if ($li.hasClass('multiJoin')) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
-
+            var colNums = $colMenu.data("colNums");
             var tableId = $colMenu.data('tableId');
             JoinView.show(tableId, colNums);
         });
@@ -864,15 +789,11 @@ window.TblMenu = (function(TblMenu, $) {
             var $li = $(this);
             var tableId = $colMenu.data('tableId');
             var func = $li.data('func');
-            var colNums;
+            var colNums = $colMenu.data("colNums");
+            var triggerColNum = $colMenu.data("colNum");
 
-            if ($li.hasClass('multiGroupby')) {
-                colNums = $colMenu.data('columns');
-            } else {
-                colNums = [$colMenu.data('colNum')];
-            }
-
-            OperationsView.show(tableId, colNums, func);
+            OperationsView.show(tableId, colNums, func, {triggerColNum:
+                                                         triggerColNum});
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
@@ -885,7 +806,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $colMenu.on('mouseup', '.extensions', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var colNum = $colMenu.data('colNum');
@@ -1043,27 +964,6 @@ window.TblMenu = (function(TblMenu, $) {
 
             copyToClipboard(valArray);
             TblManager.unHighlightCells();
-        });
-
-        // multiple columns
-        $colMenu.on('mouseup', '.minimizeColumns', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            var columns = $colMenu.data('columns');
-            var tableId = $colMenu.data('tableId');
-            ColManager.minimizeCols(columns, tableId);
-        });
-
-        $colMenu.on('mouseup', '.maximizeColumns', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            var columns = $colMenu.data('columns');
-            var tableId = $colMenu.data('tableId');
-            ColManager.maximizeCols(columns, tableId);
         });
 
         $colMenu.on('mouseup', '.exitOp', function(event) {
@@ -1258,9 +1158,10 @@ window.TblMenu = (function(TblMenu, $) {
 
     TblMenu.sortColumn = sortColumn;
 
-    function menuHotKeys(event, $menu) {
+    function hotKeyTrigger(event, $menu) {
         var key = event.which;
         var letter = letterCode[key];
+
         var menuMap;
         if ($menu.attr("id") === "colMenu") {
             menuMap = colMenuMap;
