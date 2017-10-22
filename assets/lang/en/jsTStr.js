@@ -467,6 +467,7 @@ AlertTStr = {
     'CANCEL': 'CANCEL',
     'CONFIRM': 'CONFIRM',
     'CONFIRMATION': 'CONFIRMATION',
+    'NoConnectToServer': "Cannot Connect to Xcalar Server",
     'NoConnect': 'Not connected.',
     'Connecting': 'Connecting...',
     'TryConnect': 'Connecting in <second>s.',

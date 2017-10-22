@@ -16,16 +16,17 @@ window.XcSocket = (function(XcSocket) {
 
     XcSocket.checkUserExists = function() {
         var deferred = jQuery.Deferred();
+        // time out after 15s
+        checkConnection(initDeferred, 15000);
         initDeferred.promise()
         .then(function() {
             socket.emit("checkUser", XcSupport.getUser(), function(exist) {
                 deferred.resolve(exist);
             });
+            // time out after 20s
+            checkConnection(deferred, 20000);
         })
-        .fail(function() {
-            // in this case pretend as no user login
-            deferred.resolve(false);
-        });
+        .fail(deferred.reject);
         return deferred.promise();
     };
 
@@ -70,12 +71,12 @@ window.XcSocket = (function(XcSocket) {
 
         socket.on("reconnect_failed", function() {
             console.error("connect failed");
-            initDeferred.reject();
+            initDeferred.reject(AlertTStr.NoConnectToServer);
         });
 
         socket.on("connect_timeout", function(timeout) {
             console.error("connect timeout", timeout);
-            initDeferred.reject(timeout);
+            initDeferred.reject(AlertTStr.NoConnectToServer);
         });
 
         socket.on("userExisted", function(user) {
@@ -127,6 +128,14 @@ window.XcSocket = (function(XcSocket) {
                 "isAlert": true
             });
         });
+    }
+
+    function checkConnection(deferred, timeout) {
+        setTimeout(function() {
+            if (deferred.state() !== "resolved") {
+                deferred.reject(AlertTStr.NoConnectToServer);
+            }
+        }, timeout);
     }
 
     /* Unit Test Only */
