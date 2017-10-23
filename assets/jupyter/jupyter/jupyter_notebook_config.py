@@ -102,7 +102,7 @@ c.NotebookApp.port = 8889
 # c.NotebookApp.browser = u''
 
 # The full path to an SSL/TLS certificate file.
-# c.NotebookApp.certfile = u''
+c.NotebookApp.certfile = u'/etc/xcalar/cert.pem'
 
 # The full path to a certificate authority certificate for SSL/TLS client
 # authentication.
@@ -204,7 +204,7 @@ c.NotebookApp.disable_check_xsrf = True
 # c.NotebookApp.kernel_spec_manager_class = 'jupyter_client.kernelspec.KernelSpecManager'
 
 # The full path to a private key file for usage with SSL/TLS.
-# c.NotebookApp.keyfile = u''
+c.NotebookApp.keyfile = u'/etc/xcalar/cert.key'
 
 # The login handler class to use.
 # c.NotebookApp.login_handler_class = 'notebook.auth.login.LoginHandler'
