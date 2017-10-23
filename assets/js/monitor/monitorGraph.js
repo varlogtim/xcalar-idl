@@ -175,7 +175,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         })
         .then(function(apiTopResult) {
             $("#upTime").text(xcHelper.timeStampConvertSeconds(
-                apiTopResult.topOutputPerNode[0].uptimeInSeconds));
+                apiTopResult.topOutputPerNode[0].uptimeInSeconds, {noZeros: true}));
             if (prevIteration !== curIteration) {
                 return deferred.resolve();
             }
@@ -342,7 +342,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var sizeOption = {base2: true};
         var memYMax = Math.max(allStats[memIndex].total, allStats[swapIndex].total);
         var memYVal = xcHelper.sizeTranslator(memYMax, true, false, sizeOption);
-
         for (var i = 0; i < datasets.length; i++) {
             var xVal = allStats[i].used;
 
@@ -350,7 +349,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 xVal = Math.min(100, xVal);
                 yMax = 100;
             } else { // memory
-                yMax = memYVal[0];
+                yMax = parseFloat(memYVal[0]);
                 unit = memYVal[1];
                 xVal = xcHelper.sizeTranslator(xVal, true, unit, sizeOption)[0];
                 units.push(unit);
@@ -358,7 +357,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
             datasets[i].push(xVal);
             yMaxes.push(yMax);
         }
-
         redraw(newWidth, gridRight, yMaxes, units);
 
         $('#graph .xLabelsWrap').width(newWidth);

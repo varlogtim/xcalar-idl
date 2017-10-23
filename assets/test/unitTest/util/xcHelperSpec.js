@@ -767,10 +767,10 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("1B");
         // case 2
         res = xcHelper.sizeTranslator(1024);
-        expect(res).to.equal("1KB");
+        expect(res).to.equal("1.00KB");
         // case 3
         res = xcHelper.sizeTranslator(10241);
-        expect(res).to.equal("10KB");
+        expect(res).to.equal("10.0KB");
         // case 4
         res = xcHelper.sizeTranslator(1024, false, "B");
         expect(res).to.equal("1024B");
@@ -778,7 +778,7 @@ describe("xcHelper Test", function() {
         res = xcHelper.sizeTranslator(1, true);
         expect(res).to.be.an("array");
         expect(res.length).to.equal(2);
-        expect(res[0]).to.equal(1);
+        expect(res[0]).to.equal("1");
         expect(res[1]).to.equal("B");
 
         // case 6 (rounding)

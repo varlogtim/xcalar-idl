@@ -1009,7 +1009,10 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // Converts the timestamp from seconds to Days Hours Minutes Seconds
-    xcHelper.timeStampConvertSeconds = function(timeInSeconds) {
+    // options:
+    //      noZeros: boolean, if true will not show values if is 0
+    xcHelper.timeStampConvertSeconds = function(timeInSeconds, options) {
+        options = options || {};
         var days = Math.floor(timeInSeconds / (24 * 60 * 60));
         timeInSeconds -= days * 24 * 60 * 60;
         var hours = Math.floor(timeInSeconds / (60 * 60));
@@ -1017,15 +1020,31 @@ window.xcHelper = (function($, xcHelper) {
         var minutes = Math.floor(timeInSeconds / 60);
         timeInSeconds -= minutes * 60;
         var seconds = timeInSeconds;
+        var dateString = "";
+        var nonZeroFound = false;
 
         // Lol, grammatically, it's 0 hours, 1 hour, 2 hours, etc.
-        var dateString = days + " day";
-        dateString += days !== 1 ? "s": "";
-        dateString += ", " + hours + " hour";
-        dateString += hours !== 1 ? "s": "";
-        dateString += ", " + minutes + " minute";
-        dateString += minutes !== 1 ? "s": "";
-        dateString += ", " + seconds + " second";
+        if (!options.noZeros || days !== 0) {
+            dateString += days + " day";
+            dateString += days !== 1 ? "s": "";
+            dateString += ", ";
+            nonZeroFound = true;
+        }
+
+        if ((!options.noZeros || hours !== 0) || nonZeroFound) {
+            dateString += hours + " hour";
+            dateString += hours !== 1 ? "s": "";
+            dateString += ", ";
+            nonZeroFound = true;
+        }
+
+        if ((!options.noZeros || minutes !== 0) || nonZeroFound) {
+            dateString += minutes + " minute";
+            dateString += minutes !== 1 ? "s": "";
+            dateString += ", ";
+        }
+
+        dateString += seconds + " second";
         dateString += seconds !== 1 ? "s": "";
 
         return dateString;
@@ -1034,8 +1053,9 @@ window.xcHelper = (function($, xcHelper) {
     // convertTo is a unit (MB, GB etc) that you want to convert to
     /**
      * @param  {boolean} unitSeparated true if want return an array of
-     *                                 [int size, string unit]
+     *                                 [string size, string unit]
      */
+    // returns size as string -> "0.55KB" or ["0.55", "KB"]
     xcHelper.sizeTranslator = function(size, unitSeparated, convertTo, options) {
         if (size == null) {
             return null;
@@ -1049,25 +1069,24 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var start = 0;
-        var end   = unit.length - 2;
+        var end   = unit.length - 1;
 
         if (convertTo && unit.indexOf(convertTo) > -1) {
-            var index = unit.indexOf(convertTo);
-            size = (size * (1 / Math.pow(1024, index))).toFixed(2);
-            size = parseFloat(size);
-            start = index;
+            var start = unit.indexOf(convertTo);
+            size *= (1 / Math.pow(1024, start));
         } else {
-            while (size >= 1024 && start <= end) {
-                size = (size / 1024).toFixed(1);
+            while (size >= 1024 && start < end) {
+                size = (size / 1024);
                 ++start;
-            }
-            if (size >= 10) {
-                size = Math.round(size);
             }
         }
 
-        size = parseFloat(size);
-
+        if (start === 0 || size >= 1000) {
+            size = parseInt(size);
+            size += ""; // to string
+        } else {
+            size = parseFloat(size).toPrecision(3);
+        }
 
         if (unitSeparated) {
             return ([size, unit[start]]);

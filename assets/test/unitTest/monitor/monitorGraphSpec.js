@@ -59,8 +59,8 @@ describe("Monitor Graph Test", function() {
 
             fn()
             .then(function() {
-                expect(dataset[0][1]).to.equal(40);
-                expect(dataset[1][1]).to.equal(5);
+                expect(dataset[0][1]).to.equal("40.0");
+                expect(dataset[1][1]).to.equal("5.00");
                 expect(dataset[2][1]).to.equal(10);
 
                 expect($monitorPanel.find(".line").length).to.equal(3);

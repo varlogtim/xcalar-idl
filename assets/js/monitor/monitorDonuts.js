@@ -264,11 +264,10 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                 return (function(t) {
                     var size = xcHelper.sizeTranslator(i(t), true, null,
                                                         sizeOption);
-                    num = parseFloat(size[0]).toFixed(1);
-                    if (num >= 10 || index === cpuIndex || pct) {
+                    num = size[0];
+                    if (index === cpuIndex || pct) {
                         num = Math.round(num);
-                    }
-                    if (index !== cpuIndex && !pct) {
+                    } else if (index !== cpuIndex && !pct) {
                         $sizeType.html(size[1]);
                     }
                     this.textContent = num;
@@ -283,7 +282,11 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         var listHTML = "";
 
         if (index === cpuIndex) {
-            var avgUsed = Math.round(stats.used * 100) / 100;
+            var avgUsed = stats.used.toPrecision(3);
+            if (avgUsed < 1) {
+                avgUsed = parseFloat(avgUsed).toFixed(2);
+            }
+
             $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
 
             for (var i = 0; i < numNodes; i++) {
@@ -341,8 +344,12 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                     totalUnits = total[1];
                 }
 
-                var pct = Math.round(usedNum / max * 100);
+                var pct = (usedNum / max) * 100;
                 pct = pct || 0;
+                pct = pct.toPrecision(3);
+                if (pct < 1) {
+                    pct = parseFloat(pct).toFixed(2);
+                }
                 var bars = getPctBarHtml(pct);
 
                 listHTML += '<li>' + bars +

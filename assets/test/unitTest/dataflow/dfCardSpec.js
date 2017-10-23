@@ -31,9 +31,6 @@ describe("DFCard Test", function() {
             });
         })
         .then(function() {
-            oldRefresh = DataflowPanel.refresh;
-            DataflowPanel.refresh = function() {};
-
             UnitTest.onMinMode();
             testDfName = xcHelper.randName("unitTestDF");
             var testDSObj = testDatasets.fakeYelp;
@@ -302,7 +299,6 @@ describe("DFCard Test", function() {
                 expect(name).to.equal(testDfName);
                 called = true;
             };
-
             $("#dfMenu").find(".downloadDataflow").eq(0).click();
             expect(called).to.be.true;
             XcSupport.downloadLRQ = cached;
