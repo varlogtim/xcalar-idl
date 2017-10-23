@@ -116,7 +116,7 @@ function thriftLog() {
         errorLists.push(thriftError);
         var alertError;
 
-        if (status === StatusT.StatusOk) {
+        if (status === StatusT.StatusOk || httpStatus === 0) {
             XcSupport.checkConnection();
             return thriftError;
         } else {
