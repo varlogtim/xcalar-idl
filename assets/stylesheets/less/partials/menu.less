@@ -760,6 +760,39 @@
         .tdDropdown {
             display: list-item;
         }
+
+        .tdFilter, .tdExclude {
+            .plural, .preFormatted {
+                display: none;
+            }
+            &.multiCell {
+                .default {
+                    display: none;
+                }
+                .plural {
+                    display: inline;
+                }
+                .preFormatted {
+                    display: none;
+                }
+            }
+            &.preFormatted {
+                .default {
+                    display: none;
+                }
+                .preFormatted:not(.plural) {
+                    display: inline;
+                }
+                &.multiCell {
+                    .preFormatted {
+                        display: none;
+                        &.plural {
+                            display: inline;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

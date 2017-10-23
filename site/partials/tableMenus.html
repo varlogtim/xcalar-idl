@@ -180,7 +180,7 @@
 
 <div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">
   <ul>
-    <li class="addColumn parentMenu" data-submenu="addColumn">
+    <li class="addColumn">
       <%= dicts.MenuTStr.AddCol %>
     </li>
     <li class="minimize"><%= dicts.MenuTStr.MinimizeCol %></li>
@@ -324,14 +324,6 @@
 </div>
 <!-- colSubMenu -->
 <div id="colSubMenu" class="menu subMenu">
-  <ul class="addColumn">
-    <li class="addColumn addColLeft">
-      <%= dicts.MenuTStr.AddColLeft %>
-    </li>
-    <li class="addColumn addColRight">
-      <%= dicts.MenuTStr.AddColRight %>
-    </li>
-  </ul>
   <ul class="textAlign">
     <li class="textAlign leftAlign">
       <%= dicts.MenuTStr.TxtAlignLeft %>
@@ -531,10 +523,16 @@
 <!-- START CELL MENU -->
 <ul id="cellMenu" class="menu">
   <li class="tdFilter">
-    <span class="label"><%= dicts.MenuTStr.FltCell %></span>
+    <span class="label default"><%= dicts.MenuTStr.FltCell %></span>
+    <span class="label default plural"><%= dicts.MenuTStr.FltCellPlural %></span>
+    <span class="label preFormatted"><%= dicts.MenuTStr.FltCellPref %></span>
+    <span class="label preFormatted plural"><%= dicts.MenuTStr.FltCellPrefPlur %></span>
   </li>
   <li class="tdExclude">
-    <span class="label"><%= dicts.MenuTStr.ExclCell %></span>
+    <span class="label default"><%= dicts.MenuTStr.ExclCell %></span>
+    <span class="label default plural"><%= dicts.MenuTStr.ExclCellPlural %></span>
+    <span class="label preFormatted"><%= dicts.MenuTStr.ExclCellPref %></span>
+    <span class="label preFormatted plural"><%= dicts.MenuTStr.ExclCellPrefPlur %></span>
   </li>
   <li class="tdJsonModal">
     <span class="label"><%= dicts.MenuTStr.ExamCell %></span>

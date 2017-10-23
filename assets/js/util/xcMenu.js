@@ -312,6 +312,11 @@ window.xcMenu = (function(xcMenu, $) {
         var menuId = $menu.attr("id");
         if (menuId && hotKeyFns[menuId]) {
             $(document).on("keydown.menuHotKeys", function(event) {
+                if ((isSystemMac && event.metaKey) ||
+                    (!isSystemMac && event.ctrlKey))
+                {
+                    return;
+                }
                 hotKeyFns[menuId](event, $menu);
             });
         }

@@ -1044,26 +1044,6 @@ describe('TableMenu Test', function() {
         });
 
         describe('sub menu', function() {
-            it('addColumn left', function() {
-
-                var cachedFunc = ColManager.addNewCol;
-                var called = false;
-                ColManager.addNewCol = function(colNum, tId, dir) {
-                    expect(colNum).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    expect(dir).to.equal(ColDir.Left);
-                    called = true;
-                };
-
-                $colSubMenu.find('.addColumn.addColLeft').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colSubMenu.find('.addColumn.addColLeft').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.addNewCol = cachedFunc;
-            });
-
             it('addColumn right', function() {
 
                 var cachedFunc = ColManager.addNewCol;
@@ -1075,10 +1055,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colSubMenu.find('.addColumn:not(.addColLeft)').trigger(rightMouseup);
+                $colMenu.find('.addColumn').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('.addColumn:not(.addColLeft)').trigger(fakeEvent.mouseup);
+                $colMenu.find('.addColumn').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.addNewCol = cachedFunc;

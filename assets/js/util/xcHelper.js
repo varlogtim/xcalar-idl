@@ -4034,27 +4034,22 @@ window.xcHelper = (function($, xcHelper) {
             $tdExclude.removeClass("unavailable");
         }
 
+        $tdFilter.removeClass("multiCell preFormatted");
+        $tdExclude.removeClass("multiCell preFormatted");
+
+        if (isMultiCell) {
+            $tdFilter.addClass("multiCell");
+            $tdExclude.addClass("multiCell");
+        }
+
         if (!options.isMultiCol &&
             (tableCol.getFormat() !== ColFormat.Default ||
             tableCol.getDecimal() > -1))
         {
+            $tdFilter.addClass("preFormatted");
+            $tdExclude.addClass("preFormatted");
             // when it's only on one column and column is formatted
-            if (isMultiCell) {
-                $tdFilter.find(".label").text('Filter pre-formatted values');
-                $tdExclude.find(".label").text('Exclude pre-formatted values');
-            } else {
-                $tdFilter.find(".label").text('Filter pre-formatted value');
-                $tdExclude.find(".label").text('Exclude pre-formatted value');
-            }
             options.classes += " long";
-        } else {
-            if (isMultiCell) {
-                $tdFilter.find(".label").text('Filter these values');
-                $tdExclude.find(".label").text('Exclude these values');
-            } else {
-                $tdFilter.find(".label").text('Filter this value');
-                $tdExclude.find(".label").text('Exclude this value');
-            }
         }
 
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,

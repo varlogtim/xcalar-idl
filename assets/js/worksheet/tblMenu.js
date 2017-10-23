@@ -468,19 +468,13 @@ window.TblMenu = (function(TblMenu, $) {
         var $allMenus = $colMenus.add($cellMenu);
 
         // add new column
-        $subMenu.on('mouseup', '.addColumn', function(event) {
+        $colMenu.on('mouseup', '.addColumn', function(event) {
             if (event.which !== 1) {
                 return;
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-
-            var direction;
-            if ($(this).hasClass('addColLeft')) {
-                direction = ColDir.Left;
-            } else {
-                direction = ColDir.Right;
-            }
+            var direction = ColDir.Right;
 
             ColManager.addNewCol(colNum, tableId, direction);
         });
@@ -1255,10 +1249,10 @@ window.TblMenu = (function(TblMenu, $) {
 
         cellMenuMap = {
             c: "tdCopy",
-            e: "tdExclude",
+            e: "tdJsonModal",
             f: "tdFilter",
             p: "tdUnnest",
-            x: "tdJsonModal"
+            x: "tdExclude"
         };
     }
 

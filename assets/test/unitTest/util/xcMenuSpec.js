@@ -129,21 +129,21 @@ describe('XcMenu Test', function() {
         });
         it("Right on parent menu should open child", function() {
             // Right on parent menu should open child
-            var acIdx = findVisibleIdx($colMenu, ".addColumn.parentMenu");
+            var acIdx = findVisibleIdx($colMenu, ".textAlign.parentMenu");
             // Navigate with keys so submenu doesn't open
             navTo(acIdx);
 
-            expect($colMenu.find("li:visible.addColumn").hasClass("selected"))
+            expect($colMenu.find("li:visible.textAlign").hasClass("selected"))
             .to.be.true;
             expect($colSubMenu.is(":visible")).to.be.false;
             triggerArrow($colMenu, "Right");
             expect($colSubMenu.is(":visible")).to.be.true;
-            expect($colSubMenu.find("ul.addColumn").is(":visible")).to.be.true;
+            expect($colSubMenu.find("ul.textAlign").is(":visible")).to.be.true;
         });
 
         it("First submenu elt should be autoselected", function() {
             expect($colSubMenu.find(".selected").length).to.equal(1);
-            expect($colSubMenu.find(".addColumn li").first().hasClass("selected"))
+            expect($colSubMenu.find(".textAlign li").first().hasClass("selected"))
             .to.be.true;
         });
 
@@ -159,7 +159,7 @@ describe('XcMenu Test', function() {
             // Submenu scroll should work
             triggerArrow($colMenu, "Down");
             expect($colSubMenu.find(".selected").length).to.equal(1);
-            expect($colSubMenu.find(".addColumn li").eq(1).hasClass("selected"))
+            expect($colSubMenu.find(".textAlign li").eq(1).hasClass("selected"))
             .to.be.true;
             triggerArrow($colMenu, "Left");
             expect($colSubMenu.is(":visible")).to.be.false;
@@ -178,7 +178,7 @@ describe('XcMenu Test', function() {
             var mouseEvent = $.Event("mouseenter");
             mouseEvent.which = 1;
             mouseEvent.keyTriggered = true;
-            $colMenu.find("li:visible.addColumn").trigger(mouseEvent);
+            $colMenu.find("li:visible.textAlign").trigger(mouseEvent);
             expect($colSubMenu.is(":visible")).to.be.true;
             expect($colSubMenu.find(".selected").length).to.equal(0);
             triggerArrow($colMenu, "Right");
