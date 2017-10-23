@@ -317,6 +317,9 @@ window.xcMenu = (function(xcMenu, $) {
                 {
                     return;
                 }
+                if ($("input:focus").length) {
+                    return;
+                }
                 hotKeyFns[menuId](event, $menu);
             });
         }
