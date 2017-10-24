@@ -2606,7 +2606,9 @@ window.OperationsView = (function($, OperationsView) {
                     isPassing = true; // input name matches new column name
                     // which is ok
                 } else {
-                    isPassing = !ColManager.checkColName($nameInput, tableId);
+                    var checkOpts = {stripColPrefix: true};
+                    isPassing = !ColManager.checkColName($nameInput, tableId,
+                                                        null, checkOpts);
                 }
                 if (isPassing) {
                     deferred.resolve();
@@ -2621,11 +2623,12 @@ window.OperationsView = (function($, OperationsView) {
                     var numArgs = $group.find('.arg:visible').length;
                     $nameInput = $group.find('.arg:visible').eq(numArgs - 1);
                     var checkOpts = {
-                        strictDuplicates: true
+                        strictDuplicates: true,
+                        stripColPrefix: true
                     };
 
-                    isPassing = !ColManager.checkColName($nameInput, tableId, null,
-                                                    checkOpts);
+                    isPassing = !ColManager.checkColName($nameInput, tableId,
+                                                        null, checkOpts);
                     if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
                                     .hasClass('checked')) {
                         isPassing = xcHelper.tableNameInputChecker(

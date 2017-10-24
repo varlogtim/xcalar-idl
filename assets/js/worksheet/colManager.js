@@ -821,11 +821,19 @@ window.ColManager = (function($, ColManager) {
     // options:
     // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
     // as a duplicate
+    // stripColPrefix: if true, will strip $ from colname
     ColManager.checkColName = function($colInput, tableId, colNum, options) {
         var columnName = $colInput.val().trim();
         var error;
         var table = gTables[tableId];
         xcTooltip.hideAll();
+
+        options = options || {};
+        if (options.stripColPrefix) {
+            if (columnName[0] === gColPrefix) {
+                columnName = columnName.slice(1);
+            }
+        }
 
         var nameErr = xcHelper.validateColName(columnName);
         if (nameErr != null) {
