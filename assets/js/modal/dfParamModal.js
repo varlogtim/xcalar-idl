@@ -1573,13 +1573,16 @@ window.DFParamModal = (function($, DFParamModal){
 
     function getExportTargetList() {
         var res = "";
-        var exportTargetObj = DSExport.getTargets();
-        if (exportTargetObj) {
-            var targets = exportTargetObj[0].targets;
-            for (var i = 0; i < targets.length; i++) {
-                var target = targets[i];
-                if (target) {
-                    res += "<li name=" + target.name + ">" + target.name + "</li>";
+        var exportTargetGroups = DSExport.getTargets();
+        if (exportTargetGroups) {
+            for (var i = 0; i < exportTargetGroups.length; i++) {
+                var targets = exportTargetGroups[i].targets;
+                for (var j = 0; j < targets.length; j++) {
+                    var target = targets[j];
+                    if (target) {
+                        res += "<li name=" + target.name + ">" + target.name +
+                               "</li>";
+                    }
                 }
             }
         }
