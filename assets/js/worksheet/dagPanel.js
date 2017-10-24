@@ -468,19 +468,25 @@ window.DagPanel = (function($, DagPanel) {
             xcMenu.removeKeyboardNavigation();
             $('#dagSchema').removeClass("active");
             var $dagTable = $(this).closest('.dagTable');
+            var tableName = $dagTable.find('.tableTitle').text().trim();
+            var tableId = $dagTable.data('id');
+            var table = gTables[tableId];
+            var isDropped = false;
             if (!$dagTable.hasClass(DgDagStateTStr[DgDagStateT
                                                     .DgDagStateReady])) {
                 // if dag does not have ready state, don't show dropdown
-                return;
+                table = gDroppedTables[tableId];
+                if (!table) {
+                    return;
+                } else {
+                    isDropped = true;
+                }
             }
             if ($("#container").hasClass("dataflowState") &&
                 event.which === 1) {
                 return;
             }
 
-            var tableName = $dagTable.find('.tableTitle').text().trim();
-            var tableId = $dagTable.data('id');
-            var table = gTables[tableId];
             var tableLocked = false;
             var tableNoDelete = false;
             if (table) {
@@ -569,6 +575,14 @@ window.DagPanel = (function($, DagPanel) {
                 // $lis get unavailable class removed at the top of function
                 $menu.find('.removeNoDelete').addClass("hidden");
                 $menu.find('.addNoDelete').removeClass("hidden");
+            }
+
+            if (isDropped) {
+                var $unavailableLis = $menu.find("li:not(.showSchema)");
+                $unavailableLis.addClass("unavailable");
+                xcTooltip.add($unavailableLis, {
+                    title: "Cannot operate on dropped tables"
+                });
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));

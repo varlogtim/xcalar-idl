@@ -120,6 +120,7 @@ TooltipTStr = {
 "SystemGood": '系统运行正常',
 'CollapsedTables': '当前有 <number> 张表处于折叠状态',
 'DroppedTable': '表\'<tablename> \'已被删除',
+'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
 'NoExport': '不能导出类​​型为<type>的列',
 'Undo': '撤消：<op>',
 'NoUndo': '最后一次操作<op>，无法撤消',

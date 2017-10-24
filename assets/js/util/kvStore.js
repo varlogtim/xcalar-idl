@@ -191,9 +191,7 @@ window.KVStore = (function($, KVStore) {
 
         metaInfos.update();
 
-
         XcSupport.stopHeartbeatCheck();
-
         KVStore.put(KVStore.gStorageKey, JSON.stringify(metaInfos), true,
                     gKVScope.META)
         .then(function() {

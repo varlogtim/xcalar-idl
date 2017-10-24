@@ -51,7 +51,7 @@
             <% if (isCurCtor) {%>
             update: function() {
                 // basic thing to store
-                this[METAKeys.TI] = savegTables();
+                this[METAKeys.TI] = saveTables();
                 this[METAKeys.WS] = WSManager.getAllMeta();
                 this[METAKeys.AGGS] = Aggregates.getAggs();
                 this[METAKeys.CART] = DSCart.getCarts();
@@ -61,7 +61,7 @@
                 this[METAKeys.QUERY] = QueryManager.getCache();
                 return this;
 
-                function savegTables() {
+                function saveTables() {
                     var persistTables = xcHelper.deepCopy(gTables);
 
                     for (var tableId in persistTables) {
@@ -81,6 +81,7 @@
                         }
                     }
 
+                    $.extend(persistTables, gDroppedTables);
                     return persistTables;
                 }
             },
@@ -645,8 +646,62 @@
                 return this;
             },
 
+            beDropped: function() {
+                this.status = TableType.Dropped;
+                var table = this;
+
+                delete table.backTableMeta;
+                delete table.bookmarks;
+                delete table.currentRowNumber;
+                delete table.highlightedCells;
+                delete table.indexTables;
+                delete table.isLocked;
+                delete table.keyName;
+                delete table.noDelete;
+                delete table.numPages;
+                delete table.ordering;
+                delete table.resultSetId;
+                delete table.resultSetMax;
+                delete table.rowHeights;
+                delete table.scrollMeta;
+                delete table.skewness;
+                delete table.timeStamp;
+
+                if (!table.complement) {
+                    delete table.complement;
+                }
+                if (!table.icv) {
+                    delete table.icv;
+                }
+                // keeping resultSetCount, status, tableCols, tableId, tableName
+
+                var col;
+                for (var i = 0; i < table.tableCols.length; i++) {
+                    col = table.tableCols[i];
+                    delete col.childOfArray;
+                    delete col.decimal;
+                    delete col.format;
+                    delete col.isMinimized;
+                    delete col.knownType;
+                    delete col.sizedTo;
+                    delete col.textAlign;
+                    delete col.userStr;
+                    delete col.width;
+                    if (!col.immediate) { // delete if false
+                        delete col.immediate;
+                    }
+                    // keep "isNewCol" property or it later gets set to true
+                    // keeping prefix, name, backname, func, type, isNewCol
+                }
+                return this;
+            },
+
             isActive: function() {
                 return (this.status === TableType.Active);
+            },
+
+            isDropped: function() {
+                return (this.status === TableType.Dropped);
             },
 
             getCol: function(colNum) {

@@ -61,6 +61,7 @@ gKVScope = {
 gTables = {}; // This is the main global array containing structures
                   // Stores TableMeta structs
 gOrphanTables = [];
+gDroppedTables = {};
 gActiveTableId = "";
 gIsTableScrolling = false;
 gMinModeOn = false;

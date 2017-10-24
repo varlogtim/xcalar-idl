@@ -132,6 +132,7 @@ TooltipTStr = {
     'ShowGroupTables': 'Click to reveal the <number> operations involved in the <op> operation',
     'HideGroupTables': 'Click to hide the <number> operations involved in the <op> operation',
     'DroppedTable': 'Table \'<tablename>\' has been dropped',
+    'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
     'NoExport': 'Cannot export column of type <type>',
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',

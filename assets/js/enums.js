@@ -79,7 +79,8 @@ TableType = {
     "Unknown" : "unknown source",
     "Trash"   : "trashed",
     "Undone"  : "undone",
-    "Aggregate": "aggregate"
+    "Aggregate": "aggregate",
+    "Dropped" : "dropped"
 };
 
 ColDir = {

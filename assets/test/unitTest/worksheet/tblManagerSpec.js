@@ -423,7 +423,8 @@ describe("TableManager Test", function() {
             table = new TableMeta({
                 "tableId": tableId,
                 "tableName": tableName,
-                "status": TableType.Active
+                "status": TableType.Active,
+                "tableCols": []
             });
 
             gTables[tableId] = table;
@@ -435,7 +436,8 @@ describe("TableManager Test", function() {
                 "tableId": tableId2,
                 "tableName": tableName2,
                 "status": TableType.Active,
-                "noDelete": true
+                "noDelete": true,
+                "tableCols": []
             });
 
             gTables[tableId2] = table2;

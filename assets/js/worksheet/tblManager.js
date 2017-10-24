@@ -592,6 +592,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     TblManager.restoreTableMeta = function(tables) {
+
         for (var tableId in tables) {
             var table = tables[tableId];
 
@@ -600,7 +601,55 @@ window.TblManager = (function($, TblManager) {
                 table.beOrphaned();
             }
 
-            gTables[tableId] = table;
+            if (table.isDropped()) {
+                table.beDropped(); // strips unnecessary data
+                gDroppedTables[tableId] = table;
+            } else {
+                gTables[tableId] = table;
+            }
+        }
+
+        cleanUpDroppedTables();
+
+        // will delete older dropped tables if storing more than 1MB of
+        // dropped table data
+        function cleanUpDroppedTables() {
+            var limit = 1 * MB;
+            var droppedTablesStr = JSON.stringify(gDroppedTables);
+            if (droppedTablesStr.length < limit) {
+                return;
+            }
+
+            var pctToReduce = limit / droppedTablesStr.length;
+            var dTableArray = [];
+            var numTotalCols = 0;
+            var hashTag = Authentication.getInfo().hashTag;
+            var hashTagLen = hashTag.length;
+
+            for (var i in gDroppedTables) {
+                dTableArray.push(gDroppedTables[i]);
+                numTotalCols += gDroppedTables[i].tableCols.length;
+            }
+
+            // estimate table size by column length
+            var colLimit = Math.floor(numTotalCols * pctToReduce);
+
+            dTableArray.sort(function(a, b) {
+                var idNumA = a.tableId.slice(hashTagLen);
+                var idNumB = b.tableId.slice(hashTagLen);
+                return parseInt(idNumB) - parseInt(idNumA);
+            });
+
+            var colCount = 0;
+            gDroppedTables = {};
+            for (var i = 0; i < dTableArray.length; i++) {
+                colCount += dTableArray[i].tableCols.length;
+                if (colCount > colLimit) {
+                    break;
+                } else {
+                    gDroppedTables[dTableArray[i].tableId] = dTableArray[i];
+                }
+            }
         }
     };
 
@@ -3059,9 +3108,19 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.getTableId(tableName);
         if (tableId != null && gTables[tableId] != null) {
             WSManager.removeTable(tableId);
+            sendTableToDropped(gTables[tableId]);
             delete gTables[tableId];
             Profile.deleteCache(tableId);
         }
+    }
+
+    function sendTableToDropped(table) {
+        if (table.getType() === TableType.Undone) {
+            // has no descendents so we don't need to keep meta
+            return;
+        }
+        table.beDropped();
+        gDroppedTables[table.tableId] = table;
     }
 
     function autoSizeDataCol(tableId) {

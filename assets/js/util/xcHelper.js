@@ -407,6 +407,9 @@
                 var name = xcHelper.getTableName(tables[i].name);
                 tableNames[name] = 1;
             }
+            if (result.numNodes === 0) {
+                gDroppedTables = {};
+            }
 
             var validNameFound = false;
             var limit = 20; // we won't try more than 20 times
@@ -1535,6 +1538,9 @@
                 backTableSet[backTables[i].name] = true;
             }
 
+            if (numBackTables === 0) {
+                gDroppedTables = {}; // no need to keep meta when no tables
+            }
             deferred.resolve(backTableSet, numBackTables);
         })
         .fail(deferred.reject);

@@ -171,10 +171,10 @@ window.DagDraw = (function($, DagDraw) {
             sets: sets
         };
         $container.data('allDagInfo', allDagInfo);
-        postDagHtmlOperations($container);
+        postDagHtmlOperations($container, options.tableId);
     };
 
-    function postDagHtmlOperations($dagWrap) {
+    function postDagHtmlOperations($dagWrap, tableId) {
         // add url to data attribute after dagwrap created so we don't expose
         // url in the html
         var datasets = $dagWrap.data("allDagInfo").datasets;
@@ -184,6 +184,25 @@ window.DagDraw = (function($, DagDraw) {
             var $icon = Dag.getTableIcon($dagWrap, nodeId);
             $icon.data("url", encodeURI(url));
         }
+        if (tableId) {
+            styleDroppedTables($dagWrap);
+        }
+    }
+
+    function styleDroppedTables($dagWrap, tableId) {
+        $dagWrap.find(".dagTable.Dropped").each(function() {
+            var $dagTable = $(this);
+            var tId = $dagTable.data("id");
+            if (gDroppedTables[tId]) {
+                $dagTable.addClass("hasMeta");
+            } else {
+                xcTooltip.add($dagTable.find(".dagTableIcon"), {
+                    title: xcHelper.replaceMsg(TooltipTStr.DroppedTableNoInfo, {
+                        tablename: $dagTable.data("tablename")
+                    })
+                });
+            }
+        });
     }
 
     // used for expanding / collapsing tagged group with "node" as header
@@ -246,6 +265,7 @@ window.DagDraw = (function($, DagDraw) {
         dagInfo.depth = dagDepth;
         dagInfo.condensedWidth = storedInfo.condensedDepth * Dag.tableWidth -
                                  150;
+        styleDroppedTables($dagWrap);
     };
 
     // used to replace dagImage with tagged version

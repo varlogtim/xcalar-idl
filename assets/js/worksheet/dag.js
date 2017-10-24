@@ -530,7 +530,11 @@ window.Dag = (function($, Dag) {
             var idMap     = $dagWrap.data('allDagInfo').nodeIdMap;
             var node = idMap[id];
             var name      = $name.text();
-            var progCol = gTables[tableId].getColByFrontName(name);
+            var table = gTables[tableId] || gDroppedTables[tableId];
+            if (!table) {
+                return;
+            }
+            var progCol = table.getColByFrontName(name);
             var backName  = $name.data('backname');
             if (!backName) {
                 backName = name;
@@ -554,6 +558,7 @@ window.Dag = (function($, Dag) {
 
             var derivedNodeId = storedInfo.derivedTable ||
                                 storedInfo.lastFoundTable;
+
             var tip = '<div class="dagTableTip">' +
                         '<div>' + CommonTxtTstr.Created + '</div>' +
                       '</div>';
@@ -561,6 +566,7 @@ window.Dag = (function($, Dag) {
             $(document).mousedown(closeDagHighlight);
         });
 
+        // sort nodes by used
         $dagSchema.on("click", '.sort', function() {
             var tableId = $dagSchema.data("tableid");
             var table = gTables[tableId];
@@ -682,7 +688,7 @@ window.Dag = (function($, Dag) {
 
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
-        var table = gTables[tableId];
+        var table = gTables[tableId] || gDroppedTables[tableId];
         var $schema = $('#dagSchema');
         $schema.removeClass("loadInfo");
         var tableName;
@@ -945,7 +951,7 @@ window.Dag = (function($, Dag) {
 
     function getSchemaNodeInfo($schema, table, sortByNode, sortReverse) {
         $schema.removeClass('heavySkew slightSkew');
-        if (!table.backTableMeta) {
+        if (!table.backTableMeta || table.isDropped()) {
             $schema.addClass("noNodeInfo");
             return;
         }
@@ -1694,7 +1700,8 @@ window.Dag = (function($, Dag) {
 
             // ignore endpoings
             if (parentNode.value.numParents > 0) {
-                table = gTables[xcHelper.getTableId(parentName)];
+                var tId = xcHelper.getTableId(parentName);
+                table = gTables[tId] || gDroppedTables[tId];
             }
 
             if (table) {
@@ -1767,7 +1774,7 @@ window.Dag = (function($, Dag) {
                 // gTable doesn't exist so we move on to its parent
                 var $dagTable = Dag.getTableIcon($dagWrap,
                                                  parentNode.value.dagNodeId);
-                if ($dagTable.hasClass('Dropped')) {
+                if ($dagTable.hasClass(DgDagStateTStr[DgDagStateT.DgDagStateDropped])) {
                     var newOrigNode = origNode;
                     if (prevFound) {
                         newOrigNode = node;

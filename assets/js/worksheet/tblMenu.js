@@ -669,7 +669,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $colMenu.on('mouseup', '.corrAgg', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
             }
             var colNums = $colMenu.data('colNums');
@@ -763,7 +763,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $colMenu.on('mouseup', '.join', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
             }
             var colNums = $colMenu.data("colNums");
@@ -786,7 +786,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
             }
             var colNum = $colMenu.data('colNum');
