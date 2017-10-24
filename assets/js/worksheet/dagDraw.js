@@ -2239,6 +2239,36 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
+    function hasParentOnSameY(node, targetParent) {
+        var targetDepth = targetParent.value.display.depth;
+        var parents = node.getVisibleParents();
+        for (var i = 0; i < parents.length; i++) {
+            if (parents[i].value.display.y === node.value.display.y) {
+                if (parents[i].value.display.depth < targetDepth) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    function hasChildOnSameY(node, targetChild) {
+        var targetDepth = targetChild.value.display.depth;
+        var children = node.getVisibleChildren();
+        for (var i = 0; i < node.children.length; i++) {
+            if (node.children[i].value.display.y === node.value.display.y) {
+                if (children[i].value.display.depth > targetDepth) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
     // this function draws all the lines going into a blue table icon and its
     // corresponding gray operation rectangle
     function drawDagLines($dagImage, ctx, node, canvasWidth) {
@@ -2265,7 +2295,6 @@ window.DagDraw = (function($, DagDraw) {
         if (upperParent.value.api === XcalarApisT.XcalarApiBulkLoad) {
             parentOffset += 3;
         }
-
         // line from table to operation
         drawLine(ctx, tableX, tableY, tableX - 50, tableY);
 
@@ -2294,7 +2323,24 @@ window.DagDraw = (function($, DagDraw) {
                 x2: lowerParentX + smallTableWidth, // right of blue table
                 y2: lowerParentY
             };
-            drawCurve(ctx, curvedLineCoor);
+            var inverted = false;
+            var duelInverted = false;
+            if (lowerParentY < tableY) {
+                if (hasChildOnSameY(lowerParent, node)) {
+                    inverted = true;
+                    if (hasParentOnSameY(node, lowerParent)) {
+                        duelInverted = true;
+                    }
+                }
+            } else if (lowerParentY > tableY) {
+                if (hasChildOnSameY(lowerParent, node)) {
+                    inverted = true;
+                    if (hasParentOnSameY(node, lowerParent)) {
+                        duelInverted = true;
+                    }
+                }
+            }
+            drawCurve(ctx, curvedLineCoor, inverted, duelInverted);
 
             // draw any additional curves if more than 2 parents
             if (numParents > 2) {
@@ -2302,6 +2348,7 @@ window.DagDraw = (function($, DagDraw) {
                                  canvasWidth);
             }
         }
+
     }
 
     // do not draw join lines for groupbys
@@ -2323,25 +2370,24 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function drawCurve(ctx, coor, inverted) {
+    function drawCurve(ctx, coor, inverted, duelInverted) {
         var x1 = coor.x1; // upper table x
         var y1 = coor.y1; // upper table y
-        var x2 = coor.x2; // child table x
-        var y2 = coor.y2; // child table y
+        var x2 = coor.x2; // parent table x
+        var y2 = coor.y2; // parent table y
         var bendX1, bendY1, bendX2, bendY2;
 
         if (inverted) {
-            // curve style option
-            // bendX1 = x1 - ((x1 - x2) / 2);
-            // bendY1 = y1;
-            // bendX2 = y2 - ((y2 - y1) / 2);
-            // bendY2 = y1;
-
-            // bendX1 = x2;
             bendX1 = (x2 + x1) / 2;
             bendY1 = y1;
             bendX2 = x2;
             bendY2 = y1;
+
+            if (duelInverted) {
+                bendX1 = x1;
+                bendY1 = (y2 * 9 + y1) / 10;// 90% horizontal
+                bendY2 = (y1 * 9 + y2) / 10;
+            }
         } else if (y1 === y2) {
             x1 -= 20;
             bendX1 = x1;

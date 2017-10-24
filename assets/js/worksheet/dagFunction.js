@@ -27,6 +27,24 @@ window.DagFunction = (function($, DagFunction) {
             return parents;
         },
 
+        getVisibleChildren: function() {
+            var children = [];
+            search(this);
+
+            function search(node) {
+                for (var i = 0; i < node.children.length; i++) {
+                    var childNode = node.children[i];
+                    if (childNode.value.display.isHiddenTag ||
+                        childNode.value.display.isHidden) {
+                        search(childNode);
+                    } else {// may produce duplicate children on purpose
+                        children.push(childNode);
+                    }
+                }
+            }
+            return children;
+        },
+
         getSourceNames: function(excludeTags) {
             var parentNames = [];
             var node = this;

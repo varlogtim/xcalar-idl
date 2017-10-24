@@ -1259,10 +1259,11 @@ window.Dag = (function($, Dag) {
             Dag.getTableIcon($dagWrap, exportNode.value.dagNodeId).parent()
                                     .css("right", nodeX - Dag.tableWidth);
         }
-
         var numParents = node.parents.length;
+        var prevHorzShift = horzShift;
         for (var i = 0; i < numParents; i++) {
             var parentNode = node.parents[i];
+            horzShift = prevHorzShift;
 
             // check if there's enough space for branch section to expand without
             // having to move parent table
@@ -1291,7 +1292,6 @@ window.Dag = (function($, Dag) {
                     }
                 }
             }
-
             expandGroupHelper(group, parentNode, $dagWrap,
                                horzShift, storedInfo);
         }
@@ -1405,9 +1405,10 @@ window.Dag = (function($, Dag) {
                                     .css("right", nodeX - Dag.tableWidth);
         }
 
-
         var numParents = node.parents.length;
+        var prevHorzShift = horzShift;
         for (var i = 0; i < numParents; i++) {
+            horzShift = prevHorzShift;
             var parentNode = node.parents[i];
 
             // prevent parent table from moving in if there's a parallel

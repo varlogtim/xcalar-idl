@@ -136,24 +136,24 @@
     .position(fixed, @top: 0, @left: 0);
     .size(100%, 100%);
     background-color: @color-black;
-    opacity: 0.6;
+    opacity: 0.5;
     display: none;
     z-index: @z-index-modalBackground;
 
     &.light {
-        opacity: 0.4;
+        opacity: 0.25;
     }
     &.locked {
         display: block !important;
         z-index: @z-index-locked;
-        opacity: 0.6 !important; // overriding $.fadeIn opacity animation
+        opacity: 0.5 !important; // overriding $.fadeIn opacity animation
     }
 }
 
 #modalWaitingBG {
     .size(@width: 100%, @height: ~"calc(100% - 36px)");
     .position(absolute, @top: 36px, @left: 0);
-    background-color: rgba(255,255,255, 0.6);
+    background-color: rgba(255,255,255, 0.5);
     z-index: 101; // higher than the resizable grabbers
 
     .waitingIcon {
