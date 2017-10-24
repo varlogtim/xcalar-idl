@@ -39,13 +39,13 @@ window.xcManager = (function(xcManager, $) {
         var firstTimeUser;
 
         XVM.checkVersionAndLicense()
-        .then(function() {
-            // First XD instance to run since cluster restart
-            return oneTimeSetup();
-        })
         .then(XVM.checkKVVersion)
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
+        })
+        .then(function() {
+            // First XD instance to run since cluster restart
+            return oneTimeSetup();
         })
         .then(setupSession)
         .then(setupConfigParams)

@@ -220,13 +220,11 @@ window.XVM = (function(XVM) {
         .then(function(res) {
             var versionInfo = parseKVStoreVersionInfo(res);
             checkVersionInfo(versionInfo);
-
             if (versionInfo == null) {
                 // when it's a first time set up
                 firstUser = true;
-                return XVM.commitKVVersion();
+                return firstUserCheck();
             }
-
             var version = versionInfo.version;
             if (isNaN(version) || version > currentVersion) {
                 xcConsole.error("Error of KVVersion", res);
@@ -247,6 +245,19 @@ window.XVM = (function(XVM) {
 
         return deferred.promise();
     };
+
+    function firstUserCheck() {
+        var isFreeTrail = false;
+        var deferred = jQuery.Deferred();
+        var promise = isFreeTrail ? EULAModal.show() : PromiseHelper.resolve();
+
+        promise
+        .then(XVM.commitKVVersion)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     function parseKVStoreVersionInfo(info) {
         if (info == null) {
