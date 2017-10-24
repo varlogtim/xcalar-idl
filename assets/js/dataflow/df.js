@@ -107,13 +107,16 @@ window.DF = (function($, DF) {
                 retArray.push(XcalarGetRetina(retName));
             }
 
-            return PromiseHelper.when.apply({}, retArray);
+            return PromiseHelper.alwaysResolve(PromiseHelper.when.apply({}, retArray));
         })
         .then(function() {
             dataflows = {}; // Reset dataflow cache
             var retStructs = arguments;
             for (var i = 0; i < retStructs.length; i++) {
                 if (retStructs[i] == null) {
+                    continue;
+                }
+                if (!retStructs[i].retina) {
                     continue;
                 }
                 // Populate node information
