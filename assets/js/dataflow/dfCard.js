@@ -1662,7 +1662,6 @@ window.DFCard = (function($, DFCard) {
         })
         .fail(function() {
             var $dagWrap = getDagWrap(dataflowName);
-            debugger;
             if ($dagWrap.length && !$dagWrap.find(".dagImage").length) {
                 $dagWrap.addClass("error invalid");
                 var dagImageHtml = '<div class="errorMsg">' +
