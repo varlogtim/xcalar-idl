@@ -114,7 +114,7 @@ function timeRelatedFunctionTest() {
         d = new Date(schedule.startTime);
         expect((d.getTime() - currentTime)/(3600*24*1000)).to.within(0, 14);
         expect(((d.getTime() - previousTime)/(3600*24*1000)) % 14).to.equal(0);
-        expect(d.getHours() - previousTime.getHours()).to.equal(0);
+        expect(d.getUTCHours() - previousTime.getUTCHours()).to.equal(0);
         expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
         expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
 

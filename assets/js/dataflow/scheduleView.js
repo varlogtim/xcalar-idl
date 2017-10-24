@@ -1169,13 +1169,18 @@ window.Scheduler = (function(Scheduler, $) {
                         time.setHours(time.getHours() + 1);
                         break;
                     case scheduleFreq.daily:
-                        time.setDate(time.getDate() + 1);
+                        time.setTime(time.getTime() + 1*24*60*60*1000);
                         break;
                     case scheduleFreq.weekly:
-                        time.setDate(time.getDate() + 7);
+                        time.setTime(time.getTime() + 7*24*60*60*1000);
                         break;
                     case scheduleFreq.biweekly:
-                        time.setDate(time.getDate() + 14);
+                        // time.setDate(time.getDate() + 14); will cause error
+                        // try var time = new Date(1508806551791)
+                        // time.setDate(time.getDate() + 12) and
+                        // time.setDate(time.getDate() + 14)
+                        // to see the difference
+                        time.setTime(time.getTime() + 14*24*60*60*1000);
                         break;
                     case scheduleFreq.monthly:
                         time.setMonth(time.getMonth() + 1);
