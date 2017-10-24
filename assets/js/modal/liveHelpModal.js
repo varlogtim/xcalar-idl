@@ -58,8 +58,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (!autoResend) {
             // If the client is not connected to socket yet
             if (!connected) {
-                var url = "http://xcalar-livechat.westus2.cloudapp.azure.com" +
-                          ":12124/";
+                var url = "https://livechat.xcalar.com/";
                 socket = io.connect(url);
                 addSocketEvent();
             }
@@ -75,11 +74,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         }, 1000);
         timer = setTimeout(function() {
             appendMsg(AlertTStr.NoSupport, "sysMsg");
-            var confirmation = AlertTStr.SubmitTicket +
-                               "<a class='confirmTicket'>" +
-                               CommonTxtTstr.YES + "</a>";
-            appendMsg(confirmation, "sysMsg");
-            firstMsg = false;
+            confirmTicket();
         }, 120000)
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
@@ -95,6 +90,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             fullName: fullName
         };
         socket.emit("liveHelpConn", opts);
+    }
+    function confirmTicket() {
+        var confirmation = AlertTStr.SubmitTicket +
+                           "<a class='confirmTicket'>" +
+                           CommonTxtTstr.YES + "</a>";
+        appendMsg(confirmation, "sysMsg");
     }
     // Only for sending messages
     function submitForm() {
@@ -255,7 +256,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         $modal.on("click", ".confirmTicket", function() {
             submitTicket(true);
-            $modal.find(".confirmTicket").addClass("xc-disabled");
         });
         // Click on minimize button
         $modal.on("click", ".minimize", minimize);
@@ -293,6 +293,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         }
     }
     function submitTicket(triggerPd) {
+        firstMsg = false;
+        $modal.find(".confirmTicket").addClass("xc-disabled");
         appendMsg(AlertTStr.WaitTicket, "sysMsg");
         var info;
         var success = true;
@@ -333,10 +335,11 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         })
         .always(function() {
             if (!success) {
+                firstMsg = true;
                 info = AlertTStr.TicketError;
                 appendMsg(info, "sysMsg");
                 $modal.find(".confirmTicket").removeClass("xc-disabled");
-                appendMsg(AlertTStr.SubmitTicket, "sysMsg");
+                confirmTicket();
             } else {
                 appendMsg(info, "sysMsg");
             }
@@ -402,7 +405,6 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                     timer = null;
                 }
                 submitTicket();
-                firstMsg = false;
             }
         });
         socket.on("joinRoom", function(room) {
