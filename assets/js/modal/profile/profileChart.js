@@ -82,7 +82,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 name = name + "-" + upperBound;
             }
 
-            if (name.length > charLenToFit) {
+            if (charLenToFit != null && name.length > charLenToFit) {
                 return (name.substring(0, charLenToFit) + "..");
             } else {
                 return name;
@@ -252,7 +252,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 var dataLen = data.length;
 
                 var sectionWidth = $section.width();
-                var marginBottom = 10;
+                var marginBottom = 20;
                 var marginLeft = 20;
 
                 var maxRectW = Math.floor(sectionWidth / 706 * 70);
@@ -262,6 +262,8 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
                 var height = chartHeight - marginBottom;
                 var width = chartWidth - marginLeft * 2;
+
+                var tickHeight = height + marginBottom / 2;
 
                 // x range and y range
                 var maxHeight = Math.max(max, nullCount);
@@ -340,31 +342,29 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
                     // tick
                     barAreas.select(".tick")
-                        .attr("y", chartHeight)
+                        .attr("y", tickHeight)
+                        .text(getXAxis)
                         .transition()
-                        .duration(time)
-                        .attr("x", function(d) {
-                            if (!noBucket && noSort) {
-                                return x(d[xName]);
-                            } else {
-                                return x(d[xName]) + xWidth / 2;
-                            }
+                        .call(endTransition, function() {
+                            updateTicks(barAreas);
                         })
-                        .attr("width", xWidth)
-                        .text(getXAxis);
+                        .duration(time)
+                        .attr("x", getTickX)
+                        .attr("width", xWidth);
 
                     if (!noBucket && noSort) {
                         barAreas.select(".tick.last")
-                            .attr("y", chartHeight)
+                            .text(getLastBucketTick)
+                            .attr("y", tickHeight)
                             .transition()
-                            .duration(time)
-                            .attr("x", function(d) {
-                                return x(d[xName]) + xWidth;
+                            .call(endTransition, function() {
+                                updateTicks(barAreas, true);
                             })
-                            .attr("width", xWidth)
-                            .text(getLastBucketTick);
+                            .duration(time)
+                            .attr("x", getLastTickX);
                     }
-
+                    barAreas.selectAll(".tick")
+                                    .call(wrapXAxis);
                     return;
                 }
 
@@ -394,6 +394,8 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                     barAreas.select(".tick.last")
                         .text(getLastBucketTick);
                 }
+                barAreas.selectAll(".tick")
+                        .call(wrapXAxis);
                 // enter
                 var newbars = barAreas.enter().append("g")
                             .attr("class", getTooltipAndClass)
@@ -449,25 +451,24 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 newbars.append("text")
                     .attr("class", "tick")
                     .attr("width", xWidth)
-                    .attr("x", function(d) {
-                        if (!noBucket && noSort) {
-                            return x(d[xName]);
-                        } else {
-                            return x(d[xName]) + xWidth / 2;
-                        }
-                    })
-                    .attr("y", chartHeight)
+                    .attr("x", getTickX)
+                    .attr("y", tickHeight)
                     .text(getXAxis);
+
 
                 if (!noBucket && noSort) {
                     newbars.filter(function(d, i) { return i === dataLen - 1; })
                         .append("text")
                         .attr("class", "tick last")
                         .attr("width", xWidth)
-                        .attr("x", function(d) { return x(d[xName]) + xWidth; })
-                        .attr("y", chartHeight)
+                        .attr("x", getLastTickX)
+                        .attr("y", tickHeight)
                         .text(getLastBucketTick);
                 }
+
+
+                newbars.selectAll(".tick")
+                        .call(wrapXAxis);
 
                 // exit
                 barAreas.exit().remove();
@@ -480,7 +481,7 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 }
 
                 function getXAxis(d) {
-                    return self._getXAxis(d, charLenToFit);
+                    return self._getXAxis(d);
                 }
 
                 function getLabel(d) {
@@ -490,6 +491,80 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
                 function getTooltipAndClass(d) {
                     var ele = this;
                     return self._getTooltpAndClass(ele, d);
+                }
+
+                function wrapXAxis(textNodes) {
+                    textNodes.each(function() {
+                        var textNode = d3.select(this);
+                        var text = textNode.text();
+                        var lineHeight = 1; // ems
+                        var maxLine = 2;
+                        var x = textNode.attr("x");
+                        var y = textNode.attr("y");
+                        var dy = parseFloat(textNode.attr("dy")) || 0;
+                        textNode.text(null);
+
+                        for (var lineNum = 0; lineNum < maxLine; lineNum++) {
+                            var word;
+                            if (lineNum === maxLine - 1 &&
+                                !(text.length <= charLenToFit))
+                            {
+                                word = "..." +
+                                       text.substring(text.length - charLenToFit,
+                                                      text.length);
+                            } else {
+                                word = text.substring(0, charLenToFit);
+                            }
+
+                            textNode.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y).attr("dy", lineNum * lineHeight + dy + "em")
+                            .text(word);
+
+                            text = text.slice(charLenToFit);
+                            if (!text.length) {
+                                break;
+                            }
+                        }
+                    });
+                }
+
+                function updateTicks(areas, isLast) {
+                    var textFunc = isLast ? getLastBucketTick : getXAxis;
+                    var selecttor = ".tick";
+                    selecttor += isLast ? ".last" : "";
+                    areas.select(selecttor)
+                         .text(textFunc)
+                         .call(wrapXAxis);
+                }
+
+                function endTransition(transition, callback) {
+                    if (typeof callback !== "function") {
+                        throw new Error("Wrong callback in endall");
+                    }
+                    if (transition.size() === 0) {
+                        callback();
+                    }
+                    var n = 0;
+                    transition
+                    .each(function() { ++n; })
+                    .each("end", function() {
+                        if (!--n) {
+                            callback.apply(this, arguments);
+                        }
+                    });
+                }
+
+                function getTickX(d, i) {
+                    if (!noBucket && noSort) {
+                        return x(d[xName]) + (i === 0 ? marginLeft / 2 : 0);
+                    } else {
+                        return x(d[xName]) + xWidth / 2;
+                    }
+                }
+
+                function getLastTickX(d) {
+                    return x(d[xName]) + xWidth - marginLeft / 2 - 3;
                 }
             }
         });
