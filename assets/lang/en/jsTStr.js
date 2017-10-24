@@ -493,7 +493,7 @@ AlertTStr = {
     "EmailSent": "Success! All messages have been sent to your email address.",
     "EmailFunc": "You can click the left top button at anytime to send a " +
                  "copy of all messages to your email address.",
-    "NoSupport": "Oops..We couldn't find an avaialble agent for you.",
+    "NoSupport": "Oops..We couldn't find an available agent for you.",
     "SubmitTicket": "Do you want to create a support ticket? ",
     "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you."
 };
