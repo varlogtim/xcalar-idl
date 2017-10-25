@@ -564,10 +564,10 @@ describe('JsonModal Test', function() {
             var $checkbox = $jsonWrap.find(".jsonCheckbox:visible").eq(0);
 
             $checkbox.click();
-            expect($checkbox.siblings(".jKey").hasClass("keySelected")).to.be.true;
+            expect($checkbox.siblings(".keySelected").length).to.equal(1);
 
             $checkbox.click();
-            expect($checkbox.siblings(".jKey").hasClass("keySelected")).to.be.false;
+            expect($checkbox.siblings(".keySelected").length).to.equal(0);
         });
 
         it('back to select mode', function() {

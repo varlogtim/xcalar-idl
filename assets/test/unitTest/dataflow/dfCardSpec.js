@@ -12,6 +12,8 @@ describe("DFCard Test", function() {
 
     before(function(done) {
         console.clear();
+        oldRefresh = DataflowPanel.refresh;
+        DataflowPanel.refresh = function() {};
 
         var $mainTabCache = $(".topMenuBarTab.active");
         if ($mainTabCache.attr("id") !== "dataflowTab") {
