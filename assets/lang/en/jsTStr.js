@@ -480,7 +480,7 @@ AlertTStr = {
                      'You can choose to retry and wait a little longer, or ' +
                      'you can force the current initialization to overwrite ' +
                      'any concurrent / previously disrupted initialization.',
-    'LeaveConMsg': 'You are about to leave the conversation. Please confirm: ',
+    'LeaveConMsg': 'You are about to leave the conversation. Please confirm by clicking: ',
     "WaitChat": "Searching for an available Xcalar agent...",
     "CaseId": "Your case ID is:",
     "LicenseKey": "Your license key is:",

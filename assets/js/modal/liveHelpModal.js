@@ -115,7 +115,9 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function appendMsg(content, type, sender) {
         var row = "<div class='" + type + "'></div>";
         if (type !== "sysMsg") {
-            content = xcHelper.escapeHTMLSpecialChar(content);
+            // It seems that slack has already helped us escape it.
+            // So we don't do it anymore
+            //content = xcHelper.escapeHTMLSpecialChar(content);
             row = "<div class='" + type + "Sender'>" +
                     "<p>" + sender + "</p></div>" + row;
             if($modal.find(".sendEmail").hasClass("email-disabled")) {
@@ -149,15 +151,18 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (dest && !$modal.find(".reqConn").is(":visible")) {
             var content = "";
             $modal.find(".userMsg, .supportMsg").each(function(i,e) {
-                content += $(e).text() + "\n";
+                content += $(e).prev().text() + ": " + $(e).text() + "\n";
             });
             if (content) {
+                var msgBody = "=====Your ticket ID is " + ticketId + "=====\n\n";
+                if (!ticketId) {
+                    msgBody = "=====No ticket is created=====\n\n";
+                }
                 var mailOpts = {
                     from: 'support-internal@xcalar.com',
                     to: dest,
                     subject: 'Support Chat History for ' + fullName,
-                    text: "=====Your ticket ID is " + ticketId + "=====\n" +
-                          content
+                    text: msgBody + content
                 };
                 appendMsg(AlertTStr.EmailSending, "sysMsg");
                 sendEmail(mailOpts);
@@ -345,40 +350,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             }
         });
     }
-    LiveHelpModal.updateTicket = function() {
-        var content = "";
-        $modal.find(".userMsg, .supportMsg").each(function(i,e) {
-            if($(e).hasClass("userMsg")) {
-                content += "You: " + $(e).text() + "\n\n";
-            } else {
-                content += "Xcalar: " + $(e).text() + "\n\n";
-            }
-        });
-        if (content != ""&& ticketId) {
-            var ticketObj = {
-                "ticketId": ticketId,
-                "comment": "======This ticket is auto-generated from LiveChat" +
-                           "=====\n"+ content,
-                "userIdName": userIdName,
-                "userIdUnique": userIdUnique,
-                "severity": 4,
-                "fromChat": true,
-                "triggerPd": false
-            };
-            SupTicketModal.fetchLicenseInfo()
-            .then(function(licenseObj) {
-                SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
-            });
-        }
-    };
     // Leave the conversation, reset liveHelp modal
     function closeModal() {
+        LiveHelpModal.userLeft();
         if (socket) {
             socket.disconnect();
         }
-        // Auto-send email when user leaves
-        LiveHelpModal.autoSendEmail();
-        LiveHelpModal.updateTicket();
         connected = false;
         thread = null;
         ticketId = null;
@@ -415,12 +392,46 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
         return pattern.test(emailAddress);
     }
-    LiveHelpModal.autoSendEmail = function() {
+    LiveHelpModal.userLeft = function() {
+        sendToSlack();
+        autoSendEmail();
+        updateTicket();
+    };
+    function autoSendEmail() {
         // Only enable auto-sending email when modal is shown
         if ($modal.is(":visible") && isValidEmail(email)) {
             prepareEmail(email);
         }
-    };
+    }
+    function updateTicket() {
+        var content = "";
+        $modal.find(".userMsg, .supportMsg").each(function(i,e) {
+            if($(e).hasClass("userMsg")) {
+                content += "You: " + $(e).text() + "\n\n";
+            } else {
+                content += "Xcalar: " + $(e).text() + "\n\n";
+            }
+        });
+        if (content != ""&& ticketId) {
+            var ticketObj = {
+                "ticketId": ticketId,
+                "comment": "======This ticket is auto-generated from LiveChat" +
+                           "=====\n"+ content,
+                "userIdName": userIdName,
+                "userIdUnique": userIdUnique,
+                "severity": 4,
+                "fromChat": true,
+                "triggerPd": false
+            };
+            SupTicketModal.fetchLicenseInfo()
+            .then(function(licenseObj) {
+                SupTicketModal.submitTicket(ticketObj, licenseObj, true, true);
+            });
+        }
+    }
+    function sendToSlack() {
+        socket.emit("userLeft", {"room": thread, "ticketId": ticketId});
+    }
     /* Unit Test Only */
     if (window.unitTestMode) {
         LiveHelpModal.__testOnly__ = {};
