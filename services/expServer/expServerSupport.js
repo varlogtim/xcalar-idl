@@ -644,7 +644,7 @@ function getXlrRoot(filePath) {
 
 function getLicense() {
     var deferredOut = jQuery.Deferred();
-    var location = process.env.XCE_LICENSEDIR;
+    var location = process.env.XCE_LICENSEDIR ? process.env.XCE_LICENSEDIR : "/etc/xcalar";
     var licenseLocation = location + "/XcalarLic.key";
     try {
         fs.readFile(licenseLocation, 'utf8', function(err, data) {
