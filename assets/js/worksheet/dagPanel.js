@@ -210,8 +210,15 @@ window.DagPanel = (function($, DagPanel) {
                 deferred.reject(ErrTStr.LargeImgText);
             } else {
                 var win = window.open();
-                win.document.write('<img src="' + lnk + '" />');
-                deferred.resolve(win);
+                if (!win) {
+                    Alert.error("Image Error", "Image could not be opened. " +
+                        "Make sure to deactive any pop-up blockers you may have on your browser.");
+                    deferred.reject("Image Error");
+                } else {
+                    win.document.write('<img src="' + lnk + '" />');
+                    deferred.resolve(win);
+                }
+
             }
             $dagWrap.find('canvas').eq(1).remove();
         })
