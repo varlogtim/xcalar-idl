@@ -4475,6 +4475,34 @@ html.microsoft {
     }
 }
 
+#workbookInfoModal {
+    .size(@width: 520px, @height: 250px);
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 92px)");
+        padding: 10px 10px 0 10px;
+        .flex-display;
+        .flex-direction(column);
+
+        .section {
+            .flex(1 1 auto);
+
+            div, input {
+                margin-bottom: 5px; 
+            }
+
+            input {
+                background: @color-white;
+            }
+
+            .error {
+                .size(@height: 20px);
+                color: @color-table-red;
+            }
+        }
+    }
+}
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

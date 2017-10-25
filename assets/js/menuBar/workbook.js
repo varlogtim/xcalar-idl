@@ -161,7 +161,6 @@ window.Workbook = (function($, Workbook) {
     };
 
     function resetWorkbook() {
-        // $workbookPanel.find(".active").removeClass("active");
         $newWorkbookInput.val("").focus();
         clearActives();
     }
@@ -177,7 +176,7 @@ window.Workbook = (function($, Workbook) {
         var defaultName = "untitled-" + un;
         var names = {};
         $workbookPanel.find(".workbookBox .workbookName").each(function() {
-            var name = $(this).val();
+            var name = $(this).text();
             names[name] = true;
         });
 
@@ -220,18 +219,8 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
-    function clearActives(doNotRevert) {
+    function clearActives() {
         $lastFocusedInput = "";
-        $(".workbookBox").find("input.active").each(function() {
-            $(this).removeClass("active");
-            if (doNotRevert) {
-                return;
-            }
-            var workbookId = $(this).closest(".workbookBox")
-                                    .attr("data-workbook-id");
-            var workbookName = WorkbookManager.getWorkbook(workbookId).name;
-            $(this).val(workbookName);
-        });
     }
 
     function addWorkbookEvents() {
@@ -246,19 +235,6 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookInput.on("focus", function() {
             clearActives();
             $lastFocusedInput = $(this);
-
-        });
-
-        $workbookSection.on("focus", ".workbookBox input", function() {
-            $lastFocusedInput = $(this);
-        });
-
-        $workbookSection.on("blur", ".workbookBox input", function() {
-            if ($(this).closest(".workbookBox.edit").length > 0) {
-                clearActives(true);
-            } else {
-                clearActives();
-            }
         });
 
         // Events for the actual workbooks
@@ -282,13 +258,9 @@ window.Workbook = (function($, Workbook) {
         $workbookSection.on("click", ".modify", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            var $workbookName = $workbookBox.find("input");
-            $workbookName.addClass("active");
-            $workbookName.parent().removeAttr("data-container data-toggle");
-            // sets focus and puts cursor at end of input
-            $workbookName.focus().val($workbookName.val());
-
+            var workbookId = $workbookBox.attr("data-workbook-id");
             $(".tooltip").remove();
+            WorkbookInfoModal.show(workbookId);
         });
 
         // Duplicate button
@@ -298,7 +270,7 @@ window.Workbook = (function($, Workbook) {
             var workbookId = $workbookBox.attr("data-workbook-id");
             // Create workbook names in a loop until we find a workbook name
             // that we can use
-            var currentWorkbookName = $workbookBox.find("input").val();
+            var currentWorkbookName = $workbookBox.find(".workbookName").text();
             var currentWorkbooks = WorkbookManager.getWorkbooks();
             var found = false;
             for (var i = 0; i < 10; i++) {
@@ -390,16 +362,56 @@ window.Workbook = (function($, Workbook) {
         });
 
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
-            var $input = $(this).find("input");
-            if ($input.is(":focus")) {
-                // no tooltip when input is in focus, gets in the way of typing
-                $(this).removeAttr("data-container data-toggle");
-                return;
-            }
-
-            xcTooltip.auto(this, $input[0]);
+            var $div = $(this).find(".workbookName");
+            xcTooltip.auto(this, $div[0]);
         });
     }
+
+    Workbook.edit = function(workbookId, newName, description) {
+        var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
+            return $(this).attr("data-workbook-id") === workbookId;
+        });
+
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var oldWorkbookName = workbook.getName();
+        var oldDescription = workbook.getDescription() || "";
+        if (oldWorkbookName === newName && oldDescription === description) {
+            return PromiseHelper.resolve();
+        } else {
+            var deferred = jQuery.Deferred();
+            var promise;
+            if (oldWorkbookName === newName) {
+                // only update description
+                promise = WorkbookManager.updateDescription(workbookId, description);
+            } else {
+                promise = WorkbookManager.renameWKBK(workbookId, newName, description);
+            }
+            $workbookBox.addClass("loading")
+                            .find(".loadSection .text").text(WKBKTStr.Updating);
+            var loadDef = jQuery.Deferred();
+            setTimeout(function() {
+                // if only update description, it could blink the UI if update
+                // is too fast, so use this to slow it down.
+                loadDef.resolve();
+            }, 500);
+
+            PromiseHelper.when(promise, loadDef.promise())
+            .then(function(curWorkbookId) {
+                updateWorkbookInfo($workbookBox, curWorkbookId);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                handleError(error, $workbookBox);
+                deferred.reject(error);
+            })
+            .always(function() {
+                $workbookBox.removeClass("loading")
+                            .find(".loadSection .text").text(WKBKTStr.Creating);
+            });
+
+            return deferred.promise();
+        }
+    };
 
     function workbookKeyPress(event) {
         switch (event.which) {
@@ -412,35 +424,6 @@ window.Workbook = (function($, Workbook) {
                     {
                         // New workbook
                         $newWorkbookCard.find("button").click();
-                    } else {
-                        // Must be editting a current name
-                        var $workbookBox = $lastFocusedInput.
-                                                        closest(".workbookBox");
-                        $workbookBox.addClass("edit");
-                        var newName = $lastFocusedInput.val();
-                        $lastFocusedInput.blur();
-                        var workbookId = $workbookBox.attr("data-workbook-id");
-                        var oldWorkbookName = WorkbookManager
-                                                       .getWorkbook(workbookId)
-                                                       .name;
-                        WorkbookManager.renameWKBK(workbookId,newName)
-                        .then(function(newWorkbookId) {
-                            $lastFocusedInput = "";
-                            updateWorkbookInfo($workbookBox, newWorkbookId);
-                        })
-                        .fail(function(error) {
-                            handleError(error, $workbookBox);
-                            $workbookBox.find(".subHeading input")
-                                        .val(oldWorkbookName);
-                        })
-                        .always(function() {
-                            $workbookBox.removeClass("edit");
-                            var $subHeading = $workbookBox.find(".subHeading");
-                            var name = $subHeading.find("input").val();
-                            xcTooltip.changeText($subHeading, name);
-                        });
-                        $workbookBox.find(".subHeading input")
-                                    .removeClass("active");
                     }
                     $lastFocusedInput = "";
                 }
@@ -454,6 +437,8 @@ window.Workbook = (function($, Workbook) {
         $workbookBox.attr("data-workbook-id", workbookId);
         var workbook = WorkbookManager.getWorkbook(workbookId);
         var modified = workbook.modified;
+        var description = workbook.getDescription() || "";
+        var name = workbook.getName();
         if (modified) {
             modified = xcHelper.getDate("-", null, modified) + " " +
                         xcHelper.getTime(null, modified, true);
@@ -462,6 +447,11 @@ window.Workbook = (function($, Workbook) {
         }
 
         $workbookBox.find(".modifiedTime").text(modified);
+        $workbookBox.find(".description").text(description);
+        $workbookBox.find(".workbookName").text(name);
+
+        var $subHeading = $workbookBox.find(".subHeading");
+        xcTooltip.changeText($subHeading, name);
     }
 
     function updateWorkbookInfoWithReplace($card, workbookId) {
@@ -486,8 +476,6 @@ window.Workbook = (function($, Workbook) {
 
     function createNewWorkbook() {
         var workbookName = $newWorkbookInput.val();
-
-
         var isValid = xcHelper.validate([
             {
                 "$ele": $newWorkbookInput,
@@ -548,21 +536,6 @@ window.Workbook = (function($, Workbook) {
             $buttons.removeClass("inActive");
         });
     }
-
-    // function modifyWorkbookCard($card, options) {
-    //     if (options.workbookId) {
-    //         $card.attr("data-workbook-id", options.workbookId);
-    //     }
-    //     if (options.workbookName) {
-    //         $card.find(".workbookName").val(workbookName);
-    //     }
-    //     delete options.workbookName;
-    //     delete options.workbookId;
-
-    //     for (var key in options) {
-    //         $card.find("."+key).text(options.key);
-    //     }
-    // }
 
     function createLoadingCard($sibling) {
         var deferred = jQuery.Deferred();
@@ -676,7 +649,7 @@ window.Workbook = (function($, Workbook) {
         var workbookName = workbook.getName() || "";
         var createdTime = workbook.getCreateTime() || "";
         var modifiedTime = workbook.getModifyTime() || "";
-        var username = workbook.getSrcUser() || "";
+        var description = workbook.getDescription() || "";
         var numWorksheets = workbook.getNumWorksheets() || 0;
         var noSeconds = true;
 
@@ -768,24 +741,16 @@ window.Workbook = (function($, Workbook) {
                     '<div class="content">' +
                         '<div class="innerContent">' +
                             '<div class="subHeading tooltipOverflow" ' +
-                                ' data-toggle="tooltip" data-container="body"' +
-                                ' data-original-title="' + workbookName + '"' +
-                            '>' +
-                                '<input type="text" class="workbookName ' +
-                                 'tooltipOverflow"' +
-                                ' value="' + workbookName + '"' +
-
-                                ' spellcheck="false"/>' +
+                            ' data-toggle="tooltip" data-container="body"' +
+                            ' data-original-title="' + workbookName + '">' +
+                                '<div class="workbookName textOverflowOneLine">' +
+                                    workbookName +
+                                '</div>' +
+                                '<div class="description textOverflowOneLine">' +
+                                    description +
+                                '</div>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">' +
-                                        WKBKTStr.Createby + ':' +
-                                    '</div>' +
-                                    '<div class="info username">' +
-                                        username +
-                                    '</div>' +
-                                '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
                                         WKBKTStr.CreateOn + ':' +

@@ -935,7 +935,9 @@ module.exports = {
         "visit": "Visit",
         "welcomeXI": "Welcome to <b>Xcalar Design</b>",
         "Wkbk": "Workbook",
-        "Wkbkname": "Workbook name"
+        "Wkbkname": "Workbook Name",
+        "Edit": "Edit Workbook",
+        "Description": "Workbook Description"
     },
 
     "deleteTable": {

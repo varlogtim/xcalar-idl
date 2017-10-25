@@ -346,6 +346,25 @@ describe("WorkbookManager Test", function() {
             expect(workbook.numWorksheets).to.equal(100);
             workbook.numWorksheets = oldNum;
         });
+
+        it("WorkbookManager.updateDescription should work", function(done) {
+            var wkbkId = WorkbookManager.getActiveWKBK();
+            var workbook = WorkbookManager.getWorkbook(wkbkId);
+            var oldDescription = workbook.description;
+            var description = xcHelper.randName("description");
+
+            WorkbookManager.updateDescription(wkbkId, description)
+            .then(function() {
+                expect(workbook.description).to.equal(description);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                workbook.description = oldDescription;
+            });
+        });
     });
 
     describe("Upgrade API Test", function() {

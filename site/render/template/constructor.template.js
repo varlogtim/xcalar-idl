@@ -1541,13 +1541,15 @@
             modified: (date) last modified time
             numWorksheets: (integer) num of worksheets in the workbook
          * new attrs:
-            resource: (boolean) true if it has resource
+            resource: (boolean) true if it has resource,
+            description: (string) workbook description
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
             if (<%= checkFunc %>(options)) {
                 self.resource = options.resource || false;
+                self.description = options.description;
             }
             return self;
         }
@@ -1566,6 +1568,10 @@
 
             getName: function() {
                 return this.name;
+            },
+
+            getDescription: function() {
+                return this.description;
             },
 
             getCreateTime: function() {

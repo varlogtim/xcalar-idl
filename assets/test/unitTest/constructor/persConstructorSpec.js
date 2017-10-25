@@ -2761,7 +2761,7 @@ describe("Persistent Constructor Test", function() {
             }
         });
 
-        it("Should have 10 attributes", function() {
+        it("Should have 11 attributes", function() {
             var wkbk = new WKBK({
                 "name": "test",
                 "id": "testId",
@@ -2770,10 +2770,11 @@ describe("Persistent Constructor Test", function() {
                 "created": 1234,
                 "modified": 2234,
                 "numWorksheets": 12,
-                "resource": true
+                "resource": true,
+                "description": "testDescription"
             });
 
-            expect(Object.keys(wkbk).length).to.equal(10);
+            expect(Object.keys(wkbk).length).to.equal(11);
             expect(wkbk).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(wkbk).to.have.property("name")
@@ -2794,6 +2795,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(12);
             expect(wkbk).to.have.property("resource")
             .and.to.be.true;
+            expect(wkbk).to.have.property("description")
+            .and.to.equal("testDescription");
         });
 
         it("WKBK Basic function should work", function() {
@@ -2805,7 +2808,8 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numWorksheets": 12
+                "numWorksheets": 12,
+                "description": "testDescription"
             });
 
             expect(wkbk.getId()).to.equal("testId");
@@ -2815,6 +2819,7 @@ describe("Persistent Constructor Test", function() {
             expect(wkbk.getSrcUser()).to.equal("testUser");
             expect(wkbk.getNumWorksheets()).to.equal(12);
             expect(wkbk.isNoMeta()).to.be.false;
+            expect(wkbk.getDescription()).to.equal("testDescription");
 
             wkbk.noMeta = true;
             expect(wkbk.isNoMeta()).to.be.true;

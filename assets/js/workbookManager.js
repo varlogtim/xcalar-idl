@@ -4,7 +4,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
     var activeWKBKId;
     var wkbkSet;
     var checkInterval = 2000; // progress bar check time
-    var progressTextCycle;
     var progressTimeout;
 
     // initial setup
@@ -500,12 +499,27 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.renameWKBK = function(srcWKBKId, newName) {
-        var newWKBKId = getWKBKId(newName);
+    WorkbookManager.updateDescription = function(wkbkId, description) {
+        var deferred = jQuery.Deferred();
+        var wkbk = wkbkSet.get(wkbkId);
+        wkbk.description = description;
+        wkbk.update();
+        
+        saveWorkbook()
+        .then(function() {
+            deferred.resolve(wkbkId);
+        })
+        .fail(deferred.reject);
 
+        return deferred.promise();
+    };
+
+    WorkbookManager.renameWKBK = function(srcWKBKId, newName, description) {
+        var newWKBKId = getWKBKId(newName);
         if (wkbkSet.has(newWKBKId)) {
-            var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists,
-                                             {'workbookName': newName});
+            var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists, {
+                workbookName: newName
+            });
             return PromiseHelper.reject(errStr);
         }
 
@@ -542,6 +556,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var options = {
                 "id": newWKBKId,
                 "name": newName,
+                "description": description || srcWKBK.description,
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser,
@@ -1194,7 +1209,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     $progressNode.text(StatusMessageTStr.CurrReplay + ": " +
                                         XcalarApisTStr[curNode.api])
                                  .data("node", curNode);
-                    pct = Math.round(100 *  curNode.numWorkCompleted /
+                    pct = Math.round(100 * curNode.numWorkCompleted /
                                            curNode.numWorkTotal);
                 } else if (prevNode) {
                     $progressNode.text(StatusMessageTStr.CompReplay + ": " +

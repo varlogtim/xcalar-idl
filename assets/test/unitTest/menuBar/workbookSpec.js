@@ -112,26 +112,6 @@ describe("Workbook Test", function() {
             xcTooltip.auto = oldFunc;
         });
 
-        it("should trigger clear active", function() {
-            var $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
-            var $newWorkbookInput = $newWorkbookCard.find("input");
-            var workbooks = WorkbookManager.getWorkbooks();
-            var wkbkId = Object.keys(workbooks)[0];
-            var workbookName = WorkbookManager.getWorkbook(wkbkId).name;
-            var $div = $('<div class="workbookBox" ' +
-                         'data-workbook-id="' + wkbkId + '">' +
-                            '<input class="active">' +
-                        '</div>');
-            $workbookPanel.append($div);
-
-            $newWorkbookInput.trigger(fakeEvent.enter);
-            var $input = $div.find("input");
-            expect($input.hasClass("active")).to.be.false;
-            expect($input.val()).to.equal(workbookName);
-            // clear up
-            $div.remove();
-        });
-
         it("should not close on no workbook case", function(done) {
             var $container = $("#container");
             var $dialogWrap = $("#dialogWrap").addClass("closeAttempt");
@@ -176,11 +156,107 @@ describe("Workbook Test", function() {
         });
     });
 
+    describe("Edit Workbook Test", function() {
+        var oldRename;
+        var oldUpdateDescription;
+        var workbookId;
+        var workbook;
+
+        before(function() {
+            oldRename = WorkbookManager.renameWKBK;
+            oldUpdateDescription = WorkbookManager.updateDescription;
+            var workbooks = WorkbookManager.getWorkbooks();
+            workbookId = Object.keys(workbooks)[0];
+            workbook = workbooks[workbookId];
+        });
+
+        it("should edit nothing when no update", function(done) {
+            var name = workbook.getName();
+            var description = workbook.getDescription();
+            var test = false;
+
+            WorkbookManager.updateDescription =
+            WorkbookManager.renameWKBK = function() {
+                test = true;
+                return PromiseHelper.resolve(workbookId);
+            };
+
+            Workbook.edit(workbookId, name, description)
+            .then(function() {
+                expect(test).to.be.false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should edit description", function(done) {
+            var name = workbook.getName();
+            var description = workbook.getDescription();
+            var newDescription = description + "-test";
+            var test = false;
+            WorkbookManager.updateDescription = function() {
+                test = true;
+                return PromiseHelper.resolve(workbookId);
+            };
+
+            Workbook.edit(workbookId, name, newDescription)
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should update workbook name", function(done) {
+            var name = xcHelper.randName("testModified");
+            var test = false;
+            WorkbookManager.renameWKBK = function() {
+                test = true;
+                return PromiseHelper.resolve(workbookId);
+            };
+
+            Workbook.edit(workbookId, name, workbook.getDescription())
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should handle error case", function(done) {
+            var name = xcHelper.randName("testModified");
+            var testError = "test error";
+            WorkbookManager.renameWKBK = function() {
+                return PromiseHelper.reject(testError);
+            };
+
+            Workbook.edit(workbookId, name, workbook.getDescription())
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal(testError);
+                done();
+            });
+        });
+
+        after(function() {
+            WorkbookManager.renameWKBK = oldRename;
+            WorkbookManager.updateDescription = oldUpdateDescription;
+        });
+    });
+
     describe("Advanced Workbook Behavior Test", function() {
         // this.timeout(200000);
         var oldKVGet, oldKVPut, oldKVDelete;
         var oldXcalarPut, oldXcalarDelete;
-        var oldWkbkNew, oldWkbkList, oldWkbkRename, oldWkbkDelete;
+        var oldWkbkNew, oldWkbkList, oldWkbkDelete;
         var fakeMap = {};
         var activeWkbkId;
 
@@ -210,7 +286,6 @@ describe("Workbook Test", function() {
 
             oldWkbkNew = XcalarNewWorkbook;
             oldWkbkList = XcalarListWorkbooks;
-            oldWkbkRename = XcalarRenameWorkbook;
             oldWkbkDelete = XcalarDeleteWorkbook;
 
             XcalarNewWorkbook = function() {
@@ -222,10 +297,6 @@ describe("Workbook Test", function() {
                     "numSessions": 1,
                     "sessions": [{"state": "InActive"}]
                 });
-            };
-
-            XcalarRenameWorkbook = function() {
-                return PromiseHelper.resolve();
             };
 
             XcalarDeleteWorkbook = function() {
@@ -312,31 +383,9 @@ describe("Workbook Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 var $box = $workbookPanel.find(".workbookBox").eq(0);
-                expect($box.find(".workbookName").val()).to.equal(name);
+                expect($box.find(".workbookName").text()).to.equal(name);
                 expect($box.find(".numWorksheets").text()).to.equal("1");
                 expect($box.find(".isActive").text()).to.equal("Inactive");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should edit workbook name", function(done) {
-            var name = xcHelper.randName("testModified");
-            var $box = $workbookPanel.find(".workbookBox").eq(0);
-            var $input = $box.find(".workbookName");
-            $box.find(".modify").click();
-            $input.focus().val(name).trigger(fakeEvent.enter);
-            var checkFunc = function() {
-                var $title = $box.find(".subHeading");
-                return ($title.attr("data-original-title") === name);
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                expect($input.val()).to.equal(name);
-                $input.blur();
                 done();
             })
             .fail(function() {
@@ -360,7 +409,7 @@ describe("Workbook Test", function() {
                 if (diff === 1) {
                     // has a fadeIn animation, so need to wait for it
                     var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                    if ($dupBox.find(".workbookName").val()) {
+                    if ($dupBox.find(".workbookName").text()) {
                         return true;
                     }
                 }
@@ -369,9 +418,9 @@ describe("Workbook Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var name = $box.find(".workbookName").val();
+                var name = $box.find(".workbookName").text();
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                var dupName = $dupBox.find(".workbookName").val();
+                var dupName = $dupBox.find(".workbookName").text();
 
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".numWorksheets").text()).to.equal("1");
@@ -624,7 +673,6 @@ describe("Workbook Test", function() {
 
             XcalarNewWorkbook = oldWkbkNew;
             XcalarListWorkbooks = oldWkbkList;
-            XcalarRenameWorkbook = oldWkbkRename;
             XcalarDeleteWorkbook = oldWkbkDelete;
         });
     });

@@ -346,19 +346,15 @@
             .innerBox {
                 background-color: @color-bg-select-blue;
                 color: @color-white;
-                .subHeading input, .info {
+                .subHeading div, .info {
                     color: @color-white;
-                }
-                input {
-                    background-color: transparent;
-                    border-color: transparent;
                 }
             }
         }
 
         &.noMeta {
             .subHeading {
-                input {
+                div {
                     color: @color-font-greyish-brown;
                     opacity: 0.5;
                 }
@@ -416,32 +412,15 @@
         }
 
         .subHeading {
-            .input-box(@w:100%, @h:30px);
-            input {
-                color: @color-font-select-blue;
-                font-size: 22px;
-                font-weight: 500;
-                background-color: @color-white;
-                border-color: @color-white;
-                margin-top: -10px;
-                margin-left: -5px;
-                padding-left: 5px;
-                pointer-events: none;
-                .textOverflowOneLine;
-
-                &.active {
-                    border-color: @color-border-white-five;
-                    background-color: @color-bg-white-three;
-                    color: @color-font-select-blue !important;
-                    pointer-events: initial;
-
-                    &:focus {
-                        border-color: @color-border-softBlue;
-                        background-color: @color-white;
-                    }
-                }
+            .workbookName {
+                .size(@width: 100%, @height: 30px);
+                .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
             }
 
+            .description {
+                .size(@height: 18px);
+                .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
+            }
         }
 
         .topInfo {
