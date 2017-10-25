@@ -71,7 +71,7 @@
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
 c.NotebookApp.allow_origin = '*'
-c.NotebookApp.port = 8889
+c.NotebookApp.port = 8890
 
 # Use a regular expression for the Access-Control-Allow-Origin header
 # 
