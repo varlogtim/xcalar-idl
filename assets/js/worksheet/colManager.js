@@ -1360,7 +1360,11 @@ window.ColManager = (function($, ColManager) {
                         // strings to retain the formatting
                             if (/^[0-9.]+$/.test(tempString) &&
                             tempString[0] !== "0") {
-                                tempString = parseFloat(tempString);
+                                if (func && func.name && func.name.indexOf("pull") > -1) {
+                                    // treat as string if in pull function
+                                } else {
+                                    tempString = parseFloat(tempString);
+                                }
                             }
                             func.args.push(tempString);
                         }

@@ -514,6 +514,7 @@ FnBarTStr = {
     'NewColTitle': 'New Column Required',
     'NewColMsg': 'Please create a new column to perform a map.',
     'PullExists': 'This column has already been pulled.',
+    'ParseError': 'Could not parse function.',
     // with replace
     'InvalidNumParens': 'Your function string should take the form ' +
                         'of <operation>(op(arg1, arg2, ...))'

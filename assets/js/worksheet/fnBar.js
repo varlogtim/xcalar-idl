@@ -763,7 +763,10 @@ window.FnBar = (function(FnBar, $) {
                     // no errors, submit the function
                     confirmFunc()
                     .then(deferred.resolve)
-                    .fail(deferred.reject);
+                    .fail(function() {
+                        parseErrorHandler();
+                        deferred.reject();
+                    });
                 }
             }
         } else {
@@ -814,6 +817,15 @@ window.FnBar = (function(FnBar, $) {
     function duplicatePullHandler() {
         setTimeout(function() {
             StatusBox.show(FnBarTStr.PullExists, $fnBar.prev().prev(), null, {
+                "offsetX": 70,
+                "side": "bottom"
+            });
+        }, 0);
+    }
+
+    function parseErrorHandler() {
+        setTimeout(function() {
+            StatusBox.show(FnBarTStr.ParseError, $fnBar.prev().prev(), null, {
                 "offsetX": 70,
                 "side": "bottom"
             });

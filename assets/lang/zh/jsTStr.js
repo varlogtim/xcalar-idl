@@ -458,6 +458,7 @@ FnBarTStr = {
 'DiffColumn': '所选列（<colName>）不包括在此操作中。您想继续吗？',
 'NewColTitle': '需要新列',
 'NewColMsg': '请创建一个新列来执行映射。',
+'ParseError': 'Could not parse function.',
 'InvalidNumParens': '您的函数字符串应采用<operation>（op（arg1，arg2，...））的形式'
 };
 ScrollTStr = {
