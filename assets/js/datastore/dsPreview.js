@@ -1384,8 +1384,12 @@ window.DSPreview = (function($, DSPreview) {
                 error.status === StatusT.StatusAllFilesEmpty)
             {
                 error = error.error + ", " + DSFormTStr.GoBack + ".";
+            } else if (error.status === StatusT.StatusUdfExecuteFailed) {
+                error = error.log
+                        ? AlertTStr.Error + ": " + error.log
+                        : error.error;
             } else {
-                error = error.error;
+                error = error.error + (error.log ? error.log : "");
             }
         }
 

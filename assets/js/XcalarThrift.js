@@ -69,7 +69,11 @@ function thriftLog() {
             status = (errRes.status != null)
                      ? errRes.status
                      : errRes.xcalarStatus;
-            log = parseLog(errRes.log);
+            if (status === StatusT.StatusUdfExecuteFailed) {
+                log = parseUDFLog(errRes.log);
+            } else {
+                log = parseLog(errRes.log);
+            }
             httpStatus = errRes.httpStatus;
             output = errRes.output;
         } else {
@@ -152,6 +156,25 @@ function thriftLog() {
         if (splits.length === 2) {
             res = splits[1].trim();
         }
+        return res;
+    }
+
+    function parseUDFLog(log) {
+        var res = log;
+        try {
+            match = res.match(/ValueError:(.+)/);
+            if (match && match.length >= 2) {
+                res = match[1].trim();
+                res = res.split('\\n')[0]; // strip ending unuseful chars
+                if (res.endsWith("\\")) {
+                    res = res.substring(0, res.length - 1);
+                }
+                return res;
+            }
+        } catch (e) {
+            console.error("parse error", e);
+        }
+
         return res;
     }
 }

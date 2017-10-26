@@ -635,6 +635,9 @@ window.FileBrowser = (function($, FileBrowser) {
         var msg = xcHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
             "path": xcHelper.encodeDisplayURL(path)
         });
+        if (typeof error === "object" && error.log) {
+            msg += " " + AlertTStr.Error + ": " + error.log;
+        }
         var html = '<div class="error">' +
                         '<div>' + msg + '</div>' +
                         '<div>' + DSTStr.DSSourceHint + '</div>' +

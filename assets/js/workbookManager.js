@@ -504,7 +504,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var wkbk = wkbkSet.get(wkbkId);
         wkbk.description = description;
         wkbk.update();
-        
+
         saveWorkbook()
         .then(function() {
             deferred.resolve(wkbkId);
