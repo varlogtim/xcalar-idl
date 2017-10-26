@@ -151,7 +151,7 @@ window.xcManager = (function(xcManager, $) {
             });
         } else if (error === WKBKTStr.Hold) {
             // when seesion is hold by others and user choose to log out
-            logoutRedirect();
+            xcManager.forceLogout();
         } else if (isNotNullObj &&
                    error.status != null &&
                    error.status === StatusT.StatusSessionNotFound)
@@ -252,14 +252,24 @@ window.xcManager = (function(xcManager, $) {
         logoutRedirect();
     };
 
-    xcManager.removeUnloadPrompt = function() {
-        window.onbeforeunload = function() {}; // Do not enable prompt
+    xcManager.removeUnloadPrompt = function(markUser) {
+        window.onbeforeunload = function() {
+            if (markUser) {
+                markUserUnload();
+            }
+        }; // Do not enable prompt
         window.onunload = function() {
             // do not call unload again, but keep auto-sending email for liveHelp
             // auto-send check is then implemented in liveHelpModal.js
             LiveHelpModal.userLeft();
         };
     };
+
+    function markUserUnload() {
+        if (XcSocket.isResigered()) {
+            xcSessionStorage.setItem(XcSupport.getUser(), new Date().getTime());
+        }
+    }
 
     function oneTimeSetup() {
         function initLocks() {
@@ -863,7 +873,7 @@ window.xcManager = (function(xcManager, $) {
 
         window.onbeforeunload = function() {
             xcManager.unload(true);
-            xcSessionStorage.setItem(XcSupport.getUser(), new Date().getTime());
+            markUserUnload();
             if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
             } else if (backspaceIsPressed) {

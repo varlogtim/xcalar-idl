@@ -46,6 +46,10 @@ window.XcSocket = (function(XcSocket) {
         return connected;
     };
 
+    XcSocket.isResigered = function() {
+        return registered;
+    };
+
     XcSocket.sendMessage = function(msg, arg) {
         if (socket == null) {
             return;
