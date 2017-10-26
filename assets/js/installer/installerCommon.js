@@ -1050,5 +1050,21 @@ $(document).ready(function() {
     Installer.setup();
     Upgrader.setup();
     Uninstaller.setup();
-    xcTooltip.setup();
+    setupTooltip();
+
+    function setupTooltip() {
+        $("body").tooltip({
+            "selector": '[data-toggle="tooltip"]',
+            "html": true,
+            "delay": {
+                "show": 250,
+                "hide": 100
+            }
+        });
+
+        // element's delay attribute will take precedence - unique for xcalar
+        $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
+            $(".tooltip").hide();
+        });
+    }
 });
