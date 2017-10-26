@@ -641,6 +641,12 @@ MonitorTStr = {
 "TicketId": "支持票ID",
 "AcctAdmin": "账户管理员",
 "AcctAdmins": "账户管理员",
+"Severity": "Severity",
+"Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+"Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
+"Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
+"Severity4": "Feature request",
+"Subject": "Subject",
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',
@@ -652,7 +658,8 @@ MonitorTStr = {
 "FlushLogMsg": "您确定要强制刷新日志吗？",
 "AdditionalInfo": "附加(新)信息",
 "NoTickets": "找不到支持票",
-"SelectExistingTicket": "选择已有的支持票"
+"SelectExistingTicket": "选择已有的支持票",
+"CharLimitErr": "Character limit of <limit> exceeded."
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

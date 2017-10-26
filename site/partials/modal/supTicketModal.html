@@ -73,15 +73,15 @@
         <div class="row">
           <div class="th"><%= dicts.monitor.TicketID %></div>
           <div class="th"><%= dicts.monitor.Status %></div>
-          <div class="th"><%= dicts.monitor.CreatedOn %></div>
-          <div class="th"><%= dicts.supportTicket.Comments %></div>
+          <div class="th"><%= dicts.sched.created %></div>
+          <div class="th"><%= dicts.sched.details %></div>
         </div>
       </div>
       <div class="tableBody">
         <div class="row">
           <div class="td"></div>
           <div class="td"></div>
-          <div class="td comments"></div>
+          <div class="td details"></div>
         </div>
     </div>
   </section>
@@ -99,17 +99,24 @@
       </div>
     </div>
     <div class="commentArea">
-      <div class="text"><%= dicts.supportTicket.Comments %>:</div>
-      <textarea class="xc-textArea"></textarea>
+      <div class="subjectArea">
+        <div class="text"><%= dicts.supportTicket.Subject %>:</div>
+        <input type="text" class="xc-input subjectInput" spellcheck="false">
+        <div class="textLimitArea"><span class="remainingChar">100</span> <%= dicts.supportTicket.CharRemaining %></div>
+      </div>
+      <div class="descriptionArea">
+        <div class="text"><%= dicts.supportTicket.Comments %>:</div>
+        <textarea class="xc-textArea" spellcheck="false"></textarea>
+      </div>
     </div>
     <div class="bundleArea">
       <div class="bundleText">
-        Generating bundle...
+       <%= dicts.supportTicket.GeneratingBundle %>
       </div>
     </div>
     <div class="downloadMsg">
-      Ticket download completed.<br/>
-      Please upload your ticket to Zendesk.
+      <%= dicts.supportTicket.BundleComplete %><br/>
+      <%= dicts.supportTicket.DownloadZendesk %>
     </div>
   </section>
   <!-- Button Section -->

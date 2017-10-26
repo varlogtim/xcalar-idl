@@ -752,6 +752,12 @@ MonitorTStr = {
     "TicketId": "Ticket ID",
     "AcctAdmin": "Account Admin",
     "AcctAdmins": "Account Admins",
+    "Severity": "Severity",
+    "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+    "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
+    "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
+    "Severity4": "Feature request",
+    "Subject": "Subject",
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
@@ -765,7 +771,8 @@ MonitorTStr = {
     'FlushLogMsg': 'Are you sure you want to flush Xcalar Log?',
     "AdditionalInfo": "Additional (New) Information",
     "NoTickets": "No tickets found",
-    "SelectExistingTicket": "Select an existing ticket"
+    "SelectExistingTicket": "Select an existing ticket",
+    "CharLimitErr": "Character limit of <limit> exceeded."
 };
 
 SchedTStr = {
@@ -1184,7 +1191,7 @@ LoginConfigTStr = {
 };
 
 JupyterTStr = {
-    "JupNotebook": "Jupiter Notebook",
+    "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "Object and array type columns cannot be renamed",
 
     // with replace

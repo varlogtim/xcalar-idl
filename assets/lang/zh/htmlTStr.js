@@ -161,7 +161,8 @@ module.exports = {
         "ToggleAdvanced": "切换高级选项",
         "Severity1": "Xcalar集群在产品部署环境中无法使用, 无响应或关键功能无法使用(开发者系统部署不适用)。" ,
         "Severity2": "Xcalar集群正常工作,但性能或功能严重受损，没有可用解决方案。",
-        "Severity3": "常规信息咨询或者有针对严重性1和严重性2的情况有可用解决方案的问题"
+        "Severity3": "常规信息咨询或者有针对严重性1和严重性2的情况有可用解决方案的问题",
+        "Severity4": "Feature request"
     },
     "UDF": {
         "ADD": "添加UDF",
@@ -895,7 +896,12 @@ module.exports = {
         "Severity1": "集群已关闭",
         "Severity2": "功能受损",
         "Severity3": "一般信息请求",
-        "Severity4": "功能要求"
+        "Severity4": "功能要求",
+        "Subject": "Subject",
+        "CharRemaining": "characters remaining",
+        "GeneratingBundle": "Generating bundle",
+        "BundleComplete": "Ticket download completed.",
+        "DownloadZendesk": "Please upload your ticket to Zendesk.",
     },
     "tutor": {
         "datastoreTut1": {

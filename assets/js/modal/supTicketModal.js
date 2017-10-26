@@ -8,6 +8,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var $commentSection;
     var tickets = [];
     var firstTouch = true;
+    var subjectLimit = 100;
+    var descLimit = 10000;
 
     SupTicketModal.setup = function() {
         $modal = $("#supTicketModal");
@@ -18,15 +20,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $commentSection = $modal.find(".commentSection");
 
         modalHelper = new ModalHelper($modal, {
-            noEnter: true,
-            afterResize: function() {
-                if (!$ticketIdSection.hasClass("xc-hidden")) {
-                    showHideCommentExpandIcon();
-                }
-            }
+            noEnter: true
         });
-        $modal.on("click", ".close, .cancel", closeModal);
-
         setupListeners();
     };
 
@@ -38,6 +33,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             $modal.addClass('locked');
             Alert.tempHide();
         }
+        updateTimes();
     };
 
     function getTickets() {
@@ -160,6 +156,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     function setupListeners() {
+        $modal.on("click", ".close, .cancel", closeModal);
         // type dropdown
         new MenuHelper($issueList, {
             "onSelect": function($li) {
@@ -174,6 +171,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 if (newVal === CommonTxtTstr.Existing) {
                     $ticketIdSection.removeClass("xc-hidden");
                     $severitySection.addClass("xc-hidden");
+                    $modal.find(".subjectArea").addClass("xc-hidden");
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
@@ -181,14 +179,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
                         SupTicketModal.restore()
                         .then(function() {
                             firstTouch = false;
-                            showHideCommentExpandIcon();
                         });
-                    } else {
-                        showHideCommentExpandIcon();
                     }
                 } else { // New
                     $ticketIdSection.addClass("xc-hidden");
                     $severitySection.removeClass("xc-hidden");
+                    $modal.find(".subjectArea").removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
                 }
             },
@@ -201,7 +197,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 var textVal = $li.text().trim();
                 $severityList.find(".text").val(textVal);
                 $severityList.find(".text").data("val", newVal);
-                $modal.find("textArea").focus();
+                if ($modal.find(".subjectInput").val().trim() === "") {
+                    $modal.find(".subjectInput").focus();
+                } else {
+                     $modal.find(".xc-textArea").focus();
+                }
             }
         }).setupListeners();
 
@@ -217,26 +217,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }, {deselectFromContainer: true});
 
         // expand comment section in table
-        $ticketIdSection.on("click", ".expand", function() {
-            var $row = $(this).closest(".innerRow");
+        $ticketIdSection.on("click", ".subjectWrap, .expand", function() {
+            var $row = $(this).closest(".row");
             if ($row.hasClass("expanded")) {
                 $row.removeClass("expanded");
                 $ticketIdSection.removeClass("expanded");
             } else {
-                $ticketIdSection.find(".innerRow").removeClass("expanded");
-                $row.addClass("expanded");
-                resizeModal($row);
-            }
-        });
-
-        $ticketIdSection.on("click", ".comments", function(event) {
-            if ($(event.target).closest(".expand").length ||
-                !$(this).closest(".overflow").length) {
-                return;
-            }
-            var $row = $(this).closest(".innerRow");
-            if (!$row.hasClass("expanded")) {
-                $ticketIdSection.find(".innerRow").removeClass("expanded");
                 $row.addClass("expanded");
                 resizeModal($row);
             }
@@ -250,6 +236,27 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 return;
             }
             $checkbox.toggleClass("checked");
+        });
+
+        $modal.find(".subjectInput").keypress(function(event) {
+            var val = $(this).val();
+            var count = val.length;
+            var remaining = subjectLimit - count;
+
+            if (remaining <= 0) {
+                event.preventDefault();
+            }
+        });
+        $modal.find(".subjectInput").on("input", function() {
+            var val = $(this).val();
+            var count = val.length;
+            var remaining = subjectLimit - count;
+
+            if (remaining < 0) {
+                $(this).val(val.slice(0, subjectLimit));
+                remaining = 0;
+            }
+            $modal.find(".remainingChar").text(remaining);
         });
 
         // toggling active sections
@@ -266,21 +273,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
 
         $modal.find(".refresh").click(function() {
-            SupTicketModal.restore()
-            .then(function() {
-                showHideCommentExpandIcon();
-            });
-        });
-    }
-
-    function showHideCommentExpandIcon() {
-        var width = $ticketIdSection.find(".comments .text").eq(0).outerWidth();
-        $ticketIdSection.find(".comments").removeClass("overflow");
-        $ticketIdSection.find(".comments .text").each(function() {
-            var $text = $(this);
-            if ($text[0].scrollWidth > width) {
-                $text.parent().addClass("overflow");
-            }
+            SupTicketModal.restore();
         });
     }
 
@@ -362,13 +355,22 @@ window.SupTicketModal = (function($, SupTicketModal) {
         if ($modal.find('.genBundleBox .checkbox').hasClass('checked')) {
             genBundle = true;
         }
+        var subject = $modal.find(".subjectInput").val().trim();
         var comment = $modal.find('.xc-textArea').val().trim();
         var severity = $severityList.find(".text").data("val");
+
+        if (comment.length > descLimit) {
+            StatusBox.show(xcHelper.replaceMsg(MonitorTStr.CharLimitErr, {
+                "limit": xcHelper.numToStr(descLimit)
+            }), $modal.find(".xc-textArea"));
+            return PromiseHelper.reject();
+        }
 
         var ticketObj = {
             "type": issueType,
             "ticketId": ticketId,
             "server": document.location.href,
+            "subject": subject,
             "comment": comment,
             "severity": severity,
             "userIdName": userIdName,
@@ -432,7 +434,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 ticket = {
                     id: ticketId,
                     comment: comment,
-                    created_at: time
+                    created_at: time,
+                    severity: severity
                 };
                 var ticketStr = JSON.stringify(ticket) + ",";
                 appendTicketToList(ticket);
@@ -564,6 +567,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.find('.issueList .text').val("New");
         $ticketIdSection.addClass("xc-hidden");
         $severitySection.removeClass("xc-hidden");
+        $modal.find(".subjectArea").removeClass("xc-hidden");
+        $modal.find(".subjectInput").val("").trigger("input");
         $modal.find(".genBundleRow").find(".label").text("2. " +
                                     MonitorTStr.AdditionalInfo + ":");
 
@@ -584,7 +589,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
             className += " invalid";
         }
         var html = '<div class="row ' + className + '">';
-
         for (var i = 0; i < ticket.length; i++) {
             var date = xcHelper.getDate("-", null, ticket[i].created_at);
             var time = xcHelper.getTime(null, ticket[i].created_at, true);
@@ -601,35 +605,56 @@ window.SupTicketModal = (function($, SupTicketModal) {
                             '<div class="label">' + ticket[i].id + '</div>' +
                           '</div>' +
                         '</div>';
-
             }
 
             html += '</div>';
+
+            var commentSection = "";
             var comment = xcHelper.escapeHTMLSpecialChar(ticket[i].comment);
             if (i === 0) {
-                if (ticket.length > 1) {
-                    comment = "<b>You:</b> " + comment;
-                }
                 var status = ticket[i].status || "open";
                 html += '<div class="td status">' + status + '</div>';
+                commentSection = '<div class="subject"><b>' +
+                                 MonitorTStr.Subject + ': </b>' +
+                                 ticket[i].subject + '</div>';
+                var severity = "";
+                if (ticket[i].severity != null &&
+                    MonitorTStr["Severity" + ticket[i].severity]) {
+                    severity = '<div class="severity" data-toggle="tooltip" ' +
+                            'data-placement="top" data-container="body" ' +
+                            'data-original-title="' + MonitorTStr["Severity" +
+                            ticket[i].severity] + '"><b>' +
+                            MonitorTStr.Severity + ': </b> ' +
+                            ticket[i].severity + '</div>';
+                } else {
+                    severity = '<div class="severity unavailable"></div>';
+                }
+                commentSection += severity;
+                commentSection = '<div class="subjectWrap">' + commentSection + '</div>';
+                commentSection += '<div class="comment"><b>' + OpFormTStr.Descript + ':</b> ' + comment + '</div>';
+
             } else {
                 html += '<div class="td status"></div>';
                 if (ticket[i].author === "user") {
-                    comment = "<b>You:</b> " + comment;
+                    comment = "<b>Comment</b> (You): " + comment;
                 } else {
-                    comment = "<b>Xcalar:</b> " + comment;
+                    comment = "<b>Comment</b> (Xcalar): " + comment;
                 }
+                commentSection = '<div class="comment">' + comment + '</div>';
             }
 
-            html += '<div class="td">' + date + ' ' + time + '</div>' +
-              '<div class="td comments">' +
-                '<div class="text">' +
-                    comment +
-                '</div>' +
-                '<span class="expand">' +
-                  '<i class="icon xi-arrow-down fa-7"></i>' +
-                '</span>' +
-              '</div>' +
+            html += '<div class="td time" data-toggle="tooltip" ' +
+            'data-container="body" data-placement="top" data-original-title="' +
+                date + ' ' + time + '" data-time="' + ticket[i].created_at + '">'+
+                moment(ticket[i].created_at).fromNow() + '</div>' +
+              '<div class="td details">' +
+                '<div class="text">' + commentSection + '</div>';
+                if (i === 0) {
+                    html += '<span class="expand xc-action">' +
+                              '<i class="icon xi-arrow-down fa-7"></i>' +
+                            '</span>';
+                }
+              html += '</div>' +
             '</div>';
         }
         html += '</div>';
@@ -744,6 +769,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
         return deferred.promise();
     };
+
+    function updateTimes() {
+        $modal.find(".time").each(function() {
+            var time = $(this).data("time");
+            $(this).html(moment(time).fromNow());
+        });
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {

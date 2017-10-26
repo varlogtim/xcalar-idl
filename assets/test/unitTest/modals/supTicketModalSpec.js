@@ -64,6 +64,14 @@ describe("SupTicketModal Test", function() {
             $modal.removeClass("locked");
             expect($("#alertModal").hasClass("xc-hidden")).to.be.false;
         });
+
+        it("subject input should show correct limit when typing", function() {
+            expect($modal.find(".remainingChar").text()).to.equal("100");
+            $modal.find(".subjectInput").val("hey").trigger("input");
+            expect($modal.find(".remainingChar").text()).to.equal("97");
+            $modal.find(".subjectInput").val("").trigger("input");
+            expect($modal.find(".remainingChar").text()).to.equal("100");
+        });
     });
 
     describe("Existing tickets test", function() {
@@ -73,11 +81,11 @@ describe("SupTicketModal Test", function() {
             SupTicketModal.show();
         });
 
-        it("SupTicketModal.Restore work", function(done) {
+        it("SupTicketModal.Restore should work", function(done) {
             var ret1 = {
                 logs: JSON.stringify({tickets: [
-                    {"created_at": 12345, "updated_at": 12456, "id": 1, "comment": "abc"},
-                    {"created_at": 12348, "id": 2, "comment": longStr}
+                    {"created_at": 12345, "updated_at": 12456, "id": 1, "comment": "abc", "subject": "testSubject"},
+                    {"created_at": 12348, "id": 2, "comment": longStr, "subject": "testSubject"}
                 ]})
             };
 
@@ -114,8 +122,8 @@ describe("SupTicketModal Test", function() {
                 expect($ticketIdSection.find(".tableBody .innerRow").length).to.equal(4);
                 expect($ticketIdSection.find(".tableBody .row").eq(0).find(".innerRow").length).to.equal(1);
                 expect($ticketIdSection.find(".tableBody .row").eq(1).find(".innerRow").length).to.equal(3);
-                expect($ticketIdSection.find(".tableBody .comments .text").eq(0).text()).to.equal(longStr);
-                expect($ticketIdSection.find(".tableBody .comments .text").eq(1).text()).to.equal("You: abc");
+                expect($ticketIdSection.find(".tableBody .details .text").eq(0).text()).to.equal('Subject: testSubjectDescription: ' + longStr);
+                expect($ticketIdSection.find(".tableBody .details .text").eq(1).text()).to.equal('Subject: testSubjectDescription: abc');
 
 
                 XFTSupportTools.getTickets = cache1;
@@ -181,39 +189,20 @@ describe("SupTicketModal Test", function() {
         });
 
         it("clicking on comments should expand row", function() {
-            $ticketIdSection.find(".tableBody .comments").eq(0).addClass("overflow");
-            $ticketIdSection.find(".tableBody .innerRow").eq(0).removeClass("expanded");
+            $ticketIdSection.find(".tableBody .row").eq(0).removeClass("expanded");
+            $ticketIdSection.find(".tableBody .subjectWrap").eq(0).click();
 
-
-            $ticketIdSection.find(".tableBody .comments").eq(0).click();
-
-            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.true;
+            expect($ticketIdSection.find(".tableBody .row").eq(0).hasClass("expanded")).to.be.true;
         });
 
         it("expand comment via icon should work", function() {
-            $ticketIdSection.find(".tableBody .innerRow").eq(0).removeClass("expanded");
-            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.false;
+            $ticketIdSection.find(".tableBody .row").eq(0).removeClass("expanded");
+            expect($ticketIdSection.find(".tableBody .row").eq(0).hasClass("expanded")).to.be.false;
             $ticketIdSection.find(".expand").eq(0).click();
-            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.true;
+            expect($ticketIdSection.find(".tableBody .row").eq(0).hasClass("expanded")).to.be.true;
 
             $ticketIdSection.find(".expand").eq(0).click();
-            expect($ticketIdSection.find(".tableBody .innerRow").eq(0).hasClass("expanded")).to.be.false;
-        });
-
-        it("resize should show or hide expand icon", function() {
-            var $bar = $modal.find(".ui-resizable-w").eq(0);
-            var pageX = $bar.offset().left;
-            var pageY = $bar.offset().top;
-
-            $ticketIdSection.find(".comments").addClass("overflow");
-            expect($ticketIdSection.find(".comments.overflow").length).to.equal(4);
-
-            $bar.trigger("mouseover");
-            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
-            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 1, pageY: pageY});
-            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY });
-
-            expect($ticketIdSection.find(".comments.overflow").length).to.be.lt(4);
+            expect($ticketIdSection.find(".tableBody .row").eq(0).hasClass("expanded")).to.be.false;
         });
     });
 
