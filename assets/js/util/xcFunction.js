@@ -693,7 +693,6 @@ window.xcFunction = (function($, xcFunction) {
             groupByArgs.forEach(function(gbArg) {
                 takenNames[gbArg.newColName] = true;
             });
-            var promises = [];
             var mapStrs = [];
             var newCastNames = [];
             var castTableCols = table.tableCols;

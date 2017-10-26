@@ -3325,7 +3325,7 @@ window.xcHelper = (function($, xcHelper) {
             colNameList.push(name);
         }
         return (colNameList);
-    }
+    };
 
     xcHelper.disableMenuItem = function($menuLi, tooltipOptions) {
         $menuLi.addClass("unavailable");

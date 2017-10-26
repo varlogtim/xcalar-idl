@@ -1,5 +1,4 @@
 window.JupyterPanel = (function($, JupyterPanel) {
-    var $frameLocation = $("#jupyterPanel .mainContent");
     var $jupyterPanel;
     var currNotebook;
 
@@ -23,7 +22,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             var last;
             try {
                 last = $.parseJSON(lastLocation);
-            } catch(err) {
+            } catch (err) {
                 console.error(err);
             }
             currNotebook = last || "";
@@ -61,7 +60,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         }
                         break;
                     case ("sendToUDFEditor"):
-                        var code = s.code;
                         BottomMenu.openSection(2);
                         var editor = UDF.getEditor();
                         UDF.clear();
@@ -70,8 +68,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     default:
                         console.error("Unsupported action:" + s.action);
                 }
-            } catch(e) {
-                console.error("Illegal message sent:" + event.data);
+            } catch (e) {
+                console.error("Illegal message sent:" + event.data, e);
             }
         });
     };

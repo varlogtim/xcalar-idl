@@ -545,7 +545,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
         if (numTotalFields === 0) {
-              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+            $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                         .text(JsonModalTStr.AllFieldsPulled);
         }
         selectedCols[$jsonWrap.index()] = [];
@@ -597,7 +597,7 @@ window.JSONModal = (function($, JSONModal) {
                  .text(numSelected + '/' + numTotalFields +
                                             ' ' + JsonModalTStr.FieldsPull);
         if (numTotalFields === 0) {
-              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+            $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                         .text(JsonModalTStr.AllFieldsPulled);
         }
         if (numSelected === 0) {
@@ -1594,7 +1594,7 @@ window.JSONModal = (function($, JSONModal) {
                  .data('numTotalFields', numTotalFields)
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
         if (numTotalFields === 0) {
-              $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+            $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                         .text(JsonModalTStr.AllFieldsPulled);
         }
     }
@@ -1831,7 +1831,7 @@ window.JSONModal = (function($, JSONModal) {
             $table = $('.xcTable').removeClass('jsonModalOpen');
             $tableWrap = $('.xcTableWrap').removeClass('jsonModalOpen');
             if (!$("#container").hasClass("columnPicker")) {
-                 $table.find('.modalHighlighted')
+                $table.find('.modalHighlighted')
                   .removeClass('modalHighlighted jsonModalOpen');
             } else {
                 $(".jsonElement").removeClass("modalHighlighted");

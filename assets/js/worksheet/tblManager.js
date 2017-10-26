@@ -2380,7 +2380,6 @@ window.TblManager = (function($, TblManager) {
             var table = gTables[tableId];
             var progCol = table.tableCols[colNum - 1];
             var colType = progCol.getType();
-            var isMultiColumn = false;
             var isNewCol = false;
 
             xcTooltip.hideAll();
@@ -2429,7 +2428,6 @@ window.TblManager = (function($, TblManager) {
             options.classes += " sizedTo" + progCol.sizedTo;
 
             if ($('th.selectedCell').length > 1) {
-                isMultiColumn = true;
                 options.classes += " type-multiColumn";
                 options.multipleColNums = [];
                 var tableCols = table.tableCols;

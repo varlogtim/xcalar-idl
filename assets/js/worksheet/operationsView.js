@@ -1012,7 +1012,7 @@ window.OperationsView = (function($, OperationsView) {
             var progCol = gTables[tableId].getCol(colNums[i]);
             if (!progCol.isNewCol) {
                 if (i > 0) {
-                    addGroupOnArg(0)
+                    addGroupOnArg(0);
                 }
                 var name = progCol.getFrontColName(true);
                 $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);

@@ -527,7 +527,6 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var $li = $(this);
             var tableId = $colMenu.data('tableId');
             var format = $(this).data("format");
             var formats = [];
@@ -580,7 +579,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
             // chagne round to default value
             var tableId = $colMenu.data('tableId');
-            var $li = $(this);
             var colNums = $colMenu.data('colNums');
             var decimals = getDecimals(tableId, -1, colNums);
 
@@ -776,7 +774,6 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var $li = $(this);
             var colNums = $colMenu.data("colNums");
             var tableId = $colMenu.data('tableId');
             JoinView.show(tableId, colNums);

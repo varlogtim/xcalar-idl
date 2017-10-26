@@ -619,7 +619,7 @@ window.DFCard = (function($, DFCard) {
                     // uploaded retinas do not have params in export node
 
 
-                     $exportTable.addClass("export").data("type", "export")
+                    $exportTable.addClass("export").data("type", "export")
                         .attr("data-table", $exportTable.attr("data-tablename"))
                         .data("paramValue", paramValue)
                         .attr("data-advancedOpts", "default");
@@ -882,7 +882,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function showExportCols($dagTable) {
-        var df = DF.getDataflow(DFCard.getCurrentDF());
+        // var df = DF.getDataflow(DFCard.getCurrentDF());
         var $popup = $('#exportColPopup');
         var tableName = $dagTable.data('table') || $dagTable.data('tablename');
         var nodeId = $dagTable.data("index") + "";

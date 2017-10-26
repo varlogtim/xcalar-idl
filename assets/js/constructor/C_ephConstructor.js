@@ -1545,7 +1545,6 @@ ExportHelper.prototype = {
     },
 
     _checkRename: function(columnNames, $target) {
-        var self = this;
         var takenName = {};
         var renameMap = {};
         var invalid = false;
@@ -1870,7 +1869,7 @@ FormHelper.prototype = {
                 callback($target);
             });
 
-            $("#dagPanel").on("mousedown.columnPicker", ".dagTable", function(event) {
+            $("#dagPanel").on("mousedown.columnPicker", ".dagTable", function() {
                 var callback = columnPicker.dagCallback;
                 if (callback == null || !(callback instanceof Function)) {
                     return;

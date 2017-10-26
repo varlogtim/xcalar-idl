@@ -200,7 +200,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 if ($modal.find(".subjectInput").val().trim() === "") {
                     $modal.find(".subjectInput").focus();
                 } else {
-                     $modal.find(".xc-textArea").focus();
+                    $modal.find(".xc-textArea").focus();
                 }
             }
         }).setupListeners();
@@ -437,7 +437,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     created_at: time,
                     severity: severity
                 };
-                var ticketStr = JSON.stringify(ticket) + ",";
+                // var ticketStr = JSON.stringify(ticket) + ",";
                 appendTicketToList(ticket);
                 var msg = MonitorTStr.TicketSuccess + "<br/>" +
                                     MonitorTStr.TicketId + ": " + ticketId +
@@ -649,12 +649,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 moment(ticket[i].created_at).fromNow() + '</div>' +
               '<div class="td details">' +
                 '<div class="text">' + commentSection + '</div>';
-                if (i === 0) {
-                    html += '<span class="expand xc-action">' +
-                              '<i class="icon xi-arrow-down fa-7"></i>' +
-                            '</span>';
-                }
-              html += '</div>' +
+            if (i === 0) {
+                html += '<span class="expand xc-action">' +
+                            '<i class="icon xi-arrow-down fa-7"></i>' +
+                        '</span>';
+            }
+            html += '</div>' +
             '</div>';
         }
         html += '</div>';

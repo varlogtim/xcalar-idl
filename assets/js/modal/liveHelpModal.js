@@ -75,7 +75,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         timer = setTimeout(function() {
             appendMsg(AlertTStr.NoSupport, "sysMsg");
             confirmTicket();
-        }, 120000)
+        }, 120000);
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
@@ -120,7 +120,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             //content = xcHelper.escapeHTMLSpecialChar(content);
             row = "<div class='" + type + "Sender'>" +
                     "<p>" + sender + "</p></div>" + row;
-            if($modal.find(".sendEmail").hasClass("email-disabled")) {
+            if ($modal.find(".sendEmail").hasClass("email-disabled")) {
                 $modal.find(".sendEmail").removeClass("email-disabled");
                 $modal.find(".sendEmail").attr("data-original-title",
                                                AlertTStr.EmailEnabled);
@@ -332,10 +332,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                        AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
                        AlertTStr.XcalarAdmin + "\n" + admin;
             } catch (err) {
+                console.error(err);
                 success = false;
             }
         })
         .fail(function(err) {
+            console.error(err);
             success = false;
         })
         .always(function() {
@@ -405,14 +407,14 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     }
     function updateTicket() {
         var content = "";
-        $modal.find(".userMsg, .supportMsg").each(function(i,e) {
-            if($(e).hasClass("userMsg")) {
+        $modal.find(".userMsg, .supportMsg").each(function(i, e) {
+            if ($(e).hasClass("userMsg")) {
                 content += "You: " + $(e).text() + "\n\n";
             } else {
                 content += "Xcalar: " + $(e).text() + "\n\n";
             }
         });
-        if (content != ""&& ticketId) {
+        if (content !== "" && ticketId) {
             var ticketObj = {
                 "ticketId": ticketId,
                 "comment": "======This ticket is auto-generated from LiveChat" +

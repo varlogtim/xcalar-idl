@@ -67,7 +67,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         tableList.setupListeners();
 
         var columnsList = new MenuHelper($modal.find(".columnsList"), {
-            "onSelect": function($li, $last, event) {
+            "onSelect": function($li) {
                 if ($li.hasClass("unavailable")) {
                     return true;
                 }
@@ -101,7 +101,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                 var moduleName = $udfModuleList.find(".moduleName").val();
                 $udfFnList.find("li").hide();
                 if (moduleName) {
-                    $udfFnList.find('li[data-module="' + moduleName  + '"]').show();
+                    $udfFnList.find('li[data-module="' + moduleName + '"]').show();
                 } else {
                     StatusBox.show(ErrTStr.NoEmpty, $udfModuleList.find(".moduleName"), true);
                 }
@@ -173,25 +173,22 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                 return $.trim(colName);
             });
             var tableName = $modal.find(".tableName:visible").val();
-            var args = {
+            JupyterPanel.appendStub("basicUDF", {
                 fnName: $modal.find(".fnName:visible").val(),
                 tableName: tableName,
                 columns: columns,
                 allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName))
-            };
-            JupyterPanel.appendStub("basicUDF", args);
+            });
         } else if ($modal.hasClass("type-newImport")) {
-            var args = {
+            JupyterPanel.appendStub("importUDF", {
                 fnName: $modal.find(".fnName:visible").val()
-            };
-            JupyterPanel.appendStub("importUDF", args);
+            });
         } else if ($modal.hasClass("type-testImport")) {
-            var args = {
+            JupyterPanel.appendStub("testImportUDF", {
                 url: $modal.find(".url:visible").val(),
                 moduleName: $modal.find(".moduleName:visible").val(),
                 fnName: $modal.find(".fnName:visible").val()
-            };
-            JupyterPanel.appendStub("testImportUDF", args);
+            });
         }
 
         closeModal();
