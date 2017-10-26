@@ -63,6 +63,7 @@ window.xcMixPanel = (function($, xcMixPanel) {
             "Timestamp": (new Date()).getTime()
         });
         emailNotification(name);
+        lastFocus = (new Date()).getTime();
     });
 
     function emailNotification(username) {
