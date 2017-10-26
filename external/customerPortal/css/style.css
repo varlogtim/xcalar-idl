@@ -1,4 +1,4 @@
-/* Base styles */
+
 *, input[type=search] {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -10,7 +10,7 @@ html {
 }
 
 body {
-  color: #555555;
+  color: $color_4;
   font-family: "Helvetica Neue", "Arial";
   font-size: 14px;
   line-height: 1.5;

@@ -139,10 +139,17 @@ $(document).ready(function() {
            $("#goToMarketplace").hide();
           }
           if (hasInstallerKey) {
-            $("#downloadInstaller").show();
+            if (HelpCenter.user.organizations[0].name == "DCR") {
+              $("#downloadInstaller-docker").show();
+              $("#downloadInstaller").hide();
+            } else {
+              $("#downloadInstaller").show();
+              $("#downloadInstaller-docker").hide();
+            }
           } else {
             $("#downloadInstaller").hide();
           }
+          
         }
       }
     },
@@ -230,4 +237,4 @@ if (getURLParameter("reason") === "license") {
     $("#request_description").attr("placeholder",
          "Please describe your license situation and how you like to proceed.");
 }
-});
+   });
