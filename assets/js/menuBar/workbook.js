@@ -175,10 +175,11 @@ window.Workbook = (function($, Workbook) {
         var un = regex.exec(XcSupport.getUser())[0];
         var defaultName = "untitled-" + un;
         var names = {};
-        $workbookPanel.find(".workbookBox .workbookName").each(function() {
-            var name = $(this).text();
+        var workbooks = WorkbookManager.getWorkbooks();
+        for (var workbookId in workbooks) {
+            var name = workbooks[workbookId].getName();
             names[name] = true;
-        });
+        }
 
         var maxTry = 100;
         var tryCnt = 0;
@@ -193,7 +194,6 @@ window.Workbook = (function($, Workbook) {
             console.warn("Too many tries");
             resName = xcHelper.randName(defaultName);
         }
-
         return resName;
     }
 
