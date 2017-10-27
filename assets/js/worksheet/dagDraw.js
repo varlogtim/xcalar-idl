@@ -1255,7 +1255,7 @@ window.DagDraw = (function($, DagDraw) {
             tableTitle = dsText + tableName;
             tableTitleTip = tableName;
         } else {
-            if (node.value.struct.icvMode) {
+            if (node.value.struct.icv) {
                 iconClasses += "icv ";
                 icon = "xi-table-error2";
             }

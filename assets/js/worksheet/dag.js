@@ -1947,7 +1947,7 @@ window.Dag = (function($, Dag) {
         var newTableName = tableRoot + "_er" + newTableId;
 
         xcalarInput.dest = newTableName;
-        xcalarInput.icvMode = true;  // Turn on icv
+        xcalarInput.icv = true;  // Turn on icv
 
         // We want to skip all the checks, including all the indexes and stuff
         var $errMsgTarget = $tableIcon;
