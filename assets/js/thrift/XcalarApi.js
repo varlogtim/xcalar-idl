@@ -1781,8 +1781,12 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
     workItem.api = XcalarApisT.XcalarApiFilter;
     workItem.input.filterInput.source = srcTableName;
     workItem.input.filterInput.dest = dstTableName;
-    workItem.input.filterInput.eval = new XcalarApiEvalT();
-    workItem.input.filterInput.eval.evalString = filterStr;
+    workItem.input.filterInput.eval = [];
+
+    var eval = new XcalarApiEvalT();
+    eval.evalString = filterStr;    
+    workItem.input.filterInput.eval.push(eval);
+
     return (workItem);
 };
 
@@ -2127,7 +2131,7 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         var evalStrs = mapInput.evalStrs;
         var srcTableName = mapInput.source;
         var dstTableName = mapInput.dest;
-        var icvMode = mapInput.icvMode;
+        var icvMode = mapInput.icv;
         console.log("xcalarApiMapWithWorkItem(newFieldNames = " + newFieldNames +
                     ", evalStrs = " + evalStrs + ", srcTableName = " +
                     srcTableName + ", dstTableName = " + dstTableName +
@@ -2250,8 +2254,10 @@ xcalarAggregateWorkItem = runEntity.xcalarAggregateWorkItem = function(srcTableN
     workItem.api = XcalarApisT.XcalarApiAggregate;
     workItem.input.aggregateInput.source = srcTableName;
     workItem.input.aggregateInput.dest = dstTableName;
-    workItem.input.aggregateInput.eval = new XcalarApiEvalT();
-    workItem.input.aggregateInput.eval.evalString = aggregateEvalStr
+    workItem.input.aggregateInput.eval = [];
+    var eval = new XcalarApiEvalT();
+    eval.evalString = aggregateEvalStr;
+    workItem.input.aggregateInput.eval.push(eval);
 
     return (workItem);
 };

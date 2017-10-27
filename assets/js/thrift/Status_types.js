@@ -606,7 +606,8 @@ StatusT = {
   'StatusInvalidLogLevel' : 597,
   'StatusNoDsUsers' : 598,
   'StatusJsonQueryParseError' : 599,
-  'StatusXemNotConfigured' : 600
+  'StatusXemNotConfigured' : 600,
+  'StatusNoDatasetMemory' : 601
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1208,5 +1209,6 @@ StatusTStr = {0 : 'Success',
 597 : 'The specified log level is not valid',
 598 : 'There are no users of the dataset',
 599 : 'Error parsing JSON query',
-600 : 'Required XEM configuration parameters not present'
+600 : 'Required XEM configuration parameters not present',
+601 : 'Out of dataset memory'
 };
