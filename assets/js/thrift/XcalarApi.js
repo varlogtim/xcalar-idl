@@ -452,15 +452,28 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(url, name, format, 
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
-    workItem.input.loadInput.dataset = new XcalarApiDatasetT();
 
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
-    workItem.input.loadInput.dataset.url = url;
-    workItem.input.loadInput.dataset.name = name;
-    workItem.input.loadInput.dataset.formatType = format;
-    workItem.input.loadInput.loadArgs = loadArgs;
+    workItem.input.loadInput.url = url;
+    workItem.input.loadInput.dest = name;
+    workItem.input.loadInput.size = maxSampleSize;
+    workItem.input.loadInput.format = DfFormatTypeTStr[format];
+
     if (loadArgs) {
-        workItem.input.loadInput.loadArgs.maxSize = maxSampleSize;
+        workItem.input.loadInput.fileNamePattern = loadArgs.fileNamePattern;
+        if (loadArgs.udfLoadArgs) {
+            workItem.input.loadInput.udf = loadArgs.udfLoadArgs.fullyQualifiedFnName;
+        }
+
+        if (loadArgs.csv) {
+            workItem.input.loadInput.recordDelim = loadArgs.csv.recordDelim;
+            workItem.input.loadInput.fieldDelim = loadArgs.csv.fieldDelim;
+            workItem.input.loadInput.quoteDelim = loadArgs.csv.quoteDelim;
+            workItem.input.loadInput.linesToSkip = loadArgs.csv.linesToSkip;
+            workItem.input.loadInput.crlf = loadArgs.csv.isCRLF;
+            workItem.input.loadInput.header = loadArgs.csv.hasHeader;
+            workItem.input.loadInput.recursive = loadArgs.recursive;
+        }
     }
     return (workItem);
 };
@@ -517,20 +530,17 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
-    workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiIndex;
-    workItem.input.indexInput.source.isTable = false;
-    workItem.input.indexInput.source.name = datasetName;
-    workItem.input.indexInput.source.xid = XcalarApiXidInvalidT;
-    workItem.input.indexInput.dstTable.tableName = dstTableName;
-    workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.indexInput.keyName = keyName;
+    workItem.input.indexInput.source = datasetName;
+    workItem.input.indexInput.dest = dstTableName;
+    workItem.input.indexInput.key = new XcalarApiKeyT();
+    workItem.input.indexInput.key.name = keyName;
+    workItem.input.indexInput.key.type = DfFormatTypeTStr[keyType];
+
     workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.fatptrPrefixName = fatptrPrefixName;
-    workItem.input.indexInput.ordering = ordering;
-    workItem.input.indexInput.keyType = keyType;
+    workItem.input.indexInput.prefix = fatptrPrefixName;
+    workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     return (workItem);
 };
 
@@ -578,19 +588,17 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
-    workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
-
     workItem.api = XcalarApisT.XcalarApiIndex;
-    workItem.input.indexInput.source.isTable = true;
-    workItem.input.indexInput.source.name = srcTableName;
-    workItem.input.indexInput.source.xid = XcalarApiXidInvalidT;
-    workItem.input.indexInput.dstTable.tableName = dstTableName;
-    workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.indexInput.keyName = keyName;
+
+    workItem.input.indexInput.source = srcTableName;
+    workItem.input.indexInput.dest = dstTableName;
+    workItem.input.indexInput.key = new XcalarApiKeyT();
+    workItem.input.indexInput.key.name = keyName;
+    workItem.input.indexInput.key.type = DfFieldTypeTStr[keyType];
+
     workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.ordering = ordering;
-    workItem.input.indexInput.keyType = keyType;
+    workItem.input.indexInput.prefix = "";
+    workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     return (workItem);
 };
 
@@ -1415,6 +1423,48 @@ xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandl
     return (deferred.promise());
 };
 
+xcalarListUserDatasetsWorkItem = runEntity.xcalarListUserDatasetsWorkItem = function(userIdName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiListUserDatasets;
+
+    workItem.input.listUserDatasetsInput = new XcalarApiListUserDatasetsInputT();
+    workItem.input.listUserDatasetsInput.userIdName = userIdName;
+
+    return (workItem);
+};
+
+xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandle, userIdName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarListUserDatasets(userIdName = " + userIdName + ")");
+    }
+
+    var workItem = xcalarListUserDatasetsWorkItem(userIdName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var listUserDatasetsOutput = result.output.outputResult.listUserDatasetsOutput;
+        var log = result.output.hdr.log;
+        // No job specific status
+        if (result.jobStatus != StatusT.StatusOk) {
+            deferred.reject(result.jobStatus, log);
+        }
+        deferred.resolve(listUserDatasetsOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListUserDatasets() caught exception:", error);
+
+        var listUserDatasetsOutput = new XcalarApiListUserDatasetsOutputT();
+        // XXX FIXME should add StatusT.StatusThriftProtocolError
+        listUserDatasetsOutput.datasetCount = 0;
+
+        deferred.reject(listUserDatasetsOutput);
+    });
+
+    return (deferred.promise());
+};
+
 xcalarLockDatasetWorkItem = runEntity.xcalarLockDatasetWorkItem = function(datasetName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1599,38 +1649,32 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
-    workItem.input.joinInput.leftTable = new XcalarApiTableInputT();
-    workItem.input.joinInput.rightTable = new XcalarApiTableInputT();
-    workItem.input.joinInput.joinTable = new XcalarApiTableInputT();
-
     workItem.api = XcalarApisT.XcalarApiJoin;
-    workItem.input.joinInput.leftTable.tableName = leftTableName;
-    workItem.input.joinInput.leftTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.joinInput.rightTable.tableName = rightTableName;
-    workItem.input.joinInput.rightTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.joinInput.joinTable.tableName = joinTableName;
-    workItem.input.joinInput.joinTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.joinInput.joinType = joinType;
-    workItem.input.joinInput.collisionCheck = collisionCheck;
-    workItem.input.joinInput.renameMap = null;
-
-    if (leftRenameMap == null) {
-        workItem.input.joinInput.numLeftColumns = 0;
+    workItem.input.joinInput.source = []
+    if (leftTableName) {
+        workItem.input.joinInput.source.push(leftTableName);
     } else {
-        workItem.input.joinInput.numLeftColumns = leftRenameMap.length;
-        workItem.input.joinInput.renameMap = leftRenameMap;
+        workItem.input.joinInput.source[0] = "";
     }
 
-    if (rightRenameMap == null) {
-        workItem.input.joinInput.numRightColumns = 0;
+    if (rightTableName) {
+        workItem.input.joinInput.source.push(rightTableName);
     } else {
-        workItem.input.joinInput.numRightColumns = rightRenameMap.length;
-        if (workItem.input.joinInput.renameMap == null) {
-            workItem.input.joinInput.renameMap = rightRenameMap;
-        } else {
-            workItem.input.joinInput.renameMap =
-                workItem.input.joinInput.renameMap.concat(rightRenameMap);
-        }
+        workItem.input.joinInput.source[1] = "";
+    }
+
+    workItem.input.joinInput.dest = joinTableName;
+
+    workItem.input.joinInput.joinType = JoinOperatorTStr[joinType];
+    workItem.input.joinInput.renameMap = [];
+    workItem.input.joinInput.renameMap[0] = [];
+    workItem.input.joinInput.renameMap[1] = [];
+    if (leftRenameMap) {
+        workItem.input.joinInput.renameMap[0] = leftRenameMap;
+    }
+
+    if (rightRenameMap) {
+        workItem.input.joinInput.renameMap[1] = rightRenameMap;
     }
 
     return (workItem);
@@ -1683,16 +1727,11 @@ xcalarProjectWorkItem = runEntity.xcalarProjectWorkItem = function(numColumns, c
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.projectInput = new XcalarApiProjectInputT();
-    workItem.input.projectInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.projectInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiProject;
-    workItem.input.projectInput.srcTable.tableName = srcTableName;
-    workItem.input.projectInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.projectInput.dstTable.tableName = dstTableName;
-    workItem.input.projectInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.projectInput.numColumns = numColumns;
-    workItem.input.projectInput.columnNames = columns;
+    workItem.input.projectInput.source = srcTableName;
+    workItem.input.projectInput.dest = dstTableName;
+    workItem.input.projectInput.columns = columns;
     return (workItem);
 };
 
@@ -1738,15 +1777,12 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.filterInput = new XcalarApiFilterInputT();
-    workItem.input.filterInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.filterInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiFilter;
-    workItem.input.filterInput.srcTable.tableName = srcTableName;
-    workItem.input.filterInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.filterInput.dstTable.tableName = dstTableName;
-    workItem.input.filterInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.filterInput.filterStr = filterStr;
+    workItem.input.filterInput.source = srcTableName;
+    workItem.input.filterInput.dest = dstTableName;
+    workItem.input.filterInput.eval = new XcalarApiEvalT();
+    workItem.input.filterInput.eval.evalString = filterStr;
     return (workItem);
 };
 
@@ -1784,41 +1820,38 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
     return (deferred.promise());
 };
 
-xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStrs,
+xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, evalStrs,
                                newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
-    workItem.input.groupByInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.groupByInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGroupBy;
-    workItem.input.groupByInput.srcTable.tableName = srcTableName;
-    workItem.input.groupByInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.groupByInput.dstTable.tableName = dstTableName;
-    workItem.input.groupByInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.groupByInput.source = srcTableName;
+    workItem.input.groupByInput.dest = dstTableName;
 
-    if (groupByEvalStrs) {
-        if (groupByEvalStrs.constructor === Array) {
-            workItem.input.groupByInput.numEvals = groupByEvalStrs.length;
-            workItem.input.groupByInput.evalStrs = groupByEvalStrs;
+    workItem.input.groupByInput.eval = [];
+    if (evalStrs) {
+        if (evalStrs.constructor === Array) {
+            for (var ii = 0; ii < evalStrs.length; ii++) {
+                var eval = new XcalarApiEvalT();
+                eval.evalString = evalStrs[ii];
+                eval.newField = newFieldNames[ii];
+
+                workItem.input.groupByInput.eval.push(eval);
+            }
         } else {
-            workItem.input.groupByInput.numEvals = 1;
-            workItem.input.groupByInput.evalStrs = [groupByEvalStrs];
+            var eval = new XcalarApiEvalT();
+            eval.evalString = evalStrs;
+            eval.newField = newFieldNames;
+
+            workItem.input.groupByInput.eval.push(eval);
         }
     }
 
-    if (newFieldNames) {
-        if (newFieldNames.constructor === Array) {
-            workItem.input.groupByInput.newFieldNames = newFieldNames;
-        } else {
-            workItem.input.groupByInput.newFieldNames = [newFieldNames];
-        }
-    }
-
-    workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
-    workItem.input.groupByInput.icvMode = icvMode;
-    workItem.input.groupByInput.newKeyFieldName = newKeyFieldName;
+    workItem.input.groupByInput.includeSample = includeSrcSample;
+    workItem.input.groupByInput.icv = icvMode;
+    workItem.input.groupByInput.newKeyField = newKeyFieldName;
     return (workItem);
 };
 
@@ -2060,34 +2093,29 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.mapInput = new XcalarApiMapInputT();
-    workItem.input.mapInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.mapInput.dstTable = new XcalarApiTableInputT();
-
     workItem.api = XcalarApisT.XcalarApiMap;
 
+    workItem.input.mapInput.eval = [];
     if (evalStrs) {
         if (evalStrs.constructor === Array) {
-            workItem.input.mapInput.numEvals = evalStrs.length;
-            workItem.input.mapInput.evalStrs = evalStrs;
+            for (var ii = 0; ii < evalStrs.length; ii++) {
+                var eval = new XcalarApiEvalT();
+                eval.evalString = evalStrs[ii];
+                eval.newField = newFieldNames[ii];
+
+                workItem.input.mapInput.eval.push(eval);
+            }
         } else {
-            workItem.input.mapInput.numEvals = 1;
-            workItem.input.mapInput.evalStrs = [evalStrs];
+            var eval = new XcalarApiEvalT();
+            eval.evalString = evalStrs;
+            eval.newField = newFieldNames;
+
+            workItem.input.mapInput.eval.push(eval);
         }
     }
-
-    if (newFieldNames) {
-        if (newFieldNames.constructor === Array) {
-            workItem.input.mapInput.newFieldNames = newFieldNames;
-        } else {
-            workItem.input.mapInput.newFieldNames = [newFieldNames];
-        }
-    }
-
-    workItem.input.mapInput.srcTable.tableName = srcTableName;
-    workItem.input.mapInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.mapInput.dstTable.tableName = dstTableName;
-    workItem.input.mapInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.mapInput.icvMode = icvMode;
+    workItem.input.mapInput.source = srcTableName;
+    workItem.input.mapInput.dest = dstTableName;
+    workItem.input.mapInput.icv = icvMode;
     return (workItem);
 };
 
@@ -2097,8 +2125,8 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         var mapInput = workItem.input.mapInput;
         var newFieldNames = mapInput.newFieldNames;
         var evalStrs = mapInput.evalStrs;
-        var srcTableName = mapInput.srcTable.tableName;
-        var dstTableName = mapInput.dstTable.tableName;
+        var srcTableName = mapInput.source;
+        var dstTableName = mapInput.dest;
         var icvMode = mapInput.icvMode;
         console.log("xcalarApiMapWithWorkItem(newFieldNames = " + newFieldNames +
                     ", evalStrs = " + evalStrs + ", srcTableName = " +
@@ -2171,15 +2199,11 @@ xcalarApiGetRowNumWorkItem = runEntity.xcalarApiGetRowNumWorkItem = function(src
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.getRowNumInput = new XcalarApiGetRowNumInputT();
-    workItem.input.getRowNumInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.getRowNumInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetRowNum;
-    workItem.input.getRowNumInput.srcTable.tableName = srcTableName;
-    workItem.input.getRowNumInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.getRowNumInput.dstTable.tableName = dstTableName;
-    workItem.input.getRowNumInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.getRowNumInput.newFieldName = newFieldName;
+    workItem.input.getRowNumInput.source = srcTableName;
+    workItem.input.getRowNumInput.dest = dstTableName;
+    workItem.input.getRowNumInput.newField = newFieldName;
     return (workItem);
 };
 
@@ -2222,15 +2246,13 @@ xcalarAggregateWorkItem = runEntity.xcalarAggregateWorkItem = function(srcTableN
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.aggregateInput = new XcalarApiAggregateInputT();
-    workItem.input.aggregateInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.aggregateInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiAggregate;
-    workItem.input.aggregateInput.srcTable.tableName = srcTableName;
-    workItem.input.aggregateInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.aggregateInput.dstTable.tableName = dstTableName;
-    workItem.input.aggregateInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.aggregateInput.evalStr = aggregateEvalStr;
+    workItem.input.aggregateInput.source = srcTableName;
+    workItem.input.aggregateInput.dest = dstTableName;
+    workItem.input.aggregateInput.eval = new XcalarApiEvalT();
+    workItem.input.aggregateInput.eval.evalString = aggregateEvalStr
+
     return (workItem);
 };
 
@@ -2395,19 +2417,59 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
-    workItem.input.exportInput.srcTable = new XcalarApiTableInputT();
-    workItem.input.exportInput.meta = new ExExportMetaT();
 
     workItem.api = XcalarApisT.XcalarApiExport;
-    workItem.input.exportInput.srcTable.tableName = tableName;
-    workItem.input.exportInput.srcTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.exportInput.exportName = exportName;
-    workItem.input.exportInput.meta.target = target;
-    workItem.input.exportInput.meta.specificInput = specInput;
-    workItem.input.exportInput.meta.sorted = sorted;
-    workItem.input.exportInput.meta.numColumns = numColumns;
-    workItem.input.exportInput.meta.columns = columns;
-    workItem.input.exportInput.meta.createRule = createRule;
+    workItem.input.exportInput.source = tableName;
+    workItem.input.exportInput.dest = exportName;
+    workItem.input.exportInput.columns = columns;
+    workItem.input.exportInput.createRule = ExExportCreateRuleTStr[createRule];
+    workItem.input.exportInput.sorted = sorted;
+
+    if (!target) {
+        return (workItem)
+    }
+
+    workItem.input.exportInput.targetName = target.name;
+    workItem.input.exportInput.targetType = ExTargetTypeTStr[target.type];
+
+    if (target.type == ExTargetTypeT.ExTargetSFType) {
+        var sfInput = specInput.sfInput;
+        workItem.input.exportInput.fileName = sfInput.fileName;
+        workItem.input.exportInput.format = DfFormatTypeTStr[sfInput.format]
+        workItem.input.exportInput.splitRule =
+            ExSFFileSplitTypeTStr[sfInput.splitRule.type];
+        if (sfInput.splitRule.spec) {
+            workItem.input.exportInput.splitSize =
+                sfInput.splitRule.spec.maxSize;
+            workItem.input.exportInput.splitNumFiles =
+                sfInput.splitRule.spec.numFiles;
+        }
+
+        workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[sfInput.headerType];
+        if (sfInput.formatArgs.csv) {
+            workItem.input.exportInput.fieldDelim =
+                sfInput.formatArgs.csv.fieldDelim;
+            workItem.input.exportInput.recordDelim =
+                sfInput.formatArgs.csv.recordDelim;
+            workItem.input.exportInput.quoteDelim =
+                sfInput.formatArgs.csv.quoteDelim;
+        }
+    } else {
+        var udfInput = specInput.udfInput;
+        workItem.input.exportInput.fileName = udfInput.fileName;
+        workItem.input.exportInput.format = DfFormatTypeTStr[udfInput.format]
+        workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[udfInput.headerType];
+
+        if (udfInput.formatArgs.csv) {
+            workItem.input.exportInput.fieldDelim =
+                udfInput.formatArgs.csv.fieldDelim;
+            workItem.input.exportInput.recordDelim =
+                udfInput.formatArgs.csv.recordDelim;
+            workItem.input.exportInput.quoteDelim =
+                udfInput.formatArgs.csv.quoteDelim;
+        }
+    }
+
     return (workItem);
 };
 
@@ -2767,14 +2829,18 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
-    workItem.input.executeRetinaInput.queryName = queryName;
-    if (parameters) {
-        workItem.input.executeRetinaInput.numParameters = parameters.length;
+    if (queryName) {
+        workItem.input.executeRetinaInput.queryName = queryName;
+    } else {
+        workItem.input.executeRetinaInput.queryName = retinaName;
     }
+
     workItem.input.executeRetinaInput.parameters = parameters;
-    workItem.input.executeRetinaInput.exportToActiveSession = exportToActiveSession;
-    workItem.input.executeRetinaInput.dstTable.tableName = newTableName;
-    workItem.input.executeRetinaInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    if (exportToActiveSession) {
+        workItem.input.executeRetinaInput.dest = newTableName;
+    } else {
+        workItem.input.executeRetinaInput.dest = "";
+    }
 
     return (workItem);
 };
@@ -3783,6 +3849,55 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
 
 xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workItem) {
     var deferred = jQuery.Deferred();
+    var json = {};
+    json["operation"] = XcalarApisTStr[workItem.api]
+
+    switch(workItem.api) {
+    case XcalarApisT.XcalarApiAggregate:
+        json["args"] = workItem.input.aggregateInput
+        break;
+    case XcalarApisT.XcalarApiBulkLoad:
+        json["args"]  = workItem.input.loadInput
+        break;
+    case XcalarApisT.XcalarApiIndex:
+        json["args"]  = workItem.input.indexInput
+        break;
+    case XcalarApisT.XcalarApiProject:
+        json["args"]  = workItem.input.projectInput
+        break;
+    case XcalarApisT.XcalarApiGetRowNum:
+        json["args"]  = workItem.input.getRowNumInput
+        break;
+    case XcalarApisT.XcalarApiFilter:
+        json["args"]  = workItem.input.filterInput
+        break;
+    case XcalarApisT.XcalarApiGroupBy:
+        json["args"]  = workItem.input.groupByInput
+        break;
+    case XcalarApisT.XcalarApiJoin:
+        json["args"]  = workItem.input.joinInput
+        break;
+    case XcalarApisT.XcalarApiMap:
+        json["args"]  = workItem.input.mapInput
+        break;
+    case XcalarApisT.XcalarApiExecuteRetina:
+        json["args"]  = workItem.input.executeRetinaInput
+        break;
+    case XcalarApisT.XcalarApiExport:
+        json["args"]  = workItem.input.exportInput
+        break;
+    case XcalarApisT.XcalarApiDeleteObjects:
+        json["args"]  = workItem.input.deleteDagNodeInput
+        break;
+    default:
+        break;
+    }
+
+    return (JSON.stringify(json))
+};
+
+xcalarApiGetQueryOld = runEntity.xcalarApiGetQueryOld = function(thriftHandle, workItem) {
+    var deferred = jQuery.Deferred();
     workItem.origApi = workItem.api;
     workItem.api = XcalarApisT.XcalarApiGetQuery;
 
@@ -3808,7 +3923,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
     });
 
     return (deferred.promise());
-};
+}
 
 xcalarApiCreateDhtWorkItem = runEntity.xcalarApiCreateDhtWorkItem = function(dhtName, upperBound, lowerBound, ordering) {
     var workItem = new WorkItem();
@@ -4429,6 +4544,45 @@ xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measure
     })
     .fail(function(error) {
         console.log("xcalarApiTop() caught exception: ", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarGetCurrentXemConfigGetWorkItem = runEntity.xcalarGetCurrentXemConfigGetWorkItem = function() {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiGetCurrentXemConfig;
+    return (workItem);
+};
+
+xcalarGetCurrentXemConfig = runEntity.xcalarGetCurrentXemConfig = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarGetCurrentXemConfig");
+    }
+
+    var workItem = xcalarGetCurrentXemConfigGetWorkItem();
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var getXemConfigOutput = result.output.outputResult.getCurrentXemConfigOutput;
+        var status = result.output.hdr.status
+        var log = result.output.hdr.log;
+
+       if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+       }
+
+        status = result.jobStatus;
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        deferred.resolve(getXemConfigOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetCurrentXemConfigGetWorkItem failure");
         deferred.reject(handleRejection(error));
     });
 

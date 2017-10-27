@@ -893,6 +893,27 @@ window.Function.prototype.bind = function() {
         .fail(test.fail);
     }
 
+    function testListUserDatasets(test) {
+        var userIdName = "test";
+        xcalarListUserDatasets(thriftHandle, userIdName)
+        .then(function(listUserDatasetsOutput) {
+            printResult(listUserDatasetsOutput);
+
+            for (var i = 0, dataset = null;
+                i < listUserDatasetsOutput.datasetCount; i++) {
+
+                    dataset = listUserDatasetsOutput.dataset[i];
+
+                    console.log("\tdataset[" + i.toString() + "].datasetName = " +
+                                dataset.datasetName);
+                    console.log("\tdataset[" + i.toString() + "].isLocked = " +
+                                dataset.isLocked);
+                }
+            test.pass();
+        })
+        .fail(test.fail);
+    }
+
     function testLockDataset(test) {
         var datasetName = ".XcalarDS.yelp";
         var testLockSession = "mgmtdTestLockSession" + (new Date().getTime());
@@ -1041,14 +1062,8 @@ window.Function.prototype.bind = function() {
         workItem.input.indexInput.dhtName = "";
         workItem.input.indexInput.ordering = XcalarOrderingT.XcalarOrderingUnordered;
 
-        xcalarApiGetQuery(thriftHandle, workItem)
-        .then(function(getQueryOutput) {
-            console.log("\tquery =" + getQueryOutput.query.toString());
-            test.pass();
-        })
-        .fail(function(status) {
-            test.fail(StatusTStr[status]);
-        });
+        console.log(xcalarApiGetQuery(thriftHandle, workItem));
+        test.pass();
     }
 
     function testGetQueryLoad(test) {
@@ -1073,12 +1088,8 @@ window.Function.prototype.bind = function() {
         workItem.input.loadInput.dataset.name = "datasetName";
         workItem.input.loadInput.dataset.loadIsComplete = false;
 
-        xcalarApiGetQuery(thriftHandle, workItem)
-        .done(function(getQueryOutput) {
-            console.log("\tquery =" + getQueryOutput.query.toString());
-            test.pass();
-        })
-        .fail(test.fail);
+        console.log(xcalarApiGetQuery(thriftHandle, workItem));
+        test.pass();
     }
 
     function testIndexDatasetBogus(test) {
@@ -1192,304 +1203,6 @@ window.Function.prototype.bind = function() {
             test.pass();
         })
         .fail(test.fail);
-    }
-
-    function indexAggregateRaceTest(test) {
-        var pathToFlightDataset = qaTestDir + "/flight/airlines_2007.csv";
-        var pathToAirportDataset = qaTestDir + "/flight/airports.csv";
-        var datasetName = "MgmtTest/indexAggregateRaceTest/flightDataset";
-        var datasetName2 = "MgmtTest/indexAggregateRaceTest/airportDataset";
-        var tmpTableName1 = "MgmtTest/indexAggregateRaceTest/tmpTable1";
-        var tmpTableName2 = "MgmtTest/indexAggregateRaceTest/tmpTable2";
-        var tmpTableName3 = "MgmtTest/indexAggregateRaceTest/tmpTable3";
-        var tmpTableName4 = "MgmtTest/indexAggregateRaceTest/tmpTable4";
-        var startTableName = "MgmtTest/indexAggregateRaceTest/startTable";
-        var dstTableNameTemplate = "MgmtTest/indexAggregateRaceTest/dstTable";
-        var groupByTableNameTemplate = "MgmtTest/indexAggregateRaceTest/groupByTable";
-        var keyName = "Month_integer";
-        var keyName2 = "Month";
-        var keyName3 = "groupBySum";
-
-        var failed = false;
-        var raceFailedReason = "";
-
-        var indexAndAggregateOutput = {};
-        var indexAndAggDone = false;
-
-        var numIndexes = 0;
-        var indexDone = [];
-
-        var aggTableName = { "sum": "MgmtTest/indexAggregateRaceTest/aggTableSum",
-                             "avg": "MgmtTest/indexAggregateRaceTest/aggTableAvg",
-                             "min": "MgmtTest/indexAggregateRaceTest/aggTableMin",
-                             "max": "MgmtTest/indexAggregateRaceTest/aggtableMax",
-                             "count": "MgmtTest/indexAggregateRaceTest/aggTableCount"};
-        var expectedAggOutput = { "sum": 919477.0, "avg": 919477.0 / 138491.0,
-                                  "min": 1, "max": 12, "count": 138491.0 };
-        var aggDone = { "sum": false, "avg": false, "min": false, "max": false,
-                        "count": false };
-        var aggEvalStr = { "sum": "sum(" + keyName + ")",
-                           "avg": "avg(" + keyName + ")",
-                           "min": "min(" + keyName + ")",
-                           "max": "max(" + keyName + ")",
-                           "count": "count(" + keyName + ")" };
-
-        function indexAndAggDoneFn() {
-            var totalCompleted = 0;
-            indexAndAggDone = true;
-
-            function makeGroupByDoneFn(ii) {
-                var groupByTableName = groupByTableNameTemplate + ii;
-                function groupByDoneFnInt(groupByOutput) {
-                    var aggStr = "sum(" + keyName3 + ")";
-                    xcalarAggregate(thriftHandle, groupByTableName,
-                                    groupByTableName + "-aggr",
-                                    aggStr)
-                    .done(function(aggregateOutput) {
-                        console.log("aggStr: " + aggStr + ", tableName: \"" +
-                                    groupByTableName + "\", output: " +
-                                    JSON.stringify(aggregateOutput));
-                        if (aggregateOutput.Value != expectedAggOutput.sum) {
-                            failed = true;
-                            raceFailedReason += "Returned answer: " +
-                                                aggregateOutput.Value +
-                                                " Expected answer: " +
-                                                expectedAggOutput.sum;
-                        }
-                    })
-                    .fail(function(reason) {
-                        failed = true;
-                        raceFailedReason += "Aggregate failed. Server " +
-                                            "returned: " + StatusTStr[reason.xcalarStatus];
-                    })
-                    .always(function() {
-                        totalCompleted++;
-                        if (totalCompleted == numIndexes) {
-                            test.assert(!failed, "", raceFailedReason);
-                            test.pass();
-                        }
-                    });
-                }
-                return (groupByDoneFnInt);
-            }
-
-            if (failed) {
-                test.fail(raceFailedReason);
-            } else {
-                // Now we verify that all the months are correct in dstTable
-                for (var ii = 0; ii < numIndexes; ii++) {
-                    var dstTableName = dstTableNameTemplate + ii;
-                    var groupByTableName = groupByTableNameTemplate + ii;
-                    xcalarGroupBy(thriftHandle, dstTableName, groupByTableName,
-                                  "sum(" + keyName + ")", keyName3, false)
-                    .done(makeGroupByDoneFn(ii))
-                    .fail(function(reason) {
-                        failed = true;
-                        raceFailedReason = "Group by failed. Server returned: "
-                                           + StatusTStr[reason.xcalarStatus];
-                        totalCompleted++;
-                        if (totalCompleted == numIndexes) {
-                            test.assert(!failed, "", raceFiledReason);
-                            test.pass();
-                        }
-                    });
-                }
-            }
-        }
-
-        function aggDoneFn(aggOutput, aggOp) {
-            if (aggOutput !== null) {
-                console.log("Aggregate on \"" + startTableName + "\" done. " +
-                            aggEvalStr[aggOp] + " = " +
-                            JSON.stringify(aggOutput));
-                indexAndAggregateOutput["aggOutput" + aggOp] = JSON.stringify(aggOutput);
-                var answer = aggOutput.Value;
-                if (answer !== expectedAggOutput[aggOp]) {
-                    failed = true;
-                    raceFailedReason += "Aggregate returned wrong answer (" +
-                                        answer + " instead of " +
-                                        expectedAggOutput[aggOp] + ")";
-                }
-            }
-            aggDone[aggOp] = true;
-            var allAggDone = true;
-            for (var key in aggDone) {
-                if (!aggDone[key]) {
-                    allAggDone = false;
-                    break;
-                }
-            }
-
-            var allIndexDone = true;
-            for (var ii = 0; ii < numIndexes; ii++) {
-                if (!indexDone[ii]) {
-                    allIndexDone = false;
-                }
-            }
-
-            if (allIndexDone && allAggDone && !indexAndAggDone) {
-                indexAndAggDoneFn();
-            }
-        }
-
-        function indexDoneFn(indexOutput, idx) {
-            console.log("Index " + idx + " done");
-            indexAndAggregateOutput["indexOutput" + idx] = indexOutput;
-            indexDone[idx] = true;
-
-            var allIndexDone = true;
-            for (var ii = 0; ii < numIndexes; ii++) {
-                if (!indexDone[ii]) {
-                    allIndexDone = false;
-                }
-            }
-
-            var allAggDone = true;
-            for (var key in aggDone) {
-                if (!aggDone[key]) {
-                    allAggDone = false;
-                    break;
-                }
-            }
-
-            if (allIndexDone && allAggDone && !indexAndAggDone) {
-                indexAndAggDoneFn();
-            }
-        }
-
-        function startRace() {
-            // Now we start the race
-            for (var aggOp in aggDone) {
-                xcalarAggregate(thriftHandle, startTableName,
-                                aggTableName[aggOp], aggEvalStr[aggOp])
-                .done(
-                    (function(key) {
-                        return (function(aggOutput) {
-                                    aggDoneFn(aggOutput, key);
-                                });
-                    })(aggOp)
-                )
-                .fail((function(key) {
-                    function anonymousFn(reason) {
-                        raceFailedReason +=
-                                      "Failed to aggregate. Server returned: " +
-                                             StatusTStr[reason.xcalarStatus];
-                        failed = true;
-                        aggDoneFn(null, key);
-                    }
-                    return (anonymousFn);
-                })(aggOp));
-
-                var dstTableName = dstTableNameTemplate + numIndexes;
-
-                xcalarIndexTable(thriftHandle, startTableName, keyName,
-                                 dstTableName,
-                                 "", XcalarOrderingT.XcalarOrderingUnordered,
-                                 DfFieldTypeT.DfInt64)
-                .done(
-                    (function(idx) {
-                    return (function(indexOutput) {
-                            indexDoneFn(indexOutput, idx);
-                            });
-                    })(numIndexes)
-                )
-                .fail(function(reason) {
-                    raceFailedReason += "Failed to index. Server returned: " +
-                                        StatusTStr[reason.xcalarStatus];
-                    failed = true;
-                    indexDoneFn(null);
-                });
-
-                numIndexes++;
-
-            }
-        }
-
-        function joinDoneFn() {
-            xcalarIndexTable(thriftHandle, tmpTableName3, keyName2,
-                             tmpTableName4, "",
-                             XcalarOrderingT.XcalarOrderingUnordered,
-                             DfFieldTypeT.DfString)
-            .done(function(indexOutput) {
-                xcalarApiMap(thriftHandle, keyName, "int(" + keyName2 + ")",
-                             tmpTableName3, startTableName)
-                .done(startRace)
-                .fail(function(reason) {
-                    reason = "Failed to cast. Server returned: " +
-                                  StatusTStr[reason.xcalarStatus];
-                    test.fail(reason);
-                });
-            })
-            .fail(function(reason) {
-                reason = "Index failed. Server returned: " +
-                             StatusTStr[reason.xcalarStatus];
-                test.fail(reason);
-            });
-        }
-
-        function loadDoneFn() {
-            xcalarIndexDataset(thriftHandle, datasetName, "Dest", tmpTableName1,
-                               "", XcalarOrderingT.XcalarOrderingUnordered,
-                              DfFieldTypeT.DfString)
-            .done(function(indexOutput) {
-                xcalarIndexDataset(thriftHandle, datasetName2, "iata",
-                                   tmpTableName2, "",
-                                   XcalarOrderingT.XcalarOrderingUnordered,
-                                   DfFieldTypeT.DfString)
-                .done(function(indexOutput) {
-                    // For some reason, the join is required to reproduce the bug
-                    xcalarJoin(thriftHandle, tmpTableName1, tmpTableName2,
-                               tmpTableName3, JoinOperatorT.InnerJoin)
-                    .done(function(result) {
-                        joinDoneFn();
-                    })
-                    .fail(function(reason) {
-                        reason = "Failed to join. Server returned: " +
-                                     StatusTStr[reason.xcalarStatus];
-                        test.fail(reason);
-                    });
-                })
-                .fail(function(reason) {
-                    reason = "Failed to index. Server returned: " +
-                                 StatusTStr[reason.xcalarStatus];
-                    test.fail(reason);
-                });
-            })
-            .fail(function(reason) {
-                reason = "Failed to index. Server returned: " +
-                             StatusTStr[reason.xcalarStatus];
-                test.fail(reason);
-            });
-        }
-
-        var loadArgs = new XcalarApiDfLoadArgsT();
-        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        loadArgs.csv.fieldDelim = ',';
-        loadArgs.csv.isCRLF = false;
-        loadArgs.csv.hasHeader = true;
-
-        xcalarLoad(thriftHandle, "nfs://" + pathToFlightDataset, datasetName,
-                   DfFormatTypeT.DfFormatCsv, 0, loadArgs)
-        .done(function(loadOutput) {
-            datasetName = loadOutput.dataset.name;
-            xcalarLoad(thriftHandle, "nfs://" + pathToAirportDataset,
-                       datasetName2,
-                       DfFormatTypeT.DfFormatCsv, 0, loadArgs)
-            .done(function(loadOutput) {
-                datasetName2 = loadOutput.dataset.name;
-                loadDoneFn();
-            })
-            .fail(function(reason) {
-                reason = "Failed to load. Server returned: " +
-                         StatusTStr[reason.xcalarStatus];
-                test.fail(reason);
-            });
-        })
-        .fail(function(reason) {
-            reason = "Failed to load. Server returned: " + StatusTStr[reason.xcalarStatus];
-            test.fail(reason);
-        });
     }
 
     function testGetStats(test) {
@@ -1771,16 +1484,16 @@ window.Function.prototype.bind = function() {
     function testJoin(test) {
         var leftRenameMap = [];
         var map = new XcalarApiRenameMapT();
-        map.oldName = yelpUserDataset;
-        map.newName = "leftDataset";
-        map.type = DfFieldTypeT.DfFatptr;
+        map.sourceColumn = "yelp_user";
+        map.destColumn = "leftDataset";
+        map.columnType = "DfFatptr";
         leftRenameMap.push(map);
 
         var rightRenameMap = [];
         var map2 = new XcalarApiRenameMapT();
-        map2.oldName = yelpUserDataset;
-        map2.newName = "rightDataset";
-        map2.type = DfFieldTypeT.DfFatptr;
+        map2.sourceColumn = "yelp_user";
+        map2.destColumn = "rightDataset";
+        map2.columnType = "DfFatptr";
         rightRenameMap.push(map2);
 
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
@@ -1794,72 +1507,12 @@ window.Function.prototype.bind = function() {
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(reason);
+            test.fail(JSON.stringify(reason));
         });
     }
 
     function testGetOpStats(test) {
         test.trivial(xcalarApiGetOpStats(thriftHandle, "yelp/user-dummyjoin"));
-    }
-
-    function testCancel(test) {
-        var cancelledTableName = "cancelledTable";
-        var query = "index --key votes.funny --dataset " + datasetPrefix +
-                    "yelp" + " --dsttable " + cancelledTableName + " --sorted";
-        var queryNamePrefix = "testQuery-";
-        var time = 1000;
-        console.log("interval " + time);
-
-        function queryAndCancel(jj) {
-            queryName = queryNamePrefix + "" + jj;
-            xcalarQuery(thriftHandle, queryName, query, true)
-            .then(function() {
-                return (xcalarQueryCancel(thriftHandle, queryName));
-            })
-            .then(function(cancelStatus) {
-                (function wait() {
-                setTimeout(function() {
-                    xcalarQueryState(thriftHandle, queryName)
-                    .done(function(result) {
-                        var qrStateOutput = result;
-                        if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
-                            qrStateOutput.queryState === QueryStateT.qrNotStarted) {
-                            return wait();
-                        }
-
-                        return (xcalarQueryDelete(thriftHandle, queryName));
-                    })
-                    .then(function(status) {
-                        test.pass();
-                    })
-                    .fail(test.fail);
-                }, time);
-                })();
-            })
-            .fail(function(reason) {
-                if (reason.xcalarStatus === StatusT.StatusOperationHasFinished) {
-                    // We try again
-                    xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
-                                         SourceTypeT.SrcTable)
-                    .then(function(deleteDagNodeOutput) {
-                        if (deleteDagNodeOutput.numNodes != 1) {
-                            test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
-                        } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
-                            test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
-                        } else {
-                            queryAndCancel(jj + 1);
-                        }
-                    })
-                    .fail(function(reason) {
-                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason.xcalarStatus]);
-                    });
-                } else {
-                    test.fail("status: " + StatusTStr[reason.xcalarStatus]);
-                }
-            });
-        }
-
-        queryAndCancel(0);
     }
 
     function testQuery(test) {
@@ -1927,68 +1580,6 @@ window.Function.prototype.bind = function() {
 
     function testQueryState(test) {
         test.trivial(xcalarQueryState(thriftHandle, queryName));
-    }
-
-    function testQueryCancel(test) {
-        var cancelledTableName = "cancelledTable2";
-        var query = "index --key votes.funny --dataset " + datasetPrefix +
-            "yelp" + " --dsttable " + cancelledTableName + " --sorted;";
-
-        var queryNamePrefix = "testQueryCancel-";
-        var time = 1000;
-        console.log("interval " + time);
-
-        function queryAndCancel(jj) {
-            queryName = queryNamePrefix + "" + jj;
-
-            xcalarQuery(thriftHandle, queryName, query, true)
-            .then(function() {
-                return (xcalarQueryCancel(thriftHandle, queryName));
-            })
-            .then(function(cancelStatus) {
-                (function wait() {
-                setTimeout(function() {
-                    xcalarQueryState(thriftHandle, queryName)
-                    .done(function(result) {
-                        var qrStateOutput = result;
-                        if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
-                            qrStateOutput.queryState === QueryStateT.qrNotStarted) {
-                            return wait();
-                        }
-
-                        test.pass();
-                    })
-                    .then(function(status) {
-                        test.pass();
-                    })
-                    .fail(test.fail);
-                }, time);
-                })();
-            })
-            .fail(function(reason) {
-                if (reason.xcalarStatus === StatusT.StatusOperationHasFinished) {
-                    // We try again
-                    xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
-                                         SourceTypeT.SrcTable)
-                    .then(function(deleteDagNodeOutput) {
-                        if (deleteDagNodeOutput.numNodes != 1) {
-                            test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
-                        } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
-                            test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
-                        } else {
-                            queryAndCancel(jj + 1);
-                        }
-                    })
-                    .fail(function(reason) {
-                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason.xcalarStatus]);
-                    });
-                } else {
-                    test.fail("status: " + StatusTStr[reason.xcalarStatus]);
-                }
-            });
-        }
-
-        queryAndCancel(0);
     }
 
     function waitForDag(test) {
@@ -2353,49 +1944,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testExportSQL(test) {
-        var specInput = new ExInitExportSpecificInputT();
-        specInput.sfInput = new ExInitExportSFInputT();
-        specInput.sfInput.fileName = "yelp-mgmtdTest" +
-                                     Math.floor(Math.random()*10000) + ".sql";
-        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
-        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
-        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
-        specInput.sfInput.format = DfFormatTypeT.DfFormatSql;
-        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
-        specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
-        specInput.sfInput.formatArgs.sql.tableName = "exportSqlTableName";
-        specInput.sfInput.formatArgs.sql.dropTable = true;
-        specInput.sfInput.formatArgs.sql.createTable = true;
-
-        console.log("\texport file name = " + specInput.sfInput.fileName);
-        var target = new ExExportTargetHdrT();
-        target.type = ExTargetTypeT.ExTargetSFType;
-        target.name = "Default";
-        var numColumns = 2;
-        var columnNames = ["user_id", "name"];
-        var headerColumns = ["id_of_user", "user name"];
-        var columns = columnNames.map(function (e, i) {
-            var col = new ExColumnNameT();
-            col.name = columnNames[i];
-            col.headerAlias = headerColumns[i];
-            return col;
-        });
-
-        xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
-                     target, specInput,
-                     ExExportCreateRuleT.ExExportCreateOnly,
-                     true, numColumns, columns)
-        .then(function(retStruct) {
-            var status = retStruct.status;
-            printResult(status);
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason.xcalarStatus]);
-        });
-    }
-
     function testMakeRetina(test) {
         retinaName = "yelpRetina-1";
         var dstTable = new XcalarApiRetinaDstT();
@@ -2487,40 +2035,32 @@ window.Function.prototype.bind = function() {
                 case XcalarApisT.XcalarApiExport:
                     var exportInput = getRetinaOutput.retina.retinaDag.node[ii].
                                       input.exportInput;
-                    var exportTargetType = exportInput.meta.target.type;
+                    var exportTargetType = ExTargetTypeTStr[exportInput.targetType];
                     console.log("\tnode[" + ii + "].meta.exportTarget = " +
-                                ExTargetTypeTStr[exportTargetType] + " (" +
+                                exportTargetType + " (" +
                                 exportTargetType + ")");
-                    console.log("\tnode[" + ii + "].meta.numColumns = " +
-                                exportInput.meta.numColumns);
                     console.log("\tnode[" + ii + "].meta.columns = " +
-                                JSON.stringify(exportInput.meta.columns));
-                    switch (exportTargetType) {
-                    case ExTargetTypeT.ExTargetSFType:
-                        console.log("\tnode[" + ii +
-                                    "].meta.specificInput.sfInput.fileName = " +
-                               exportInput.meta.specificInput.sfInput.fileName);
-                        if (iter == 2) {
-                            test.assert(
-                                exportInput.meta.specificInput.sfInput.fileName
+                                JSON.stringify(exportInput.columns));
+                    console.log("\tnode[" + ii +
+                                "].meta.specificInput.sfInput.fileName = " +
+                                exportInput.fileName);
+                    if (iter == 2) {
+                        test.assert(
+                            exportInput.fileName
                                 === retinaExportParam.fileName, undefined,
                             "exportFileName does not match parameterized string"
-                            );
-                        }
-                        retinaExportDagNodeId = getRetinaOutput.retina.retinaDag
-                                                .node[ii].dagNodeId;
-                        break;
-                    default:
-                    break;
+                        );
                     }
+                    retinaExportDagNodeId = getRetinaOutput.retina.retinaDag
+                        .node[ii].dagNodeId;
                     break;
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].filterStr = " +
                                 getRetinaOutput.retina.retinaDag.node[ii].
-                                input.filterInput.filterStr);
+                                input.filterInput.eval.evalString);
                     if (iter == 2) {
                         test.assert(getRetinaOutput.retina.retinaDag.node[ii].
-                                    input.filterInput.filterStr ===
+                                    input.filterInput.eval.evalString ===
                                     retinaFilterParam.filterStr, undefined,
                                "FilterStr does not match parameterized string");
                     }
@@ -2531,7 +2071,7 @@ window.Function.prototype.bind = function() {
                 case XcalarApisT.XcalarApiBulkLoad:
                     console.log("\tnode[" + ii + "].datasetUrl = " +
                                 getRetinaOutput.retina.retinaDag.node[ii].input.
-                                loadInput.dataset.url);
+                                loadInput.url);
                     break;
                 default:
                     break;
@@ -2581,10 +2121,10 @@ window.Function.prototype.bind = function() {
                 for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes;
                      ii++) {
                     if (getRetinaOutput.retina.retinaDag.node[ii].dagNodeId === retinaExportDagNodeId) {
-                        var exportMeta = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput.meta;
+                        var exportMeta = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
                         printResult(exportMeta);
 
-                        test.assert(exportMeta.specificInput.sfInput.fileName
+                        test.assert(exportMeta.fileName
                                     == specInput.sfInput.fileName,
                                    undefined, "fileNames do not match");
                         test.assert(exportMeta.specificInput.sfInput.splitRule.type
@@ -2634,8 +2174,8 @@ window.Function.prototype.bind = function() {
 
     function testExecuteRetina(test) {
         var parameters = [];
-        parameters.push(new XcalarApiParameterT({ parameterName: "foo",
-                                                  parameterValue: "1000" }));
+        parameters.push(new XcalarApiParameterT({ paramName: "foo",
+                                                  paramValue: "1000" }));
 
         xcalarListExportTargets(thriftHandle, "*", "Default")
         .then(function(listExportTargetsOutput) {
@@ -2679,8 +2219,8 @@ window.Function.prototype.bind = function() {
 
     function testCancelRetina(test) {
         var parameters = [];
-        parameters.push(new XcalarApiParameterT({ parameterName: "foo",
-                                                  parameterValue: "1000" }));
+        parameters.push(new XcalarApiParameterT({ paramName: "foo",
+                                                  paramValue: "1000" }));
 
         function retinaAndCancel(listExportTargetsOutput) {
             console.log("starting executeRetina and cancel");
@@ -2772,16 +2312,16 @@ window.Function.prototype.bind = function() {
                         listParametersInRetinaOutput.numParameters);
             for (var i = 0; i < listParametersInRetinaOutput.numParameters;
                  i++) {
-                console.log("\tparameters[" + i + "].parameterName = " +
+                console.log("\tparameters[" + i + "].paramName = " +
                             listParametersInRetinaOutput.parameters[i].
-                            parameterName);
-                console.log("\tparameters[" + i + "].parameterValue = " +
+                            paramName);
+                console.log("\tparameters[" + i + "].paramValue = " +
                             listParametersInRetinaOutput.parameters[i].
-                            parameterValue);
+                            paramValue);
             }
 
             if (listParametersInRetinaOutput.numParameters == 1 &&
-                listParametersInRetinaOutput.parameters[0].parameterName ==
+                listParametersInRetinaOutput.parameters[0].paramName ==
                 "foo") {
                 test.pass();
             } else {
@@ -3272,6 +2812,16 @@ window.Function.prototype.bind = function() {
             test.fail(reason);
         });
     }
+
+    function testGetCurrentXemConfig(test) {
+        xcalarGetCurrentXemConfig(thriftHandle)
+        .done(function(output) {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    };
 
     function testGetMemoryUsage(test) {
         test.trivial(xcalarApiGetMemoryUsage(thriftHandle, "test", 1));
@@ -3964,7 +3514,8 @@ window.Function.prototype.bind = function() {
                 // XXX: Make necesary changes to allow these APIs to accommodate
                 // this test.
                 if (prop === "xcalarConnectThrift" ||
-                    prop === "xcalarApiGetQuery") continue;
+                    prop === "xcalarApiGetQuery" ||
+                    prop === "xcalarApiGetQueryOld") continue;
                 // Deprecated API which hasn't been removed
                 if (prop === "xcalarGetStatsByGroupId") continue;
                 // Don't run without arguments as full size support bundle is
@@ -4063,6 +3614,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetLicense, "getLicense", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
@@ -4091,6 +3643,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListUserDatasets, "list user's datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLockAlreadyLockedDataset, "lock already locked dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
@@ -4132,13 +3685,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
-
-    addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
-    // XXX: this test case is buggy and we are already testing queryCancel in
-    // testCancel. Disable this for now
-    addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
     addTestCase(testTagDagNodes, "tag dag nodes", defaultTimeout, TestCaseEnabled, "9130");
@@ -4154,16 +3702,18 @@ window.Function.prototype.bind = function() {
     addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testExportSQL, "export sql", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseEnabled, "");
 
     // Together, these set of test cases make up the retina sanity
     addTestCase(testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUpdateRetinaExport, "updateRetinaExport", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
+
+    // XXX: will be enabled when retina update is cleaned up
+    addTestCase(testUpdateRetinaExport, "updateRetinaExport", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
+
     addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
@@ -4209,9 +3759,6 @@ window.Function.prototype.bind = function() {
 
     // Witness to bug Xc-4963
     addTestCase(testListVarArgUdf, "listVarArgUdf test", defaultTimeout, TestCaseEnabled, "4963");
-
-    // Witness to bug Xc-2371
-    addTestCase(indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371");
 
     addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 

@@ -604,7 +604,9 @@ StatusT = {
   'StatusCantUnbufferLogs' : 595,
   'StatusLogFlushPeriodFailure' : 596,
   'StatusInvalidLogLevel' : 597,
-  'StatusNoDsUsers' : 598
+  'StatusNoDsUsers' : 598,
+  'StatusJsonQueryParseError' : 599,
+  'StatusXemNotConfigured' : 600
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1204,5 +1206,7 @@ StatusTStr = {0 : 'Success',
 595 : 'Failure to unbuffer logs is fatal',
 596 : 'Failure in updating periodic log flushing',
 597 : 'The specified log level is not valid',
-598 : 'There are no users of the dataset'
+598 : 'There are no users of the dataset',
+599 : 'Error parsing JSON query',
+600 : 'Required XEM configuration parameters not present'
 };
