@@ -4675,6 +4675,56 @@ html.microsoft {
     }
 }
 
+#eulaModal {
+    display: none;
+    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+    padding: 5% 20%;
+
+    .agreement {
+        height: 100%;
+        color: @color-white;
+        overflow: hidden;
+
+        .header {
+            height: 70px;
+            header {
+                text-align: center;
+                margin-bottom: 5px;
+            }
+        }
+
+        .content {
+            height: ~"calc(100% - 120px)";
+            overflow-y: auto;
+            border: 1px solid @color-border-select-blue;
+            padding: 5px;
+
+            section {
+                div, p {
+                    margin-top: 15px;
+                    color: @color-white;
+                    font-size: 14px;
+                    font-weight: 500;
+
+                    .label {
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+
+        .buttons {
+            padding-top:14px;
+            height: 50px;
+
+            button {
+                float: right;
+                margin-left: 10px;
+            }
+        }
+    }
+}
+
 .ui-draggable-dragging {
     .cursor-grabbing;
 

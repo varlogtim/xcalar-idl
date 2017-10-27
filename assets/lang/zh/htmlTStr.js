@@ -238,7 +238,7 @@ module.exports = {
         "wkbkTutor": "工作簿教程"
     },
     "common": {
-        "Accept": "接受",
+        "Agree": "同意",
         "ADD": "添加",
         "APPLY": "应用",
         "Advanced": "Advanced",

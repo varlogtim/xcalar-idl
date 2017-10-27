@@ -65,49 +65,6 @@ body {
     display: none;
 }
 
-#eulaModal {
-    display: none;
-    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
-    padding: 5% 20%;
-
-    .agreement {
-        height: 100%;
-        color: @color-white;
-        overflow: hidden;
-
-        .header {
-            height: 70px;
-            header {
-                text-align: center;
-                margin-bottom: 5px;
-            }
-        }
-
-        .content {
-            height: ~"calc(100% - 120px)";
-            overflow-y: auto;
-            section {
-                margin-top: 15px;
-                color: @color-white;
-
-                div {
-                    margin-top: 5px;
-                }
-            } 
-        }
-
-        .buttons {
-            padding-top:14px;
-            height: 50px;
-
-            button {
-                float: right;
-                margin-left: 10px;
-            }
-        }
-    }
-}
-
 #container {
     // &.noMenuBar:not(.wkbkViewOpen):not(.workbookMode) {
     &.noMenuBar {

@@ -2,7 +2,7 @@
 module.exports = {
     "common": {
         "XD": "Xcalar Design",
-        "Accept": "Accept",
+        "Agree": "Agree",
         "ADD": "ADD",
         "Advanced": "Advanced",
         "AdvancedOpts": "Advanced Options",
