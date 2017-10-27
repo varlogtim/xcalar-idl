@@ -741,52 +741,38 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         url = url.replace("file:///", "localfile:///");
     }
 
+    var def;
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
                                       maxSampleSize, loadArgs);
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
+        def = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
                           loadArgs);
     }
-    var def2 = XcalarGetQuery(workItem);
-
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'Import Dataset',
-                                  parseDS(datasetName), query);
-    });
-    // We are using our .when instead of jQuery's because if load times out,
-    // we still want to use the return for def2.
-    PromiseHelper.when(def1, def2)
-    .then(function(ret1, ret2) {
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'Import Dataset',
+                              parseDS(datasetName), query);
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, parseDS(datasetName), ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, parseDS(datasetName), ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarLoad", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarLoad", error);
         // 502 = Bad Gateway server error
         if (thriftError.httpStatus != null) {
             // Thrift time out
             // Just pretend like nothing happened and quietly listDatasets
             // in intervals until the load is complete. Then do the ack/fail
-            if (error2 == null) {
-                // getQuery hasn't returned
-                XcalarGetQuery(workItem)
-                .then(function(ret) {
-                    checkForDatasetLoad(deferred, ret, datasetName, txId);
-                });
-            } else if (typeof (error2) === "string") {
-                checkForDatasetLoad(deferred, error2, datasetName, txId);
-            } else {
-                deferred.reject(thriftError);
-            }
+            checkForDatasetLoad(deferred, query, datasetName, txId);
         } else {
             var loadError = null;
-            if (thriftError.output) {
+            if (thriftError.output && thriftError.output.errorString) {
                 // This has a valid error struct that we can use
                 console.error("error in point", thriftError.output);
                 loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
@@ -952,8 +938,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     target.type = ExTargetTypeT.ExTargetUnknownType;
     target.name = targetName;
     var specInput = new ExInitExportSpecificInputT();
-
-    // var exportHandleName = options.handleName;
+    var query;
 
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
@@ -1054,38 +1039,36 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   options.createRule, keepOrder, numColumns,
                                   columns, options.handleName);
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarExport(tHandle, tableName, target, specInput,
+            def = xcalarExport(tHandle, tableName, target, specInput,
                                 options.createRule, keepOrder, numColumns,
                                 columns, options.handleName);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'Export', options.handleName,
-                                      query);
-        });
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'Export', options.handleName, query);
 
-        return PromiseHelper.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, options.handleName, ret1.timeElapsed);
+            Transaction.log(txId, query, options.handleName, ret.timeElapsed);
             // XXX There is a bug here that backend actually needs to fix
             // We must drop the export node on a successful export.
             // Otherwise you will not be able to delete your dataset
             xcalarDeleteDagNodes(tHandle, options.handleName,
                                  SourceTypeT.SrcExport)
             .always(function() {
-                deferred.resolve(ret1);
+                deferred.resolve(ret);
             });
         }
     })
-    .fail(function(error1, erro2) {
-        var thriftError = thriftLog("XcalarExport", error1, erro2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarExport", error);
         deferred.reject(thriftError);
     });
 
@@ -1119,33 +1102,29 @@ function XcalarUnlockDataset(dsName, txId) {
     var deferred = jQuery.Deferred();
     var srcType = SourceTypeT.SrcDataset;
     var workItem = xcalarDeleteDagNodesWorkItem(dsName, srcType);
-    var def1;
+    var def;
     if (txId != null && Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarDeleteDagNodes(tHandle, dsName, srcType);
+        def = xcalarDeleteDagNodes(tHandle, dsName, srcType);
     }
 
-    var def2 = XcalarGetQuery(workItem);
-    def2.then(function(query) {
-        if (txId != null) {
-            Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop",
-                                    query);
-        }
-    });
+    var query = XcalarGetQuery(workItem);
+    if (txId != null) {
+        Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop", query);
+    }
 
-    jQuery.when(def1, def2)
-    .then(function(delDagNodesRes, query) {
+    def
+    .then(function(ret) {
         // txId may be null if performing a
         // deletion not triggered by the user (i.e. clean up)
         if (txId != null) {
-            Transaction.log(txId, query, dsName + "drop",
-                            delDagNodesRes.timeElapsed);
+            Transaction.log(txId, query, dsName + "drop", ret.timeElapsed);
         }
         deferred.resolve();
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarUnlockDataset", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUnlockDataset", error);
         if (thriftError.status === StatusT.StatusDagNodeNotFound) {
             // this error is allowed
             deferred.resolve();
@@ -1184,8 +1163,8 @@ function XcalarDestroyDataset(dsName, txId) {
             deferred.resolve();
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDestroyDataset", error);
         deferred.reject(thriftError);
     });
 
@@ -1229,31 +1208,28 @@ function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {
     var ordering = XcalarOrderingT.XcalarOrderingUnordered;
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
                                               dhtName, prefix, ordering);
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
+        def = xcalarIndexDataset(tHandle, datasetName, key, tablename,
                                   dhtName, ordering, prefix);
     }
 
-    var def2 = XcalarGetQuery(workItem);
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'index from DS', tablename, query);
 
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'index from DS', tablename, query);
-    });
-
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, tablename, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, tablename, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarIndexFromDataset", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarIndexFromDataset", error);
         deferred.reject(thriftError);
     });
 
@@ -1278,6 +1254,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
         promise = getUnsortedTableName(srcTablename, null, txId);
     }
     var unsortedSrcTablename;
+    var query;
 
     promise
     .then(function(unsortedTablename) {
@@ -1293,33 +1270,31 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
                                                     tablename,
                                                 key, dhtName, ordering,
                                                 keyType);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
+            def = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
                                     tablename, dhtName, ordering, keyType);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            if (!unsorted) {
-                Transaction.startSubQuery(txId, 'index', tablename, query);
-            }
-        });
-        return jQuery.when(def1, def2);
+        query = XcalarGetQuery(workItem);
+        if (!unsorted) {
+            Transaction.startSubQuery(txId, 'index', tablename, query);
+        }
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             if (!unsorted) {
-                Transaction.log(txId, ret2, tablename, ret1.timeElapsed);
+                Transaction.log(txId, query, tablename, ret.timeElapsed);
             }
-            deferred.resolve(ret1);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarIndexFromTable", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarIndexFromTable", error);
         deferred.reject(thriftError);
     });
     return deferred.promise();
@@ -1336,36 +1311,32 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
     }
     var workItem = xcalarDeleteDagNodesWorkItem(tableName,
                                                 SourceTypeT.SrcTable);
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarDeleteDagNodes(tHandle, tableName,
-                                    SourceTypeT.SrcTable);
+        def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable);
     }
 
-    var def2 = XcalarGetQuery(workItem);
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'drop table', tableName + "drop", query);
 
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'drop table', tableName + "drop", query);
-    });
-
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             // txId may be null if deleting an undone table or performing a
             // deletion not triggered by the user (i.e. clean up)
             if (txId != null) {
-                Transaction.log(txId, ret2, tableName + "drop", ret1.timeElapsed);
+                Transaction.log(txId, query, tableName + "drop", ret.timeElapsed);
             }
             MonitorGraph.tableUsageChange();
-            deferred.resolve(ret1);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDeleteTable", error);
         if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
             forceDeleteTable(tableName, txId)
             .then(deferred.resolve)
@@ -1389,36 +1360,33 @@ function XcalarDeleteConstants(constantPattern, txId) {
     }
     var workItem = xcalarDeleteDagNodesWorkItem(constantPattern,
                                                 SourceTypeT.SrcConstant);
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarDeleteDagNodes(tHandle, constantPattern,
+        def = xcalarDeleteDagNodes(tHandle, constantPattern,
                                     SourceTypeT.SrcConstant);
     }
 
-    var def2 = XcalarGetQuery(workItem);
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'drop constants',
+                              constantPattern + "drop", query);
 
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'drop constants', constantPattern +
-                                  "drop", query);
-    });
-
-    PromiseHelper.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             if (txId != null) {
-                Transaction.log(txId, ret2, constantPattern + "drop",
-                                ret1.timeElapsed);
+                Transaction.log(txId, query, constantPattern + "drop",
+                                ret.timeElapsed);
             }
             MonitorGraph.tableUsageChange();
-            deferred.resolve(ret1);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarDeleteConstants", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDeleteConstants", error);
         deferred.reject(thriftError);
     });
 
@@ -1460,25 +1428,25 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
     }
     var workItem = xcalarRenameNodeWorkItem(oldTableName, newTableName);
 
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarRenameNode(tHandle, oldTableName, newTableName);
+        def = xcalarRenameNode(tHandle, oldTableName, newTableName);
     }
 
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    var query = XcalarGetQuery(workItem);
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarRenameTable", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarRenameTable", error);
         deferred.reject(thriftError);
     });
 
@@ -2083,6 +2051,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     }
 
     var deferred = jQuery.Deferred();
+    var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2103,30 +2072,28 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
         }
         var workItem = xcalarFilterWorkItem(unsortedSrcTablename, dstTablename,
                                             evalStr);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
+            def = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
                                 dstTablename);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'filter', dstTablename, query);
-        });
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'filter', dstTablename, query);
 
-        return jQuery.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTablename, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, dstTablename, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarFilter", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarFilter", error);
         deferred.reject(thriftError);
     });
 
@@ -2145,30 +2112,28 @@ function XcalarMapWithInput(txId, inputStruct) {
     var workItem = xcalarApiMapWorkItem([""], null, null, [""]);
     workItem.input.mapInput = inputStruct;
 
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarApiMapWithWorkItem(tHandle, workItem);
+        def = xcalarApiMapWithWorkItem(tHandle, workItem);
     }
 
-    var def2 = XcalarGetQuery(workItem);
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'map', inputStruct.dstTable.tableName,
-                                  query);
-    });
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'map', inputStruct.dstTable.tableName, query);
+
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, inputStruct.dstTable.tableName,
-                            ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, inputStruct.dstTable.tableName,
+                            ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarMap", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarMap", error);
         deferred.reject(thriftError);
     });
     return deferred.promise();
@@ -2203,6 +2168,7 @@ function XcalarMap(newFieldNames, evalStrs, srcTablename, dstTablename,
 
     var deferred = jQuery.Deferred();
     var d;
+    var query;
     if (!doNotUnsort) {
         d = getUnsortedTableName(srcTablename, null, txId);
     } else {
@@ -2218,31 +2184,29 @@ function XcalarMap(newFieldNames, evalStrs, srcTablename, dstTablename,
         var workItem = xcalarApiMapWorkItem(evalStrs, unsortedSrcTablename,
                                             dstTablename, newFieldNames,
                                             icvMode);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarApiMap(tHandle, newFieldNames, evalStrs,
+            def = xcalarApiMap(tHandle, newFieldNames, evalStrs,
                                 unsortedSrcTablename, dstTablename,
                                 icvMode);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'map', dstTablename, query);
-        });
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'map', dstTablename, query);
 
-        return jQuery.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTablename, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, dstTablename, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarMap", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarMap", error);
         deferred.reject(thriftError);
     });
 
@@ -2255,6 +2219,7 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
     }
 
     var deferred = jQuery.Deferred();
+    var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2276,29 +2241,27 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         var workItem = xcalarAggregateWorkItem(unsortedSrcTablename,
                                                dstAggName, evalStr);
 
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
+            def = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
                                    evalStr);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
-        });
-        return jQuery.when(def1, def2);
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstAggName, ret1.timeElapsed);
-            deferred.resolve(ret1, dstAggName);
+            Transaction.log(txId, query, dstAggName, ret.timeElapsed);
+            deferred.resolve(ret, dstAggName);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarAggregate", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarAggregate", error);
         deferred.reject(thriftError);
     });
 
@@ -2312,6 +2275,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
     var coll = true;
 
     var deferred = jQuery.Deferred();
+    var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2337,30 +2301,28 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType, leftRenameMap,
                                           rightRenameMap, coll);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
+            def = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
                               joinType, leftRenameMap, rightRenameMap, coll);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'join', dst, query);
-        });
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'join', dst, query);
 
-        return jQuery.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dst, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, dst, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarJoin", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarJoin", error);
         deferred.reject(thriftError);
     });
 
@@ -2368,9 +2330,9 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
     function renameInfoMap(renameInfo) {
         var map = new XcalarApiRenameMapT();
-        map.oldName = renameInfo.orig;
-        map.newName = renameInfo.new;
-        map.type = renameInfo.type;
+        map.sourceColumn = renameInfo.orig;
+        map.destColumn = renameInfo.new;
+        map.columnType = DfFieldTypeTStr[renameInfo.type];
         return map;
     }
 }
@@ -2383,32 +2345,29 @@ function XcalarGroupByWithInput(txId, inputStruct) {
     var workItem = xcalarGroupByWorkItem("", "", [], []);
     workItem.input.groupByInput = inputStruct;
 
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarGroupByWithWorkItem(tHandle, workItem);
+        def = xcalarGroupByWithWorkItem(tHandle, workItem);
     }
 
-    var def2 = XcalarGetQuery(workItem);
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'groupBy',
+                            inputStruct.dstTable.tableName, query);
 
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'groupBy',
-                                  inputStruct.dstTable.tableName, query);
-    });
-
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, inputStruct.dstTable.tableName,
-                            ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, inputStruct.dstTable.tableName,
+                            ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarGroupBy", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGroupBy", error);
         deferred.reject(thriftError);
     });
 
@@ -2424,7 +2383,7 @@ function XcalarGroupBy(operators, newColNames, aggColNames, tableName,
 
     var deferred = jQuery.Deferred();
     var evalStrs = [];
-
+    var query;
 
     operators = (operators instanceof Array)
                 ? operators
@@ -2463,33 +2422,31 @@ function XcalarGroupBy(operators, newColNames, aggColNames, tableName,
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStrs, newColNames, incSample,
                                              icvMode, newKeyFieldName);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall({
+            def = fakeApiCall({
                 "tableName": newTableName
             });
         } else {
-            def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
+            def = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
                                  evalStrs, newColNames, incSample, icvMode,
                                  newKeyFieldName);
         }
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
-        });
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
 
-        return jQuery.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, newTableName, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, newTableName, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarGroupBy", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGroupBy", error);
         deferred.reject(thriftError);
     });
     return deferred.promise();
@@ -2497,6 +2454,7 @@ function XcalarGroupBy(operators, newColNames, aggColNames, tableName,
 
 function XcalarProject(columns, tableName, dstTableName, txId) {
     var deferred = jQuery.Deferred();
+    var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2509,30 +2467,28 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
         }
         var workItem = xcalarProjectWorkItem(columns.length, columns,
                                              unsortedTableName, dstTableName);
-        var def1;
+        var def;
         if (Transaction.isSimulate(txId)) {
-            def1 = fakeApiCall();
+            def = fakeApiCall();
         } else {
-            def1 = xcalarProject(tHandle, columns.length, columns,
+            def = xcalarProject(tHandle, columns.length, columns,
                                  unsortedTableName, dstTableName);
         }
-        var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'project', dstTableName, query);
-        });
+        query = XcalarGetQuery(workItem); // XXX May not work? Have't tested
+        Transaction.startSubQuery(txId, 'project', dstTableName, query);
 
-        return jQuery.when(def1, def2);
+        return def;
     })
-    .then(function(ret1, ret2) {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTableName, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, dstTableName, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarProject", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarProject", error);
         deferred.reject(thriftError);
     });
 
@@ -2547,30 +2503,28 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     // DO NOT GET THE UNSORTED TABLE NAMEEE! We actually want the sorted order
     var workItem = xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
                                               newFieldName);
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
+        def = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
                                   dstTableName);
     }
-    var def2 = XcalarGetQuery(workItem);
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'genRowNum', dstTableName, query);
-    });
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'genRowNum', dstTableName, query);
 
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
              // XXX This part doesn't work yet
-            Transaction.log(txId, ret2, dstTableName, ret1.timeElapsed);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query, dstTableName, ret.timeElapsed);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGenRowNum", error);
         deferred.reject(thriftError);
     });
 
@@ -3162,35 +3116,33 @@ function XcalarExecuteRetina(retName, params, options, txId) {
 
     var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
                                                newTableName, queryName);
-    var def1;
+    var def;
     if (Transaction.isSimulate(txId)) {
-        def1 = fakeApiCall();
+        def = fakeApiCall();
     } else {
-        def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
+        def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
                                    newTableName, queryName);
     }
 
-    var def2 = XcalarGetQuery(workItem);
+    var query = XcalarGetQuery(workItem);
     var transactionOptions = {
         retName: retName
     };
-    def2.then(function(query) {
-        Transaction.startSubQuery(txId, SQLOps.Retina, retName, query,
+    Transaction.startSubQuery(txId, SQLOps.Retina, retName, query,
                                   transactionOptions);
-    });
 
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
+    def
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, retName, ret1.timeElapsed,
+            Transaction.log(txId, query, retName, ret.timeElapsed,
                             transactionOptions);
-            deferred.resolve(ret1);
+            deferred.resolve(ret);
         }
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarExecuteRetina", error1, error2);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarExecuteRetina", error);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -4082,21 +4034,7 @@ function XcalarMemory() {
 }
 
 function XcalarGetQuery(workItem) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-    xcalarApiGetQuery(tHandle, workItem)
-    .then(function(output) {
-        deferred.resolve(output.query);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGetQuery", error));
-    });
-    return (deferred.promise());
+    return xcalarApiGetQuery(tHandle, workItem);
 }
 
 function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
