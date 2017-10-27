@@ -102,6 +102,16 @@ module.exports = {
         "helpUserDocs": "assets/help/user/Content/Home.htm"
     },
 
+    "time": {
+        "Date": "Date",
+        "DateCreated": "Date Created",
+        "DateModified": "Date Modified",
+        "Created": "Created",
+        "Modified": "Modified",
+        "CreatedOn": "Created on",
+        "LastModified": "Last modified"
+    },
+
     "statistics": {
         "Average": "Average",
         "Count": "Count",
@@ -399,6 +409,8 @@ module.exports = {
         "node": "Node",
         "numRowsPct": "Num Rows (percent)",
     },
+
+
 
     "monitor": {
         "AutoRefresh": "Auto Refresh",

@@ -141,15 +141,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
             numXGridMarks++;
 
             if (count % 40 === 0) {
-                var time = xcHelper.getTime();
-                time = time.substr(0, (time.length - 3));
-                timeStamp = '<span>' + time + '</span>';
+                timeStamp = '<span>' + moment().format("h:mm:ss A") + '</span>';
             }
         }
-        var d = new Date();
-        var date = xcHelper.getDate("-", d);
-        var donutTime = xcHelper.getTime(d);
-        $("#graphTime").text(date + " " + donutTime);
+
+        $("#graphTime").text(moment().format("h:mm:ss A"));
 
         var numNodes;
         var prevIteration = curIteration;

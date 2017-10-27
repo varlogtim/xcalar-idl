@@ -326,7 +326,6 @@ describe("Dataset-File Browser Test", function() {
             expect(test).to.be.an("object");
             expect(test.path).to.be.equal("test");
             expect(test.name).to.be.equal("test");
-            expect(test.modified).to.be.equal(xcHelper.timeStampTranslator(123));
             expect(test.isFolder).to.be.equal(false);
             expect(test.size).to.be.equal("456B");
 

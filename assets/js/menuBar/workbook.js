@@ -449,8 +449,7 @@ window.Workbook = (function($, Workbook) {
         var description = workbook.getDescription() || "";
         var name = workbook.getName();
         if (modified) {
-            modified = xcHelper.getDate("-", null, modified) + " " +
-                        xcHelper.getTime(null, modified, true);
+            modified = moment(modified).format("M-D-Y h:mm A");
         } else {
             modified = "";
         }
@@ -657,10 +656,15 @@ window.Workbook = (function($, Workbook) {
         var workbookId = workbook.getId() || "";
         var workbookName = workbook.getName() || "";
         var createdTime = workbook.getCreateTime() || "";
+        var createdTimeDisplay = createdTime;
         var modifiedTime = workbook.getModifyTime() || "";
+        var modifiedTimeDisplay = modifiedTime;
+        var createdTimeTip = "";
+        var modifiedTimeTip = "";
         var description = workbook.getDescription() || "";
         var numWorksheets = workbook.getNumWorksheets() || 0;
         var noSeconds = true;
+        var time;
 
         extraClasses = extraClasses || [];
 
@@ -670,14 +674,15 @@ window.Workbook = (function($, Workbook) {
         }
 
         if (createdTime) {
-            createdTime = xcHelper.getDate("-", null, createdTime) + " " +
-                          xcHelper.getTime(null, createdTime, noSeconds);
-
+            time = moment(createdTime);
+            createdTimeDisplay = time.calendar();
+            createdTimeTip = xcTimeHelper.getDateTip(time);
         }
 
         if (modifiedTime) {
-            modifiedTime = xcHelper.getDate("-", null, modifiedTime) + " " +
-                           xcHelper.getTime(null, modifiedTime, noSeconds);
+            time = moment(modifiedTime);
+            modifiedTimeDisplay = time.calendar();
+            modifiedTimeTip =  xcTimeHelper.getDateTip(time);
         }
         var activateTooltip;
         var isActive;
@@ -767,18 +772,20 @@ window.Workbook = (function($, Workbook) {
                             '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
-                                        WKBKTStr.CreateOn + ':' +
+                                        TimeTStr.Created + ':' +
                                     '</div>' +
-                                    '<div class="info createdTime">' +
-                                        createdTime +
+                                    '<div class="info createdTime" ' +
+                                        createdTimeTip + '">' +
+                                        createdTimeDisplay +
                                     '</div>' +
                                 '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
-                                        WKBKTStr.Modified + ':' +
+                                        TimeTStr.LastModified + ':' +
                                     '</div>' +
-                                    '<div class="info modifiedTime">' +
-                                        modifiedTime +
+                                    '<div class="info modifiedTime" ' +
+                                        modifiedTimeTip + '">' +
+                                        modifiedTimeDisplay +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +

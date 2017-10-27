@@ -1111,6 +1111,13 @@ window.QueryManager = (function(QueryManager, $) {
                 }
 
                 $query.find(".op .text").text(name);
+            } else if (i === "start") {
+                var timeObj = info[i];
+
+                $statusDetail.find("." + i).find(".text").text(info[i].text);
+                xcTooltip.add($statusDetail.find("." + i).find(".text"), {
+                   title: info[i].tip
+                });
             } else {
                 $statusDetail.find("." + i).find(".text").text(info[i]);
             }
@@ -1451,8 +1458,12 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function getQueryTime(time) {
-        return xcHelper.getTime(null, time) + " " +
-               xcHelper.getDate(null, null, time);
+        time = moment(time);
+        var timeObj = {
+            text: time.calendar(),
+            tip: time.format("h:mm:ss A M-D-Y")
+        };
+        return timeObj;
     }
 
     function addEventHandlers() {
@@ -1729,7 +1740,7 @@ window.QueryManager = (function(QueryManager, $) {
     function getQueryHTML(xcQuery, restored) {
         var id = xcQuery.getId();
         var time = xcQuery.getTime();
-        var date = getQueryTime(time);
+        var dateObj = getQueryTime(time);
         var cancelClass = xcQuery.cancelable ? "" : " disabled";
         var statusClass = "";
         var pct;
@@ -1790,8 +1801,10 @@ window.QueryManager = (function(QueryManager, $) {
                     '</div>' +
                 '</div>' +
                 '<div class="queryInfo">' +
-                    '<div class="middlePart date">' +
-                        CommonTxtTstr.StartTime + ": " + date +
+                    '<div class="middlePart date" data-toggle="tooltip" ' +
+                    'data-container="body" data-placement="top" ' +
+                    'data-original-title="' + dateObj.tip + '">' +
+                        CommonTxtTstr.StartTime + ": " + dateObj.text +
                     '</div>' +
                     '<div class="rightPart querySteps">' + step + '</div>' +
                 '</div>' +

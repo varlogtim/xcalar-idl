@@ -450,9 +450,13 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             var table = tables[i];
             var date = table.getTimeStamp();
             var tableName = table.getName();
+            var dateTip = "";
+            var time;
             if (date !== unknown) {
-                date = xcHelper.getTime(null, date) + " " +
-                        xcHelper.getDate(null, null, date);
+                time = moment(date);
+                dateTip = xcTimeHelper.getDateTip(time, {container:
+                                                        "#deleteTableModal"});
+                date = time.calendar();
             }
             var size = unknown;
             if (tableSizeMap.hasOwnProperty(tableName)) {
@@ -486,7 +490,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                             tableName +
                         '</div>' +
                         '<div>' + size + '</div>' +
-                        '<div>' + date + '</div>' +
+                        '<div ' + dateTip + '>' + date + '</div>' +
                     '</div>';
         }
 

@@ -1094,11 +1094,12 @@ describe('TableMenu Test', function() {
                 var cachedFunc = ColManager.format;
                 var called = false;
                 ColManager.format = function(colNums, tId, formats) {
-                    expect(colNums[0]).to.equal(12);
+                    expect(colNums[0]).to.equal(1);
                     expect(tId).to.equal(tableId);
                     expect(formats[0]).to.equal("percent");
                     called = true;
                 };
+                $colMenu.data("colNums", [1]);
 
                 $colSubMenu.find('.changeFormat').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
@@ -1119,12 +1120,12 @@ describe('TableMenu Test', function() {
                     expect(formats[0]).to.equal("percent");
                     called = true;
                 };
-                $colMenu.data("columns", [1,12]);
+                $colMenu.data("colNums", [1,12]);
 
-                $colSubMenu.find('.multiFormat .changeFormat').eq(0).trigger(rightMouseup);
+                $colSubMenu.find('.changeFormat').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('.multiFormat .changeFormat').eq(0).trigger(fakeEvent.mouseup);
+                $colSubMenu.find('.changeFormat').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.format = cachedFunc;
@@ -1134,7 +1135,7 @@ describe('TableMenu Test', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(12);
+                    expect(colNums[0]).to.equal(1);
                     expect(tId).to.equal(tableId);
                     expect(decimals[0]).to.equal(3);
                     called = true;
@@ -1176,7 +1177,7 @@ describe('TableMenu Test', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(12);
+                    expect(colNums[0]).to.equal(1);
                     expect(tId).to.equal(tableId);
                     expect(decimals[0]).to.equal(-1);
                     called = true;
@@ -1201,7 +1202,7 @@ describe('TableMenu Test', function() {
                     expect(numColToGet).to.equal(3);
                     called = true;
                 };
-
+                $colMenu.data("colNums", [12]);
                 $colSubMenu.find('.splitCol .delimiter').val("\\");
                 $colSubMenu.find('.splitCol .num').val(3);
                 $colSubMenu.find('.splitCol input').eq(0).trigger(fakeEvent.enter);
@@ -1251,10 +1252,10 @@ describe('TableMenu Test', function() {
             it('resize to header', function(done) {
                 var cachedFunc = TblManager.resizeColumns;
                 var called = false;
-                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                TblManager.resizeColumns = function(tId, resizeTo, colNums) {
                     expect(tId).to.equal(tableId);
                     expect(resizeTo).to.equal('header');
-                    expect(colNum).to.equal(12);
+                    expect(colNums[0]).to.equal(12);
                     called = true;
                 };
 
@@ -1272,10 +1273,10 @@ describe('TableMenu Test', function() {
             it('resize to fit all', function(done) {
                 var cachedFunc = TblManager.resizeColumns;
                 var called = false;
-                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                TblManager.resizeColumns = function(tId, resizeTo, colNums) {
                     expect(tId).to.equal(tableId);
                     expect(resizeTo).to.equal('all');
-                    expect(colNum).to.equal(12);
+                    expect(colNums[0]).to.equal(12);
                     called = true;
                 };
 
@@ -1293,10 +1294,10 @@ describe('TableMenu Test', function() {
             it('resize to contents', function(done) {
                 var cachedFunc = TblManager.resizeColumns;
                 var called = false;
-                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                TblManager.resizeColumns = function(tId, resizeTo, colNums) {
                     expect(tId).to.equal(tableId);
                     expect(resizeTo).to.equal('contents');
-                    expect(colNum).to.equal(12);
+                    expect(colNums[0]).to.equal(12);
                     called = true;
                 };
 
@@ -1346,12 +1347,12 @@ describe('TableMenu Test', function() {
                     return PromiseHelper.resolve();
                 };
 
-                $colMenu.data("columns", [11,12]);
+                $colMenu.data("colNums", [11,12]);
 
-                $colSubMenu.find('.multiChangeDataType .typeList').eq(0).trigger(rightMouseup);
+                $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('.multiChangeDataType .typeList').eq(0).trigger(fakeEvent.mouseup);
+                $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.changeType = cachedFunc;
@@ -1366,6 +1367,8 @@ describe('TableMenu Test', function() {
                     expect(colInfo[0].order).to.equal(XcalarOrderingT.XcalarOrderingAscending);
                     called = true;
                 };
+
+                $colMenu.data("colNums", [12]);
 
                 $colSubMenu.find('li.sort').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
@@ -1437,10 +1440,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colMenu.find('.minimizeColumns').trigger(rightMouseup);
+                $colMenu.find('.minimize').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.minimizeColumns').trigger(fakeEvent.mouseup);
+                $colMenu.find('.minimize').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.minimizeCols = cachedFunc;
@@ -1456,10 +1459,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colMenu.find('.maximizeColumns').trigger(rightMouseup);
+                $colMenu.find('.maximize').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.maximizeColumns').trigger(fakeEvent.mouseup);
+                $colMenu.find('.maximize').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.maximizeCols = cachedFunc;
@@ -1475,10 +1478,10 @@ describe('TableMenu Test', function() {
                     called = true;
                 };
 
-                $colSubMenu.find('.multiRoundToFixed .changeRound.default').eq(0).trigger(rightMouseup);
+                $colSubMenu.find('.changeRound.default').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colSubMenu.find('.multiRoundToFixed .changeRound.default').eq(0).trigger(fakeEvent.mouseup);
+                $colSubMenu.find('.changeRound.default').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.roundToFixed = cachedFunc;

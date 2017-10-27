@@ -1815,6 +1815,7 @@ input[type=number]::-webkit-outer-spin-button {
     z-index: 100;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     word-wrap: break-word;
+    pointer-events: none;
     .tooltip-arrow {
         opacity: 0.95;
     }
@@ -1844,6 +1845,7 @@ input[type=number]::-webkit-outer-spin-button {
 .tooltip.error {
     opacity: 1 !important;
     display: block !important;
+    pointer-events: initial;
 
     .tooltip-inner, .tooltip-arrow {
         color: @color-font-darkGray;
@@ -1871,6 +1873,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .tooltip.tutorial {
     @deep-yellow: @color-turbo;
+    pointer-events: initial;
 
     opacity: 1 !important;
     display: block !important;
@@ -1922,6 +1925,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip.chartTip {
+    pointer-events: initial;
     .tooltip-inner {
         max-width: 300px;
     }

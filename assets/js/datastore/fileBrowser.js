@@ -1167,7 +1167,13 @@ window.FileBrowser = (function($, FileBrowser) {
             var iconClass = isDirectory ? "xi-folder" : "xi_data";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var date = xcHelper.timeStampTranslator(mtime) || "";
+            var date = "";
+            var dateTip = "";
+            if (mtime) {
+                var time = moment(mtime * 1000);
+                date = time.calendar();
+                dateTip = xcTimeHelper.getDateTip(time);
+            }
             var escName = xcHelper.escapeDblQuoteForHTML(name);
 
             html +=
@@ -1178,7 +1184,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     '<div class="label fileName" data-name="' + escName + '">' +
                         name +
                     '</div>' +
-                    '<div class="fileDate">' + date + '</div>' +
+                    '<div class="fileDate"><span ' + dateTip + '>' + date + '</span></div>' +
                     '<div class="fileSize">' + size + '</div>' +
                 '</div>';
         }
@@ -1493,7 +1499,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var file = curFiles[index];
         var name = file.name;
         var path = getCurrentPath() + name;
-        var mTime = xcHelper.timeStampTranslator(file.attr.mtime);
+        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
         var isFolder = file.attr.isDirectory;
         var size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
 

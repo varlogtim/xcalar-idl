@@ -749,18 +749,6 @@ describe("xcHelper Test", function() {
         });
     });
 
-    it("xcHelper.timeStampTranslator should work", function() {
-        if (isBrowserMicrosoft) {
-            return;
-        }
-        // case 1
-        var res = xcHelper.timeStampTranslator(1463788661);
-        expect(res).to.equal("4:57:41 PM 5-20-2016");
-        //case 2
-        res = xcHelper.timeStampTranslator();
-        expect(res).to.be.null;
-    });
-
     it("xcHelper.sizeTranslator should work", function() {
         // case 1
         var res = xcHelper.sizeTranslator(1);

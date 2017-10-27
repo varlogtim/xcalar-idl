@@ -987,27 +987,6 @@ window.xcHelper = (function($, xcHelper) {
         document.body.removeChild(element);
     };
 
-    // options:
-    // hasMilliseconds: boolean, if true, will not add milliseconds
-    // noSeconds: boolean, if true, will not display seconds
-    xcHelper.timeStampTranslator = function(unixTime, options) {
-        if (unixTime == null) {
-            return null;
-        }
-        options = options || {};
-        var timeStamp;
-        if (options.hasMilliseconds) {
-            timeStamp = unixTime;
-        } else {
-            timeStamp = unixTime * 1000;
-        }
-        var noSeconds = options.noSeconds || false;
-
-        time = xcHelper.getTime(null, timeStamp, noSeconds) + " " +
-               xcHelper.getDate("-", null, timeStamp);
-        return time;
-    };
-
     // Converts the timestamp from seconds to Days Hours Minutes Seconds
     // options:
     //      noZeros: boolean, if true will not show values if is 0

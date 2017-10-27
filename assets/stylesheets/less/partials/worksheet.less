@@ -946,8 +946,11 @@ ul.CodeMirror-hints {
                 cursor: default;
             }
             .timeStampWrap {
-                top: 7px;
+                .timeStamp {
+                    height: auto;
+                }
             }
+
             .worksheetInfo {
                 display: none;
             }
@@ -1186,6 +1189,7 @@ ul.CodeMirror-hints {
                 .size(@width: ~"calc(100% - 7px)", @height: 12px);
                 text-align: right;
                 overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .time {

@@ -590,9 +590,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }
         var html = '<div class="row ' + className + '">';
         for (var i = 0; i < ticket.length; i++) {
-            var date = xcHelper.getDate("-", null, ticket[i].created_at);
-            var time = xcHelper.getTime(null, ticket[i].created_at, true);
-
+            var time = moment(ticket[i].created_at).format("M-D-Y h:mm A");
             html += '<div class="innerRow">' +
               '<div class="td">';
             if (i === 0) {
@@ -645,7 +643,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
             html += '<div class="td time" data-toggle="tooltip" ' +
             'data-container="body" data-placement="top" data-original-title="' +
-                date + ' ' + time + '" data-time="' + ticket[i].created_at + '">'+
+                time + '" data-time="' + ticket[i].created_at + '">'+
                 moment(ticket[i].created_at).fromNow() + '</div>' +
               '<div class="td details">' +
                 '<div class="text">' + commentSection + '</div>';

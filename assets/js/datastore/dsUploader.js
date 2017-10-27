@@ -544,11 +544,10 @@ window.DSUploader = (function($, DSUploader) {
 
         var gridClass = "ds";
         var iconClass = "xi_data";
-        var timeOptions = {
-            // hasMilliseconds: true,
-            noSeconds: true
-        };
-        var date = xcHelper.timeStampTranslator(mtime, timeOptions) || "";
+        var date = "";
+        if (mtime) {
+            date = moment(mtime * 1000).format("h:mm A M-D-Y");
+        }
         var status = "";
 
         if (fileInfo.status === "inProgress") {

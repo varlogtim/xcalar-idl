@@ -1182,7 +1182,18 @@ window.TableList = (function($, TableList) {
             $listSection.removeClass('empty');
         }
 
+        moment.updateLocale('en', {
+            calendar : {
+                lastDay : '[Yesterday<br/>]LT',
+                sameDay : '[Today<br/>]LT',
+                nextDay : '[Tomorrow<br/>] LT',
+                lastWeek : 'dddd[<br/>]LT',
+                sameElse : 'll[<br/>]LT'
+            }
+        });
+
         var totalHtml = "";
+
         for (var i = 0; i < sortedTables.length; i++) {
             var table = sortedTables[i].table;
             var timeStamp = sortedTables[i].time;
@@ -1228,12 +1239,19 @@ window.TableList = (function($, TableList) {
                 numCols = 0;
             }
             var time;
-
-            if (dateIndex >= 7) {
-                time = xcHelper.getDate("-", null, timeStamp);
+            var timeTip = xcTimeHelper.getDateTip(timeStamp);
+            if (sortType === "date") {
+                if (dateIndex >= 7) {
+                    time = moment(timeStamp).calendar();
+                } else {
+                    time = moment(timeStamp).format("h:mm A");
+                }
+            } else if (sortType === "ws") {
+                time = moment(timeStamp).calendar();
             } else {
-                time = xcHelper.getTime(null, timeStamp);
+                time = moment(timeStamp).format("h:mm A M-D-Y");
             }
+
 
             var tableName = table.getName();
             var tableId = table.getId();
@@ -1261,7 +1279,8 @@ window.TableList = (function($, TableList) {
                     'data-id="' + tableId + '">' +
                     '<div class="timeStampWrap">' +
                         '<div class="timeStamp">' +
-                            '<span class="time">' + time + '</span>' +
+                            '<span class="time" ' + timeTip + '>' + time +
+                            '</span>' +
                         '</div>' +
                         wsInfo +
                     '</div>' +
@@ -1351,6 +1370,8 @@ window.TableList = (function($, TableList) {
                 }
             }
         }
+
+        xcTimeHelper.resetMoment();
         // set hiddenWS class to tables belonging to hidden worksheets
         var hiddenWS = WSManager.getHiddenWSList();
         TableList.tablesToHiddenWS(hiddenWS);
@@ -1593,6 +1614,7 @@ window.TableList = (function($, TableList) {
         return html;
     }
 
+    // used if table list is sorted by last updated
     function formatDate(dates, dateIndex) {
         var date = "";
         var d;
@@ -1600,12 +1622,11 @@ window.TableList = (function($, TableList) {
         switch (dateIndex) {
             case 0:
                 d = dates[dateIndex];
-                date = DaysTStr.Today + " " + xcHelper.getDate("/", d);
+                date = DaysTStr.Today;
                 break;
             case 1:
                 d = dates[dateIndex];
-                date = DaysTStr.Yesterday + " " +
-                        xcHelper.getDate("/", d);
+                date = DaysTStr.Yesterday + " " + moment(d).format("L");
                 break;
             // Other days in the week
             case 2:
@@ -1614,8 +1635,7 @@ window.TableList = (function($, TableList) {
             case 5:
             case 6:
                 d = dates[dateIndex];
-                date = days[d.getDay()] + " " +
-                       xcHelper.getDate("/", d);
+                date = days[d.getDay()] + " " + moment(d).format("L");
                 break;
             case 7:
                 date = DaysTStr.LastWeek;

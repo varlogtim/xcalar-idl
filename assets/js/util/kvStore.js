@@ -6,6 +6,7 @@ window.KVStore = (function($, KVStore) {
     var metaInfos;
     var ephMetaInfos; // Ephemeral meta
     var commitCnt = 0;
+    var saveTimeTimer;
 
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey, gNotebookKey
@@ -267,20 +268,31 @@ window.KVStore = (function($, KVStore) {
 
         var name = "N/A";
         var modified = "N/A";
+        var time = "";
         var activeWKBKId = WorkbookManager.getActiveWKBK();
 
         if (activeWKBKId != null) {
             var workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             if (workbook != null) {
                 name = workbook.name;
-                modified = xcHelper.getDate("-", null, workbook.modified) +
-                           " " + xcHelper.getTime(null, workbook.modified);
+                time = workbook.modified;
+                modified = moment(time).fromNow();
             }
         }
 
         $("#worksheetInfo .wkbkName").text(name);
-        modified = TooltipTStr.SavedOn + ": " + modified;
+        modified = TooltipTStr.Saved + " " + modified;
         xcTooltip.changeText($("#autoSaveBtn"), modified);
+
+        clearInterval(saveTimeTimer);
+        saveTimeTimer = setInterval(function() {
+            if (time) {
+                modified = TooltipTStr.Saved + " " + moment(time).fromNow();
+                xcTooltip.changeText($("#autoSaveBtn"), modified);
+            } else {
+                clearInterval(saveTimeTimer);
+            }
+        }, 60000); // 1 minute
     };
 
     KVStore.restore = function() {

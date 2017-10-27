@@ -15,8 +15,6 @@ window.xcManager = (function(xcManager, $) {
         XcSupport.setup();
         XVM.setup();
 
-        moment.relativeTimeThreshold('m', 55);
-
         setupUserArea();
         xcTooltip.setup();
         CSHelp.setup();
