@@ -3848,52 +3848,52 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
 };
 
 xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workItem) {
-    var deferred = jQuery.Deferred();
     var json = {};
-    json["operation"] = XcalarApisTStr[workItem.api]
-
+    json["operation"] = XcalarApisTStr[workItem.api];
     switch(workItem.api) {
     case XcalarApisT.XcalarApiAggregate:
-        json["args"] = workItem.input.aggregateInput
+        json["args"] = workItem.input.aggregateInput;
         break;
     case XcalarApisT.XcalarApiBulkLoad:
-        json["args"]  = workItem.input.loadInput
+        json["args"] = workItem.input.loadInput;
         break;
     case XcalarApisT.XcalarApiIndex:
-        json["args"]  = workItem.input.indexInput
+        json["args"] = workItem.input.indexInput;
         break;
     case XcalarApisT.XcalarApiProject:
-        json["args"]  = workItem.input.projectInput
+        json["args"] = workItem.input.projectInput
         break;
     case XcalarApisT.XcalarApiGetRowNum:
-        json["args"]  = workItem.input.getRowNumInput
+        json["args"] = workItem.input.getRowNumInput;
         break;
     case XcalarApisT.XcalarApiFilter:
-        json["args"]  = workItem.input.filterInput
+        json["args"] = workItem.input.filterInput;
         break;
     case XcalarApisT.XcalarApiGroupBy:
-        json["args"]  = workItem.input.groupByInput
+        json["args"] = workItem.input.groupByInput;
         break;
     case XcalarApisT.XcalarApiJoin:
-        json["args"]  = workItem.input.joinInput
+        json["args"] = workItem.input.joinInput;
         break;
     case XcalarApisT.XcalarApiMap:
-        json["args"]  = workItem.input.mapInput
+        json["args"] = workItem.input.mapInput;
         break;
     case XcalarApisT.XcalarApiExecuteRetina:
-        json["args"]  = workItem.input.executeRetinaInput
+        json["args"] = workItem.input.executeRetinaInput;
         break;
     case XcalarApisT.XcalarApiExport:
-        json["args"]  = workItem.input.exportInput
+        json["args"] = workItem.input.exportInput;
         break;
     case XcalarApisT.XcalarApiDeleteObjects:
-        json["args"]  = workItem.input.deleteDagNodeInput
+        json["args"] = workItem.input.deleteDagNodeInput;
+        break;
+    case XcalarApisT.XcalarApiRenameNode:
+        json["args"] = workItem.input.renameNodeInput;
         break;
     default:
         break;
     }
-
-    return (JSON.stringify(json))
+    return (JSON.stringify(json));
 };
 
 xcalarApiGetQueryOld = runEntity.xcalarApiGetQueryOld = function(thriftHandle, workItem) {

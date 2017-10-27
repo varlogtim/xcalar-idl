@@ -660,8 +660,7 @@ window.DagFunction = (function($, DagFunction) {
                 originTableStruct.push(treeNodesToRerun[i].value.struct.source);
             } else {
                 destTableStruct = treeNodesToRerun[i].value.struct.dstTable;
-                originTableStruct.push(treeNodesToRerun[i].value.struct.
-                                       srcTable);
+                originTableStruct.push(treeNodesToRerun[i].value.source);
             }
             if (i > 0) {
                 updateSourceName(originTableStruct, translation);
@@ -800,22 +799,17 @@ window.DagFunction = (function($, DagFunction) {
             endPoints.push(treeNode);
         } else if (node.api === XcalarApisT.XcalarApiJoin) {
             // Join
-            parentNames.push(node.struct.leftTable.tableName);
-            parentNames.push(node.struct.rightTable.tableName);
+            parentNames.push(node.struct.source[0]);
+            parentNames.push(node.struct.source[1]);
         } else if (node.api === XcalarApisT.XcalarApiIndex) {
             // Index
-            parentNames.push(node.struct.source.name);
+            parentNames.push(node.struct.source);
         } else {
-            parentNames.push(node.struct.srcTable.tableName);
+            parentNames.push(node.struct.source);
             if (node.numParents > 1) {
                 var parsedParents = [];
-                if (node.struct.evalStr) {
-                    parsedParents = parseAggFromEvalStr(node.struct.evalStr);
-                } else if (node.struct.evalStrs) {
-                    parsedParents =
-                        parseAggFromEvalStrs(node.struct.evalStrs);
-                } else if (node.struct.filterStr) {
-                    parsedParents = parseAggFromEvalStr(node.struct.filterStr);
+                if (node.struct.eval) {
+                    parsedParents = parseAggFromEvalStr(node.struct.eval);
                 } else {
                     console.error("unexpected struct, could not find srsc tables");
                     console.error(node.struct);
@@ -903,29 +897,14 @@ window.DagFunction = (function($, DagFunction) {
         return sets;
     }
 
-    function parseAggFromEvalStr(evalStr) {
-        var tables = [];
-        if (!evalStr) {
-            return tables;
-        }
-        var func = {args: []};
-        try {
-            ColManager.parseFuncString(evalStr, func);
-            tables = getAggNamesFromFunc(func);
-        } catch (err) {
-            console.error("could not parse eval str", evalStr);
-        }
-        return tables;
-    }
-
-    function parseAggFromEvalStrs(evalStrs) {
+    function parseAggFromEvalStr(evalStrs) {
         var allTables = [];
         // var tablesMap = {};
         if (!evalStrs) {
             return allTables;
         }
         for (var i = 0; i < evalStrs.length; i++) {
-            var evalStr = evalStrs[i];
+            var evalStr = evalStrs[i].evalString;
             var func = {args: []};
             var tables = [];
             try {

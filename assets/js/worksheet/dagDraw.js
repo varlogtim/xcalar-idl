@@ -1240,7 +1240,7 @@ window.DagDraw = (function($, DagDraw) {
                 icon = 'xi_data';
                 storedInfo.datasets[tableName] = dagInfo;
                 dagInfo.dagNodeId = node.value.dagNodeId;
-                pattern = dagInfo.loadInfo.loadArgs.fileNamePattern;
+                pattern = dagInfo.fileNamePattern;
             } else {
                 console.error("unexpected node", "api: " + node.value.api);
                 tableClasses += "unexpectedNode ";
@@ -1609,7 +1609,7 @@ window.DagDraw = (function($, DagDraw) {
 
     function getDagNodeInfo(node, key) {
         var parenIndex;
-        var evalStr;
+        var evalStr = "";
         var value = node.value.struct;
         var info = {
             type: "unknown",
@@ -1634,7 +1634,7 @@ window.DagDraw = (function($, DagDraw) {
         if (!taggedInfo) {
             switch (key) {
                 case ('aggregateInput'):
-                    evalStr = value.evalStr;
+                    evalStr = value.eval[0].evalString;
                     info.type = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
                     info.text = evalStr;
                     info.tooltip = "Aggregate: " + evalStr;
@@ -1643,12 +1643,14 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('loadInput'):
-                    info.url = value.dataset.url;
+                    info.url = value.url;
                     var loadInfo = xcHelper.deepCopy(value);
                     info.loadInfo = loadInfo;
-                    loadInfo.url = loadInfo.dataset.url;
-                    loadInfo.format = DfFormatTypeTStr[loadInfo.dataset.formatType];
-                    loadInfo.name = loadInfo.dataset.name;
+                    // loadInfo.url = loadInfo.url;
+                    // loadInfo.format = loadInfo.format;
+                    loadInfo.name = loadInfo.dest;
+                    delete loadInfo.dest;
+                    // XXX there is no .loadArgs, handle this
                     if (loadInfo.loadArgs) {
                         loadInfo.loadArgs.udf = loadInfo.loadArgs.udfLoadArgs
                                                         .fullyQualifiedFnName;
@@ -1659,7 +1661,7 @@ window.DagDraw = (function($, DagDraw) {
                     delete loadInfo.dagNodeId;
                     break;
                 case ('filterInput'):
-                    info = getFilterInfo(info, value.filterStr, parentNames);
+                    info = getFilterInfo(info, value.eval[0].evalString, parentNames);
                     break;
                 case ('groupByInput'):
                     var sampleStr = "";
@@ -1669,11 +1671,10 @@ window.DagDraw = (function($, DagDraw) {
                     } else {
                         sampleStr = " (Sample not included)";
                     }
-                    evalStr = value.evalStrs[0];
-                    var evalStrs = value.evalStrs;
+                    var evalStrs = value.eval;
                     evalStr = "";
                     for (var i = 0; i < evalStrs.length; i++) {
-                        evalStr += evalStrs[i] + ", ";
+                        evalStr += evalStrs[i].evalString + ", ";
                     }
                     evalStr = evalStr.slice(0, -2);
 
@@ -1687,39 +1688,28 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('indexInput'):
-                    info.column = value.keyName;
-                    if (!value.source.isTable) {
+                    info.column = value.key.name;
+                    if (node.parents[0].value.api ===
+                        XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
                         info.type = "createTable";
                         info.column = "";
-                        info.text = "indexed on " + value.keyName;
+                        info.text = "indexed on " + value.key.name;
                     } else if (value.ordering ===
-                            XcalarOrderingT.XcalarOrderingAscending ||
+                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                         value.ordering ===
-                                   XcalarOrderingT.XcalarOrderingDescending) {
+                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                         info.type = "sort";
-                        var order = "";
-                        if (value.ordering ===
-                            XcalarOrderingT.XcalarOrderingAscending) {
-                            order = "(ascending) ";
-                            info.order = "ascending";
-                        } else if (value.ordering ===
-                                   XcalarOrderingT.XcalarOrderingDescending) {
-                            order = "(descending) ";
-                            info.order = "descending";
-                        }
-                        if (value.source.isTable) {
-                            info.tooltip = "Sorted " + order + "by " +
-                                           value.keyName;
-                        } else {
-                            info.tooltip = "Sorted " + order + "on " +
-                                           value.keyName;
-                        }
-                        info.text = "sorted " + order + "on " + value.keyName;
+                        info.order = value.ordering.toLowerCase();
+                        var order = "(" + info.order + ") ";
+                        info.tooltip = "Sorted " + order + "on " +
+                                       value.key.name;
+
+                        info.text = "sorted " + order + "on " + value.key.name;
                     } else {
-                        info.tooltip = "Indexed by " + value.keyName;
+                        info.tooltip = "Indexed by " + value.key.name;
                         info.type = "index";
-                        info.text = "indexed on " + value.keyName;
+                        info.text = "indexed on " + value.key.name;
                     }
                     info.opText = info.column;
                     break;
@@ -1728,7 +1718,7 @@ window.DagDraw = (function($, DagDraw) {
                     var lSrcCols = srcCols.left;
                     var rSrcCols = srcCols.right;
 
-                    info.text = JoinOperatorTStr[value.joinType];
+                    info.text = value.joinType;
 
                     var joinType = info.text.slice(0, info.text.indexOf("Join"));
                     info.type = joinType;
@@ -1766,10 +1756,10 @@ window.DagDraw = (function($, DagDraw) {
                     // XXX there is a "newFieldName" property that stores the name of
                     // the new column. Currently, we are not using or displaying
                     // the name of this new column anywhere.
-                    var evalStrs = value.evalStrs;
+                    var evalStrs = value.eval;
                     evalStr = "";
                     for (var i = 0; i < evalStrs.length; i++) {
-                        evalStr += evalStrs[i] + ", ";
+                        evalStr += evalStrs[i].evalString + ", ";
                     }
                     evalStr = evalStr.slice(0, -2);
                     info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
@@ -1780,8 +1770,8 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('projectInput'):
-                    for (var i = 0; i < value.numColumns; i++) {
-                        info.column += value.columnNames[i] + ", ";
+                    for (var i = 0; i < value.columns.length; i++) {
+                        info.column += value.columns[i] + ", ";
                     }
                     info.column = info.column.slice(0, info.column.length - 2);
                     if (info.column.length > 80) {
@@ -1794,11 +1784,8 @@ window.DagDraw = (function($, DagDraw) {
                     break;
                 case ('exportInput'):
                     info.type = "export";
-                    try {
-                        info.url = value.meta.specificInput.sfInput.fileName;
-                    } catch (err) {
-                        console.error('Could not find export filename');
-                    }
+                    // XXX fix url
+                    info.url = value.fileName || "";
                     info.opText = "";
                     break;
                 default:
@@ -1888,10 +1875,10 @@ window.DagDraw = (function($, DagDraw) {
                         if (gbNode.value.struct.includeSrcTableSample) {
                             sampleStr = " (Sample included)";
                         }
-                        var evalStrs = gbNode.value.struct.evalStrs;
+                        var evalStrs = gbNode.value.struct.eval;
                         evalStr = "";
                         for (var j = 0; j < evalStrs.length; j++) {
-                            evalStr += evalStrs[j] + ", ";
+                            evalStr += evalStrs[j].evalString + ", ";
                         }
                         evalStr = evalStr.slice(0, -2);
                         aggs.push(evalStr);
@@ -1948,9 +1935,9 @@ window.DagDraw = (function($, DagDraw) {
                 }
             } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiIndex) {
                 if (i === 0) {
-                    lSrcCols.push(groupLeaves[i].value.struct.keyName);
+                    lSrcCols.push(groupLeaves[i].value.struct.key.name);
                 } else {
-                    rSrcCols.push(groupLeaves[i].value.struct.keyName);
+                    rSrcCols.push(groupLeaves[i].value.struct.key.name);
                 }
             } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiJoin) {
                 if (i === 0) {
@@ -1965,7 +1952,7 @@ window.DagDraw = (function($, DagDraw) {
 
         function getSrcIndex(node) {
             if (node.value.api === XcalarApisT.XcalarApiIndex) {
-                return node.value.struct.keyName;
+                return node.value.struct.key.name;
             } else {
                 if (!node.parents.length) {
                     // one case is when we reach a retina project node
@@ -2089,7 +2076,7 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.keyName;
+            var keyName = parent.value.struct.key.name;
 
             // if indexed on a column named "multiGroupBy" then this may
             // have been xcalar-generated sort, so check this table's
@@ -2122,7 +2109,7 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.keyName;
+            var keyName = parent.value.struct.key.name;
 
             // if indexed on a column named "multiGroupBy" then this may
             // have been xcalar-generated sort, so check this table's
@@ -2169,7 +2156,7 @@ window.DagDraw = (function($, DagDraw) {
     function parseConcatCols(node) {
         var cols = [];
         if (node.value.api === XcalarApisT.XcalarApiMap) {
-            var evalStr = node.value.struct.evalStrs[0];
+            var evalStr = node.value.struct.eval[0].evalString;
             if (evalStr.indexOf("\".Xc.\"") > -1 &&
                 evalStr.indexOf('concat') === 0) {
                 var func = {args: []};

@@ -613,20 +613,19 @@ window.Dag = (function($, Dag) {
         $schema.find('.numCols').text("");
         var datasets = $dagTable.closest(".dagWrap").data().allDagInfo.datasets;
         var loadInfo = datasets[tableName].loadInfo;
-        if (loadInfo.format !== "csv") {
-            delete loadInfo.loadArgs.csv;
-        }
-        if (loadInfo.loadArgs && loadInfo.loadArgs.csv) {
-            loadInfo.loadArgs.csv.recordDelim =
-                    loadInfo.loadArgs.csv.recordDelim
-                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-            loadInfo.loadArgs.csv.quoteDelim =
-                    loadInfo.loadArgs.csv.quoteDelim
-                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-            loadInfo.loadArgs.csv.fieldDelim =
-                    loadInfo.loadArgs.csv.fieldDelim
-                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-        }
+        // XXX handle this
+        // if (loadInfo.format !== "csv") {
+        //     delete loadInfo.loadArgs.csv;
+        // }
+
+
+        loadInfo.recordDelim = loadInfo.recordDelim
+                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        loadInfo.quoteDelim = loadInfo.quoteDelim
+                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        loadInfo.fieldDelim = loadInfo.fieldDelim
+                            .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+
 
         loadInfo.name = tableName;
 
@@ -1942,12 +1941,12 @@ window.Dag = (function($, Dag) {
         var xcalarInput = icvDagInfo.xcalarInput;
         var op = icvDagInfo.op;
 
-        var origTableName = xcalarInput.dstTable.tableName;
+        var origTableName = xcalarInput.dest;
         var tableRoot = xcHelper.getTableName(origTableName);
         var newTableId = Authentication.getHashId();
         var newTableName = tableRoot + "_er" + newTableId;
 
-        xcalarInput.dstTable.tableName = newTableName;
+        xcalarInput.dest = newTableName;
         xcalarInput.icvMode = true;  // Turn on icv
 
         // We want to skip all the checks, including all the indexes and stuff
@@ -1970,17 +1969,18 @@ window.Dag = (function($, Dag) {
         }
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
-                origColNames = xcHelper.deepCopy(xcalarInput.newFieldNames);
-                for (var i = 0; i < origColNames.length; i++) {
-                    xcalarInput.newFieldNames[i] = origColNames[i] + "_er";
+                var evals = xcHelper.deepCopy(xcalarInput.eval);
+                for (var i = 0; i < evals.length; i++) {
+                    xcalarInput.eval[i].newField = evals[i].newField + "_er";
+                    origColNames.push(evals[i].newField);
                 }
                 options = {"replaceColumn": true, "createNewTable": true};
                 sql = {
                     "operation": SQLOps.Map,
                     "tableName": origTableName,
                     "tableId": origTableId,
-                    "fieldName": xcalarInput.newFieldNames[0],
-                    "mapString": xcalarInput.evalStrs[0],
+                    "fieldName": xcalarInput.eval[0].newField,
+                    "mapString": xcalarInput.eval[0].evalString,
                     "mapOptions": options
                 };
                 txId = Transaction.start({
@@ -2032,9 +2032,10 @@ window.Dag = (function($, Dag) {
                 });
                 break;
             case (XcalarApisT.XcalarApiGroupBy):
-                origColNames = xcHelper.deepCopy(xcalarInput.newFieldNames);
-                for (var i = 0; i < origColNames.length; i++) {
-                    xcalarInput.newFieldNames[i] = origColNames[i] + "_er";
+                var evals = xcHelper.deepCopy(xcalarInput.eval);
+                for (var i = 0; i < evals.length; i++) {
+                    xcalarInput.eval[i].newField = evals[i].newField + "_er";
+                    origColNames.push(evals[i].newField);
                 }
 
                 options = {"replaceColumn": true};
@@ -2043,7 +2044,7 @@ window.Dag = (function($, Dag) {
                     "operation": SQLOps.GroupBy,
                     "tableName": origTableName,
                     "tableId": origTableId,
-                    "newColName": xcalarInput.newFieldNames[0],
+                    "newColName": xcalarInput.eval[0].newField,
                     "newTableName": newTableName,
                 };
                 txId = Transaction.start({
@@ -2120,10 +2121,10 @@ window.Dag = (function($, Dag) {
                 }
                 var prevCols = gTables[origTableId].tableCols;
 
-                for (var i = 0; i < xcalarInput.evalStrs.length; i++) {
+                for (var i = 0; i < xcalarInput.eval.length; i++) {
                     newCols = xcHelper.mapColGenerate(idx,
-                                         xcalarInput.newFieldNames[i],
-                                         xcalarInput.evalStrs[i],
+                                         xcalarInput.eval[i].newField,
+                                         xcalarInput.eval[i].evalString,
                                          prevCols,
                                          options);
                     prevCols = newCols;
@@ -2245,7 +2246,7 @@ window.Dag = (function($, Dag) {
                 treeNode.value.api !== XcalarApisT.XcalarApiGroupBy) {
                 continue;
             }
-            if (treeNode.value.struct.dstTable.tableName === mapTableName) {
+            if (treeNode.value.struct.dest === mapTableName) {
                 // Found it!
                 xcalarInput = DagFunction.cloneDagNode(treeNode.value.inputName,
                                                        treeNode.value.struct);

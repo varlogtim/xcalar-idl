@@ -609,15 +609,13 @@ window.DFCard = (function($, DFCard) {
             var exportId = $exportTable.attr("data-nodeid");
             for (i = 0; i < expRetNodes.length; i++) {
                 if (expRetNodes[i].dagNodeId === exportId) {
-                    var meta = expRetNodes[i].input.exportInput.meta;
-                    var specInput = meta.specificInput;
-                    var fileName = specInput.sfInput.fileName ||
-                                 specInput.udfInput.fileName; // Only one of the
-                                 // 3 should have a non "" value
+                    var expInput = expRetNodes[i].input.exportInput;
+                    var fileName = expInput.fileName || "";
+                    var targetName = expInput.targetName || "";
+                    var targetType = expInput.targetType || "";
                                  //xx specInput.odbcInput.tableName no longer exists
-                    paramValue = [fileName, meta.target.name, meta.target.type];
+                    paramValue = [fileName, targetName, targetType];
                     // uploaded retinas do not have params in export node
-
 
                     $exportTable.addClass("export").data("type", "export")
                         .attr("data-table", $exportTable.attr("data-tablename"))

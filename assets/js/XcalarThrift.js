@@ -324,12 +324,10 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
                 if (indexInput.ordering ===
-                    XcalarOrderingT.XcalarOrderingAscending ||
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                     indexInput.ordering ===
-                    XcalarOrderingT.XcalarOrderingDescending) {
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     // Find parent and return parent's name
-                    xcAssert(indexInput.source.isTable);
-
                     node = DagFunction.construct(nodeArray.node).tree;
                     srcTableName = node.getSourceNames()[0];
                     var hasReadyState = checkIfTableHasReadyState(node
@@ -373,11 +371,10 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
                 indexInput1 = na1.node[0].input.indexInput;
                 if (indexInput1.ordering ===
-                    XcalarOrderingT.XcalarOrderingAscending ||
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                     indexInput1.ordering ===
-                    XcalarOrderingT.XcalarOrderingDescending) {
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     // Find parent and return parent's name
-                    xcAssert(indexInput1.source.isTable);
                     node = DagFunction.construct(na1.node).tree;
                     unsortedName1 = node.getSourceNames()[0];
                     t1hasReadyState = checkIfTableHasReadyState(node
@@ -389,11 +386,10 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
                 indexInput2 = na2.node[0].input.indexInput;
                 if (indexInput2.ordering ===
-                    XcalarOrderingT.XcalarOrderingAscending ||
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                     indexInput2.ordering ===
-                    XcalarOrderingT.XcalarOrderingDescending) {
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     // Find parent and return parent's name
-                    xcAssert(indexInput2.source.isTable);
                     node = DagFunction.construct(na2.node).tree;
                     unsortedName2 = node.getSourceNames()[0];
                     t2hasReadyState = checkIfTableHasReadyState(node
@@ -1436,6 +1432,8 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
     }
 
     var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'renameTable', newTableName, query);
+
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
@@ -2120,14 +2118,14 @@ function XcalarMapWithInput(txId, inputStruct) {
     }
 
     var query = XcalarGetQuery(workItem);
-    Transaction.startSubQuery(txId, 'map', inputStruct.dstTable.tableName, query);
+    Transaction.startSubQuery(txId, 'map', inputStruct.dest, query);
 
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query, inputStruct.dstTable.tableName,
+            Transaction.log(txId, query, inputStruct.dest,
                             ret.timeElapsed);
             deferred.resolve(ret);
         }
@@ -2354,14 +2352,14 @@ function XcalarGroupByWithInput(txId, inputStruct) {
 
     var query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, 'groupBy',
-                            inputStruct.dstTable.tableName, query);
+                            inputStruct.dest, query);
 
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query, inputStruct.dstTable.tableName,
+            Transaction.log(txId, query, inputStruct.dest,
                             ret.timeElapsed);
             deferred.resolve(ret);
         }
@@ -4036,6 +4034,22 @@ function XcalarMemory() {
 function XcalarGetQuery(workItem) {
     return xcalarApiGetQuery(tHandle, workItem);
 }
+
+// function XcalarGetQuery(workItem) {
+//     if ([null, undefined].indexOf(tHandle) !== -1) {
+//         return PromiseHelper.resolve(null);
+//     }
+//     var deferred = jQuery.Deferred();
+//     if (insertError(arguments.callee, deferred)) {
+//         return (deferred.promise());
+//     }
+//     jQuery.when(xcalarApiGetQuery(tHandle, workItem))
+//     .then(deferred.resolve)
+//     .fail(function(error) {
+//         deferred.reject(thriftLog("XcalarGetQuery", error));
+//     });
+//     return (deferred.promise());
+// }
 
 function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
     if ([null, undefined].indexOf(tHandle) !== -1) {

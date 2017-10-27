@@ -2001,6 +2001,7 @@ window.XIApi = (function(XIApi) {
                 } else {
                     colName = progCol.name || backColName;
                 }
+                colName = xcHelper.parsePrefixColName(colName).name;
                 colName = xcHelper.stripColName(colName);
                 newColNames[escapedName] = true;
                 renamedGroupByCols[i] = escapedName;
