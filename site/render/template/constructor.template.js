@@ -2523,7 +2523,7 @@
                 .then(function(data) {
                     var params = data.parameters;
                     for (var i = 0; i < params.length; i++) {
-                        var name = params[i].parameterName;
+                        var name = params[i].paramName;
                         paramMapInUsed[name] = true;
                         if (!paramMap.hasOwnProperty(name)) {
                             paramMap[name] = systemParams.hasOwnProperty(name)?

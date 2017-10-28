@@ -536,7 +536,7 @@ describe("DFCard Test", function() {
             var cache2 = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({numParameters: 1,
-                                parameters: [{parameterName: "N"}]});
+                                parameters: [{paraName: "N"}]});
             };
             DFCard.__testOnly__.setCanceledRun(testDfName);
             DFCard.__testOnly__.runDF(testDfName)

@@ -991,8 +991,8 @@ window.DFCard = (function($, DFCard) {
 
         var dagNode = dfObj.retinaNodes[0];
         var exportInfo = dagNode.input.exportInput;
-        var targetName = exportInfo.meta.target.name;
-        var targetType = exportInfo.meta.target.type;
+        var targetName = exportInfo.targetName;
+        var targetType = exportInfo.targetType;
         var fileName = parseFileName(exportInfo, paramsArray);
         var advancedOpts = DF.getAdvancedExportOption(retName);
         if (advancedOpts == null) {
@@ -1145,7 +1145,7 @@ window.DFCard = (function($, DFCard) {
             var parameters = res.parameters;
             var hasSysParam = false;
             for (var i = 0; i < length; i++) {
-                var paramName = parameters[i].parameterName;
+                var paramName = parameters[i].paramName;
                 if (systemParams.hasOwnProperty(paramName)) {
                     hasSysParam = true;
                     break;
@@ -1416,13 +1416,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function parseFileName(exportInfo, paramArray) {
-        var fileName = "";
-        if (exportInfo.meta.target.type === ExTargetTypeT.ExTargetSFType) {
-            fileName = exportInfo.meta.specificInput.sfInput.fileName;
-        } else if (exportInfo.meta.target.type ===
-            ExTargetTypeT.ExTargetUDFType) {
-            fileName = exportInfo.meta.specificInput.udfInput.fileName;
-        }
+        var fileName = exportInfo.fileName;
         if (paramArray.length === 0 || fileName.indexOf("<") === -1) {
             return fileName;
         }
@@ -1440,11 +1434,11 @@ window.DFCard = (function($, DFCard) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getActiveWS();
         var metaCols = [];
-        if (exportInfo.meta && exportInfo.meta.columns) {
-            metaCols = exportInfo.meta.columns;
+        if (exportInfo && exportInfo.columns) {
+            metaCols = exportInfo.columns;
         }
         var colNames = metaCols.map(function(colInfo) {
-            var colName = colInfo.name;
+            var colName = colInfo.columnName;
             var parsedInfo = xcHelper.parsePrefixColName(colName);
             var prefix = parsedInfo.prefix;
             if (prefix) {
