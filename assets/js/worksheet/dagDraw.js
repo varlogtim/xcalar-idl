@@ -1744,18 +1744,18 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('mapInput'):
-                    // XXX there is a "newFieldName" property that stores the name of
-                    // the new column. Currently, we are not using or displaying
-                    // the name of this new column anywhere.
                     var evalStrs = value.eval;
+                    var fieldNames = "New fields: ";
                     evalStr = "";
                     for (var i = 0; i < evalStrs.length; i++) {
                         evalStr += evalStrs[i].evalString + ", ";
+                        fieldNames += evalStrs[i].newField + ", ";
                     }
                     evalStr = evalStr.slice(0, -2);
+                    fieldNames = fieldNames.slice(0, -2);
                     info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
                     info.text = evalStr;
-                    info.tooltip = "Map: " + evalStr;
+                    info.tooltip = "Map: " + evalStr + ".<br/>" + fieldNames;
                     info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
                     info.opText = info.column;
