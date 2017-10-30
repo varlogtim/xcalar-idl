@@ -101,7 +101,7 @@ generateHtml: node_modules/.bin/grunt
 	grunt render$(product)
 
 
-thriftSync: $(XLRDIR)/src/bin/thrift/js/XcalarApiService.js
+thriftSync: $(XLRDIR)/buildOut/src/bin/thrift/js/XcalarApiService.js
 	@echo "=== Syncing with XLRDIR's .js files ==="
 	@./assets/bin/syncTrunk.sh
 	@echo "var hostname='http://`hostname`:9090'; var expHost='http://`hostname`:12124';" > $(DESTDIR)/$(PRODUCTNAME)/assets/js/config.js
