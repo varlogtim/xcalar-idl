@@ -942,7 +942,8 @@ module.exports = {
         "visit": "访问",
         "welcomeXI": "欢迎使用<b>Xcalar Design</b>",
         "Edit": "编辑工作簿",
-        "Description": "工作簿注释"
+        "Description": "工作簿注释",
+        "Preview": "工作簿预览"
     },
     "workspaceBar": {
         "rowInput": "跳转行",

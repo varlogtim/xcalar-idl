@@ -955,6 +955,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
     };
 
+    WorkbookManager.getStorageKey = function(workbookId) {
+        return getWkbkScopeKeys(workbookId, currentVersion).gStorageKey;
+    };
+
     function getUserScopeKeysForUpgrade(version) {
         var keys = getUserScopeKeys(version);
         var wkbkKeyOfVersion = getWKbkKey(version);

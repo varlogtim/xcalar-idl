@@ -365,6 +365,11 @@ describe("WorkbookManager Test", function() {
                 workbook.description = oldDescription;
             });
         });
+
+        it("WorkbookManager.getStorageKey should work", function() {
+            var res = WorkbookManager.getStorageKey("test");
+            expect(res).to.equal("test-gInfo-" + currentVersion);
+        });
     });
 
     describe("Upgrade API Test", function() {

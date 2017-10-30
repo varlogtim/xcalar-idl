@@ -529,6 +529,7 @@ window.xcManager = (function(xcManager, $) {
         DSInfoModal.setup();
         SkewInfoModal.setup();
         WorkbookInfoModal.setup();
+        DfPreviewModal.setup();
         LoginConfigModal.setup();
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();

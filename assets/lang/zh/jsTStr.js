@@ -862,6 +862,7 @@ TblTStr = {
 'Create': '创建表',
 'Del': '删除表',
 'DEL': '删除表',
+'DropTbl': '删除表',
 'DelMsg': '您确定要删除表<table>吗？',
 'DelFail': '删除表失败',
 'Archive': '隐藏表',

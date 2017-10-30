@@ -7,6 +7,24 @@
     top: 50px;
     .transition (0.4s top ease-out);
 
+    &.previewMode {
+        .mainSection {
+            display: none;
+        }
+
+        .previewSection {
+            display: block;
+        }
+
+        .topBar {
+            padding-left: 70px;
+        }
+    }
+
+    .previewSection {
+        display: none;
+    }
+
     #dialogWrap {
         position: absolute;
         width: 100%;
@@ -349,6 +367,12 @@
                 .subHeading div, .info {
                     color: @color-white;
                 }
+
+                .subHeading {
+                    .preview {
+                        display: none;
+                    }
+                }
             }
         }
 
@@ -412,14 +436,26 @@
         }
 
         .subHeading {
+            position: relative;
+
             .workbookName {
-                .size(@width: 100%, @height: 30px);
+                .size(@height: 30px);
                 .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
             }
 
             .description {
                 .size(@height: 18px);
                 .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
+            }
+
+            .workbookName, .description {
+                .size(@width: ~"calc(100% - 20px)");
+            }
+
+            .preview {
+                .size(20px, 20px);
+                .position(absolute, @top: 6px, @right: 0);
+                color: @color-bg-select-blue;
             }
         }
 
@@ -532,6 +568,135 @@
                 &:nth-child(4) {
                     .tab {
                         .transition-delay(0.24s);
+                    }
+                }
+            }
+        }
+    }
+}
+
+#workbookPreview {
+    .cardContainer {
+        .size(@height: 100%);
+        margin-bottom: 0;
+    }
+
+    .cardTopMain {
+        padding: 20px 60px;
+
+        .row {
+            .size(@height: 25px);
+            .flex-display;
+
+            .part {
+                .flex(1 1 auto);
+            }
+        }
+    }
+
+    .cardMain {
+        .size(@height: ~"calc(100% - 66px)");
+        padding-top: 0;
+
+        .loadingSection {
+            .size(100%, 100%);
+        }
+
+        .animatedEllipsisWrapper {
+            .size(@width: 100px, @height: 30px);
+            .center-align;
+        }
+
+        .contentSection {
+            .size(@height: 100%);
+        }
+
+        .titleSection {
+            background-color: @color-bg-white-seven;
+            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+
+            .title {
+                .label {
+                    // .size(@width: ~"calc(100% - 20px)");
+                    .textOverflowOneLine;
+                    padding-right: 10px;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .listSection {
+            .size(@width: 100%, @height: ~"calc(100% - 30px)");
+            overflow-y: auto;
+
+            .grid-unit {
+                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .grid-unit {
+            padding: 0 60px;
+            .size(@width: 100%, @height: 30px);
+            .flex-display;
+
+            > div {
+                display: inline-block;
+                .position(relative);
+                .size(@width: ~"calc(30% - 60px)", @height: 30px);
+                float: left;
+                cursor: default;
+                padding-left: 10px;
+                .font(@size: 12px, @line-height: 30px);
+                .textOverflowOneLine;
+
+                &:first-child {
+                    margin-left: 0;
+                }
+
+                &.name {
+                    .flex(0 0 30%);
+                    padding-left: 2px;
+                }
+
+                &.size {
+                    .size(@width: 150px);
+                }
+
+                &.status {
+                    .size(@width: 150px);
+                    text-transform: capitalize;
+                }
+
+                &.action {
+                    .flex(0 0 auto);
+
+                    .icon {
+                        margin-left: 15px;
+
+                        &:first-child {
+                            margin-left: 0;
+                        }
+                    }
+                }
+
+                &.active {
+                    .label, .icon {
+                        color: @color-font-softBlue;
+                    }
+                }
+
+                span, i {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .icon {
+                    .size(@width: 20px, @height: 30px);
+                    color: @color-font-greyish-brown;
+
+                    &:before {
+                        .vertical-align;
+                        display: block;
                     }
                 }
             }

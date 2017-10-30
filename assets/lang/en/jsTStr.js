@@ -999,6 +999,7 @@ TblTStr = {
     'Create': 'Create Table',
     'Del': 'Drop Tables',
     'DEL': 'DROP TABLES',
+    'DropTbl': 'Drop Table',
     'DelMsg': 'Are you sure you want to drop table <table>?',
     'DelFail': 'Drop Tables Failed',
     'Archive': 'Hide Tables',

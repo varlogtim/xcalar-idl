@@ -4575,6 +4575,38 @@ html.microsoft {
     }
 }
 
+
+#dfPreviewModal {
+    .size(@width: 1000px, @height: 500px);
+
+    .modalHeader {
+        text-transform: none;
+    }
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 36px)");
+        .image("../../images/dagIcons/dag-background.png", right, top, repeat);
+        position: relative; // used for positioning refresh icon
+
+        .dagWrap {
+            .size(@height: 100%);
+            margin-bottom: 0;
+
+            .canvas {
+                z-index: 0;
+            }
+
+            .dagImageWrap {
+                .size(@height: ~"calc(100% - 39px)");
+            }
+
+            .errorMsg {
+                .vertical-align;
+            }
+        }
+    }
+}
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

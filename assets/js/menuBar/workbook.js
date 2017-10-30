@@ -21,6 +21,7 @@ window.Workbook = (function($, Workbook) {
 
         addTopbarEvents();
         addWorkbookEvents();
+        WorkbookPreview.setup();
 
         var closeTimer = null;
         var doneTimer = null;
@@ -31,6 +32,7 @@ window.Workbook = (function($, Workbook) {
             var $dialogWrap = $("#dialogWrap");
 
             if (Workbook.isWBMode()) {
+                WorkbookPreview.close();
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
                     $container.removeClass("monitorMode setupMode");
@@ -361,11 +363,20 @@ window.Workbook = (function($, Workbook) {
             $(".tooltip").remove();
         });
 
+        $workbookSection.on("click", ".preview", function() {
+            clearActives();
+            var $workbookBox = $(this).closest(".workbookBox");
+            var workbookId = $workbookBox.attr("data-workbook-id");
+            WorkbookPreview.show(workbookId);
+        });
+
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
             var $div = $(this).find(".workbookName");
             xcTooltip.auto(this, $div[0]);
         });
     }
+
+    
 
     Workbook.edit = function(workbookId, newName, description) {
         var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
@@ -749,6 +760,11 @@ window.Workbook = (function($, Workbook) {
                                 '<div class="description textOverflowOneLine">' +
                                     description +
                                 '</div>' +
+                                // '<i class="preview icon xi-show xc-action" ' +
+                                // ' data-toggle="tooltip" data-container="body"' +
+                                // ' data-placement="top"' +
+                                // ' data-title="' + CommonTxtTstr.Preview + '"' +
+                                // '></i>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +
