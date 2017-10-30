@@ -65,13 +65,14 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             appendMsg(AlertTStr.EmailFunc, "sysMsg");
             appendMsg(AlertTStr.WaitChat, "sysMsg");
         }
-        setTimeout(function() {
+        var reqTimer = setInterval(function() {
             if (connected) {
                 // Send the request to socket
                 sendReqToSocket();
                 firstMsg = true;
+                clearInterval(reqTimer);
             }
-        }, 1000);
+        }, 500);
         timer = setTimeout(function() {
             appendMsg(AlertTStr.NoSupport, "sysMsg");
             confirmTicket();
