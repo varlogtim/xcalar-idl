@@ -589,6 +589,14 @@ window.xcManager = (function(xcManager, $) {
             }
             LiveHelpModal.show();
         });
+
+        $menu.on("mouseup", ".supTicket", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            SupTicketModal.show();
+        });
+
         $("#logout").mouseup(function(event) {
             if (event.which !== 1) {
                 return;
