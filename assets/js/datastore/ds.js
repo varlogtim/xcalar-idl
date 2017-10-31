@@ -1006,12 +1006,16 @@ window.DS = (function ($, DS) {
 
     function restoreDS(oldHomeFolder, atStartUp) {
         var deferred = jQuery.Deferred();
-
+        var datasets;
         DS.clear();
 
         XcalarGetDatasets()
-        .then(function(datasets) {
-            restoreHelper(oldHomeFolder, datasets, atStartUp);
+        .then(function(res) {
+            datasets = res;
+            return getDSLockMeta();
+        })
+        .then(function(lockMeta) {
+            restoreHelper(oldHomeFolder, datasets, lockMeta, atStartUp);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1022,7 +1026,33 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function restoreHelper(oldHomeFolder, datasets, atStartUp) {
+    function getDSLockMeta() {
+        var deferred = jQuery.Deferred();
+        var userName = XcSupport.getUser();
+        XcalarGetUserDatasets(userName)
+        .then(function(res) {
+            try {
+                var lockMeta = {};
+                res.dataset.forEach(function(dsInfo) {
+                    if (dsInfo.datasetName.startsWith(gDSPrefix)) {
+                        var name = dsInfo.datasetName.substring(gDSPrefix.length);
+                        lockMeta[name] = dsInfo.isLocked;
+                    }
+                });
+                deferred.resolve(lockMeta);
+            } catch (e) {
+                console.error(e);
+                deferred.resolve({}); // still resolve
+            }
+        })
+        .fail(function(error) {
+            console.error(error);
+            deferred.resolve({}); // still resolve
+        });
+        return deferred.promise();
+    }
+
+    function restoreHelper(oldHomeFolder, datasets, lockMeta, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var searchHash = {};
         var userPrefix = xcHelper.getUserPrefix();
@@ -1074,6 +1104,9 @@ window.DS = (function ($, DS) {
             if (!datasets.datasets[i].isListable) {
                 unlistableDS[dsName] = true;
             }
+            if (lockMeta.hasOwnProperty(dsName)) {
+                datasets.datasets[i].locked = lockMeta[dsName];
+            }
 
             searchHash[dsName] = datasets.datasets[i];
         }
@@ -1123,7 +1156,8 @@ window.DS = (function ($, DS) {
                     obj = $.extend(obj, {
                         "format": format,
                         "path": ds.url,
-                        "unlistable": !ds.isListable
+                        "unlistable": !ds.isListable,
+                        "locked": ds.locked
                     });
 
                     createDS(obj);
@@ -1148,7 +1182,8 @@ window.DS = (function ($, DS) {
                 options = $.extend({}, options, {
                     "format": format,
                     "path": ds.url,
-                    "unlistable": !ds.isListable
+                    "unlistable": !ds.isListable,
+                    "locked": ds.locked
                 });
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook

@@ -122,7 +122,6 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                 console.error(e);
                 deferred.resolve({}); // still resolve
             }
-            
         })
         .fail(function(error) {
             console.error(error);

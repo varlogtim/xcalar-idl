@@ -376,8 +376,6 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
-    
-
     Workbook.edit = function(workbookId, newName, description) {
         var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
             return $(this).attr("data-workbook-id") === workbookId;
