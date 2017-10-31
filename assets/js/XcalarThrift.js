@@ -2534,11 +2534,12 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 // is an unsorted table! Otherwise backend may crash
 // txId does not need to be passed in if xcalarquery not called inside a transaction
 function XcalarQuery(queryName, queryString, txId) {
-    // XXX Now only have a simple output
     /* some test case :
+        Old format(deprecated)
         "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
-
+        New Format:
+            JSON.stringify([{"operation":"XcalarApiFilter","args":{"source":"gdelt#LR0","dest":"test","eval":[{"evalString":"eq(gdelt::column1, \"20080514\")","newField":null}]}}])
     */
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

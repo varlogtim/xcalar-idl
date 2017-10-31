@@ -298,6 +298,9 @@ window.SQLCompiler = (function() {
                 if (node.value.class.indexOf(
                     "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
                     node.xccli) {
+                    if (node.xccli.endsWith(";")) {
+                        node.xccli = node.xccli.substring(0, node.xccli.length - 1);
+                    }
                     cliArray.push(node.xccli);
                 }
             }
@@ -311,7 +314,7 @@ window.SQLCompiler = (function() {
                     // Tree has been augmented with xccli
                     var cliArray = [];
                     getCli(tree, cliArray);
-                    var queryString = cliArray.join("");
+                    var queryString = "[" + cliArray.join(",") + "]";
                     //queryString = queryString.replace(/\\/g, "\\");
                     console.log(queryString);
                     self.sqlObj.run(queryString, tree.newTableName);
