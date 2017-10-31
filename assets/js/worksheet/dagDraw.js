@@ -1818,7 +1818,7 @@ window.DagDraw = (function($, DagDraw) {
 
         switch (taggedOp) {
             case (SQLOps.SplitCol):
-                evalStr = value.evalStrs[0];
+                evalStr = value.eval[0].evalString;
                 info.text = evalStr;
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(','));
@@ -1832,7 +1832,7 @@ window.DagDraw = (function($, DagDraw) {
                 break;
             case (SQLOps.ChangeType):
                 ancestors = getTaggedAncestors(node);
-                evalStr = value.evalStrs[0];
+                evalStr = value.eval[0].evalString;
                 info.text = evalStr;
                 if (ancestors.length) {
                     // multiple casts, show general info

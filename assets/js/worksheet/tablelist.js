@@ -1403,7 +1403,7 @@ window.TableList = (function($, TableList) {
                         promises.push(XcalarGetDag(aggConst.name));
                     }
                 }
-                backConstsMap[aggConst.name] = true;
+                backConstsMap[aggConst.name] = aggConst;
             }
 
             // remove any constants that the front end has but the backend
@@ -1422,12 +1422,12 @@ window.TableList = (function($, TableList) {
             if (!firstTime && rets[0] != null) {
                 for (var i = 0; i < rets.length; i++) {
                     node = rets[i].node[0];
-                    aggConst.backColName = null;
+                    aggConst = backConstsMap[node.name.name];
                     aggConst.dagName = node.name.name;
                     aggConst.aggName = node.name.name;
-                    aggConst.op = node.input.aggregateInput.evalStr;
-                    aggConst.tableName = node.input.aggregateInput
-                                                    .srcTable.tableName;
+                    aggConst.backColName = null;
+                    aggConst.op = node.input.aggregateInput.eval[0].evalString;
+                    aggConst.tableName = node.input.aggregateInput.source;
                     aggConst.value = null;
                     aggConst.backOnly = true;
                     backConstsList.push(aggConst);
