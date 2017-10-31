@@ -879,6 +879,42 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     };
 
+    TableList.makeTableNoDelete = function(tableId) {
+        var tableType;
+        var $li;
+        var $listWrap;
+
+        var table = gTables[tableId];
+        if (table) {
+            tableType = table.getType();
+        } else {
+            tableType = TableType.Orphan;
+        }
+
+        $listWrap = getListWrap(tableType);
+        $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
+        if (!$li.find(".lockIcon").length) {
+            $li.append('<div class="lockIcon"></div>');
+        }
+    };
+
+    TableList.removeTableNoDelete = function(tableId) {
+        var tableType;
+        var $li;
+        var $listWrap;
+
+        var table = gTables[tableId];
+        if (table) {
+            tableType = table.getType();
+        } else {
+            tableType = TableType.Orphan;
+        }
+
+        $listWrap = getListWrap(tableType);
+        $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
+        $li.find(".lockIcon").remove();
+    };
+
     TableList.addToCanceledList = function(tableName) {
         canceledTables[tableName] = true;
         TableList.removeTable(tableName, TableType.Orphan);
@@ -1215,6 +1251,11 @@ window.TableList = (function($, TableList) {
                         '</div>';
             }
 
+            var lockIcon = "";
+            if (table.isNoDelete()) {
+                lockIcon =  '<div class="lockIcon"></div>';
+            }
+
             var html =
                 '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '">' +
@@ -1250,6 +1291,7 @@ window.TableList = (function($, TableList) {
                         '<span>)</span>' +
                     '</div>' +
                     generateColumnList(table.tableCols, numCols) +
+                    lockIcon +
                 '</li>';
             totalHtml += html;
 
@@ -1354,6 +1396,10 @@ window.TableList = (function($, TableList) {
         if (lockedTables[tableId]) {
             liClass += " locked";
         }
+        var lockIcon = "";
+        if (gTables[tableId] && gTables[tableId].isNoDelete()) {
+            lockIcon = '<div class="lockIcon"></div>';
+        }
         html += '<li class="clearfix tableInfo ' + liClass + '" ' +
                 'data-id="' + tableId + '"' +
                 'data-tablename="' + tableName + '">' +
@@ -1373,6 +1419,7 @@ window.TableList = (function($, TableList) {
                             tableName +
                         '</span>' +
                     '</div>' +
+                    lockIcon +
                  '</li>';
         return html;
     }

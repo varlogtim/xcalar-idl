@@ -1106,7 +1106,7 @@ html.edge {
         }
 
         &:hover {
-            .dropdownBox {
+            .dropdownBox .innerBox {
                 opacity: 1;
             }
         }
@@ -1116,7 +1116,6 @@ html.edge {
             .size(25px, 36px);
             z-index: @z-index-tableHeaderGrab;
             border: none;
-            opacity: 0.4;
             cursor: pointer;
 
             .innerBox {
@@ -1125,9 +1124,16 @@ html.edge {
                 .size(@width: 15px, @height: 11px);
                 border-top: 11px solid transparent;
                 border-right: 11px solid @color-border-darkGray;
+                opacity: 0.4;
             }
             &.dropdownBoxHidden {
                 display: none !important;
+            }
+
+            .lockIcon {
+                .position(absolute, @top: 0px, @right: 4px);
+                .size(17px, 20px);
+                .image("../../images/dagIcons/lock-white.png", 50%, 50%);
             }
         }
 

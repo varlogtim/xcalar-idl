@@ -644,12 +644,21 @@ window.TblManager = (function($, TblManager) {
             }
         }
         table.addNoDelete();
+        var $tableHeader = $("#xcTheadWrap-" + tableId);
+        var $dropdownBox = $tableHeader.find(".dropdownBox");
+        if (!$dropdownBox.find(".lockIcon").length) {
+            $dropdownBox.append('<div class="lockIcon"></div>');
+        }
+        TableList.makeTableNoDelete(tableId);
         return table;
     };
 
     TblManager.removeTableNoDelete = function(tableId) {
         var table = gTables[tableId];
         table.removeNoDelete();
+        var $tableHeader = $("#xcTheadWrap-" + tableId);
+        $tableHeader.find(".lockIcon").remove();
+        TableList.removeTableNoDelete(tableId);
         return table;
     };
 
@@ -1983,6 +1992,10 @@ window.TblManager = (function($, TblManager) {
                              '" class="xcTheadWrap dataTable" ' +
                              'data-id="' + tableId + '" ' +
                              'style="top:0px;"></div>');
+        var lockIcon = "";
+        if (gTables[tableId].isNoDelete()) {
+            lockIcon = '<div class="lockIcon"></div>';
+        }
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
         var tableTitleClass = "";
@@ -2005,6 +2018,7 @@ window.TblManager = (function($, TblManager) {
                             'title="' + TooltipTStr.ViewTableOptions +
                             '" >' +
                             '<span class="innerBox"></span>' +
+                            lockIcon +
                         '</div>' +
                     '</div>';
 

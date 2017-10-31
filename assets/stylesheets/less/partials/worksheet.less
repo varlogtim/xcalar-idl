@@ -1104,7 +1104,7 @@ ul.CodeMirror-hints {
             .size(@width: 100%, @min-height: 38px);
             padding: 5px 15px 0 10px;
             .font(@line-height: 25px, @size: 13px);
-
+            .position(relative);
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.3);
@@ -1208,6 +1208,7 @@ ul.CodeMirror-hints {
             // .font(@color: @color-font-pinkish-grey);
             white-space: nowrap;
             overflow: hidden;
+            .position(relative);
 
             > span {
                 display: inline-block;
@@ -1275,6 +1276,12 @@ ul.CodeMirror-hints {
                 max-width: 25px;
                 .textOverflowOneLine;
             }
+        }
+
+        .lockIcon {
+            .position(absolute, @top: 6px, @right: 2px);
+            .size(17px, 20px);
+            .image("../../images/dagIcons/lock-white.png", 50%, 50%);
         }
 
         .columnList {
