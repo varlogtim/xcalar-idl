@@ -1271,7 +1271,7 @@ describe("Dag Panel Test", function() {
                 var gbCalled = false;
                 XcalarGroupByWithInput = function(txId, input) {
                     gbCalled = true;
-                    expect(input.evalStrs[0].indexOf("count")).to.equal(0);
+                    expect(input.eval[0].evalString.indexOf("count")).to.equal(0);
                     return PromiseHelper.reject();
                 };
 
@@ -1303,7 +1303,7 @@ describe("Dag Panel Test", function() {
                 var gbCalled = false;
                 XcalarGroupByWithInput = function(txId, input) {
                     gbCalled = true;
-                    expect(input.evalStrs[0].indexOf("count")).to.equal(0);
+                    expect(input.eval[0].evalString.indexOf("count")).to.equal(0);
                     return PromiseHelper.resolve();
                 };
                 var cachedRefresh = TblManager.refreshTable;
@@ -1975,7 +1975,7 @@ describe("Dag Panel Test", function() {
             var fn = DagDraw.__testOnly__.getDagNodeInfo;
             var node = {
                 value: {
-                    struct: {filterStr: "not(eq(col, 2))"},
+                    struct: {eval: [{evalString: "not(eq(col, 2))"}]},
                     display: {},
                     api: XcalarApisT.XcalarApiFilter
                 },
@@ -1988,14 +1988,14 @@ describe("Dag Panel Test", function() {
             expect(res.type).to.equal("filternot");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: not(eq(col, 2))");
 
-            node.value.struct ={filterStr: "other(col, 2)"};
+            node.value.struct = {eval: [{evalString: "other(col, 2)"}]};
             res = fn(node, "filterInput");
 
             expect(res.type).to.equal("filterother");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: other(col, 2)");
             expect(res.column).to.equal("col");
 
-            node.value.struct = {filterStr: "other(col, 2)"};
+            node.value.struct = {eval: [{evalString: "other(col, 2)"}]};
             res = fn(node, "otherInput");
             expect(res.type).to.equal("other");
             expect(res.tooltip).to.equal("Other");
@@ -2371,34 +2371,20 @@ describe("Dag Panel Test", function() {
                 "api": 2,
                 "state": 5,
                 "input": {
-                    "loadInput": {
-                        "dataset": {
-                            "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
-                            "datasetId": "11793",
-                            "formatType": 1,
-                            "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                            "loadIsComplete": false,
-                            "refCount": 0,
-                            "isListable": false,
-                            "udfName": ""
-                        },
-                        "loadArgs": {
-                            "csv": {
-                                "recordDelim": "\n",
-                                "quoteDelim": "\"",
-                                "linesToSkip": 0,
-                                "fieldDelim": "",
-                                "isCRLF": true,
-                                "hasHeader": false
-                            },
-                            "udfLoadArgs": {
-                                "fullyQualifiedFnName": ""
-                            },
-                            "recursive": false,
-                            "fileNamePattern": "",
-                            "maxSize": 0
-                        },
-                        "dagNodeId": "18014398509488925"
+                    "loadInput" : {
+                        "url": "file:///netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
+                        "fileNamePattern": "",
+                        "udf": "",
+                        "dest": "XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                        "size": 0,
+                        "format": "json",
+                        "recordDelim": "\n",
+                        "fieldDelim": "",
+                        "quoteDelim": "\"",
+                        "linesToSkip": 0,
+                        "crlf": true,
+                        "header": false,
+                        "recursive": false
                     }
                 }
             };
@@ -2416,16 +2402,9 @@ describe("Dag Panel Test", function() {
                 "input": {
                     "indexInput": {
                         "dhtName": "",
-                        "source": {
-                            "isTable": false,
-                            "name": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                            "nodeId": "18014398509488925"
-                        },
-                        "keyName": "xcalarRecordNum",
-                        "dstTable": {
-                            "tableName": "yelp_academic_dataset_user_fixed#DP0",
-                            "tableId": "18014398509489069"
-                        },
+                        "source": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                        "key": {name: "xcalarRecordNum"},
+                        "dest": "yelp_academic_dataset_user_fixed#DP0",
                         "ordering": 0,
                         "fatptrPrefixName": "",
                         "keyType": 0
@@ -2446,16 +2425,9 @@ describe("Dag Panel Test", function() {
                 "input": {
                     "indexInput": {
                         "dhtName": "",
-                        "source": {
-                            "isTable": true,
-                            "name": "yelp_academic_dataset_user_fixed#DP0",
-                            "nodeId": "18014398509489069"
-                        },
-                        "keyName": "yelp_academic_dataset_user_fixe::type",
-                        "dstTable": {
-                            "tableName": "yelp_academic_dataset_user_fixed#DP3",
-                            "tableId": "18014398509611722"
-                        },
+                        "source": "yelp_academic_dataset_user_fixed#DP0",
+                        "key": {"name": "yelp_academic_dataset_user_fixe::type"},
+                        "destTable": "yelp_academic_dataset_user_fixed#DP3",
                         "ordering": 3,
                         "fatptrPrefixName": "",
                         "keyType": 0
@@ -2475,76 +2447,39 @@ describe("Dag Panel Test", function() {
                 "state": 1,
                 "input": {
                     "exportInput": {
-                        "srcTable": {
-                            "tableName": "yelp_academic_dataset_user_fixed#DP3",
-                            "tableId": "8299634059700679470"
-                        },
-                        "exportName": "",
-                        "meta": {
-                            "target": {
-                                "type": 1,
-                                "name": "Default"
+                        "source": "yelp_academic_dataset_user_fixed#DP3",
+                        "fileName": "",
+                        "targetName": "Default",
+                        "targetType": "file",
+                        "dest": ".XcalarLRQExport.schedule#p71",
+                        "columns": [
+                            {
+                                "columnName": "schedule::class_id",
+                                "headerName": "class_id"
                             },
-                            "specificInput": {
-                                "sfInput": {
-                                    "fileName": "export-students#wE1.csv",
-                                    "format": 2,
-                                    "splitRule": {
-                                        "type": 1,
-                                        "spec": {
-                                            "numFiles": 0,
-                                            "maxSize": 3665476190
-                                        }
-                                    },
-                                    "headerType": 1,
-                                    "formatArgs": {
-                                        "csv": {
-                                            "fieldDelim": "\t",
-                                            "recordDelim": "\n",
-                                            "quoteDelim": "\""
-                                        },
-                                        "json": {
-                                            "array": false
-                                        },
-                                        "sql": {
-                                            "tableName": "",
-                                            "dropTable": false,
-                                            "createTable": false
-                                        }
-                                    }
-                                },
-                                "udfInput": {
-                                    "fileName": "",
-                                    "format": 0,
-                                    "headerType": 0,
-                                    "formatArgs": {
-                                        "csv": {
-                                            "fieldDelim": "",
-                                            "recordDelim": "",
-                                            "quoteDelim": ""
-                                        },
-                                        "json": {
-                                            "array": false
-                                        },
-                                        "sql": {
-                                            "tableName": "",
-                                            "dropTable": false,
-                                            "createTable": false
-                                        }
-                                    }
-                                }
+                            {
+                                "columnName": "schedule::duration",
+                                "headerName": "duration"
                             },
-                            "createRule": 1,
-                            "sorted": true,
-                            "numColumns": 2,
-                            "columns": [{
-                                "name": "students::student_name",
-                                "headerAlias": "student_name"
-                            }, {
-                                "name": "students::student_id",
-                                "headerAlias": "student_id"
-                            }]
-                        }
+                            {
+                                "columnName": "schedule::time",
+                                "headerName": "time"
+                            },
+                            {
+                                "columnName": "schedule::teacher_id",
+                                "headerName": "teacher_id"
+                            }
+                        ],
+                        "splitRule": "none",
+                        "splitSize": 0,
+                        "splitNumFiles": 0,
+                        "headerType": "every",
+                        "createRule": "createOnly",
+                        "sorted": true,
+                        "format": "csv",
+                        "fieldDelim": "\t",
+                        "recordDelim": "\n",
+                        "quoteDelim": "\""
                     }
                 }
             };
@@ -2578,7 +2513,6 @@ describe("Dag Panel Test", function() {
             invalidNode.input = indexNode.input;
 
             var nodes = [sortNode, indexNode, invalidNode];
-
             DagDraw.createDagImage(nodes, $dagWrap);
             expect($dagWrap.hasClass("hasUnexpectedNode")).to.be.true;
             $dagWrap.remove();

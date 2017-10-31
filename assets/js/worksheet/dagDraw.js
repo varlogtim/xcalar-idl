@@ -1240,7 +1240,7 @@ window.DagDraw = (function($, DagDraw) {
                 icon = 'xi_data';
                 storedInfo.datasets[tableName] = dagInfo;
                 dagInfo.dagNodeId = node.value.dagNodeId;
-                pattern = dagInfo.fileNamePattern;
+                pattern = dagInfo.loadInfo.fileNamePattern;
             } else {
                 console.error("unexpected node", "api: " + node.value.api);
                 tableClasses += "unexpectedNode ";
@@ -1646,17 +1646,8 @@ window.DagDraw = (function($, DagDraw) {
                     info.url = value.url;
                     var loadInfo = xcHelper.deepCopy(value);
                     info.loadInfo = loadInfo;
-                    // loadInfo.url = loadInfo.url;
-                    // loadInfo.format = loadInfo.format;
                     loadInfo.name = loadInfo.dest;
                     delete loadInfo.dest;
-                    // XXX there is no .loadArgs, handle this
-                    if (loadInfo.loadArgs) {
-                        loadInfo.loadArgs.udf = loadInfo.loadArgs.udfLoadArgs
-                                                        .fullyQualifiedFnName;
-                        delete loadInfo.loadArgs.udfLoadArgs;
-                    }
-
                     delete loadInfo.dataset;
                     delete loadInfo.dagNodeId;
                     break;
@@ -1689,7 +1680,7 @@ window.DagDraw = (function($, DagDraw) {
                     break;
                 case ('indexInput'):
                     info.column = value.key.name;
-                    if (node.parents[0].value.api ===
+                    if (!node.parents[0] || node.parents[0].value.api ===
                         XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
                         info.type = "createTable";

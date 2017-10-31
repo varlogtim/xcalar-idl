@@ -1389,7 +1389,7 @@ describe("Dataset-DSObj Test", function() {
                 return PromiseHelper.reject({httpStatus: 502});
             };
             XcalarGetQuery = function() {
-                return PromiseHelper.resolve("someString");
+                return "someString";
             };
             XcalarGetDatasets = function() {
                 getDatasetsCalled = true;
@@ -1400,7 +1400,6 @@ describe("Dataset-DSObj Test", function() {
                     }]
                 });
             };
-
             XcalarLoad("file:///test", "JSON", "testDS", null, 1)
             .then(function(ret) {
                 expect(getDatasetsCalled).to.be.true;

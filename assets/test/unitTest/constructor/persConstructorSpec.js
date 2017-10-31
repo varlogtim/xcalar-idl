@@ -3020,7 +3020,7 @@ describe("Persistent Constructor Test", function() {
             var oldList = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({
-                    "parameters": [{"paraName": "a"}]
+                    "parameters": [{"paramName": "a"}]
                 });
             };
 

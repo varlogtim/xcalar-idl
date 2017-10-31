@@ -299,7 +299,7 @@ describe("DFCard Test", function() {
                 expect(name).to.equal(testDfName);
                 called = true;
             };
-            $("#dfMenu").find(".downloadDataflow").eq(0).click();
+            $("#dfMenu").find(".selected .downloadDataflow").eq(0).click();
             expect(called).to.be.true;
             XcSupport.downloadLRQ = cached;
         });
@@ -312,7 +312,7 @@ describe("DFCard Test", function() {
                 return PromiseHelper.reject();
             };
 
-            $("#dfMenu").find(".deleteDataflow").eq(0).click();
+            $("#dfMenu").find(".selected .deleteDataflow").eq(0).click();
             UnitTest.hasAlertWithTitle(DFTStr.DelDF, {confirm: true});
             expect(called).to.be.true;
             expect($dfCard.hasClass("deleting")).to.be.false;
@@ -536,7 +536,7 @@ describe("DFCard Test", function() {
             var cache2 = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({numParameters: 1,
-                                parameters: [{paraName: "N"}]});
+                                parameters: [{paramName: "N"}]});
             };
             DFCard.__testOnly__.setCanceledRun(testDfName);
             DFCard.__testOnly__.runDF(testDfName)

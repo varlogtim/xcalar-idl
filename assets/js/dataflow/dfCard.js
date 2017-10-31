@@ -887,7 +887,7 @@ window.DFCard = (function($, DFCard) {
         var nodeIdMap = $dagTable.closest(".dagWrap").data("allDagInfo")
                                                      .nodeIdMap;
         var exportNode = nodeIdMap[nodeId];
-        var cols = exportNode.value.struct.meta.columns;
+        var cols = exportNode.value.struct.columns;
         var numCols = cols.length;
 
         $popup.find('.tableName').text(tableName);
@@ -897,7 +897,7 @@ window.DFCard = (function($, DFCard) {
         var html = '';
 
         for (var i = 0; i < numCols; i++) {
-            var name = cols[i].name; // or we can show cols[i].headerAlias
+            var name = cols[i].columnName; // or we can show cols[i].headerAlias
             html += '<li>' +
                         '<div title="' + name + '" class="name">' +
                             name + '</div>' +

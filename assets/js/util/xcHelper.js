@@ -2761,12 +2761,37 @@ window.xcHelper = (function($, xcHelper) {
             return (0);
         }
     };
+
+    // used to split query into array of subqueries by semicolons
+    // returns array of objects, objects contain query, name, and dstTable
+    xcHelper.parseQuery = function(query) {
+        var isJson = false;
+        var parsedQuery;
+        try {
+            parsedQuery = $.parseJSON(query);
+            isJson = true;
+        } catch (err) {
+            // normal if using an old extension
+        }
+        if (!isJson) {
+            return parseQuery(query);
+        } else {
+            var queries = [];
+            if ($.isArray(parsedQuery)) {
+                for (var i = 0; i < parsedQuery.length; i++) {
+                    queries.push(getSubQueryObj(JSON.stringify(parsedQuery[i]), parsedQuery[i]));
+                }
+            } else {
+                queries.push(getSubQueryObj(query, parsedQuery));
+            }
+            return queries;
+        }
+    };
+
     // used to split query into array of subqueries by semicolons
     // XX not checking for /n or /r delimiter, just semicolon
     // returns array of objects, objects contain query, name, and dstTable
-    // options: {}, isExport: boolean,
-    xcHelper.parseQuery = function(query, options) {
-        options = options || {};
+    function parseQuery(query) {
         var tempString = "";
         var inQuotes = false;
         var singleQuote = false;
@@ -2842,6 +2867,33 @@ window.xcHelper = (function($, xcHelper) {
 
         return (queries);
     };
+
+    function getSubQueryObj(query, parsedQuery) {
+        var operation = parsedQuery.operation;
+        var srcTables;
+        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
+            srcTables = parsedQuery.args.source;
+        } else {
+            srcTables = [parsedQuery.args.source];
+        }
+        var dstTable;
+        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
+            parsedQuery.args.dest.indexOf(gDSPrefix) === -1) {
+            dstTable = gDSPrefix + parsedQuery.args.dest;
+        } else {
+            dstTable = parsedQuery.args.dest;
+        }
+        var subQuery = {
+            "query": query,
+            "name": operation,
+            "srcTables": srcTables,
+            "dstTable": dstTable
+        };
+        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+            subQuery.exportFileName = parsedQuery.args.fileName;
+        }
+        return subQuery;
+    }
 
     function getSrcTableFromQuery(query, type) {
         var keyWord = "--srctable";
