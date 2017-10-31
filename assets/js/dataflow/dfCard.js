@@ -218,7 +218,8 @@ window.DFCard = (function($, DFCard) {
 
         df.parameters.forEach(function(paramName) {
             if (!systemParams.hasOwnProperty(paramName)) {
-                addParamToRetina(paramName, paramMap[paramName]);
+                addParamToRetina(paramName, paramMap[paramName],
+                                df.paramMapInUsed[paramName]);
             }
         });
 
@@ -242,7 +243,7 @@ window.DFCard = (function($, DFCard) {
         return retData;
     };
 
-    function addParamToRetina(name, val) {
+    function addParamToRetina(name, val, isInUse) {
         var $row = $retLists.find(".unfilled:first");
 
         if ($row.length === 0) {
@@ -257,6 +258,11 @@ window.DFCard = (function($, DFCard) {
             if (val === "") {
                 $row.find(".checkbox").addClass("checked");
             }
+        }
+        if (isInUse) {
+            var $paramAction = $row.find(".paramActionWrap");
+            $paramAction.addClass("unavailable");
+            xcTooltip.add($paramAction, {title: ErrTStr.InUsedNoDelete});
         }
 
         $row.removeClass("unfilled");
