@@ -1031,7 +1031,7 @@ LoginConfigTStr = {
 };
 
 JupyterTStr = {
-    "JupNotebook": "Jupiter Notebook",
+    "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "对象和数组类型的列无法重命名",
       // with replace
     "SampleNumError": "请选择1至<number>的行作为样本。"
