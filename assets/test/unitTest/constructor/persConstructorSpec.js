@@ -1738,6 +1738,14 @@ describe("Persistent Constructor Test", function() {
 
             table._setSkewness();
             expect(table.getSkewness()).to.equal(100);
+
+            // case 2
+            table.backTableMeta = {
+                "metas": [{ "numRows": 0 }, { "numRows": 1 }]
+            };
+
+            table._setSkewness();
+            expect(table.getSkewness()).to.equal(0);
         });
 
         it("should get size", function() {

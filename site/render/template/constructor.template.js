@@ -872,16 +872,21 @@
                 var total = rows.reduce(function(sum, value) {
                     return sum + value;
                 }, 0);
-                // change to percantage
-                rows = rows.map(function(row) {
-                    return row / total;
-                });
+                if (total === 1) {
+                    // 1 row has no skewness
+                    skewness = 0;
+                } else {
+                    // change to percantage
+                    rows = rows.map(function(row) {
+                        return row / total;
+                    });
 
-                skewness = rows.reduce(function(sum, value) {
-                    return sum + Math.abs(value - even);
-                }, 0);
+                    skewness = rows.reduce(function(sum, value) {
+                        return sum + Math.abs(value - even);
+                    }, 0);
 
-                skewness = Math.floor(skewness * 100);
+                    skewness = Math.floor(skewness * 100);
+                }
                 this.skewness = skewness;
             },
 

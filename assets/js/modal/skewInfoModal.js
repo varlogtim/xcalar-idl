@@ -80,7 +80,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         var $svg = $modal.find(".chart").empty();
         var svg = d3.select($svg.get(0));
 
-        var margin = {top: 15, right: 20, bottom: 55, left: 50};
+        var margin = {top: 15, right: 20, bottom: 55, left: 70};
         var width = $svg.width() - margin.left - margin.right;
         var height = $svg.height() - margin.top - margin.bottom;
 
