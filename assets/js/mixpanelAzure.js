@@ -58,19 +58,25 @@
                 "$last_name": name
             });
         }
+        var version = "No version info";
+        if (XVM.getVersion()) {
+            version = XVM.getVersion().split("-")[0];
+        }
         mixpanel.track("LoginEvent", {
             "Username": name,
+            "Version": version,
             "Timestamp": (new Date()).getTime()
         });
-        emailNotification(name);
+        emailNotification(name, version);
         lastFocus = (new Date()).getTime();
     });
 
-    function emailNotification(username) {
+    function emailNotification(username, version) {
         var emailOpts = {
             "username": username,
             "timestamp": (new Date()).getTime(),
-            "host": window.location.hostname
+            "host": window.location.hostname,
+            "version": version
         };
         $.ajax({
             "type": "POST",
