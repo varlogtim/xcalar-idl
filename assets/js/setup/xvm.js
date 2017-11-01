@@ -64,6 +64,9 @@ window.XVM = (function(XVM) {
         if (Admin.isAdmin()) {
             // admin skip the check
             return;
+        } else if (typeof numUsers !== "number" || numUsers <= 0) {
+            console.error("license not set up correctly!");
+            return;
         }
 
         var curNumUsers = Object.keys(users).length;
