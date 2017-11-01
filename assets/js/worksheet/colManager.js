@@ -417,9 +417,7 @@ window.ColManager = (function($, ColManager) {
 
         function getSplitNumHelper(userNumColToGet, toSplitAll) {
             if (!toSplitAll) {
-                // have an extra column for the rest of string
-                // and the delim index should be userNumColToGet
-                return alertHelper(userNumColToGet + 1);
+                return alertHelper(userNumColToGet);
             }
 
             var innerDeferred = jQuery.Deferred();
@@ -477,11 +475,7 @@ window.ColManager = (function($, ColManager) {
                 ++tryCount;
 
                 for (i = 0; i < numNewCols; i++) {
-                    if (i === (numNewCols - 1) && !splitAll) {
-                        newFieldNames[i] = colPrefix + "-rest";
-                    } else {
-                        newFieldNames[i] = colPrefix + "-" + (i + 1);
-                    }
+                    newFieldNames[i] = colPrefix + "-" + (i + 1);
 
                     if (table.hasCol(newFieldNames[i], "")) {
                         newFieldNames = [];
@@ -503,15 +497,8 @@ window.ColManager = (function($, ColManager) {
         function getSplitStrs() {
             var mapStrs = [];
             for (var i = 0; i < numNewCols; i++) {
-                var mapStr;
-                if (i === (numNewCols - 1) && !splitAll) {
-                    mapStr = 'default:splitWithDelim(' + backColName + ', ' +
-                              i + ', "' + delimiter + '")';
-                } else {
-                    mapStr = 'cut(' + backColName + ', ' + (i + 1) + ', "' +
-                             delimiter + '")';
-                }
-                mapStrs[i] = mapStr;
+                mapStrs[i] = 'cut(' + backColName + ', ' + (i + 1) + ', "' +
+                            delimiter + '")';
             }
             return mapStrs;
         }
