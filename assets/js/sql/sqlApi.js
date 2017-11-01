@@ -1,6 +1,7 @@
-window.SQLApi = (function() {
+(function() {
     var indexTableCache = {};
     var reverseIndexMap = {};
+    var root = this;
 
     function SQLApi() {
         return this;
@@ -52,7 +53,7 @@ window.SQLApi = (function() {
                 "noNotification": true,
                 "noSql": true
             });
-            console.log("query", query);
+            // console.log("query", query);
             return query;
         },
 
@@ -116,37 +117,52 @@ window.SQLApi = (function() {
             return deferred.promise();
         },
 
-        run: function(query, tableName) {
+        _refreshTable: function(txId, tableName) {
             var deferred = jQuery.Deferred();
-            var txId = Transaction.start({
-                "operation": "Execute SQL"
-            });
-            var queryName = xcHelper.randName("sql");
-            var worksheet = WSManager.getActiveWS();
-            var self = this;
-
-            XIApi.query(txId, queryName, query)
-            .then(function() {
-                return self._getQueryTableCols(tableName);
-            })
+            this._getQueryTableCols(tableName)
             .then(function(tableCols) {
+                var worksheet = WSManager.getActiveWS();
                 return TblManager.refreshTable([tableName], tableCols,
                                             null, worksheet, txId, {
                                                 "focusWorkspace": true
                                             });
             })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
+        run: function(query, tableName) {
+            var deferred = jQuery.Deferred();
+            var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
+            var txId = !isSqlMode && Transaction.start({
+                "operation": "Execute SQL"
+            });
+            var queryName = xcHelper.randName("sql");
+            var self = this;
+            XIApi.query(txId, queryName, query)
             .then(function() {
-                Transaction.done(txId, {
-                    "msgTable": xcHelper.getTableId(tableName)
-                    // XXX TODO: add sql
-                });
+                if (!isSqlMode) {
+                    return self._refreshTable(txId, tableName);
+                }
+            })
+            .then(function() {
+                if (!isSqlMode) {
+                    Transaction.done(txId, {
+                        "msgTable": xcHelper.getTableId(tableName)
+                        // XXX TODO: add sql
+                    });
+                }
                 deferred.resolve(tableName);
             })
             .fail(function(error) {
-                Transaction.fail(txId, {
-                    "failMsg": "Execute SQL faild",
-                    "error": error
-                });
+                if (!isSqlMode) {
+                    Transaction.fail(txId, {
+                        "failMsg": "Execute SQL faild",
+                        "error": error
+                    });
+                }
                 deferred.reject(error);
             });
 
@@ -506,5 +522,13 @@ window.SQLApi = (function() {
         //     return XIApi.fetchColumnData(colName, tableName, startRowNum, rowsToFetch);
         // },
     };
-    return SQLApi;
+
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = SQLApi;
+        }
+        exports.SQLApi = SQLApi;
+    } else {
+        root.SQLApi = SQLApi;
+    }
 }());

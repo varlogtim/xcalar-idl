@@ -2,22 +2,28 @@
     This file is where all the global variables go
 */
 
+var has_require = typeof require !== 'undefined';
 // =================================== Globals =================================
-var KB = 1024;
-var MB = 1024 * KB;
-var GB = 1024 * MB;
-var TB = 1024 * GB;
-var PB = 1024 * TB;
+KB = 1024;
+MB = 1024 * KB;
+GB = 1024 * MB;
+TB = 1024 * GB;
+PB = 1024 * TB;
 // ========================================================================== //
-var gNumEntriesPerPage = 20;
-var gMaxEntriesPerPage = 60;
-var gMinRowsPerScreen = 60;
-var gFirstRowPositionTop = 60;
-var gNewCellWidth = 125;
-var gMouseStatus = null;
-var gPrefixLimit = 31;
-var gMouseEvents = new MouseEvents();
-var gRescol = {
+gNumEntriesPerPage = 20;
+gMaxEntriesPerPage = 60;
+gMinRowsPerScreen = 60;
+gFirstRowPositionTop = 60;
+gNewCellWidth = 125;
+gMouseStatus = null;
+gPrefixLimit = 31;
+
+if (!has_require) {
+  gMouseEvents = new MouseEvents();
+  gLastClickTarget = $(window); // track which element was last clicked
+}
+
+gRescol = {
     "minCellHeight": 25,
     "cellMinWidth": 15,
     "clicks": 0,
@@ -25,7 +31,7 @@ var gRescol = {
     "timer": null
 };
 
-var gMinTableWidth = 30;
+gMinTableWidth = 30;
 // XXX TODOS(bug 2319): this part should change to right scope after backend fix
 /*
   "AUTH": Authentication info (should be XcalarApiKeyScopeSession)
@@ -38,7 +44,7 @@ var gMinTableWidth = 30;
   "VER" : For KVVersion (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "GLOB": general global
  */
-var gKVScope = {
+gKVScope = {
     "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -52,47 +58,46 @@ var gKVScope = {
     "XD": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "INIT": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
-var gTables = {}; // This is the main global array containing structures
+gTables = {}; // This is the main global array containing structures
                   // Stores TableMeta structs
-var gOrphanTables = [];
-var gActiveTableId = "";
-var gLastClickTarget = $(window); // track which element was last clicked
-var gIsTableScrolling = false;
-var gMinModeOn = false;
-var gMutePromises = true; // mutes .when() console logs
-var gAggVarPrefix = "^";
-var gColPrefix = '$';
-var gPrefixSign = '::';
-var gRetSign = ":";
-var gDSPrefix = '.XcalarDS.';
-var gHiddenColumnWidth = 15;
-var gTurnOnPrefix = true;
-var gUploadChunkSize = 45 * MB;
+gOrphanTables = [];
+gActiveTableId = "";
+gIsTableScrolling = false;
+gMinModeOn = false;
+gMutePromises = true; // mutes .when() console logs
+gAggVarPrefix = "^";
+gColPrefix = '$';
+gPrefixSign = '::';
+gRetSign = ":";
+gDSPrefix = '.XcalarDS.';
+gHiddenColumnWidth = 15;
+gTurnOnPrefix = true;
+gUploadChunkSize = 45 * MB;
 
 // ======== Support Parameters ======== //
-var gExportNoCheck = false;
-var gAlwaysDelete = false;
-var gEnableCopyCols = false;
-var gEnableJoinKeyCheck = false;
-var gShowDroppedTablesImage = false;
-var gDefaultFDelim = "\t";
-var gDefaultRDelim = "\n";
-var gDefaultQDelim = '"';
-var gLongTestSuite = 1;
-var gMaxColToPull = 200; // Max num of column can create directly from preview.
-var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
+gExportNoCheck = false;
+gAlwaysDelete = false;
+gEnableCopyCols = false;
+gEnableJoinKeyCheck = false;
+gShowDroppedTablesImage = false;
+gDefaultFDelim = "\t";
+gDefaultRDelim = "\n";
+gDefaultQDelim = '"';
+gLongTestSuite = 1;
+gMaxColToPull = 200; // Max num of column can create directly from preview.
+gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want
                         // to use it anymore, just set it back to 0
-var gUdfDefaultNoCheck = false; // when set true, allow update default udf
-var gSessionNoCleanup = false;
-var gIcvMode = false;
-var gEnableIndexStyle = false;
-var gAdmin = false; // if admin user
-var gXcSupport = false; // if xcalar support user
-var gEnableLocalFiles = false;
-var gDemoMemory = false;
-var gCollab = false; // if strip / in username or not
+gUdfDefaultNoCheck = false; // when set true, allow update default udf
+gSessionNoCleanup = false;
+gIcvMode = false;
+gEnableIndexStyle = false;
+gAdmin = false; // if admin user
+gXcSupport = false; // if xcalar support user
+gEnableLocalFiles = false;
+gDemoMemory = false;
+gCollab = false; // if strip / in username or not
 
 // Shut up the console logs
-var verbose = false;
-var superVerbose = false;
+verbose = false;
+superVerbose = false;

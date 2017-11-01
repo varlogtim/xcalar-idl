@@ -1,4 +1,7 @@
-window.xcHelper = (function($, xcHelper) {
+(function() {
+    var xcHelper = {};
+    var root = this;
+
     xcHelper.reload = function() {
         // override heartbeat check function so that it cannot run during reload
         XcSupport.heartbeatCheck = function() {};
@@ -2845,7 +2848,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (queries);
-    };
+    }
 
     function getSubQueryObj(query, parsedQuery) {
         var operation = parsedQuery.operation;
@@ -3642,7 +3645,7 @@ window.xcHelper = (function($, xcHelper) {
                     }
                 }
                 if (!promise) {
-                    promise = PromiseHelper.resolve(null);
+                    promise = PromiseHelper.resolve(DfFieldTypeT.DfUnknown);
                 }
             } else {
                 promise = searchTableMetaForKey(key, tableName);
@@ -3657,7 +3660,7 @@ window.xcHelper = (function($, xcHelper) {
                 deferred.resolve(foundType);
             } else {
                 // let backend guess the type
-                deferred.resolve(null);
+                deferred.resolve(DfFieldTypeT.DfUnknown);
             }
         });
         return deferred.promise();
@@ -3672,16 +3675,16 @@ window.xcHelper = (function($, xcHelper) {
                 break;
             case (ColumnType.float):
             case (ColumnType.number): // fall through
-                type = isKnownType ? DfFieldTypeT.DfFloat64 : null;
+                type = isKnownType ? DfFieldTypeT.DfFloat64 : DfFieldTypeT.DfUnknown;
                 break;
             case (ColumnType.integer):
-                type = isKnownType ? DfFieldTypeT.DfInt64 : null;
+                type = isKnownType ? DfFieldTypeT.DfInt64 : DfFieldTypeT.DfUnknown;
                 break;
             case (ColumnType.string):
                 type = DfFieldTypeT.DfString;
                 break;
             default:
-                type = null;
+                type = DfFieldTypeT.DfUnknown;
                 break;
         }
 
@@ -3701,11 +3704,11 @@ window.xcHelper = (function($, xcHelper) {
                     return;
                 }
             }
-            deferred.resolve(null);
+            deferred.resolve(DfFieldTypeT.DfUnknown);
         })
         .fail(function() {
             // just pass with null
-            deferred.resolve(null);
+            deferred.resolve(DfFieldTypeT.DfUnknown);
         });
 
         return deferred.promise();
@@ -4293,17 +4296,24 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.enableMenuItem($menu.find('.createDf'));
     }
 
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        xcHelper.__testOnly__ = {};
-        xcHelper.__testOnly__.searchTableMetaForKey = searchTableMetaForKey;
-        xcHelper.__testOnly__.toggleUnnestandJsonOptions =
-                              toggleUnnestandJsonOptions;
-        xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
-        xcHelper.__testOnly__.translateFrontTypeToBackType =
-                            translateFrontTypeToBackType;
-    }
-    /* End Of Unit Test Only */
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = xcHelper;
+        }
+        exports.xcHelper = xcHelper;
+    } else {
+        root.xcHelper = xcHelper;
 
-    return (xcHelper);
-}(jQuery, {}));
+        /* Unit Test Only */
+        if (root.unitTestMode) {
+            xcHelper.__testOnly__ = {};
+            xcHelper.__testOnly__.searchTableMetaForKey = searchTableMetaForKey;
+            xcHelper.__testOnly__.toggleUnnestandJsonOptions =
+                                  toggleUnnestandJsonOptions;
+            xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
+            xcHelper.__testOnly__.translateFrontTypeToBackType =
+                                translateFrontTypeToBackType;
+        }
+        /* End Of Unit Test Only */
+    }
+}());

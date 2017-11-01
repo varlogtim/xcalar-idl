@@ -1,68 +1,68 @@
-var SortDirection = {
+SortDirection = {
     Forward: 1,
     Backward: 2
 };
 
-var RowDirection = {
+RowDirection = {
     Top: 1,
     Bottom: 2
 };
 
-var KeepOriginalTables = {
+KeepOriginalTables = {
     Keep: true,
     DontKeep: false
 };
 
-var IsActive = {
+IsActive = {
     Active: true,
     Inactive: false
 };
 
-var AfterStartup = {
+AfterStartup = {
     After: true,
     Before: false
 };
 
-var SelectUnit = {
+SelectUnit = {
     All: true,
     Single: false
 };
 
-var SPMode = {
+SPMode = {
     Normal: 1,
     Selected: 2,
     Equation: 3,
     Type: 4
 };
 
-var ExecuteAction = {
+ExecuteAction = {
     Update: 1,
     Eval: 2
 };
 
-var JoinKeySuggestion = {
+JoinKeySuggestion = {
     KeySuggested: 1,
     KeyUnsure: 2,
     KeyNotFound: 3
 };
 
-var AffectedEntryAction = {
+AffectedEntryAction = {
     AddConnected: 1,
     DelConnected: 2,
     DelConnectedRemoveEntry: 3
 };
 
-var SyncOrAsync = {
+SyncOrAsync = {
     Sync: true,
     Async: false
 };
 
-var ArchiveTable = {
+ArchiveTable = {
     Delete: true,
     Keep: false
 };
 
-var WSTableType = {
+WSTableType = {
     "Active"    : "tables",
     "Archive"   : "archivedTables",
     "TempHidden": "tempHiddenTables",
@@ -71,13 +71,13 @@ var WSTableType = {
     "Lock"      : "lockedTables"
 };
 
-var DelWSType = {
+DelWSType = {
     "Del": "drop tables",
     "Archive": "archive tables",
     "Empty": 'empty sheet'
 };
 
-var TableType = {
+TableType = {
     "Active"  : "active",
     "Archived": "archived",
     "Orphan"  : "orphaned",
@@ -88,24 +88,24 @@ var TableType = {
     "Aggregate": "aggregate"
 };
 
-var ColDir = {
+ColDir = {
     "Left" : "L",
     "Right": "R"
 };
 
-var ColFormat = {
+ColFormat = {
     "Default": "default",
     "Percent": "percent"
 };
 
-var ColTextAlign = {
+ColTextAlign = {
     "Left"  : "Left",
     "Right" : "Right",
     "Center": "Center",
     "Wrap"  : "Wrap"
 };
 
-var ColumnType = {
+ColumnType = {
     "array"    : "array",
     "boolean"  : "boolean",
     "float"    : "float",
@@ -118,18 +118,18 @@ var ColumnType = {
     "unknown"  : "unknown"
 };
 
-var ColumnSortType = {
+ColumnSortType = {
     "name": "name",
     "type": "type",
     "prefix": "prefix"
 };
 
-var ColumnSortOrder = {
+ColumnSortOrder = {
     "ascending" : -1,
     "descending": 1
 };
 
-var DSObjTerm = {
+DSObjTerm = {
     "homeDir": ".",
     "homeDirId": ".",
     "homeParentId": ".parent",
@@ -137,14 +137,14 @@ var DSObjTerm = {
     "OtherUserFolderId": ".other"
 };
 
-var DSFormat = {
+DSFormat = {
     "JSON": "JSON",
     "SpecialJSON": "SpecialJSON",
     "CSV": "CSV",
     "XML": "XML"
 };
 
-var FileProtocol = {
+FileProtocol = {
     "nfs": "file:///",
     "hdfs": "hdfs://",
     "file": "localfile:///",
@@ -153,7 +153,7 @@ var FileProtocol = {
     "azblob": "azblob://"
 };
 
-var fakeEvent = {
+fakeEvent = {
     "click"     : {"type": "click", "which": 1},
     "dblclick"  : {"type": "click", "which": 1},
     "mouseup"   : {"type": "mouseup", "which": 1},
@@ -166,7 +166,7 @@ var fakeEvent = {
     "input": {"type": "input"}
 };
 
-var keyCode = {
+keyCode = {
     Backspace: 8,
     Tab: 9,
     Enter: 13,
@@ -212,7 +212,7 @@ var keyCode = {
     Z: 90
 };
 
-var letterCode = {
+letterCode = {
     "65": "a",
     "66": "b",
     "67": "c",
@@ -241,12 +241,12 @@ var letterCode = {
     "90": "z"
 };
 
-var FltOp = {
+FltOp = {
     "Filter" : "Filter",
     "Exclude": "Exclude"
 };
 
-var AggrOp = {
+AggrOp = {
     "Max"       : "Max",
     "Min"       : "Min",
     "Avg"       : "Avg",
@@ -258,13 +258,13 @@ var AggrOp = {
     "ListAgg"   : "ListAgg"
 };
 
-var SetupStatus = {
+SetupStatus = {
     "Success": "Success",
     "Fail": "Fail",
     "Setup": "Setup"
 };
 
-var QueryStatus = {
+QueryStatus = {
     "Run": "processing",
     "Done": "done",
     "Error": "error",
@@ -272,13 +272,13 @@ var QueryStatus = {
     "RM": "removed"
 };
 
-var SQLType = {
+SQLType = {
     Fail: "fail handler",
     Error: "error",
     Cancel: "cancel"
 };
 
-var SQLOps = {
+SQLOps = {
     DSPoint: "importDataSource",
     IndexDS: "indexFromDataset",
     AddOtherUserDS: "addOtherUserDS",
@@ -354,41 +354,41 @@ var SQLOps = {
     Replay: "Replay"
 };
 
-var XcalarMode = {
+XcalarMode = {
     Oper: "operational",
     Mod: "modeling",
     Demo: "demo",
     Unlic: "unlicensed",
 };
 
-var MLSetting = {
+MLSetting = {
     SuggestJoinKey: "SuggestJoinKey",
     SuggestType: "SuggestType",
     DetectDelim: "DetectDelim",
 };
 
 // Should be a superset of MLSetting
-var XCTrackerCategory = {
+XCTrackerCategory = {
     SuggestJoinKey: "SuggestJoinKey",
 };
 
 // system Param
-var systemParams = {
+systemParams = {
     "N": 0,
 };
 
 // Global predefined keys
-var GlobalKVKeys = {
+GlobalKVKeys = {
     InitFlag: "alreadyInit",
     XdFlag: "xdGlobalKey"
 };
 
-var InitFlagState = {
+InitFlagState = {
     AlreadyInit: "inited",
     NotYetInit: "not inited"
 };
 
-var ConcurrencyEnum = {
+ConcurrencyEnum = {
     NoKey: "Key seems non-existent",
     NoLock: "Lock cannot be undefined",
     AlreadyInit: "Mutex already initialized",
@@ -396,7 +396,7 @@ var ConcurrencyEnum = {
     NoKVStore: "kvStore / kvEntry not found"
 };
 
-var JoinCompoundOperator = {
+JoinCompoundOperator = {
     "Left Semi Join": 10,
     "Right Semi Join": 11,
     "Left Anti Semi Join": 12,
@@ -404,7 +404,7 @@ var JoinCompoundOperator = {
     "Cross Join": 14,
 };
 
-var JoinCompoundOperatorTStr = {
+JoinCompoundOperatorTStr = {
     LeftSemiJoin: "Left Semi Join",
     RightSemiJoin: "Right Semi Join",
     LeftAntiSemiJoin: "Left Anti Semi Join",

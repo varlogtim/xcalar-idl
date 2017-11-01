@@ -1,4 +1,6 @@
-window.PromiseHelper = (function(PromiseHelper, $) {
+(function() {
+    var PromiseHelper = {};
+    var root = this;
     /**
     oneIter: Function that returns a promise. It represents one iteration of the
     loop.
@@ -165,6 +167,13 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         return deferred.promise();
     };
 
-    return (PromiseHelper);
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = PromiseHelper;
+        }
+        exports.PromiseHelper = PromiseHelper;
+    } else {
+        root.PromiseHelper = PromiseHelper;
+    }
 
-}({}, jQuery));
+}());

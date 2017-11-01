@@ -1454,7 +1454,10 @@ global.Thrift = Thrift;
 var jQuery;
 var $;
 var xcalarApi;
+var xcHelper;
+var PromiseHelper;
 var XIApi;
+var Transaction;
 var SQLApi;
 var SQLCompiler;
 
@@ -1490,11 +1493,81 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
     require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
     xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
-    require("./XcalarThrift.js");
-    global.XIApi = XIApi = require("./xiApi");
-    global.SQLApi = SQLApi = require("./sqlApi");
-    SQLCompiler = require("./sqlCompiler");
+
+    require("../../../assets/js/globals.js");
+    require("../../../assets/js/enums.js");
+
+    global.PromiseHelper = PromiseHelper = require("../../../assets/js/util/promiseHelper.js");
+    global.xcHelper = xcHelper = require("../../../assets/js/util/xcHelper.js");
+    global.Transaction = Transaction = require("../../../assets/js/util/transaction.js");
+
+    hackFunction();
+
+    require("../../../assets/js/XcalarThrift.js");
+    global.XIApi = XIApi = require("../../../assets/js/util/xiApi.js");
+    global.SQLApi = SQLApi = require("../../../assets/js/sql/sqlApi.js");
+    SQLCompiler = require("../../../assets/js/sql/sqlCompiler.js");
 });
+
+function hackFunction() {
+    global.TblManager = {
+        setOrphanTableMeta: function() {}
+    };
+
+    global.ColManager = {
+        newPullCol: function(colName, backColName, type) {
+            if (backColName == null) {
+                backColName = colName;
+            }
+
+            var prefix = xcHelper.parsePrefixColName(backColName).prefix;
+            var width = xcHelper.getDefaultColWidth(colName, prefix);
+
+            return {
+                "backName": backColName,
+                "name": colName,
+                "type": type || null,
+                "width": width,
+                "isNewCol": false,
+                "userStr": '"' + colName + '" = pull(' + backColName + ')',
+                "func": {
+                    "name": "pull",
+                    "args": [backColName]
+                },
+                "sizedTo": "header"
+            };
+        },
+
+        newDATACol: function() {
+            return {
+                "backName": "DATA",
+                "name": "DATA",
+                "type": "object",
+                "width": "auto",// to be determined when building table
+                "userStr": "DATA = raw()",
+                "func": {
+                    "name": "raw",
+                    "args": []
+                },
+                "isNewCol": false
+            };
+        }
+    };
+
+    global.Authentication = {
+        getHashId: function() {
+            return xcHelper.randName("#api");
+        }
+    };
+
+    global.MonitorGraph = {
+        tableUsageChange: function() {}
+    };
+
+    global.Log = {
+        errorLog: function() { console.log.apply(this, arguments); }
+    };
+}
 
 
 var logInUser;
@@ -1502,7 +1575,6 @@ var logInUser;
 exports.connect = function(hostname, username, id) {
     if (getTHandle() != null) {
         if (username !== logInUser) {
-            console.log("1")
             return jQuery.Deferred().reject("Authentication fails").promise();
         } else {
             return XcalarGetVersion();
@@ -1514,7 +1586,6 @@ exports.connect = function(hostname, username, id) {
         logInUser = username;
         return XcalarGetVersion();
     } else {
-        console.log("2")
         return jQuery.Deferred().reject("Authentication fails").promise();
     }
 };
@@ -1624,8 +1695,8 @@ exports.sql = function(sql) {
 
 var sqlDS;
 var sqlTable;
-var sqlUser = "sql";
-var sqlId = 4705991;
+var sqlUser = "xcalar-internal-sql";
+var sqlId = 4193719;
 
 exports.sqlLoad = function(path) {
     global.sqlMode = true;
@@ -1647,7 +1718,7 @@ exports.sqlLoad = function(path) {
     exports.connect("localhost:9090", sqlUser, sqlId)
     .then(function() {
         console.log("connected");
-        return XIApi.load(dsArgs, formatArgs, sqlDS, txId);
+        return loadDS(dsArgs, formatArgs, sqlDS, txId);
     })
     .then(function() {
         console.log("load dataset");
@@ -1676,6 +1747,33 @@ exports.sqlLoad = function(path) {
 
     return deferred.promise();
 };
+
+function loadDS(dsArgs, formatArgs, sqlDS, txId) {
+    var deferred = jQuery.Deferred();
+
+    XIApi.load(dsArgs, formatArgs, sqlDS, txId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
+            console.log("create new workbook");
+            createNewSession()
+            .then(function() {
+                return XIApi.load(dsArgs, formatArgs, sqlDS, txId);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return deferred.promise();
+}
+
+function createNewSession() {
+    var wkbkName = "sql-workbook4";
+    return PromiseHelper.alwaysResolve(XcalarNewWorkbook(wkbkName, false));
+}
 
 function getSchema(tableName) {
     var deferred = jQuery.Deferred();
@@ -1762,8 +1860,6 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
 
 function convertToDerivedColAndGetSchema(txId, tableName, dstTable) {
     var deferred = jQuery.Deferred();
-    var schema = null;
-    
     getSchema(tableName)
     .then(function(schema) {
         return getDerivedCol(txId, tableName, schema, dstTable);
@@ -1788,7 +1884,7 @@ exports.sqlPlan = function(execid, planStr, rowsToFetch) {
         exports.connect("localhost:9090", sqlUser, sqlId)
         .then(function() {
             console.log("connected");
-            return new SQLCompiler().compile(plan, true);
+            return sqlPlan(plan);
         })
         .then(function(tableName) {
             console.log("get table from plan", tableName);
@@ -1822,11 +1918,32 @@ exports.sqlPlan = function(execid, planStr, rowsToFetch) {
     return deferred.promise();
 };
 
+function sqlPlan(plan) {
+    var deferred = jQuery.Deferred();
+    var planCopy = xcHelper.deepCopy(plan);
+    new SQLCompiler().compile(plan, true)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
+            createNewSession()
+            .then(function() {
+                return new SQLCompiler().compile(planCopy, true);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return deferred.promise();
+}
+
 function parseRows(data, schema) {
     try {
         var headers = schema.map(function(cell) {
             return Object.keys(cell)[0];
-        }); 
+        });
 
         var rows = data.map(function(row) {
             row = JSON.parse(row);

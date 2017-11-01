@@ -1,9 +1,14 @@
-window.Transaction = (function(Transaction) {
+(function() {
+    var Transaction = {};
+
     var txCache = {};
     var canceledTxCache = {};
     var disabledCancels = {};
     var txIdCount = 1;
     var isDeleting = false;
+
+    var root = this;
+    var has_require = (typeof require !== "undefined");
 
     Transaction.start = function(options) {
         options = options || {};
@@ -32,7 +37,7 @@ window.Transaction = (function(Transaction) {
         txCache[curId] = txLog;
 
         var numSubQueries;
-        if (options.steps != null) {
+        if (options.steps != null && !has_require) {
             if (!isNaN(options.steps) || options.steps < 1) {
                 numSubQueries = options.steps;
             } else {
@@ -62,7 +67,9 @@ window.Transaction = (function(Transaction) {
         if (canceledTxCache[txId]) {
             // if canceled, Transaction.cancel already took care of the cleanup
             // and messages
-            QueryManager.cleanUpCanceledTables(txId);
+            if (!has_require) {
+                QueryManager.cleanUpCanceledTables(txId);
+            }
             return;
         }
 
@@ -72,7 +79,7 @@ window.Transaction = (function(Transaction) {
         // add success msg
         var msgId = txLog.getMsgId();
 
-        if (msgId != null) {
+        if (msgId != null && !has_require) {
             var noNotification = options.noNotification || false;
             var tableId = options.msgTable;
             var msgOptions = options.msgOptions;
@@ -85,7 +92,7 @@ window.Transaction = (function(Transaction) {
         var queryNum;
         if (options.noSql) {
             queryNum = null;
-        } else {
+        } else if (!has_require) {
             var cli = txLog.getCli();
             // if has new sql, use the new one, otherwise, use the cached one
             var sql = options.sql || txLog.getSQL();
@@ -95,21 +102,23 @@ window.Transaction = (function(Transaction) {
             queryNum = Log.getCursor();
         }
 
-        QueryManager.queryDone(txId, queryNum);
+        if (!has_require) {
+            QueryManager.queryDone(txId, queryNum);
 
-        // check if we need to update monitorGraph's table usage
-        var dstTables = QueryManager.getAllDstTables(txId);
-        if (dstTables.length) {
-            var hasTableChange = false;
-            for (var i = 0; i < dstTables.length; i++) {
-                if (dstTables[i].indexOf(gDSPrefix) === -1) {
-                    hasTableChange = true;
-                    break;
+            // check if we need to update monitorGraph's table usage
+            var dstTables = QueryManager.getAllDstTables(txId);
+            if (dstTables.length) {
+                var hasTableChange = false;
+                for (var i = 0; i < dstTables.length; i++) {
+                    if (dstTables[i].indexOf(gDSPrefix) === -1) {
+                        hasTableChange = true;
+                        break;
+                    }
                 }
-            }
-            // XcalarDeleteTable also triggers tableUsageChange
-            if (hasTableChange) {
-                MonitorGraph.tableUsageChange();
+                // XcalarDeleteTable also triggers tableUsageChange
+                if (hasTableChange) {
+                    MonitorGraph.tableUsageChange();
+                }
             }
         }
 
@@ -117,7 +126,7 @@ window.Transaction = (function(Transaction) {
         removeTX(txId);
 
         // commit
-        if (willCommit) {
+        if (willCommit && !has_require) {
             KVStore.commit();
         }
 
@@ -135,7 +144,9 @@ window.Transaction = (function(Transaction) {
         }
         if (canceledTxCache[txId]) {
             // transaction failed due to a cancel
-            QueryManager.cleanUpCanceledTables(txId);
+            if (!has_require) {
+                QueryManager.cleanUpCanceledTables(txId);
+            }
             return;
         }
 
@@ -151,7 +162,9 @@ window.Transaction = (function(Transaction) {
             if (options && options.sql && options.sql.tableId) {
                 srcTableId = options.sql.tableId;
             }
-            StatusMessage.fail(failMsg, msgId, srcTableId);
+            if (!has_require) {
+                StatusMessage.fail(failMsg, msgId, srcTableId);
+            }
         }
 
         // add error sql
@@ -164,13 +177,15 @@ window.Transaction = (function(Transaction) {
         }
         title = xcHelper.capitalize(title);
 
-        Log.errorLog(title, sql, cli, error);
-        QueryManager.fail(txId, error);
+        if (!has_require) {
+            Log.errorLog(title, sql, cli, error);
+            QueryManager.fail(txId, error);
 
-        // add alert(optional)
-        if (!options.noAlert) {
-            var alertTitle = failMsg || CommonTxtTstr.OpFail;
-            Alert.error(alertTitle, error);
+            // add alert(optional)
+            if (!options.noAlert) {
+                var alertTitle = failMsg || CommonTxtTstr.OpFail;
+                Alert.error(alertTitle, error);
+            }
         }
 
         transactionCleaner();
@@ -250,12 +265,15 @@ window.Transaction = (function(Transaction) {
         var tx = txCache[txId];
         tx.addCli(cli);
 
-        if (dstTableName || timeObj != null) {
+        if (!has_require && (dstTableName || timeObj != null)) {
             QueryManager.subQueryDone(txId, dstTableName, timeObj, options);
         }
     };
 
     Transaction.startSubQuery = function(txId, name, dstTable, query, options) {
+        if (has_require) {
+            return;
+        }
         options = options || {};
         var subQueries = xcHelper.parseQuery(query);
         if (dstTable && subQueries.length === 1 && !options.retName) {
@@ -280,7 +298,9 @@ window.Transaction = (function(Transaction) {
     };
 
     Transaction.cleanUpCanceledTables = function(txId) {
-        QueryManager.cleanUpCanceledTables(txId);
+        if (!has_require) {
+            QueryManager.cleanUpCanceledTables(txId);
+        }
     };
 
     Transaction.getCache = function() {
@@ -318,7 +338,7 @@ window.Transaction = (function(Transaction) {
     }
 
     function transactionCleaner() {
-        if (gAlwaysDelete && !isDeleting) {
+        if (!has_require && gAlwaysDelete && !isDeleting) {
             isDeleting = true;
 
             TableList.refreshOrphanList(false)
@@ -386,14 +406,19 @@ window.Transaction = (function(Transaction) {
         },
 
         "addCli": function(cli) {
-            // XXX the ";" should be remove after backend change!
             this.cli += cli;
-            if (cli.slice(-1) !== ";") {
-                this.cli += ";";
+            if (cli.slice(-1) !== ",") {
+                this.cli += ",";
             }
         }
     };
 
-
-    return (Transaction);
-}({}));
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = Transaction;
+        }
+        exports.Transaction = Transaction;
+    } else {
+        root.Transaction = Transaction;
+    }
+}());

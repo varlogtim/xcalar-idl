@@ -1,5 +1,8 @@
-window.XIApi = (function(XIApi) {
+(function() {
+    var XIApi = {};
     var aggOps = null;
+
+    var root = this;
 
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
         if (txId == null || fltStr == null || tableName == null) {
@@ -258,7 +261,7 @@ window.XIApi = (function(XIApi) {
         }
 
         if (!isValidTableName(newTableName)) {
-            newTableName = getNewTableName(tableName);
+            newTableName = getNewTableName(newTableName);
         }
 
         if (!isValidPrefix(prefix)) {
@@ -2140,7 +2143,6 @@ window.XIApi = (function(XIApi) {
 
     function isValidTableName(tableName) {
         var isValid = isCorrectTableNameFormat(tableName);
-
         if (!isValid) {
             if (tableName != null) {
                 console.error("incorrect table name format");
@@ -2179,7 +2181,9 @@ window.XIApi = (function(XIApi) {
         if (tableName == null || tableName === "") {
             return false;
         }
-
+        if (typeof sqlMode !== "undefined" && sqlMode) {
+            return true;
+        }
         var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
         var regexp = new RegExp(regex);
         return regexp.test(tableName);
@@ -2211,5 +2215,12 @@ window.XIApi = (function(XIApi) {
         return xcHelper.normalizePrefix(dsName);
     }
 
-    return (XIApi);
-}({}));
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = XIApi;
+        }
+        exports.XIApi = XIApi;
+    } else {
+        root.XIApi = XIApi;
+    }
+}());

@@ -1,4 +1,6 @@
-window.SQLCompiler = (function() {
+(function() {
+    var root = this;
+
     function SQLCompiler() {
         this.sqlObj = new SQLApi();
         return this;
@@ -228,7 +230,8 @@ window.SQLCompiler = (function() {
     };
 
     SQLCompiler.prototype = {
-        compile: function(sqlQueryString) {
+        compile: function(sqlQueryString, isJsonPlan) {
+            var outDeferred = jQuery.Deferred();
             var self = this;
             var promiseArray = [];
             function traverseAndPushDown(node) {
@@ -305,7 +308,11 @@ window.SQLCompiler = (function() {
                 }
             }
 
-            sendPost("getQueryJson", {"queryString": sqlQueryString})
+            var promise = isJsonPlan
+                          ? PromiseHelper.resolve(sqlQueryString) // this is a json plan
+                          : sendPost("getQueryJson", {"queryString": sqlQueryString});
+
+            promise
             .then(function(jsonArray) {
                 var tree = SQLCompiler.genTree(undefined, jsonArray);
                 traverseAndPushDown(tree);
@@ -314,14 +321,24 @@ window.SQLCompiler = (function() {
                     // Tree has been augmented with xccli
                     var cliArray = [];
                     getCli(tree, cliArray);
+                    cliArray = cliArray.map(function(cli) {
+                        if (cli.endsWith(",")) {
+                            cli = cli.substring(0, cli.length - 1);
+                        }
+                        return cli;
+                    });
                     var queryString = "[" + cliArray.join(",") + "]";
                     //queryString = queryString.replace(/\\/g, "\\");
-                    console.log(queryString);
-                    self.sqlObj.run(queryString, tree.newTableName);
-                });
-            });
+                    // console.log(queryString);
+                    self.sqlObj.run(queryString, tree.newTableName, isJsonPlan)
+                    .then(outDeferred.resolve)
+                    .fail(outDeferred.reject);
+                })
+                .fail(outDeferred.reject);
+            })
+            .fail(outDeferred.reject);
 
-
+            return outDeferred.promise();
         },
 
         _pushDownIgnore: function(node) {
@@ -950,5 +967,12 @@ window.SQLCompiler = (function() {
         }
     }
 
-    return SQLCompiler;
+    if (typeof exports !== "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = SQLCompiler;
+        }
+        exports.SQLCompiler = SQLCompiler;
+    } else {
+        root.SQLCompiler = SQLCompiler;
+    }
 }());
