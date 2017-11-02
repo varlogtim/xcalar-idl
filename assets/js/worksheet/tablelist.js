@@ -827,9 +827,9 @@ window.TableList = (function($, TableList) {
         $listWrap = getListWrap(tableType);
 
         if (tableType === TableType.Orphan) {
-            if (!xcHelper.getTableId(tableIdOrName)) {
-                $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName +
-                                    '"]');
+            var id = xcHelper.getTableId(tableIdOrName);
+            if (id) {
+                $li = $listWrap.find('.tableInfo[data-id="' + id + '"]');
             } else {
                 $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
