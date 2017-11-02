@@ -77,7 +77,7 @@ window.MainMenu = (function($, MainMenu) {
         }
         if ($tab) {
             var wasActive = true;
-            if (!$tab.hasClass("active") || Workbook.isWBMode()) {
+            if (!$tab.hasClass("active") || WorkbookPanel.isWBMode()) {
                 wasActive = false;
                 $tab.click();
             }
@@ -242,7 +242,7 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
-            Workbook.hide(true);
+            WorkbookPanel.hide(true);
 
             var $curTab = $(this);
             var $target = $(event.target);

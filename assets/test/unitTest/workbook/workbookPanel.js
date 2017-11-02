@@ -1,4 +1,4 @@
-describe("Workbook Test", function() {
+describe("Workbook- Workbook Pane Test", function() {
     var $workbookPanel;
 
     before(function(){
@@ -8,7 +8,7 @@ describe("Workbook Test", function() {
 
     describe("Basic Api Test", function() {
         it("Should show workbook", function(done) {
-            Workbook.show();
+            WorkbookPanel.show();
 
             var checkFunc = function() {
                 return $("#container").hasClass("workbookMode");
@@ -26,7 +26,7 @@ describe("Workbook Test", function() {
         });
 
         it("Should hide workbook", function(done) {
-            Workbook.hide(true);
+            WorkbookPanel.hide(true);
             var checkFunc = function() {
                 return !$("#container").hasClass("workbookMode");
             };
@@ -43,7 +43,7 @@ describe("Workbook Test", function() {
         });
 
         it("should have noting happen if trigger hide again", function() {
-            Workbook.hide();
+            WorkbookPanel.hide();
             expect($workbookPanel.find(".workbookBox.active").length)
             .to.equal(0);
         });
@@ -91,7 +91,7 @@ describe("Workbook Test", function() {
         });
 
         it("should go to setup", function() {
-            Workbook.goToSetup();
+            WorkbookPanel.goToSetup();
             expect($("#container").hasClass("setupMode")).to.be.true;
 
             $("#monitorPanel .backToWB").click();
@@ -181,7 +181,7 @@ describe("Workbook Test", function() {
                 return PromiseHelper.resolve(workbookId);
             };
 
-            Workbook.edit(workbookId, name, description)
+            WorkbookPanel.edit(workbookId, name, description)
             .then(function() {
                 expect(test).to.be.false;
                 done();
@@ -201,7 +201,7 @@ describe("Workbook Test", function() {
                 return PromiseHelper.resolve(workbookId);
             };
 
-            Workbook.edit(workbookId, name, newDescription)
+            WorkbookPanel.edit(workbookId, name, newDescription)
             .then(function() {
                 expect(test).to.be.true;
                 done();
@@ -219,7 +219,7 @@ describe("Workbook Test", function() {
                 return PromiseHelper.resolve(workbookId);
             };
 
-            Workbook.edit(workbookId, name, workbook.getDescription())
+            WorkbookPanel.edit(workbookId, name, workbook.getDescription())
             .then(function() {
                 expect(test).to.be.true;
                 done();
@@ -236,7 +236,7 @@ describe("Workbook Test", function() {
                 return PromiseHelper.reject(testError);
             };
 
-            Workbook.edit(workbookId, name, workbook.getDescription())
+            WorkbookPanel.edit(workbookId, name, workbook.getDescription())
             .then(function() {
                 done("fail");
             })
@@ -311,7 +311,7 @@ describe("Workbook Test", function() {
         it("Should force show the workbook", function() {
             var $input = $workbookPanel.find(".newWorkbookBox input");
             $input.val();
-            Workbook.forceShow();
+            WorkbookPanel.forceShow();
             expect($("#container").hasClass("noWorkbook")).to.be.true;
             expect($input.val()).not.to.equal("");
             $("#container").removeClass("noWorkbook");
@@ -433,15 +433,15 @@ describe("Workbook Test", function() {
         });
 
         it("Should not activate active workbook", function() {
-            var oldHide = Workbook.hide;
+            var oldHide = WorkbookPanel.hide;
             var test = false;
-            Workbook.hide = function() { test = true; };
+            WorkbookPanel.hide = function() { test = true; };
 
             var $box = $workbookPanel.find(".workbookBox.active");
             $box.find(".activate").click();
             expect(test).to.be.true;
 
-            Workbook.hide = oldHide;
+            WorkbookPanel.hide = oldHide;
         });
 
         // it("Should activate inactive workbook", function() {
@@ -615,8 +615,8 @@ describe("Workbook Test", function() {
             PromiseHelper.chain(promises)
             .then(function() {
                 // need to refresh the panel
-                Workbook.hide();
-                Workbook.show(true);
+                WorkbookPanel.hide();
+                WorkbookPanel.show(true);
 
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(1);

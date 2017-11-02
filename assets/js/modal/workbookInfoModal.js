@@ -64,7 +64,7 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         var name = $modal.find(".name input").val();
         var description = $modal.find(".description input").val();
         var workbookId = activeWorkbookId;
-        Workbook.edit(workbookId, name, description);
+        WorkbookPanel.edit(workbookId, name, description);
         closeModal();
     }
 

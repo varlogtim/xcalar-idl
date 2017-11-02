@@ -41,15 +41,15 @@ describe("Workbook Info Modal Test", function() {
         assert.isTrue($modal.is(":visible"));
 
         var test = false;
-        var oldFunc = Workbook.edit;
-        Workbook.edit = function() {
+        var oldFunc = WorkbookPanel.edit;
+        WorkbookPanel.edit = function() {
             test = true;
         };
 
         $modal.find(".confirm").click();
         expect(test).to.be.true;
         assert.isFalse($modal.is(":visible"));
-        Workbook.edit = oldFunc;
+        WorkbookPanel.edit = oldFunc;
     });
 
     after(function() {

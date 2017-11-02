@@ -60,7 +60,7 @@ window.xcManager = (function(xcManager, $) {
             var extPromise = setupExtensions();
             WSManager.initialize(); // async
             BottomMenu.initialize(); // async
-            Workbook.initialize();
+            WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
             // restore user settings
             JoinView.restore();
@@ -121,7 +121,7 @@ window.xcManager = (function(xcManager, $) {
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
             $("#initialLoadScreen").hide();
-            Workbook.forceShow();
+            WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
             XcSupport.holdSession()
@@ -512,7 +512,7 @@ window.xcManager = (function(xcManager, $) {
         JoinView.setup();
         AggModal.setup();
         OperationsView.setup();
-        Workbook.setup();
+        WorkbookPanel.setup();
         DFCreateView.setup();
         DFParamModal.setup();
         SmartCastView.setup();
@@ -576,7 +576,7 @@ window.xcManager = (function(xcManager, $) {
             }
             // visible to admin only
             if ($("#container").hasClass("noWorkbook")) {
-                Workbook.goToSetup();
+                WorkbookPanel.goToSetup();
             } else {
                 MainMenu.openPanel("monitorPanel", "setupButton");
                 MainMenu.open(true);
@@ -609,7 +609,7 @@ window.xcManager = (function(xcManager, $) {
         $("#memoryAlert").click(function() {
             if ($("#container").hasClass("noWorkbook") ||
                 $("#container").hasClass("switchingWkbk")) {
-                Workbook.goToMonitor();
+                WorkbookPanel.goToMonitor();
                 return;
             }
             if (!$(this).hasClass("yellow") && !$(this).hasClass("red")) {

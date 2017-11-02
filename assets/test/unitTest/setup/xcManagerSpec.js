@@ -27,9 +27,9 @@ describe("xcManager Test", function() {
         });
 
         it("should handle no wkbk error", function(done) {
-            var oldFunc = Workbook.forceShow;
+            var oldFunc = WorkbookPanel.forceShow;
             var test = false;
-            Workbook.forceShow = function() { test = true; };
+            WorkbookPanel.forceShow = function() { test = true; };
             var oldHold = XcSupport.holdSession;
             XcSupport.holdSession = function() {
                 return PromiseHelper.resolve();
@@ -46,7 +46,7 @@ describe("xcManager Test", function() {
                 // so cannot cache the view first
                 expect($("#viewLocation").text().includes(WKBKTStr.Location))
                 .to.be.true;
-                Workbook.forceShow = oldFunc;
+                WorkbookPanel.forceShow = oldFunc;
                 XcSupport.holdSession = oldHold;
                 done();
             })
@@ -365,13 +365,13 @@ describe("xcManager Test", function() {
         });
 
         it("should mouseup .setup to open setup panel", function() {
-            var oldSetup = Workbook.goToSetup;
+            var oldSetup = WorkbookPanel.goToSetup;
             var oldOpenPanel = MainMenu.openPanel;
             var oldOpen = MainMenu.open;
             var test1 = test2 = test3 = false;
             var noWorkbook = $("#container").hasClass("noWorkbook");
 
-            Workbook.goToSetup = function() { test1 = true; };
+            WorkbookPanel.goToSetup = function() { test1 = true; };
             MainMenu.openPanel = function() { test2 = true; };
             MainMenu.open = function() { test3 = true; };
 
@@ -397,7 +397,7 @@ describe("xcManager Test", function() {
             expect(test3).to.be.true;
 
             // clear up
-            Workbook.goToSetup = oldSetup;
+            WorkbookPanel.goToSetup = oldSetup;
             MainMenu.openPanel = oldOpenPanel;
             MainMenu.open = oldOpen;
             if (noWorkbook) {
@@ -456,16 +456,16 @@ describe("xcManager Test", function() {
         });
 
         it("should go to workbook monitor in meomryAlert", function() {
-            var oldFunc = Workbook.goToMonitor;
+            var oldFunc = WorkbookPanel.goToMonitor;
             var test = false;
             $("#container").addClass("switchingWkbk");
-            Workbook.goToMonitor = function() { test = true; };
+            WorkbookPanel.goToMonitor = function() { test = true; };
 
             $("#memoryAlert").click();
             expect(test).to.be.true;
 
             // clear up
-            Workbook.goToMonitor = oldFunc;
+            WorkbookPanel.goToMonitor = oldFunc;
             $("#container").removeClass("switchingWkbk");
         });
 

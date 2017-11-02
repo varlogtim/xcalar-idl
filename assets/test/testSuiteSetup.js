@@ -134,7 +134,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             }
 
             console.warn("This user is used to test before");
-            Workbook.show(true);
+            WorkbookPanel.show(true);
         }
 
         if (whichTest === "demo") {

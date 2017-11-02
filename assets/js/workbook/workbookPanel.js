@@ -1,4 +1,4 @@
-window.Workbook = (function($, Workbook) {
+window.WorkbookPanel = (function($, WorkbookPanel) {
     var $workbookPanel; // $("#workbookPanel")
     var $workbookTopbar; // $workbookPanel.find(".topSection")
     var $workbookSection; // $workbookPanel.find(".bottomSection")
@@ -11,7 +11,7 @@ window.Workbook = (function($, Workbook) {
                                   // workbook closes
     var newBoxSlideTime = 700;
 
-    Workbook.setup = function() {
+    WorkbookPanel.setup = function() {
         $workbookPanel = $("#workbookPanel");
         $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
@@ -31,7 +31,7 @@ window.Workbook = (function($, Workbook) {
             var $container = $("#container");
             var $dialogWrap = $("#dialogWrap");
 
-            if (Workbook.isWBMode()) {
+            if (WorkbookPanel.isWBMode()) {
                 WorkbookPreview.close();
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
@@ -64,16 +64,16 @@ window.Workbook = (function($, Workbook) {
                 } else {
                     // default, exit the workbook
                     closeWorkbookPanel();
-                    Workbook.hide();
+                    WorkbookPanel.hide();
                     $container.removeClass("monitorMode setupMode");
                 }
             } else {
-                Workbook.show();
+                WorkbookPanel.show();
             }
         });
     };
 
-    Workbook.initialize = function() {
+    WorkbookPanel.initialize = function() {
         try {
             getWorkbookInfo();
         } catch (error) {
@@ -81,7 +81,7 @@ window.Workbook = (function($, Workbook) {
         }
     };
 
-    Workbook.show = function(isForceShow) {
+    WorkbookPanel.show = function(isForceShow) {
         $workbookPanel.show();
         $("#container").addClass("workbookMode");
 
@@ -101,7 +101,7 @@ window.Workbook = (function($, Workbook) {
         $(document).on("keypress", workbookKeyPress);
     };
 
-    Workbook.hide = function(immediate) {
+    WorkbookPanel.hide = function(immediate) {
         if ($workbookPanel.hasClass("hidden")) {
             return;
         }
@@ -123,11 +123,11 @@ window.Workbook = (function($, Workbook) {
         StatusBox.forceHide();
     };
 
-    Workbook.forceShow = function() {
+    WorkbookPanel.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
         $("#container").addClass("noWorkbook noMenuBar");
         $("#container").removeClass("wkbkViewOpen");
-        Workbook.show(true);
+        WorkbookPanel.show(true);
 
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
@@ -135,7 +135,7 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookInput.val(name).select();
     };
 
-    Workbook.goToMonitor = function() {
+    WorkbookPanel.goToMonitor = function() {
         $("#container").removeClass("setupMode wkbkViewOpen");
         $("#container").addClass("monitorMode noMenuBar");
         MainMenu.tempNoAnim();
@@ -148,7 +148,7 @@ window.Workbook = (function($, Workbook) {
         }
     };
 
-    Workbook.goToSetup = function() {
+    WorkbookPanel.goToSetup = function() {
         $("#container").removeClass("monitorMode");
         $("#container").addClass("setupMode noMenuBar");
         MainMenu.tempNoAnim();
@@ -158,8 +158,54 @@ window.Workbook = (function($, Workbook) {
         }
     };
 
-    Workbook.isWBMode = function() {
+    WorkbookPanel.isWBMode = function() {
         return $("#container").hasClass("workbookMode");
+    };
+
+    WorkbookPanel.edit = function(workbookId, newName, description) {
+        var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
+            return $(this).attr("data-workbook-id") === workbookId;
+        });
+
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var oldWorkbookName = workbook.getName();
+        var oldDescription = workbook.getDescription() || "";
+        if (oldWorkbookName === newName && oldDescription === description) {
+            return PromiseHelper.resolve();
+        } else {
+            var deferred = jQuery.Deferred();
+            var promise;
+            if (oldWorkbookName === newName) {
+                // only update description
+                promise = WorkbookManager.updateDescription(workbookId, description);
+            } else {
+                promise = WorkbookManager.renameWKBK(workbookId, newName, description);
+            }
+            $workbookBox.addClass("loading")
+                            .find(".loadSection .text").text(WKBKTStr.Updating);
+            var loadDef = jQuery.Deferred();
+            setTimeout(function() {
+                // if only update description, it could blink the UI if update
+                // is too fast, so use this to slow it down.
+                loadDef.resolve();
+            }, 500);
+
+            PromiseHelper.when(promise, loadDef.promise())
+            .then(function(curWorkbookId) {
+                updateWorkbookInfo($workbookBox, curWorkbookId);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                handleError(error, $workbookBox);
+                deferred.reject(error);
+            })
+            .always(function() {
+                $workbookBox.removeClass("loading")
+                            .find(".loadSection .text").text(WKBKTStr.Creating);
+            });
+
+            return deferred.promise();
+        }
     };
 
     function resetWorkbook() {
@@ -208,7 +254,7 @@ window.Workbook = (function($, Workbook) {
         // go to monitor panel
         $workbookTopbar.find(".monitorBtn, .monitorLink").click(function(e) {
             e.preventDefault(); // prevent monitor link from actually navigating
-            Workbook.goToMonitor();
+            WorkbookPanel.goToMonitor();
         });
 
         // from monitor to workbook panel
@@ -247,7 +293,7 @@ window.Workbook = (function($, Workbook) {
             var workbookId = $workbookBox.attr("data-workbook-id");
             if (WorkbookManager.getActiveWKBK() === workbookId) {
                 $(".tooltip").remove();
-                Workbook.hide();
+                WorkbookPanel.hide();
             } else {
                 WorkbookManager.switchWKBK(workbookId)
                 .fail(function(error) {
@@ -375,52 +421,6 @@ window.Workbook = (function($, Workbook) {
             xcTooltip.auto(this, $div[0]);
         });
     }
-
-    Workbook.edit = function(workbookId, newName, description) {
-        var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
-            return $(this).attr("data-workbook-id") === workbookId;
-        });
-
-        var workbook = WorkbookManager.getWorkbook(workbookId);
-        var oldWorkbookName = workbook.getName();
-        var oldDescription = workbook.getDescription() || "";
-        if (oldWorkbookName === newName && oldDescription === description) {
-            return PromiseHelper.resolve();
-        } else {
-            var deferred = jQuery.Deferred();
-            var promise;
-            if (oldWorkbookName === newName) {
-                // only update description
-                promise = WorkbookManager.updateDescription(workbookId, description);
-            } else {
-                promise = WorkbookManager.renameWKBK(workbookId, newName, description);
-            }
-            $workbookBox.addClass("loading")
-                            .find(".loadSection .text").text(WKBKTStr.Updating);
-            var loadDef = jQuery.Deferred();
-            setTimeout(function() {
-                // if only update description, it could blink the UI if update
-                // is too fast, so use this to slow it down.
-                loadDef.resolve();
-            }, 500);
-
-            PromiseHelper.when(promise, loadDef.promise())
-            .then(function(curWorkbookId) {
-                updateWorkbookInfo($workbookBox, curWorkbookId);
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                handleError(error, $workbookBox);
-                deferred.reject(error);
-            })
-            .always(function() {
-                $workbookBox.removeClass("loading")
-                            .find(".loadSection .text").text(WKBKTStr.Creating);
-            });
-
-            return deferred.promise();
-        }
-    };
 
     function workbookKeyPress(event) {
         switch (event.which) {
@@ -878,5 +878,5 @@ window.Workbook = (function($, Workbook) {
         return objs;
     }
 
-    return (Workbook);
+    return (WorkbookPanel);
 }(jQuery, {}));

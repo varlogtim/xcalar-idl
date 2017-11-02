@@ -1172,7 +1172,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         countdown()
         .always(function() {
             MainMenu.close(true);
-            Workbook.hide(true);
+            WorkbookPanel.hide(true);
 
             deferred.resolve();
         });
