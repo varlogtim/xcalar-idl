@@ -54,7 +54,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             updateTableList(tableList);
         });
 
-        $workbookPanel.on("click", ".delete", function() {
+        $workbookPreview.on("click", ".delete", function() {
             var tableName = getTableNameFromEle(this);
             deleteTable(tableName);
         });
