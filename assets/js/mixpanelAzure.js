@@ -1,5 +1,7 @@
-(function($) {
-    (function(e, a) {
+window.xcMixpanel = (function($, xcMixpanel) {
+    xcMixpanel.setup = function() {
+        var e = document;
+        var a = [];
         if (!a.__SV) {
             var b = window;
             try {
@@ -45,64 +47,61 @@
             b.src = "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL ? MIXPANEL_CUSTOM_LIB_URL : "file:" === e.location.protocol && "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//) ? "https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js" : "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";
             c = e.getElementsByTagName("script")[0];
             c.parentNode.insertBefore(b, c);
+            window.mixpanel.init("5678112905d2b1154062e2b2361848bd");
+            xcMixpanel.addListeners();
         }
-    })(document, window.mixpanel || []);
+    };
+    xcMixpanel.addListeners = function() {
+        var lastFocus;
+        $(window).load(function() {
+            var name = XcSupport.getUser();
+            if (name){
+                mixpanel.identify(name);
+                mixpanel.people.set({
+                    "$last_name": name
+                });
+            }
+            mixpanel.track("LoginEvent", {
+                "Username": name,
+                "Timestamp": (new Date()).getTime()
+            });
+            emailNotification(name);
+            lastFocus = (new Date()).getTime();
+        });
 
-    mixpanel.init("5678112905d2b1154062e2b2361848bd");
-    var lastFocus;
-    $(window).load(function() {
-        var name = XcSupport.getUser();
-        if (name){
-            mixpanel.identify(name);
-            mixpanel.people.set({
-                "$last_name": name
+        function emailNotification(username) {
+            var emailOpts = {
+                "username": username,
+                "timestamp": (new Date()).getTime(),
+                "host": window.location.hostname
+            };
+            $.ajax({
+                "type": "POST",
+                "url": "https://kura8uu67a.execute-api.us-west-2.amazonaws.com/prod/mixpanel",
+                "data": JSON.stringify(emailOpts),
+                "contentType": "application/json",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
             });
         }
-        var version = "No version info";
-        if (XVM.getVersion()) {
-            version = XVM.getVersion().split("-")[0];
-        }
-        mixpanel.track("LoginEvent", {
-            "Username": name,
-            "Version": version,
-            "Timestamp": (new Date()).getTime()
-        });
-        emailNotification(name, version);
-        lastFocus = (new Date()).getTime();
-    });
 
-    function emailNotification(username, version) {
-        var emailOpts = {
-            "username": username,
-            "timestamp": (new Date()).getTime(),
-            "host": window.location.hostname,
-            "version": version
-        };
-        $.ajax({
-            "type": "POST",
-            "url": "https://kura8uu67a.execute-api.us-west-2.amazonaws.com/prod/mixpanel",
-            "data": JSON.stringify(emailOpts),
-            "contentType": "application/json",
-            success: function(data) {
-                console.log(data);
-            },
-            error: function(error) {
-                console.log(error);
-            }
+        $(window).focus(function() {
+            lastFocus = (new Date()).getTime();
+        });
+        $(window).blur(function() {
+            var timestamp = (new Date()).getTime();
+            var time = (timestamp - lastFocus)/1000 + " s";
+            mixpanel.track("focusEvent", {
+                "Time": time,
+                "Timestamp": timestamp,
+                "Username": XcSupport.getUser(),
+                "Host": window.location.hostname
+            });
         });
     }
-
-    $(window).focus(function() {
-        lastFocus = (new Date()).getTime();
-    });
-    $(window).blur(function() {
-        var timestamp = (new Date()).getTime();
-        var time = (timestamp - lastFocus)/1000 + " s";
-        mixpanel.track("focusEvent", {
-            "Time": time,
-            "Timestamp": timestamp,
-            "Username": XcSupport.getUser(),
-            "Host": window.location.hostname
-        });
-    });
-}(jQuery));
+    return (xcMixpanel);
+}(jQuery, {}));
