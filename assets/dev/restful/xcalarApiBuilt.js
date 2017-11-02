@@ -1521,7 +1521,7 @@ function hackFunction() {
             }
 
             var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-            var width = xcHelper.getDefaultColWidth(colName, prefix);
+            var width = 100;
 
             return {
                 "backName": backColName,
