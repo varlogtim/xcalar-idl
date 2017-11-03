@@ -1364,8 +1364,9 @@ window.DSPreview = (function($, DSPreview) {
         var oldFormat = loadArgs.getFormat();
         var hasChangeFormat = toggleFormat(format);
         if (hasChangeFormat) {
-            if (oldFormat.toUpperCase() === "EXCEL" ||
-                format.toUpperCase() === "EXCEL") {
+            if (oldFormat != null &&
+                (oldFormat.toUpperCase() === "EXCEL" ||
+                format.toUpperCase() === "EXCEL")) {
                 refreshPreview(true);
             } else {
                 getPreviewTable();
@@ -1856,6 +1857,10 @@ window.DSPreview = (function($, DSPreview) {
                 rowData = lineSplitHelper(data, lineDelim);
             } else {
                 rowData = parseJSONByRow(data);
+            }
+
+            if (rowData == null) {
+                return 0;
             }
 
             var lines = rowData.length;
