@@ -490,7 +490,6 @@ window.AggModal = (function($, AggModal) {
                          "avg($arg2)))), sqrt(mult(sum(pow(sub($arg1, " +
                          "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), " +
                          "2)))))";
-
         // the display order is column's order is column0, column1...columnX
         // row's order is columnX, column(X-1).....column1
         // but for simplity to handle duplicate col case,
@@ -524,25 +523,27 @@ window.AggModal = (function($, AggModal) {
                     var aggRow = aggCols[row];
                     var isValid = true;
 
-                    if (cachedHorColNums != null) {
-                        isValid = isValid &&
-                                  (cachedHorColNums.includes(aggRow.colNum) ||
-                                  cachedHorColNums.includes(aggCol.colNum));
+                    if (aggRow.isChildOfArray) {
+                        continue;
                     }
 
-                    if (cachedVertColNums != null) {
-                        isValid = isValid &&
-                                  (cachedVertColNums.includes(aggRow.colNum) ||
-                                  cachedVertColNums.includes(aggCol.colNum));
+                    if (cachedHorColNums != null && cachedVertColNums != null) {
+                        isValid = cachedHorColNums.includes(aggRow.colNum) &&
+                                  cachedVertColNums.includes(aggCol.colNum) ||
+                                  cachedHorColNums.includes(aggCol.colNum) &&
+                                  cachedVertColNums.includes(aggRow.colNum);
+                    } else if (cachedHorColNums != null) {
+                        isValid = cachedHorColNums.includes(aggRow.colNum) ||
+                                  cachedHorColNums.includes(aggCol.colNum);
+                    } else if (cachedVertColNums != null) {
+                        isValid = cachedVertColNums.includes(aggRow.colNum) ||
+                                  cachedVertColNums.includes(aggCol.colNum);
                     }
 
                     if (!isValid) {
                         continue;
                     }
-
-                    if (aggRow.isChildOfArray) {
-                        continue;
-                    }
+                  
                     var sub = corrString.replace(/[$]arg1/g,
                                                  progCol.getBackColName());
                     sub = sub.replace(/[$]arg2/g,
