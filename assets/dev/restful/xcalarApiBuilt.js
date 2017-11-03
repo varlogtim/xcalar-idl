@@ -1519,15 +1519,11 @@ function hackFunction() {
             if (backColName == null) {
                 backColName = colName;
             }
-
-            var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-            var width = 100;
-
             return {
                 "backName": backColName,
                 "name": colName,
                 "type": type || null,
-                "width": width,
+                "width": 100,
                 "isNewCol": false,
                 "userStr": '"' + colName + '" = pull(' + backColName + ')',
                 "func": {
@@ -1718,7 +1714,10 @@ exports.sqlLoad = function(path) {
     exports.connect("localhost:9090", sqlUser, sqlId)
     .then(function() {
         console.log("connected");
-        return loadDS(dsArgs, formatArgs, sqlDS, txId);
+        return goToSqlWkbk();
+    })
+    .then(function() {
+        return XIApi.load(dsArgs, formatArgs, sqlDS, txId);
     })
     .then(function() {
         console.log("load dataset");
@@ -1748,31 +1747,35 @@ exports.sqlLoad = function(path) {
     return deferred.promise();
 };
 
-function loadDS(dsArgs, formatArgs, sqlDS, txId) {
+function goToSqlWkbk() {
+    var wkbkName = "sql-workbook";
     var deferred = jQuery.Deferred();
+    var activeSessionName = null;
+    var sqlSession = null;
 
-    XIApi.load(dsArgs, formatArgs, sqlDS, txId)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
-            console.log("create new workbook");
-            createNewSession()
-            .then(function() {
-                return XIApi.load(dsArgs, formatArgs, sqlDS, txId);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        } else {
-            deferred.reject(error);
+    XcalarListWorkbooks("*")
+    .then(function(res) {
+        res.sessions.forEach(function(session) {
+            if (session.name === wkbkName) {
+                sqlSession = session;
+            }
+            if (session.state === "Active") {
+                activeSessionName = session.name;
+            }
+        });
+        if (sqlSession == null) {
+            return XcalarNewWorkbook(wkbkName, false);
         }
-    });
+    })
+    .then(function() {
+        if (sqlSession != null && wkbkName !== activeSessionName) {
+            return XcalarSwitchToWorkbook(wkbkName, activeSessionName);
+        }
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
 
     return deferred.promise();
-}
-
-function createNewSession() {
-    var wkbkName = "sql-workbook4";
-    return PromiseHelper.alwaysResolve(XcalarNewWorkbook(wkbkName, false));
 }
 
 function getSchema(tableName) {
@@ -1884,7 +1887,10 @@ exports.sqlPlan = function(execid, planStr, rowsToFetch) {
         exports.connect("localhost:9090", sqlUser, sqlId)
         .then(function() {
             console.log("connected");
-            return sqlPlan(plan);
+            return goToSqlWkbk();
+        })
+        .then(function() {
+            return new SQLCompiler().compile(plan, true);
         })
         .then(function(tableName) {
             console.log("get table from plan", tableName);
@@ -1917,27 +1923,6 @@ exports.sqlPlan = function(execid, planStr, rowsToFetch) {
 
     return deferred.promise();
 };
-
-function sqlPlan(plan) {
-    var deferred = jQuery.Deferred();
-    var planCopy = xcHelper.deepCopy(plan);
-    new SQLCompiler().compile(plan, true)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
-            createNewSession()
-            .then(function() {
-                return new SQLCompiler().compile(planCopy, true);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        } else {
-            deferred.reject(error);
-        }
-    });
-
-    return deferred.promise();
-}
 
 function parseRows(data, schema) {
     try {
