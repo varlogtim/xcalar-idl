@@ -75,11 +75,6 @@ describe("Worksheet Test", function() {
             expect(hiddenWorksheets).to.be.an("array");
         });
 
-        it("Should get no sheet tables", function() {
-            var noSheetTables = WSManager.getNoSheetTables();
-            expect(noSheetTables).to.be.an("array");
-        });
-
         it("Should get active worksheet index by id", function() {
             var worksheetId = WSManager.getWSByIndex(0);
             var index = WSManager.indexOfWS(worksheetId);
@@ -275,10 +270,6 @@ describe("Worksheet Test", function() {
         });
 
         it("Should delete empty worksheet", function() {
-            // error case
-            WSManager.delWS(worksheetId1);
-            expect(WSManager.indexOfWS(worksheetId1)).not.to.equal(-1);
-
             WSManager.delWS(worksheetId1, DelWSType.Empty);
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
         });
@@ -445,13 +436,13 @@ describe("Worksheet Test", function() {
             expect(worksheet.orphanedTables.length).to.equal(0);
 
             WSManager.addTable(tableId);
-            expect(worksheet.orphanedTables.length).to.equal(1);
-            expect(worksheet.orphanedTables[0]).to.equal(tableId);
+            expect(worksheet.pendingTables.length).to.equal(1);
+            expect(worksheet.pendingTables[0]).to.equal(tableId);
 
             // invalid add test
             var resId = WSManager.addTable(tableId, worksheetId);
             expect(resId).to.equal(worksheetId);
-            expect(worksheet.orphanedTables.length).to.equal(1);
+            expect(worksheet.pendingTables.length).to.equal(1);
         });
 
         it("should know table in active worksheet or not", function() {
@@ -459,12 +450,12 @@ describe("Worksheet Test", function() {
             expect(res).to.be.false;
         });
 
-        it("Should replace table from orphan to workseet table", function() {
-            expect(worksheet.orphanedTables.length).to.equal(1);
+        it("Should replace table from pending to workseet table", function() {
+            expect(worksheet.pendingTables.length).to.equal(1);
             expect(worksheet.tables.length).to.equal(0);
             WSManager.replaceTable(tableId);
 
-            expect(worksheet.orphanedTables.length).to.equal(0);
+            expect(worksheet.pendingTables.length).to.equal(0);
             expect(worksheet.tables.length).to.equal(1);
         });
 
@@ -473,34 +464,17 @@ describe("Worksheet Test", function() {
             WSManager.changeTableStatus("errorId");
             expect(worksheet.tables.length).to.equal(1);
 
-            // archive case
-            WSManager.changeTableStatus(tableId, TableType.Archived);
-            expect(worksheet.tables.length).to.equal(0);
-            expect(worksheet.archivedTables.length).to.equal(1);
 
-            // orphan case
-            WSManager.changeTableStatus(tableId, TableType.Orphan);
-            expect(worksheet.archivedTables.length).to.equal(0);
-            expect(worksheet.orphanedTables.length).to.equal(1);
+            // // Undo case
+            // WSManager.changeTableStatus(tableId, TableType.Undone);
+            // expect(worksheet.tables.length).to.equal(0);
+            // expect(worksheet.undoneTables.length).to.equal(1);
 
-            // Undo case
-            WSManager.changeTableStatus(tableId, TableType.Undone);
-            expect(worksheet.orphanedTables.length).to.equal(0);
-            expect(worksheet.undoneTables.length).to.equal(1);
-
-            worksheet.undoneTables.splice(0, 1);
-            worksheet.tempHiddenTables.push(tableId);
+            // worksheet.undoneTables.splice(0, 1);
+            // worksheet.tempHiddenTables.push(tableId);
 
             // active case
             WSManager.changeTableStatus(tableId, TableType.Active);
-            expect(worksheet.tempHiddenTables.length).to.equal(0);
-            expect(worksheet.tables.length).to.equal(1);
-
-            worksheet.tables.splice(0, 1);
-            worksheet.tempHiddenTables.push(tableId);
-
-            // error case
-            WSManager.changeTableStatus(tableId);
             expect(worksheet.tempHiddenTables.length).to.equal(0);
             expect(worksheet.tables.length).to.equal(1);
         });
@@ -546,34 +520,6 @@ describe("Worksheet Test", function() {
             expect($tab.hasClass("locked")).to.be.false;
         });
 
-        it("Should remove no sheet table", function() {
-            var noSheetTables = WSManager.getNoSheetTables();
-            var noSheetTableId = xcHelper.randName("noSheetTable");
-            noSheetTables.push(noSheetTableId);
-
-            var len = noSheetTables.length;
-            // invalid case
-            WSManager.rmNoSheetTable();
-            expect(noSheetTables.length).to.equal(len);
-
-            // valid case
-            WSManager.rmNoSheetTable(noSheetTableId);
-            expect(noSheetTables.length - len).to.equal(-1);
-        });
-
-        it("Should add no sheet tables", function() {
-            var noSheetTables = WSManager.getNoSheetTables();
-            var noSheetTableId = xcHelper.randName("noSheetTable");
-            noSheetTables.push(noSheetTableId);
-            var len = noSheetTables.length;
-
-            WSManager.addNoSheetTables([noSheetTableId], worksheetId);
-            expect(noSheetTables.length - len).to.equal(-1);
-            expect(worksheet.orphanedTables.length).to.equal(1);
-
-            WSManager.removeTable(noSheetTableId);
-            expect(worksheet.orphanedTables.length).to.equal(0);
-        });
 
         it("Should change table order", function() {
             var anotherTableId = xcHelper.randName("anotherTable");
@@ -588,11 +534,10 @@ describe("Worksheet Test", function() {
             WSManager.replaceTable(newTableId, tableId);
             expect(worksheet.tables.length).to.equal(1);
             expect(worksheet.tables[0]).to.equal(newTableId);
-            expect(worksheet.orphanedTables.length).to.equal(1);
-            expect(worksheet.orphanedTables[0]).to.equal(tableId);
 
+            WSManager.addTable(tableId);
             // clear up
-            worksheet.orphanedTables = [];
+            worksheet.pendingTables = [];
             worksheet.tables = [tableId];
         });
 
@@ -604,34 +549,12 @@ describe("Worksheet Test", function() {
             expect(worksheet.tables.length).to.equal(0);
         });
 
-        it("Should remove table from no sheet list", function() {
-            var noSheetTables = WSManager.getNoSheetTables();
-            var noSheetTableId = xcHelper.randName("noSheetTable");
-            var errorTableId = xcHelper.randName("errorTable");
-            // may already have no sheet tables in from old cache,
-            // so need check the change of length
-            noSheetTables.push(noSheetTableId);
-            var len = noSheetTables.length;
-
-            // invalid case
-            var wsId = WSManager.removeTable(errorTableId);
-            expect(wsId).to.be.null;
-            expect(noSheetTables.length - len).to.equal(0);
-            // valid case
-            wsId = WSManager.removeTable(noSheetTableId);
-            expect(wsId).to.be.null;
-            expect(noSheetTables.length - len).to.equal(-1);
-        });
-
         it("Should remove from tempHidden, undone and lock tables", function() {
             var lists = ["tempHiddenTables", "undoneTables", "lockedTables"];
 
             lists.forEach(function(tableType) {
                 var testTableId = xcHelper.randName("removeTable");
                 WSManager.addTable(testTableId, worksheetId);
-                // remove table from orphan list
-                worksheet.orphanedTables.splice(0, 1);
-                worksheet[tableType].push(testTableId);
 
                 var wsId = WSManager.removeTable(testTableId);
                 expect(wsId).not.to.be.null;
@@ -644,15 +567,15 @@ describe("Worksheet Test", function() {
             var testTableId = xcHelper.randName("removeTable");
             WSManager.addTable(testTableId, worksheetId);
             // manually remove to create error case
-            worksheet.orphanedTables.splice(0, 1);
+            worksheet.pendingTables.splice(0, 1);
             var wsId = WSManager.removeTable(testTableId);
             expect(wsId).to.be.null;
 
             // restore back
-            worksheet.orphanedTables.push(testTableId);
+            worksheet.pendingTables.push(testTableId);
             wsId = WSManager.removeTable(testTableId);
             expect(wsId).not.to.be.null;
-            expect(worksheet.orphanedTables.length).to.equal(0);
+            expect(worksheet.pendingTables.length).to.equal(0);
         });
 
         after(function() {
@@ -760,50 +683,22 @@ describe("Worksheet Test", function() {
             });
         });
 
-        it("Should move inactive table to another worksheet", function(done) {
-            TblManager.archiveTables(tableId1);
-
-            WSManager.moveInactiveTable(tableId1, worksheetId1, TableType.Archived)
+        it("Should delete worksheet with delete table", function(done) {
+            WSManager.delWS(worksheetId2, DelWSType.Del)
             .then(function() {
-                expect(worksheet1.tables.length).to.equal(1);
-                expect(worksheet2.tables.length).to.equal(1);
+                expect(WSManager.getWSById(worksheetId2) == null).to.be.true;
                 done();
             })
             .fail(function() {
                 done("fail");
             });
-        });
-
-        it("Should not delete worksheet as empty type when has table", function() {
-            WSManager.delWS(worksheetId1, DelWSType.Empty);
-            expect(WSManager.getWSById(worksheetId1) == null).to.be.false;
-        });
-
-        it("Should delete worksheet with hide table", function(done) {
-            WSManager.delWS(worksheetId1, DelWSType.Archive);
-            expect(WSManager.getWSById(worksheetId1) == null).to.be.true;
-            // undo it
-            Log.undo()
-            .then(function() {
-                worksheet1 = WSManager.getWSById(worksheetId1);
-                expect(worksheet1 == null).to.be.false;
-                expect(worksheet1.tables.length).to.equal(1);
-                xcTooltip.hideAll();
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should delete worksheet with delete table", function() {
-            WSManager.delWS(worksheetId2, DelWSType.Del);
-            expect(WSManager.getWSById(worksheetId2) == null).to.be.true;
         });
 
         after(function(done) {
-            // table2 and worksheet2 are already deleted
-            UnitTest.deleteAll(table1, dsName)
+            UnitTest.deleteTable(table1)
+            .then(function() {
+                return UnitTest.deleteAll(table2, dsName);
+            })
             .then(function() {
                 WSManager.delWS(worksheetId1, DelWSType.Empty);
                 done();

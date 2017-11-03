@@ -242,27 +242,11 @@ window.DagFunction = (function($, DagFunction) {
         return (jQuery.extend(true, newStruct, origInputStruct));
     };
 
+    // oldTableName is a descendent/parent
     DagFunction.revertTable = function(tableId, newTableName, oldTableName) {
-        var wsId;
-        var worksheet;
-        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
-        {
-            tableType = "noSheet";
-            wsId = WSManager.getActiveWS();
-            worksheet = wsId;
-            WSManager.addNoSheetTables([tableId], wsId);
-        } else if (gTables[tableId] && gTables[tableId].status ===
-                    TableType.Orphan) {
-            tableType = TableType.Orphan;
-            wsId = null;
-            worksheet = WSManager.getWSFromTable(tableId);
-        } else {
-            tableType = TableType.Archived;
-            wsId = null;
-            worksheet = WSManager.getWSFromTable(tableId);
-        }
-
+        var tableType = TableType.Orphan;
         var oldTableId = xcHelper.getTableId(oldTableName);
+        var wsId = WSManager.getWSFromTable(oldTableId);
         var oldTableNames = [];
         if (oldTableName) {
             oldTableNames.push(oldTableName);
@@ -275,9 +259,6 @@ window.DagFunction = (function($, DagFunction) {
             xcHelper.unlockTable(tableId);
             xcHelper.unlockTable(oldTableId);
             var newTableId = xcHelper.getTableId(newTableName);
-            if (tableType === TableType.Archived || tableType === "noSheet") {
-                TableList.removeTable(tableId, TableType.Archived);
-            }
 
             var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
             Dag.focusDagForActiveTable();
@@ -290,8 +271,8 @@ window.DagFunction = (function($, DagFunction) {
                 "oldTableId": oldTableId,
                 "tableId": newTableId,
                 "tableType": tableType,
-                "worksheet": worksheet,
-                "worksheetIndex": WSManager.indexOfWS(worksheet),
+                "worksheet": wsId,
+                "worksheetIndex": WSManager.indexOfWS(wsId),
                 "htmlExclude": ["tableType", "oldTableName", "worksheet",
                                 "worksheetIndex"]
             });
@@ -301,15 +282,7 @@ window.DagFunction = (function($, DagFunction) {
     DagFunction.addTable = function(tableId) {
         var deferred = jQuery.Deferred();
         var wsId = WSManager.getActiveWS();
-        var tableType;
-
-        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId]) {
-            tableType = TableType.Orphan;
-        } else if (gTables[tableId].status === TableType.Orphan) {
-            tableType = TableType.Orphan;
-        } else {
-            tableType = TableType.Archived;
-        }
+        var tableType = TableType.Orphan;
 
         WSManager.moveInactiveTable(tableId, wsId, tableType)
         .then(function() {

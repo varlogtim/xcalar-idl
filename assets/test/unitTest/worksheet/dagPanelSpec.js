@@ -559,12 +559,11 @@ describe("Dag Panel Test", function() {
             expect($menu.is(":visible")).to.be.false;
             smallTable.$dagWrap.find(".dagTable").first().click();
             expect($menu.is(":visible")).to.be.true;
-            expect($menu.find("li:visible").length).to.equal(7);
+            expect($menu.find("li:visible").length).to.equal(6);
             expect($menu.find("li.unavailable:visible").length).to.equal(1);
             expect($menu.find("li.generateIcv").hasClass("unavailable")).to.be.true;
             expect($menu.find("li.addTable").is(":visible")).to.be.false;
             expect($menu.find("li.revertTable").is(":visible")).to.be.false;
-            expect($menu.find("li.archiveTable").is(":visible")).to.be.true;
             expect($menu.find("li.focusTable").is(":visible")).to.be.true;
             expect($menu.find("li.removeNoDelete").is(":visible")).to.be.false;
             expect($menu.find("li.addNoDelete").is(":visible")).to.be.true;
@@ -602,24 +601,6 @@ describe("Dag Panel Test", function() {
                     expect(cachedFnTriggered).to.be.false;
 
                     DagFunction.focusTable = cachedFn;
-                });
-
-                it("archive li should work", function() {
-                    var cachedFn = TblManager.archiveTables;
-                    var cachedFnTriggered = false;
-                    TblManager.archiveTables = function(tIds) {
-                        expect(tIds[0]).to.equal(smallTable.tableId);
-                        cachedFnTriggered = true;
-                    };
-                    expect(cachedFnTriggered).to.be.false;
-                    $menu.find(".archiveTable").trigger(fakeEvent.mouseup);
-                    expect(cachedFnTriggered).to.be.true;
-
-                    cachedFnTriggered = false;
-                    $menu.find(".archiveTable").trigger(rightMouseup);
-                    expect(cachedFnTriggered).to.be.false;
-
-                    TblManager.archiveTables = cachedFn;
                 });
 
                 it("delete li should work", function() {
@@ -1410,9 +1391,6 @@ describe("Dag Panel Test", function() {
                     $icvDagIcon = $icvDagTable.find(".dagTableIcon");
 
                     expect(gTables[icvTableId].status).is.equal("active");
-                    $icvDagIcon.click();
-                    $menu.find(".archiveTable").trigger(fakeEvent.mouseup);
-                    expect(gTables[icvTableId].status).is.not.equal("active");
 
                     XcalarDeleteTable(gTables[icvTableId].tableName)
                     .always(function() {
@@ -1454,7 +1432,9 @@ describe("Dag Panel Test", function() {
                     expect($dagWrapPrev.length).to.equal(1);
                     expect($dagWrapPrev.hasClass("selected")).to.be.true;
                     $dagWrapPrev.find(".dagTable .dagTableIcon").first().click();
-                    $menu.find(".archiveTable").trigger(fakeEvent.mouseup);
+                    TblManager.sendTableToOrphaned(prevTableId, {remove: true,
+                                                            noFocusWS: true,
+                                                            force: true});
                     setTimeout(function() {
                         done();
                     }, 300);

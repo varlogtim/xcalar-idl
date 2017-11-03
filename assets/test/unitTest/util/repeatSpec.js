@@ -396,35 +396,18 @@ describe("Repeat Test", function() {
             });
         });
 
-        it("archive table should work", function(done) {
-            TblManager.archiveTables(tableId);
-            TblFunc.focusTable(tableId2);
-            Log.repeat()
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Hide Table");
-                expect(lastLog.options.tableIds[0]).to.equal(tableId2);
-                return Log.undo();
-            })
-            .then(Log.undo)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
 
         it("table operation without focuse table should not  work", function(done) {
             var logsLen = Log.getLogs().length;
             $(".tblTitleSelected").removeClass("tblTitleSelected");
+
             Log.repeat()
             .then(function(){
-                expect(Log.getLogs().length).to.equal(logsLen);
-                done();
+                done("fail");
             })
             .fail(function() {
-                done("fail");
+                expect(Log.getLogs().length).to.equal(logsLen);
+                done();
             });
         });
 
@@ -607,8 +590,8 @@ describe("Repeat Test", function() {
     });
 
     after(function(done) {
-        WSManager.delWS(newWSId, DelWSType.Archive);
-        WSManager.delWS(secondWSId, DelWSType.Archive);
+        WSManager.delWS(newWSId, DelWSType.Del);
+        WSManager.delWS(secondWSId, DelWSType.Del);
 
         UnitTest.deleteAllTables()
         .then(function() {

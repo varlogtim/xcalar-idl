@@ -279,13 +279,6 @@ window.Redo = (function($, Redo) {
         return xcFunction.rename(tableId, newTableName);
     };
 
-    redoFuncs[SQLOps.ArchiveTable] = function(options) {
-        var wsId = WSManager.getWSFromTable(options.tableIds[0]);
-        TblManager.archiveTables(options.tableIds);
-        WSManager.focusOnWorksheet(wsId);
-        return PromiseHelper.resolve(null);
-    };
-
     redoFuncs[SQLOps.RevertTable] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
@@ -302,9 +295,7 @@ window.Redo = (function($, Redo) {
 
         TableList.refreshOrphanList()
         .then(function() {
-            if (tableType === TableType.Archived) {
-                $tableList = $('#archivedTableListSection');
-            } else if (tableType === TableType.Orphan) {
+            if (tableType === TableType.Orphan) {
                 $tableList = $('#orphanedTableListSection');
             } else {
                 console.error(tableType, "not support redo!");
@@ -324,8 +315,7 @@ window.Redo = (function($, Redo) {
                 }
             });
 
-            return TableList.activeTables(tableType, options.noSheetTables,
-                                            options.wsToSent, options.ws);
+            return TableList.activeTables(tableType, options.ws);
         })
         .then(function() {
             deferred.resolve();

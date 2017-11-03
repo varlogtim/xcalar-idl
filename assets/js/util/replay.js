@@ -192,9 +192,7 @@ window.Replay = (function($, Replay) {
             });
             delete wsMeta.activeWS; // some undos changes active WS but that's ok
             var tableListText = $('#activeTablesList').find('.tableListBox').text() +
-                               $('#activeTablesList').find('.columnList').text() +
-                               $('#inactiveTablesList').find('.tableListBox').text() +
-                               $('#inactiveTablesList').find('.columnList').text();
+                               $('#activeTablesList').find('.columnList').text();
             tableListText = tableListText.split("").sort().join("");
             // not checking for table list order, just for content
 
@@ -817,28 +815,6 @@ window.Replay = (function($, Replay) {
         return PromiseHelper.resolve(null);
     };
 
-    replayFuncs[SQLOps.ArchiveTable] = function(options) {
-        // UI simulation
-        var deferred = jQuery.Deferred();
-        // XX will not work with multiple tables
-        var tableId = getTableId(options.tableIds[0]);
-        var $li = $("#tableMenu .archiveTable");
-
-        $("#xcTheadWrap-" + tableId + " .dropdownBox").click();
-
-        $li.mouseenter();
-
-        var callback = function() {
-            $li.mouseleave();
-            $li.trigger(fakeEvent.mouseup);
-        };
-        delayAction(callback, "Show Table Menu", 2000)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    };
-
     replayFuncs[SQLOps.RevertTable] = function(options) {
         var deferred = jQuery.Deferred();
         var newTableId = getTableId(options.tableId);
@@ -1013,8 +989,6 @@ window.Replay = (function($, Replay) {
             if ($("#alertModal").is(":visible")) {
                 if (delType === DelWSType.Del) {
                     $("#alertActions .deleteTale").click();
-                } else if (delType === DelWSType.Archive) {
-                    $("#alertActions .archiveTable").click();
                 }
             }
         };
@@ -1088,9 +1062,7 @@ window.Replay = (function($, Replay) {
 
         TableList.refreshOrphanList()
         .then(function() {
-            if (tableType === TableType.Archived) {
-                $tableList = $('#archivedTableListSection');
-            } else if (tableType === TableType.Orphan) {
+            if (tableType === TableType.Orphan) {
                 $tableList = $('#orphanedTableListSection');
             } else {
                 console.error(tableType, "not support redo!");
@@ -1106,8 +1078,7 @@ window.Replay = (function($, Replay) {
                 }
             });
 
-            return TableList.activeTables(tableType, options.noSheetTables,
-                                        options.wsToSent);
+            return TableList.activeTables(tableType);
         })
         .then(function() {
             deferred.resolve();

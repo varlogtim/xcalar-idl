@@ -47,23 +47,6 @@ describe('TableMenu Test', function() {
         });
 
         describe('main menu', function() {
-            it('archiveTable', function() {
-                var cachedFunc = TblManager.archiveTables;
-                var called = false;
-                TblManager.archiveTables = function(tIds) {
-                    expect(tIds[0]).to.equal(tableId);
-                    called = true;
-                };
-
-                $tableMenu.find('.archiveTable').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.archiveTable').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblManager.archiveTables = cachedFunc;
-            });
-
             it('hideTable', function() {
                 var cachedFunc = TblManager.hideTable;
                 var called = false;

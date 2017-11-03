@@ -1548,14 +1548,13 @@
     };
 
     xcHelper.checkDupTableName = function(tableName) {
-        // we will only check against active and archived list
+        // we will only check against active list
         // there's a chance of conflict if a backend table has same tablename
         // with hashtagId but that occurence is rare and is handled by the backend
         for (var tableId in gTables) {
             var table = gTables[tableId];
             var tableType = table.getType();
-            if (tableType === TableType.Active ||
-                tableType === TableType.Archived) {
+            if (tableType === TableType.Active) {
                 if (xcHelper.getTableName(table.getName()) === tableName) {
                     return false;
                 }

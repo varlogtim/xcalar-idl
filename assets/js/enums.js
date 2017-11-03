@@ -57,29 +57,23 @@ SyncOrAsync = {
     Async: false
 };
 
-ArchiveTable = {
-    Delete: true,
-    Keep: false
-};
-
 WSTableType = {
     "Active"    : "tables",
-    "Archive"   : "archivedTables",
     "TempHidden": "tempHiddenTables",
     "Orphan"    : "orphanedTables",
     "Undo"      : "undoneTables",
-    "Lock"      : "lockedTables"
+    "Lock"      : "lockedTables",
+    "Pending"   : "pendingTables"
 };
 
 DelWSType = {
     "Del": "drop tables",
-    "Archive": "archive tables",
-    "Empty": 'empty sheet'
+    "Empty": 'empty sheet',
+    "Temp": "temp list"
 };
 
 TableType = {
     "Active"  : "active",
-    "Archived": "archived",
     "Orphan"  : "orphaned",
     "WSHidden": "hidden",
     "Unknown" : "unknown source",
@@ -310,7 +304,6 @@ SQLOps = {
     RenameCol: "renameCol",
     PullCol: "pullCol",
     PullMultipleCols: "pullMultipleCols",
-    ArchiveTable: "hideTable",
     ActiveTables: 'activeTables',
     SortTableCols: "sortTableCols",
     ResizeTableCols: "resizeTableCols",

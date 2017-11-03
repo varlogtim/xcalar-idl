@@ -73,8 +73,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
             if ($section.hasClass("orphan")) {
                 tableType = TableType.Orphan;
-            } else if ($section.hasClass("inactive")) {
-                tableType = TableType.Archived;
             } else {
                 tableType = TableType.Active;
             }
@@ -154,11 +152,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     function reset() {
         tableList[TableType.Orphan] = [];
-        tableList[TableType.Archived] = [];
         tableList[TableType.Active] = [];
 
         sortKeyList[TableType.Orphan] = null;
-        sortKeyList[TableType.Archived] = null;
         sortKeyList[TableType.Active] = null;
 
         reverseSort = false;
@@ -172,7 +168,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var deferred = jQuery.Deferred();
 
         var orphanDef = deleteTableHelper(TableType.Orphan);
-        var archivedDef = deleteTableHelper(TableType.Archived);
         var activeDef = deleteTableHelper(TableType.Active);
 
         var timer = setTimeout(function() {
@@ -184,14 +179,14 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         modalHelper.disableSubmit();
 
         var errors;
-        PromiseHelper.when(orphanDef, archivedDef, activeDef)
+        PromiseHelper.when(orphanDef, activeDef)
         .then(function() {
             errors = arguments;
             xcHelper.showRefreshIcon($modal);
         })
-        .fail(function(error1, error2, error3) {
+        .fail(function(error1, error2) {
             errors = arguments;
-            var error = error1 || error2 || error3;
+            var error = error1 || error2;
             console.error(error);
         })
         .always(function() {
@@ -263,11 +258,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     function populateTableLists() {
         tableList[TableType.Orphan] = [];
-        tableList[TableType.Archived] = [];
         tableList[TableType.Active] = [];
 
         var orphanList = tableList[TableType.Orphan];
-        var archivedList = tableList[TableType.Archived];
         var activeList = tableList[TableType.Active];
 
         for (var i = 0, len = gOrphanTables.length; i < len; i++) {
@@ -294,8 +287,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             if (tableType === TableType.Orphan) {
                 // already handled
                 continue;
-            } else if (tableType === TableType.Archived) {
-                archivedList.push(table);
             } else if (tableType === TableType.Active) {
                 activeList.push(table);
             } else {
@@ -304,7 +295,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
 
         sortTableList(orphanList, TableType.Orphan);
-        sortTableList(archivedList, TableType.Archived);
         sortTableList(activeList, TableType.Active);
 
         $modal.find('.modalMain').find('.checkbox').removeClass('checked');
@@ -501,8 +491,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var $container;
         if (type === TableType.Orphan) {
             $container = $("#deleteTableModal-orphan");
-        } else if (type === TableType.Archived) {
-            $container = $("#deleteTableModal-archived");
         } else {
             $container = $("#deleteTableModal-active");
         }
@@ -511,7 +499,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     function failHandler(args) {
         var $containers = $("#deleteTableModal-orphan, " +
-                            "#deleteTableModal-archived, " +
                             "#deleteTableModal-active");
         var errorMsg = "";
         var hasSuccess = false;

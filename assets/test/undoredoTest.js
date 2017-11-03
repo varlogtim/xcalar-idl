@@ -509,7 +509,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     function deleteWorksheets() {
         var sheets = xcHelper.deepCopy(WSManager.getWSList());
         for (var i = 1; i < sheets.length; i++) {
-            WSManager.delWS(sheets[i], DelWSType.Archive);
+            WSManager.delWS(sheets[i], DelWSType.Del);
         }
         DSCart.refresh();
     }

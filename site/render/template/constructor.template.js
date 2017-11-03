@@ -625,11 +625,6 @@
                 }
             },
 
-            beArchived: function() {
-                this.status = TableType.Archived;
-                return this;
-            },
-
             beActive: function() {
                 this.status = TableType.Active;
                 return this;
@@ -1463,6 +1458,10 @@
         function WorksheetObj<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+
+            if (<%= checkFunc %>(options)) {
+                self.pendingTables = options.pendingTables || [];
+            }
             return self;
         }
 

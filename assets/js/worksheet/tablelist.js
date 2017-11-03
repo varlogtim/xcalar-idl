@@ -24,7 +24,7 @@ window.TableList = (function($, TableList) {
             var $sections = $tableListSections.find(".tableListSection").hide();
             $sections.eq(index).show();
             focusedListNum = null;
-            if (index === 3 && $tab.hasClass("firstTouch")) {
+            if (index === 2 && $tab.hasClass("firstTouch")) {
                 $tab.removeClass("firstTouch");
                 TableList.refreshConstantList(true);
             }
@@ -154,30 +154,12 @@ window.TableList = (function($, TableList) {
             xcTooltip.auto(this);
         });
 
-        // submit selected active tables to archive
-        $tableListSections.on("click", ".submit.archive", function() {
-            var tableIds = [];
-            $("#activeTableListSection").find(".addTableBtn.selected")
-            .each(function() {
-                tableIds.push($(this).closest('.tableInfo').data("id"));
-            });
-            if (tableIds.length) {
-                TblManager.archiveTables(tableIds);
-            }
-            focusedListNum = null;
-        });
-
-        // submit selected archived tables to active
+        // submit selected tables to active
         $tableListSections.on("click", ".submit.active", function() {
             if ($(this).hasClass('xc-unavailable')) {
                 return;
             }
-            var $section = $(this).closest(".tableListSection");
-            if ($section.is("#archivedTableListSection")) {
-                activeTableAlert(TableType.Archived);
-            } else if ($section.is("#orphanedTableListSection")) {
-                TableList.activeTables(TableType.Orphan);
-            }
+            TableList.activeTables(TableType.Orphan);
             focusedListNum = null;
         });
 
@@ -187,8 +169,12 @@ window.TableList = (function($, TableList) {
             var tableType;
             var title = TblTStr.Del;
             var msg = SideBarTStr.DelTablesMsg;
-            if ($section.is("#archivedTableListSection")) {
-                tableType = TableType.Archived;
+            if ($section.is("#activeTableListSection")) {
+                tableType = TableType.Active;
+                if ($('#activeTablesList').find(".addTableBtn.selected")
+                    .closest(".tableInfo").find(".lockIcon").length) {
+                    msg = SideBarTStr.DelLockedTablesMsg;
+                }
             } else if ($section.is("#orphanedTableListSection")) {
                 tableType = TableType.Orphan;
             } else if ($section.is("#constantsListSection")) {
@@ -199,7 +185,7 @@ window.TableList = (function($, TableList) {
 
             Alert.show({
                 "title": title,
-                "msg": msg,
+                "msgTemplate": msg,
                 "onConfirm": function() {
                     deleteFromList($section, tableType);
                 }
@@ -246,7 +232,7 @@ window.TableList = (function($, TableList) {
             var tables = [];
             WSManager.getWSList().forEach(function(wsId) {
                 var ws = WSManager.getWSById(wsId);
-                var wsTables = isActive ? ws.tables : ws.archivedTables;
+                var wsTables = ws.tables;
                 for (var j = 0; j < wsTables.length; j++) {
                     tables.push(gTables[wsTables[j]]);
                 }
@@ -254,9 +240,7 @@ window.TableList = (function($, TableList) {
 
             WSManager.getHiddenWSList().forEach(function(wsId) {
                 var ws = WSManager.getWSById(wsId);
-                var wsTables = isActive
-                               ? ws.tempHiddenTables
-                               : ws.archivedTables;
+                var wsTables = ws.tempHiddenTables;
                 for (var j = 0; j < wsTables.length; j++) {
                     tables.push(gTables[wsTables[j]]);
                 }
@@ -298,7 +282,6 @@ window.TableList = (function($, TableList) {
 
     TableList.initialize = function() {
         var activeTables = [];
-        var archivedTables = [];
 
         for (var tableId in gTables) {
             var table = gTables[tableId];
@@ -310,12 +293,9 @@ window.TableList = (function($, TableList) {
 
             if (tableType === TableType.Active) {
                 activeTables.push(table);
-            } else if (tableType === TableType.Archived) {
-                archivedTables.push(table);
             }
         }
         TableList.addTables(activeTables, IsActive.Active, {bulkAdd: true});
-        TableList.addTables(archivedTables, IsActive.Inactive, {bulkAdd: true});
 
         generateOrphanList(gOrphanTables);
 
@@ -334,47 +314,6 @@ window.TableList = (function($, TableList) {
     TableList.addTables = function(tables, active, options) {
         // tables is an array of metaTables;
         generateTableList(tables, active, options);
-    };
-
-    // move table to inactive list
-    TableList.moveTable = function(tableId) {
-        var $activeTableListSection = $('#activeTableListSection');
-        var $tableList = $activeTableListSection.find('.tableInfo[data-id="' +
-                                        tableId + '"]');
-        var $timeLine = $tableList.closest(".tableGroup");
-        var table = gTables[tableId];
-
-        TableList.addTables([table], IsActive.Inactive);
-
-        $tableList.removeClass("active")
-                  .find(".columnList")
-                  .slideUp(0);
-        if (gMinModeOn) {
-            $tableList.remove();
-            if ($timeLine.find(".tableInfo").length === 0) {
-                $timeLine.remove();
-            }
-            if ($activeTableListSection.find('li').length === 0) {
-                $activeTableListSection.addClass('empty');
-            }
-        } else {
-            $tableList.addClass("transition").slideUp(150, function() {
-                $tableList.remove();
-                // clear time line & select boxes
-                if ($timeLine.find(".tableInfo").length === 0) {
-                    $timeLine.remove();
-                }
-                if ($activeTableListSection.find('li').length === 0) {
-                    $activeTableListSection.addClass('empty');
-                }
-            });
-        }
-
-
-        $activeTableListSection.find(".submit").addClass("xc-hidden")
-                        .end()
-                        .find(".addTableBtn").removeClass("selected");
-        focusedListNum = null;
     };
 
     TableList.updateColName = function(tableId, colNum, newColName) {
@@ -417,13 +356,6 @@ window.TableList = (function($, TableList) {
             "tableType": tableType
         };
 
-        if (wsToSent != null) {
-            WSManager.addNoSheetTables(noSheetTables, wsToSent);
-
-            sql.noSheetTables = noSheetTables;
-            sql.wsToSent = wsToSent;
-        }
-
         TableList.tableBulkAction("add", tableType, null, destWS)
         .then(function(tableNames, ws) {
             sql.tableNames = tableNames;
@@ -455,13 +387,13 @@ window.TableList = (function($, TableList) {
         var $tableList;
         var hiddenWS = false;
 
-        if (tableType === TableType.Archived) {
-            $tableList = $('#archivedTableListSection');
-        } else if (tableType === TableType.WSHidden) {
+        if (tableType === TableType.WSHidden) {
             $tableList = $('#activeTablesList');
             hiddenWS = true;
         } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableListSection');
+        } else if (tableType === TableType.Active) {
+            $tableList = $('#activeTablesList');
         }
 
         var $tablesSelected;
@@ -472,15 +404,9 @@ window.TableList = (function($, TableList) {
             $tablesSelected = $tableList.find(".worksheet-" + wsId)
                                         .closest(".tableInfo");
             var $activeList = $('#activeTableListSection');
-            var $inactiveList = $('#archivedTableListSection');
-            var $bothLists = $activeList.add($inactiveList);
-            $inactiveList.find('.worksheet-' + wsId)
-                           .closest('.tableInfo')
-                           .removeAttr('data-toggle data-container ' +
-                                       'title data-original-title')
-                           .removeClass('hiddenWS');
-            $bothLists.find(".tableGroup.ws" + wsId)
-                      .removeClass("hiddenWSGroup");
+
+            $activeList.find(".tableGroup.ws" + wsId)
+                       .removeClass("hiddenWSGroup");
         } else {
             $tablesSelected = $tableList.find(".addTableBtn.selected")
                                         .closest(".tableInfo");
@@ -526,7 +452,7 @@ window.TableList = (function($, TableList) {
                                 TableList.unlockTable(xcHelper.getTableId(
                                                                     tableName));
                             });
-                        } else { // archived or hidden
+                        } else { //  hidden
                             var tableId = xcHelper.getTableId(tableName);
                             var table = gTables[tableId];
                             TableList.lockTable(tableId);
@@ -563,7 +489,11 @@ window.TableList = (function($, TableList) {
                 })
                 .fail(deferred.reject);
             } else if (action === "delete") {
-                TblManager.deleteTables(tables, tableType)
+                var delOptions = {};
+                if (tableType === TableType.Active) {
+                    delOptions.lockedToTemp = true;
+                }
+                TblManager.deleteTables(tables, tableType, null, null, delOptions)
                 .then(function() {
                     XcSupport.memoryCheck(true);
                     deferred.resolve();
@@ -733,12 +663,10 @@ window.TableList = (function($, TableList) {
 
     TableList.tablesToHiddenWS = function(wsIds) {
         var $activeList = $('#activeTableListSection');
-        var $inactiveList = $('#archivedTableListSection');
-        var $bothLists = $activeList.add($inactiveList);
 
         for (var i = 0, len = wsIds.length; i < len; i++) {
             var wsId = wsIds[i];
-            $bothLists.find('.worksheet-' + wsId)
+            $activeList.find('.worksheet-' + wsId)
                         .closest('.tableInfo')
                         .addClass('hiddenWS')
                         .attr({
@@ -748,10 +676,10 @@ window.TableList = (function($, TableList) {
                         })
                         .find('.addTableBtn')
                         .removeClass('selected');
-            $bothLists.find(".tableGroup.ws" + wsId).addClass("hiddenWSGroup");
+            $activeList.find(".tableGroup.ws" + wsId).addClass("hiddenWSGroup");
         }
 
-        $bothLists.each(function() {
+        $activeList.each(function() {
             var $list = $(this);
             if ($list.find(".tableInfo:not(.hiddenWS)").length === 0) {
                 $list.find(".submit").addClass("xc-hidden");
@@ -783,11 +711,7 @@ window.TableList = (function($, TableList) {
                 var table = gTables[tableId];
                 var tableName = table.getName();
                 var tableType = table.getType();
-                if (tableType !== TableType.Orphan &&
-                    tableType !== TableType.Trash &&
-                    tableType !== TableType.Undone &&
-                    tableMap.hasOwnProperty(tableName))
-                {
+                if (tableType === TableType.Active) {
                     delete tableMap[tableName];
                 }
             }
@@ -964,6 +888,8 @@ window.TableList = (function($, TableList) {
     TableList.checkTableInList = function(tableIdOrName, type) {
         // If type === orphaned, then it's name. Else it's id
         var tableType = TableType.Active; // Default
+        var $li;
+        var $listWrap;
         if (type) {
             tableType = type;
         }
@@ -975,13 +901,12 @@ window.TableList = (function($, TableList) {
             $listWrap = $('#orphanedTableListSection');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
-        } else {
-            $listWrap = $('#archivedTableListSection');
-            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
         if (typeof($li) === "object") {
             return ($li.length > 0);
+        } else {
+            return false;
         }
     };
 
@@ -1048,7 +973,7 @@ window.TableList = (function($, TableList) {
             } else if (tableType === TableType.Aggregate) {
                 $listWrap = $('#constantsListSection');
             } else {
-                $listWrap = $('#archivedTableListSection');
+                $listWrap = $('#orphanedTableListSection');
             }
         }
         return $listWrap;
@@ -1096,7 +1021,7 @@ window.TableList = (function($, TableList) {
             .then(function(newTableName) {
                 tableName = newTableName;
                 newTableCols.push(ColManager.newDATACol());
-
+                worksheet = WSManager.getActiveWS();
                 return TblManager.refreshTable([tableName], newTableCols,
                                                 [], worksheet, null);
             })
@@ -1151,14 +1076,12 @@ window.TableList = (function($, TableList) {
         return res;
     }
 
-    // for active and archived tables only
+    // for active tables only
     function generateTableList(tables, active, options) {
         options = options || {};
 
-        var $listSection = (active === true) ? $("#activeTableListSection") :
-                                               $("#archivedTableListSection");
-        var $tableList = (active === true) ? $("#activeTablesList") :
-                                             $("#inactiveTablesList");
+        var $listSection = $("#activeTableListSection");
+        var $tableList = $("#activeTablesList");
         var sortType;
         if (!options.sortType) {
             sortType = $listSection.data("sort");
@@ -1771,60 +1694,6 @@ window.TableList = (function($, TableList) {
         });
     }
 
-    function activeTableAlert(tableType) {
-        var $tableList;
-
-        if (tableType === TableType.Archived) {
-            $tableList = $('#archivedTableListSection');
-        }
-
-        var $noSheetTables = $tableList.find(".addTableBtn.selected")
-        .closest(".tableInfo").filter(function() {
-            return $(this).find(".worksheetInfo").hasClass("inactive");
-        });
-
-        if ($noSheetTables.length > 0) {
-            $noSheetTables.addClass("highlight");
-            // must get highlight class from source
-            var noSheetTables = [];
-            var wsToSent;
-
-            Alert.show({
-                "title": SideBarTStr.SendToWS,
-                "instr": SideBarTStr.NoSheetTableInstr,
-                "optList": {
-                    "label": SideBarTStr.WSTOSend,
-                    "list": WSManager.getWSLists(true)
-                },
-                "onConfirm": function() {
-                    $noSheetTables.removeClass("highlight");
-
-                    var wsName = Alert.getOptionVal();
-                    var wsId = WSManager.getWSIdByName(wsName);
-
-                    if (wsId == null) {
-                        Alert.error(WSTStr.InvalidWSName,
-                                    WSTStr.InvalidWSNameErr);
-                    } else {
-                        wsToSent = wsId;
-                        $noSheetTables.each(function() {
-                            var tableId = $(this).data("id");
-                            noSheetTables.push(tableId);
-                        });
-
-                        TableList.activeTables(tableType, noSheetTables,
-                                                wsToSent);
-                    }
-                },
-                "onCancel": function() {
-                    $noSheetTables.removeClass("highlight");
-                }
-            });
-        } else {
-            TableList.activeTables(tableType);
-        }
-    }
-
     function clearTableListFilter($section) {
         $section.find(".searchbarArea input").val("");
         filterTableList(null);
@@ -1855,7 +1724,7 @@ window.TableList = (function($, TableList) {
                 // sheet tables will get appended in reverse
                 var sheets = WSManager.getWorksheets();
                 var sheetOrder = WSManager.getWSList();
-                var tableType = active ? "tables" : "archivedTables";
+                var tableType ="tables";
                 for (var i = sheetOrder.length - 1; i >= 0; i--) {
                     var sheet = sheets[sheetOrder[i]];
                     var sheetTableIds = sheet[tableType];
@@ -1871,9 +1740,7 @@ window.TableList = (function($, TableList) {
 
                 WSManager.getHiddenWSList().forEach(function(wsId) {
                     var ws = WSManager.getWSById(wsId);
-                    var wsTables = active
-                                   ? ws.tempHiddenTables
-                                   : ws.archivedTables;
+                    var wsTables = ws.tempHiddenTables;
                     for (var j = 0; j < wsTables.length; j++) {
                         var table = gTables[wsTables[j]];
                         sortedTables.push({

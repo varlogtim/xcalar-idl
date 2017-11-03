@@ -755,20 +755,13 @@ window.xcManager = (function(xcManager, $) {
                     activeTables[tableId] = true;
                 });
 
-                // check archived tables
-                worksheet.archivedTables.forEach(function(tableId) {
-                    if (checkIfHasTableMeta(tableId, backTableSet)) {
-                        gTables[tableId].beArchived();
+                // pending tables will be orphaned
+                worksheet.pendingTables.forEach(function(tableId) {
+                    if (gTables[tableId]) {
+                        gTables[tableId].beOrphaned();
                     }
                 });
-            });
-
-            // check no worksheet tables
-            var noSheetTables = WSManager.getNoSheetTables();
-            noSheetTables.forEach(function(tableId) {
-                if (checkIfHasTableMeta(tableId, backTableSet)) {
-                    gTables[tableId].beArchived();
-                }
+                worksheet.pendingTables = [];
             });
 
             // set up tables in hidden worksheets
@@ -784,10 +777,6 @@ window.xcManager = (function(xcManager, $) {
                     checkIfHasTableMeta(tableId, backTableSet);
                     activeTables[tableId] = true;
                 });
-
-                worksheet.archivedTables.forEach(function(tableId) {
-                    checkIfHasTableMeta(tableId, backTableSet);
-                });
             });
 
             for (var i in gTables) {
@@ -799,6 +788,8 @@ window.xcManager = (function(xcManager, $) {
                                        tableId);
                         table.beOrphaned();
                     }
+                } else if (table.status === "archived") {
+                    table.beOrphaned();
                 }
             }
 
@@ -993,6 +984,7 @@ window.xcManager = (function(xcManager, $) {
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
+                $(".xcTheadWrap").find(".lockIconWrap").addClass("xc-hidden");
                 xcTooltip.hideAll();
                 $('.tableScrollBar').hide();
             }
@@ -1009,6 +1001,7 @@ window.xcManager = (function(xcManager, $) {
         function mainFrameScrollingStop() {
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
+            $(".xcTheadWrap").find(".lockIconWrap").removeClass("xc-hidden");
             $('.tableScrollBar').show();
             TblFunc.moveFirstColumn();
             TblFunc.moveTableDropdownBoxes();

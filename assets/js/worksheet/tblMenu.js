@@ -72,14 +72,6 @@ window.TblMenu = (function(TblMenu, $) {
         var $subMenu = $('#tableSubMenu');
         var $allMenus = $tableMenu.add($subMenu);
 
-        $tableMenu.on('mouseup', '.archiveTable', function(event) {
-            if (event.which !== 1 || $(this).hasClass("unavailable")) {
-                return;
-            }
-            var tableId = $tableMenu.data('tableId');
-            TblManager.archiveTables([tableId]);
-        });
-
         $tableMenu.on('mouseup', '.hideTable', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
@@ -1120,7 +1112,6 @@ window.TblMenu = (function(TblMenu, $) {
             c: "corrAgg",
             d: "deleteTable",
             e: "exportTable",
-            h: "archiveTable",
             j: "jupyterTable",
             m: "hideTable",
             s: "multiCast",

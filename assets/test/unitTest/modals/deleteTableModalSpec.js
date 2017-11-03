@@ -31,10 +31,7 @@ describe("Delete Table Modal Test", function() {
             var testCases = [{
                 "type": TableType.Orphan,
                 "id": "deleteTableModal-orphan"
-            }, {
-                "type": TableType.Archived,
-                "id": "deleteTableModal-archived"
-            }, {
+            },{
                 "type": TableType.Active,
                 "id": "deleteTableModal-active"
             }, {

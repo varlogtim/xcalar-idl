@@ -1604,7 +1604,7 @@ window.QueryManager = (function(QueryManager, $) {
                 } else if (gTables[tableId].status === TableType.Undone) {
                     tableType = TableType.Undone;
                 } else {
-                    tableType = TableType.Archived;
+                    tableType = TableType.Orphan;
                 }
 
                 //xx currently we won't allow focusing on undone tables

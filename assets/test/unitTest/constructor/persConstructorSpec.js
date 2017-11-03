@@ -931,9 +931,6 @@ describe("Persistent Constructor Test", function() {
             });
             expect(table.getType()).to.equal(TableType.Active);
 
-            table.beArchived();
-            expect(table.getType()).to.equal(TableType.Archived);
-
             table.beTrashed();
             expect(table.getType()).to.equal(TableType.Trash);
 
@@ -2704,7 +2701,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("testName");
             expect(worksheet).have.property("date")
             .and.to.equal("testDate");
-            expect(worksheet).have.property("archivedTables")
+            expect(worksheet).have.property("pendingTables")
             .and.to.be.an("array");
             expect(worksheet).have.property("orphanedTables")
             .and.to.be.an("array");

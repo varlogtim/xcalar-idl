@@ -448,7 +448,7 @@ window.TestSuite = (function($, TestSuite) {
     function deleteWorksheets() {
         var sheets = xcHelper.deepCopy(WSManager.getWSList());
         for (var i = 1; i < sheets.length; i++) {
-            WSManager.delWS(sheets[i], DelWSType.Archive);
+            WSManager.delWS(sheets[i], DelWSType.Del);
         }
     }
 
@@ -477,7 +477,7 @@ window.TestSuite = (function($, TestSuite) {
             }
 
             var $tabs = $("#tableListSectionTabs .tableListSectionTab");
-            var tabeTypes = [TableType.Active, TableType.Archived, TableType.Orphan];
+            var tabeTypes = [TableType.Active, TableType.Orphan];
             var promises = [];
 
             TableList.refreshOrphanList()
@@ -852,14 +852,14 @@ window.TestSuite = (function($, TestSuite) {
                 return checkExists("#alertHeader:visible " +
                                    ".text:contains('Duplicate Module'), " +
                                    "#alertContent:visible .text:contains" +
-                                   "('UDF Module currently in use')",
+                                   "('already exists')",
                                    null, {optional: true,
                                           noDilute: true});
             })
             .then(function(found) {
                 if (found) {
                     if (!$("#alertContent:visible .text:contains" +
-                        "('UDF Module currently in use')").length) {
+                        "('UDF module currently in use')").length) {
                         // remove to make sure the check is after upload is done
                         $("#udf-manager .udf .text:contains(ymd)").remove();
                     }

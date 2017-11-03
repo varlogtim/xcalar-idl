@@ -495,8 +495,6 @@ window.DFCard = (function($, DFCard) {
         DF.removeDataflow(dfName)
         .then(function() {
             var inFocus = $list.find(".listInfo").hasClass("selected");
-            // show success msg first and the do clean
-            xcHelper.showSuccess(SuccessTStr.RmDF);
             $card.remove();
             $list.remove();
             if (inFocus) {

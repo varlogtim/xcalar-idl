@@ -232,13 +232,6 @@ window.Tips = (function($, Tips) {
             "title": TipsTStr.TablList,
             "container": "#activeTablesList .timeLine:first-child"
         });
-
-        // tablelist in archivedList
-        $tableList = $("#archivedTableListSection").find(".tableListBox").eq(0);
-        setTooltip($tableList, {
-            "title": TipsTStr.TablList,
-            "container": "#archivedTableListSection .timeLine:first-child"
-        });
     }
     /* End of Section of adding tips */
 

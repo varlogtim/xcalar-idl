@@ -81,18 +81,6 @@ describe("Monitor Panel Test", function() {
 
             DeleteTableModal.show = cache;
         });
-
-        it("gen sub helper button should work", function() {
-            var shown = false;
-            var cache = SupTicketModal.show;
-            SupTicketModal.show = function() {
-                shown = true;
-            };
-
-            $("#monitor-genSub").click();
-            expect(shown).to.be.true;
-            SupTicketModal.show = cache;
-        });
     });
 
     after(function() {

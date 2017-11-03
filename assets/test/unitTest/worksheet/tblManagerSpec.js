@@ -452,20 +452,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("Should delete archived table", function(done) {
-            table.beArchived();
-            expect(table.getType()).to.equal(TableType.Archived);
-
-            TblManager.deleteTables(tableId, TableType.Archived)
-            .then(function() {
-                expect(gTables).not.to.ownProperty(tableId);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
         it("Should delete orphaned table", function(done) {
             table.beOrphaned();
             expect(table.getType()).to.equal(TableType.Orphan);
@@ -605,31 +591,6 @@ describe("TableManager Test", function() {
                 dsName = resDS;
                 tableName = resTable;
                 tableId = xcHelper.getTableId(tableName);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("TblManager.archiveTables should work", function(done) {
-            var worksheet = WSManager.getActiveWS();
-            var table = gTables[tableId];
-            TblManager.archiveTables(tableId);
-            expect(table.resultSetId).not.to.equal(-1);
-
-            var checkFunc = function() {
-                return table.resultSetId === -1;
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Archived);
-                // back to active
-                return TblManager.refreshTable([tableName], null, null, worksheet);
-            })
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Active);
                 done();
             })
             .fail(function() {

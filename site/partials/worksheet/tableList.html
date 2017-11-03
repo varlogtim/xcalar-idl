@@ -13,17 +13,16 @@
   <!-- Tabs -->
   <section id="tableListSectionTabs">
     <div class="tableListSectionTab active"><%= dicts.ws.ActiveList %></div>
-    <div class="tableListSectionTab"><%= dicts.ws.InActiveList %></div>
-    <div class="tableListSectionTab"><span class="fullText"><%= dicts.ws.OrphanList %></span><span class="abbrText"><%= dicts.ws.TempAbbr %>...</span></div>
-    <div class="tableListSectionTab firstTouch"><span class="fullText"><%= dicts.ws.ConstList %></span><span class="abbrText"><%= dicts.ws.ConstAbbr %>...</span></div>
+    <div class="tableListSectionTab"><span class="fullText"><%= dicts.ws.OrphanList %></span></div>
+    <div class="tableListSectionTab firstTouch"><span class="fullText"><%= dicts.ws.ConstList %></span></div>
   </section>
   <!-- Sections -->
   <section id="tableListSections">
     <!-- active list -->
     <div id="activeTableListSection" class="tableListSection sortedByWS" data-sort="ws">
       <div class="buttonSection">
-        <div class="submit archive xc-hidden" title="<%= dicts.ws.archive %>" data-toggle="tooltip" data-placement="top" data-container="body">
-          <i class="icon xi-archive"></i>
+        <div class="submit delete xc-hidden" title="<%= dicts.TooltipTStr.DropTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
+          <i class="icon xi-trash fa-17"></i>
         </div>
         <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
         <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
@@ -39,31 +38,6 @@
       <ul id="activeTablesList" class="tableLists"></ul>
       <div class="listInstructions">
         <%= dicts.ws.ActiveTableInstr %>
-      </div>
-    </div>
-    <!-- archived list -->
-    <div id="archivedTableListSection" class="tableListSection sortedByWS" data-sort="ws">
-      <div class="buttonSection">
-        <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
-           <i class="icon xi-back-to-worksheet fa-17"></i>
-        </div>
-        <div class="submit delete xc-hidden" title="<%= dicts.TooltipTStr.DropTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
-          <i class="icon xi-trash fa-17"></i>
-        </div>
-        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
-        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
-      </div>
-      <div class="sortSection">
-        <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
-         <span class="sortWS sortOption" data-sort="ws"><%= dicts.common.WS %></span>
-        <span class="divider"></span>
-        <span class="sortDate sortOption" data-sort="date"><%= dicts.common.LastUpdated %></span>
-        <span class="divider"></span>
-        <span class="sortName sortOption" data-sort="name"><%= dicts.common.Name %></span>
-      </div>
-      <ul id="inactiveTablesList" class="tableLists"></ul>
-      <div class="listInstructions">
-        <%= dicts.ws.HideTableInstr %>
       </div>
     </div>
     <!-- orphaned table list -->

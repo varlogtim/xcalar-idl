@@ -865,8 +865,6 @@ TblTStr = {
 'DropTbl': '删除表',
 'DelMsg': '您确定要删除表<table>吗？',
 'DelFail': '删除表失败',
-'Archive': '隐藏表',
-'ARCHIVE': '隐藏表',
 'Active': '将表发送到工作表',
 'ActiveFail': '活动表失败',
 'Truncate': '其他字符被截断'

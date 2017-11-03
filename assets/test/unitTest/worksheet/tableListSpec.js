@@ -77,17 +77,9 @@ describe('TableList Test', function() {
             "isLocked": false
         });
 
-        // archived table
-        var table4 = new TableMeta({
-            "tableName": "unitTest#ZZ4",
-            "tableId": "ZZ4",
-            "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked": false,
-            "status": TableType.Archived
-        });
 
         // orphaned table
-        var table5 = new TableMeta({
+        var table4 = new TableMeta({
             "tableName": "unitTestOrphan#ZZ5",
             "tableId": "ZZ5",
             "tableCols": [progCol1, progCol2, progCol3],
@@ -101,9 +93,8 @@ describe('TableList Test', function() {
             gTables["ZZ1"] = table;
             gTables["ZZ2"] = table2;
             gTables["ZZ3"] = table3;
-            gTables["ZZ4"] = table4;
-            gTables["ZZ5"] = table5;
-            gOrphanTables.push(table5.tableName);
+            gTables["ZZ5"] = table4;
+            gOrphanTables.push(table4.tableName);
             TableList.clear();
 
             // constant table
@@ -141,8 +132,8 @@ describe('TableList Test', function() {
             var $tabs = $(".tableListSectionTab");
             var $sections = $("#tableListSections .tableListSection");
 
-            expect($tabs.length).to.equal(4);
-            expect($sections.length).to.equal(4);
+            expect($tabs.length).to.equal(3);
+            expect($sections.length).to.equal(3);
 
             $tabs.eq(0).click();
             expect($tabs.eq(0).hasClass("active")).to.be.true;
@@ -154,29 +145,9 @@ describe('TableList Test', function() {
                 return $(this).is(":visible");
             }).length).to.equal(1);
 
-            $tabs.eq(1).click();
-            expect($tabs.eq(1).hasClass("active")).to.be.true;
-            expect($sections.eq(1).is(":visible")).to.be.true;
-            expect($tabs.filter(function() {
-                return $(this).hasClass("active");
-            }).length).to.equal(1);
-            expect($sections.filter(function() {
-                return $(this).is(":visible");
-            }).length).to.equal(1);
-
             $tabs.eq(2).click();
             expect($tabs.eq(2).hasClass("active")).to.be.true;
             expect($sections.eq(2).is(":visible")).to.be.true;
-            expect($tabs.filter(function() {
-                return $(this).hasClass("active");
-            }).length).to.equal(1);
-            expect($sections.filter(function() {
-                return $(this).is(":visible");
-            }).length).to.equal(1);
-
-            $tabs.eq(3).click();
-            expect($tabs.eq(3).hasClass("active")).to.be.true;
-            expect($sections.eq(3).is(":visible")).to.be.true;
             expect($tabs.filter(function() {
                 return $(this).hasClass("active");
             }).length).to.equal(1);
@@ -350,8 +321,8 @@ describe('TableList Test', function() {
 
             var $tabs = $(".tableListSectionTab");
             var $sections = $("#tableListSections .tableListSection");
-            $tabs.eq(3).click();
-            expect($sections.eq(3).is(":visible")).to.be.true;
+            $tabs.eq(2).click();
+            expect($sections.eq(2).is(":visible")).to.be.true;
 
             $("#constantsListSection").find(".constName").eq(0).mouseenter();
             expect(tooltipCalled).to.be.true;
@@ -361,78 +332,8 @@ describe('TableList Test', function() {
 
     describe("submit buttons", function() {
         it("check correct number of btns", function() {
-            expect($("#tableListSections").find(".submit.archive").length).to.equal(1);
-            expect($("#tableListSections").find(".submit.active").length).to.equal(2);
+            expect($("#tableListSections").find(".submit.active").length).to.equal(1);
             expect($("#tableListSections").find(".submit.delete").length).to.equal(3);
-        });
-
-        it("submit in active list should work", function() {
-            var cachedFn = TblManager.archiveTables;
-            var archiveCalled = false;
-            TblManager.archiveTables = function(tableIds) {
-                expect(tableIds[0]).to.equal("ZZ3");
-                expect(tableIds[1]).to.equal("ZZ2");
-                archiveCalled = true;
-            };
-            $("#activeTableListSection").find(".addTableBtn").eq(0).addClass("selected");
-            $("#activeTableListSection").find(".addTableBtn").eq(1).addClass("selected");
-
-            $("#activeTableListSection").find(".submit").click();
-            expect(archiveCalled).to.be.true;
-
-            $("#activeTableListSection").find(".addTableBtn").removeClass("selected");
-            TblManager.archiveTables = cachedFn;
-        });
-
-        it("submit in archived list should work", function() {
-            var cachedWSFn = WSManager.getWSIdByName;
-            var cachedTableFn = TableList.activeTables;
-            var activeCalled = false;
-            var getWSIDCalled = false;
-            TableList.activeTables = function(tableType, nsTables, wsToSend) {
-                expect(tableType).to.equal(TableType.Archived);
-                expect(nsTables.length).to.equal(1);
-                expect(nsTables[0]).to.equal("ZZ4");
-                expect(wsToSend).to.equal("fakeId");
-                activeCalled = true;
-            };
-            WSManager.getWSIdByName = function(wsName) {
-                expect(wsName).to.equal("unitTestWS");
-                getWSIDCalled = true;
-                return "fakeId";
-            };
-
-            $("#archivedTableListSection").find(".addTableBtn").eq(0).addClass("selected");
-            $("#archivedTableListSection").find(".submit.active").click();
-
-            UnitTest.hasAlertWithTitle(SideBarTStr.SendToWS, {inputVal: 'unitTestWS',
-                                        confirm: true});
-            expect(activeCalled).to.be.true;
-            expect(getWSIDCalled).to.be.true;
-
-            $("#archivedTableListSection").find(".addTableBtn").removeClass("selected");
-            WSManager.getWSIdByName = cachedWSFn;
-            TableList.activeTables = cachedTableFn;
-        });
-
-        it("submit in archived list should produce alert if invalid WS name", function() {
-            var cachedTableFn = TableList.activeTables;
-            var activeCalled = false;
-
-            TableList.activeTables = function() {
-                activeCalled = true;
-            };
-
-            $("#archivedTableListSection").find(".addTableBtn").eq(0).addClass("selected");
-            $("#archivedTableListSection").find(".submit.active").click();
-
-            UnitTest.hasAlertWithTitle(SideBarTStr.SendToWS, {inputVal: 'unitTestWS',
-                                        confirm: true, nextAlert: true});
-            UnitTest.hasAlertWithTitle(WSTStr.InvalidWSName);
-            expect(activeCalled).to.be.false;
-
-            $("#archivedTableListSection").find(".addTableBtn").removeClass("selected");
-            TableList.activeTables = cachedTableFn;
         });
 
         it("submit in orphaned list should work", function() {
@@ -452,25 +353,6 @@ describe('TableList Test', function() {
 
             $("#orphanedTableListSection").find(".addTableBtn").removeClass("selected");
             TableList.activeTables = cachedTableFn;
-        });
-
-        it("submit delete archived should work", function() {
-            var tableBulkCache = TableList.tableBulkAction;
-            var bulkCalled = false;
-            TableList.tableBulkAction = function(action, tableType, wsId) {
-                expect(action).to.equal("delete");
-                expect(tableType).to.equal(TableType.Archived);
-                expect(wsId).to.be.undefined;
-                bulkCalled = true;
-                return PromiseHelper.resolve();
-            };
-
-            $("#archivedTableListSection").find(".submit.delete").click();
-
-            UnitTest.hasAlertWithTitle(TblTStr.Del, {confirm: true});
-            expect(bulkCalled).to.be.true;
-
-            TableList.tableBulkAction = tableBulkCache;
         });
 
         it("submit delete orphaned should work", function() {
@@ -616,43 +498,6 @@ describe('TableList Test', function() {
         });
     });
 
-    describe("TableList.moveTable", function() {
-        it("moveTable should work", function() {
-            var cachedActiveListHtml = $("#activeTablesList").html();
-            var cachedArchivedListHtml = $("#inactiveTablesList").find(".tableList").html();
-
-            $("#activeTablesList").find(".addTableBtn").addClass("selected");
-            $("#activeTableListSection").find(".submit").removeClass("xc-hidden");
-
-            expect($("#activeTablesList .tableListBox").length).to.equal(3);
-            expect($("#activeTablesList .tableInfo[data-id='ZZ3']").length).to.equal(1);
-            expect($("#activeTablesList").find(".addTableBtn.selected").length).to.equal(3);
-            expect($("#activeTableListSection").find(".submit.xc-hidden").length).to.equal(0);
-            expect($("#inactiveTablesList .tableInfo[data-id='ZZ3']").length).to.equal(0);
-
-            TableList.moveTable("ZZ3");
-
-            expect($("#activeTablesList .tableListBox").length).to.equal(2);
-            expect($("#activeTablesList .tableInfo[data-id='ZZ3']").length).to.equal(0);
-            expect($("#activeTableListSection").find(".submit.xc-hidden").length).to.equal(1);
-            expect($("#activeTablesList").find(".addTableBtn.selected").length).to.equal(0);
-            expect($("#inactiveTablesList .tableInfo[data-id='ZZ3']").length).to.equal(1);
-
-            TableList.moveTable("ZZ2");
-
-            // last table
-            expect($("#activeTableListSection").find(".tableGroup").length).to.equal(1);
-            expect($('#activeTableListSection').hasClass("empty")).to.be.false;
-            TableList.moveTable("ZZ1");
-            expect($("#activeTableListSection").find(".tableGroup").length).to.equal(0);
-            expect($('#activeTableListSection').hasClass("empty")).to.be.true;
-
-            $('#activeTableListSection').removeClass("empty");
-            $("#activeTablesList").html(cachedActiveListHtml);
-            $("#inactiveTablesList").find(".tableList").html(cachedArchivedListHtml);
-        });
-    });
-
     describe("TableList.updateColName", function() {
         it("updatecolname should work", function() {
             expect($("#activeTablesList").find(".column .text").eq(0).text()).to.equal("1. testCol");
@@ -702,10 +547,6 @@ describe('TableList Test', function() {
         it("check table in list should work", function() {
             expect(TableList.checkTableInList("ZZ3")).to.equal(true);
             expect(TableList.checkTableInList("unitTestOrphan#ZZ5", TableType.Orphan)).to.equal(true);
-            expect(TableList.checkTableInList("ZZ4", TableType.Archived)).to.equal(true);
-
-            expect(TableList.checkTableInList("ZZ3", TableType.Archived)).to.equal(false);
-            expect(TableList.checkTableInList("unitTestOrphan#ZZ5ZZ5", TableType.Archived)).to.equal(false);
             expect(TableList.checkTableInList("ZZ4", TableType.Orphan)).to.equal(false);
         });
     });
@@ -718,8 +559,6 @@ describe('TableList Test', function() {
                 called = true;
                 return PromiseHelper.reject();
             };
-            var cachedFn2 = WSManager.addNoSheetTables;
-            WSManager.addNoSheetTables = function() {};
 
             TableList.activeTables()
             .then(function() {
@@ -729,7 +568,6 @@ describe('TableList Test', function() {
             .fail(function() {
                 UnitTest.hasAlertWithTitle(TblTStr.ActiveFail);
                 TableList.tableBulkAction = cachedFn1;
-                WSManager.addNoSheetTables = cachedFn2;
                 done();
             });
         });

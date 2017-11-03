@@ -521,13 +521,13 @@ window.DagPanel = (function($, DagPanel) {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
-                    $menu.find('.focusTable, .archiveTable')
+                    $menu.find('.focusTable')
                          .removeClass('hidden');
                     if (!tableLocked && !inColumnPickerMode) {
-                        $menu.find('.archiveTable, .deleteTable')
+                        $menu.find('.deleteTable')
                              .removeClass('hidden');
                     } else {
-                        $menu.find('.archiveTable, .deleteTable')
+                        $menu.find('.deleteTable')
                              .addClass('hidden');
                     }
                     activeFound = true;
@@ -542,14 +542,14 @@ window.DagPanel = (function($, DagPanel) {
             var operator = $dagTable.siblings('.actionType').data('type');
             if (operator === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
-                            '.archiveTable, .addNoDelete').addClass('hidden');
+                            '.addNoDelete').addClass('hidden');
             } else if (activeFound) {
                 // already in WS, cannot add or revert to worksheet
                 $menu.find('.addTable, .revertTable').addClass('hidden');
             } else {
                 // not in WS, allow adding and reverting, disallow archiving
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
-                $menu.find('.focusTable, .archiveTable').addClass('hidden');
+                $menu.find('.focusTable').addClass('hidden');
             }
 
             var $dagWrap = $dagTable.closest('.dagWrap');
@@ -786,9 +786,9 @@ window.DagPanel = (function($, DagPanel) {
 
         if ((gTables[dagId] && gTables[dagId].hasLock()) ||
             inColumnPickerMode) {
-            $menu.find('.archiveTable, .deleteTable, .dataflow').hide();
+            $menu.find('.deleteTable, .dataflow').hide();
         } else {
-            $menu.find('.archiveTable, .deleteTable, .dataflow').show();
+            $menu.find('.deleteTable, .dataflow').show();
         }
 
         $menu.find('.dataflow').removeClass('unavailable');
@@ -929,18 +929,6 @@ window.DagPanel = (function($, DagPanel) {
             TblManager.removeTableNoDelete(tableId);
         });
 
-        $menu.find('.archiveTable').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var tableId = $menu.data('tableId');
-            var table = gTables[tableId];
-            if (table && table.hasLock()) {
-                return;
-            }
-            TblManager.archiveTables([tableId]);
-        });
-
         $menu.find('.deleteTable').mouseup(function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
@@ -1002,28 +990,17 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
         } else if (table) {
-            if (table.getType() === TableType.Orphan) {
-                TableList.refreshOrphanList()
-                .then(function() {
-                    $('#orphanedTablesList').find('.tableInfo').each(function() {
-                        var $li = $(this);
-                        if ($li.data('tablename') === tableName) {
-                            $li.find('.addTableBtn').click();
-                            $('#orphanedTableListSection .submit.delete').click();
-                            return (false);
-                        }
-                    });
-                });
-            } else {
-                $('#inactiveTablesList').find('.tableInfo').each(function() {
+            TableList.refreshOrphanList()
+            .then(function() {
+                $('#orphanedTablesList').find('.tableInfo').each(function() {
                     var $li = $(this);
-                    if ($li.data('id') === tableId) {
+                    if ($li.data('tablename') === tableName) {
                         $li.find('.addTableBtn').click();
-                        $('#archivedTableListSection .submit.delete').click();
+                        $('#orphanedTableListSection .submit.delete').click();
                         return (false);
                     }
                 });
-            }
+            });
         } else {
             // check if aggregate
             if (Aggregates.getAggs()[tableName]) {

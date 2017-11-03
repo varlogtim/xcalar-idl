@@ -2,7 +2,7 @@ window.Repeat = (function($, Repeat) {
     var repeatFuncs = {};
     var wsOperations = [SQLOps.AddWS, SQLOps.HideWS, SQLOps.DelWS];
     var tableOperations = [SQLOps.HideTable, SQLOps.UnhideTable,
-                           SQLOps.ArchiveTable, SQLOps.MoveTableToWS,
+                           SQLOps.MoveTableToWS,
                            SQLOps.DeleteTable, SQLOps.SortTableCols,
                            SQLOps.ResizeTableCols];
 
@@ -191,10 +191,6 @@ window.Repeat = (function($, Repeat) {
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
-    repeatFuncs[SQLOps.ArchiveTable] = function(options, colNums, tableId) {
-        TblManager.archiveTables(tableId);
-        return PromiseHelper.resolve(null);
-    };
 
     // repeatFuncs[SQLOps.ActiveTables] = function(options) {
     //     // redo sent to worksheet

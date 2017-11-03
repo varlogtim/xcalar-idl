@@ -398,7 +398,6 @@ window.Shortcuts = (function($, Shortcuts) {
                     'Create Table ...</li>' +
                 '<li class="tests parentMenu" data-submenu="tests">Tests ...</li>' +
                 '<li class="globals parentMenu" data-submenu="globals">Global Flags ...</li>' +
-                '<li class="archiveAllTables">Archive All Tables</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
                 '<li class="splash off">Turn Off Splash</li>' +
                 '<li class="splash on">Turn On Splash</li>' +
@@ -460,10 +459,6 @@ window.Shortcuts = (function($, Shortcuts) {
     function addMenuActions() {
         var $menu = $('#shortcutMenu');
         var $subMenu = $('#shortcutSubMenu');
-
-        $menu.on('mouseup', '.archiveAllTables', function() {
-            archiveAllTables();
-        });
 
         $menu.on('mouseup', '.deleteAllTables', function() {
             deleteAllTables();
@@ -653,16 +648,6 @@ window.Shortcuts = (function($, Shortcuts) {
         }
         if (tableIds.length) {
             TblManager.deleteTables(tableIds, TableType.Active);
-        }
-    }
-
-    function archiveAllTables() {
-        var tableIds = [];
-        $('.xcTableWrap:not(.inActive)').each(function() {
-            tableIds.push($(this).data('id'));
-        });
-        if (tableIds.length) {
-            TblManager.archiveTables(tableIds);
         }
     }
 

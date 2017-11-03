@@ -325,7 +325,7 @@ window.Log = (function($, Log) {
 
     Log.repeat = function() {
         if ($("#redo").hasClass("locked")) {
-            return;
+            return PromiseHelper.reject();
         }
         var deferred = jQuery.Deferred();
         var logLen = logs.length;
@@ -1200,7 +1200,6 @@ window.Log = (function($, Log) {
             case (SQLOps.AddNewCol):
             case (SQLOps.PullCol):
             case (SQLOps.PullMultipleCols):
-            case (SQLOps.ArchiveTable):
             case (SQLOps.ActiveTables):
             case (SQLOps.RenameCol):
             case (SQLOps.TextAlign):

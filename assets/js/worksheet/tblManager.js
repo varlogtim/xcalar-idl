@@ -22,7 +22,6 @@ window.TblManager = (function($, TblManager) {
         -position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo
         -replacingDest: string, where to send old tables that are being replaced
-        -fromArchive: boolean, true if archive -> active
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
                                        worksheet, txId, options)
@@ -40,7 +39,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         oldTableNames = oldTableNames || [];
 
-        if (typeof(oldTableNames) === "string") {
+        if (typeof oldTableNames === "string") {
             oldTableNames = [oldTableNames];
         }
 
@@ -112,7 +111,6 @@ window.TblManager = (function($, TblManager) {
                 "from": options.from,
                 "replacingDest": options.replacingDest,
                 "ws": worksheet,
-                "fromArchive": options.fromArchive,
                 "txId": txId
             };
 
@@ -124,8 +122,8 @@ window.TblManager = (function($, TblManager) {
                 scrollAndFocusTable(newTableName);
             } else {
                 var wsNum = WSManager.getActiveWS();
-                if ($('.xcTableWrap.worksheet-' + wsNum).
-                                   find('.tblTitleSelected').length === 0) {
+                if ($('.xcTableWrap.worksheet-' + wsNum)
+                                   .find('.tblTitleSelected').length === 0) {
                     var tableId = xcHelper.getTableId(newTableName);
                     TblFunc.focusTable(tableId);
                 }
@@ -151,6 +149,7 @@ window.TblManager = (function($, TblManager) {
             deferred.reject(error);
         })
         .always(function() {
+            WSManager.removePending(newTableId, worksheet);
             TableList.updatePendingState(false);
         });
 
@@ -209,7 +208,6 @@ window.TblManager = (function($, TblManager) {
         afterStartup: boolean to indicate if the table is added after page load
         selectCol: number or array of numbers. column to be highlighted when
                     table is ready,
-        fromArchive: boolean, true if archive -> active,
         txId: string, used for tagging operations before creating dag
     */
     TblManager.parallelConstruct = function(tableId, tableToReplace, options) {
@@ -244,9 +242,7 @@ window.TblManager = (function($, TblManager) {
                 // in case table showed up in temp list during its formation
                 TableList.removeTable(table.getName(), TableType.Orphan);
             }
-            if (options.fromArchive) {
-                TableList.removeTable(tableId, TableType.Archived);
-            }
+
             if ($('.xcTable:visible').length === 1) {
                 TblFunc.focusTable(tableId);
             }
@@ -292,105 +288,7 @@ window.TblManager = (function($, TblManager) {
         return table;
     };
 
-    TblManager.archiveTables = function(tableIds) {
-        // a wrapper function to archive bunch of tables
-        xcAssert((tableIds != null), "Invalid arguments");
-
-        if (!(tableIds instanceof Array)) {
-            tableIds = [tableIds];
-        }
-
-        var options = {"del": ArchiveTable.Keep};
-        var tableNames = [];
-        var tablePos = [];
-        // var wsIds = [];
-        var tables = [];
-
-        for (var i = 0, len = tableIds.length; i < len; i++) {
-            var tableId = tableIds[i];
-            var ws = WSManager.getWSFromTable(tableId);
-            tables.push({
-                tablePos: WSManager.getTableRelativePosition(tableId),
-                wsIndex: WSManager.indexOfWS(ws),
-                tId: tableId
-            });
-        }
-        tables.sort(function(a, b) {
-            if (a.wsIndex === b.wsIndex) {
-                return a.tablePos - b.tablePos;
-            }
-            return a.wsIndex - b.wsIndex;
-        });
-        var orderedTIds = [];
-        for (var i = 0; i < tables.length; i++) {
-            tableNames.push(gTables[tables[i].tId].tableName);
-            tablePos.push(tables[i].tablePos);
-            orderedTIds.push(tables[i].tId);
-        }
-        for (var i = 0, len = orderedTIds.length; i < len; i++) {
-            TblManager.archiveTable(orderedTIds[i], options);
-        }
-
-        // add sql
-        Log.add(SQLTStr.HideTable, {
-            "operation": SQLOps.ArchiveTable,
-            "tableIds": orderedTIds,
-            "tableNames": tableNames,
-            "tablePos": tablePos,
-            "htmlExclude": ["tablePos"]
-        });
-    };
-
-    /*
-        Removes a table from the display and puts it in the rightside bar inactive
-        list. Shifts all the ids. Does not delete the table from backend!
-
-        Possible Options:
-        del: boolean. If true, will delete the table (currently disabled),
-            otherwise it will send table to inactive list
-        delayTableRemoval: boolean. If true, special class will be added to
-            table until it is removed later
-        tempHide: boolean. If true, table is part of a hidden worksheet
-    */
-    TblManager.archiveTable = function(tableId, options) {
-        options = options || {};
-        var del = options.del || false;
-        // var tempHide = options.tempHide || false;
-        if (options.delayTableRemoval) {
-            $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-            $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
-        } else {
-            removeTableDisplay(tableId);
-        }
-
-        if (!del) {
-            var table = gTables[tableId];
-            // free result set when archive
-            table.freeResultset();
-            table.beArchived();
-            table.updateTimeStamp();
-            delete table.scrollMeta;
-            delete table.highlightedCells;
-            WSManager.changeTableStatus(tableId, TableType.Archived);
-            TableList.moveTable(tableId);
-        } else {
-            TableList.removeTable(tableId, TableType.Active);
-        }
-
-        if (gActiveTableId === tableId) {
-            gActiveTableId = null;
-        }
-        if ($('.xcTableWrap:not(.inActive)').length === 0) {
-            RowScroller.empty();
-        }
-
-        TblManager.alignTableEls();
-
-        // disallow dragging if only 1 table in worksheet
-        TblFunc.checkTableDraggable();
-    };
-
-    //options:
+    // options:
     // remove: boolean, if true will remove table from html immediately - should
     //                  happen when not replacing a table
     // keepInWS: boolean, if true will not remove table from WSManager
@@ -455,6 +353,7 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
+    // XXX not using options.keepInWS anymore
     // used for orphaned or undone tables
     function tableCleanup(tableId, isUndone, options) {
         var table = gTables[tableId];
@@ -464,15 +363,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         TableList.removeTable(tableId);
-        if (!options.keepInWS) {
-            WSManager.removeTable(tableId);
-        } else {
-            if (isUndone) {
-                WSManager.changeTableStatus(tableId, TableType.Undone);
-            } else {
-                WSManager.changeTableStatus(tableId, TableType.Orphan);
-            }
-        }
+        WSManager.removeTable(tableId);
 
         if (isUndone) {
             table.beUndone();
@@ -512,9 +403,12 @@ window.TblManager = (function($, TblManager) {
     // will resolve if at least 1 table passes, even if others fail
     // if no failures, will not return info, but if partial or full fail
     // then it will return array of failures
-    TblManager.deleteTables = function(tables, tableType, noAlert, noLog) {
+    // options:
+    //      lockedToTemp: boolean, if true will send locked tables to temp list
+    TblManager.deleteTables = function(tables, tableType, noAlert, noLog, options) {
         // XXX not tested yet!!!
         var deferred = jQuery.Deferred();
+        options = options || {};
 
         // tables is an array, it might be modifed
         // example: pass in gOrphanTables
@@ -566,11 +460,17 @@ window.TblManager = (function($, TblManager) {
                 var def = delTableHelper(tableId, tableType, txId);
                 defArray.push(def);
             });
+            if (options.lockedToTemp) {
+                noDeleteTables.forEach(function(tableId) {
+                    defArray.push(TblManager.sendTableToOrphaned(tableId,
+                        {remove: true, noFocusWS: true, force: true}));
+                });
+            }
         }
 
         PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            if (noDeleteTables.length) {
+            if (noDeleteTables.length && !options.lockedToTemp) {
                 rejectHandler(tableNames);
             } else {
                 if (!noLog) {
@@ -645,9 +545,11 @@ window.TblManager = (function($, TblManager) {
         }
         table.addNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);
-        var $dropdownBox = $tableHeader.find(".dropdownBox");
-        if (!$dropdownBox.find(".lockIcon").length) {
-            $dropdownBox.append('<div class="lockIcon"></div>');
+        if (!$tableHeader.find(".lockIconWrap").length) {
+            $tableHeader.find(".tableTitle")
+                        .append('<div class="lockIconWrap">' +
+                                '<div class="lockIcon"></div></div>');
+            TblFunc.moveTableDropdownBoxes();
         }
         TableList.makeTableNoDelete(tableId);
         return table;
@@ -657,7 +559,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         table.removeNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);
-        $tableHeader.find(".lockIcon").remove();
+        $tableHeader.find(".lockIconWrap").remove();
         TableList.removeTableNoDelete(tableId);
         return table;
     };
@@ -727,13 +629,12 @@ window.TblManager = (function($, TblManager) {
         var padding = 4;
         var $row;
         var $firstTd;
+        var row;
 
         for (var i = pageNum; i < lastPageNum; i++) {
             if (rowObj[i]) {
-                for (var row in rowObj[i]) {
-                    $row = $trs.filter(function() {
-                        return ($(this).hasClass('row' + (row - 1)));
-                    });
+                for (row in rowObj[i]) {
+                    $row = $trs.filter(getRows);
                     $firstTd = $row.find('td.col0');
                     $firstTd.outerHeight(rowObj[i][row]);
                     $row.find('td > div')
@@ -742,6 +643,9 @@ window.TblManager = (function($, TblManager) {
                     $row.addClass('changedHeight');
                 }
             }
+        }
+        function getRows() {
+            return ($(this).hasClass('row' + (row - 1)));
         }
     };
 
@@ -796,7 +700,7 @@ window.TblManager = (function($, TblManager) {
             disabledProp = "disabled";
             editableClass = "";
         }
-        colName = colName.replace(/\"/g, "&quot;");
+        colName = colName.replace(/"/g, "&quot;");
 
         // var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
         //                  'data-placement="top" data-container="body"': "";
@@ -848,7 +752,7 @@ window.TblManager = (function($, TblManager) {
                                 ' size="15" spellcheck="false" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" ' +
-                                'data-container="body" '+
+                                'data-container="body" ' +
                                 'data-original-title="' + colName + '" ' +
                                 disabledProp + '/>' +
                         '</div>' +
@@ -1542,12 +1446,10 @@ window.TblManager = (function($, TblManager) {
                 through an undo,
         -replacingDest: string, where to send old tables that are being replaced
         -ws: string, worksheet id of where new table will go
-        -fromArchive: boolean, true if archive -> active
         -txId: string, used for tagging dag operations
     */
     function addTable(newTableName, tablesToReplace, tablesToRemove, options) {
         var deferred = jQuery.Deferred();
-        //XX don't just get first array value
         var newTableId = xcHelper.getTableId(newTableName);
         var oldId = xcHelper.getTableId(tablesToReplace[0]);
         options = options || {};
@@ -1559,7 +1461,6 @@ window.TblManager = (function($, TblManager) {
             selectCol: options.selectCol,
             wsId: options.ws,
             position: options.position,
-            fromArchive: options.fromArchive,
             txId: options.txId
         };
         TblManager.parallelConstruct(newTableId, tablesToReplace[0],
@@ -1577,7 +1478,6 @@ window.TblManager = (function($, TblManager) {
             } else if (tablesToReplace[0] == null) {
                 WSManager.replaceTable(newTableId);
             } else {
-
                 var tablePosition = WSManager.getTablePosition(oldId);
 
                 if (tablePosition > -1) {
@@ -1606,28 +1506,21 @@ window.TblManager = (function($, TblManager) {
                 var noFocusWS = tablesToRemove.length > 1;
                 for (var i = 0; i < tablesToRemove.length; i++) {
                     if (wasTableReplaced && tablesToRemove[i] !== oldId) {
-                        WSManager.changeTableStatus(tablesToRemove[i],
-                                                    TableType.Orphan);
+                        WSManager.removeTable(tablesToRemove[i], true);
                     }
                     if (gTables[tablesToRemove[i]].status === TableType.Active) {
-                        if (options.from === TableType.Archived) {
-                            TblManager.archiveTable(tablesToRemove[i], {
-                                delayTableRemoval: true
-                            });
-                        } else if (options.from === "noSheet") {
+                        if (options.from === "noSheet") {
                             TblManager.sendTableToOrphaned(tablesToRemove[i], {
                                 force: true
                             });
                         } else {
                             if (options.replacingDest === TableType.Undone) {
                                 TblManager.sendTableToUndone(tablesToRemove[i], {
-                                    "keepInWS": true,
                                     "noFocusWS": noFocusWS,
                                     "force": true
                                 });
                             } else {
                                 TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                                    "keepInWS": true,
                                     "noFocusWS": noFocusWS,
                                     "force": true
                                 });
@@ -1994,7 +1887,8 @@ window.TblManager = (function($, TblManager) {
                              'style="top:0px;"></div>');
         var lockIcon = "";
         if (gTables[tableId].isNoDelete()) {
-            lockIcon = '<div class="lockIcon"></div>';
+            lockIcon = '<div class="lockIconWrap"><div class="lockIcon">' +
+                        '</div></div>';
         }
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
@@ -2018,8 +1912,8 @@ window.TblManager = (function($, TblManager) {
                             'title="' + TooltipTStr.ViewTableOptions +
                             '" >' +
                             '<span class="innerBox"></span>' +
-                            lockIcon +
                         '</div>' +
+                        lockIcon +
                     '</div>';
 
         $xcTheadWrap.prepend(html);
@@ -2475,7 +2369,13 @@ window.TblManager = (function($, TblManager) {
             } else {
                 options.offsetX = 5;
             }
+            setUnavailableClassesAndTips(colType, isNewCol, progCol);
+            var $menu = $("#colMenu");
+            xcHelper.dropdownOpen($el, $menu, options);
+        });
 
+
+        function setUnavailableClassesAndTips(colType, isNewCol, progCol) {
             var $menu = $("#colMenu");
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .map, .operations, .profile, .corrAgg, " +
@@ -2528,9 +2428,7 @@ window.TblManager = (function($, TblManager) {
                     title: ColTStr.NoOperateGeneral
                 });
             }
-
-            xcHelper.dropdownOpen($el, $menu, options);
-        });
+        }
 
         $thead.on('mousedown', '.colGrab', function(event) {
             if (event.which !== 1) {
@@ -3076,7 +2974,7 @@ window.TblManager = (function($, TblManager) {
         return {deleteable: deleteables, noDelete: nonDeletables};
     }
 
-    // for deleting active or archived tables
+    // for deleting active tables
     function delTableHelper(tableId, tableType, txId) {
         var deferred = jQuery.Deferred();
 
@@ -3091,23 +2989,19 @@ window.TblManager = (function($, TblManager) {
         })
         .then(function() {
             Dag.makeInactive(tableId);
+            removeTableDisplay(tableId);
+            TableList.removeTable(tableId, TableType.Active);
 
-            if (tableType === TableType.Active) {
-                // when delete active table
-                TblManager.archiveTable(tableId, {del: ArchiveTable.Delete});
-
-                setTimeout(function() {
-                    var activeTable = gTables[gActiveTableId];
-                    if (activeTable && activeTable.resultSetCount !== 0) {
-                        RowScroller.genFirstVisibleRowNum();
-                    }
-                }, 300);
-                if (!$(".xcTable").length) {
-                    MainMenu.closeForms();
-                }
-            } else if (tableType === TableType.Archived) {
-                TableList.removeTable(tableId);
+            if (gActiveTableId === tableId) {
+                gActiveTableId = null;
             }
+            if ($('.xcTableWrap:not(.inActive)').length === 0) {
+                RowScroller.empty();
+            }
+
+            TblManager.alignTableEls();
+            // disallow dragging if only 1 table in worksheet
+            TblFunc.checkTableDraggable();
 
             removeTableMeta(tableName);
             xcHelper.unlockTable(tableId);

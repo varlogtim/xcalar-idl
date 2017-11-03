@@ -40,7 +40,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -65,7 +66,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -102,7 +104,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.Map] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -276,7 +279,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.SplitCol] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -287,7 +291,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.ChangeType] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -298,7 +303,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Project] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -309,7 +315,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Finalize] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
@@ -345,16 +352,16 @@ window.Undo = (function($, Undo) {
                 "isUndo": true,
                 "replacingDest": TableType.Undone
             };
+            var worksheet;
             for (var i = 0; i < oldTables.length; i++) {
                 var oldTable = oldTables[i];
                 if (i === 0) {
+                    worksheet = WSManager.getWSFromTable(xcHelper.getTableId(table));
                     promises.push(TblManager.refreshTable.bind(window,
                                                             [oldTable], null,
                                                             [table], null, null,
                                                             refreshOptions));
                 } else {
-                    var oldTableId = xcHelper.getTableId(oldTable);
-                    var worksheet = WSManager.getWSFromTable(oldTableId);
                     promises.push(TblManager.refreshTable.bind(window,
                                                             [oldTable], null,
                                                             [], worksheet, null,
@@ -534,30 +541,6 @@ window.Undo = (function($, Undo) {
         return xcFunction.rename(tableId, oldTableName);
     };
 
-    undoFuncs[SQLOps.ArchiveTable] = function(options) {
-        // archived table should in inActive list
-
-        options = options || {};
-        var tableIds = options.tableIds || [];
-        var tableNames = options.tableNames || [];
-        var tablePos = options.tablePos || [];
-        var promises = [];
-
-        for (var i = 0, len = tableIds.length; i < len; i++) {
-            var tableName = tableNames[i];
-            var refreshOptions = {
-                "isUndo": true,
-                "position": tablePos[i],
-                "fromArchive": true
-            };
-            var ws = WSManager.getWSFromTable(tableIds[i]);
-            promises.push(TblManager.refreshTable.bind(this, [tableName], null,
-                [], ws, null, refreshOptions));
-        }
-
-        return PromiseHelper.chain(promises);
-    };
-
     undoFuncs[SQLOps.RevertTable] = function(options) {
         var deferred = jQuery.Deferred();
 
@@ -569,9 +552,7 @@ window.Undo = (function($, Undo) {
             if (worksheet !== options.worksheet) {
                 var status = gTables[options.tableId].status;
                 var type;
-                if (status === TableType.Archived) {
-                    type = WSTableType.Archive;
-                } else if (status === TableType.Orphan) {
+                if (status === TableType.Orphan) {
                     type = WSTableType.Orphan;
                 }
                 WSManager.moveTable(options.tableId, options.worksheet, type);
@@ -598,23 +579,7 @@ window.Undo = (function($, Undo) {
             tableIds.push(tableId);
         }
 
-        if (tableType === TableType.Archived) {
-
-            // no need to focus on worksheet
-            TblManager.archiveTables(tableIds);
-            if (options.noSheetTables != null) {
-                var $tableList = $("#inactiveTablesList");
-                var noSheetTables = WSManager.getNoSheetTables();
-                options.noSheetTables.forEach(function(tId) {
-                    WSManager.removeTable(tId);
-                    noSheetTables.push(tId);
-
-                    $tableList.find('.tableInfo[data-id="' + tId + '"] .worksheetInfo')
-                    .addClass("inactive").text(SideBarTStr.NoSheet);
-                });
-            }
-            return PromiseHelper.resolve(null);
-        } else if (tableType === TableType.Orphan) {
+        if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
                 TblManager.sendTableToOrphaned(tId, {
                     "remove": true
@@ -687,32 +652,13 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MoveTableToWS] = function(options) {
-        var deferred = jQuery.Deferred();
-
         var tableId = options.tableId;
         var tableName = gTables[tableId].tableName;
         var oldWS = options.oldWorksheetId;
         var tablePos = options.oldTablePos;
-        // the idead is:
-        // 1. archive this table
-        // 2, remove it from current worksheet
-        // 3, refresh back to the old worksheet
-        // XXXX fix it if you have better idea
-        TblManager.archiveTables([tableId]);
-        WSManager.removeTable(tableId);
-
-        TblManager.refreshTable([tableName], null, [], oldWS, null, {
-            "isUndo": true,
-            "position": tablePos
-        })
-        .then(function() {
-            TableList.removeTable(tableId, TableType.Archived);
-            WSManager.focusOnWorksheet(oldWS, false, tableId);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        WSManager.moveTable(tableId, oldWS, null, tablePos);
+        WSManager.focusOnWorksheet(oldWS, false, tableId);
+        return PromiseHelper.resolve();
     };
 
     undoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
@@ -720,16 +666,7 @@ window.Undo = (function($, Undo) {
         var tableId = options.tableId;
         var tableType = options.tableType;
 
-        if (tableType === TableType.Archived) {
-            // change worksheet
-            var oldWSId = options.oldWorksheetId;
-            WSManager.removeTable(tableId);
-            WSManager.addTable(tableId, oldWSId);
-            TblManager.archiveTables([tableId]);
-            setTimeout(function() {
-                deferred.resolve();
-            }, 1000);
-        } else if (tableType === TableType.Orphan) {
+        if (tableType === TableType.Orphan) {
             TblManager.sendTableToOrphaned(tableId, {"remove": true})
             .then(function() {
                 deferred.resolve();
@@ -767,21 +704,10 @@ window.Undo = (function($, Undo) {
         var wsName = options.worksheetName;
         var wsIndex = options.worksheetIndex;
         var tables = options.tables;
-        var archivedTables = options.archivedTables;
         var promises = [];
-        var $lists = $("#archivedTableListSection .tableInfo");
 
         if (delType === DelWSType.Empty) {
             makeWorksheetHelper();
-            WSManager.addNoSheetTables(archivedTables, wsId);
-
-            archivedTables.forEach(function(tableId) {
-                // reArchive the table
-                $lists.filter(function() {
-                    return $(this).data("id") === tableId;
-                }).remove();
-                TblManager.archiveTable(tableId);
-            });
 
             return PromiseHelper.resolve(null);
         } else if (delType === DelWSType.Del) {
@@ -792,50 +718,21 @@ window.Undo = (function($, Undo) {
                     tableId, wsId, TableType.Orphan));
             });
 
-            archivedTables.forEach(function(tableId) {
-                WSManager.addTable(tableId, wsId);
-                gTables[tableId].status = TableType.Archived;
-                TblManager.archiveTable(tableId);
-            });
-
             promises.push(TableList.refreshOrphanList.bind(this));
 
             return PromiseHelper.chain(promises);
-        } else if (delType === DelWSType.Archive) {
+        } else if (delType === DelWSType.Temp) {
             makeWorksheetHelper();
-            WSManager.addNoSheetTables(tables, wsId);
-            WSManager.addNoSheetTables(archivedTables, wsId);
-
             tables.forEach(function(tableId) {
-                WSManager.addTable(tableId);
-                var tableName = gTables[tableId].tableName;
-                var promise = function() {
-                    var deferred = jQuery.Deferred();
-                    TblManager.refreshTable([tableName], null, [], null, null,
-                                                {"isUndo": true})
-                    .then(function() {
-                        TableList.removeTable(tableId, TableType.Archived);
-                        deferred.resolve();
-                    })
-                    .fail(deferred.reject);
-                    return deferred.promise();
-                };
-                promises.push(promise);
+                promises.push(WSManager.moveInactiveTable.bind(this,
+                    tableId, wsId, TableType.Orphan));
             });
-
-            archivedTables.forEach(function(tableId) {
-                // reArchive the table
-                $lists.filter(function() {
-                    return $(this).data("id") === tableId;
-                }).remove();
-
-                TblManager.archiveTable(tableId);
-            });
+            promises.push(TableList.refreshOrphanList.bind(this));
 
             return PromiseHelper.chain(promises);
         } else {
             console.error("Unexpected delete worksheet type");
-            return PromiseHelper.resolve(null);
+            return PromiseHelper.reject(null);
         }
 
         function makeWorksheetHelper() {

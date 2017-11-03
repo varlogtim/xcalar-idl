@@ -846,7 +846,7 @@ ul.CodeMirror-hints {
     .flex-display;
 
     .tableListSectionTab {
-        .flex(1 1 25%);
+        .flex(1 1 33%);
         .size(@height: 100%);
         display: inline-block;
         .font(@weight: bold, @line-height: 35px, @size: 13px, @color: @color-white);
@@ -857,10 +857,6 @@ ul.CodeMirror-hints {
         .noSelection;
         .textOverflow;
         cursor: pointer;
-
-        .fullText {
-            display: none;
-        }
 
         &:last-child {
             border-right: none;
@@ -875,30 +871,6 @@ ul.CodeMirror-hints {
             background-color: @color-bg-tiber-blue;
             .flex(1 1 33%);
             text-overflow: clip;
-
-            .fullText {
-                display: inline;
-            }
-            .abbrText {
-                display: none;
-            }
-        }
-    }
-}
-
-#mainMenu.expanded {
-    #tableListSectionTabs {
-        .tableListSectionTab {
-            .abbrText {
-                display: none;
-            }
-            .fullText {
-                display: inline;
-            }
-            &.active {
-                .flex(1 1 25%);
-                text-overflow: ellipsis;
-            }
         }
     }
 }

@@ -1013,11 +1013,11 @@ TblTStr = {
     'DropTbl': 'Drop Table',
     'DelMsg': 'Are you sure you want to drop table <table>?',
     'DelFail': 'Drop Tables Failed',
-    'Archive': 'Hide Tables',
-    'ARCHIVE': 'HIDE TABLES',
     'Active': 'Send Tables to Worksheet',
     'ActiveFail': 'Active Tables Failed',
-    'Truncate': 'Additional characters were truncated'
+    'Truncate': 'Additional characters were truncated',
+    'ToTemp': 'SEND TO TEMPORARY',
+    'ToTempTip': 'Tables will be sent to the temporary tables list',
 };
 
 ColTStr = {
@@ -1050,6 +1050,7 @@ SideBarTStr = {
     'PopOut': 'Undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
     'DelTablesMsg': 'Are you sure you want to drop the selected table(s)?',
+    'DelLockedTablesMsg': 'Are you sure you want to drop the selected table(s)?<br/>Locked tables will be sent to the temporary tables list.',
     'SelectTable': 'Select table',
     'DupUDF': 'Duplicate Module',
     'DupUDFMsg': 'Python module <module> already exists ' +

@@ -2419,15 +2419,15 @@ describe("xcHelper Test", function() {
         var fn = xcHelper.__testOnly__.translateFrontTypeToBackType;
         expect(fn("string")).to.equal(1);
         expect(fn("boolean")).to.equal(8);
-        expect(fn("number")).to.equal(null);
-        expect(fn("float")).to.equal(null);
-        expect(fn("integer")).to.equal(null);
+        expect(fn("number")).to.equal(0);
+        expect(fn("float")).to.equal(0);
+        expect(fn("integer")).to.equal(0);
         expect(fn("number", true)).to.equal(7);
         expect(fn("float", true)).to.equal(7);
         expect(fn("integer", true)).to.equal(4);
-        expect(fn("array")).to.equal(null);
-        expect(fn("mixed")).to.equal(null);
-        expect(fn("unknown")).to.equal(null);
+        expect(fn("array")).to.equal(0);
+        expect(fn("mixed")).to.equal(0);
+        expect(fn("unknown")).to.equal(0);
     });
 
     describe('xcHelper.getElapsedTimeStr())', function() {
