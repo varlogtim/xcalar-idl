@@ -1014,7 +1014,7 @@ module.exports = {
         "Instruction": "请您填写以下信息，以开启在在线支持服务",
         "Name": "用户名:",
         "Email": "邮箱:",
-        "SendEmail": "\"请先输入\"",
+        "SendEmail": "\"请先发送一些消息\"",
         "TypeMsg": "\"请在此输入消息，键入回车发送消息\"",
         "EmailInfo": "消息记录备份将发送到该邮箱",
         "EmailError": "请输入正确的邮箱地址"

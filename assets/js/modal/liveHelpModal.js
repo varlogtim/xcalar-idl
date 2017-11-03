@@ -261,7 +261,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             closeModal();
         });
         $modal.on("click", ".confirmTicket", function() {
-            submitTicket(true);
+            submitTicket(true, 0);
         });
         // Click on minimize button
         $modal.on("click", ".minimize", minimize);
@@ -298,10 +298,12 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             });
         }
     }
-    function submitTicket(triggerPd) {
+    function submitTicket(triggerPd, failure) {
         firstMsg = false;
-        $modal.find(".confirmTicket").addClass("xc-disabled");
-        appendMsg(AlertTStr.WaitTicket, "sysMsg");
+        if (failure < 1) {
+            $modal.find(".confirmTicket").addClass("xc-disabled");
+            appendMsg(AlertTStr.WaitTicket, "sysMsg");
+        }
         var info;
         var success = true;
         var ticketObj = {
@@ -326,12 +328,17 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .then(function(ret) {
             try {
                 var logs = JSON.parse(ret.logs);
-                ticketId = logs.ticketId;
-                admin = logs.admin;
-                info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
+                if (logs.error) {
+                    console.log(logs.error);
+                    success = false;
+                } else {
+                    ticketId = logs.ticketId;
+                    admin = logs.admin;
+                    info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
                        AlertTStr.LicenseKey + "\n" + licenseKey + "\n\n" +
                        AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
                        AlertTStr.XcalarAdmin + "\n" + admin;
+                }
             } catch (err) {
                 console.error(err);
                 success = false;
@@ -344,10 +351,16 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         .always(function() {
             if (!success) {
                 firstMsg = true;
-                info = AlertTStr.TicketError;
-                appendMsg(info, "sysMsg");
-                $modal.find(".confirmTicket").removeClass("xc-disabled");
-                confirmTicket();
+                // It's like a lock. Realse it at this point
+                // We only set the lock for ticket creation process
+                if (failure < 2) {
+                    timer = setTimeout(function() {
+                        submitTicket(triggerPd, failure + 1);
+                    }, 5000);
+                } else {
+                    info = AlertTStr.TicketError;
+                    appendMsg(info, "sysMsg");
+                }
             } else {
                 appendMsg(info, "sysMsg");
             }
@@ -378,13 +391,16 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         });
         // For user, simply append message
         socket.on("liveChatMsg", function(message) {
-            appendMsg(message.content, "supportMsg", message.sender);
             if (firstMsg) {
                 if (timer) {
                     clearTimeout(timer);
                     timer = null;
                 }
-                submitTicket();
+                appendMsg(AlertTStr.StartChat, "sysMsg");
+            }
+            appendMsg(message.content, "supportMsg", message.sender);
+            if (firstMsg) {
+                submitTicket(false, 0);
             }
         });
         socket.on("joinRoom", function(room) {
@@ -396,9 +412,11 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         return pattern.test(emailAddress);
     }
     LiveHelpModal.userLeft = function() {
-        sendToSlack();
-        autoSendEmail();
-        updateTicket();
+        if (!$modal.find(".reqConn").is(":visible")) {
+            sendToSlack();
+            autoSendEmail();
+            updateTicket();
+        }
     };
     function autoSendEmail() {
         // Only enable auto-sending email when modal is shown
