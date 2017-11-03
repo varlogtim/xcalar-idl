@@ -245,7 +245,7 @@
                 right: 36px;
             }
             .flexArea {
-                width: ~"calc(100% - 206px)";
+                width: ~"calc(100% - 186px)";
             }
             // .colsSelected {
             //     max-width: ~"calc(100% - 170px)";
@@ -326,7 +326,7 @@
                 }
             }
 
-            .split, .pullAll, .compareIcon, .sort {
+            .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
                 display: none;
@@ -343,7 +343,7 @@
 
             &:last-child {
                 .flexArea {
-                    width: ~"calc(100% - 162px)";
+                    width: ~"calc(100% - 152px)";
                 }
             }
 
@@ -401,7 +401,7 @@
 
             &:last-child {
                 .flexArea {
-                    width: ~"calc(100% - 192px)";
+                    width: ~"calc(100% - 172px)";
                 }
             }
 
@@ -481,7 +481,7 @@
                     }
                 }
             }
-            .split, .pullAll, .compareIcon, .sort {
+            .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
                 display: none;
@@ -514,7 +514,7 @@
 
             &:last-child {
                 .flexArea {
-                    width: ~"calc(100% - 162px)";
+                    width: ~"calc(100% - 152px)";
                 }
             }
 
@@ -568,10 +568,15 @@
         }
 
         .compareIcon {
-             margin-right: 4px;
+            margin: 0px 2px 0px 3px;
             .icon {
                 font-size: 16px;
             }
+        }
+
+        .btn.remove {
+            margin-right: 4px;
+            margin-left: 0px;
         }
 
         .vertLine {
@@ -614,11 +619,6 @@
                 }
             }
 
-            &.binaryIcon {
-                display: none;
-            }
-
-
             &.pullAll .icon {
                 margin-left: 1px;
                 font-size: 14px;
@@ -648,7 +648,7 @@
             }
         }
         .flexArea {
-            width: ~"calc(100% - 175px)";
+            width: ~"calc(100% - 155px)";
             .flex-display;
             overflow: hidden;
             cursor: default;
@@ -778,9 +778,14 @@
     }
 
     .jsonWrap:only-child {
-        .btn.remove {
-            pointer-events: none;
-            opacity: 0.5;
+        .btn.remove, .vertLine, .dragHandle, .compareIcon {
+            display: none;
+        }
+        .optionsBar {
+            padding-left: 2px;
+        }
+        .flexArea {
+            width: ~"calc(100% - 120px)";
         }
     }
     .prettyJson {
@@ -801,7 +806,7 @@
     // json modal for table cell
     &.singleView {
         .optionsBar {
-            .dragHandle, .compareIcon, .vertLine, .remove, .split {
+            .dragHandle, .compareIcon, .vertLine, .remove {
                 display: none !important;
             }
             .flexArea {
@@ -822,7 +827,7 @@
         .multiSelectMode {
             .optionsBar {
                 .flexArea {
-                    width: ~"calc(100% - 136px)";
+                    width: ~"calc(100% - 116px)";
                 }
             }
             .jsonCheckbox {

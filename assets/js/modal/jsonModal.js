@@ -90,6 +90,7 @@ window.JSONModal = (function($, JSONModal) {
             handle: ".jsonDragHandle",
             start: function(event, ui) {
                 initialIndex = $(ui.item).index();
+                xcTooltip.hideAll();
             },
             stop: function(event, ui) {
                 resortJsons(initialIndex, $(ui.item).index());
@@ -236,11 +237,6 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.on("click", ".sort", function() {
             sortData($(this));
-        });
-
-        $jsonArea.on("click", ".split", function() {
-            var $jsonWrap = $(this).closest('.jsonWrap');
-            duplicateView($jsonWrap);
         });
 
         $jsonArea.on("click", ".pullAll", function() {
@@ -751,58 +747,6 @@ window.JSONModal = (function($, JSONModal) {
         var nameInfo = createJsonSelectionExpression($el);
         var colName = nameInfo.escapedName;
         selectedCols[index].splice(selectedCols[index].indexOf(colName), 1);
-    }
-
-    function duplicateView($jsonWrap) {
-        var $jsonClone = $jsonWrap.clone();
-        $jsonClone.data('colnum', $jsonWrap.data('colnum'));
-        $jsonClone.data('rownum', $jsonWrap.data('rownum'));
-        $jsonClone.data('tableid', $jsonWrap.data('tableid'));
-        $jsonClone.find('.projectModeBar .numColsSelected').data('numMainFields',
-            $jsonWrap.find('.projectModeBar .numColsSelected').data('numMainFields'));
-
-        $jsonClone.find('.multiSelectModeBar .numColsSelected').data('numTotalFields',
-            $jsonWrap.find('.multiSelectModeBar .numColsSelected').data('numTotalFields'));
-
-        var index = $jsonWrap.index();
-        jsonData.splice(index + 1, 0, jsonData[index]);
-
-        var cols = xcHelper.deepCopy(selectedCols[index]);
-        selectedCols.splice(index + 1, 0, cols);
-
-        $jsonWrap.after($jsonClone);
-        $jsonClone.removeClass('active comparison');
-        $jsonClone.find('.selected').removeClass('selected');
-        $jsonClone.find('.compareIcon').removeClass('selected');
-        $jsonClone.find('.prettyJson.secondary').empty();
-
-        if (!$jsonWrap.hasClass('comparison')) {
-            var scrollTop = $jsonWrap.find('.prettyJson.primary').scrollTop();
-            $jsonClone.find('.prettyJson.primary').scrollTop(scrollTop);
-        }
-
-        var jsonWrapData = $jsonClone.data();
-        var id = jsonWrapData.tableid + jsonWrapData.rownum +
-                 jsonWrapData.colnum;
-        refCounts[id]++;
-
-        var $compareIcons = $jsonArea.find('.compareIcon').removeClass('single');
-        $compareIcons.each(function() {
-            xcTooltip.changeText($(this), JsonModalTStr.Compare);
-        });
-
-        var numData = jsonData.length;
-        for (var i = numData - 1; i > index; i--) {
-            if (comparisonObjs[i]) {
-                comparisonObjs[i + 1] = comparisonObjs[i];
-                delete comparisonObjs[i];
-            }
-        }
-
-        increaseModalSize();
-
-        // reset some search variables to include new jsonWrap
-        updateSearchResults();
     }
 
     function sortData($icon) {
@@ -1655,49 +1599,39 @@ window.JSONModal = (function($, JSONModal) {
 
         var html = '<div class="jsonWrap">'+
              '<div class="optionsBar bar">' +
-                '<div class="dragHandle jsonDragHandle">' +
+                '<div class="dragHandle jsonDragHandle" data-toggle="tooltip" ' +
+                'data-container="body" data-original-title="' +
+                CommonTxtTstr.HoldToDrag + '">' +
                     '<i class="icon xi-drag-handle"></i>' +
                 '</div>' +
+                '<div class="btn btn-small remove" data-toggle="tooltip" ' +
+                    'data-container="body" ' +
+                    'title="' + JsonModalTStr.RemoveCol + '">' +
+                    '<i class="icon xi-close"></i>' +
+                '</div>' +
+                '<div class="vertLine"></div>' +
                 '<div class="compareIcon single checkbox" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + JsonModalTStr.SelectOther + '">' +
                     '<i class="icon xi-ckbox-empty"></i>' +
                     '<i class="icon xi-ckbox-selected"></i>' +
                 '</div>' +
-                '<div class="vertLine"></div>' +
-                '<div class="btn btn-small btn-secondary sort single" ' +
+                '<div class="btn btn-small sort single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + JsonModalTStr.SortAsc + '">' +
-                    // '<i class="icon xi-arrow-down"></i>' +
                     '<i class="icon xi-sort"></i>' +
-                '</div>' +
-                '<div class="btn btn-small btn-secondary remove" data-toggle="tooltip" ' +
-                    'data-container="body" ' +
-                    'title="' + JsonModalTStr.RemoveCol + '">' +
-                    '<i class="icon xi-close"></i>' +
-                '</div>' +
-                '<div class="btn btn-small btn-secondary split" data-toggle="tooltip"' +
-                    'data-container="body" ' +
-                    'title="' + JsonModalTStr.Duplicate + '">' +
-                    '<i class="icon xi_split"></i>' +
-                '</div>' +
-                '<div class="btn btn-small btn-secondary binaryIcon" ' +
-                'data-toggle="tooltip" ' +
-                    'data-container="body" ' +
-                    'title="' + TooltipTStr.ComingSoon + '">' +
-                    '<i class="icon"></i>' +
                 '</div>' +
                 '<div class="btn btn-small pullAll" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.PullAll + '">' +
                     '<i class="icon xi-pull-all-field"></i>' +
                 '</div>' +
-                '<div class="btn btn-small btn-secondary clearAll disabled" ' +
+                '<div class="btn btn-small clearAll disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + JsonModalTStr.DeselectAll + '">' +
                     '<i class="icon xi-select-none"></i>' +
                 '</div>' +
-                '<div class="btn btn-small btn-secondary selectAll" ' +
+                '<div class="btn btn-small selectAll" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + JsonModalTStr.SelectAll + '">' +
                     '<i class="icon xi-select-all"></i>' +
@@ -1721,7 +1655,7 @@ window.JSONModal = (function($, JSONModal) {
                         '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="dropdownBox btn btn-small btn-secondary" ' +
+                '<div class="dropdownBox btn btn-small" ' +
                 ' data-toggle="tooltip" data-container="body" ' +
                 'data-original-title="' + JsonModalTStr.ToggleMode + '">' +
                     '<i class="icon xi-down"></i>' +
@@ -2087,7 +2021,6 @@ window.JSONModal = (function($, JSONModal) {
         JSONModal.__testOnly__ = {};
         JSONModal.__testOnly__.closeJSONModal = closeModal;
         JSONModal.__testOnly__.compareIconSelect = compareIconSelect;
-        JSONModal.__testOnly__.duplicateView = duplicateView;
         JSONModal.__testOnly__.selectTab = selectTab;
         JSONModal.__testOnly__.saveLastMode = saveLastMode;
     }

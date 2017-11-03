@@ -35,12 +35,11 @@ describe('JsonModal Test', function() {
     describe('check data browser initial state', function() {
         it('top row should be correct', function() {
             expect($jsonModal.find('.compareIcon').length).to.equal(1);
-            expect($jsonModal.find('.compareIcon .xi-ckbox-empty:visible').length).to.equal(1);
+            expect($jsonModal.find('.compareIcon .xi-ckbox-empty:visible').length).to.equal(0);
             expect($jsonModal.find('.compareIcon .xi-ckbox-selected').length).to.equal(1);
             expect($jsonModal.find('.compareIcon .xi-ckbox-selected:visible').length).to.equal(0);
 
-            expect($jsonModal.find('.btn:visible').length).to.equal(5);
-            expect($jsonModal.find('.remove').css('pointer-events')).to.equal('none');
+            expect($jsonModal.find('.btn:visible').length).to.equal(3);
 
             expect($jsonModal.find('.tableName').text()).to.equal('Table:' + tableName);
             expect($jsonModal.find('.rowNum').text()).to.equal('Row:' + 1);
@@ -279,7 +278,6 @@ describe('JsonModal Test', function() {
 
     describe('multiple json panels', function() {
         var compare;
-        var duplicate;
         // select 2 dataCol cells
         before(function(done) {
             compare = JSONModal.__testOnly__.compareIconSelect;
@@ -425,26 +423,6 @@ describe('JsonModal Test', function() {
             $jsonModal.find('.remove').eq(1).click();
             expect($jsonModal.find('.jsonWrap').length).to.equal(1);
             expect($jsonModal.find('.jsonWrap').eq(0).find('.rowNum').text()).to.equal('Row:1');
-        });
-
-        it('duplicate view should work', function() {
-            expect($jsonModal.find('.jsonWrap').length).to.equal(1);
-
-            duplicate($jsonModal.find('.jsonWrap').eq(0));
-
-            expect($jsonModal.find('.jsonWrap').length).to.equal(2);
-
-            var $origWrap = $jsonModal.find('.jsonWrap').eq(0);
-            var $dupWrap = $jsonModal.find('.jsonWrap').eq(1);
-
-            expect($dupWrap.data('tableid')).to.equal(tableId);
-            expect($dupWrap.data('rownum')).to.equal(0);
-            expect($dupWrap.find('.rowNum').text()).to.equal('Row:1');
-
-            expect($origWrap.text()).to.equal($dupWrap.text());
-
-            $jsonModal.find('.remove').eq(1).click();
-            expect($jsonModal.find('.jsonWrap').length).to.equal(1);
         });
     });
 
@@ -718,25 +696,6 @@ describe('JsonModal Test', function() {
             $("#jsonSearch").find(".closeBox").click();
             expect($("#jsonSearch").find("input").val()).to.equal("");
             expect($jsonModal.find(".highlightedText").length).to.equal(0);
-        });
-
-        it("duplicate with search should work", function() {
-            $("#jsonSearch").find("input").val("yelping").trigger(fakeEvent.input);
-            expect($jsonModal.find(".highlightedText").length).to.equal(1);
-
-            $jsonModal.find(".split").click();
-            expect($jsonModal.find(".highlightedText").length).to.equal(2);
-            expect($("#jsonSearch").find('.position').text()).to.equal("1");
-            expect($("#jsonSearch").find('.total').text()).to.equal("of 2");
-
-            $jsonModal.find(".remove").last().click();
-
-            expect($jsonModal.find(".highlightedText").length).to.equal(1);
-            expect($jsonModal.find(".highlightedText").text()).to.equal("yelping");
-            expect($("#jsonSearch").find('.position').text()).to.equal("1");
-            expect($("#jsonSearch").find('.total').text()).to.equal("of 1");
-
-            $("#jsonSearch").find(".searchIcon").click();
         });
     });
 
