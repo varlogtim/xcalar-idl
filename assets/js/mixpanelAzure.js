@@ -47,10 +47,13 @@ window.xcMixpanel = (function($, xcMixpanel) {
             b.src = "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL ? MIXPANEL_CUSTOM_LIB_URL : "file:" === e.location.protocol && "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//) ? "https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js" : "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";
             c = e.getElementsByTagName("script")[0];
             c.parentNode.insertBefore(b, c);
-            window.mixpanel.init("5678112905d2b1154062e2b2361848bd");
+            xcMixpanel.init();
             xcMixpanel.addListeners();
         }
     };
+    xcMixpanel.init = function() {
+        window.mixpanel.init("5678112905d2b1154062e2b2361848bd");
+    }
     xcMixpanel.addListeners = function() {
         var lastFocus;
         $(window).load(function() {

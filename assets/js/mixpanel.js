@@ -1,5 +1,7 @@
-(function($) {
-    (function(e, a) {
+window.xcMixpanel = (function($, xcMixpanel) {
+    xcMixpanel.setup = function() {
+        var e = document;
+        var a = [];
         if (!a.__SV) {
             var b = window;
             try {
@@ -45,143 +47,152 @@
             b.src = "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL ? MIXPANEL_CUSTOM_LIB_URL : "file:" === e.location.protocol && "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//) ? "https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js" : "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";
             c = e.getElementsByTagName("script")[0];
             c.parentNode.insertBefore(b, c);
+            xcMixpanel.init();
+            xcMixpanel.addListenersForDev();
         }
-    })(document, window.mixpanel || []);
-
-    mixpanel.init("574bbb62b63c814dd820da904059fb94");
-    var lastBlur;
-    var jupyterFocus;
-    function getElementPath(element) {
-        try {
-            var path = $(element).prop("outerHTML").match(/<.*(class|name|id)="[^"]*"/g);
-            path = path ? path[0] + ">" : "";
-            var parents = $(element).parentsUntil("body");
-            $.each(parents, function(i) {
-                var parentHtml = $(parents[i]).clone().children().remove().end()
-                                 .prop("outerHTML")
-                                 .match(/<.*(class|name|id)="[^"]*"/g);
-                parentHtml = parentHtml ? parentHtml[0] + ">" : "";
-                if (parentHtml.length + path.length > 255) {
-                    return path;
-                }
-                path = parentHtml + " ==> " + path;
-            });
-            return path;
-        } catch (err) {
-            // Do not affect our use with XD
-            return "Error case: " + err;
-        }
+    };
+    xcMixpanel.init = function() {
+        window.mixpanel.init("574bbb62b63c814dd820da904059fb94");
     }
-    $(window).load(function() {
-        var name = XcSupport.getUser();
-        if (name){
-            mixpanel.identify(name);
-            mixpanel.people.set({
-                "$last_name": name
-            });
+    xcMixpanel.addListenersForDev = function() {
+        var lastBlur;
+        var jupyterFocus;
+        function getPathStr(ele) {
+            var path = ele.prop("tagName");
+            if (ele.attr("id")) {
+                path += "#" + ele.attr("id");
+            }
+            if (ele.attr("class")) {
+                path += "." + ele.attr("class");
+            }
+            return path;
         }
-
-        var timestamp = (new Date()).getTime();
-        mixpanel.track("windowRefresh", {
-            "Timestamp": timestamp,
-            "height": $(window).height(),
-            "width": $(window).width()
-        });
-
-        setupResizeListener();
-    });
-    $(document).on("click", ".topMenuBarTab", function() {
-        var timestamp = (new Date()).getTime();
-        if (!jupyterFocus && $(this).attr("id") === "jupyterTab") {
-            jupyterFocus = timestamp;
-        } else if (jupyterFocus) {
-            mixpanel.track("jupyterFocus", {
-                "Time": timestamp - jupyterFocus,
-                "Timestamp": timestamp
-            });
-            jupyterFocus = undefined;
+        function getElementPath(element) {
+            try {
+                var path = getPathStr($(element));
+                var parents = $(element).parentsUntil("body");
+                for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
+                    path += "|";
+                    path += getPathStr($(parents).eq(i), path);
+                }
+                return path;
+            } catch (err) {
+                // Do not affect our use with XD
+                return "Error case: " + err;
+            }
         }
-    });
-    $(document).mousedown(function(event) {
-        mixpanel.track("ClickEvent", {
-            "Element": getElementPath(event.target),
-            "Timestamp": (new Date()).getTime(),
-            "TriggeredByUser": event.hasOwnProperty("originalEvent"),
-            "x": event.clientX,
-            "y": event.clientY,
-            "windowHeight": $(window).height(),
-            "windowWidth": $(window).width()
+        $(window).load(function() {
+            var name = XcSupport.getUser();
+            if (name){
+                mixpanel.identify(name);
+                mixpanel.people.set({
+                    "$last_name": name
+                });
+            }
+
+            var timestamp = (new Date()).getTime();
+            mixpanel.track("windowRefresh", {
+                "Timestamp": timestamp,
+                "height": $(window).height(),
+                "width": $(window).width()
+            });
+
+            setupResizeListener();
         });
-    });
-    // This is to catch click events triggered by code
-    $(document).click(function(event) {
-        if (!event.hasOwnProperty("originalEvent")) {
+        $(document).on("click", ".topMenuBarTab", function() {
+            var timestamp = (new Date()).getTime();
+            if (!jupyterFocus && $(this).attr("id") === "jupyterTab") {
+                jupyterFocus = timestamp;
+            } else if (jupyterFocus) {
+                mixpanel.track("jupyterFocus", {
+                    "Time": timestamp - jupyterFocus,
+                    "Timestamp": timestamp
+                });
+                jupyterFocus = undefined;
+            }
+        });
+        $(document).mousedown(function(event) {
             mixpanel.track("ClickEvent", {
                 "Element": getElementPath(event.target),
                 "Timestamp": (new Date()).getTime(),
-                "TriggeredByUser": false
+                "TriggeredByUser": event.hasOwnProperty("originalEvent"),
+                "x": event.clientX,
+                "y": event.clientY,
+                "windowHeight": $(window).height(),
+                "windowWidth": $(window).width()
             });
-        }
-    });
-    $(document).on("change", "input", function(event) {
-        mixpanel.track("InputEvent", {
-            "Content": $(this).val(),
-            "Element": getElementPath(event.target),
-            "Timestamp": (new Date()).getTime()
         });
-    });
-    $(window).blur(function() {
-        lastBlur = (new Date()).getTime();
-        if ($("#jupyterTab").hasClass("active")) {
-            mixpanel.track("jupyterFocus", {
-                "Time": lastBlur - jupyterFocus,
-                "Timestamp": lastBlur
-            });
-        }
-    });
-    $(window).focus(function() {
-        var timestamp = (new Date()).getTime();
-        var time = (timestamp - lastBlur)/1000 + " s";
-        mixpanel.track("focusLostEvent", {
-            "Time": time,
-            "Timestamp": timestamp
-        });
-        if ($("#jupyterTab").hasClass("active")) {
-            jupyterFocus = timestamp;
-        }
-    });
-
-    function setupResizeListener() {
-        var winResizeTimer;
-        var resizing = false;
-        var otherResize = false; // true if winresize is triggered by 3rd party code
-
-        $(window).resize(function(event) {
-            if (!resizing) {
-                resizing = true;
-                if (event.target !== window) {
-                    otherResize = true;
-                } else {
-                    otherResize = false;
-                }
-            }
-
-            clearTimeout(winResizeTimer);
-            winResizeTimer = setTimeout(winResizeStop, 300);
-        });
-
-        function winResizeStop() {
-            if (otherResize) {
-                otherResize = false;
-            } else {
-                var timestamp = (new Date()).getTime();
-                mixpanel.track("windowResize", {
-                    "Timestamp": timestamp,
-                    "height": $(window).height(),
-                    "width": $(window).width()
+        // This is to catch click events triggered by code
+        $(document).click(function(event) {
+            if (!event.hasOwnProperty("originalEvent")) {
+                mixpanel.track("ClickEvent", {
+                    "Element": getElementPath(event.target),
+                    "Timestamp": (new Date()).getTime(),
+                    "TriggeredByUser": false
                 });
             }
-            resizing = false;
+        });
+        $(document).on("change", "input", function(event) {
+            mixpanel.track("InputEvent", {
+                "Content": $(this).val(),
+                "Element": getElementPath(event.target),
+                "Timestamp": (new Date()).getTime()
+            });
+        });
+        $(window).blur(function() {
+            lastBlur = (new Date()).getTime();
+            if ($("#jupyterTab").hasClass("active")) {
+                mixpanel.track("jupyterFocus", {
+                    "Time": lastBlur - jupyterFocus,
+                    "Timestamp": lastBlur
+                });
+            }
+        });
+        $(window).focus(function() {
+            var timestamp = (new Date()).getTime();
+            var time = (timestamp - lastBlur)/1000 + " s";
+            mixpanel.track("focusLostEvent", {
+                "Time": time,
+                "Timestamp": timestamp
+            });
+            if ($("#jupyterTab").hasClass("active")) {
+                jupyterFocus = timestamp;
+            }
+        });
+
+        function setupResizeListener() {
+            var winResizeTimer;
+            var resizing = false;
+            var otherResize = false; // true if winresize is triggered by 3rd party code
+
+            $(window).resize(function(event) {
+                if (!resizing) {
+                    resizing = true;
+                    if (event.target !== window) {
+                        otherResize = true;
+                    } else {
+                        otherResize = false;
+                    }
+                }
+
+                clearTimeout(winResizeTimer);
+                winResizeTimer = setTimeout(winResizeStop, 300);
+            });
+
+            function winResizeStop() {
+                if (otherResize) {
+                    otherResize = false;
+                } else {
+                    var timestamp = (new Date()).getTime();
+                    mixpanel.track("windowResize", {
+                        "Timestamp": timestamp,
+                        "height": $(window).height(),
+                        "width": $(window).width()
+                    });
+                }
+                resizing = false;
+            }
         }
     }
-}(jQuery));
+    return (xcMixpanel);
+}(jQuery, {}));

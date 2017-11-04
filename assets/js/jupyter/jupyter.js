@@ -49,8 +49,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         storeLocation(s);
                         break;
                     case ("mixpanel"):
-                        if (mixpanel) {
+                        try {
                             mixpanel.track(s.event, s.property);
+                        } catch (error) {
+                            console.log("mixpanel is not loaded");
                         }
                         break;
                     case ("alert"):
