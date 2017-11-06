@@ -543,7 +543,7 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
                 var key = new XcalarApiKeyT();
                 key.name = keyName[ii];
                 if (keyType) {
-                    key.type = DfFormatTypeTStr[keyType[ii]];
+                    key.type = DfFieldTypeTStr[keyType[ii]];
                 } else {
                     key.type = "DfUnknown";
                 }
@@ -555,7 +555,7 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
             key.name = keyName;
 
             if (keyType) {
-                key.type = DfFormatTypeTStr[keyType];
+                key.type = DfFieldTypeTStr[keyType];
             } else {
                 key.type = "DfUnknown";
             }
@@ -626,7 +626,7 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
                 var key = new XcalarApiKeyT();
                 key.name = keyName[ii];
                 if (keyType) {
-                    key.type = DfFormatTypeTStr[keyType[ii]];
+                    key.type = DfFieldTypeTStr[keyType[ii]];
                 } else {
                     key.type = "DfUnknown";
                 }
@@ -637,7 +637,7 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
             var key = new XcalarApiKeyT();
             key.name = keyName;
             if (keyType) {
-                key.type = DfFormatTypeTStr[keyType];
+                key.type = DfFieldTypeTStr[keyType];
             } else {
                 key.type = "DfUnknown";
             }
