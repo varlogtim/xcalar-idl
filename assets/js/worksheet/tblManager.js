@@ -661,7 +661,8 @@ window.TblManager = (function($, TblManager) {
         var colName = progCol.getFrontColName();
         var width = progCol.getWidth();
         var columnClass = options.columnClass || "";
-        var indexed = (progCol.getBackColName() === table.getKeyName());
+        var keys = table.getKeyName();
+        var indexed = keys.includes(progCol.getBackColName());
         var sortIcon = '<i class="sortIcon"></i>'; // placeholder
 
         if (progCol.hasMinimized()) {

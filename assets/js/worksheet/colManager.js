@@ -1095,6 +1095,7 @@ window.ColManager = (function($, ColManager) {
         var tBodyHTML = "";
         var nested;
         var hasIndexStyle = table.showIndexStyle();
+        var keys = table.getKeyName();
 
         startIndex = startIndex || 0;
 
@@ -1113,7 +1114,7 @@ window.ColManager = (function($, ColManager) {
 
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
-                if (backColName === table.getKeyName()) {
+                if (keys.includes(backColName)) {
                     indexedColNums.push(i);
                 }
             }

@@ -175,28 +175,25 @@
 
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
-        var keyName;
-        var order;
 
         if (table != null) {
-            keyName = table.getKeyName();
-            order = table.getOrdering();
-            if (keyName != null && XcalarOrderingTStr.hasOwnProperty(order)) {
-                return PromiseHelper.resolve(order, keyName);
+            var keyNames = table.getKeyName();
+            var order = table.getOrdering();
+            if (keyNames != null && XcalarOrderingTStr.hasOwnProperty(order)) {
+                return PromiseHelper.resolve(order, keyNames);
             }
         }
 
         if (txId != null && Transaction.isSimulate(txId)) {
-            return PromiseHelper.resolve(null, null);
+            return PromiseHelper.resolve(null, []);
         }
 
         var deferred = jQuery.Deferred();
 
         XcalarGetTableMeta(tableName)
         .then(function(tableMeta) {
-            order = tableMeta.ordering;
-            keyName = xcHelper.getTableKeyFromMeta(tableMeta);
-            deferred.resolve(order, keyName);
+            var keys = xcHelper.getTableKeyFromMeta(tableMeta);
+            deferred.resolve(tableMeta.ordering, keys);
         })
         .fail(deferred.reject);
 
@@ -513,8 +510,10 @@
         var deferred = jQuery.Deferred();
         // Check for case where table is already sorted
         XIApi.checkOrder(tableName, txId)
-        .then(function(sortOrder, sortKey) {
-            if (order === sortOrder && colName === sortKey) {
+        .then(function(sortOrder, sortKeys) {
+            if (order === sortOrder &&
+                sortKeys.length === 1 &&
+                colName === sortKeys[0]) {
                 return PromiseHelper.reject(null, true);
             }
 
@@ -1378,19 +1377,32 @@
         return [deferred1.promise(), deferred2.promise()];
     }
 
-    function checkIfNeedIndex(colToIndex, tableName, tableKey, order, txId) {
+    function checkIfNeedIndex(colToIndex, tableName, tableKeys, order, txId) {
         var deferred = jQuery.Deferred();
         var shouldIndex = false;
         var tempTables = [];
+        var isSameKey = function(key1, key2) {
+            if (key1.length !== key2.length) {
+                return false;
+            }
+
+            for (var i = 0, len = key1.length; i < len; i++) {
+                if (key1[i] !== key2[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
 
         getUnsortedTableName(tableName, null, txId)
         .then(function(unsorted) {
             if (unsorted !== tableName) {
                 // this is sorted table, should index a unsorted one
                 XIApi.checkOrder(unsorted, txId)
-                .then(function(parentOrder, parentKey) {
-                    if (parentKey !== colToIndex) {
-                        if (tableKey != null && parentKey !== tableKey) {
+                .then(function(parentOrder, parentKeys) {
+                    if (parentKeys.length !== 1 || parentKeys[0] !== colToIndex) {
+                        if (!isSameKey(parentKeys, tableKeys)) {
                             // if current is sorted, the parent should also
                             // index on the tableKey to remove "KNF"
                             // var fltTable = getNewTableName(tableName,
@@ -1411,11 +1423,12 @@
 
                             var indexTable = getNewTableName(tableName,
                                                           ".indexParent", true);
-                            XcalarIndexFromTable(unsorted, tableKey, indexTable,
+                            XcalarIndexFromTable(unsorted, tableKeys, indexTable,
                                         XcalarOrderingT.XcalarOrderingUnordered,
                                         txId)
                             .then(function() {
-                                if (tableKey === colToIndex) {
+                                if (tableKeys.length === 1 &&
+                                    tableKeys[0] === colToIndex) {
                                     // when the parent has right index
                                     shouldIndex = false;
                                 } else {
@@ -1444,7 +1457,8 @@
                 .fail(deferred.reject);
             } else {
                 // this is the unsorted table
-                if (colToIndex !== tableKey) {
+                if (tableKeys.length !== 1 ||
+                    tableKeys[0] !== colToIndex) {
                     shouldIndex = true;
                 } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
                           order === XcalarOrderingT.XcalarOrderingInvalid) {
@@ -1714,8 +1728,8 @@
         }
 
         XIApi.checkOrder(tableName, txId)
-        .then(function(order, keyName) {
-            return checkIfNeedIndex(colName, tableName, keyName, order, txId);
+        .then(function(order, keys) {
+            return checkIfNeedIndex(colName, tableName, keys, order, txId);
         })
         .then(function(shouldIndex, unsortedTable, tempTables) {
             if (shouldIndex) {

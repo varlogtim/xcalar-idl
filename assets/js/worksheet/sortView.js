@@ -336,7 +336,7 @@ window.SortView = (function($, SortView) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
         var $table = $("#xcTable-" + tableId);
-        var tableKey = table.getKeyName();
+        var tableKeys = table.getKeyName();
         var tableOrder = table.backTableMeta.ordering;
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
@@ -347,7 +347,7 @@ window.SortView = (function($, SortView) {
             }
 
             var colName = progCol.getFrontColName(true);
-            var isSorted = progCol.getBackColName() === tableKey;
+            var isSorted = tableKeys.includes(progCol.getBackColName());
             var type = progCol.getType();
             var colNum = i + 1;
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")

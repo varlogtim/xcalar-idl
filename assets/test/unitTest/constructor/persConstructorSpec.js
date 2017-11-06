@@ -885,14 +885,14 @@ describe("Persistent Constructor Test", function() {
                 "tableId": "a1",
                 "isLocked": false
             });
-            var initialVal = "";
             var testVal = "testKey";
+            var keys = table.getKeyName();
+            expect(keys.length).to.equal(0);
 
-            expect(table.getKeyName()).to.equal(initialVal);
-
-            table.keyName = testVal;
-            expect(table.getKeyName()).to.equal(testVal);
-            table.keyName = initialVal;
+            table.keyName = [testVal];
+            var keys = table.getKeyName();
+            expect(keys.length).to.equal(1);
+            expect(keys[0]).to.equal(testVal);
         });
 
         it("Table should get ordering", function() {
@@ -1500,11 +1500,11 @@ describe("Persistent Constructor Test", function() {
 
             XcalarGetTableMeta = function() {
                 return PromiseHelper.resolve({
-                    "keyAttr": {
+                    "keyAttr": [{
                         "name": "xcalarRecordNum",
                         "type": 5,
                         "valueArrayIndex": 2
-                    },
+                    }],
                     "ordering": 1,
                     "valueAttrs": [{
                         "name": "test",
@@ -1527,14 +1527,16 @@ describe("Persistent Constructor Test", function() {
             .then(function() {
                 expect(table.backTableMeta).to.exists;
                 expect(table.ordering).to.equal(1);
-                expect(table.keyName).to.equal("xcalarRecordNum");
+                var keys = table.getKeyName();
+                expect(keys.length).to.equal(1);
+                expect(keys[0]).to.equal("xcalarRecordNum");
                 var col = table.getColByBackName("prefix::backTestCol");
                 expect(col).not.to.be.null;
                 expect(col.getType()).to.equal(ColumnType.boolean);
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 XcalarGetTableMeta = oldFunc;
@@ -1562,7 +1564,7 @@ describe("Persistent Constructor Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 XcalarMakeResultSetFromTable = oldFunc;
@@ -1600,7 +1602,7 @@ describe("Persistent Constructor Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 XcalarMakeResultSetFromTable = oldMakeResult;
@@ -1642,7 +1644,7 @@ describe("Persistent Constructor Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 XcalarSetFree = oldFunc;

@@ -529,9 +529,10 @@ window.ProfileEngine = (function(ProfileEngine) {
 
         return deferred.promise();
 
-        function getStats(tableOrder, tableKey) {
+        function getStats(tableOrder, tableKeys) {
             if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
-                tableKey !== profileInfo.colName) {
+                tableKeys.length !== 1 ||
+                tableKeys[0] !== profileInfo.colName) {
                 // when table is unsorted
                 profileInfo.statsInfo.unsorted = true;
                 return PromiseHelper.resolve();

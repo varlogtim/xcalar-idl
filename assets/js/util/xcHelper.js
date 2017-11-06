@@ -650,21 +650,20 @@
     };
 
     xcHelper.getTableKeyFromMeta = function(tableMeta) {
-        var keyAttr = tableMeta.keyAttr;
-        var keyName = keyAttr.name;
-        var valueArrayIndex = keyAttr.valueArrayIndex;
-
         var valueAttrs = tableMeta.valueAttrs || [];
-        var prefixOfKey = "";
-        if (valueArrayIndex >= 0 && valueAttrs[valueArrayIndex] != null &&
-            valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
-        {
-            prefixOfKey = valueAttrs[valueArrayIndex].name;
-        } else if (valueArrayIndex < 0) {
-            return null;
-        }
-        keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
-        return keyName;
+        return tableMeta.keyAttr.map(function(keyAttr) {
+            var keyName = keyAttr.name;
+            var valueArrayIndex = keyAttr.valueArrayIndex;
+            var prefixOfKey = "";
+            if (valueArrayIndex >= 0 && valueAttrs[valueArrayIndex] != null &&
+                valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
+            {
+                prefixOfKey = valueAttrs[valueArrayIndex].name;
+            } else if (valueArrayIndex < 0) {
+                return null;
+            }
+            return xcHelper.getPrefixColName(prefixOfKey, keyName);
+        });
     };
 
     // get a deep copy
@@ -3621,48 +3620,59 @@
         }
     };
 
-    xcHelper.getKeyType = function(key, tableName) {
-        var deferred = jQuery.Deferred();
-        var tableId = xcHelper.getTableId(tableName);
-        var table = gTables[tableId];
-        var type;
-        var promise;
-        if (table) {
-            var progCol = table.getColByBackName(key);
-            if (progCol) {
-                type = progCol.getType();
-                type = translateFrontTypeToBackType(type, progCol.isKnownType());
-                promise = PromiseHelper.resolve(type);
-            } else if (table.backTableMeta && table.backTableMeta.valueAttrs) {
-                var colObjs = table.backTableMeta.valueAttrs;
-                for (var i = 0; i < colObjs.length; i++) {
-                    var colObj = colObjs[i];
-                    if (colObj.name === key &&
-                        colObj.type !== DfFieldTypeT.DfFatptr) {
-                        promise = PromiseHelper.resolve(colObj.type);
-                        break;
+    xcHelper.getKeyType = function(keys, tableName) {
+        keys = (keys instanceof Array) ? keys : [keys];
+
+        var getTypeHelper = function(key, tableName) {
+            var innerDeferred = jQuery.Deferred();
+            var tableId = xcHelper.getTableId(tableName);
+            var table = gTables[tableId];
+            var type;
+            var promise = null;
+            if (table) {
+                var progCol = table.getColByBackName(key);
+                if (progCol) {
+                    type = progCol.getType();
+                    type = translateFrontTypeToBackType(type, progCol.isKnownType());
+                    promise = PromiseHelper.resolve(type);
+                } else if (table.backTableMeta && table.backTableMeta.valueAttrs) {
+                    var colObjs = table.backTableMeta.valueAttrs;
+                    for (var i = 0; i < colObjs.length; i++) {
+                        var colObj = colObjs[i];
+                        if (colObj.name === key &&
+                            colObj.type !== DfFieldTypeT.DfFatptr) {
+                            promise = PromiseHelper.resolve(colObj.type);
+                            break;
+                        }
                     }
-                }
-                if (!promise) {
-                    promise = PromiseHelper.resolve(DfFieldTypeT.DfUnknown);
+                    if (!promise) {
+                        promise = PromiseHelper.resolve(DfFieldTypeT.DfUnknown);
+                    }
+                } else {
+                    promise = searchTableMetaForKey(key, tableName);
                 }
             } else {
                 promise = searchTableMetaForKey(key, tableName);
+                // XXX could also fetch some data and search for key
             }
-        } else {
-            promise = searchTableMetaForKey(key, tableName);
-            // XXX could also fetch some data and search for key
-        }
-        promise
-        .always(function(foundType) {
-            if (foundType) {
-                deferred.resolve(foundType);
-            } else {
-                // let backend guess the type
-                deferred.resolve(DfFieldTypeT.DfUnknown);
-            }
+
+            promise
+            .always(function(foundType) {
+                if (foundType) {
+                    innerDeferred.resolve(foundType);
+                } else {
+                    // let backend guess the type
+                    innerDeferred.resolve(DfFieldTypeT.DfUnknown);
+                }
+            });
+
+            return innerDeferred.promise();
+        };
+
+        var promises = keys.map(function(key) {
+            return getTypeHelper(key, tableName);
         });
-        return deferred.promise();
+        return PromiseHelper.when.apply(this, promises);
     };
 
     // example: converts "string" to 1 via DfFieldTypeT

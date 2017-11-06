@@ -1248,8 +1248,8 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
 };
 
 // Key can be an array or just one column
-XcalarIndexFromTable = function(srcTablename, key, tablename, ordering,
-                              txId, unsorted) {
+XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
+                                txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1275,19 +1275,18 @@ XcalarIndexFromTable = function(srcTablename, key, tablename, ordering,
                             .promise());
         }
         unsortedSrcTablename = unsortedTablename;
-        return xcHelper.getKeyType(key, unsortedTablename);
+        return xcHelper.getKeyType(keys, unsortedTablename);
     })
-    .then(function(keyType) {
+    .then(function(keyTypes) {
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename,
-                                                    tablename,
-                                                key, dhtName, ordering,
-                                                keyType);
+                                                tablename, keys, dhtName,
+                                                ordering, keyTypes);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
-                                    tablename, dhtName, ordering, keyType);
+            def = xcalarIndexTable(tHandle, unsortedSrcTablename, keys,
+                                    tablename, dhtName, ordering, keyTypes);
         }
         query = XcalarGetQuery(workItem);
         if (!unsorted) {
@@ -2555,8 +2554,7 @@ XcalarUnion = function(sources, dest, renameMap, dedup, txId) {
     });
 
     return deferred.promise();
-
-}
+};
 
 
 XcalarGenRowNum = function(srcTableName, dstTableName, newFieldName, txId) {

@@ -461,10 +461,10 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.getTableKeyFromMeta should work", function() {
         var tableMeta = {
-            "keyAttr": {
+            "keyAttr": [{
                 "name": "test",
                 "valueArrayIndex": 0
-            },
+            }],
             "valueAttrs": [{
                 "name": "user",
                 "type": DfFieldTypeT.DfFatptr
@@ -472,13 +472,14 @@ describe("xcHelper Test", function() {
         };
 
         var res = xcHelper.getTableKeyFromMeta(tableMeta);
-        expect(res).to.equal("user::test");
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal("user::test");
         // case 2
         tableMeta = {
-            "keyAttr": {
+            "keyAttr": [{
                 "name": "test",
                 "valueArrayIndex": 0
-            },
+            }],
             "valueAttrs": [{
                 "name": "user",
                 "type": DfFieldTypeT.DfString
@@ -486,14 +487,15 @@ describe("xcHelper Test", function() {
         };
 
         res = xcHelper.getTableKeyFromMeta(tableMeta);
-        expect(res).to.equal("test");
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal("test");
 
         // case 3
         tableMeta = {
-            "keyAttr": {
+            "keyAttr": [{
                 "name": "test",
                 "valueArrayIndex": -1
-            },
+            }],
             "valueAttrs": [{
                 "name": "user",
                 "type": DfFieldTypeT.DfString
@@ -501,7 +503,8 @@ describe("xcHelper Test", function() {
         };
 
         res = xcHelper.getTableKeyFromMeta(tableMeta);
-        expect(res).to.be.null;
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.be.null;
     });
 
     it("xcHelper.deepCopy should work", function() {
