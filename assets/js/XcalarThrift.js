@@ -1247,6 +1247,7 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
     return (deferred.promise());
 };
 
+// Key can be an array or just one column
 XcalarIndexFromTable = function(srcTablename, key, tablename, ordering,
                               txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -1760,7 +1761,7 @@ XcalarGetConstants = function(constantName) {
     return (deferred.promise());
 };
 
-XcalarGetTables = function(tableName) {
+XcalarGetTables = function(tableName, sessionName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1777,7 +1778,7 @@ XcalarGetTables = function(tableName) {
         patternMatch = tableName;
     }
 
-    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
+    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable, sessionName)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarGetTables", error);
@@ -2515,6 +2516,49 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
     return deferred.promise();
 };
 
+// XXX haven't tested it yet
+XcalarUnion = function(sources, dest, renameMap, dedup, txId) {
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+
+    getUnsortedTableName(tableName, null, txId)
+    .then(function(unsortedTableName) {
+        if (Transaction.checkCanceled(txId)) {
+            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
+                            .promise());
+        }
+        var workItem = xcalarUnionWorkItem(sources, dest, renameMap, dedup);
+        var def;
+        if (Transaction.isSimulate(txId)) {
+            def = fakeApiCall();
+        } else {
+            def = xcalarUnion(tHandle, sources, dest, renameMap, dedup);
+        }
+        query = XcalarGetQuery(workItem); // XXX test
+        Transaction.startSubQuery(txId, 'union', dest, query);
+
+        return def;
+    })
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, query, dest, ret.timeElapsed);
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUnion", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+
+}
+
+
 XcalarGenRowNum = function(srcTableName, dstTableName, newFieldName, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -2807,7 +2851,7 @@ XcalarCancelOp = function(dstTableName, statusesToIgnore) {
 
 };
 
-XcalarGetDag = function(tableName) {
+XcalarGetDag = function(tableName, sessionName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2817,7 +2861,7 @@ XcalarGetDag = function(tableName) {
         return (deferred.promise());
     }
 
-    xcalarDag(tHandle, tableName)
+    xcalarDag(tHandle, tableName, sessionName)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarGetDag", error);

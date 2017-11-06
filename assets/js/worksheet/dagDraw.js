@@ -1679,13 +1679,13 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('indexInput'):
-                    info.column = value.key.name;
+                    info.column = value.key[0].name;
                     if (!node.parents[0] || node.parents[0].value.api ===
                         XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
                         info.type = "createTable";
                         info.column = "";
-                        info.text = "indexed on " + value.key.name;
+                        info.text = "indexed on " + value.key[0].name;
                     } else if (value.ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                         value.ordering ===
@@ -1694,13 +1694,13 @@ window.DagDraw = (function($, DagDraw) {
                         info.order = value.ordering.toLowerCase();
                         var order = "(" + info.order + ") ";
                         info.tooltip = "Sorted " + order + "on " +
-                                       value.key.name;
+                                       value.key[0].name;
 
-                        info.text = "sorted " + order + "on " + value.key.name;
+                        info.text = "sorted " + order + "on " + value.key[0].name;
                     } else {
-                        info.tooltip = "Indexed by " + value.key.name;
+                        info.tooltip = "Indexed by " + value.key[0].name;
                         info.type = "index";
-                        info.text = "indexed on " + value.key.name;
+                        info.text = "indexed on " + value.key[0].name;
                     }
                     info.opText = info.column;
                     break;
@@ -1926,9 +1926,9 @@ window.DagDraw = (function($, DagDraw) {
                 }
             } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiIndex) {
                 if (i === 0) {
-                    lSrcCols.push(groupLeaves[i].value.struct.key.name);
+                    lSrcCols.push(groupLeaves[i].value.struct.key[0].name);
                 } else {
-                    rSrcCols.push(groupLeaves[i].value.struct.key.name);
+                    rSrcCols.push(groupLeaves[i].value.struct.key[0].name);
                 }
             } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiJoin) {
                 if (i === 0) {
@@ -1943,7 +1943,7 @@ window.DagDraw = (function($, DagDraw) {
 
         function getSrcIndex(node) {
             if (node.value.api === XcalarApisT.XcalarApiIndex) {
-                return node.value.struct.key.name;
+                return node.value.struct.key[0].name;
             } else {
                 if (!node.parents.length) {
                     // one case is when we reach a retina project node
@@ -2067,7 +2067,7 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.key.name;
+            var keyName = parent.value.struct.key[0].name;
 
             // if indexed on a column named "multiGroupBy" then this may
             // have been xcalar-generated sort, so check this table's
@@ -2100,7 +2100,7 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.key.name;
+            var keyName = parent.value.struct.key[0].name;
 
             // if indexed on a column named "multiGroupBy" then this may
             // have been xcalar-generated sort, so check this table's
