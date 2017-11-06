@@ -991,7 +991,8 @@ WSTStr = {
     'NewWS': 'New Worksheet',
     'DelWS': 'Delete Worksheet',
     'DelWSMsg': 'There are active tables in this worksheet. ' +
-                'How would you like to handle them?'
+                'How would you like to handle them?',
+    'CurrWS': 'Current Worksheet'
 };
 
 UDFTStr = {

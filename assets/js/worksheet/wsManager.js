@@ -885,7 +885,11 @@ window.WSManager = (function($, WSManager) {
             if (wsId === activeWorksheet) {
                 html += '<li class="activeWS" data-ws="' + wsId + '">' +
                             wsName +
-                            '<i class="icon xi-show"></i>' +
+                            '<i class="icon xi-show" ' +
+                               'data-original-title="' + WSTStr.CurrWS +
+                                '" data-container="body"' +
+                                ' data-toggle="tooltip" data-placement="top"' +
+                            '></i>' +
                         '</li>';
             } else {
                 html += '<li data-ws="' + wsId + '">' +
@@ -1593,14 +1597,26 @@ window.WSManager = (function($, WSManager) {
         var html =
             '<li id="' + id + '"class="worksheetTab"' +
             ' data-ws="' + worksheetId + '">' +
-                '<span class="draggableArea"></span>' +
-                '<i class="eye icon xi-show fa-15"></i>' +
+                '<span class="draggableArea" ' +
+                'data-original-title="' + CommonTxtTstr.HoldToDrag +
+                '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                '></span>' +
+                '<i class="eye icon xi-show fa-15" ' +
+                 'data-original-title="' + WSTStr.CurrWS +
+                '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                '></i>' +
                 '<input data-original-title="' + worksheetName +
                 '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
                 ' spellcheck="false" value="' + worksheetName + '" disabled>' +
-                '<i class="wsMenu clickable icon xi-ellipsis-h fa-15"></i>' +
+                '<i class="wsMenu clickable icon xi-ellipsis-h fa-15" '+
+                'data-original-title="' + CommonTxtTstr.ClickToOpts +
+                '" data-container="body"' +
+                ' data-toggle="tooltip" data-placement="top"' +
+                '></i>' +
             '</li>';
 
         return html;

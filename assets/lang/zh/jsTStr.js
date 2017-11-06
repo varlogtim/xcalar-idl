@@ -846,7 +846,8 @@ WSTStr = {
 'AddOrphanFail': '添加临时表失败',
 'NewWS': '新工作表',
 'DelWS': '删除工作表',
-'DelWSMsg': '此工作表中包含已激活的表。您想怎么处理它们？'
+'DelWSMsg': '此工作表中包含已激活的表。您想怎么处理它们？',
+'CurrWS': 'Current Worksheet'
 };
 UDFTStr = {
 "UDF": '执行',
