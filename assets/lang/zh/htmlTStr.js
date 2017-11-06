@@ -888,7 +888,7 @@ module.exports = {
         "GenTicketBtn": "生成",
         "TypeIssue": "问题类型",
         "AdditionalInfo": "附加(新)信息",
-        "RegenBundle": "重新生成支持捆绑",
+        "GenBundle": "Generate Support Bundle",
         "MiniDump": "迷你Dump",
         "MiniDumpTip": "您必须先选择重新生成支持捆绑票",
         "Severity": "严重性",

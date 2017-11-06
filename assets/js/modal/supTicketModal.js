@@ -175,6 +175,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
+                    $modal.find(".confirm").text(CommonTxtTstr.UPDATETICKET);
                     if (firstTouch) {
                         SupTicketModal.restore()
                         .then(function() {
@@ -186,6 +187,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $severitySection.removeClass("xc-hidden");
                     $modal.find(".subjectArea").removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
+                    $modal.find(".confirm").text(CommonTxtTstr.GENTICKET);
                 }
             },
             "container": "#supTicketModal"
@@ -435,7 +437,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     id: ticketId,
                     comment: comment,
                     created_at: time,
-                    severity: severity
+                    severity: severity,
+                    subject: subject
                 };
                 // var ticketStr = JSON.stringify(ticket) + ",";
                 appendTicketToList(ticket);
@@ -577,6 +580,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $commentSection.removeClass("inactive");
         $modal.removeClass("expanded");
         $ticketIdSection.removeClass("fetching");
+        $modal.find(".row.expanded").removeClass("expanded");
+        $modal.find(".confirm").text(CommonTxtTstr.GENTICKET);
 
         Alert.unhide();
         StatusBox.forceHide();
@@ -585,8 +590,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
     // ticket consists of a group of tickets with the same id;
     function getTicketRowHtml(ticket) {
         var className = "";
+        var isClosed = false;
         if (ticket[0] && isNaN(parseInt(ticket[0].id))) {
             className += " invalid";
+        }
+        if (ticket[0] && ticket[0].status === "closed") {
+            className += " closed ";
+            isClosed = true;
         }
         var html = '<div class="row ' + className + '">';
         for (var i = 0; i < ticket.length; i++) {
@@ -594,7 +604,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
             html += '<div class="innerRow">' +
               '<div class="td">';
             if (i === 0) {
-                html += '<div class="radioButtonGroup ' + '">' +
+                var radioTip = "";
+                if (isClosed) {
+                    radioTip = 'data-toggle="tooltip" data-container="body" ' +
+                               'data-placement="top" data-original-title="' +
+                               MonitorTStr.ClosedTicket + '"';
+                }
+                html += '<div class="radioButtonGroup" ' + radioTip + '>' +
                           '<div class="radioButton" data-option="blank">' +
                             '<div class="radio">' +
                               '<i class="icon xi-radio-selected"></i>' +

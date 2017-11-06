@@ -507,7 +507,7 @@ module.exports = {
         "GenTicketBtn": "GENERATE TICKET",
         "GenBundleTip": "This will be slow",
         "AdditionalInfo": "Additional (New) Information",
-        "RegenBundle": "Regenerate Support Bundle",
+        "GenBundle": "Generate Support Bundle",
         "MiniDump": "Mini Dump",
         "MiniDumpTip": "You must select Regenerate Support Bundle first",
         "Severity": "Severity",

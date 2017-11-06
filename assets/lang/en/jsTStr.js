@@ -162,6 +162,8 @@ CommonTxtTstr = {
     'Existing': 'Existing',
     'Exit': 'Exit',
     'GenTicket': 'Generate Ticket',
+    'GENTICKET': 'GENERATE TICKET',
+    'UPDATETICKET': 'UPDATE TICKET',
     'HoldToDrag': 'Click and hold to drag',
     'Ignore': 'Ignore',
     'Immediates': 'Derived Field',
@@ -770,6 +772,7 @@ MonitorTStr = {
     "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
     "Severity4": "Feature request",
     "Subject": "Subject",
+    "ClosedTicket": "Ticket is closed and cannot be updated.",
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
