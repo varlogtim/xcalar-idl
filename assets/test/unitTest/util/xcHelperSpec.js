@@ -462,7 +462,7 @@ describe("xcHelper Test", function() {
     it("xcHelper.getTableKeyFromMeta should work", function() {
         var tableMeta = {
             "keyAttr": [{
-                "name": "test",
+                "name": "user::test",
                 "valueArrayIndex": 0
             }],
             "valueAttrs": [{

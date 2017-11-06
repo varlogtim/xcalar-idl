@@ -655,14 +655,10 @@
             var keyName = keyAttr.name;
             var valueArrayIndex = keyAttr.valueArrayIndex;
             var prefixOfKey = "";
-            if (valueArrayIndex >= 0 && valueAttrs[valueArrayIndex] != null &&
-                valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
-            {
-                prefixOfKey = valueAttrs[valueArrayIndex].name;
-            } else if (valueArrayIndex < 0) {
+            if (valueArrayIndex < 0) {
                 return null;
             }
-            return xcHelper.getPrefixColName(prefixOfKey, keyName);
+            return keyName;
         });
     };
 
