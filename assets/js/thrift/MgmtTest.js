@@ -1511,6 +1511,35 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testUnion(test) {
+        var renameMaps = [];
+        var tables = [];
+        for (var i = 0; i < 3; i++) {
+            var renameMap = [];
+
+            var map = new XcalarApiRenameMapT();
+            map.sourceColumn = "yelp_user";
+            map.destColumn = "rightDataset";
+            map.columnType = "DfFatptr";
+            renameMap.push(map);
+
+            tables.push("yelp/user-dummyjoin");
+            renameMaps.push(renameMap);
+        }
+
+        xcalarUnion(thriftHandle, tables,
+                    "unionTest",
+                    renameMaps, false)
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(JSON.stringify(reason));
+        });
+    }
+
     function testGetOpStats(test) {
         test.trivial(xcalarApiGetOpStats(thriftHandle, "yelp/user-dummyjoin"));
     }
@@ -3684,6 +3713,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUnion, "union", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");

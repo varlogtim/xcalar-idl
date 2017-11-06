@@ -3,6 +3,7 @@ var runEntity = (typeof window !== 'undefined' && this === window ?
 
 var userIdUnique = 1;
 var userIdName = "test";
+var sessionName = "";
 
 var verbose = true;
 var superVerbose = true;
@@ -17,6 +18,7 @@ WorkItem = function() {
     var workItem = new XcalarApiWorkItemT();
     workItem.userIdUnique = userIdUnique;
     workItem.userId = userIdName;
+    workItem.sessionName = sessionName;
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     return (workItem);
 };
@@ -534,13 +536,38 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
     workItem.api = XcalarApisT.XcalarApiIndex;
     workItem.input.indexInput.source = datasetName;
     workItem.input.indexInput.dest = dstTableName;
-    workItem.input.indexInput.key = new XcalarApiKeyT();
-    workItem.input.indexInput.key.name = keyName;
-    workItem.input.indexInput.key.type = DfFormatTypeTStr[keyType];
+    workItem.input.indexInput.key = []
+    if (keyName) {
+        if (keyName.constructor === Array) {
+            for (var ii = 0; ii < keyName.length; ii++) {
+                var key = new XcalarApiKeyT();
+                key.name = keyName[ii];
+                if (keyType) {
+                    key.type = DfFormatTypeTStr[keyType[ii]];
+                } else {
+                    key.type = "DfUnknown";
+                }
+
+                workItem.input.indexInput.key.push(key);
+            }
+        } else {
+            var key = new XcalarApiKeyT();
+            key.name = keyName;
+
+            if (keyType) {
+                key.type = DfFormatTypeTStr[keyType];
+            } else {
+                key.type = "DfUnknown";
+            }
+
+            workItem.input.indexInput.key.push(key);
+        }
+    }
 
     workItem.input.indexInput.dhtName = dhtName;
     workItem.input.indexInput.prefix = fatptrPrefixName;
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
+    workItem.input.indexInput.delaySort = false;
     return (workItem);
 };
 
@@ -592,13 +619,37 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
 
     workItem.input.indexInput.source = srcTableName;
     workItem.input.indexInput.dest = dstTableName;
-    workItem.input.indexInput.key = new XcalarApiKeyT();
-    workItem.input.indexInput.key.name = keyName;
-    workItem.input.indexInput.key.type = DfFieldTypeTStr[keyType];
+    workItem.input.indexInput.key = [];
+    if (keyName) {
+        if (keyName.constructor === Array) {
+            for (var ii = 0; ii < keyName.length; ii++) {
+                var key = new XcalarApiKeyT();
+                key.name = keyName[ii];
+                if (keyType) {
+                    key.type = DfFormatTypeTStr[keyType[ii]];
+                } else {
+                    key.type = "DfUnknown";
+                }
+
+                workItem.input.indexInput.key.push(key);
+            }
+        } else {
+            var key = new XcalarApiKeyT();
+            key.name = keyName;
+            if (keyType) {
+                key.type = DfFormatTypeTStr[keyType];
+            } else {
+                key.type = "DfUnknown";
+            }
+
+            workItem.input.indexInput.key.push(key);
+        }
+    }
 
     workItem.input.indexInput.dhtName = dhtName;
     workItem.input.indexInput.prefix = "";
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
+    workItem.input.indexInput.delaySort = false;
     return (workItem);
 };
 
@@ -1263,23 +1314,25 @@ xcalarApiCancelOp = runEntity.xcalarApiCancelOp = function(thriftHandle, dstDagN
     return (deferred.promise());
 };
 
-xcalarDagWorkItem = runEntity.xcalarDagWorkItem = function(tableName) {
+xcalarDagWorkItem = runEntity.xcalarDagWorkItem = function(tableName, sessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.dagTableNameInput = new XcalarApiDagTableNameInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetDag;
     workItem.input.dagTableNameInput.tableInput = tableName;
+    workItem.sessionName = sessionName;
     return (workItem);
 };
 
-xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
+xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName, sessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarDag(tableName = " + tableName + ")");
+        console.log("xcalarDag(tableName = " + tableName + ", sessionName = " +
+                    sessionName + ")");
     }
 
-    var workItem = xcalarDagWorkItem(tableName);
+    var workItem = xcalarDagWorkItem(tableName, sessionName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1302,7 +1355,7 @@ xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
     return (deferred.promise());
 };
 
-xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(patternMatch, srcType) {
+xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(patternMatch, srcType, sessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -1310,18 +1363,20 @@ xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(pat
     workItem.input.listDagNodesInput = new XcalarApiDagNodeNamePatternInputT();
     workItem.input.listDagNodesInput.namePattern = patternMatch;
     workItem.input.listDagNodesInput.srcType = srcType;
+    workItem.sessionName = sessionName;
 
     return (workItem);
 };
 
-xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMatch, srcType) {
+xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMatch, srcType, sessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListTables(patternMatch = " + patternMatch + ")" +
-                    " srcType = " + srcType);
+                    " srcType = " + srcType + "sessionName = " + sessionName);
     }
 
-    var workItem = xcalarListDagNodesWorkItem(patternMatch, srcType);
+    var workItem = xcalarListDagNodesWorkItem(patternMatch, srcType,
+                                              sessionName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1722,6 +1777,66 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
     return (deferred.promise());
 };
 
+xcalarUnionWorkItem = runEntity.xcalarUnionWorkItem = function(sources,
+                                                               dest,
+                                                               renameMap,
+                                                               dedup) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.unionInput = new XcalarApiUnionInputT();
+    workItem.api = XcalarApisT.XcalarApiUnion;
+    if (sources) {
+        if (sources.constructor === Array) {
+            workItem.input.unionInput.source = sources;
+        } else {
+            workItem.input.unionInput.source = [sources];
+        }
+    }
+
+    workItem.input.unionInput.dest = dest;
+    workItem.input.unionInput.dedup = dedup;
+    workItem.input.unionInput.renameMap = renameMap;
+
+    return (workItem);
+};
+
+xcalarUnion = runEntity.xcalarUnion = function(thriftHandle, sources,
+                                               dest,
+                                               renameMap,
+                                               dedup) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarUnion(sources = " + sources +
+                    " dest = " + dest +
+                    " renameMap = " + renameMap +
+                    " dedup = " + dedup + ")");
+    }
+
+    var workItem = xcalarUnionWorkItem(sources, dest, renameMap, dedup);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var unionOutput = result.output.outputResult.unionOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        }
+        unionOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(unionOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarUnion() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarProjectWorkItem = runEntity.xcalarProjectWorkItem = function(numColumns, columns,
                                srcTableName, dstTableName) {
     var workItem = new WorkItem();
@@ -1784,7 +1899,7 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
     workItem.input.filterInput.eval = [];
 
     var eval = new XcalarApiEvalT();
-    eval.evalString = filterStr;    
+    eval.evalString = filterStr;
     workItem.input.filterInput.eval.push(eval);
 
     return (workItem);
@@ -2131,7 +2246,7 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         var evalStrs = mapInput.evalStrs;
         var srcTableName = mapInput.source;
         var dstTableName = mapInput.dest;
-        var icvMode = mapInput.icv;
+        var icvMode = mapInput.icvMode;
         console.log("xcalarApiMapWithWorkItem(newFieldNames = " + newFieldNames +
                     ", evalStrs = " + evalStrs + ", srcTableName = " +
                     srcTableName + ", dstTableName = " + dstTableName +
@@ -3856,6 +3971,7 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
 xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workItem) {
     var json = {};
     json["operation"] = XcalarApisTStr[workItem.api];
+
     switch(workItem.api) {
     case XcalarApisT.XcalarApiAggregate:
         json["args"] = workItem.input.aggregateInput;
@@ -3881,6 +3997,9 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
     case XcalarApisT.XcalarApiJoin:
         json["args"] = workItem.input.joinInput;
         break;
+    case XcalarApisT.XcalarApiUnion:
+        json["args"]  = workItem.input.unionInput
+        break;
     case XcalarApisT.XcalarApiMap:
         json["args"] = workItem.input.mapInput;
         break;
@@ -3899,6 +4018,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
     default:
         break;
     }
+
     return (JSON.stringify(json));
 };
 
