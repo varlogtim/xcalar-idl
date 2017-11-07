@@ -1026,10 +1026,14 @@ module.exports = {
         "NewName": "新名称",
         "PUBLISH": "发布",
         "TemplateInstr": "请在创建UDF模板之前填写以下栏。",
+        "TemplateInstrMapUDF": "Fill in the fields below prior to creating a UDF " +
+                    "template. An additional cell will be provided to test your UDF.",
+        "TemplateInstrImportUDF": "Fill in the fields below prior to creating a UDF " +
+                    "template. An additional cell will be provided with an example.",
         "ConnectWB": "连接至Xcalar工作簿",
         "CreateUDF": "创建映射用UDF",
         "CreateImportUDF": "创建导入用UDF",
-        "TestImportUDF": "测试导入用UDF (Azure Blob)",
+        "TestImportUDF": "测试导入用UDF",
         "UDFTemplate": "UDF模板",
         "JupyterNotebook": "Jupyter Notebook",
         "CodeSnippets": "代码段",

@@ -1864,14 +1864,41 @@ html.microsoft {
     .form {
         display: none;
     }
+    .modalInstruction {
+        .altText, .altText2 {
+            display: none;
+        }
+    }
     &.type-map {
         .mapForm {
             display: block;
+        }
+        .modalInstruction .text {
+            display: none;
+            &.altText {
+                .flex-display;
+                .justify-content(center);
+                .flex-direction(column);
+                white-space: normal;
+                line-height: 15px;
+
+            }
         }
     }
     &.type-newImport {
         .newImportForm {
             display: block;
+        }
+        .modalInstruction .text {
+            display: none;
+            &.altText2 {
+                .flex-display;
+                .justify-content(center);
+                .flex-direction(column);
+                white-space: normal;
+                line-height: 15px;
+
+            }
         }
     }
     &.type-testImport {

@@ -77,29 +77,39 @@ define(function() {
                         break;
                 }
             }
-            function insertCellToSelected(text, stubName) {
+            function insertCellToSelected(texts, stubName) {
                 var index = Jupyter.notebook.get_selected_index();
                 if (!Jupyter.notebook.get_selected_cell().get_text()) {
                     index -= 1;
                 }
-                var cell = Jupyter.notebook.insert_cell_below('code', index);
-                cell.set_text(text);
-                cell.focus_cell();
-                if (stubName == "basicUDF"|| stubName == "importUDF") {
-                    var button = '<input class="sendToUDF" type="button" ' +
-                                'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
-                                'value="Copy to UDF Editor"/>';
-                    $(".cell").eq(index + 1).append(button);
+                var cell;
+                for (var i = 0; i < texts.length; i++) {
+                    cell = Jupyter.notebook.insert_cell_below('code', index);
+                    cell.set_text(texts[i]);
+                    if (i === 0) {
+                        cell.focus_cell();
+                    }
+                    if ((stubName == "basicUDF" || stubName == "importUDF") &&
+                        i === 0) {
+                        var button = '<input class="sendToUDF" type="button" ' +
+                                    'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
+                                    'value="Copy to UDF Editor"/>';
+                        $(".cell").eq(index + 1).append(button);
+                    }
+                    index++;
                 }
+
                 return cell;
             }
             // Add all stub cases here
             function appendStub(stubName, args) {
+                var texts = [];
                 var text;
                 switch (stubName) {
                     case ("connWorkbook"):
                         text = '%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. First create a XcalarApi object to do anything\nxcalarApi = XcalarApi()\n';
                         text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                        texts.push(text);
                         break;
                     case ("basicUDF"):
                         text = '# PLEASE TAKE NOTE:\n'
@@ -134,23 +144,23 @@ define(function() {
                         text += 'def ' + udfName + '(' + colsArg + '):\n'
                              + '    # You can modify the function name.\n'
                              + '    # Your code starts from here. This is an example code.\n'
-                             + '    return ' + retStr + '\n\n'
-                             + '# Test your code with a sample of the table\n'
+                             + '    return ' + retStr + '\n';
+                        texts.push(text);
+                        text =  '# Test your UDF with a sample of the table\n'
                              + '# DO NOT MODIFY THIS CODE HERE\n'
                              + tableStub
                              + 'for index, row in ' + dfName + '.iterrows():\n'
                              + '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n'
                              + '    print(' + udfName + '(' + assertStr + '))';
+                        texts.push(text);
                         break;
                     case ("importUDF"):
                         text =  'def ' + args.fnName + '(inp, ins):\n' +
                                 '    # FILL IN YOUR FUNCTION HERE\n' +
-                                '    pass\n' +
-                                '\n' +
-                                '\n' +
-                                '# DO NOT MODIFY BELOW THIS LINE\n' +
-                                '\n' +
-                                '#The following function is a sample of how a streaming UDF should be written\n' +
+                                '    pass\n';
+                        texts.push(text);
+
+                        text =  '#The following function is a sample of how a streaming UDF should be written\n' +
                                 'def __sampleCsvReader(inp, ins):\n' +
                                 '    hasHeader = False\n' +
                                 '    fieldDelim = ","\n' +
@@ -173,6 +183,7 @@ define(function() {
                                 '    print "Your generator function looks good. Try it on a file!"\n' +
                                 'else:\n' +
                                 '    print "You must return a generator. Please try again"';
+                        texts.push(text);
                         break;
                     case("testImportUDF"):
                         text = 'from xcalar.compute.api.Dataset import *\n' +
@@ -199,11 +210,12 @@ define(function() {
                                 '\n' +
                                 'dataset.delete()\n' +
                                 'print "End of UDF"';
+                        texts.push(text);
                         break;
                     default:
                         return;
                 }
-                insertCellToSelected(text, stubName);
+                insertCellToSelected(texts, stubName);
             }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
@@ -219,7 +231,7 @@ define(function() {
                 tableName = tableName.replace(/[#-]/g, "_");
                 var dfName = tableName + '_pd';
                 text += dfName + "\n";
-                insertCellToSelected(text).execute();
+                insertCellToSelected([text]).execute();
                 Jupyter.notebook.save_notebook();
             }
 

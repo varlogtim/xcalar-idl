@@ -1101,10 +1101,14 @@ module.exports = {
         "NewName": "New Name",
         "PUBLISH": "PUBLISH",
         "TemplateInstr": "Fill in the fields below prior to creating a UDF template.",
+        "TemplateInstrMapUDF": "Fill in the fields below prior to creating a UDF " +
+                    "template. An additional cell will be provided to test your UDF.",
+        "TemplateInstrImportUDF": "Fill in the fields below prior to creating a UDF " +
+                    "template. An additional cell will be provided with an example.",
         "ConnectWB": "Connect to Xcalar Workbook",
         "CreateUDF": "Create Map UDF",
         "CreateImportUDF": "Create Import UDF",
-        "TestImportUDF": "Test Existing Import UDF (Azure Blob)",
+        "TestImportUDF": "Test Existing Import UDF",
         "UDFTemplate": "UDF Template",
         "JupyterNotebook": "Jupyter Notebook",
         "CodeSnippets": "Code Snippets",
