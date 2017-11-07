@@ -204,32 +204,6 @@ describe("xcHelper Test", function() {
         .to.equal(5);
     });
 
-    it("xcHelper.getMultiJoinMapString should work", function() {
-        // case 1
-        var res = xcHelper.getMultiJoinMapString([1, 2]);
-        expect(res).to.equal('concat(string(1), concat(".Xc.", string(2)))');
-        // case 2
-        res = xcHelper.getMultiJoinMapString([1, 2, 3]);
-        expect(res).to.equal('concat(string(1), concat(".Xc.", concat(string(2), concat(".Xc.", string(3)))))');
-
-        // case 3
-        res = xcHelper.getMultiJoinMapString([1, 2, 3, 4]);
-        var openCount = 0;
-        var closeCount = 0;
-        for (var i = 0; i < res.length; i++) {
-            var c = res.charAt(i);
-            if (c === "(") {
-                openCount++;
-            }
-
-            if (c === ")") {
-                closeCount++;
-            }
-        }
-
-        expect(openCount).to.equal(closeCount);
-    });
-
     it("xcHelper.getFileNamePattern should work", function() {
         // case 1
         var res = xcHelper.getFileNamePattern(null);

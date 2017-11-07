@@ -79,7 +79,6 @@ gUploadChunkSize = 45 * MB;
 gExportNoCheck = false;
 gAlwaysDelete = false;
 gEnableCopyCols = false;
-gEnableJoinKeyCheck = false;
 gShowDroppedTablesImage = false;
 gDefaultFDelim = "\t";
 gDefaultRDelim = "\n";

@@ -8,18 +8,20 @@
     }
 
     // static function
-    SQLApi.cacheIndexTable = function(tableName, colName, indexTable) {
+    SQLApi.cacheIndexTable = function(tableName, colNames, indexTable) {
+        var colKey = getIndexColKey(colNames);
         indexTableCache[tableName] = indexTableCache[tableName] || {};
-        indexTableCache[tableName][colName] = indexTable;
+        indexTableCache[tableName][colKey] = indexTable;
         reverseIndexMap[indexTable] = {
             "tableName": tableName,
-            "colName": colName
+            "colName": colKey
         };
     };
 
-    SQLApi.getIndexTable = function(tableName, colName) {
+    SQLApi.getIndexTable = function(tableName, colNames) {
+        var colKey = getIndexColKey(colNames);
         if (indexTableCache[tableName]) {
-            return indexTableCache[tableName][colName] || null;
+            return indexTableCache[tableName][colKey] || null;
         } else {
             return null;
         }
@@ -28,8 +30,8 @@
     SQLApi.deleteIndexTable = function(indexTable) {
         if (reverseIndexMap[indexTable]) {
             var tableName = reverseIndexMap[indexTable].tableName;
-            var colName = reverseIndexMap[indexTable].colName;
-            delete indexTableCache[tableName][colName];
+            var colKey = reverseIndexMap[indexTable].colName;
+            delete indexTableCache[tableName][colKey];
             delete reverseIndexMap[indexTable];
         }
     };
@@ -38,6 +40,10 @@
         indexTableCache = {};
         reverseIndexMap = {};
     };
+
+    function getIndexColKey(colNames) {
+        return colNames.toString();
+    }
 
     SQLApi.prototype = {
         _start: function() {

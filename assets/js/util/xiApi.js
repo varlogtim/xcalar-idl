@@ -279,7 +279,7 @@
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
         }
-
+        colToIndex = (colToIndex instanceof Array) ? colToIndex : [colToIndex];
         return checkTableIndex(colToIndex, tableName, txId, true);
     };
 
@@ -631,8 +631,8 @@
             rColNames = [rColNames];
         }
         if (!lCasts) {
-            lCasts = new Array(lColNames.length);
-            rCasts = new Array(lColNames.length);
+            lCasts = new Array(lColNames.length).fill(null);
+            rCasts = new Array(lColNames.length).fill(null);
         }
 
         if (!(lCasts instanceof Array)) {
@@ -651,39 +651,40 @@
 
         var newTableName = options.newTableName;
         var clean = options.clean || false;
-        var checkJoinKey = gEnableJoinKeyCheck;
         var deferred = jQuery.Deferred();
-        var lTable_index;
-        var rTable_index;
         var tempTables = [];
         var joinedCols;
-        // var indexColNames = {};
 
-        var lIndexColName;
-        var rIndexColName;
-        // Step 1: check if it's a multi Join.
-        // If yes, should do a map to concat all columns
-        // will also do casts during the concat map
-        multiJoinAndCastCheck(lColNames, lTableName, rColNames, rTableName,
-                              lCasts, rCasts, txId)
+        // var lIndexColNames;
+        var rIndexColNames;
+        // Step 1: cast columns, and if it's a mutli join,
+        // auto cast the remaining columns to derived feidls
+        var lCastInfo = {
+            tableName: lTableName,
+            columns: lColNames,
+            casts: lCasts
+        };
+        var rCastInfo = {
+            tableName: rTableName,
+            columns: rColNames,
+            casts: rCasts
+        };
+        joinCast(txId, lCastInfo, rCastInfo)
         .then(function(res) {
             tempTables = tempTables.concat(res.tempTables);
             // Step 2: index the left table and right table
-            lIndexColName = res.lColName;
-            rIndexColName = res.rColName;
+            // lIndexColNames = res.lColNames;
+            rIndexColNames = res.rColNames;
             if (joinType === JoinCompoundOperatorTStr.CrossJoin) {
                 // After the index, any type of join will do, so default to
                 // inner
                 joinType = JoinOperatorT.InnerJoin;
                 return crossJoinIndexHelper(res, rRename, txId);
             } else {
-                return joinIndexCheck(res, checkJoinKey, txId);
+                return joinIndexCheck(res, txId);
             }
         })
         .then(function(lIndexedTable, rIndexedTable, tempTablesInIndex) {
-            lTable_index = lIndexedTable;
-            rTable_index = rIndexedTable;
-
             tempTables = tempTables.concat(tempTablesInIndex);
             if (!isValidTableName(newTableName)) {
                 newTableName = getNewTableName(lTableName.substring(0, 5) +
@@ -697,7 +698,7 @@
                 // This call will call Xcalar Join because it will swap the
                 // left and right tables
                 return semiJoinHelper(lIndexedTable, rIndexedTable,
-                                      rIndexColName,
+                                      rIndexColNames,
                                       newTableName, joinType, lRename, rRename,
                                       tempTables,
                                       txId);
@@ -708,12 +709,6 @@
             }
         })
         .then(function() {
-            if (checkJoinKey) {
-                // this is the table that has change all col name
-                lTableName = lTable_index;
-                rTableName = rTable_index;
-            }
-
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
             joinedCols = createJoinedColumns(lTableId, rTableId,
@@ -785,7 +780,6 @@
 
         var tempTables = [];
         var indexedTable;
-        var indexedColName;
         var finalTable;
         var isMultiGroupby = (groupByCols.length !== 1);
         var renamedGroupByCols = [];
@@ -795,10 +789,10 @@
                                             renamedGroupByCols);
         // tableName is the original table name that started xiApi.groupby
         getGroupbyIndexedTable(txId, tableName, groupByCols)
-        .then(function(resTable, resCol, tempTablesInIndex) {
+        .then(function(resTable, resCols, tempTablesInIndex) {
             // table name may have changed after sort!
             indexedTable = resTable;
-            indexedColName = xcHelper.stripColName(resCol);
+            var indexedColName = xcHelper.stripColName(resCols[0]);
             tempTables = tempTables.concat(tempTablesInIndex);
 
             // get name from src table
@@ -807,6 +801,11 @@
             }
             var gbTableName = finalTableName;
             // incSample does not take renames
+
+            // XXX hack until backend support multikey after groupby
+            if (isMultiGroupby) {
+                isIncSample = true;
+            }
             var newKeyFieldName = isIncSample ? null
                                   : xcHelper.parsePrefixColName(indexedColName)
                                             .name;
@@ -825,21 +824,10 @@
                                 icvMode, newKeyFieldName, txId);
         })
         .then(function() {
-            if (!isIncSample) {
-                indexedColName = xcHelper.parsePrefixColName(indexedColName)
-                                         .name;
-            }
-            if (isMultiGroupby && !isIncSample) {
-                // multi group by should extract column from groupby table
-                return extractColFromMap(tableName, finalTableName, groupByCols,
-                                         indexedColName, finalCols,
-                                         renamedGroupByCols, txId);
-            } else {
-                return PromiseHelper.resolve(finalTableName, []);
-            }
-        })
-        .then(function(resTable, tempTablesInMap) {
             var deferred = jQuery.Deferred();
+            var resTable = finalTableName;
+            var tempTablesInMap = [];
+
             if (aliasArray.length > 0) {
                 // Included sample to do some renames
                 var newFieldNames = [];
@@ -1201,148 +1189,165 @@
         return PromiseHelper.when.apply(this, promises);
     };
 
-    function multiJoinAndCastCheck(lColNames, lTableName, rColNames, rTableName,
-                                  lCasts, rCasts, txId) {
+    function joinCast(txId, lInfo, rInfo) {
         var deferred = jQuery.Deferred();
+
+        var lColNames = lInfo.columns;
+        var lTableName = lInfo.tableName;
+        var lCasts = lInfo.casts;
+
+        var rColNames = rInfo.columns;
+        var rTableName = rInfo.tableName;
+        var rCasts = rInfo.casts;
+
         var len = lColNames.length;
-        var tempTables = [];
-        // left cols
-        var lTableId = xcHelper.getTableId(lTableName);
-        var rTableId = xcHelper.getTableId(rTableName);
-        var lCols = null; // ok if null, only being used for setorphantablemeta
-        var rCols = null; // ok if null, only being used for setorphantablemeta
-        if (gTables[lTableId] && gTables[rTableId]) {
-            lCols = gTables[lTableId].tableCols;
-            rCols = gTables[rTableId].tableCols;
+        var def1;
+        var def2;
+
+        if (len === 1 && !lCasts[0]) {
+            // single and no cast
+            def1 = PromiseHelper.resolve({
+                tableName: lTableName,
+                colNames: lColNames
+            });
+        } else {
+            // single join with cast or multi join
+            def1 = castMap(txId, lTableName, lColNames, lCasts);
         }
 
-        var deferred1;
-        var deferred2;
-        var lNewName;
-        var rNewName;
-        var lColName;
-        var rColName;
-        var lString;
-        var rString;
-
-        if (len === 1) {// single join
-            if (!lCasts[0] && !rCasts[0]) {
-                deferred.resolve({
-                    "lTableName": lTableName,
-                    "lColName": lColNames[0],
-                    "rTableName": rTableName,
-                    "rColName": rColNames[0],
-                    "tempTables": tempTables
-                });
-            } else {
-                if (lCasts[0]) {
-                    lNewName = getNewTableName(lTableName);
-                    lString = xcHelper.castStrHelper(lColNames[0], lCasts[0]);
-                    lColName = xcHelper.randName("leftJoinCol");
-                    deferred1 = XcalarMap(lColName, lString, lTableName,
-                                          lNewName, txId);
-                } else {
-                    lNewName = lTableName;
-                    lColName = lColNames[0];
-                    deferred1 = PromiseHelper.resolve();
-                }
-                if (rCasts[0]) {
-                    rNewName = getNewTableName(rTableName);
-                    rString = xcHelper.castStrHelper(rColNames[0], rCasts[0]);
-                    rColName = xcHelper.randName("rightJoinCol");
-                    deferred2 = XcalarMap(rColName, rString, rTableName,
-                                          rNewName, txId);
-                } else {
-                    rNewName = rTableName;
-                    rColName = rColNames[0];
-                    deferred2 = PromiseHelper.resolve();
-                }
-
-                PromiseHelper.when(deferred1, deferred2)
-                .then(function() {
-                    if (lCasts[0]) {
-                        TblManager.setOrphanTableMeta(lNewName, lCols);
-                        tempTables.push(lNewName);
-                    }
-                    if (rCasts[0]) {
-                        TblManager.setOrphanTableMeta(rNewName, rCols);
-                        tempTables.push(rNewName);
-                    }
-
-                    deferred.resolve({
-                        "lTableName": lNewName,
-                        "lColName": lColName,
-                        "rTableName": rNewName,
-                        "rColName": rColName,
-                        "tempTables": tempTables
-                    });
-                })
-                .fail(function() {
-                    var error = xcHelper.getPromiseWhenError(arguments);
-                    deferred.reject(error);
-                });
-            }
+        if (len === 1 && !rCasts[0]) {
+            // single and no cast
+            def2 = PromiseHelper.resolve({
+                tableName: rTableName,
+                colNames: rColNames
+            });
         } else {
-            // multi join
-            lNewName = getNewTableName(lTableName);
-            var lCastColNames = xcHelper.getJoinCastStrings(lColNames, lCasts);
-            lString = xcHelper.getMultiJoinMapString(lCastColNames);
-            lColName = xcHelper.randName("leftJoinCol");
+            // single join with cast or multi join
+            def2 = castMap(txId, rTableName, rColNames, rCasts);
+        }
 
-            // right cols
-            rNewName = getNewTableName(rTableName);
-            var rCastColNames = xcHelper.getJoinCastStrings(rColNames, rCasts);
-            rString = xcHelper.getMultiJoinMapString(rCastColNames);
-            rColName = xcHelper.randName("rightJoinCol");
+        PromiseHelper.when(def1, def2)
+        .then(function(lRes, rRes) {
+            var tempTables = [];
+            if (lRes.newTable) {
+                tempTables.push(lRes.tableName);
+            }
 
-            deferred1 = XcalarMap(lColName, lString, lTableName, lNewName, txId);
-            deferred2 = XcalarMap(rColName, rString, rTableName, rNewName, txId);
+            if (rRes.newTable) {
+                tempTables.push(rRes.tableName);
+            }
 
-            PromiseHelper.when(deferred1, deferred2)
+            deferred.resolve({
+                "lTableName": lRes.tableName,
+                "lColNames": lRes.colNames,
+                "rTableName": rRes.tableName,
+                "rColNames": rRes.colNames,
+                "tempTables": tempTables
+            });
+        })
+        .fail(function() {
+            deferred.reject(xcHelper.getPromiseWhenError(arguments));
+        });
+
+        return deferred.promise();
+    }
+
+    function castMap(txId, tableName, colNames, casts, overWrite) {
+        var deferred = jQuery.Deferred();
+        var castInfo = getCastInfo(tableName, colNames, casts, overWrite);
+        var newColNames = castInfo.newColNames;
+
+        if (castInfo.mapStrs.length === 0) {
+            deferred.resolve({
+                tableName: tableName,
+                colNames: newColNames
+            });
+        } else {
+            var tableId = xcHelper.getTableId(tableName);
+            // ok if null, only being used for setorphantablemeta
+            var progCols = gTables[tableId] ? gTables[tableId].tableCols : null;
+            var newTableName = getNewTableName(tableName);
+            XcalarMap(castInfo.newFields, castInfo.mapStrs,
+                      tableName, newTableName, txId)
             .then(function() {
-                TblManager.setOrphanTableMeta(lNewName, lCols);
-                TblManager.setOrphanTableMeta(rNewName, rCols);
-                tempTables.push(lNewName);
-                tempTables.push(rNewName);
+                TblManager.setOrphanTableMeta(newTableName, progCols);
 
                 deferred.resolve({
-                    "lTableName": lNewName,
-                    "lColName": lColName,
-                    "rTableName": rNewName,
-                    "rColName": rColName,
-                    "tempTables": tempTables
+                    tableName: newTableName,
+                    colNames: newColNames,
+                    newTable: true
                 });
             })
-            .fail(function() {
-                var error = xcHelper.getPromiseWhenError(arguments);
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
         }
 
         return deferred.promise();
     }
 
-    function joinIndexCheck(joinInfo, checkJoinKey, txId) {
+    function getCastInfo(tableName, colNames, casts, overWrite) {
+        var tableId = xcHelper.getTableId(tableName);
+        var mapStrs = [];
+        var newFields = []; // this is for map
+        var newColNames = []; // this is for index
+
+        casts.forEach(function(typeToCast, index) {
+            var colName = colNames[index];
+            var parsedCol = xcHelper.parsePrefixColName(colName);
+            var newType;
+            var newField = colName;
+
+            if (!typeToCast && parsedCol.prefix) {
+                // when it's a fatptr and no typeToCast specified
+                try {
+                    newType = gTables[tableId].getColByBackName(colName).getType();
+                } catch (e) {
+                    console.error(e);
+                    // when fail to get the col type from meta, cast to string
+                    // XXX this is a hack util backend support auto cast when indexing
+                    newType = "string";
+                }
+                newField = overWrite
+                           ? parsedCol.name
+                           : parsedCol.prefix + "_" + parsedCol.name;
+            } else {
+                newType = typeToCast;
+                newField = colName;
+            }
+
+            if (newType != null) {
+                newField = overWrite ? newField : xcHelper.randName(newField);
+                mapStrs.push(xcHelper.castStrHelper(colName, newType));
+                newFields.push(newField);
+            }
+            newColNames.push(newField);
+        });
+
+        return {
+            mapStrs: mapStrs,
+            newFields: newFields,
+            newColNames: newColNames
+        };
+    }
+
+    function joinIndexCheck(joinInfo, txId) {
         var deferred = jQuery.Deferred();
         var deferred1;
         var deferred2;
-        var lColName = joinInfo.lColName;
-        var rColName = joinInfo.rColName;
+        var lColNames = joinInfo.lColNames;
+        var rColNames = joinInfo.rColNames;
         var lTableName = joinInfo.lTableName;
         var rTableName = joinInfo.rTableName;
 
-        if (checkJoinKey) {
-            // when it's self join or globally enabled
-            deferred1 = handleJoinKey(lColName, lTableName, txId, true);
-            deferred2 = handleJoinKey(rColName, rTableName, txId, false);
-        } else if (lTableName === rTableName && lColName === rColName) {
+        if (lTableName === rTableName &&
+            isSameKey(lColNames, rColNames))
+        {
             // when it's self join
-            var defs = selfJoinIndex(lColName, lTableName, txId);
+            var defs = selfJoinIndex(lColNames, lTableName, txId);
             deferred1 = defs[0];
             deferred2 = defs[1];
         } else {
-            deferred1 = checkTableIndex(lColName, lTableName, txId);
-            deferred2 = checkTableIndex(rColName, rTableName, txId);
+            deferred1 = checkTableIndex(lColNames, lTableName, txId);
+            deferred2 = checkTableIndex(rColNames, rTableName, txId);
         }
 
         PromiseHelper.when(deferred1, deferred2)
@@ -1360,11 +1365,11 @@
         return deferred.promise();
     }
 
-    function selfJoinIndex(colName, tableName, txId) {
+    function selfJoinIndex(colNames, tableName, txId) {
         var deferred1 = jQuery.Deferred();
         var deferred2 = jQuery.Deferred();
 
-        checkTableIndex(colName, tableName, txId)
+        checkTableIndex(colNames, tableName, txId)
         .then(function() {
             deferred1.resolve.apply(this, arguments);
             deferred2.resolve.apply(this, arguments);
@@ -1377,23 +1382,24 @@
         return [deferred1.promise(), deferred2.promise()];
     }
 
-    function checkIfNeedIndex(colToIndex, tableName, tableKeys, order, txId) {
+    function isSameKey(key1, key2) {
+        if (key1.length !== key2.length) {
+            return false;
+        }
+
+        for (var i = 0, len = key1.length; i < len; i++) {
+            if (key1[i] !== key2[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function checkIfNeedIndex(colsToIndex, tableName, tableKeys, order, txId) {
         var deferred = jQuery.Deferred();
         var shouldIndex = false;
         var tempTables = [];
-        var isSameKey = function(key1, key2) {
-            if (key1.length !== key2.length) {
-                return false;
-            }
-
-            for (var i = 0, len = key1.length; i < len; i++) {
-                if (key1[i] !== key2[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        };
 
         getUnsortedTableName(tableName, null, txId)
         .then(function(unsorted) {
@@ -1401,7 +1407,7 @@
                 // this is sorted table, should index a unsorted one
                 XIApi.checkOrder(unsorted, txId)
                 .then(function(parentOrder, parentKeys) {
-                    if (parentKeys.length !== 1 || parentKeys[0] !== colToIndex) {
+                    if (!isSameKey(parentKeys, colsToIndex)) {
                         if (!isSameKey(parentKeys, tableKeys)) {
                             // if current is sorted, the parent should also
                             // index on the tableKey to remove "KNF"
@@ -1427,8 +1433,7 @@
                                         XcalarOrderingT.XcalarOrderingUnordered,
                                         txId)
                             .then(function() {
-                                if (tableKeys.length === 1 &&
-                                    tableKeys[0] === colToIndex) {
+                                if (isSameKey(tableKeys, colsToIndex)) {
                                     // when the parent has right index
                                     shouldIndex = false;
                                 } else {
@@ -1441,8 +1446,8 @@
                             })
                             .fail(deferred.reject);
                         } else {
-                            // when parent is indexed on tableKey,
-                            // still but need another index on colName
+                            // when parent is indexed on tableKeys,
+                            // still need another index on colNames
                             shouldIndex = true;
                             deferred.resolve(shouldIndex, unsorted, tempTables);
                         }
@@ -1457,8 +1462,7 @@
                 .fail(deferred.reject);
             } else {
                 // this is the unsorted table
-                if (tableKeys.length !== 1 ||
-                    tableKeys[0] !== colToIndex) {
+                if (!isSameKey(tableKeys, colsToIndex)) {
                     shouldIndex = true;
                 } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
                           order === XcalarOrderingT.XcalarOrderingInvalid) {
@@ -1542,7 +1546,7 @@
         return deferred.promise();
     }
 
-    function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColName,
+    function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
                             newTableName,
                             joinType, lRename, rRename, tempTables, txId) {
         var deferred = jQuery.Deferred();
@@ -1552,8 +1556,8 @@
         var antiJoinTableName;
 
         tempTables.push(newGbTableName);
-        XcalarGroupBy("count", newColName, rIndexedColName, rIndexedTable,
-                      newGbTableName, false, false, rIndexedColName, txId)
+        XcalarGroupBy("count", newColName, rIndexedColNames[0], rIndexedTable,
+                      newGbTableName, false, false, rIndexedColNames, txId)
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
@@ -1582,116 +1586,8 @@
         return deferred.promise();
     }
 
-    function handleJoinKey(colToIndex, tableName, txId, isLeft) {
-        // XXX this is only a temp fix for join key collision
-        // XXX when backend handle it, this code should be removed
-        var deferred = jQuery.Deferred();
-        var suffix = isLeft ? "_left" : "_right";
-        var tableId = xcHelper.getTableId(tableName);
-        var tableCols = gTables[tableId].tableCols;
-
-        var tableNamePart = xcHelper.getTableName(tableName);
-        var colNums = [];
-        var mapStrings = [];
-        var newFieldNames = [];
-        var newTableNames = [];
-        var newTypes = [];
-        var resizeHeaders = [];
-        var tempTables = [];
-
-        var promises = [];
-
-        for (var i = 0, len = tableCols.length; i < len; i++) {
-            var progCol = tableCols[i];
-
-            if (progCol.isDATACol() || progCol.isEmptyCol()) {
-                continue;
-            }
-
-            var type = progCol.getType();
-            if (type !== "string" && type !== "float" && type !== "integer" &&
-                type !== "boolean")
-            {
-                // don't cast array or object
-                continue;
-            }
-
-            if (type === "integer") {
-                // integer also cast to float since we cannot tell
-                type = "float";
-            }
-            var colName = progCol.getBackColName();
-            colNums.push(i + 1);
-            mapStrings.push(xcHelper.castStrHelper(colName, type));
-            newFieldNames.push(colName + suffix);
-            newTableNames.push(tableNamePart + Authentication.getHashId());
-            newTypes.push(type);
-            resizeHeaders.push(progCol.sizedTo === "header");
-
-            if (colName === colToIndex) {
-                // if colToIndex is pulled out, it's renamed
-                // otherwise, not renamed
-                colToIndex = colName + suffix;
-            }
-        }
-
-        // this makes it easy to get previous table name
-        newTableNames.push(tableName);
-
-        for (var i = colNums.length - 1; i >= 0; i--) {
-            promises.push(changeTypeHelper.bind(this, i));
-        }
-
-        PromiseHelper.chain(promises)
-        .then(function(newTableName) {
-            // when no column type change
-            if (newTableName == null) {
-                newTableName = tableName;
-            }
-            return checkTableIndex(colToIndex, newTableName, txId);
-        })
-        .then(function(indexedTable, shouldIndex, tempTablesInIndex) {
-            tempTables = tempTables.concat(tempTablesInIndex);
-            deferred.resolve(indexedTable, shouldIndex, tempTables);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-
-        function changeTypeHelper(index) {
-            var innerDeferred = jQuery.Deferred();
-
-            var curTableName = newTableNames[index + 1];
-            var newTableName = newTableNames[index];
-            var fieldName = xcHelper.stripColName(newFieldNames[index]);
-            var mapString = mapStrings[index];
-            var curColNum = colNums[index];
-            var resize = resizeHeaders[index];
-
-            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
-            .then(function() {
-                var mapOptions = {
-                    "replaceColumn": true,
-                    "type": newTypes[index],
-                    "resize": resize
-                };
-                var curTableId = xcHelper.getTableId(curTableName);
-                var curTableCols = gTables[curTableId].tableCols;
-
-                var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
-                                        mapString, curTableCols, mapOptions);
-                tempTables.push(newTableName);
-                TblManager.setOrphanTableMeta(newTableName, newTablCols);
-                innerDeferred.resolve(newTableName);
-            })
-            .fail(innerDeferred.reject);
-
-            return innerDeferred.promise();
-        }
-    }
-
     // check if table has correct index
-    function checkTableIndex(colName, tableName, txId, isApiCall) {
+    function checkTableIndex(colNames, tableName, txId, isApiCall) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
@@ -1702,14 +1598,14 @@
             // in case we have no meta of the table
             console.warn("cannot find the table");
         } else if (Transaction.isSimulate(txId)) {
-            indexTable = SQLApi.getIndexTable(tableName, colName);
+            indexTable = SQLApi.getIndexTable(tableName, colNames);
             if (indexTable != null) {
                 return PromiseHelper.resolve(indexTable, true, [], true);
             }
         } else {
             table = gTables[tableId];
             tableCols = table.tableCols;
-            indexTable = table.getIndexTable(colName);
+            indexTable = table.getIndexTable(colNames);
             if (indexTable != null) {
                 // XXX Note: here the assume is if index table has meta,
                 // it should exists
@@ -1722,14 +1618,14 @@
                     return PromiseHelper.resolve(indexTable, true, [], true);
                 } else {
                     console.log("cached index table", indexTable, "not exists");
-                    table.removeIndexTable(colName);
+                    table.removeIndexTable(colNames);
                 }
             }
         }
 
         XIApi.checkOrder(tableName, txId)
         .then(function(order, keys) {
-            return checkIfNeedIndex(colName, tableName, keys, order, txId);
+            return checkIfNeedIndex(colNames, tableName, keys, order, txId);
         })
         .then(function(shouldIndex, unsortedTable, tempTables) {
             if (shouldIndex) {
@@ -1737,7 +1633,7 @@
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
                 var newTableName = getNewTableName(tableName, ".index");
-                XcalarIndexFromTable(unsortedTable, colName, newTableName,
+                XcalarIndexFromTable(unsortedTable, colNames, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      txId)
                 .then(function() {
@@ -1746,9 +1642,9 @@
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
                     if (Transaction.isSimulate(txId)) {
-                        SQLApi.cacheIndexTable(tableName, colName, newTableName);
+                        SQLApi.cacheIndexTable(tableName, colNames, newTableName);
                     } else if (table != null) {
-                        table.setIndexTable(colName, newTableName);
+                        table.setIndexTable(colNames, newTableName);
                     }
                     deferred.resolve(newTableName, shouldIndex, tempTables);
                 })
@@ -1763,42 +1659,6 @@
                 console.log(tableName, "indexed correctly!");
                 deferred.resolve(unsortedTable, shouldIndex, tempTables);
             }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function concatGroupByCols(txId, tableName, groupByCols) {
-        if (groupByCols.length === 1) {
-            return PromiseHelper.resolve(groupByCols[0], tableName, []);
-        }
-
-        var deferred = jQuery.Deferred();
-
-        var tableId = xcHelper.getTableId(tableName);
-        var tableCols = null;
-
-        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-            // in case we have no meta of the table
-            console.warn("cannot find the table");
-        } else {
-            var table = gTables[tableId];
-            tableCols = table.tableCols;
-        }
-
-        var mapStr;
-        if (groupByCols.length === 0) {
-            mapStr = "int(1)";
-        } else {
-            mapStr = xcHelper.getMultiJoinMapString(groupByCols);
-        }
-        var groupByField = xcHelper.randName("multiGroupBy");
-
-        XIApi.map(txId, mapStr, tableName, groupByField)
-        .then(function(tableAfterMap) {
-            TblManager.setOrphanTableMeta(tableAfterMap, tableCols);
-            deferred.resolve(groupByField, tableAfterMap, [tableAfterMap]);
         })
         .fail(deferred.reject);
 
@@ -1889,18 +1749,21 @@
         // 1. merge multi columns into one using concat xdf
         // 2. sort this merged column
         var deferred = jQuery.Deferred();
-        var groupByField;
+        var groupByFields;
         var tempTables = [];
+        var casts = new Array(groupByCols.length).fill(null);
 
-        concatGroupByCols(txId, tableName, groupByCols)
-        .then(function(resCol, resTable, resTempTables) {
-            tempTables = resTempTables || [];
-            groupByField = resCol;
-            return checkTableIndex(resCol, resTable, txId);
+        castMap(txId, tableName, groupByCols, casts, true)
+        .then(function(res) {
+            if (res.newTable) {
+                tempTables.push(res.tableName);
+            }
+            groupByFields = res.colNames;
+            return checkTableIndex(groupByFields, res.tableName, txId);
         })
         .then(function(indexedTable, shouldIndex, temIndexTables) {
             tempTables = tempTables.concat(temIndexTables);
-            deferred.resolve(indexedTable,groupByField, tempTables);
+            deferred.resolve(indexedTable, groupByFields, tempTables);
         })
         .fail(deferred.reject);
 
@@ -2040,119 +1903,6 @@
             finalCols[numNewCols + numGroupByCols] = dataCol;
         }
         return finalCols;
-    }
-
-    // used after a multi-group by to split the concated column
-    function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
-                               indexedColName, finalTableCols,
-                               renamedGroupByCols, txId)
-    {
-        var deferred = jQuery.Deferred();
-
-        var numGroupByCols = groupByCols.length;
-        var srcTableId = xcHelper.getTableId(srcTableName);
-        var groupByColTypes = [];
-
-        if (srcTableId == null || !gTables.hasOwnProperty(srcTableId)) {
-            // in case we have no meta of the table
-            console.warn("cannot find the table");
-            groupByColTypes = new Array(numGroupByCols);
-        } else {
-            var srcTable = gTables[srcTableId];
-            for (var i = 0; i < numGroupByCols; i++) {
-                var progCol = srcTable.getColByBackName(groupByCols[i]);
-                if (progCol != null) {
-                    groupByColTypes[i] = progCol.getType();
-                } else {
-                    console.error("Error Case!");
-                    groupByColTypes[i] = null;
-                }
-            }
-        }
-
-        var mapStrStarter = "cut(" + indexedColName + ", ";
-        var tableCols = extractColGetColHelper(finalTableCols, 0);
-
-        TblManager.setOrphanTableMeta(groupbyTableName, tableCols);
-
-        // var promises = [];
-        var currTableName = groupbyTableName;
-        var tempTables = [];
-        var mapStrs = [];
-        var colNames = [];
-
-        for (var i = 0; i < numGroupByCols; i++) {
-            var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
-            // convert type
-            // XXX FIXME if need more other types
-            if (groupByColTypes[i] === "integer") {
-                mapStr = "int(" + mapStr + ")";
-            } else if (groupByColTypes[i] === "float") {
-                mapStr = "float(" + mapStr + ")";
-            } else if (groupByColTypes[i] === "boolean") {
-                mapStr = "bool(" + mapStr + ")";
-            }
-
-            tableCols = extractColGetColHelper(finalTableCols, i + 1);
-
-            var parsedName = xcHelper.parsePrefixColName(renamedGroupByCols[i])
-                                                                        .name;
-            parsedName = xcHelper.stripColName(parsedName);
-
-            mapStrs.push(mapStr);
-            colNames.push(parsedName);
-
-            if (i === 0) {
-                var newTableName = getNewTableName(currTableName);
-                tempTables.push(currTableName);
-                currTableName = newTableName;
-            }
-        }
-        var args = {
-            "colNames": colNames,
-            "mapStrings": mapStrs,
-            "srcTableName": groupbyTableName,
-            "newTableName": newTableName
-        };
-
-        var lastTableName = currTableName;
-
-        extractColMapHelper(args, tableCols, txId)
-        .then(function() {
-            deferred.resolve(lastTableName, tempTables);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function extractColGetColHelper(tableCols, index) {
-        var newCols = xcHelper.deepCopy(tableCols);
-        newCols.splice(index + 1, newCols.length - index - 2);
-        // Note that after splice, newCols.length changes
-
-        return newCols;
-    }
-
-    function extractColMapHelper(mapArgs, tableCols, txId) {
-        var deferred = jQuery.Deferred();
-
-        var colNames = mapArgs.colNames;
-        var mapStrs = mapArgs.mapStrings;
-        var srcTableName = mapArgs.srcTableName;
-        var newTableName = mapArgs.newTableName;
-
-        if (!mapStrs.length) {
-            return PromiseHelper.resolve();
-        }
-
-        XcalarMap(colNames, mapStrs, srcTableName, newTableName, txId)
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     function isValidTableName(tableName) {

@@ -134,20 +134,6 @@ window.Shortcuts = (function($, Shortcuts) {
         }
     };
 
-    Shortcuts.toggleJoinKey = function(turnOn) {
-        if (turnOn) {
-            $('#shortcutSubMenu').find('.joinKeyOff').show();
-            $('#shortcutSubMenu').find('.joinKeyOn').hide();
-            xcLocalStorage.setItem("gEnableJoinKeyCheck", "true");
-            gEnableJoinKeyCheck = true;
-        } else {
-            $('#shortcutSubMenu').find('.joinKeyOff').hide();
-            $('#shortcutSubMenu').find('.joinKeyOn').show();
-            xcLocalStorage.removeItem("gEnableJoinKeyCheck");
-            gEnableJoinKeyCheck = false;
-        }
-    };
-
     Shortcuts.setup = function(fullSetup) {
         var turnOnSplash;
         shortcutsOn = true;
@@ -182,12 +168,6 @@ window.Shortcuts = (function($, Shortcuts) {
             gAdmin = false;
         }
 
-        if (xcLocalStorage.getItem("gEnableJoinKeyCheck") === "true") {
-            gEnableJoinKeyCheck = true;
-        } else {
-            gEnableJoinKeyCheck = false;
-        }
-
         if (xcLocalStorage.getItem("noSplashLogin") === "true") {
             turnOnSplash = false;
         } else {
@@ -202,7 +182,6 @@ window.Shortcuts = (function($, Shortcuts) {
         Shortcuts.toggleVerbose(verbose);
         Shortcuts.toggleThriftTimeChecker(gThriftTimeCheck);
         Shortcuts.toggleAdmin(gAdmin);
-        Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
         Shortcuts.toggleDebug(window.debugOn);
         Shortcuts.toggleSplash(turnOnSplash);
     };
@@ -424,8 +403,6 @@ window.Shortcuts = (function($, Shortcuts) {
                         '</li>' +
                     '</ul>' +
                     '<ul class="globals">' +
-                        '<li class="joinKeyOff">Turn off gEnableJoinKeyCheck</li>' +
-                        '<li class="joinKeyOn">Turn on gEnableJoinKeyCheck</li>' +
                         '<li class="verboseOff">Turn off verbose</li>' +
                         '<li class="verboseOn">Turn on verbose</li>' +
                         '<li class="adminOn">Turn on admin mode</li>' +
