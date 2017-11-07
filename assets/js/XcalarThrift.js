@@ -349,7 +349,9 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
                     if (!hasReadyState) {
                         var newId = Authentication.getHashId().split("#")[1];
                         srcTableName = tableName.split("#")[0] + "#" + newId;
-                        var key = indexInput.keyName;
+                        var key = indexInput.key.map(function(keyAttr) {
+                            return keyAttr.name;
+                        });
                         var order = XcalarOrderingT.XcalarOrderingUnordered;
                         return (XcalarIndexFromTable(tableName, key,
                                                     srcTableName, order,
