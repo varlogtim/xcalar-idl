@@ -418,23 +418,26 @@ define(function() {
                 };
                 parent.postMessage(JSON.stringify(message), "*");
             });
+            function getPathStr(ele) {
+                var path = ele.prop("tagName");
+                if (ele.attr("id")) {
+                    path += "#" + ele.attr("id");
+                }
+                if (ele.attr("class")) {
+                    path += "." + ele.attr("class");
+                }
+                return path;
+            }
             function getElementPath(element) {
                 try {
-                    var path = $(element).prop("outerHTML").match(/<.*(class|name|id)="[^"]*"/g);
-                    path = path ? path[0] + ">" : "";
+                    var path = getPathStr($(element));
                     var parents = $(element).parentsUntil("body");
-                    $.each(parents, function(i, val) {
-                        var parentHtml = $(parents[i]).clone().children().remove().end()
-                                         .prop("outerHTML")
-                                         .match(/<.*(class|name|id)="[^"]*"/g);
-                        parentHtml = parentHtml ? parentHtml[0] + ">" : "";
-                        if (parentHtml.length + path.length > 255) {
-                            return path;
-                        }
-                        path = parentHtml + " ==> " + path;
-                    });
+                    for (var i = 0; (i < parents.length) && (path.length <= 255); i++) {
+                        path += "|";
+                        path += getPathStr($(parents).eq(i), path);
+                    }
                     return path;
-                } catch(err) {
+                } catch (err) {
                     // Do not affect our use with XD
                     return "Error case: " + err;
                 }

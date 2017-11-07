@@ -51,6 +51,9 @@ window.xcMixpanel = (function($, xcMixpanel) {
             xcMixpanel.addListeners();
         }
     };
+    xcMixpanel.forDev = function() {
+        return false;
+    }
     xcMixpanel.init = function() {
         window.mixpanel.init("5678112905d2b1154062e2b2361848bd");
     }

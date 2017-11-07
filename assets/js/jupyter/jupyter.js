@@ -50,7 +50,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         break;
                     case ("mixpanel"):
                         try {
-                            mixpanel.track(s.event, s.property);
+                            if (xcMixpanel.forDev()) {
+                                mixpanel.track(s.event, s.property);
+                            }
                         } catch (error) {
                             console.log("mixpanel is not loaded");
                         }
