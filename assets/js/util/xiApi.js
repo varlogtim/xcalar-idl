@@ -1751,9 +1751,20 @@
         var deferred = jQuery.Deferred();
         var groupByFields;
         var tempTables = [];
-        var casts = new Array(groupByCols.length).fill(null);
+        var def;
 
-        castMap(txId, tableName, groupByCols, casts, true)
+        if (groupByCols.length === 1) {
+            // single group by
+            def = PromiseHelper.resolve({
+                tableName: tableName,
+                colNames: groupByCols
+            });
+        } else {
+            var casts = new Array(groupByCols.length).fill(null);
+            def = castMap(txId, tableName, groupByCols, casts, true);
+        }
+
+        def
         .then(function(res) {
             if (res.newTable) {
                 tempTables.push(res.tableName);
