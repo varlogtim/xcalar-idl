@@ -242,6 +242,13 @@ function parseDS(dsName) {
     return (gDSPrefix + dsName);
 }
 
+function renameInfoMap(renameInfo) {
+    var map = new XcalarApiRenameMapT();
+    map.sourceColumn = renameInfo.orig;
+    map.destColumn = renameInfo.new;
+    map.columnType = DfFieldTypeTStr[renameInfo.type];
+    return map;
+}
 // Should check if the function returns a promise
 // but that would require an extra function call
 if (!has_require) {
@@ -2352,14 +2359,6 @@ XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename, txId)
     });
 
     return deferred.promise();
-
-    function renameInfoMap(renameInfo) {
-        var map = new XcalarApiRenameMapT();
-        map.sourceColumn = renameInfo.orig;
-        map.destColumn = renameInfo.new;
-        map.columnType = DfFieldTypeTStr[renameInfo.type];
-        return map;
-    }
 };
 
 XcalarGroupByWithInput = function(txId, inputStruct) {
@@ -2521,27 +2520,55 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
 };
 
 // XXX haven't tested it yet
-XcalarUnion = function(sources, dest, renameMap, dedup, txId) {
+XcalarUnion = function(tableNames, newTableName, renameMap, dedup, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    getUnsortedTableName(tableName, null, txId)
-    .then(function(unsortedTableName) {
+    tableNames = (tableNames instanceof Array) ? tableNames : [tableNames];
+    renameMap = (renameMap instanceof Array) ? renameMap : [renameMap];
+    dedup = dedup || false;
+
+    var query;
+    var getUnsortedTablesInUnion = function() {
+        var innerDeferred = jQuery.Deferred();
+        var unsortedTables = [];
+
+        var promises = tableNames.map(function(tableName, index) {
+            return getUnsortedTableName(tableName, null, txId)
+                    .then(function(unsortedTableName) {
+                        unsortedTables[index] = unsortedTableName;
+                    });
+        });
+
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            innerDeferred.resolve(unsortedTables);
+        })
+        .fail(innerDeferred.reject);
+
+        return innerDeferred.promise();
+    };
+
+    getUnsortedTablesInUnion()
+    .then(function(sources) {
         if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
+            return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
-        var workItem = xcalarUnionWorkItem(sources, dest, renameMap, dedup);
+
+        var renames = renameMap.map(function(rename) {
+            return [renameInfoMap(rename)];
+        });
+        var workItem = xcalarUnionWorkItem(sources, newTableName, renames, dedup);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarUnion(tHandle, sources, dest, renameMap, dedup);
+            def = xcalarUnion(tHandle, sources, newTableName, renames, dedup);
         }
         query = XcalarGetQuery(workItem); // XXX test
-        Transaction.startSubQuery(txId, 'union', dest, query);
+        Transaction.startSubQuery(txId, 'union', newTableName, query);
 
         return def;
     })
@@ -2549,7 +2576,7 @@ XcalarUnion = function(sources, dest, renameMap, dedup, txId) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query, dest, ret.timeElapsed);
+            Transaction.log(txId, query, newTableName, ret.timeElapsed);
             deferred.resolve(ret);
         }
     })

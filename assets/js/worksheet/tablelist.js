@@ -541,7 +541,7 @@ window.TableList = (function($, TableList) {
 
         function failHandler($li, tableName, error) {
             $li.find(".addTableBtn.selected").removeClass("selected");
-            failures.push(tableName + ": {" + error.error + "}");
+            failures.push(tableName + ": {" + xcHelper.parseError(error) + "}");
         }
     };
 
