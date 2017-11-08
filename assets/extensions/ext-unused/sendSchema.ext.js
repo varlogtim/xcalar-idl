@@ -159,13 +159,13 @@ window.UExtSendSchema = (function(UExtSendSchema) {
     operationalize: Converts prefix fields to derived fields and removes object
         and array fields from the given input table.
     */
-    function sendPost(action, struct) {
+    function updateSchema(struct) {
         var deferred = jQuery.Deferred();
         jQuery.ajax({
-            type: 'POST',
+            type: 'PUT',
             data: JSON.stringify(struct),
-            contentType: 'application/json',
-            url: "http://seaborg.int.xcalar.com:12127/" + action,
+            contentType: 'application/json; charset=utf-8',
+            url: planServer + "/schemaupdate/" + WorkbookManager.getActiveWKBK(),
             success: function(data) {
                 if (data.status === 200) {
                     try {
@@ -209,9 +209,8 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             structToSend.tableName = tableName.toUpperCase();
             structToSend.tableColumns = schema;
 
-            var s = {"newSchemaString": JSON.stringify(structToSend)};
-            console.log(s);
-            sendPost("updateSchema", s)
+            console.log(structToSend);
+            updateSchema(structToSend)
             .then(deferred.resolve)
             .fail(deferred.reject);
 

@@ -6,7 +6,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         addEventListeners();
 
         // XXX demo use
-        var showSQLPanel = false;
+        var showSQLPanel = true;
         if (showSQLPanel) {
             $("#sqlTab").removeClass("xc-hidden");
         }

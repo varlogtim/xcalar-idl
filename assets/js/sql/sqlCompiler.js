@@ -182,17 +182,19 @@
         return (this);
     }
 
-    function sendPost(action, struct) {
+    function sendPost(struct) {
         var deferred = jQuery.Deferred();
         jQuery.ajax({
             type: 'POST',
             data: JSON.stringify(struct),
-            contentType: 'application/json',
-            url: "http://seaborg.int.xcalar.com:12127/" + action,
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            url: planServer + "/sqlquery/" +
+                 WorkbookManager.getActiveWKBK() + "/true/true",
             success: function(data) {
                 if (data.status === 200) {
                     try {
-                        deferred.resolve(JSON.parse(data.stdout));
+                        deferred.resolve(JSON.parse(JSON.parse(data.stdout).sqlQuery));
                     } catch (e) {
                         deferred.reject(e);
                         console.error(e);
@@ -310,7 +312,7 @@
 
             var promise = isJsonPlan
                           ? PromiseHelper.resolve(sqlQueryString) // this is a json plan
-                          : sendPost("getQueryJson", {"queryString": sqlQueryString});
+                          : sendPost({"sqlQuery": sqlQueryString});
 
             promise
             .then(function(jsonArray) {
