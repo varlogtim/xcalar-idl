@@ -153,9 +153,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         $.ajax({
             url: url,
-            dataType: "jsonp",
+            dataType: "json",
             timeout: 5000,
-
             success: function() {
                 $("#jupyterNotebook").attr("src", url);
             },
