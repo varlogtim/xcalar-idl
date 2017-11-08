@@ -4248,10 +4248,10 @@ window.OperationsView = (function($, OperationsView) {
                       '<div class="list hint new">' +
                         '<ul></ul>' +
                         '<div class="scrollArea top">' +
-                          '<div class="arrow"></div>' +
+                          '<i class="arrow icon xi-arrow-up"></i>' +
                         '</div>' +
                         '<div class="scrollArea bottom">' +
-                          '<div class="arrow"></div>' +
+                          '<i class="arrow icon xi-arrow-down"></i>' +
                         '</div>' +
                       '</div>' +
                    '</div>' +
@@ -4346,10 +4346,10 @@ window.OperationsView = (function($, OperationsView) {
               '<div class="list genFunctionsMenu">' +
                 '<ul data-fnmenunum="' + index + '"></ul>' +
                 '<div class="scrollArea top">' +
-                  '<div class="arrow"></div>' +
+                  '<i class="arrow icon xi-arrow-up"></i>' +
                 '</div>' +
                 '<div class="scrollArea bottom">' +
-                  '<div class="arrow"></div>' +
+                  '<i class="arrow icon xi-arrow-down"></i>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -4427,10 +4427,10 @@ window.OperationsView = (function($, OperationsView) {
                           '<div class="list hint new">' +
                            '<ul></ul>' +
                             '<div class="scrollArea top">' +
-                              '<div class="arrow"></div>' +
+                              '<i class="arrow icon xi-arrow-up"></i>' +
                             '</div>' +
                             '<div class="scrollArea bottom">' +
-                              '<div class="arrow"></div>' +
+                              '<i class="arrow icon xi-arrow-down"></i>' +
                             '</div>' +
                          '</div>' +
                         '</div>' +
@@ -4584,11 +4584,11 @@ window.OperationsView = (function($, OperationsView) {
                             '<div class="list genFunctionsMenu">' +
                               '<ul data-fnmenunum="' + index + '"></ul>' +
                               '<div class="scrollArea top">' +
-                                '<div class="arrow"></div>' +
-                              '</div>' +
-                              '<div class="scrollArea bottom">' +
-                                '<div class="arrow"></div>' +
-                              '</div>' +
+                                  '<i class="arrow icon xi-arrow-up"></i>' +
+                                '</div>' +
+                                '<div class="scrollArea bottom">' +
+                                  '<i class="arrow icon xi-arrow-down"></i>' +
+                                '</div>' +
                             '</div>' +
                         '</div>' +
                         '<div class="descriptionText">' +

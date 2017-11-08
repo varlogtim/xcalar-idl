@@ -2261,8 +2261,12 @@ RangeSlider.prototype = {
     $menu needs to have the following structure for scrolling:
         <div class="menu/list">
             <ul></ul>
-            <div class="scrollArea top"></div>
-            <div class="scrollArea bottom"></div>
+            <div class="scrollArea top">
+              <i class="arrow icon xi-arrow-up"></i>
+            </div>
+            <div class="scrollArea bottom">
+              <i class="arrow icon xi-arrow-down"></i>
+            </div>
         </div>
     where the outer div has the same height as the ul
 

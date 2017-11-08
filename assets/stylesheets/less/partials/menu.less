@@ -798,23 +798,21 @@
 
         &.top {
             top: 0;
-            .arrow {
-                .image("../../images/arrow-up-white.png", 50%, 40%);
-            }
         }
         &.bottom {
             bottom: 0;
-            .arrow {
-                .image("../../images/arrow-down-white.png", 50%, 60%);
-            }
         }
 
         .arrow {
-            width: 20px;
-            margin: 0 auto;
+            width: 100%;
             height: 14px;
+            line-height: 14px;
+            font-size: 10px;
+            text-align: center;
             pointer-events: initial;
             opacity: @opacity-unhover;
+            color: @color-white;
+            float: left;
         }
     }
 }

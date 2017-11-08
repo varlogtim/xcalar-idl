@@ -1554,10 +1554,10 @@ window.DFParamModal = (function($, DFParamModal){
             td += '<div class="list">' +
                     '<ul><li>first item</li></ul>' +
                     '<div class="scrollArea top">' +
-                        '<div class="arrow"></div>' +
+                      '<i class="arrow icon xi-arrow-up"></i>' +
                     '</div>' +
                     '<div class="scrollArea bottom">' +
-                        '<div class="arrow"></div>' +
+                      '<i class="arrow icon xi-arrow-down"></i>' +
                     '</div>' +
                   '</div>';
         }

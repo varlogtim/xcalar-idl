@@ -1223,10 +1223,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                                     list +
                                 '</ul>' +
                                 '<div class="scrollArea top">' +
-                                    '<div class="arrow"></div>' +
+                                  '<i class="arrow icon xi-arrow-up"></i>' +
                                 '</div>' +
                                 '<div class="scrollArea bottom">' +
-                                    '<div class="arrow"></div>' +
+                                  '<i class="arrow icon xi-arrow-down"></i>' +
                                 '</div>' +
                             '</div>' +
                         '</div>' +
@@ -1249,10 +1249,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '<div class="list hint">' +
                                 '<ul></ul>' +
                                 '<div class="scrollArea top">' +
-                                  '<div class="arrow"></div>' +
+                                  '<i class="arrow icon xi-arrow-up"></i>' +
                                 '</div>' +
                                 '<div class="scrollArea bottom">' +
-                                  '<div class="arrow"></div>' +
+                                  '<i class="arrow icon xi-arrow-down"></i>' +
                                 '</div>' +
                             '</div>' +
                         '</div>' +
