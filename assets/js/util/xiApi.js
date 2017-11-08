@@ -1557,7 +1557,7 @@
 
         tempTables.push(newGbTableName);
         XcalarGroupBy("count", newColName, rIndexedColNames[0], rIndexedTable,
-                      newGbTableName, false, false, rIndexedColNames, txId)
+                      newGbTableName, false, false, rIndexedColNames[0], txId)
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
