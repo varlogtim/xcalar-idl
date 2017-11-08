@@ -2404,6 +2404,9 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
     if (Transaction.checkCanceled(txId)) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
+    newKeyFieldName = newKeyFieldName || "";
+    incSample = incSample || false;
+    icvMode = icvMode || false;
 
     var deferred = jQuery.Deferred();
     var evalStrs = [];
