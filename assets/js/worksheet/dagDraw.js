@@ -1636,15 +1636,18 @@ window.DagDraw = (function($, DagDraw) {
             text: "",
             opText: "",
             operation: "",
+            opType: "",
             tooltip: "",
             column: "",
             state: DgDagStateTStr[node.value.state]
         };
         var parentNames = node.getSourceNames(true);
         var taggedInfo;
+        var isCollapsedTag = false;
         if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
             node.value.tags.length === 1) {
             taggedInfo = setTaggedOpInfo(info, value, node, parentNames);
+            isCollapsedTag = true;
         } else {
             info.operation = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
             info.operation = info.operation.slice(0, info.operation.length - 5);
@@ -1699,36 +1702,41 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('indexInput'):
-                    info.column = value.key[0].name;
+                    var keyNames = value.key.map(function(key) {
+                        return key.name;
+                    });
+                    info.column = keyNames.join(", ");
                     if (!node.parents[0] || node.parents[0].value.api ===
                         XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
                         info.type = "createTable";
                         info.column = "";
-                        info.text = "indexed on " + value.key[0].name;
+                        info.text = "indexed on " + xcHelper.listToEnglish(keyNames);
                     } else if (value.ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                         value.ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                         info.type = "sort";
+                        info.opType = SQLOps.Sort;
                         info.order = value.ordering.toLowerCase();
                         var order = "(" + info.order + ") ";
                         info.tooltip = "Sorted " + order + "on " +
-                                       value.key[0].name;
+                                      xcHelper.listToEnglish(keyNames);
 
-                        info.text = "sorted " + order + "on " + value.key[0].name;
+                        info.text = "sorted " + order + "on " +
+                                    xcHelper.listToEnglish(keyNames);
                     } else {
-                        info.tooltip = "Indexed by " + value.key[0].name;
+                        var indexFieldStr = "";
+                        info.tooltip = "Indexed by " + xcHelper.listToEnglish(keyNames);
                         info.type = "index";
-                        info.text = "indexed on " + value.key[0].name;
+                        info.text = "indexed on " + xcHelper.listToEnglish(keyNames);
                     }
                     info.opText = info.column;
                     break;
                 case ('joinInput'):
-                    var srcCols = getJoinSrcCols(node);
+                    var srcCols = getJoinSrcCols(node, isCollapsedTag);
                     var lSrcCols = srcCols.left;
                     var rSrcCols = srcCols.right;
-
                     info.text = value.joinType;
 
                     var joinType = info.text.slice(0, info.text.indexOf("Join"));
@@ -1932,29 +1940,38 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function getJoinSrcCols(node) {
+    function getJoinSrcCols(node, isCollapsedTag) {
         var lSrcCols = [];
         var rSrcCols = [];
-        var groupLeaves = getGroupLeaves(node);
+        var parents;
+        if (isCollapsedTag) {
+            parents = getGroupLeaves(node); // gets leaves within a tagged group
+        } else {
+            parents = node.parents;
+        }
 
-        for (var i = 0; i < groupLeaves.length; i++) {
-            if (groupLeaves[i].value.api === XcalarApisT.XcalarApiMap) {
+        for (var i = 0; i < parents.length; i++) {
+            if (parents[i].value.api === XcalarApisT.XcalarApiMap) {
                 if (i === 0) {
-                    lSrcCols = parseConcatCols(groupLeaves[i]);
+                    lSrcCols = parseConcatCols(parents[i]);
                 } else {
-                    rSrcCols = parseConcatCols(groupLeaves[i]);
+                    rSrcCols = parseConcatCols(parents[i]);
                 }
-            } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiIndex) {
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiIndex) {
                 if (i === 0) {
-                    lSrcCols.push(groupLeaves[i].value.struct.key[0].name);
+                    for (var j = 0; j < parents[i].value.struct.key.length; j++) {
+                        lSrcCols.push(parents[i].value.struct.key[j].name);
+                    }
                 } else {
-                    rSrcCols.push(groupLeaves[i].value.struct.key[0].name);
+                    for (var j = 0; j < parents[i].value.struct.key.length; j++) {
+                        rSrcCols.push(parents[i].value.struct.key[j].name);
+                    }
                 }
-            } else if (groupLeaves[i].value.api === XcalarApisT.XcalarApiJoin) {
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiJoin) {
                 if (i === 0) {
-                    lSrcCols.push(getSrcIndex(groupLeaves[i].parents[i]));
+                    lSrcCols.push(getSrcIndex(parents[i].parents[i]));
                 } else {
-                    rSrcCols.push(getSrcIndex(groupLeaves[i].parents[i]));
+                    rSrcCols.push(getSrcIndex(parents[i].parents[i]));
                 }
             }
         }
@@ -2087,27 +2104,12 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.key[0].name;
+            var keyNames = parent.value.struct.key.map(function(key) {
+                return key.name;
+            });
+            var keyNamesStr = keyNames.join(", ");
 
-            // if indexed on a column named "multiGroupBy" then this may
-            // have been xcalar-generated sort, so check this table's
-            // parent to find the source columns
-
-            if (keyName.indexOf("multiGroupBy") === 0) {
-                var grandParent = parent.parents[0];
-                var cols = parseConcatCols(grandParent);
-                if (cols.length) {
-                    text = "(";
-                    for (var i = 0; i < cols.length; i++) {
-                        text += cols[i] + ", ";
-                    }
-                    text = text.slice(0, -2);
-                    text += ")";
-                }
-            }
-            if (!text) {
-                text = "(" + keyName + ")";
-            }
+            text = "(" + keyNamesStr + ")";
         } else {
             text = "(See previous table index)";
         }
@@ -2120,19 +2122,9 @@ window.DagDraw = (function($, DagDraw) {
         if (numParents === 1 &&
             node.parents[0].value.api === XcalarApisT.XcalarApiIndex) {
             var parent = node.parents[0];
-            var keyName = parent.value.struct.key[0].name;
-
-            // if indexed on a column named "multiGroupBy" then this may
-            // have been xcalar-generated sort, so check this table's
-            // parent to find the source columns
-
-            if (keyName.indexOf("multiGroupBy") === 0) {
-                var grandParent = parent.parents[0];
-                cols = parseConcatCols(grandParent);
-            }
-            if (!cols.length) {
-                cols = [keyName];
-            }
+            cols = parent.value.struct.key.map(function(key) {
+                return key.name;
+            });
         } else {
             cols = ["(See previous table index)"];
         }
@@ -2167,13 +2159,12 @@ window.DagDraw = (function($, DagDraw) {
     function parseConcatCols(node) {
         var cols = [];
         if (node.value.api === XcalarApisT.XcalarApiMap) {
-            var evalStr = node.value.struct.eval[0].evalString;
-            if (evalStr.indexOf("\".Xc.\"") > -1 &&
-                evalStr.indexOf('concat') === 0) {
+            var evals = node.value.struct.eval;
+            for (var i = 0; i < evals.length; i++) {
                 var func = {args: []};
-                ColManager.parseFuncString(evalStr, func);
+                ColManager.parseFuncString(evals[i].evalString, func);
                 func = func.args[0];
-                cols = getSourceColNames(func);
+                cols = cols.concat(getSourceColNames(func));
             }
         }
         return cols;

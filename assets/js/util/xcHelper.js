@@ -825,6 +825,25 @@
         return Math.max(width, prefixW);
     };
 
+    // takes ["a", "b", "c"] and returns "a, b, and c"
+    xcHelper.listToEnglish = function(list) {
+        var str = "";
+        if (list.length === 1) {
+            return list[0];
+        } else if (list.length === 2) {
+            return list[0] + " and " + list[1];
+        } else if (list.length > 2) {
+            for (var i = 0; i < list.length; i++) {
+                if (i === list.length - 1) {
+                    str += "and " + list[i];
+                } else {
+                    str += list[i] + ", ";
+                }
+            }
+        }
+        return str;
+    };
+
     xcHelper.randName = function(name, digits) {
         if (digits == null) {
             digits = 5; // default
