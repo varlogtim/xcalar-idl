@@ -2170,6 +2170,9 @@ XcalarMap = function(newFieldNames, evalStrs, srcTablename, dstTablename,
     if (Transaction.checkCanceled(txId)) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
+    if (!icvMode) {
+        icvMode = false;
+    }
 
     newFieldNames = (newFieldNames instanceof Array)
                     ? newFieldNames

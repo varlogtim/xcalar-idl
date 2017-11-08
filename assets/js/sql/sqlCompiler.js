@@ -26,8 +26,10 @@
         // Cast.scala
         "expressions.Cast": null, // NOTE: This will be replaced
         // conditionalExpressions.scala
-        "expressions.If": ["if", "ifStr"], // XXX please verify
-        "expressions.CaseWhen": null,
+        "expressions.If": "if",
+        "expressions.IfStr": "ifStr", // Xcalar generated
+        "expressions.CaseWhen": null, // XXX we compile these to if and ifstr
+        "expressions.CaseWhenCodegen": null, /// XXX we compile these to if and ifstr
         // mathExpressions.scala
         "expressions.EulerNumber": null,
         "expressions.Pi": "pi",
@@ -182,14 +184,23 @@
         return (this);
     }
 
-    function secondTraverse(node) {
+    function secondTraverse(node, idx) {
+        var retNode = node;
         // The second traverse convert all substring, left, right stuff
-        function literalNode(num) {
+        function literalNumberNode(num) {
             return new TreeNode({
                 "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
                 "num-children" : 0,
                 "value" : "" + num,
                 "dataType" : "integer"
+            });
+        }
+        function literalStringNode(s) {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
+                "num-children" : 0,
+                "value" : s,
+                "dataType" : "string"
             });
         }
         function subtractNode() {
@@ -208,13 +219,30 @@
                 "right" : 1
             });
         }
+
+        function ifStrNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.IfStr",
+                "num-children" : 3,
+                "branches": null,
+            });
+        }
+        function ifNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.If",
+                "num-children" : 3,
+                "branches": null,
+            });
+        }
         for (var i = 0; i < node.children.length; i++) {
-            secondTraverse(node.children[i]);
+            secondTraverse(node.children[i], i);
+            // Notice that we ignore the return. This is because we only want
+            // to return the top node
         }
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Left, Right, etc.
         var opName = node.value.class.substring(
-            node.value.class.indexOf("expressions."))
+            node.value.class.indexOf("expressions."));
         switch (opName) {
             case ("expressions.Substring"):
                 var startIndex = node.children[1].value;
@@ -233,7 +261,7 @@
                     }
                 } else {
                     var subNode = subtractNode();
-                    subNode.children.push(node.children[1], literalNode(1));
+                    subNode.children.push(node.children[1], literalNumberNode(1));
                     var addNode = addNode();
                     addNode.children.push(subNode, node.children[2]);
                     node.children[1] = subNode;
@@ -252,9 +280,84 @@
                     }
                 }
                 break;
+            case ("expressions.CaseWhenCodegen"):
+            case ("expressions.CaseWhen"):
+                if (node.value.elseValue && node.children.length % 2 !== 1) {
+                    // If there's an elseValue, then num children must be odd
+                    assert(0);
+                }
+                // Check whether to use if or ifstr
+                // XXX backend to fix if and ifStr such that `if` is generic
+                // For now we are hacking this
+                var type = "";
+                for (var i = 0; i < node.children.length; i++) {
+                    if (i % 2 === 1) {
+                        if (node.children[i].value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.Literal") {
+                            type = node.children[i].value.dataType;
+                            break;
+                        }
+                    }
+                }
+                if (node.value.elseValue && node.value.elseValue[0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Literal") {
+                    type = node.children[i].value.dataType;
+                }
+                if (type === "") {
+                    console.warn("Defaulting to ifstr as workaround");
+                    type = "string";
+                }
+                var getNewNode;
+                if (type === "string") {
+                    getNewNode = ifStrNode; // nifty little trick :)
+                } else {
+                    getNewNode = ifNode;
+                }
+                var newNode = getNewNode();
+                var curNode = newNode;
+                // Time to reassign the children
+                for (var i = 0; i < Math.floor(node.children.length/2); i++) {
+                    curNode.children.push(node.children[i*2]);
+                    curNode.children.push(node.children[i*2+1]);
+                    node.children[i*2].parent = curNode;
+                    node.children[i*2+1].parent = curNode;
+                    var nextNode = getNewNode();
+                    nextNode.parent = curNode;
+                    curNode.children.push(nextNode);
+                    curNode = nextNode;
+                }
+
+                var lastNode = curNode.parent;
+                assert(lastNode.children.length === 3);
+
+                // has else clause
+                if (node.children.length % 2 === 1) {
+                    lastNode.children[2] = node.children[node.children.length-1];
+                } else {
+                    // no else clause
+                    // We need to create our own terminal condition
+                    // XXX There's a backend bug here with if
+                    if (type === "string") {
+                        litNode = literalStringNode("");
+                    } else {
+                        litNode = literalNumberNode(0.1337);
+                    }
+                    litNode.parent = lastNode;
+                    lastNode.children[2] = litNode;
+                }
+                if (node.parent) {
+                    assert(idx !== undefined);
+                    node.parent.children[idx] = newNode;
+                } else {
+                    assert(idx === undefined);
+                    // This must be the first level call
+                    retNode = newNode;
+                }
+                break;
             default:
                 break;
         }
+        return retNode;
     }
     function sendPost(struct) {
         var deferred = jQuery.Deferred();
@@ -541,7 +644,7 @@
             assert(node.children.length === 1);
             var treeNode = SQLCompiler.genTree(undefined,
                 node.value.condition.slice(0));
-            secondTraverse(treeNode);
+            treeNode = secondTraverse(treeNode);
             var filterString = genEvalStringRecur(treeNode);
             var tableName = node.children[0].newTableName;
 
@@ -645,7 +748,7 @@
 
             var condTree = SQLCompiler.genTree(undefined,
                 node.value.condition.slice(0));
-            secondTraverse(condTree);
+            condTree = secondTraverse(condTree);
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all the
             // way and when it's not AND, it must be an EQ (stop traversing subtree)
@@ -846,7 +949,7 @@
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
-            if (opName !== "expressions.Cast" &&
+            if ((["expressions.Cast"].indexOf(opName) === -1) &&
                 opName.indexOf(".aggregate.") === -1) {
                 outStr += opLookup[opName] + "(";
             } else {
@@ -910,7 +1013,7 @@
                 var acc = {};
                 var treeNode = SQLCompiler.genTree(undefined,
                     evalList[i].slice(1));
-                secondTraverse(treeNode);
+                treeNode = secondTraverse(treeNode);
                 var evalStr = genEvalStringRecur(treeNode, acc);
                 var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
