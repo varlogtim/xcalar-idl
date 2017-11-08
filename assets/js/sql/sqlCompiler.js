@@ -182,6 +182,80 @@
         return (this);
     }
 
+    function secondTraverse(node) {
+        // The second traverse convert all substring, left, right stuff
+        function literalNode(num) {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
+                "num-children" : 0,
+                "value" : "" + num,
+                "dataType" : "integer"
+            });
+        }
+        function subtractNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.Subtract",
+                "num-children" : 2,
+                "left" : 0,
+                "right" : 1
+            });
+        }
+        function addNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.Add",
+                "num-children" : 2,
+                "left" : 0,
+                "right" : 1
+            });
+        }
+        for (var i = 0; i < node.children.length; i++) {
+            secondTraverse(node.children[i]);
+        }
+        // This function traverses the tree for a second time.
+        // To process expressions such as Substring, Left, Right, etc.
+        var opName = node.value.class.substring(
+            node.value.class.indexOf("expressions."))
+        switch (opName) {
+            case ("expressions.Substring"):
+                var startIndex = node.children[1].value;
+                var length = node.children[2].value;
+                if (startIndex.class.endsWith("Literal") &&
+                    startIndex.dataType === "integer") {
+                    startIndex.value = "" + (startIndex.value * 1 - 1);
+                    if (length.class.endsWith("Literal") &&
+                    length.dataType === "integer") {
+                        length.value = "" + (startIndex.value * 1 + length.value * 1);
+                    } else {
+                        var addNode = addNode();
+                        addNode.children.push(node.children[1], node.children[2]);
+                        addNode.parent = node;
+                        node.children[2] = addNode;
+                    }
+                } else {
+                    var subNode = subtractNode();
+                    subNode.children.push(node.children[1], literalNode(1));
+                    var addNode = addNode();
+                    addNode.children.push(subNode, node.children[2]);
+                    node.children[1] = subNode;
+                    subNode.parent = node;
+                    node.children[2] = addNode;
+                    addNode.parent = node;
+                }
+                break;
+            case ("expressions.Left"):
+            case ("expressions.Right"):
+                var parent = node.parent;
+                for (var j = 0; j< parent.children.length; j++) {
+                    if (parent.children[j] == node) {
+                        parent.children[j] = node.children[2];
+                        node.children[2].parent = parent;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
     function sendPost(struct) {
         var deferred = jQuery.Deferred();
         jQuery.ajax({
@@ -304,7 +378,8 @@
                     "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
                     node.xccli) {
                     if (node.xccli.endsWith(";")) {
-                        node.xccli = node.xccli.substring(0, node.xccli.length - 1);
+                        node.xccli = node.xccli.substring(0,
+                                                         node.xccli.length - 1);
                     }
                     cliArray.push(node.xccli);
                 }
@@ -330,7 +405,7 @@
                         return cli;
                     });
                     var queryString = "[" + cliArray.join(",") + "]";
-                    //queryString = queryString.replace(/\\/g, "\\");
+                    // queryString = queryString.replace(/\\/g, "\\");
                     // console.log(queryString);
                     self.sqlObj.run(queryString, tree.newTableName, isJsonPlan)
                     .then(outDeferred.resolve)
@@ -464,8 +539,10 @@
         _pushDownFilter: function(node) {
             var self = this;
             assert(node.children.length === 1);
-            var filterString = genEvalStringRecur(SQLCompiler.genTree(undefined,
-                node.value.condition.slice(0)));
+            var treeNode = SQLCompiler.genTree(undefined,
+                node.value.condition.slice(0));
+            secondTraverse(treeNode);
+            var filterString = genEvalStringRecur(treeNode);
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.filter(filterString, tableName);
@@ -568,7 +645,7 @@
 
             var condTree = SQLCompiler.genTree(undefined,
                 node.value.condition.slice(0));
-
+            secondTraverse(condTree);
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all the
             // way and when it's not AND, it must be an EQ (stop traversing subtree)
@@ -647,7 +724,6 @@
                                        attributeReferencesOne);
                 getAttributeReferences(eqTree.children[1],
                                        attributeReferencesTwo);
-
                 if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
                     xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
                 {
@@ -790,32 +866,8 @@
             if (opName.indexOf(".aggregate.") === -1) {
                 outStr += ")";
             }
-
-            switch (opName) {
-                // XXX These are all wrong because of nesting
-                case ("expressions.Substring"):
-                    var regex = /(.*substring\(.*,)(\d*),(\d*)(\))/;
-                    var matches = regex.exec(outStr);
-                    var endIdx = 1 * matches[2] - 1 + 1 * matches[3];
-                    outStr = matches[1] + (1 * matches[2] - 1) + "," +
-                             endIdx + matches[4];
-                    break;
-                case ("expressions.Left"):
-                    var regex = /(.*)(left\()(.*,)(\d*)(\))/;
-                    var matches = regex.exec(outStr);
-                    outStr = matches[1] + "substring(" + matches[3] + ",0," +
-                             matches[4] + matches[5];
-                    break;
-                case ("expressions.Right"):
-                    var regex = /(.*)(right\()(.*,)(\d*)(\))/;
-                    var matches = regex.exec(outStr);
-                    outStr = matches[1] + "substring(" + matches[3] + "," +
-                             (-1 * matches[4]) + ",0" + matches[5];
-                    break;
-                default:
-                    break;
-            }
         } else {
+            // When it's not op
             if (condTree.parent) {
                 var parentOpName = condTree.parent.value.class.substring(
                     condTree.value.class.indexOf("expressions."));
@@ -856,9 +908,10 @@
                 assert(evalList[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.Alias");
                 var acc = {};
-                var evalStr = genEvalStringRecur(
-                    SQLCompiler.genTree(undefined,
-                    evalList[i].slice(1)), acc);
+                var treeNode = SQLCompiler.genTree(undefined,
+                    evalList[i].slice(1));
+                secondTraverse(treeNode);
+                var evalStr = genEvalStringRecur(treeNode, acc);
                 var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr};
