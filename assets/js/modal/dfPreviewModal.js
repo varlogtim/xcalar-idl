@@ -9,11 +9,11 @@ window.DfPreviewModal = (function(DfPreviewModal, $) {
         addEvents();
     };
 
-    DfPreviewModal.show = function(tableName) {
+    DfPreviewModal.show = function(tableName, workbookName) {
         modalHelper.setup();
         curId = xcHelper.randName("dfPreview");
         $modal.find(".title").text(tableName);
-        var promise = showDag(tableName);
+        var promise = showDag(tableName, workbookName);
         xcHelper.showRefreshIcon($modal.find(".modalMain"), false, promise);
     };
 
@@ -23,7 +23,7 @@ window.DfPreviewModal = (function(DfPreviewModal, $) {
         });
     }
 
-    function showDag(tableName) {
+    function showDag(tableName, workbookName) {
         var deferred = jQuery.Deferred();
         var id = curId;
         var html = '<div class="dagWrap clearfix">' +
@@ -42,7 +42,7 @@ window.DfPreviewModal = (function(DfPreviewModal, $) {
         var $dagWrap = $(html);
         $modal.find(".modalMain").append($dagWrap);
 
-        XcalarGetDag(tableName)
+        XcalarGetDag(tableName, workbookName)
         .then(function(dagObj) {
             if (id === curId) {
                 DagDraw.createDagImage(dagObj.node, $dagWrap);

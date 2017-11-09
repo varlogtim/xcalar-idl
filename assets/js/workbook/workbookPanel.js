@@ -663,7 +663,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         var modifiedTimeTip = "";
         var description = workbook.getDescription() || "";
         var numWorksheets = workbook.getNumWorksheets() || 0;
-        var noSeconds = true;
         var time;
 
         extraClasses = extraClasses || [];
@@ -682,7 +681,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         if (modifiedTime) {
             time = moment(modifiedTime);
             modifiedTimeDisplay = time.calendar();
-            modifiedTimeTip =  xcTimeHelper.getDateTip(time);
+            modifiedTimeTip = xcTimeHelper.getDateTip(time);
         }
         var activateTooltip;
         var isActive;
@@ -763,11 +762,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '<div class="description textOverflowOneLine">' +
                                     description +
                                 '</div>' +
-                                // '<i class="preview icon xi-show xc-action" ' +
-                                // ' data-toggle="tooltip" data-container="body"' +
-                                // ' data-placement="top"' +
-                                // ' data-title="' + CommonTxtTstr.Preview + '"' +
-                                // '></i>' +
+                                '<i class="preview icon xi-show xc-action" ' +
+                                ' data-toggle="tooltip" data-container="body"' +
+                                ' data-placement="top"' +
+                                ' data-title="' + CommonTxtTstr.Preview + '"' +
+                                '></i>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +

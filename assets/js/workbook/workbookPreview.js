@@ -3,6 +3,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     var $workbookPreview; // $("#workBookPreview")
     var curTableList = [];
     var id;
+    var curWorkbookId;
 
     WorkbookPreview.setup = function() {
         $workbookPanel = $("#workbookPanel");
@@ -11,10 +12,9 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     };
 
     WorkbookPreview.show = function(workbookId) {
-        // XXX test only
-        workbookId = WorkbookManager.getActiveWKBK();
-
         id = xcHelper.randName("worbookPreview");
+        curWorkbookId = workbookId;
+
         $workbookPanel.addClass("previewMode");
         reset();
         showWorkbookInfo(workbookId);
@@ -26,6 +26,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         $workbookPreview.removeClass("loading error");
         $workbookPreview.find(".errorSection").empty();
         $workbookPreview.find(".listSection").empty();
+
+        curWorkbookId = null;
     };
 
     function addEvents() {
@@ -35,13 +37,14 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
 
         $workbookPanel.on("click", ".view", function() {
             var tableName = getTableNameFromEle(this);
-            DfPreviewModal.show(tableName);
+            var workbookName = WorkbookManager.getWorkbook(curWorkbookId).getName();
+            DfPreviewModal.show(tableName, workbookName);
         });
 
         $workbookPanel.on("click", ".title .label, .title .xi-sort", function() {
             var $title = $(this).closest(".title");
             var sortKey = $title.data("sortkey");
-            var $section = $title.closest(".section");
+            var $section = $title.closest(".titleSection");
             var tableList;
 
             if ($title.hasClass("active")) {
@@ -78,9 +81,11 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     function showTableInfo(workbookId) {
         var nodeInfo;
         var curId = id;
+        var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
+
         $workbookPreview.addClass("loading");
 
-        XcalarGetTables("*")
+        XcalarGetTables("*", workbookName)
         .then(function(res) {
             nodeInfo = res.nodeInfo;
             return getTableKVStoreMeta(workbookId);
@@ -198,11 +203,11 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                             ' data-placement="top"' +
                             ' data-title="' + TooltipTStr.OpenQG + '"' +
                             '></i>' +
-                            '<i class="delete icon xc-action xi-trash fa-15"' +
-                            ' data-toggle="tooltip" data-container="body"' +
-                            ' data-placement="top"' +
-                            ' data-title="' + TblTStr.DropTbl + '"' +
-                            '></i>' +
+                            // '<i class="delete icon xc-action xi-trash fa-15"' +
+                            // ' data-toggle="tooltip" data-container="body"' +
+                            // ' data-placement="top"' +
+                            // ' data-title="' + TblTStr.DropTbl + '"' +
+                            // '></i>' +
                         '</div>' +
                     '</div>';
         }).join("");
