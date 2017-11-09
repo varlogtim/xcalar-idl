@@ -13,6 +13,8 @@ window.FnBar = (function(FnBar, $) {
     var colNamesCache = {};
     var lastFocusedCol;
     var isAlertOpen = false;
+    var initialTableId;//used to track table that was initially active
+    // when user started searching
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
@@ -36,8 +38,6 @@ window.FnBar = (function(FnBar, $) {
         $fnBar = $('#functionArea .CodeMirror');
 
         setupSearchHelper();
-        var initialTableId; //used to track table that was initially active
-        // when user started searching
 
         editor.on("keydown", function(instance, event) {
             if (event.which !== keyCode.Enter) {
@@ -91,11 +91,7 @@ window.FnBar = (function(FnBar, $) {
         });
 
         editor.on("focus", function() {
-            if (initialTableId && initialTableId !== gActiveTableId ||
-                $.isEmptyObject(colNamesCache)) {
-                resetColNamesCache(gActiveTableId);
-            }
-            initialTableId = gActiveTableId;
+            FnBar.updateColNameCache();
         });
 
         // editor.on("blur") is triggered during selection range mousedown
@@ -245,6 +241,14 @@ window.FnBar = (function(FnBar, $) {
         for (var a in aggs) {
             aggMap[aggs[a].aggName] = aggs[a].aggName;
         }
+    };
+
+    FnBar.updateColNameCache = function() {
+        if (initialTableId && initialTableId !== gActiveTableId ||
+            $.isEmptyObject(colNamesCache)) {
+            resetColNamesCache(gActiveTableId);
+        }
+        initialTableId = gActiveTableId;
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {

@@ -1583,6 +1583,7 @@ window.TblManager = (function($, TblManager) {
                 var oldTableId = xcHelper.getTableId(tablesToReplace[0]);
                 animateTableId(newTableId, oldTableId);
             }
+            FnBar.updateColNameCache();
 
             deferred.resolve();
         })
