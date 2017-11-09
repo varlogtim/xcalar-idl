@@ -115,7 +115,6 @@ $(document).ready(function() {
           try {
             licenseKeyHtml += "<div class='licenseKey'>";
             licenseKeyHtml += "<b>License Key Expires: " + data.key[ii].expiration + "</b>";
-            licenseKeyHtml += "<br><b>License Key Deployment Type: " + data.key[ii].deploymentType + "</b>";
             licenseKeyHtml += "<div class='licenseKeyBox'>" + data.key[ii].key + "</div>";
             licenseKeyHtml += "</div>";
 
@@ -170,21 +169,21 @@ $(document).ready(function() {
     "crossdomain": true,
     "success": function (data) {
       if (Array.isArray(data) && data.length > 0) {
-        azureDeploymentsHtml = "<div class='deployment'><div class='row'><div class='col'>ID</div><div class='col'>URL</div><div class='col'>Creation Time</div><div class='col'>Expiry</div></div>";
+        azureDeploymentsHtml = "<div class='deployment'><div class='row'><div class='col'>ID</div><div class='col'>URL</div><div class='col'>Copy SAS URI</div><div class='col'>Creation Time</div><div class='col'>Expiry</div></div>";
         //insertionSort(data, "timestamp");
         for (var ii = 0; ii < data.length; ii++) {
           try {
             azureUrl = data[ii].url
             azureDeploymentsHtml += "<div class = 'row'>";
             azureDeploymentsHtml += "<div class = 'col'>" + (ii + 1) + "</div>";
-            azureDeploymentsHtml += "<div class='col'><a href=\"" + azureUrl + "\">" + azureUrl + "</a>";
-
+            azureDeploymentsHtml += "<div class='col'><a href=\"" + azureUrl + "\">" + azureUrl + "</a></div>";
+            azureDeploymentsHtml += "<div class='col'>";
             if (data[ii].sas_uri) {
-              azureDeploymentsHtml += "<span class='copy_uri'>Copy SAS URI</span><span class='sas_uri' style='display:none'>" + data[ii].sas_uri +"</span>" ;
+              azureDeploymentsHtml += "<span class='copy_uri'>Copy</span><span class='sas_uri' style='display:none'>" + data[ii].sas_uri +"</span>";
             }
             azureDeploymentsHtml += "</div>";
             var creationTS = new Date(data[ii].timestamp)
-            var timeStr = creationTS.getMonth() + "/" + creationTS.getDate() + "/" + creationTS.getFullYear() + " "
+            var timeStr = (creationTS.getMonth() + 1) + "/" + creationTS.getDate() + "/" + creationTS.getFullYear() + " "
                         + creationTS.getHours() + ":" + (creationTS.getMinutes()<10?"0":"") + creationTS.getMinutes();
             azureDeploymentsHtml += "<div class='col'> " + timeStr + "</div>";
             azureDeploymentsHtml += "<div class='col'> " + data[ii].keyInfo.expiration + "</div>";
@@ -211,7 +210,12 @@ function copySASUri(sas_uri) {
 }
 
   $("#goToMarketplace").on("click", ".copy_uri", function() {
-    copySASUri($(this).next('.sas_uri').html());
+    copySASUri($(this).next('.sas_uri').text());
+    $(this).html("Copied!");
+    $ele = $(this);
+    setTimeout(function() {
+      $ele.html("Copy");
+    }, 3000);
   });
 
 function getURLParameter(name) {
@@ -226,4 +230,4 @@ if (getURLParameter("reason") === "license") {
     $("#request_description").attr("placeholder",
          "Please describe your license situation and how you like to proceed.");
 }
-   });
+});
