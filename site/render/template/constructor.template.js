@@ -678,7 +678,6 @@
                 var col;
                 for (var i = 0; i < table.tableCols.length; i++) {
                     col = table.tableCols[i];
-                    delete col.childOfArray;
                     delete col.decimal;
                     delete col.format;
                     delete col.isMinimized;
@@ -990,7 +989,6 @@
             immediate: (boolean) immdiate or fat ptr
             type: (string) enums in ColumnType
             knownType: (boolean) if the type is known or just a guess
-            childOfArray: (boolean) if is child of array
             isNewCol: (boolean) if is new column
             isMinimized: (boolean) columns is hidden or not
             width: (number) column width
@@ -1205,14 +1203,6 @@
             isNumberCol: function() {
                 return (this.type === ColumnType.integer ||
                         this.type === ColumnType.float);
-            },
-
-            isChildOfArray: function() {
-                return this.childOfArray;
-            },
-
-            beChildOfArray: function() {
-                this.childOfArray = true;
             },
 
             stringifyFunc: function() {

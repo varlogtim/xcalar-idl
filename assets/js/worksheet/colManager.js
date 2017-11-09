@@ -1435,9 +1435,6 @@ window.ColManager = (function($, ColManager) {
                 var tdInfo = getTdInfo(tdValue, nested, nestedTypes);
                 tdValue = tdInfo.tdValue;
                 knf = tdInfo.knf;
-                if (tdInfo.isChildOfArray) {
-                    progCol.beChildOfArray();
-                }
             }
 
             // define type of the column
@@ -1502,11 +1499,10 @@ window.ColManager = (function($, ColManager) {
     }
 
     // helper function for parseTdHelper that returns an object with
-    // tdValue string, knf boolean, and isChildOfArray boolean
+    // tdValue string, and knf boolean
     function getTdInfo(tdValue, nested, types) {
         var knf = false;
         var nestedLength = nested.length;
-        var isChildOfArray = false;
         var curVal;
 
         for (var i = 0; i < nestedLength; i++) {
@@ -1525,20 +1521,13 @@ window.ColManager = (function($, ColManager) {
                 tdValue = null;
                 break;
             } else {
-                if (!isChildOfArray &&
-                    i < nestedLength - 1 && // anything but the last child
-                    (tdValue instanceof Array))
-                {
-                    isChildOfArray = true;
-                }
                 tdValue = curVal;
             }
         }
 
         return ({
             "tdValue": tdValue,
-            "knf": knf,
-            "isChildOfArray": isChildOfArray
+            "knf": knf
         });
     }
 
@@ -1557,7 +1546,6 @@ window.ColManager = (function($, ColManager) {
                 .removeClass("type-array")
                 .removeClass("type-undefined")
                 .removeClass("type-boolean")
-                .removeClass("childOfArray")
                 .addClass("type-" + colType);
 
         // for integer or float, if we cannot distinct (if no info from backend)
@@ -1572,9 +1560,7 @@ window.ColManager = (function($, ColManager) {
         if (progCol.hasMinimized()) {
             $table.find("td.col" + colNum).addClass("userHidden");
         }
-        if (progCol.isChildOfArray()) {
-            $header.addClass("childOfArray");
-        }
+
         if ($th.hasClass("selectedCell") ||
             $th.hasClass("modalHighlighted")) {
             TblManager.highlightColumn($th, true,

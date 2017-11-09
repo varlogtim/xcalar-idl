@@ -331,8 +331,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(ColumnType.float);
             expect(progCol).to.have.property("knownType")
             .and.to.be.false;
-            expect(progCol).to.have.property("childOfArray")
-            .and.to.be.false;
             expect(progCol).to.have.property("isNewCol")
             .and.to.be.false;
             expect(progCol).to.have.property("isMinimized")
@@ -710,22 +708,6 @@ describe("Persistent Constructor Test", function() {
             expect(progCol.getDecimal()).to.equal(-1);
             progCol.setDecimal(2);
             expect(progCol.getDecimal()).to.equal(2);
-        });
-
-        it("Should set to be child of array", function() {
-            var progCol = new ProgCol({
-                "name": "test",
-                "backName": "backTest",
-                "type": ColumnType.float,
-                "isNewCol": false,
-                "func": {
-                    "name": "pull"
-                }
-            });
-
-            expect(progCol.isChildOfArray()).to.be.false;
-            progCol.beChildOfArray();
-            expect(progCol.isChildOfArray()).to.be.true;
         });
 
         it("Should stringify func", function() {

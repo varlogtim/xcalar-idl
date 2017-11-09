@@ -392,8 +392,7 @@ describe('OperationsView Test', function() {
                 "backName": "testCol3[0].abc",
                 "isNewCol": false,
                 "func": {"name": "pull"},
-                "type": "float",
-                "childOfArray": true
+                "type": "float"
             });
 
             var progCol4 = new ProgCol({
@@ -430,11 +429,11 @@ describe('OperationsView Test', function() {
 
             res = fn("testCol2[0]", false);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
+            expect(res[0]).to.equal("string");
 
             res = fn("testCol2[0], testCol");
             expect(res.length).to.equal(2);
-            expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
+            expect(res[0]).to.equal("string");
             expect(res[1]).to.equal(ColumnType.number);
 
             res = fn("testCol2[0]", true);
@@ -443,11 +442,7 @@ describe('OperationsView Test', function() {
 
             res = fn("testCol3[0].abc", false);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
-
-            res = fn("testCol3[0].abc", true);
-            expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
+            expect(res[0]).to.equal("float");
 
             res = fn("testCol4");
             expect(res.length).to.equal(1);

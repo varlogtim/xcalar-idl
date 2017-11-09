@@ -328,12 +328,6 @@ window.SmartCastView = (function($, SmartCastView) {
             var colName = progCol.getFrontColName(true);
             var type = progCol.getType();
             var colNum = i + 1;
-            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
-                                        .hasClass("childOfArray");
-
-            if (isChildOfArray) {
-                type = CommonTxtTstr.ArrayVal;
-            }
 
             // cache colNames
             colNames[colNum] = colName;
@@ -344,8 +338,7 @@ window.SmartCastView = (function($, SmartCastView) {
                 type === ColumnType.array ||
                 type === ColumnType.mixed ||
                 type === ColumnType.undefined ||
-                progCol.isEmptyCol() ||
-                isChildOfArray)
+                progCol.isEmptyCol())
             {
                 // unselectable column
                 recTypes[colNum] = null;

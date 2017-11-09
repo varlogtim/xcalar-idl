@@ -4086,7 +4086,6 @@
         // filter options unavailable
         var tableCol = gTables[tableId].tableCols[options.colNum - 1];
         var columnType = tableCol.type;
-        var isChildOfArray = tableCol.isChildOfArray();
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
         var notAllowed = $div.find('.null, .blank').length;
@@ -4109,7 +4108,7 @@
         }
 
         var filterTypes = ["string", "float", "integer", "boolean", "mixed"];
-        var shouldNotFilter = options.isMultiCol || isChildOfArray ||
+        var shouldNotFilter = options.isMultiCol ||
                             filterTypes.indexOf(columnType) === -1 ||
                             isInvalidMixed(columnType, cells);
 

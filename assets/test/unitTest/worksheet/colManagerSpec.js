@@ -343,16 +343,14 @@ describe('ColManager Test', function() {
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: null,
-                knf: false,
-                isChildOfArray: false
+                knf: false
             });
 
             tdValue = {"a": [{"b": null}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: null,
-                knf: false,
-                isChildOfArray: true
+                knf: false
             });
 
             // === null td values, knf true ===
@@ -360,24 +358,21 @@ describe('ColManager Test', function() {
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: null,
-                knf: true,
-                isChildOfArray: false
+                knf: true
             });
 
             tdValue = {"a": [{}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: null,
-                knf: true,
-                isChildOfArray: true
+                knf: true
             });
 
             tdValue = {"a": [{"b": "no"}]};
             nested = ["a", "x", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: null,
-                knf: true,
-                isChildOfArray: false
+                knf: true
             });
 
             // === string td values ===
@@ -385,16 +380,14 @@ describe('ColManager Test', function() {
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: "yes",
-                knf: false,
-                isChildOfArray: false
+                knf: false
             });
 
             tdValue = {"a": [{"b": "yes"}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
                 tdValue: "yes",
-                knf: false,
-                isChildOfArray: true
+                knf: false
             });
         });
 

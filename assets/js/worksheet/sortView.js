@@ -350,12 +350,6 @@ window.SortView = (function($, SortView) {
             var isSorted = tableKeys.includes(progCol.getBackColName());
             var type = progCol.getType();
             var colNum = i + 1;
-            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
-                                        .hasClass("childOfArray");
-
-            if (isChildOfArray) {
-                type = CommonTxtTstr.ArrayVal;
-            }
 
             // cache colNames
             colNames[colNum] = colName;

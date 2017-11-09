@@ -2463,14 +2463,6 @@ window.TblManager = (function($, TblManager) {
                 xcTooltip.add($lis, {
                     title: ColTStr.NoOperateGeneral
                 });
-            } else if (progCol.isChildOfArray()) {
-                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
-                    ".join, .map, .operations, .profile, .corrAgg, " +
-                    ".extensions, .changeDataType, .roundToFixed");
-                $lis.addClass("unavailable");
-                xcTooltip.add($lis, {
-                    title: ColTStr.NoOperateNestedArray
-                });
             } else if ([ColumnType.integer, ColumnType.float, ColumnType.string,
                       ColumnType.boolean, ColumnType.number]
                       .indexOf(colType) === -1) {

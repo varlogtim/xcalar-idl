@@ -245,12 +245,10 @@ window.AggModal = (function($, AggModal) {
             // skip all columns that are not number
             if (progCol.isNumberCol()) {
                 var colNum = i + 1;
-                var isChildOfArray = $table.find(".th.col" + colNum + " .header")
-                                        .hasClass("childOfArray");
+
                 aggCols.push({
                     "col": progCol,
-                    "colNum": colNum,
-                    "isChildOfArray": isChildOfArray
+                    "colNum": colNum
                 });
             }
         }
@@ -271,7 +269,6 @@ window.AggModal = (function($, AggModal) {
             }
 
             var progCol = aggCol.col;
-            var isChildOfArray = aggCol.isChildOfArray;
             var nameObj = {};
             nameObj.colName = progCol.getFrontColName();
             nameObj.prefix = progCol.getPrefix() || CommonTxtTstr.Immediates;
@@ -283,12 +280,7 @@ window.AggModal = (function($, AggModal) {
                                'data-col=' + col + ' data-row=' + row + '>';
 
                 if (progCol.isNumberCol()) {
-                    // XXX now agg on child of array is not supported
-                    if (isChildOfArray) {
-                        wholeTable += AggTStr.NoSupport;
-                    } else {
-                        wholeTable += '<div class="spinny"></div>';
-                    }
+                    wholeTable += '<div class="spinny"></div>';
                 } else {
                     wholeTable += "N/A";
                 }
@@ -322,7 +314,6 @@ window.AggModal = (function($, AggModal) {
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
             var progCol = aggCol.col;
-            var isChildOfArray = aggCol.isChildOfArray;
 
             if (cachedVertColNums != null &&
                 !cachedVertColNums.includes(aggCol.colNum))
@@ -347,13 +338,9 @@ window.AggModal = (function($, AggModal) {
                 var cell = '<div class="aggTableField aggTableFlex cell" ' +
                             'data-col=' + col + ' data-row=' + row + '>';
 
-                if (isChildOfArray || aggRow.isChildOfArray) {
-                    // XXX now agg on child of array is not supported
-                    wholeTable += cell + AggTStr.NoSupport;
-                } else {
-                    wholeTable += cell + '<img class="loadingBar" src="' +
+                wholeTable += cell + '<img class="loadingBar" src="' +
                                         paths.loadBarIcon + '">';
-                }
+
                 wholeTable += "</div>";
             }
             wholeTable += "</div>";
@@ -517,45 +504,38 @@ window.AggModal = (function($, AggModal) {
             }
             updateRunProgress(cellCount, total, true);
 
-            // XXX now agg on child of array is not supported
-            if (!aggCol.isChildOfArray) {
-                for (var row = 0; row < col; row++) {
-                    var aggRow = aggCols[row];
-                    var isValid = true;
+            for (var row = 0; row < col; row++) {
+                var aggRow = aggCols[row];
+                var isValid = true;
 
-                    if (aggRow.isChildOfArray) {
-                        continue;
-                    }
-
-                    if (cachedHorColNums != null && cachedVertColNums != null) {
-                        isValid = cachedHorColNums.includes(aggRow.colNum) &&
-                                  cachedVertColNums.includes(aggCol.colNum) ||
-                                  cachedHorColNums.includes(aggCol.colNum) &&
-                                  cachedVertColNums.includes(aggRow.colNum);
-                    } else if (cachedHorColNums != null) {
-                        isValid = cachedHorColNums.includes(aggRow.colNum) ||
-                                  cachedHorColNums.includes(aggCol.colNum);
-                    } else if (cachedVertColNums != null) {
-                        isValid = cachedVertColNums.includes(aggRow.colNum) ||
-                                  cachedVertColNums.includes(aggCol.colNum);
-                    }
-
-                    if (!isValid) {
-                        continue;
-                    }
-                  
-                    var sub = corrString.replace(/[$]arg1/g,
-                                                 progCol.getBackColName());
-                    sub = sub.replace(/[$]arg2/g,
-                                        aggRow.col.getBackColName());
-                    // Run correlation function
-                    var promise = runCorr(tableId, sub, row, col, dups, txId);
-                    promise.then(function(numDone) {
-                        cellCount += numDone;
-                        updateRunProgress(cellCount, total, true);
-                    });
-                    promises.push(promise);
+                if (cachedHorColNums != null && cachedVertColNums != null) {
+                    isValid = cachedHorColNums.includes(aggRow.colNum) &&
+                              cachedVertColNums.includes(aggCol.colNum) ||
+                              cachedHorColNums.includes(aggCol.colNum) &&
+                              cachedVertColNums.includes(aggRow.colNum);
+                } else if (cachedHorColNums != null) {
+                    isValid = cachedHorColNums.includes(aggRow.colNum) ||
+                              cachedHorColNums.includes(aggCol.colNum);
+                } else if (cachedVertColNums != null) {
+                    isValid = cachedVertColNums.includes(aggRow.colNum) ||
+                              cachedVertColNums.includes(aggCol.colNum);
                 }
+
+                if (!isValid) {
+                    continue;
+                }
+
+                var sub = corrString.replace(/[$]arg1/g,
+                                             progCol.getBackColName());
+                sub = sub.replace(/[$]arg2/g,
+                                    aggRow.col.getBackColName());
+                // Run correlation function
+                var promise = runCorr(tableId, sub, row, col, dups, txId);
+                promise.then(function(numDone) {
+                    cellCount += numDone;
+                    updateRunProgress(cellCount, total, true);
+                });
+                promises.push(promise);
             }
         }
 
@@ -604,18 +584,15 @@ window.AggModal = (function($, AggModal) {
                     dupCols[dupColNum] = true;
                 }
 
-                // XXX now agg on child of array is not supported
-                if (!aggCol.isChildOfArray) {
-                    for (var row = 0; row < funLen; row++) {
-                        var promise = runAgg(tableId, progCol.getBackColName(),
-                                            aggFunctions[row], row, col,
-                                            dups, txId);
-                        promise.then(function(numDone) {
-                            cellCount += numDone;
-                            updateRunProgress(cellCount, total, false);
-                        });
-                        promises.push(promise);
-                    }
+                for (var row = 0; row < funLen; row++) {
+                    var promise = runAgg(tableId, progCol.getBackColName(),
+                                        aggFunctions[row], row, col,
+                                        dups, txId);
+                    promise.then(function(numDone) {
+                        cellCount += numDone;
+                        updateRunProgress(cellCount, total, false);
+                    });
+                    promises.push(promise);
                 }
             }
         }

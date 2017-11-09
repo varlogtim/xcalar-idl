@@ -38,7 +38,7 @@ window.OperationsView = (function($, OperationsView) {
         "float": ['boolean', 'integer', 'float', 'string'],
         "number": ['boolean', 'integer', 'float', 'string'],
         "boolean": ['integer', 'float', 'string']
-        // no valid cast options for: undefined, array, array values, objects,
+        // no valid cast options for: undefined, array, objects,
         // or mixed
     };
 
@@ -2804,9 +2804,7 @@ window.OperationsView = (function($, OperationsView) {
                         $errorInput = $input;
                         isPassing = false;
                     } else {
-                        var allowArrayVal = (operatorName === "map");
-                        colTypes = getAllColumnTypesFromArg(frontColName,
-                            allowArrayVal);
+                        colTypes = getAllColumnTypesFromArg(frontColName);
                         types = parseType(typeid);
                         if (colTypes.length) {
                             allColTypes.push({
@@ -3484,10 +3482,7 @@ window.OperationsView = (function($, OperationsView) {
         return colType;
     }
 
-    // if a nestedArray is found, we will return "nested array value" for the
-    // type instead of it's actual type, same for array values when
-    // allowArrayVal is false
-    function getAllColumnTypesFromArg(argValue, allowArrayVal) {
+    function getAllColumnTypesFromArg(argValue) {
         var values = argValue.split(",");
         var table = gTables[tableId];
         var types = [];
@@ -3511,16 +3506,7 @@ window.OperationsView = (function($, OperationsView) {
                 // so for integer, we mark it
                 colType = ColumnType.number;
             }
-            if (progCol.isChildOfArray()) {
-                // this type is not yet supported and we will show an error
-                colType = CommonTxtTstr.NestedArrayVal;
-            } else if (!allowArrayVal && backName != null) {
-                var bracketIndex = backName.indexOf("[");
-                if (bracketIndex > -1 &&
-                    !xcHelper.isCharEscaped(backName, bracketIndex)) {
-                    colType = CommonTxtTstr.ArrayVal;
-                }
-            }
+
             types.push(colType);
         });
 
