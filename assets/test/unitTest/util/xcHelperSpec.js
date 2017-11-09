@@ -2316,7 +2316,7 @@ describe("xcHelper Test", function() {
         $input.remove();
     });
 
-    describe("xcHelper.getKeyType", function() {
+    describe("xcHelper.getKeyTypes", function() {
         it("xcHelper.getKeyType on regular column should work", function(done) {
             var progCol1 = ColManager.newCol({
                 "backName": "col",
@@ -2333,9 +2333,9 @@ describe("xcHelper Test", function() {
                 "tableName": "test#fakeId",
                 "tableCols": [progCol1, progCol2]
             });
-            xcHelper.getKeyType("col", "test#fakeId")
+            xcHelper.getKeyTypes("col", "test#fakeId")
             .then(function(res) {
-                expect(res).to.equal(7);
+                expect(res[0]).to.equal(7);
                 delete gTables["fakeId"];
                 done();
             })
@@ -2357,9 +2357,9 @@ describe("xcHelper Test", function() {
                 valueAttrs: [{name: "col2", type: 4}]
             };
 
-            xcHelper.getKeyType("col2", "test#fakeId")
+            xcHelper.getKeyTypes("col2", "test#fakeId")
             .then(function(res) {
-                expect(res).to.equal(4);
+                expect(res[0]).to.equal(4);
                 delete gTables["fakeId"];
                 done();
             })

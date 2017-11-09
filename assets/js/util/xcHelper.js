@@ -3641,8 +3641,10 @@
         }
     };
 
-    xcHelper.getKeyType = function(keys, tableName) {
+    // resolves an array of keyTypes
+    xcHelper.getKeyTypes = function(keys, tableName) {
         keys = (keys instanceof Array) ? keys : [keys];
+        var deferred = jQuery.Deferred();
 
         var getTypeHelper = function(key, tableName) {
             var innerDeferred = jQuery.Deferred();
@@ -3693,10 +3695,16 @@
         var promises = keys.map(function(key) {
             return getTypeHelper(key, tableName);
         });
-        return PromiseHelper.when.apply(this, promises);
+
+
+        PromiseHelper.when.apply(this, promises)
+        .then(function () {
+            deferred.resolve(Array.prototype.slice.call(arguments));
+        }); // always resolves
+
+        return deferred.promise();
     };
 
-    // example: converts "string" to 1 via DfFieldTypeT
     function translateFrontTypeToBackType(frontType, isKnownType) {
         var type;
         switch (frontType) {

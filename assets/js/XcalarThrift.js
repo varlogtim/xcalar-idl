@@ -1284,7 +1284,7 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
                             .promise());
         }
         unsortedSrcTablename = unsortedTablename;
-        return xcHelper.getKeyType(keys, unsortedTablename);
+        return xcHelper.getKeyTypes(keys, unsortedTablename);
     })
     .then(function(keyTypes) {
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename,
