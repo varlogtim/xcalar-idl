@@ -171,6 +171,7 @@ window.MainMenu = (function($, MainMenu) {
 
             OperationsView.close();
             JoinView.close();
+            UnionView.close();
             ExportView.close();
             SmartCastView.close();
             DFCreateView.close();

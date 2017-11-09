@@ -1555,6 +1555,9 @@ window.DagDraw = (function($, DagDraw) {
             case (SQLOps.Join):
                 iconClass = getJoinIconClass(type);
                 break;
+            case (SQLOps.Union):
+                iconClass = "union";
+                break;
             case (SQLOps.Project):
                 iconClass = "delete-column";
                 break;

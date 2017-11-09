@@ -277,6 +277,51 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
+    undoFuncs[SQLOps.Union] = function(options, isMostRecent) {
+        var deferred = jQuery.Deferred();
+        var unionOptions = options.options || {};
+        var promises = [];
+        var tableId = xcHelper.getTableId(options.newTableName);
+        promises.push(TblManager.sendTableToUndone.bind(window, tableId,
+                                                        {'remove': true}));
+
+        if (!unionOptions.keepTables) {
+            // in case one table is used serveral times
+            var tableInfoMap = {};
+            options.tableNames.forEach(function(tableName, index) {
+                tableInfoMap[tableName] = options.tableInfos[index];
+            });
+
+            for (var tableName in tableInfoMap) {
+                var tableInfo = tableInfoMap[tableName];
+                var worksheet = tableInfo.ws;
+                var refreshOptions = {
+                    "isUndo": true,
+                    "position": tableInfo.tablePos,
+                    "replacingDest": TableType.Undone
+                };
+                promises.push(TblManager.refreshTable.bind(window, [tableName],
+                                                        null, [], worksheet,
+                                                        null, refreshOptions));
+            }
+        }
+
+        PromiseHelper.chain(promises)
+        .then(function() {
+            if (isMostRecent && unionOptions.formOpenTime) {
+                var options = {
+                    restore: true,
+                    restoreTime: unionOptions.formOpenTime
+                };
+                UnionView.show(null, null, options);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     undoFuncs[SQLOps.GroupBy] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(options.newTableName);

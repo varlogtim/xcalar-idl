@@ -870,6 +870,224 @@
     };
 
     /*
+       tableInofs: array of table info, each table info object has
+           tableName: table's name
+           columns an array of column infos which contains:
+               name: column's name
+               rename: rename
+               type: column's type
+               cast: need a cast to the type or not
+     
+        sample:
+                var tableInfos = [{
+                    tableName: "test#ab123",
+                    columns: [{
+                        name: "test2",
+                        rename: "test",
+                        type: "string"
+                        cast: true
+                    }]
+                }]
+     */
+    XIApi.union = function(txId, tableInfos, dedup, newTableName) {
+        dedup = dedup || false;
+
+        var deferred = jQuery.Deferred();
+        var tempTables = [];
+
+        if (txId == null || tableInfos == null ||
+            !(tableInfos instanceof Array) || tableInfos.length < 2) {
+            return PromiseHelper.reject("Invalid args in union");
+        }
+
+        var colLen = tableInfos[0].columns.length;
+        for (var i = 0; i < colLen; i++) {
+            for (var j = 0; j < tableInfos.length; j++) {
+                if (tableInfos[j].columns[i].name == null) {
+                    // this is for no match case
+                    tableInfos[j].columns[i].name = xcHelper.randName("XCALAR_FNF");
+                }
+
+                if (j > 0) {
+                    // type and rename need to match
+                    if (tableInfos[j].columns[i].rename == null ||
+                        tableInfos[j].columns[i].rename !==
+                        tableInfos[0].columns[i].rename ||
+                        tableInfos[j].columns[i].type == null ||
+                        tableInfos[j].columns[i].type !==
+                        tableInfos[0].columns[i].type) {
+                        return PromiseHelper.reject("Invalid args in union");
+                    }
+                }
+            }
+        }
+
+        unionCast(txId, tableInfos)
+        .then(function(resTableInfos, resTempTables) {
+            tempTables = tempTables.concat(resTempTables);
+
+            if (dedup) {
+                return unionAllIndex(txId, resTableInfos);
+            } else {
+                return PromiseHelper.resolve(resTableInfos, []);
+            }
+        })
+        .then(function(resTableInfos, resTempTables) {
+            tempTables = tempTables.concat(resTempTables);
+
+            var tableNames = [];
+            var renameMap = [];
+            resTableInfos.forEach(function(tableInfo) {
+                tableNames.push(tableInfo.tableName);
+                renameMap.push(tableInfo.renames);
+            });
+            return XcalarUnion(tableNames, newTableName, renameMap, dedup, txId);
+        })
+        .then(function() {
+            var finalTableCols = tableInfos[0].columns.map(function(col) {
+                return ColManager.newPullCol(col.rename, null, col.type);
+            });
+            finalTableCols.push(ColManager.newDATACol());
+            deferred.resolve(newTableName, finalTableCols);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    function unionCast(txId, tableInfos) {
+        var deferred = jQuery.Deferred();
+        var castRes = [];
+        var tempTables = [];
+        var caseHelper = function(tableInfo, index) {
+            var innerDeferred = jQuery.Deferred();
+            var tableName = tableInfo.tableName;
+            var columns = tableInfo.columns;
+            var colNames = [];
+            var casts = [];
+
+            columns.forEach(function(colInfo) {
+                colNames.push(colInfo.name);
+                casts.push(colInfo.cast ? colInfo.type : null);
+            });
+
+            castMap(txId, tableName, colNames, casts, {handleNull: true})
+            .then(function(res) {
+                if (res.newTable) {
+                    tempTables.push(res.tableName);
+                }
+                var renames = res.colNames.map(function(colName, i) {
+                    var newName = columns[i].rename;
+                    var type = res.types[i] ? res.types[i] : columns[i].type;
+                    var fieldType = xcHelper.convertColTypeToFeildType(type);
+                    return xcHelper.getJoinRenameMap(colName, newName, fieldType);
+                });
+
+                castRes[index] = {
+                    tableName: res.tableName,
+                    renames: renames
+                };
+                innerDeferred.resolve();
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        };
+
+        var promises = tableInfos.map(caseHelper);
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            deferred.resolve(castRes, tempTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function unionAllIndex(txId, tableInfos) {
+        var deferred = jQuery.Deferred();
+        var tempTables = [];
+        var promises = [];
+        for (var i = 0, len = tableInfos.length; i < len; i++) {
+            var tableInfo = tableInfos[i];
+            promises.push(unionAllIndexHelper(txId, tableInfo, tempTables));
+        }
+
+
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            deferred.resolve(tableInfos, tempTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function unionAllIndexHelper(txId, tableInfo, tempTables) {
+        // step 1: change all columns to type string(null will become FNF)
+        // step 2: concat all columns
+        // step 3: index on the concat column
+        var deferred = jQuery.Deferred();
+        var tableName = tableInfo.tableName;
+        var curTableName = tableName;
+        var colNames = [];
+        var newColNames = [];
+        var mapStrs = [];
+        var suffix = xcHelper.randName("_xc_");
+        var concatColName;
+
+        var getConcatMapStr = function(args) {
+            var mapStr = "";
+            var len = args.length;
+            var val;
+            for (var i = 0; i < len - 1; i++) {
+                var val = 'ifStr(exists(' + args[i] + '), ' +
+                            args[i] + ', "XC_FNF")';
+                mapStr += 'concat(string(' + val + '), concat(".Xc.", ';
+            }
+
+            val = 'ifStr(exists(' + args[len - 1] + '), ' +
+                    args[len - 1] + ', "XC_FNF")';
+            mapStr += 'string(' + val + ')';
+            mapStr += "))".repeat(len - 1);
+            return mapStr;
+        };
+
+        tableInfo.renames.forEach(function(rename) {
+            var colName = rename.orig;
+            colNames.push(colName);
+            // this will change all null to FNF
+            mapStrs.push("string(" + colName + ")");
+            newColNames.push(colName + suffix);
+        });
+
+        XIApi.map(txId, mapStrs, curTableName, newColNames)
+        .then(function(tableAfterMap) {
+            var mapStr = getConcatMapStr(newColNames);
+            concatColName = xcHelper.randName("XC_CONCAT");
+            tempTables.push(curTableName);
+            curTableName = tableAfterMap;
+
+            return XIApi.map(txId, [mapStr], curTableName, [concatColName]);
+        })
+        .then(function(tableAfterMap) {
+            tempTables.push(curTableName);
+            curTableName = tableAfterMap;
+            return XIApi.index(txId, concatColName, curTableName);
+        })
+        .then(function(finalTableName) {
+            tempTables.push(curTableName);
+            tableInfo.tableName = finalTableName;
+            var rename = xcHelper.getJoinRenameMap(concatColName, concatColName, ColumnType.string);
+            tableInfo.renames.push(rename);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    /*
         columns: an array of column names (back column name)
         tableName: table's name
         newTableName(optional): new table's name
@@ -1217,15 +1435,20 @@
         return deferred.promise();
     }
 
-    function castMap(txId, tableName, colNames, casts, overWrite) {
+    /*
+        casts: an array of type to cast
+     */
+    function castMap(txId, tableName, colNames, casts, options) {
         var deferred = jQuery.Deferred();
-        var castInfo = getCastInfo(tableName, colNames, casts, overWrite);
+        var castInfo = getCastInfo(tableName, colNames, casts, options);
         var newColNames = castInfo.newColNames;
+        var newTypes = castInfo.newTypes;
 
         if (castInfo.mapStrs.length === 0) {
             deferred.resolve({
                 tableName: tableName,
-                colNames: newColNames
+                colNames: newColNames,
+                types: newTypes
             });
         } else {
             var tableId = xcHelper.getTableId(tableName);
@@ -1240,6 +1463,7 @@
                 deferred.resolve({
                     tableName: newTableName,
                     colNames: newColNames,
+                    types: newTypes,
                     newTable: true
                 });
             })
@@ -1249,16 +1473,22 @@
         return deferred.promise();
     }
 
-    function getCastInfo(tableName, colNames, casts, overWrite) {
+    function getCastInfo(tableName, colNames, casts, options) {
+        options = options || {};
         var tableId = xcHelper.getTableId(tableName);
         var mapStrs = [];
         var newFields = []; // this is for map
         var newColNames = []; // this is for index
         var nameMap = {};
 
+        var overWrite = options.overWrite || false;
+        var handleNull = options.handleNull || false;
+
         colNames.forEach(function(name) {
             nameMap[name] = true;
         });
+
+        var newTypes = [];
 
         casts.forEach(function(typeToCast, index) {
             var colName = colNames[index];
@@ -1292,16 +1522,18 @@
 
             if (newType != null) {
                 newField = overWrite ? newField : xcHelper.randName(newField);
-                mapStrs.push(xcHelper.castStrHelper(colName, newType));
+                mapStrs.push(xcHelper.castStrHelper(colName, newType, handleNull));
                 newFields.push(newField);
             }
             newColNames.push(newField);
+            newTypes.push(newType);
         });
 
         return {
             mapStrs: mapStrs,
             newFields: newFields,
-            newColNames: newColNames
+            newColNames: newColNames,
+            newTypes: newTypes
         };
     }
 
@@ -1705,7 +1937,7 @@
 
         // cast all keys into immediates first
         var casts = new Array(groupByCols.length).fill(null);
-        castMap(txId, tableName, groupByCols, casts, true)
+        castMap(txId, tableName, groupByCols, casts, {overWrite: true})
         .then(function(res) {
             if (res.newTable) {
                 tempTables.push(res.tableName);

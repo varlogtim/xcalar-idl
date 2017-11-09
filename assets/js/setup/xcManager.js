@@ -527,6 +527,7 @@ window.xcManager = (function(xcManager, $) {
         Profile.setup();
         ExportView.setup();
         JoinView.setup();
+        UnionView.setup();
         AggModal.setup();
         OperationsView.setup();
         WorkbookPanel.setup();

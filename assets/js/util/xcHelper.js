@@ -297,6 +297,21 @@
         };
     };
 
+    xcHelper.convertColTypeToFeildType = function(colType) {
+        switch (colType) {
+            case ColumnType.string:
+                return DfFieldTypeT.DfString;
+            case ColumnType.integer:
+                return DfFieldTypeT.DfInt64;
+            case ColumnType.float:
+                return DfFieldTypeT.DfFloat64;
+            case ColumnType.boolean:
+                return DfFieldTypeT.DfBoolean;
+            default:
+                return DfFieldTypeT.DfUnknown;
+        }
+    };
+
     xcHelper.getMultiJoinMapString = function(args) {
         var mapStr = "";
         var len = args.length;
@@ -2350,16 +2365,24 @@
                                .prop('disabled', false);
     };
 
-    xcHelper.castStrHelper = function(colName, colType) {
+    xcHelper.castStrHelper = function(colName, colType, handleNull) {
+        // here for float/int, null will become 0,
+        // if we want null become FNF, need to use int(string(XXX))
         var mapStr = "";
         switch (colType) {
             case ("boolean"):
                 mapStr += "bool(";
                 break;
             case ("float"):
+                if (handleNull) {
+                    colName = "string(" + colName + ")";
+                }
                 mapStr += "float(";
                 break;
             case ("integer"):
+                if (handleNull) {
+                    colName = "string(" + colName + ")";
+                }
                 mapStr += "int(";
                 break;
             case ("string"):

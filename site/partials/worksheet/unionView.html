@@ -1,0 +1,62 @@
+<!-- Union View -->
+<section id="unionView" class="xc-hidden opView">
+  <!-- Header -->
+  <header class="headerSection">
+    <div class="title"><%= dicts.unionView.header %></div>
+    <i class="close icon xi-close"></i>
+  </header>
+  <!-- content -->
+  <div class="mainContent">
+    <div class="union opSection">
+      <p class="instructions"><%= dicts.unionView.Instr %></p>
+      <!-- topSection -->
+      <section class="topSection">
+        <div class="dedup">
+          <div class="header"><%= dicts.unionView.Mode %>:</div>
+          <div class="dropDownList modeList">
+            <div class="text"><%= dicts.unionView.UnionAll %></div>
+            <div class=iconWrapper>
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+                <li name="unionAll"><%= dicts.unionView.UnionAll %></li>
+                <li name="union"><%= dicts.unionView.Union %></li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+        <button class="btn addTable"><%= dicts.unionView.AddTable %></button>
+      </section>
+      <section class="middleSection">
+        <div class="tableSection">
+          <div class="listSection"></div>
+        </div>
+        <!-- result part -->
+        <div class="resultSection">
+          <div class="listSection"></div>
+        </div>
+        <!-- drop part -->
+        <div class="candidateSection">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.unionView.CandidateTitle %></span>
+          </div>
+          <div class="listSection">
+            <div class="lists"></div>
+          </div>
+        </div>
+      </section>
+      <section class="bottomSection">
+        <div class="newTableNameSection">
+          <div class="subHeading">
+            <div class="text"><%= dicts.joinView.NewTableName %>:</div>
+          </div>
+          <input class="newTableName" type="text" required spellcheck="false" autofocus>
+        </div>
+        <button type="button" class="btn center confirm"><%= dicts.unionView.Union %></button>
+      </section>
+    </div>
+  </div>
+</section>
+<!-- End Of Union Modal -->

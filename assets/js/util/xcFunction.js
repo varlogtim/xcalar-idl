@@ -539,6 +539,103 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
+    xcFunction.union = function(tableInfos, dedup, newTableName, options) {
+        var deferred = jQuery.Deferred();
+
+        // current workshhet index
+        var curWS = WSManager.getActiveWS();
+        var steps = 1;
+        var tableIds = [];
+        var tableNames = [];
+
+        if (newTableName != null) {
+            newTableName += Authentication.getHashId();
+        }
+
+        tableInfos.forEach(function(tableInfo) {
+            var tableId = xcHelper.getTableId(tableInfo.tableName);
+            tableIds.push(tableId);
+            tableInfo.tablePos = WSManager.getTableRelativePosition(tableId);
+            tableInfo.ws = WSManager.getWSFromTable(tableId);
+            tableNames.push(gTables[tableId].getName());
+        });
+
+        var sql = {
+            "operation": SQLOps.Union,
+            "tableNames": tableNames,
+            "tableInfos": tableInfos,
+            "dedup": dedup,
+            "newTableName": newTableName,
+            "options": options,
+            "htmlExclude": ["tableInfos", "options"]
+        };
+
+        var txId = Transaction.start({
+            "msg": StatusMessageTStr.Union,
+            "operation": SQLOps.Union,
+            "steps": steps,
+            "sql": sql
+        });
+
+        tableIds.forEach(function(tableId) {
+            xcHelper.lockTable(tableId, txId);
+        });
+
+        var focusOnTable = false;
+        var scrollChecker = new ScollTableChecker();
+        var finalTableName;
+        var finalTableCols;
+
+
+        XIApi.union(txId, tableInfos, dedup, newTableName)
+        .then(function(nTableName, nTableCols) {
+            finalTableCols = nTableCols;
+            finalTableName = nTableName;
+
+            focusOnTable = scrollChecker.checkScroll();
+            var tableOptions = {"focusWorkspace": focusOnTable};
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                                            null, curWS, txId,
+                                            tableOptions);
+        })
+        .then(function() {
+            if (!options.keepTables) {
+                var promises = tableIds.map(function(tableId) {
+                    return TblManager.sendTableToOrphaned(tableId, {
+                        "remove": true
+                    });
+                });
+                return PromiseHelper.when.apply(this, promises);
+            }
+        })
+        .then(function() {
+            tableIds.forEach(function(tableId) {
+                xcHelper.unlockTable(tableId);
+            });
+
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "noNotification": focusOnTable
+            });
+
+            deferred.resolve(finalTableName);
+        })
+        .fail(function(error) {
+            tableIds.forEach(function(tableId) {
+                xcHelper.unlockTable(tableId);
+            });
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.UnionFailed,
+                "error": error
+            });
+
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    };
+
     // gbArgs is array of {operator:str, aggCol:str, newColName:str,
     //                     cast:null or str} objects
     // options:  isIncSample: boolean, isJoin: boolean, icvMode: boolean,

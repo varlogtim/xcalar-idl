@@ -93,6 +93,30 @@ window.Redo = (function($, Redo) {
         return (deferred.promise());
     };
 
+    redoFuncs[SQLOps.Union] = function(options) {
+        var deferred = jQuery.Deferred();
+        var tablesToReplace = [];
+        var unionOptions = options.options || {};
+        var promises = [];
+        if (!unionOptions.keepTables) {
+            // in case one table is used serveral times
+            var tableMap = {};
+            options.tableNames.forEach(function(tableName) {
+                if (!tableMap.hasOwnProperty(tableName)) {
+                    var tableId = xcHelper.getTableId(tableName);
+                    promises.push(TblManager.sendTableToOrphaned.bind(window, tableId,
+                                                        {"remove": true}));
+                    tableMap[tableName] = true;
+                }
+            });
+        }
+
+        promises.push(TblManager.refreshTable.bind(window, [options.newTableName],
+                                                    null, [], options.worksheet));
+
+        return PromiseHelper.chain(promises);
+    };
+
     redoFuncs[SQLOps.GroupBy] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var oldTables = [];

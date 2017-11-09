@@ -1248,6 +1248,7 @@ window.Log = (function($, Log) {
             case (SQLOps.Sort):
             case (SQLOps.IndexDS):
             case (SQLOps.Join):
+            case (SQLOps.Union):
             case (SQLOps.Aggr):
             case (SQLOps.Map):
             case (SQLOps.GroupBy):

@@ -281,6 +281,7 @@ SQLOps = {
     Aggr: "aggregate",
     Map: "map",
     Join: "join",
+    Union: "union",
     GroupBy: "groupBy",
     Project: "project",
     RenameTable: "renameTable",

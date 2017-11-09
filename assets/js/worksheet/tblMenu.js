@@ -193,6 +193,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ('join'):
                     JoinView.close();
                     break;
+                case ('union'):
+                    UnionView.close();
+                    break;
                 case ('ext'):
                     BottomMenu.close();
                     break;
@@ -786,6 +789,15 @@ window.TblMenu = (function(TblMenu, $) {
             JoinView.show(tableId, colNums);
         });
 
+        $colMenu.on('mouseup', '.union', function(event) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
+                return;
+            }
+            var colNums = $colMenu.data("colNums");
+            var tableId = $colMenu.data('tableId');
+            UnionView.show(tableId, colNums);
+        });
+
         $colMenu.on('mouseup', '.functions', function(event) {
             if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
@@ -1005,6 +1017,9 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ('join'):
                     JoinView.close();
+                    break;
+                case ('union'):
+                    UnionView.close();
                     break;
                 case ('ext'):
                     BottomMenu.close();

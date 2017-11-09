@@ -49,6 +49,7 @@ module.exports = {
         "ExitSmartCast": "退出数据类型探测",
         "ExitSort": "退出排序",
         "ExitProject": "Exit Project",
+        "ExitUnion": "退出合并",
         "ExpandAllDags": "展开表",
         "ExpandAllDagsAll": "展开所以表",
         "ExportTbl": "导出表",
@@ -130,6 +131,7 @@ module.exports = {
         "TxtAlignRight": "向右对齐",
         "TxtAlignWrap": "文本环绕",
         "UnexpectedTable": "未知表",
+        "Union": "合并",
         "UnHideTbl": "最大化表",
         "UnlockTbl": "解锁",
         "Unsavable": "无法保存图像",
@@ -620,6 +622,18 @@ module.exports = {
         "derived": "Derived columns",
         "prefixed": "Prefixed columns",
         "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
+    },
+    "unionView": {
+        "header": "合并",
+        "AddTables": "添加表",
+        "TABLES": "表",
+        "Instr": "先选择要合并的表，然后选择要合并的列",
+        "CandidateTitle": "待选列",
+        "AddTable": "添加表",
+        "confirm": "合并",
+        "Mode": "模式",
+        "Union": "Union",
+        "UnionAll": "Union All"
     },
     "jsonModal": {
         "header": "数据浏览器"

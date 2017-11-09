@@ -191,6 +191,7 @@ module.exports = {
         "ExitSort": "Exit Sort",
         "ExitProject": "Exit Project",
         "ExitDFEdit": "Exit Dataflow Editing",
+        "ExitUnion": "Exit Union",
         "ExpandAllDags": "Expand collapsed tables",
         "ExpandAllDagsAll": "Expand all collapsed tables",
         "ExportTbl": "Export table",
@@ -273,6 +274,7 @@ module.exports = {
         "TxtAlignWrap": "Wrap text",
         "UnexpectedTable": "Unexpected table",
         "UnHideTbl": "Unminimize table",
+        "Union": "Union",
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
         "ViewDetails": "View details",
@@ -852,6 +854,19 @@ module.exports = {
         "derived": "Derived columns",
         "prefixed": "Prefixed columns",
         "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
+    },
+
+    "unionView": {
+        "header": "UNION",
+        "AddTables": "Add Tables",
+        "TABLES": "TABLES TO UNION",
+        "Instr": "Select tables you would like to union on and select columns from each table.",
+        "CandidateTitle": "Dropped Columns",
+        "AddTable": "Add Table",
+        "confirm": "Union",
+        "Mode": "Mode",
+        "Union": "Union",
+        "UnionAll": "Union All"
     },
 
     "jsonModal": {

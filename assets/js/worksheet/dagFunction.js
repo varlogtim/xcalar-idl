@@ -1016,6 +1016,11 @@ window.DagFunction = (function($, DagFunction) {
             // Join
             parentNames.push(node.struct.source[0]);
             parentNames.push(node.struct.source[1]);
+        } else if (node.api === XcalarApisT.XcalarApiUnion) {
+            // union
+            node.struct.source.forEach(function(src) {
+                parentNames.push(src);
+            });
         } else if (node.api === XcalarApisT.XcalarApiIndex) {
             // Index
             parentNames.push(node.struct.source);

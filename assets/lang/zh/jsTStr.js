@@ -16,6 +16,8 @@ StatusMessageTStr = {
 'Join': '连接表',
 'JoinFailed': '无法连接表',
 'JoinFailedAlt': '连接',
+'Union': '合并表',
+'UnionFailed': '无法合并表',
 'DeleteTable': '删除表',
 'DeleteTableFailed': '无法删除表',
 'DeleteConstFailed': '无法删除聚合',
@@ -484,7 +486,8 @@ OpFormTStr = {
 'NewColName': '按列生成的列的新列名称',
 'CMD': '操作预览',
 'Descript': '描述',
-'FieldToGroup': 'Fields to group on'
+'FieldToGroup': 'Fields to group on',
+'ResultColName': '列名'
 };
 AggTStr = {
 'selected': '被选中',

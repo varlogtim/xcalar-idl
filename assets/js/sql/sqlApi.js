@@ -360,6 +360,45 @@
         },
 
         /*
+        tableInofs: array of table info, each table info object has
+           tableName: table's name
+           columns an array of column infos which contains:
+               name: column's name
+               rename: rename
+               type: column's type
+               cast: need a cast to the type or not
+     
+        sample:
+                var tableInfos = [{
+                    tableName: "test#ab123",
+                    columns: [{
+                        name: "test2",
+                        rename: "test",
+                        type: "string"
+                        cast: true
+                    }]
+                }]
+        */
+        union: function(tableInfos, dedup, newTableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.union(txId, txId, tableInfos, dedup, newTableName)
+            .then(function(dstTable, dstCols) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "newTableName": dstTable,
+                    "newColumns": dstCols,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
+        /*
          * options:
          *  isIncSample: true/false, include sample or not,
          *               not specified is equal to false

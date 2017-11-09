@@ -68,6 +68,11 @@
         color: @color-font-darkGray;
     }
 
+    button.center {
+        display: block;
+        margin: 0 auto;
+    }
+
     .dropDownList {
         .styleDropDownList(100%, @listHeight);
 
@@ -2089,4 +2094,250 @@
     }
 }
 
+#unionView {
+    @instr-h: 61px;
+    @top-h: 141px;
+    @bottom-h: 121px;
+    @rest-h: (@instr-h + @top-h + @bottom-h);
 
+    .mainContent {
+        overflow: hidden;
+    }
+
+    .opSection {
+        .size(@height: 100%);
+    }
+
+    .instructions {
+        .size(@height: @instr-h);
+    }
+
+    .topSection {
+        .size(@height: @top-h);
+        padding: 26px 0;
+
+        .dedup {
+            .size(@height: 30px);
+            margin-left: 22px;
+            margin-bottom: 25px;
+
+            .header {
+                float: left;
+                .size(@width: 50px, @height: 26px);
+                .font(@line-height: 26px);
+            }
+
+            .modeList {
+                .size(@width: 200px);
+            }
+        }
+
+        .addTable {
+            .size(@width: 250px);
+            margin-left: 22px;
+        }
+    }
+
+    .bottomSection {
+        .size(@height: @bottom-h);
+        padding-bottom: 19px;
+
+        .newTableNameSection {
+            margin-bottom: 10px;
+        }
+    }
+
+    .middleSection {
+        .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
+        overflow-x: auto;
+        overflow-y: scroll;
+        .flex-display;
+        .flex-direction(column);
+
+        &:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+    }
+
+    .tableSection, .resultSection, .candidateSection {
+        .subHeading {
+            .size(@height: 30px);
+        }
+
+        .removeTable, .addCol, .down {
+            .font(@size: 8px);
+            .size(@width: 20px, @height: 100%);
+            position: absolute;
+
+            &:before {
+                .size(8px, 8px);
+                display: block;
+                .center-align;
+            }
+        }
+
+        .listSection {
+            // overflow-y: auto;
+            .flex-display;
+
+            .lists {
+                .size(@min-width: 140px, @max-width: 50%);
+                .flex(1 1 auto);
+
+                &:first-child {
+                    .removeTable {
+                        display: none;
+                    }
+
+                    .inputCol {
+                        .text {
+                            border-right: none;
+                        }
+                    }
+                }
+
+                > div {
+                    .size(@height: 25px);
+                    line-height: 25px;
+                    .position(relative);
+                }
+
+                .header {
+                    .size(@height: 49px);
+                    padding-bottom: 23px;
+                    border-bottom: 1px solid @color-border-union;
+
+                    &:first-child {
+                        margin-top: 0;
+                    }
+                }
+
+                .text {
+                    padding-left: 20px;
+                    background-color: @color-white;
+                }
+
+                .inputCol {
+                    .position(relative);
+                    float: none;
+
+                    .text, .list {
+                        .size(@width: 100%);
+                    }
+                }
+            }
+        }
+    }
+
+    .tableSection {
+        .size(@height: 50px);
+        padding-bottom: 23px;
+        border-bottom: 1px solid @color-border-union;
+    }
+
+    .resultSection {
+        padding: 4px 0 23px 0;
+        border-bottom: 1px solid @color-border-union;
+
+        .resultCol {
+            margin-top: 19px;
+            .position(relative);
+
+            &.placeholder {
+                z-index: -1;
+            }
+
+            &.cast {
+                height: 52px !important;
+
+                .typeList {
+                    display: block;
+                }
+            }
+
+            .resultInput {
+                .size(@width: 284px);
+                padding-left: 20px;
+                padding-right: 50px;
+            }
+
+            .typeList {
+                .size(@width: 284px);
+                float: none;
+                display: none;
+
+                .text {
+                    border: none;
+                }
+
+                li {
+                    color: @color-bg-select-blue;
+                }
+            }
+
+            .resultColAction {
+                .size(@width: 40px);
+                .position(absolute, @top: 0, @left: 244px);
+                
+
+                .icon {
+                    display: inline-block;
+                    float: right;
+                    margin-right: 8px;
+                    .font(@size: 12px, @color: @color-arc-other);
+                    .size(@width: 12px, @height: 26px);
+
+                    &:before {
+                        display: block;
+                        .vertical-align;
+                    }
+                }
+            }
+        }
+
+        .inputCol {
+            .text {
+                padding-right: 20px;
+            }
+
+            .down {
+                right: 0;
+            }
+        }
+    }
+
+    .candidateSection {
+        padding-top: 23px;
+
+        .subHeading {
+            margin-top: 0;
+
+            > span {
+                .size(@height: 15px);
+                .font(@weight: 600, @line-height: 15px);
+            }
+        }
+
+        .lists {
+            margin: 0 2px;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+
+        .inputCol {
+            border-top: 1px solid @color-border-union;
+
+            &:first-child {
+                border-top: none;
+            }
+        }
+    }
+
+    .resultSection, .candidateSection {
+        .size(@width: 100%, @min-height: 50px);
+        .flex(1 1 50px);
+    }
+}

@@ -16,6 +16,8 @@ StatusMessageTStr = {
     'Join': 'Joining tables',
     'JoinFailed': 'Join table failed',
     'JoinFailedAlt': 'Join failed',
+    'Union': 'Unionizing tables',
+    'UnionFailed': 'Union failed',
     'DeleteTable': 'Dropping table',
     'DeleteTableFailed': 'Drop table(s) failed',
     'DeleteConstFailed': 'Drop aggregate(s) failed',
@@ -555,7 +557,8 @@ OpFormTStr = {
     'NewColName': 'New column name for the group by resultant column',
     'CMD': 'Command Preview',
     'Descript': 'Description',
-    'FieldToGroup': 'Fields to group on'
+    'FieldToGroup': 'Fields to group on',
+    'ResultColName': 'Resultant column'
 };
 
 AggTStr = {
@@ -631,6 +634,12 @@ JoinTStr = {
     'NoJoin': 'Cannot join <type>',
     'MismatchDetail': 'Cannot join column of type <type1> with column of type ' +
                      '<type2>'
+};
+
+UnionTStr = {
+    "ChooseType": "Select the resultant column type",
+    "OneTableToUnion": "Need at least two tables to union.",
+    "Cast": "Colunms to union have different types, please select a type for the resultant column."
 };
 
 ExportTStr = {
