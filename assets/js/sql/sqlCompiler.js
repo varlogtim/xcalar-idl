@@ -25,6 +25,10 @@
         "expressions.BitwiseNot": null,
         // Cast.scala
         "expressions.Cast": null, // NOTE: This will be replaced
+        "expressions.XcType.float": "float",
+        "expressions.XcType.int": "int",
+        "expressions.XcType.bool": "bool",
+        "expressions.XcType.string": "string",
         // conditionalExpressions.scala
         "expressions.If": "if",
         "expressions.IfStr": "ifStr", // Xcalar generated
@@ -273,12 +277,8 @@
             case ("expressions.Left"):
             case ("expressions.Right"):
                 var parent = node.parent;
-                for (var j = 0; j< parent.children.length; j++) {
-                    if (parent.children[j] == node) {
-                        parent.children[j] = node.children[2];
-                        node.children[2].parent = parent;
-                    }
-                }
+                parent.children[idx] = node.children[2];
+                node.children[2].parent = parent;
                 break;
             case ("expressions.CaseWhenCodegen"):
             case ("expressions.CaseWhen"):
@@ -299,9 +299,12 @@
                         }
                     }
                 }
-                if (node.value.elseValue && node.value.elseValue[0].class ===
+                if (type === "" &&
+                    node.value.elseValue && node.value.elseValue[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal") {
-                    type = node.children[i].value.dataType;
+                    // XXX Handle case where else value is a complex expr
+                    assert(node.value.elseValue.length === 1);
+                    type = node.value.elseValue[0].dataType;
                 }
                 if (type === "") {
                     console.warn("Defaulting to ifstr as workaround");
@@ -353,6 +356,12 @@
                     // This must be the first level call
                     retNode = newNode;
                 }
+                break;
+            case ("expressions.Cast"):
+                var type = node.value.dataType;
+                var convertedType = convertSparkTypeToXcalarType(type);
+                node.value.class = node.value.class.replace("expressions.Cast",
+                                   "expressions.XcType." + convertedType);
                 break;
             default:
                 break;
@@ -407,7 +416,9 @@
         }
         return newNode;
     };
-
+    SQLCompiler.genExpressionTree = function(parent, array) {
+        return secondTraverse(SQLCompiler.genTree(parent, array));
+    };
     SQLCompiler.prototype = {
         compile: function(sqlQueryString, isJsonPlan) {
             var outDeferred = jQuery.Deferred();
@@ -472,7 +483,6 @@
                 .fail(deferred.reject);
                 return deferred.promise();
             }
-
             function getCli(node, cliArray) {
                 for (var i = 0; i < node.children.length; i++) {
                     getCli(node.children[i], cliArray);
@@ -520,7 +530,6 @@
 
             return outDeferred.promise();
         },
-
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1);
             return PromiseHelper.resolve({
@@ -642,9 +651,8 @@
         _pushDownFilter: function(node) {
             var self = this;
             assert(node.children.length === 1);
-            var treeNode = SQLCompiler.genTree(undefined,
+            var treeNode = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
-            treeNode = secondTraverse(treeNode);
             var filterString = genEvalStringRecur(treeNode);
             var tableName = node.children[0].newTableName;
 
@@ -746,9 +754,8 @@
             var self = this;
             assert(node.children.length === 2); // It's a join. So 2 kids only
 
-            var condTree = SQLCompiler.genTree(undefined,
+            var condTree = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
-            condTree = secondTraverse(condTree);
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all the
             // way and when it's not AND, it must be an EQ (stop traversing subtree)
@@ -949,8 +956,7 @@
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
-            if ((["expressions.Cast"].indexOf(opName) === -1) &&
-                opName.indexOf(".aggregate.") === -1) {
+            if (opName.indexOf(".aggregate.") === -1) {
                 outStr += opLookup[opName] + "(";
             } else {
                 if (opName.indexOf(".aggregate.") > -1 &&
@@ -971,15 +977,6 @@
             }
         } else {
             // When it's not op
-            if (condTree.parent) {
-                var parentOpName = condTree.parent.value.class.substring(
-                    condTree.value.class.indexOf("expressions."));
-                if (parentOpName === "expressions.Cast") {
-                    // This should be casting according to the parent's type
-                    outStr += convertSparkTypeToXcalarType(
-                              condTree.parent.value.dataType) + "(";
-                }
-            }
             if (condTree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
@@ -1011,9 +1008,8 @@
                 assert(evalList[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.Alias");
                 var acc = {};
-                var treeNode = SQLCompiler.genTree(undefined,
+                var treeNode = SQLCompiler.genExpressionTree(undefined,
                     evalList[i].slice(1));
-                treeNode = secondTraverse(treeNode);
                 var evalStr = genEvalStringRecur(treeNode, acc);
                 var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
