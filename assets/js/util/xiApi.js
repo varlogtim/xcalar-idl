@@ -1311,7 +1311,7 @@
                            : parsedCol.prefix + "_" + parsedCol.name;
             } else {
                 newType = typeToCast;
-                newField = colName;
+                newField = parsedCol.name;
             }
 
             if (newType != null) {

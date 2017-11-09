@@ -297,33 +297,41 @@ window.xcManager = (function(xcManager, $) {
             return PromiseHelper.when.apply(this, promises);
         }
 
-        function actualOneTimeSetup() {
+        function actualOneTimeSetup(force) {
             var def = jQuery.Deferred();
-
-            function initPhase() {
+            var markAsAlreadyInit = function() {
+                return XcalarKeyPut(GlobalKVKeys.InitFlag,
+                                        InitFlagState.AlreadyInit, false,
+                                        gKVScope.INIT);
+            };
+            var initPhase = function() {
                 var innerDeferred = jQuery.Deferred();
                 initLocks()
                 .then(function() {
-                    return XcalarKeyPut(GlobalKVKeys.InitFlag,
-                                        InitFlagState.AlreadyInit, false,
-                                        gKVScope.INIT);
+                    return markAsAlreadyInit();
                 })
                 .then(innerDeferred.resolve)
-                .fail(innerDeferred.reject);
+                .fail(function(error) {
+                    if (force && error === ConcurrencyEnum.AlreadyInit) {
+                        // we see this issue, patch a fix
+                        markAsAlreadyInit()
+                        .then(innerDeferred.resolve)
+                        .fail(innerDeferred.reject);
+                    } else {
+                        innerDeferred.reject(error);
+                    }
+                });
 
                 return innerDeferred.promise();
-            }
+            };
 
             XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
             .then(function(ret) {
-                if (ret && ret.value === InitFlagState.AlreadyInit) {
-                    def.resolve();
-                } else {
-                    initPhase()
-                    .then(def.resolve)
-                    .fail(def.reject);
+                if (!ret || ret.value !== InitFlagState.AlreadyInit) {
+                    return initPhase();
                 }
             })
+            .then(def.resolve)
             .fail(def.reject);
 
             return def.promise();
@@ -364,7 +372,7 @@ window.xcManager = (function(xcManager, $) {
                     func: function() {
                         $("#initialLoadScreen").show();
                         console.log("Force");
-                        actualOneTimeSetup()
+                        actualOneTimeSetup(true)
                         .then(function() {
                             // Force unlock
                             return XcalarKeyPut(
