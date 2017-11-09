@@ -1,0 +1,4 @@
+{
+    "keyword": "$input.params('keyword')",
+    "startNum": "$input.params('startNum')"
+}

@@ -1,0 +1,64 @@
+Salesforce HTML Form Code:
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <META> element to your page <HEAD>.      -->
+<!--  If necessary, please modify the charset parameter to specify the        -->
+<!--  character set of your HTML page.                                        -->
+<!--  ----------------------------------------------------------------------  -->
+
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8">
+
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <FORM> element to your page.             -->
+<!--  ----------------------------------------------------------------------  -->
+
+<form action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8" method="POST">
+
+<input type=hidden name="oid" value="00Dj00000028dhA">
+<input type=hidden name="retURL" value="http://">
+
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: These fields are optional debugging elements. Please uncomment    -->
+<!--  these lines if you wish to test in debug mode.                          -->
+<!--  <input type="hidden" name="debug" value=1>                              -->
+<!--  <input type="hidden" name="debugEmail" value="aford@xcalar.com">        -->
+<!--  ----------------------------------------------------------------------  -->
+
+<label for="first_name">First Name</label><input  id="first_name" maxlength="40" name="first_name" size="20" type="text" /><br>
+
+<label for="last_name">Last Name</label><input  id="last_name" maxlength="80" name="last_name" size="20" type="text" /><br>
+
+<label for="email">Email</label><input  id="email" maxlength="80" name="email" size="20" type="text" /><br>
+
+<label for="phone">Phone</label><input  id="phone" maxlength="40" name="phone" size="20" type="text" /><br>
+
+<label for="title">Title</label><input  id="title" maxlength="40" name="title" size="20" type="text" /><br>
+
+<label for="company">Company</label><input  id="company" maxlength="40" name="company" size="20" type="text" /><br>
+
+<label for="lead_source">Where did you hear about Xcalar?</label><select  id="lead_source" name="lead_source"><option value="">--None--</option><option value="Email Marketing">Email Marketing</option>
+<option value="Event/Trade Show">Event/Trade Show</option><option value="Media">Media/Press</option>
+<option value="Partner - Microsoft">Partner - Microsoft</option>
+<option value="Partner - NetApp">Partner - NetApp</option>
+<option value="Partner - Other">Partner - Other</option>
+<option value="Other">Website</option>
+</select><br>
+
+What is your interest in Xcalar?<select  id="00Nf100000CCOJz" name="00Nf100000CCOJz" title="Interest"><option value="">--None--</option><option value="Product Demo">Product Demo</option>
+<option value="Free Trial on Azure">Free Trial on Azure</option>
+<option value="Career Opportunity">Career Opportunity</option>
+<option value="Customer Support">Customer Support</option>
+
+
+Briefly describe your current data preparation solution.<input  id="00Nf100000CCPAZ" maxlength="255" name="00Nf100000CCPAZ" size="20" type="text" /><br>
+
+What is your estimated annual budget for a data preparation solution?<select  id="00Nf100000CCPAe" name="00Nf100000CCPAe" title="Estimated Annual Budget"><option value="">--None--</option><option value="Less than $10K">Less than $10K</option>
+<option value="$10K-$50K">$10K-$50K</option>
+<option value="$50K-$100K">$50K-$100K</option>
+<option value="Greater than $100K">Greater than $100K</option>
+</select><br>
+
+Please feel free to leave other comments.<textarea  id="00Nf100000CCQ4c" name="00Nf100000CCQ4c" type="text" wrap="soft"></textarea><br>
+
+<input type="submit" name="submit">
+
+</form>
