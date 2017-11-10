@@ -1,0 +1,56 @@
+<div id="workbookPreview" class="modalContainer xc-viewMode">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.workbook.Preview %></span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close" data-container="body" data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- modal top main -->
+  <section class="modalTopMain infoSection">
+    <div class="row">
+      <div class="name">
+        <span class="label"><%=dicts.workbook.Wkbkname %>:</span>
+        <span class="text"></span>
+      </div>
+    </div>
+  </section>
+  <!-- card main -->
+  <section class="modalMain">
+    <div class="loadingSection xc-loadView">
+      include "../../util/animatedEllipsis.html"
+    </div>
+    <div class="errorSection xc-errorView"></div>
+    <div class="contentSection xc-contentView">
+      <section class="titleSection grid-unit">
+        <div class="title view"></div>
+        <div class="title name" data-sortKey="name">
+          <span class="label"><%=dicts.common.TableName %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <div class="title size" data-sortKey="size">
+          <span class="label"><%=dicts.common.Size %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <div class="title status" data-sortKey="status">
+          <span class="label"><%=dicts.monitor.Status %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <div class="title action"></div>
+      </section>
+      <section class="listSection"></section>
+    </div>
+     <section class="dagSection"></section>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn cancel"><%= dicts.common.CLOSE %></button>
+    <button type="button" class="btn back btn-cancel"><%= dicts.common.BACK %></button>
+  </section>
+</div>

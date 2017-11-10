@@ -1024,6 +1024,8 @@ TblTStr = {
     'Truncate': 'Additional characters were truncated',
     'ToTemp': 'SEND TO TEMPORARY',
     'ToTempTip': 'Tables will be sent to the temporary tables list',
+    'TempStatus': 'Temporary',
+    'ActiveStatus': "Active"
 };
 
 ColTStr = {

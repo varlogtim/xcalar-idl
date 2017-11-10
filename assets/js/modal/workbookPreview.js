@@ -1,47 +1,34 @@
 window.WorkbookPreview = (function(WorkbookPreview, $) {
-    var $workbookPanel; // $("#workbookPanel")
     var $workbookPreview; // $("#workBookPreview")
+    var modalHelper;
     var curTableList = [];
     var id;
     var curWorkbookId;
 
     WorkbookPreview.setup = function() {
-        $workbookPanel = $("#workbookPanel");
         $workbookPreview = $("#workbookPreview");
+        modalHelper = new ModalHelper($workbookPreview);
+
         addEvents();
     };
 
     WorkbookPreview.show = function(workbookId) {
         id = xcHelper.randName("worbookPreview");
         curWorkbookId = workbookId;
-
-        $workbookPanel.addClass("previewMode");
+        modalHelper.setup();
         reset();
         showWorkbookInfo(workbookId);
         showTableInfo(workbookId);
     };
 
-    WorkbookPreview.close = function() {
-        $workbookPanel.removeClass("previewMode");
-        $workbookPreview.removeClass("loading error");
-        $workbookPreview.find(".errorSection").empty();
-        $workbookPreview.find(".listSection").empty();
-
-        curWorkbookId = null;
-    };
-
     function addEvents() {
-        $workbookPanel.on("click", ".backToWB", function() {
-            WorkbookPreview.close();
-        });
-
-        $workbookPanel.on("click", ".view", function() {
+        $workbookPreview.on("click", ".listSection .view, .listSection .name", function() {
             var tableName = getTableNameFromEle(this);
             var workbookName = WorkbookManager.getWorkbook(curWorkbookId).getName();
-            DfPreviewModal.show(tableName, workbookName);
+            showDag(tableName, workbookName);
         });
 
-        $workbookPanel.on("click", ".title .label, .title .xi-sort", function() {
+        $workbookPreview.on("click", ".title .label, .title .xi-sort", function() {
             var $title = $(this).closest(".title");
             var sortKey = $title.data("sortkey");
             var $section = $title.closest(".titleSection");
@@ -61,6 +48,14 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             var tableName = getTableNameFromEle(this);
             deleteTable(tableName);
         });
+
+        $workbookPreview.on("click", ".back", function() {
+            closeDag();
+        });
+
+        $workbookPreview.on("click", ".close, .cancel", function() {
+            closeModal();
+        });
     }
 
     function getTableNameFromEle(ele) {
@@ -69,11 +64,20 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
 
     function reset() {
         curTableList = [];
-        $workbookPanel.find(".title.active").removeClass("active");
+        $workbookPreview.find(".title.active").removeClass("active");
+    }
+
+    function closeModal() {
+        modalHelper.clear();
+        $workbookPreview.removeClass("loading error");
+        $workbookPreview.find(".errorSection").empty();
+        $workbookPreview.find(".listSection").empty();
+        closeDag();
+        curWorkbookId = null;
     }
 
     function showWorkbookInfo(workbookId) {
-        var $section = $workbookPreview.find(".cardTopMain");
+        var $section = $workbookPreview.find(".infoSection");
         var workbook = WorkbookManager.getWorkbook(workbookId);
         $section.find(".name .text").text(workbook.getName());
     }
@@ -93,8 +97,9 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         .then(function(tableMeta) {
             if (curId === id) {
                 curTableList = getTableList(nodeInfo, tableMeta);
-                // sort by name
-                $workbookPanel.find(".title.name .label").click();
+                // sort by status
+                var tableList = sortTableList(curTableList, "status");
+                updateTableList(tableList);
             }
         })
         .fail(function(error) {
@@ -154,18 +159,13 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function sortTableList(tableList, key) {
-        // sort by name first, no matter what case
-        tableList.sort(function(a, b) {
-            return a.name.localeCompare(b.name);
-        });
-
-        // temoprarily not support sort on size
         if (key === "size") {
+            // sort on size
             tableList.sort(function(a, b) {
                 var sizeA = a.sizeInNum;
                 var sizeB = b.sizeInNum;
                 if (sizeA === sizeB) {
-                    return 0;
+                    return a.name.localeCompare(b.name);
                 } else if (sizeA > sizeB) {
                     return 1;
                 } else {
@@ -173,8 +173,18 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                 }
             });
         } else if (key === "status") {
+            // sort on status
             tableList.sort(function(a, b) {
-                return a.status.localeCompare(b.status);
+                if (a.status === b.status) {
+                    return a.name.localeCompare(b.name);
+                } else {
+                    return a.status.localeCompare(b.status);
+                }
+            });
+        } else {
+            // sort by name
+            tableList.sort(function(a, b) {
+                return a.name.localeCompare(b.name);
             });
         }
         return tableList;
@@ -188,21 +198,25 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     function updateTableList(tableList) {
         var html = tableList.map(function(tableInfo) {
             return '<div class="grid-unit">' +
-                        '<div class="name tooltipOverflow">' +
+                        '<div class="view">' +
+                            '<i class="view icon xc-action xi-dfg2 fa-15"' +
+                            ' data-toggle="tooltip" data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="' + TooltipTStr.OpenQG + '"' +
+                            '></i>' +
+                        '</div>' +
+                        '<div class="name xc-action tooltipOverflow">' +
                             tableInfo.name +
                         '</div>' +
                         '<div class="size">' +
                             tableInfo.size +
                         '</div>' +
                         '<div class="status">' +
-                            tableInfo.status +
+                            (tableInfo.status === "active"
+                            ? TblTStr.ActiveStatus
+                            : TblTStr.TempStatus) +
                         '</div>' +
                         '<div class="action">' +
-                            '<i class="view icon xc-action xi-dfg2 fa-15"' +
-                            ' data-toggle="tooltip" data-container="body"' +
-                            ' data-placement="top"' +
-                            ' data-title="' + TooltipTStr.OpenQG + '"' +
-                            '></i>' +
                             // '<i class="delete icon xc-action xi-trash fa-15"' +
                             // ' data-toggle="tooltip" data-container="body"' +
                             // ' data-placement="top"' +
@@ -236,7 +250,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             curTableList = tableList.filter(function(tableInfo) {
                 return tableInfo.name !== tableName;
             });
-            xcHelper.showRefreshIcon($workbookPanel.find(".listSection"));
+            xcHelper.showRefreshIcon($workbookPreview.find(".listSection"));
             updateTableList(curTableList);
         })
         .fail(function(error) {
@@ -245,6 +259,50 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             }
             Alert.error(StatusMessageTStr.DeleteTableFailed, error);
         });
+    }
+
+    function showDag(tableName, workbookName) {
+        var deferred = jQuery.Deferred();
+        var curId = id;
+        var html = '<div class="dagWrap clearfix">' +
+                    '<div class="header clearfix">' +
+                        '<div class="btn infoIcon">' +
+                            '<i class="icon xi-info-rectangle"></i>' +
+                        '</div>' +
+                        '<div class="tableTitleArea">' +
+                            '<span>Table: </span>' +
+                            '<span class="tableName">' +
+                                tableName +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        var $dagWrap = $(html);
+        $workbookPreview.addClass("dagMode")
+                        .find(".dagSection").append($dagWrap);
+
+        XcalarGetDag(tableName, workbookName)
+        .then(function(dagObj) {
+            if (curId === id) {
+                DagDraw.createDagImage(dagObj.node, $dagWrap);
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error(error);
+            if (curId === id) {
+                $dagWrap.html('<div class="errorMsg">' +
+                                DFTStr.DFDrawError +
+                              '</div>');
+            }
+            deferred.reject(error);
+        });
+        return deferred.promise();
+    }
+
+    function closeDag() {
+        $workbookPreview.removeClass("dagMode")
+                        .find(".dagSection").empty();
     }
 
     return WorkbookPreview;

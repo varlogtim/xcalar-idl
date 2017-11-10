@@ -873,7 +873,9 @@ TblTStr = {
 'DelFail': '删除表失败',
 'Active': '将表发送到工作表',
 'ActiveFail': '活动表失败',
-'Truncate': '其他字符被截断'
+'Truncate': '其他字符被截断',
+'TempStatus': '临时',
+'ActiveStatus': "激活"
 };
 ColTStr = {
 'SplitColWarn': '许多列会生成',

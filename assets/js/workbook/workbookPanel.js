@@ -21,7 +21,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         addTopbarEvents();
         addWorkbookEvents();
-        WorkbookPreview.setup();
 
         var closeTimer = null;
         var doneTimer = null;
@@ -32,7 +31,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             var $dialogWrap = $("#dialogWrap");
 
             if (WorkbookPanel.isWBMode()) {
-                WorkbookPreview.close();
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
                     $container.removeClass("monitorMode setupMode");
