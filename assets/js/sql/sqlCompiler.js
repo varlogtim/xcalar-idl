@@ -609,6 +609,7 @@
                                    Authentication.getHashId();
 
                 var cli;
+                //debugger;
                 // XXX FIXME rename map. in genMapArray, need to take note
                 // Just cast it to the type. it's quite a simple fix.
                 self.sqlObj.map(mapStrs, tableName, newColNames,
@@ -779,7 +780,14 @@
         },
 
         _pushDownAggregate: function(node) {
+            // There are 4 possible cases in aggregates (groupbys)
+            // 1 - f(g) => Currently not implemented yet. TODO
+            // 2 - g(f) => Handled
+            // 3 - g(g) => Catalyst cannot handle this
+            // 4 - f(f) => Not valid syntax. For gb you need to have g somewhere
             var self = this;
+            var cli = "";
+            var deferred = jQuery.Deferred();
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
@@ -811,20 +819,43 @@
                 node.additionalRDDs.push(evalStrArray[i].newColName);
             }
 
-            // Step 1. Aggregate to resolve all inner aggregates
-            // Below is half done
-            // produceAggregateCli(self, aggEvalStrArray, tableName)
             // Catalyst cannot handle this kind of aggregates
             // Try select avg(co1 * avg(col1))
-            // Step 2. Map to resolve all complex evals
+            // Case 2 Map to resolve all complex evals
+            var mapStrs = [];
+            var newColNames = [];
             for (var i = 0; i < evalStrArray.length; i++) {
-
+                if (evalStrArray[i].aggColName.indexOf("(") > -1) {
+                    mapStrs.push(evalStrArray[i].aggColName);
+                    var newColName = "XC_GB_COL_" +
+                                     Authentication.getHashId().substring(3);
+                    newColNames.push(newColName);
+                    evalStrArray[i].aggColName = newColName;
+                }
             }
-            // Step 3. Then do the groupby
-            // XXX HALF DONE
 
-            return self.sqlObj.groupBy(gbCols, evalStrArray, tableName,
-                                       options);
+            var mapPromise = PromiseHelper.resolve();
+            if (mapStrs.length > 0) {
+                var newTableName = xcHelper.getTableName(tableName) +
+                                   Authentication.getHashId();
+                mapPromise = self.sqlObj.map(mapStrs, tableName, newColNames,
+                                             newTableName);
+                tableName = newTableName;
+            }
+            mapPromise
+            .then(function(ret) {
+                if (ret) {
+                    cli += ret.cli;
+                }
+                return self.sqlObj.groupBy(gbCols, evalStrArray, tableName,
+                                           options);
+            })
+            .then(function(ret) {
+                deferred.resolve({newTableName: ret.newTableName,
+                                  cli: cli + ret.cli});
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         },
 
         _pushDownJoin: function(node) {
@@ -1053,7 +1084,7 @@
                             var aggEvalStr =
                                            genEvalStringRecur(condTree.aggTree);
                             var aggVarName = "XC_AGG_" +
-                                             Authentication.getHashId();
+                                        Authentication.getHashId().substring(3);
 
                             acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
                                                       aggVarName: aggVarName});
