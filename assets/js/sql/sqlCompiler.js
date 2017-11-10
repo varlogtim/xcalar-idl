@@ -77,7 +77,7 @@
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
-        "expressions.In": "contains", // XXX reverse order
+        "expressions.In": null, // This is compiled to eq & or
         "expressions.And": "and",
         "expressions.Or": "or",
         "expressions.EqualTo": "eq",
@@ -240,6 +240,22 @@
                 "branches": null,
             });
         }
+        function orNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.Or",
+                "num-children" : 2,
+                "left" : 0,
+                "right" : 1
+            });
+        }
+        function eqNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.EqualTo",
+                "num-children" : 2,
+                "left" : 0,
+                "right" : 1
+            });
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Left, Right, etc.
@@ -356,6 +372,49 @@
                     assert(idx === undefined);
                     // This must be the first level call
                     retNode = newNode;
+                }
+                break;
+            case ("expressions.In"):
+                // XXX TODO Minor. When the list gets too long, we are forced
+                // to convert this to a udf and invoke the UDF instead.
+                assert(node.children.length >= 2);
+                var retNode;
+                var prevOrNode;
+                var newEqNode;
+                for (var i = 0; i < node.children.length - 1; i++) {
+                    newEqNode = eqNode();
+                    newEqNode.children.push(node.children[0]);
+                    newEqNode.children.push(node.children[i+1]);
+                    node.children[0].parent = newEqNode;
+                    node.children[i+1].parent = newEqNode;
+                    if (i < node.children.length -2) {
+                        var newOrNode = orNode();
+                        newOrNode.children.push(newEqNode);
+                        newEqNode.parent = newOrNode;
+                        if (prevOrNode) {
+                            prevOrNode.children.push(newOrNode);
+                            newOrNode.parent = prevOrNode;
+                        }
+                        prevOrNode = newOrNode;
+                    } else {
+                        if (prevOrNode) {
+                            prevOrNode.children.push(newEqNode);
+                            newEqNode.parent = prevOrNode;
+                        }
+                    }
+                }
+                if (prevOrNode) {
+                    retNode = prevOrNode;
+                } else {
+                    retNode = newEqNode;
+                }
+
+                if (node.parent) {
+                    assert(idx !== undefined);
+                    node.parent.children[idx] = retNode;
+                } else {
+                    assert(idx === undefined);
+                    // This must be the first level call
                 }
                 break;
             case ("expressions.Cast"):
