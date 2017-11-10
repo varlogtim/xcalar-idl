@@ -297,14 +297,11 @@ window.FnBar = (function(FnBar, $) {
         }
     };
 
-    FnBar.clear = function(noSave) {
+    FnBar.clear = function() {
         if (isAlertOpen) {
             return;
         }
         lastFocusedCol = undefined;
-        if (!noSave) {
-            saveInput();
-        }
         $lastColInput = null;
         editor.setValue("");
         $fnBar.removeClass("active inFocus disabled");
@@ -552,41 +549,6 @@ window.FnBar = (function(FnBar, $) {
                 }
             }
         });
-    }
-
-    function saveInput() {
-        if (!$lastColInput || !$lastColInput.length) {
-            return;
-        }
-        var fnBarVal = editor.getValue().trim();
-        if (fnBarVal.indexOf("=") === 0) {
-            fnBarVal = fnBarVal.substring(1);
-        } else {
-            return;
-        }
-        fnBarVal = fnBarVal.trim();
-        var $colInput = $lastColInput;
-        var $table = $colInput.closest('.dataTable');
-        if ($table.length === 0) {
-            // may trigger it if last table is removed
-            return;
-        }
-
-        var tableId = xcHelper.parseTableId($table);
-        var table = gTables[tableId];
-        if (!table) {
-            return;
-        }
-        var colNum = xcHelper.parseColNum($colInput);
-
-        var tableCol = table.tableCols[colNum - 1];
-
-        if (tableCol.isEmptyCol()) {
-            return;
-        }
-
-        tableCol.userStr = "\"" + tableCol.getFrontColName() + "\"" + " = " +
-                            fnBarVal;
     }
 
     function resetColNamesCache(tableId) {

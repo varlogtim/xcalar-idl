@@ -113,7 +113,7 @@ window.ColManager = (function($, ColManager) {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
 
-        FnBar.clear(true);
+        FnBar.clear();
 
         jQuery.when.apply($, promises)
         .done(function() {
