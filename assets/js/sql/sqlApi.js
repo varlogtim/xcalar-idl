@@ -213,6 +213,25 @@
             return deferred.promise();
         },
 
+        aggregateWithEvalStr: function(evalStr, tableName, dstAggName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self._start();
+
+            XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName)
+            .then(function(val, finalDstDagName) {
+                var cli = self._end(txId);
+                deferred.resolve({
+                    "val": val,
+                    "newTableName": finalDstDagName,
+                    "cli": cli
+                });
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
         sort: function(sortColsAndOrder, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;

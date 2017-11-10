@@ -161,6 +161,7 @@
         if (!st) {
             debugger;
             console.error("ASSERTION FAILURE!");
+            throw "BOOHOO!";
         }
     }
 
@@ -188,7 +189,8 @@
         return (this);
     }
 
-    function secondTraverse(node, idx) {
+    // Options: extractAggregates -- change aggregate nodes to a different tree
+    function secondTraverse(node, idx, options) {
         var retNode = node;
         // The second traverse convert all substring, left, right stuff
         function literalNumberNode(num) {
@@ -238,17 +240,16 @@
                 "branches": null,
             });
         }
-        for (var i = 0; i < node.children.length; i++) {
-            secondTraverse(node.children[i], i);
-            // Notice that we ignore the return. This is because we only want
-            // to return the top node
-        }
+
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Left, Right, etc.
         var opName = node.value.class.substring(
             node.value.class.indexOf("expressions."));
         switch (opName) {
             case ("expressions.Substring"):
+                // XXX since this traverse is top down, we will end up
+                // traversing the subtrees twice. Might need to add a flag
+                // to the node and stop traversal if the flag is already set
                 var startIndex = node.children[1].value;
                 var length = node.children[2].value;
                 if (startIndex.class.endsWith("Literal") &&
@@ -363,9 +364,47 @@
                 node.value.class = node.value.class.replace("expressions.Cast",
                                    "expressions.XcType." + convertedType);
                 break;
+            case ("expressions.aggregate.AggregateExpression"):
+                // If extractAggregates is true, then we need to cut the tree
+                // here and construct a different tree
+                if (idx !== undefined && options && options.extractAggregates) {
+                    assert(node.children.length === 1);
+                    assert(node.children[0].value.class
+                                        .indexOf("expressions.aggregate.") > 0);
+                    assert(node.children[0].children.length === 1);
+                    // XXX code below is wrong
+                    // var grandChildClass = node.children[0].children[0].value.class;
+                    // if (grandChildClass.endsWith("AttributeReference") ||
+                    //     grandChildClass.endsWith("Literal")) {
+                    //     // This is a simple aggregate. No need to extract and
+                    //     // convert to aggregate variables
+                    //     break;
+                    // }
+
+                    // We need to cut the tree at this node, and instead of
+                    // having a child, remove the child and assign it as an
+                    // aggregateTree
+                    var aggNode = node.children[0];
+                    aggNode.parent = undefined;
+                    node.children = [];
+                    node.value["num-children"] = 0;
+                    node.aggTree = aggNode;
+                    node.aggVariable = ""; // To be filled in by genEval
+                }
+                break;
             default:
                 break;
         }
+
+        // This must be a top down resolution. This is because of the Aggregate
+        // Expression case, where we want to cut the tree at the top most
+        // Aggregate Expression
+        for (var i = 0; i < node.children.length; i++) {
+            secondTraverse(node.children[i], i, options);
+            // Notice that we ignore the return. This is because we only want
+            // to return the top node
+        }
+
         return retNode;
     }
     function sendPost(struct) {
@@ -416,8 +455,9 @@
         }
         return newNode;
     };
-    SQLCompiler.genExpressionTree = function(parent, array) {
-        return secondTraverse(SQLCompiler.genTree(parent, array));
+    SQLCompiler.genExpressionTree = function(parent, array, options) {
+        return secondTraverse(SQLCompiler.genTree(parent, array), undefined,
+                              options);
     };
     SQLCompiler.prototype = {
         compile: function(sqlQueryString, isJsonPlan) {
@@ -547,9 +587,12 @@
             // Find columns to project
             var columns = [];
             var evalStrArray = [];
+            var aggEvalStrArray = [];
 
-            genMapArray(node.value.projectList, columns, evalStrArray);
-
+            genMapArray(node.value.projectList, columns, evalStrArray,
+                        aggEvalStrArray);
+            // XXX TODO. We need to handle this
+            assert(aggEvalStrArray.length === 0);
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {return o.evalStr;});
                 var newColNames = evalStrArray.map(function(o) {
@@ -650,13 +693,56 @@
 
         _pushDownFilter: function(node) {
             var self = this;
+            var deferred = jQuery.Deferred();
             assert(node.children.length === 1);
             var treeNode = SQLCompiler.genExpressionTree(undefined,
-                node.value.condition.slice(0));
-            var filterString = genEvalStringRecur(treeNode);
-            var tableName = node.children[0].newTableName;
+                node.value.condition.slice(0), {extractAggregates: true});
 
-            return self.sqlObj.filter(filterString, tableName);
+            var aggEvalStrArray = [];
+            var filterString = genEvalStringRecur(treeNode,
+                                            {aggEvalStrArray: aggEvalStrArray});
+
+            var promiseArray = [];
+            var cliStatements = "";
+
+            function handleAggStatements(aggEvalStr, aggSrcTableName,
+                                         aggVarName) {
+                var that = this;
+                var innerDeferred = jQuery.Deferred();
+                that.sqlObj.aggregateWithEvalStr(aggEvalStr, aggSrcTableName,
+                                                 aggVarName)
+                .then(function(retStruct) {
+                    cliStatements += retStruct.cli;
+                    innerDeferred.resolve();
+                })
+                .fail(innerDeferred.reject);
+                return innerDeferred.promise();
+            }
+
+            var tableName = node.children[0].newTableName;
+            if (aggEvalStrArray.length > 0) {
+                // Do aggregates first then do filter
+                for (var i = 0; i < aggEvalStrArray.length; i++) {
+                    promiseArray.push(handleAggStatements.bind(self,
+                                      aggEvalStrArray[i].aggEvalStr,
+                                      tableName,
+                                      aggEvalStrArray[i].aggVarName));
+                }
+            }
+
+            PromiseHelper.chain(promiseArray)
+            .then(function() {
+                return self.sqlObj.filter(filterString, tableName);
+            })
+            .then(function(retStruct) {
+                cliStatements += retStruct.cli;
+                deferred.resolve({
+                    "newTableName": retStruct.newTableName,
+                    "cli": cliStatements
+                });
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         },
 
         _pushDownSort: function(node) {
@@ -722,14 +808,19 @@
 
             var gbCols = [];
             var gbEvalStrArray = [];
-            genMapArray(node.value.groupingExpressions, gbCols, gbEvalStrArray);
+            var gbAggEvalStrArray = [];
+            genMapArray(node.value.groupingExpressions, gbCols, gbEvalStrArray,
+                        gbAggEvalStrArray);
+
             assert(gbEvalStrArray.length === 0); // XXX TODO
+            assert(aggEvalStrArray.length === 0); // XXX TODO
 
             var columns = [];
             var evalStrArray = [];
-
+            var aggEvalStrArray = [];
             genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
-                        {operator: true});
+                        aggEvalStrArray, {operator: true});
+
             var options = {};
             if (!node.additionalRDDs) {
                 node.additionalRDDs = [];
@@ -743,9 +834,16 @@
                 node.additionalRDDs.push(evalStrArray[i].newColName);
             }
 
-            // TODO Handle case where it's COL1 AS COL2
+            // Step 1. Aggregate to resolve all inner aggregates
+            assert(aggEvalStrArray.length === 0); // Catalyst cannot handle this
+            // Try select avg(co1 * avg(col1))
+            // Step 2. Map to resolve all complex evals
+            for (var i = 0; i < evalStrArray.length; i++) {
 
-            // This will result in evalStrArray[i] having undefined as operator
+            }
+            // Step 3. Then do the groupby
+            // XXX HALF DONE
+
             return self.sqlObj.groupBy(gbCols, evalStrArray, tableName,
                                        options);
         },
@@ -959,20 +1057,49 @@
             if (opName.indexOf(".aggregate.") === -1) {
                 outStr += opLookup[opName] + "(";
             } else {
-                if (opName.indexOf(".aggregate.") > -1 &&
-                    opName !== "expressions.aggregate.AggregateExpression") {
-                    acc.operator = opLookup[opName];
+                if (opName.indexOf(".aggregate.") > -1) {
+                    if (opName === "expressions.aggregate.AggregateExpression")
+                    {
+                        if (condTree.aggTree) {
+                            // We need to resolve the aggTree and then push
+                            // the resolved aggTree's xccli into acc
+                            assert(condTree.children.length === 0);
+                            assert(acc);
+                            assert(acc.aggEvalStrArray);
+
+                            // It's very important to not pass in acc.
+                            // This is what we are relying on to generate the
+                            // string. Otherwise it will assign it to
+                            // acc.operator
+                            var aggEvalStr =
+                                           genEvalStringRecur(condTree.aggTree);
+                            var aggVarName = "XC_AGG_" +
+                                             Authentication.getHashId();
+
+                            acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
+                                                      aggVarName: aggVarName});
+                            outStr += "^" + aggVarName;
+                        } else {
+                            assert(condTree.children.length > 0);
+                        }
+                    } else {
+                        if (!acc) {
+                            outStr += opLookup[opName] + "(";
+                        } else {
+                            acc.operator = opLookup[opName];
+                        }
+                    }
                 }
             }
-            // For Cast, we only add the operator on the child
-            // We will ignore Aggregate Expression
             for (var i = 0; i < condTree.value["num-children"]; i++) {
                 outStr += genEvalStringRecur(condTree.children[i], acc);
                 if (i < condTree.value["num-children"] -1) {
                     outStr += ",";
                 }
             }
-            if (opName.indexOf(".aggregate.") === -1) {
+            if (opName.indexOf(".aggregate.") === -1 ||
+                (opName !== "expressions.aggregate.AggregateExpression" &&
+                 !acc)) {
                 outStr += ")";
             }
         } else {
@@ -1000,16 +1127,20 @@
         return outStr;
     }
 
-    function genMapArray(evalList, columns, evalStrArray, options) {
+    function genMapArray(evalList, columns, evalStrArray, aggEvalStrArray,
+                         options) {
+        // Note: Only top level agg functions are not extracted. The rest of the
+        // agg functions will be extracted and pushed into the aggArray
+        // The evalStrArray will be using the ^aggVariables
         for (var i = 0; i<evalList.length; i++) {
             var colNameStruct;
             var colName;
             if (evalList[i].length > 1) {
                 assert(evalList[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.Alias");
-                var acc = {};
+                var acc = {aggEvalStrArray: aggEvalStrArray};
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
-                    evalList[i].slice(1));
+                    evalList[i].slice(1), {extractAggregates: true});
                 var evalStr = genEvalStringRecur(treeNode, acc);
                 var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
