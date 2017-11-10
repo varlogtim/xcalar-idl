@@ -2522,7 +2522,7 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
     return deferred.promise();
 };
 
-// XXX haven't tested it yet
+// rename map is an arry of array
 XcalarUnion = function(tableNames, newTableName, renameMap, dedup, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -2560,15 +2560,15 @@ XcalarUnion = function(tableNames, newTableName, renameMap, dedup, txId) {
             return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
 
-        var renames = renameMap.map(function(rename) {
-            return [renameInfoMap(rename)];
+        renameMap = renameMap.map(function(renameListForOneTable) {
+            return renameListForOneTable.map(renameInfoMap);
         });
-        var workItem = xcalarUnionWorkItem(sources, newTableName, renames, dedup);
+        var workItem = xcalarUnionWorkItem(sources, newTableName, renameMap, dedup);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarUnion(tHandle, sources, newTableName, renames, dedup);
+            def = xcalarUnion(tHandle, sources, newTableName, renameMap, dedup);
         }
         query = XcalarGetQuery(workItem); // XXX test
         Transaction.startSubQuery(txId, 'union', newTableName, query);
