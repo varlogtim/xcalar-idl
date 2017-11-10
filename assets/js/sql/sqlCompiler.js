@@ -423,6 +423,7 @@
                     } catch (e) {
                         deferred.reject(e);
                         console.error(e);
+                        console.error(data.stdout);
                     }
                 } else {
                     deferred.reject(data);
@@ -591,7 +592,7 @@
 
             genMapArray(node.value.projectList, columns, evalStrArray,
                         aggEvalStrArray);
-            // XXX TODO. We need to handle this
+            // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0);
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {return o.evalStr;});
@@ -702,36 +703,12 @@
             var filterString = genEvalStringRecur(treeNode,
                                             {aggEvalStrArray: aggEvalStrArray});
 
-            var promiseArray = [];
             var cliStatements = "";
 
-            function handleAggStatements(aggEvalStr, aggSrcTableName,
-                                         aggVarName) {
-                var that = this;
-                var innerDeferred = jQuery.Deferred();
-                that.sqlObj.aggregateWithEvalStr(aggEvalStr, aggSrcTableName,
-                                                 aggVarName)
-                .then(function(retStruct) {
-                    cliStatements += retStruct.cli;
-                    innerDeferred.resolve();
-                })
-                .fail(innerDeferred.reject);
-                return innerDeferred.promise();
-            }
-
             var tableName = node.children[0].newTableName;
-            if (aggEvalStrArray.length > 0) {
-                // Do aggregates first then do filter
-                for (var i = 0; i < aggEvalStrArray.length; i++) {
-                    promiseArray.push(handleAggStatements.bind(self,
-                                      aggEvalStrArray[i].aggEvalStr,
-                                      tableName,
-                                      aggEvalStrArray[i].aggVarName));
-                }
-            }
-
-            PromiseHelper.chain(promiseArray)
-            .then(function() {
+            produceAggregateCli(self, aggEvalStrArray, tableName)
+            .then(function(cli) {
+                cliStatements += cli;
                 return self.sqlObj.filter(filterString, tableName);
             })
             .then(function(retStruct) {
@@ -813,7 +790,7 @@
                         gbAggEvalStrArray);
 
             assert(gbEvalStrArray.length === 0); // XXX TODO
-            assert(aggEvalStrArray.length === 0); // XXX TODO
+            assert(gbAggEvalStrArray.length === 0); // XXX TODO
 
             var columns = [];
             var evalStrArray = [];
@@ -835,7 +812,9 @@
             }
 
             // Step 1. Aggregate to resolve all inner aggregates
-            assert(aggEvalStrArray.length === 0); // Catalyst cannot handle this
+            // Below is half done
+            // produceAggregateCli(self, aggEvalStrArray, tableName)
+            // Catalyst cannot handle this kind of aggregates
             // Try select avg(co1 * avg(col1))
             // Step 2. Map to resolve all complex evals
             for (var i = 0; i < evalStrArray.length; i++) {
@@ -1165,6 +1144,45 @@
 
             columns.push(colName);
         }
+    }
+
+    function produceAggregateCli(self, aggEvalStrArray, tableName) {
+        var deferred = jQuery.Deferred();
+        var cliStatements = "";
+        var promiseArray = [];
+
+        if (aggEvalStrArray.length === 0) {
+            return PromiseHelper.resolve("");
+        }
+        function handleAggStatements(aggEvalStr, aggSrcTableName,
+                                     aggVarName) {
+            var that = this;
+            var innerDeferred = jQuery.Deferred();
+            that.sqlObj.aggregateWithEvalStr(aggEvalStr, aggSrcTableName,
+                                             aggVarName)
+            .then(function(retStruct) {
+                cliStatements += retStruct.cli;
+                innerDeferred.resolve();
+            })
+            .fail(innerDeferred.reject);
+            return innerDeferred.promise();
+        }
+
+        if (aggEvalStrArray.length > 0) {
+            // Do aggregates first then do filter
+            for (var i = 0; i < aggEvalStrArray.length; i++) {
+                promiseArray.push(handleAggStatements.bind(self,
+                                  aggEvalStrArray[i].aggEvalStr,
+                                  tableName,
+                                  aggEvalStrArray[i].aggVarName));
+            }
+        }
+        PromiseHelper.chain(promiseArray)
+        .then(function() {
+            deferred.resolve(cliStatements);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function getTablesInSubtree(tree) {
