@@ -1,5 +1,5 @@
 window.WorkbookPreview = (function(WorkbookPreview, $) {
-    var $workbookPreview; // $("#workBookPreview")
+    var $workbookPreview; // $("#workbookPreview")
     var modalHelper;
     var curTableList = [];
     var id;
@@ -18,7 +18,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         modalHelper.setup();
         reset();
         showWorkbookInfo(workbookId);
-        showTableInfo(workbookId);
+        return showTableInfo(workbookId);
     };
 
     function addEvents() {
@@ -56,6 +56,10 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         $workbookPreview.on("click", ".close, .cancel", function() {
             closeModal();
         });
+
+        $workbookPreview.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
     }
 
     function getTableNameFromEle(ele) {
@@ -83,6 +87,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function showTableInfo(workbookId) {
+        var deferred = jQuery.Deferred();
         var nodeInfo;
         var curId = id;
         var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
@@ -94,24 +99,27 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             nodeInfo = res.nodeInfo;
             return getTableKVStoreMeta(workbookId);
         })
-        .then(function(tableMeta) {
+        .then(function(tableMeta, wsInfo) {
             if (curId === id) {
-                curTableList = getTableList(nodeInfo, tableMeta);
+                curTableList = getTableList(nodeInfo, tableMeta, wsInfo);
                 // sort by status
                 var tableList = sortTableList(curTableList, "status");
                 updateTableList(tableList);
             }
+            deferred.resolve();
         })
         .fail(function(error) {
             if (curId === id) {
                 handleError(error);
             }
+            deferred.reject(error);
         })
         .always(function() {
             if (curId === id) {
                 $workbookPreview.removeClass("loading");
             }
         });
+        return deferred.promise();
     }
 
     function handleError(error) {
@@ -127,7 +135,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         .then(function(res) {
             try {
                 var metaInfos = new METAConstructor(res);
-                deferred.resolve(metaInfos.getTableMeta());
+                var wsInfo = getWSInfo(metaInfos.getWSMeta());
+                deferred.resolve(metaInfos.getTableMeta(), wsInfo);
             } catch (e) {
                 console.error(e);
                 deferred.resolve({}); // still resolve
@@ -141,7 +150,26 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return deferred.promise();
     }
 
-    function getTableList(nodeInfo, tableMeta) {
+    function getWSInfo(wsMeta) {
+        var res = {};
+        try {
+            var worksheets = wsMeta.wsInfos;
+            for (var wsId in worksheets) {
+                var wsName = worksheets[wsId].name;
+                var tables = worksheets[wsId].tables;
+                for (var i = 0; i < tables.length; i++) {
+                    var tableId = tables[i];
+                    res[tableId] = wsName;
+                }
+            }
+            return res;
+        } catch (e) {
+            console.error(e);
+            return res;
+        }
+    }
+
+    function getTableList(nodeInfo, tableMeta, wsInfo) {
         return nodeInfo.map(function(node) {
             var tableName = node.name;
             var size = xcHelper.sizeTranslator(node.size);
@@ -149,11 +177,15 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             var status = tableMeta.hasOwnProperty(tableId)
                         ? tableMeta[tableId].status
                         : TableType.Orphan;
+            var worksheet = (wsInfo && wsInfo.hasOwnProperty(tableId))
+                            ? wsInfo[tableId]
+                            : "--";
             return {
                 name: tableName,
                 size: size,
                 status: status,
-                sizeInNum: node.size
+                sizeInNum: node.size,
+                worksheet: worksheet
             };
         });
     }
@@ -181,6 +213,15 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                     return a.status.localeCompare(b.status);
                 }
             });
+        } else if (key === "worksheet"){
+            // sort on worksheet
+            tableList.sort(function(a, b) {
+                if (a.worksheet === b.worksheet) {
+                    return a.name.localeCompare(b.name);
+                } else {
+                    return a.worksheet.localeCompare(b.worksheet);
+                }
+            });
         } else {
             // sort by name
             tableList.sort(function(a, b) {
@@ -205,16 +246,27 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                             ' data-title="' + TooltipTStr.OpenQG + '"' +
                             '></i>' +
                         '</div>' +
-                        '<div class="name xc-action tooltipOverflow">' +
+                        '<div class="name xc-action tooltipOverflow"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + tableInfo.name + '"' +
+                        '>' +
                             tableInfo.name +
                         '</div>' +
                         '<div class="size">' +
                             tableInfo.size +
                         '</div>' +
                         '<div class="status">' +
-                            (tableInfo.status === "active"
+                            (tableInfo.status === TableType.Active
                             ? TblTStr.ActiveStatus
                             : TblTStr.TempStatus) +
+                        '</div>' +
+                        '<div class="worksheet tooltipOverflow"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + tableInfo.worksheet + '"' +
+                        '>' +
+                            tableInfo.worksheet +
                         '</div>' +
                         '<div class="action">' +
                             // '<i class="delete icon xc-action xi-trash fa-15"' +

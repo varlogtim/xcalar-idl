@@ -4645,12 +4645,14 @@ html.microsoft {
 
         .contentSection {
             .size(@height: 100%);
+            overflow: hidden;
         }
 
         .titleSection {
             background-color: @color-white;
             box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
             border-top: 1px solid rgba(0, 0, 0, 0.2);
+            padding-right: 12px;
 
             .title {
                 .label {
@@ -4662,9 +4664,13 @@ html.microsoft {
             }
         }
 
-        .listSection {
+        .listSectionContainer {
             .size(@width: 100%, @height: ~"calc(100% - 30px)");
-            overflow-y: auto;
+            overflow-y: scroll;
+        }
+
+        .listSection {
+            overflow: hidden;
 
             .grid-unit {
                 box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
@@ -4672,14 +4678,12 @@ html.microsoft {
         }
 
         .grid-unit {
-            padding: 0 15px;
             .size(@width: 100%, @height: 30px);
-            .flex-display;
 
             > div {
                 display: inline-block;
                 .position(relative);
-                .size(@width: ~"calc(30% - 60px)", @height: 30px);
+                .size(@width: 20%, @height: 30px);
                 float: left;
                 cursor: default;
                 padding-left: 10px;
@@ -4687,16 +4691,15 @@ html.microsoft {
                 .textOverflowOneLine;
 
                 &:first-child {
-                    margin-left: 0;
+                    margin-left: 15px;
                 }
 
                 &.view {
-                    .flex(0 0 20px);
+                    .size(@width: 20px);
                     padding-left: 0;
                 }
 
                 &.name {
-                    .flex(0 0 30%);
                     cursor: pointer;
 
                     .icon {
