@@ -49,7 +49,7 @@ window.DagFunction = (function($, DagFunction) {
             var parentNames = [];
             var node = this;
 
-            if (excludeTags && node.value.display.tagHeader) {
+            if (excludeTags && node.value.display.hasTagGroup) {
                 var parents = node.getVisibleParents();
                 for (var i = 0; i < parents.length; i++) {
                     parentNames.push(parents[i].value.name);

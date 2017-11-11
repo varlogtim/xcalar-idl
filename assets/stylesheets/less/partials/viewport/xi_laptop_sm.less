@@ -37,18 +37,8 @@
     }
 }
 
-@media screen and (max-height: 630px) {
-    // for jupyter's extra tab
-
-    .topMenuBarTab .mainTab, #bottomMenuBarTabs .bottomMenuBarTab {
-        height: 45px;
-        .mainTab {
-            height: 45px;
-        }
-    }
-}
-// for jupyter's extra tab
-@media screen and (max-height: 680px) {
+// compress left main tabs
+@media screen and (max-height: 730px) {
     #menuBar {
         .topMenuBarTab:not(.active) {
             max-height: @height-mainTab + 1; // for IE
@@ -65,8 +55,43 @@
             }
             ::-webkit-scrollbar-thumb {
                 -webkit-box-shadow: none;
-                background-color: rgb(67, 88, 113) !important; // xi2 temp
+                background-color: rgb(67, 88, 113) !important;
             }
+
+            .mainTab {
+                height: 45px;
+                .mainTab {
+                    height: 45px;
+                }
+            }
+        }
+    }
+
+    #bottomMenuBarTabs .bottomMenuBarTab {
+        height: 45px;
+        .mainTab {
+            height: 45px;
+        }
+    }
+}
+
+// compress left main tabs
+@media screen and (max-height: 610px) {
+    #menuBar {
+        .topMenuBarTab {
+            .mainTab {
+                height: 40px;
+                .mainTab {
+                    height: 40px;
+                }
+            }
+        }
+    }
+
+    #bottomMenuBarTabs .bottomMenuBarTab {
+        height: 40px;
+        .mainTab {
+            height: 40px;
         }
     }
 }

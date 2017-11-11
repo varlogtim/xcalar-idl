@@ -733,6 +733,7 @@ html.firefox, html.microsoft {
                 top: 4px;
                 left: 0px;
                 z-index: -1;
+                border-radius: 5px;
             }
         }
 
@@ -839,11 +840,14 @@ html.firefox, html.microsoft {
             font-size: 14px;
             line-height: 30px;
             text-align: center;
+            margin-left: -1px;
+            &.xi-data-update {
+                margin-left: 1px;
+            }
         }
 
         .filter {
             .icon {
-                margin-left: -1px;
                 font-size: 15px;
             }
         }

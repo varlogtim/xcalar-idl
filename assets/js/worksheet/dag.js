@@ -358,7 +358,7 @@ window.Dag = (function($, Dag) {
             clearTimeout($dagOperation.data("discoverTimeout"));
             $dagOperation.data("glowTimeout", glowTimeout);
         }
-
+        DagPanel.adjustScrollBarPositionAndSize();
     };
 
     Dag.expandAll = function($dagWrap) {
@@ -429,6 +429,7 @@ window.Dag = (function($, Dag) {
 
         $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth -
                                       dagImageWidth));
+        DagPanel.adjustScrollBarPositionAndSize();
     };
 
     Dag.checkCanExpandAll = function($dagWrap) {
@@ -511,6 +512,7 @@ window.Dag = (function($, Dag) {
                                              allDagInfo.condensedWidth, all);
         $dagImage.parent().scrollLeft(prevScrollLeft +
                                     (allDagInfo.condensedWidth - dagImageWidth));
+        DagPanel.adjustScrollBarPositionAndSize();
     };
 
     Dag.setupDagSchema = function() {
