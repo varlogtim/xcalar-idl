@@ -547,18 +547,8 @@ window.Undo = (function($, Undo) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         TblManager.refreshTable([options.oldTableName], null,
                                 [options.tableName], worksheet, null,
-                            {isUndo: true, from: options.tableType})
+                            {isUndo: true, from: TableType.Orphan})
         .then(function() {
-            if (worksheet !== options.worksheet) {
-                var status = gTables[options.tableId].status;
-                var type;
-                if (status === TableType.Orphan) {
-                    type = WSTableType.Orphan;
-                }
-                WSManager.moveTable(options.tableId, options.worksheet, type);
-                var hiddenWS = WSManager.getHiddenWSList();
-                TableList.tablesToHiddenWS(hiddenWS);
-            }
             deferred.resolve();
         })
         .fail(function(error) {

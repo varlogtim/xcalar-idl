@@ -60,7 +60,6 @@ SyncOrAsync = {
 WSTableType = {
     "Active"    : "tables",
     "TempHidden": "tempHiddenTables",
-    "Orphan"    : "orphanedTables",
     "Undo"      : "undoneTables",
     "Lock"      : "lockedTables",
     "Pending"   : "pendingTables"
