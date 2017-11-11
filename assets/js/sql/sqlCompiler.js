@@ -694,7 +694,15 @@
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0);
             if (evalStrArray.length > 0) {
-                var mapStrs = evalStrArray.map(function(o) {return o.evalStr;});
+                var mapStrs = evalStrArray.map(function(o) {
+                    if (o.evalStr.indexOf("(") === -1) {
+                        // This is the alias case
+                        assert(o.dataType);
+                        return o.dataType + "(" + o.evalStr + ")";
+                    } else {
+                        return o.evalStr;
+                    }
+                });
                 var newColNames = evalStrArray.map(function(o) {
                     return o.newColName;
                 });
@@ -706,11 +714,8 @@
                 }
                 var newTableName = xcHelper.getTableName(tableName) +
                                    Authentication.getHashId();
-
                 var cli;
-                //debugger;
-                // XXX FIXME rename map. in genMapArray, need to take note
-                // Just cast it to the type. it's quite a simple fix.
+
                 self.sqlObj.map(mapStrs, tableName, newColNames,
                     newTableName)
                 .then(function(ret) {
@@ -718,7 +723,7 @@
                     return self.sqlObj.project(columns, newTableName);
                 })
                 .then(function(ret) {
-                    deferred.resolve({newTableName: newTableName,
+                    deferred.resolve({newTableName: ret.newTableName,
                                       cli: cli + ret.cli});
                 });
             } else {
