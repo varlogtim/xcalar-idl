@@ -44,6 +44,12 @@
     function getIndexColKey(colNames) {
         return colNames.toString();
     }
+    function assert(st) {
+        if (!st) {
+            debugger;
+            console.error("ASSERTION FAILURE!");
+        }
+    }
 
     SQLApi.prototype = {
         _start: function() {
@@ -95,10 +101,9 @@
             }
         },
 
-        _getQueryTableCols: function(tableName) {
+        _getQueryTableCols: function(tableName, allCols) {
             var deferred = jQuery.Deferred();
             var self = this;
-
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {
                 if (tableMeta == null || tableMeta.valueAttrs == null) {
@@ -108,13 +113,24 @@
 
                 var valueAttrs = tableMeta.valueAttrs || [];
                 var progCols = [];
-                // XXX TODO: translate valueAttr.type to the type
-                valueAttrs.forEach(function(valueAttr) {
-                    var name = valueAttr.name;
-                    var type = self._getColType(valueAttr.type);
-                    // assume all is immediates
-                    progCols.push(ColManager.newPullCol(name, name, type));
-                });
+                for (var i = 0; i < allCols.length; i++) {
+                    var found = false;
+                    for (var j = 0; j < valueAttrs.length; j++) {
+                        var name = valueAttrs[j].name;
+                        if (name === allCols[i]) {
+                            found = true;
+                            var type = self._getColType(valueAttrs[j].type);
+                            progCols.push(ColManager.newPullCol(name, name, type));
+                            break;
+                        }
+                    }
+                    assert(found);
+                }
+                assert(progCols.length > 0);
+                // If progCols doesn't have elements, it could be due to:
+                // 1. allCols is empty
+                // 2. valueAttrs has no match colName
+                // Both of which should never happen. If did, it should crash
                 progCols.push(ColManager.newDATACol());
                 deferred.resolve(progCols);
             })
@@ -123,9 +139,9 @@
             return deferred.promise();
         },
 
-        _refreshTable: function(txId, tableName) {
+        _refreshTable: function(txId, tableName, allCols) {
             var deferred = jQuery.Deferred();
-            this._getQueryTableCols(tableName)
+            this._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
                 return TblManager.refreshTable([tableName], tableCols,
@@ -139,7 +155,7 @@
             return deferred.promise();
         },
 
-        run: function(query, tableName) {
+        run: function(query, tableName, allCols) {
             var deferred = jQuery.Deferred();
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var txId = !isSqlMode && Transaction.start({
@@ -150,7 +166,7 @@
             XIApi.query(txId, queryName, query)
             .then(function() {
                 if (!isSqlMode) {
-                    return self._refreshTable(txId, tableName);
+                    return self._refreshTable(txId, tableName, allCols);
                 }
             })
             .then(function() {

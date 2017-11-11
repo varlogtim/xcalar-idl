@@ -169,6 +169,8 @@
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
             // These are leaf nodes
             // Find the RDD that has a name XC_TABLENAME_ prefix
+            this.allCols = [];
+            this.tempCols = [];
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
                 var evalStr = genEvalStringRecur(SQLCompiler.genTree(undefined,
@@ -180,6 +182,8 @@
                 if (evalStr.indexOf(tablePrefix) === 0) {
                     this.newTableName = evalStr.substring(tablePrefix.length);
                     break;
+                } else {
+                    this.allCols.push(evalStr);
                 }
             }
         }
@@ -504,11 +508,46 @@
     SQLCompiler.getAllPublishedTables = function() {
         return tableLookup;
     };
+    function ProjectNode(columns) {
+        return new TreeNode({
+            "class" : "org.apache.spark.sql.catalyst.plans.logical.Project",
+            "num-children" : 1,
+            "projectList": columns
+        });
+    }
+    function pushUpCols(node) {
+        // Push cols names to its direct parent
+        if (node.parent) {
+            if (node.parent.allCols) {
+                // Only happens when parent is Join
+                for (var i = 0; i < node.allCols.length; i++) {
+                    // There should be no duplicates
+                    assert(node.parent.allCols.indexOf(node.allCols[i]) === -1);
+                    node.parent.allCols.push(node.allCols[i])
+                }
 
+            } else {
+                node.parent.allCols = node.allCols;
+            }
+            // Push tempCols as well
+            if (node.parent.tempCols) {
+                for (var i = 0; i < node.tempCols.length; i++) {
+                    assert(node.parent.tempCols.indexOf(node.tempCols[i]) === -1);
+                    node.parent.tempCols.push(node.tempCols[i])
+                }
+            } else {
+                node.parent.tempCols = node.tempCols;
+            }
+        }
+    }
     SQLCompiler.genTree = function(parent, array) {
         var newNode = new TreeNode(array.shift());
         if (parent) {
             newNode.parent = parent;
+            if (newNode.value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+                // Push up here as we won't access it during traverseAndPushDown
+                pushUpCols(newNode);
+            }
         }
         for (var i = 0; i < newNode.value["num-children"]; i++) {
             newNode.children.push(SQLCompiler.genTree(newNode, array));
@@ -577,7 +616,8 @@
                             treeNode[prop] = ret[prop];
                         }
                     }
-
+                    // Pass cols to its parent
+                    pushUpCols(treeNode);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -620,7 +660,7 @@
                     var queryString = "[" + cliArray.join(",") + "]";
                     // queryString = queryString.replace(/\\/g, "\\");
                     // console.log(queryString);
-                    self.sqlObj.run(queryString, tree.newTableName, isJsonPlan)
+                    self.sqlObj.run(queryString, tree.newTableName, tree.allCols)
                     .then(outDeferred.resolve)
                     .fail(outDeferred.reject);
                 })
@@ -685,6 +725,8 @@
                 self.sqlObj.project(columns, tableName)
                 .then(deferred.resolve);
             }
+            // In Project we just keep what is left
+            node.allCols = columns;
             return deferred.promise();
         },
 
@@ -914,6 +956,13 @@
                                   cli: cli + ret.cli});
             })
             .fail(deferred.reject);
+            // In Aggregate we record allCols as well as temp cols
+            if (node.tempCols) {
+                node.tempCols = node.tempCols.concat(newColNames);
+            } else {
+                node.tempCols = newColNames;
+            }
+            node.allCols = columns;
             return deferred.promise();
         },
 
@@ -1040,6 +1089,12 @@
                 for (var i = 0; i < mapStrArray.length; i++) {
                     newColNames.push("XC_JOIN_COL_" + tableId + "_" + i);
                 }
+                // Record temp cols
+                if (node.tempCols) {
+                    node.tempCols = node.tempCols.concat(newColNames);
+                } else {
+                    node.tempCols = newColNames;
+                }
                 var newTableName = xcHelper.getTableName(origTableName) +
                                    Authentication.getHashId();
                 self.sqlObj.map(mapStrArray, origTableName, newColNames,
@@ -1112,7 +1167,6 @@
                 ret.cli = cliArray.join("") + ret.cli;
                 deferred.resolve(ret);
             });
-
             return deferred.promise();
         }
     };
