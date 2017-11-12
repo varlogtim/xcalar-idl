@@ -229,6 +229,15 @@
                 "right" : 1
             });
         }
+        function stringReplaceNode() {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions." +
+                          "StringReplace",
+                "num-children" : 3,
+                "left" : 0,
+                "right" : 1
+            });
+        }
 
         function ifStrNode() {
             return new TreeNode({
@@ -279,20 +288,20 @@
                     length.dataType === "integer") {
                         length.value = "" + (startIndex.value * 1 + length.value * 1);
                     } else {
-                        var addNode = addNode();
-                        addNode.children.push(node.children[1], node.children[2]);
-                        addNode.parent = node;
-                        node.children[2] = addNode;
+                        var addN = addNode();
+                        addN.children.push(node.children[1], node.children[2]);
+                        addN.parent = node;
+                        node.children[2] = addN;
                     }
                 } else {
                     var subNode = subtractNode();
                     subNode.children.push(node.children[1], literalNumberNode(1));
-                    var addNode = addNode();
-                    addNode.children.push(subNode, node.children[2]);
+                    var addN = addNode();
+                    addN.children.push(subNode, node.children[2]);
                     node.children[1] = subNode;
                     subNode.parent = node;
-                    node.children[2] = addNode;
-                    addNode.parent = node;
+                    node.children[2] = addN;
+                    addN.parent = node;
                 }
                 break;
             case ("expressions.Left"):
@@ -300,6 +309,24 @@
                 var parent = node.parent;
                 parent.children[idx] = node.children[2];
                 node.children[2].parent = parent;
+                break;
+            case ("expressions.Like"):
+                assert(node.children.length == 2);
+                var strNode = node.children[1];
+                var stringRepNode = stringReplaceNode();
+
+                strNode.parent = stringRepNode;
+                var pctNode = literalStringNode("%");
+                pctNode.parent = stringRepNode;
+                var starNode = literalStringNode("*");
+                starNode.parent = stringRepNode;
+
+                stringRepNode.children.push(strNode);
+                stringRepNode.children.push(pctNode);
+                stringRepNode.children.push(starNode);
+
+                node.children[1] = stringRepNode;
+
                 break;
             case ("expressions.CaseWhenCodegen"):
             case ("expressions.CaseWhen"):
