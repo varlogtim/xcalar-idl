@@ -337,6 +337,11 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         .then(function(dagObj) {
             if (curId === id) {
                 DagDraw.createDagImage(dagObj.node, $dagWrap);
+                // remove "click to see options" tooltips
+                var $tooltipTables = $dagWrap.find('.dagTableIcon, ' +
+                                                    '.dataStoreIcon');
+                xcTooltip.disable($tooltipTables);
+                Dag.addEventListeners($dagWrap);
             }
             deferred.resolve();
         })

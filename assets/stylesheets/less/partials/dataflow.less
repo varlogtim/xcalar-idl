@@ -343,10 +343,6 @@
             padding-bottom: 10px;
         }
 
-        .dagTableWrap {
-            z-index: 2; // otherwise canvas lines will be in front
-        }
-
         .dagWrap {
             &.deleting {
                 pointer-events: none;
@@ -369,8 +365,8 @@
         }
 
         .dagTable {
-            z-index: 1;
             cursor: default;
+
             .tableTitle {
                 max-width: 180px;
             }
@@ -425,6 +421,9 @@
                 &.export {
                     .icon {
                         color: @color-bg-btn-hover-blue;
+                    }
+                    .dagTableIcon {
+                        background-color: @color-bg-btn-hover-blue;
                     }
                 }
             }
@@ -614,7 +613,6 @@
 
         canvas {
             pointer-events: none;
-            z-index: 0;
         }
 
         .hint {

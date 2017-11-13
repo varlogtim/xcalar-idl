@@ -479,6 +479,7 @@ html.firefox, html.microsoft {
         .align-self(center);
         vertical-align: middle;
         position: absolute;
+        z-index: 1; // otherwise canvas lines will be in front
 
         &.hidden {
             display: none;
@@ -1220,11 +1221,10 @@ html.firefox, html.microsoft {
 
 .canvas {
     .position(absolute, @top: 0, @left: -40px);
-    z-index: -1;
+    z-index: 0;
 }
 
 .canvas.full {
-    z-index: 0;
     opacity: 0;
     visibility: hidden;
     top: -50px;

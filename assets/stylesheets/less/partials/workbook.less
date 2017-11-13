@@ -438,6 +438,7 @@
                 .size(20px, 20px);
                 .position(absolute, @top: 6px, @right: 0);
                 color: @color-bg-select-blue;
+                display: none;
             }
         }
 
@@ -528,6 +529,11 @@
         }
 
         &:hover {
+            .subHeading {
+                .preview {
+                    display: block;
+                }
+            }
             .vertBarBtn {
                 .tab {
                     .transform(translateY(0%));
