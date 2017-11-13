@@ -672,6 +672,12 @@
             promise
             .then(function(jsonArray) {
                 var tree = SQLCompiler.genTree(undefined, jsonArray);
+                if (tree.value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+                    // If the logicalRDD is root, we should add an extra Project
+                    var newNode = ProjectNode(tree.value.output.slice(0, -1));
+                    newNode.children = [tree];
+                    tree = newNode;
+                }
                 traverseAndPushDown(tree);
                 PromiseHelper.chain(promiseArray)
                 .then(function() {
