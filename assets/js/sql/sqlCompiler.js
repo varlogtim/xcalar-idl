@@ -495,6 +495,13 @@
             // to return the top node
         }
 
+        if (node.aggTree) {
+            // aggTree's root node is expressions.aggregate.*
+            // so it won't hit any of the cases in second traverse
+            // however, its grandchildren might be substring, etc.
+            secondTraverse(node.aggTree, undefined, options);
+        }
+
         return retNode;
     }
     function sendPost(struct) {
@@ -728,13 +735,7 @@
             assert(aggEvalStrArray.length === 0);
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {
-                    if (o.evalStr.indexOf("(") === -1) {
-                        // This is the alias case
-                        assert(o.dataType);
-                        return o.dataType + "(" + o.evalStr + ")";
-                    } else {
-                        return o.evalStr;
-                    }
+                    return o.evalStr;
                 });
                 var newColNames = evalStrArray.map(function(o) {
                     return o.newColName;
@@ -841,7 +842,8 @@
 
             var aggEvalStrArray = [];
             var filterString = genEvalStringRecur(treeNode,
-                                            {aggEvalStrArray: aggEvalStrArray});
+                                            {aggEvalStrArray: aggEvalStrArray},
+                                            undefined);
 
             var cliStatements = "";
 
@@ -920,7 +922,7 @@
 
         _pushDownAggregate: function(node) {
             // There are 4 possible cases in aggregates (groupbys)
-            // 1 - f(g) => Currently not implemented yet. TODO
+            // 1 - f(g) => Handled
             // 2 - g(f) => Handled
             // 3 - g(g) => Catalyst cannot handle this
             // 4 - f(f) => Not valid syntax. For gb you need to have g somewhere
@@ -930,6 +932,7 @@
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
+            // Resolve group on clause
             var gbCols = [];
             var gbEvalStrArray = [];
             var gbAggEvalStrArray = [];
@@ -939,66 +942,188 @@
             assert(gbEvalStrArray.length === 0); // XXX TODO
             assert(gbAggEvalStrArray.length === 0); // XXX TODO
 
+            // Resolve each group's map clause
             var columns = [];
             var evalStrArray = [];
             var aggEvalStrArray = [];
             genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
                         aggEvalStrArray, {operator: true});
 
-            var options = {};
             if (!node.additionalRDDs) {
                 node.additionalRDDs = [];
             }
+
+            // Here are the steps on how we compile groupbys
+            // 1. For all in evalStrArray, split into gArray and fArray based
+            // on whether they have operator
+            // 2. For all in gArray, if hasOp in evalStr,
+            //    - Push into firstMapArray
+            //    - Replace value inside with aggVarName
+            // 3. For all in aggArray, if hasOp in aggEval after strip, fgf case
+            //    - Push into firstMapArray
+            //    - Replace value inside with aggVarName
+            // 4. Special case: for cases where there's no group by clause,
+            // we will create a column of 1s and group on it. for case where
+            // there is no map operation, we will just do a count(1)
+            // 5. For all in fArray, if hasOp in EvalStr, push op into
+            // secondMapArray. Be sure to use the column name that's in the
+            // original alias call
+            // 6. Trigger the lazy call
+            // firstMapArray
+            // .then(groupby)
+            // .then(secondMapArray)
+
+            var gArray = [];
+            var fArray = [];
+
+            // Step 1
             for (var i = 0; i < evalStrArray.length; i++) {
-                evalStrArray[i].aggColName = evalStrArray[i].evalStr;
-                delete evalStrArray[i].evalStr;
-                if (!evalStrArray[i].operator) {
-                    options.isIncSample = true;
+                if (evalStrArray[i].operator) {
+                    gArray.push(evalStrArray[i]);
+                } else {
+                    fArray.push(evalStrArray[i]);
                 }
                 node.additionalRDDs.push(evalStrArray[i].newColName);
             }
 
-            // Catalyst cannot handle this kind of aggregates
-            // Try select avg(co1 * avg(col1))
-            // Case 2 Map to resolve all complex evals
-            var mapStrs = [];
-            var newColNames = [];
-            for (var i = 0; i < evalStrArray.length; i++) {
-                if (evalStrArray[i].aggColName.indexOf("(") > -1) {
-                    mapStrs.push(evalStrArray[i].aggColName);
+            // Step 2
+            var firstMapArray = [];
+            var firstMapColNames = [];
+            for (var i = 0; i < gArray.length; i++) {
+                gArray[i].aggColName = gArray[i].evalStr;
+                delete gArray[i].evalStr;
+                if (gArray[i].aggColName.indexOf("(") > -1) {
+                    firstMapArray.push(gArray[i].aggColName);
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(3);
-                    newColNames.push(newColName);
-                    evalStrArray[i].aggColName = newColName;
+                    firstMapColNames.push(newColName);
+                    gArray[i].aggColName = newColName;
                 }
+
             }
 
-            var mapPromise = PromiseHelper.resolve();
-            if (mapStrs.length > 0) {
-                var newTableName = xcHelper.getTableName(tableName) +
-                                   Authentication.getHashId();
-                mapPromise = self.sqlObj.map(mapStrs, tableName, newColNames,
-                                             newTableName);
-                tableName = newTableName;
+            // Step 3
+            for (var i = 0; i < aggEvalStrArray.length; i++) {
+                var gbMapCol = {};
+                var rs = extractAndReplace(aggEvalStrArray[i].aggEvalStr);
+                gbMapCol.operator = rs.firstOp;
+                if (rs.inside.indexOf("(") > -1) {
+                    var newColName = "XC_GB_COL_" +
+                                     Authentication.getHashId().substring(3);
+                    firstMapColNames.push(newColName);
+                    firstMapArray.push(rs.inside);
+                    gbMapCol.aggColName = newColName;
+                } else {
+                    gbMapCol.aggColName = rs.inside;
+                }
+                gbMapCol.newColName = aggEvalStrArray[i].aggVarName;
+                gArray.push(gbMapCol);
             }
-            mapPromise
+
+            // Step 4
+            // Special cases
+            // Select avg(col1)
+            // from table
+            // This results in a table where it's just 1 value
+
+            // Another special case
+            // Select col1 [as col2]
+            // from table
+            // grouby col1
+            var gbTempColName;
+            if (gbCols.length === 0) {
+                firstMapArray.push("int(1)");
+                gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
+                                                             .substring(3);
+                firstMapColNames.push(gbTempColName);
+                gbCols = [gbTempColName];
+            }
+
+            var tempCol;
+            if (gArray.length === 0) {
+                var newColName = "XC_GB_COL_" +
+                                 Authentication.getHashId().substring(3);
+                gArray = [{operator: "count",
+                           aggColName: "1",
+                           newColName: newColName}];
+                tempCol = newColName;
+            }
+
+            // Step 5
+            var secondMapArray = [];
+            var secondMapColNames = [];
+            for (var i = 0; i < fArray.length; i++) {
+                if (fArray[i].evalStr.indexOf("(") > -1) {
+                    secondMapArray.push(fArray[i].evalStr);
+                    secondMapColNames.push(fArray[i].newColName);
+                }
+                // This if is necessary because of the case where
+                // select col1
+                // from table
+                // group by col1
+            }
+
+            // Step 6
+            var newTableName = tableName;
+            var firstMapPromise = function() {
+                if (firstMapArray.length > 0) {
+                    var srcTableName = newTableName;
+                    newTableName =  xcHelper.getTableName(newTableName) +
+                                    Authentication.getHashId();
+                    return self.sqlObj.map(firstMapArray, srcTableName,
+                                           firstMapColNames, newTableName);
+                } else {
+                    return PromiseHelper.resolve();
+                }
+            };
+
+            var secondMapPromise = function() {
+                if (secondMapArray.length > 0) {
+                    var srcTableName = newTableName;
+                    newTableName =  xcHelper.getTableName(newTableName) +
+                                    Authentication.getHashId();
+                    return self.sqlObj.map(secondMapArray, srcTableName,
+                                           secondMapColNames, newTableName);
+                } else {
+                    return PromiseHelper.resolve();
+                }
+            };
+
+            firstMapPromise()
             .then(function(ret) {
                 if (ret) {
                     cli += ret.cli;
+                    newTableName = ret.newTableName;
                 }
-                return self.sqlObj.groupBy(gbCols, evalStrArray, tableName,
-                                           options);
+                return self.sqlObj.groupBy(gbCols, gArray, newTableName);
             })
             .then(function(ret) {
-                deferred.resolve({newTableName: ret.newTableName,
-                                  cli: cli + ret.cli});
+                assert(ret);
+                newTableName = ret.newTableName;
+                cli += ret.cli;
+                return secondMapPromise();
+            })
+            .then(function(ret) {
+                if (ret) {
+                    cli += ret.cli;
+                    newTableName = ret.newTableName;
+                }
+                deferred.resolve({newTableName: newTableName,
+                                  cli: cli});
             })
             .fail(deferred.reject);
+            // End of Step 6
+
             // In Aggregate we record allCols as well as temp cols
+            // XXX FIXME there are some bugs here.
             if (node.tempCols) {
-                node.tempCols = node.tempCols.concat(newColNames);
+                node.tempCols = node.tempCols.concat(firstMapColNames);
+                node.tempCols = node.tempCols.concat(secondMapColNames);
             } else {
-                node.tempCols = newColNames;
+                node.tempCols = firstMapColNames.concat(secondMapColNames);
+            }
+            if (tempCol) {
+                node.tempCols.push(tempCol);
             }
             node.allCols = columns;
             return deferred.promise();
@@ -1209,7 +1334,7 @@
         }
     };
 
-    function genEvalStringRecur(condTree, acc) {
+    function genEvalStringRecur(condTree, acc, options) {
         // Traverse and construct tree
         var outStr = "";
         var opName = condTree.value.class.substring(
@@ -1233,13 +1358,17 @@
                             // string. Otherwise it will assign it to
                             // acc.operator
                             var aggEvalStr =
-                                           genEvalStringRecur(condTree.aggTree);
+                                           genEvalStringRecur(condTree.aggTree,
+                                            undefined, options);
                             var aggVarName = "XC_AGG_" +
                                         Authentication.getHashId().substring(3);
 
                             acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
                                                       aggVarName: aggVarName});
-                            outStr += "^" + aggVarName;
+                            if (options && !options.notAggVar) {
+                                outStr += "^"; // unused
+                            }
+                            outStr += aggVarName;
                         } else {
                             assert(condTree.children.length > 0);
                         }
@@ -1253,7 +1382,7 @@
                 }
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
-                outStr += genEvalStringRecur(condTree.children[i], acc);
+                outStr += genEvalStringRecur(condTree.children[i], acc, options);
                 if (i < condTree.value["num-children"] -1) {
                     outStr += ",";
                 }
@@ -1290,7 +1419,8 @@
 
     function genMapArray(evalList, columns, evalStrArray, aggEvalStrArray,
                          options) {
-        // Note: Only top level agg functions are not extracted. The rest of the
+        // Note: Only top level agg functions are not extracted
+        // (idx !== undefined check). The rest of the
         // agg functions will be extracted and pushed into the aggArray
         // The evalStrArray will be using the ^aggVariables
         for (var i = 0; i<evalList.length; i++) {
@@ -1302,7 +1432,7 @@
                 var acc = {aggEvalStrArray: aggEvalStrArray};
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
                     evalList[i].slice(1), {extractAggregates: true});
-                var evalStr = genEvalStringRecur(treeNode, acc);
+                var evalStr = genEvalStringRecur(treeNode, acc, undefined);
                 var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr};
@@ -1313,8 +1443,9 @@
                 if (evalList[i].length === 2) {
                     // This is a special alias case
                     assert(evalList[i][1].dataType);
-                    retStruct.dataType = convertSparkTypeToXcalarType(
+                    var dataType = convertSparkTypeToXcalarType(
                         evalList[i][1].dataType);
+                    retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
                 }
                 evalStrArray.push(retStruct);
             } else {
@@ -1365,6 +1496,24 @@
         })
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    function extractAndReplace(evalStr, replace) {
+        if (evalStr.indexOf("(") === -1) {
+            return;
+        }
+        var leftBracketIndex = evalStr.indexOf("(");
+        var rightBracketIndex = evalStr.lastIndexOf(")");
+        var firstOp = evalStr.substring(0, leftBracketIndex);
+        var inside = evalStr.substring(leftBracketIndex + 1,
+                                          rightBracketIndex);
+        var retStruct = {};
+        if (replace) {
+            retStruct.replaced = firstOp + "(" + replace + ")";
+        }
+        retStruct.firstOp = firstOp;
+        retStruct.inside = inside;
+        return retStruct;
     }
 
     function getTablesInSubtree(tree) {

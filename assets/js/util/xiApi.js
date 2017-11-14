@@ -728,7 +728,6 @@
         return deferred.promise();
     };
 
-
     /*
      * gbArgs: an array of objects with operator, aggColName, and newColName
      *         properties - for multi group by operations

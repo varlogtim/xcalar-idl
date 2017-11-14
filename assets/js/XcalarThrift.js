@@ -2398,7 +2398,7 @@ XcalarGroupByWithInput = function(txId, inputStruct) {
     return (deferred.promise());
 };
 
-XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
+XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName,
                        txId) {
     if (Transaction.checkCanceled(txId)) {
@@ -2409,36 +2409,13 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
     icvMode = icvMode || false;
 
     var deferred = jQuery.Deferred();
-    var evalStrs = [];
     var query;
 
-    operators = (operators instanceof Array)
-                ? operators
-                : [operators];
-    newColNames = (newColNames instanceof Array)
-                    ? newColNames
-                    : [newColNames];
-    aggColNames = (aggColNames instanceof Array)
-                    ? aggColNames
-                    : [aggColNames];
+    newColNames = (newColNames instanceof Array) ? newColNames : [newColNames];
+    evalStrs = (evalStrs instanceof Array) ? evalStrs : [evalStrs];
 
-    if (operators.length !== newColNames.length ||
-        operators.length !== aggColNames.length) {
+    if (evalStrs.length !== newColNames.length) {
         return PromiseHelper.reject("invalid args");
-    }
-
-    for (var i = 0, len = operators.length; i < len; i++) {
-        var op = operators[i];
-        if (!op) {
-            // XXX to do, check if the operator is valid as XIApi.genAggStr
-            return PromiseHelper.reject("Wrong operator! " + operator);
-        }
-        op = op.slice(0, 1).toLowerCase() + op.slice(1);
-        var evalStr = op + "(" + aggColNames[i] + ")";
-        if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
-            return PromiseHelper.reject("Eval string too long");
-        }
-        evalStrs.push(evalStr);
     }
 
     getUnsortedTableName(tableName, null, txId)
@@ -2477,6 +2454,37 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
         deferred.reject(thriftError);
     });
     return deferred.promise();
+};
+
+XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
+                       newTableName, incSample, icvMode, newKeyFieldName,
+                       txId) {
+    var evalStrs = [];
+
+    operators = (operators instanceof Array) ? operators : [operators];
+    newColNames = (newColNames instanceof Array) ? newColNames : [newColNames];
+    aggColNames = (aggColNames instanceof Array) ? aggColNames : [aggColNames];
+    if (operators.length !== newColNames.length ||
+        operators.length !== aggColNames.length) {
+        return PromiseHelper.reject("invalid args");
+    }
+
+    for (var i = 0, len = operators.length; i < len; i++) {
+        var op = operators[i];
+        if (!op) {
+            // XXX to do, check if the operator is valid as XIApi.genAggStr
+            return PromiseHelper.reject("Wrong operator! " + operator);
+        }
+        op = op.slice(0, 1).toLowerCase() + op.slice(1);
+        var evalStr = op + "(" + aggColNames[i] + ")";
+        if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+            return PromiseHelper.reject("Eval string too long");
+        }
+        evalStrs.push(evalStr);
+    }
+    return XcalarGroupByWithEvalStrings(newColNames, evalStrs, tableName,
+                       newTableName, incSample, icvMode, newKeyFieldName,
+                       txId);
 };
 
 XcalarProject = function(columns, tableName, dstTableName, txId) {
