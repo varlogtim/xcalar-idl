@@ -4,8 +4,7 @@ set -e
 # Check if envvar PRODUCTNAME is set. If it is, use that. Else use xcalar-gui
 cd $XLRGUIDIR/xcalar-gui/assets/js/thrift/
 mv *.js 015
-cp $XLRDIR/buildOut/src/bin/thrift/js/*.js .
-cp $XLRDIR/src/bin/tests/*.js .
+cp $XLRDIR/bin/jsPackage/*.js .
 cp 015/thrift.js .
 
 cd $XLRGUIDIR
