@@ -1574,7 +1574,7 @@
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
                 tempTables.push(antiJoinTableName);
-                return XcalarFilter("not(exists(" + rIndexedColName + "))",
+                return XcalarFilter("not(exists(" + newColName + "))",
                        antiJoinTableName, newTableName, txId);
             } else {
                 return PromiseHelper.resolve();
