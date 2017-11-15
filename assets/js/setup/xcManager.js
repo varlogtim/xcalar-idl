@@ -1560,7 +1560,8 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
 
-            var $parents = $(event.target).parents();
+            var $target = $(event.target);
+            var $parents = $(event.target).parents().add($target);
             // If none of the parents can be scrolled left
             // when we try to scroll left
             var prevent_left = event.deltaX < 0 && $parents.filter(function() {
