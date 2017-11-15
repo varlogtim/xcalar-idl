@@ -714,30 +714,35 @@ window.DagDraw = (function($, DagDraw) {
     // that matches that node, that node will not be hidden tag
     function checkIsNodeHiddenTag(tags, node) {
         var isHiddenTag;
-        var numChildren = node.children.length;
-        if (numChildren === 1) {
-            isHiddenTag = true;
+        if (!node.parents.length) {
+            isHiddenTag = false;
         } else {
-            isHiddenTag = true;
-            for (var i = 0; i < numChildren; i++) {
-                var child = node.children[i];
-                if (child.value.api === XcalarApisT.XcalarApiExport) {
-                    continue;
-                }
-                var childTags = getTags(child);
-                var matchFound = false;
-                for (var j = 0; j < childTags.length; j++) {
-                    if (tags.indexOf(childTags[j]) > -1) {
-                        matchFound = true;
+            var numChildren = node.children.length;
+            if (numChildren === 1) {
+                isHiddenTag = true;
+            } else {
+                isHiddenTag = true;
+                for (var i = 0; i < numChildren; i++) {
+                    var child = node.children[i];
+                    if (child.value.api === XcalarApisT.XcalarApiExport) {
+                        continue;
+                    }
+                    var childTags = getTags(child);
+                    var matchFound = false;
+                    for (var j = 0; j < childTags.length; j++) {
+                        if (tags.indexOf(childTags[j]) > -1) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    if (!matchFound) {
+                        isHiddenTag = false;
                         break;
                     }
                 }
-                if (!matchFound) {
-                    isHiddenTag = false;
-                    break;
-                }
             }
         }
+
         return isHiddenTag;
     }
 

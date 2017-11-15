@@ -1024,11 +1024,9 @@ window.DFCard = (function($, DFCard) {
             });
             $dagWrap.data("txid", txId);
             passedCheckBeforeRunDF = true;
-            var promise = XcalarExecuteRetina(retName, paramsArray,
-                                              advancedOpts, txId);
             startStatusCheck(retName);
-
-            return promise;
+            return XcalarExecuteRetina(retName, paramsArray, advancedOpts,
+                                       txId);
         })
         .then(function() {
             endStatusCheck(retName, passedCheckBeforeRunDF, true);
