@@ -152,7 +152,8 @@
         "expressions.aggregate.Last": null,
         "expressions.aggregate.Percentile": null,
         "expressions.aggregate.PivotFirst": null,
-        "expressions.aggregate.AggregateExpression": null
+        "expressions.aggregate.AggregateExpression": null,
+        "expressions.ScalarSubquery": null
     };
 
     var tablePrefix = "XC_TABLENAME_";
@@ -482,6 +483,16 @@
                     node.aggVariable = ""; // To be filled in by genEval
                 }
                 break;
+            case ("expressions.ScalarSubquery"):
+                // The result of the subquery should be a single value
+                // So an Aggregate node should be the first in the plan
+                assert(node.value.plan[0].class ===
+                       "org.apache.spark.sql.catalyst.plans.logical.Aggregate");
+                node.value.plan[0].class =
+                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
+                var subqueryTree = SQLCompiler.genTree(undefined, node.value.plan);
+                node.subqueryTree = subqueryTree;
+                break;
             default:
                 break;
         }
@@ -592,85 +603,92 @@
         return secondTraverse(SQLCompiler.genTree(parent, array), undefined,
                               options);
     };
+    function traverseAndPushDown(self, node) {
+        var promiseArray = [];
+        traverse(node, promiseArray);
+        return promiseArray;
+        function traverse(node, promiseArray) {
+            for (var i = 0; i < node.children.length; i++) {
+                traverse(node.children[i], promiseArray);
+            }
+            if (node.value.class.indexOf(
+                "org.apache.spark.sql.catalyst.plans.logical.") === 0) {
+                promiseArray.push(pushDown.bind(self, node));
+            }
+        }
+        function pushDown(treeNode) {
+            var deferred = jQuery.Deferred();
+            var retStruct;
+
+            var treeNodeClass = treeNode.value.class.substring(
+                "org.apache.spark.sql.catalyst.plans.logical.".length);
+            switch (treeNodeClass) {
+                case ("Project"):
+                    retStruct = self._pushDownProject(treeNode);
+                    break;
+                case ("Filter"):
+                    retStruct = self._pushDownFilter(treeNode);
+                    break;
+                case ("Join"):
+                    retStruct = self._pushDownJoin(treeNode);
+                    break;
+                case ("Sort"):
+                    retStruct = self._pushDownSort(treeNode);
+                    break;
+                case ("Aggregate"):
+                    retStruct = self._pushDownAggregate(treeNode);
+                    break;
+                case ("XcAggregate"):
+                    retStruct = self._pushDownXcAggregate(treeNode);
+                    break;
+                case ("GlobalLimit"):
+                    retStruct = self._pushDownGlobalLimit(treeNode);
+                    break;
+                case ("LocalLimit"):
+                    retStruct = self._pushDownIgnore(treeNode);
+                    break;
+                default:
+                    console.error("Unexpected operator: " + treeNodeClass);
+                    retStruct = self._pushDownIgnore(treeNode);
+
+            }
+            retStruct
+            .then(function(ret) {
+                if (ret.newTableName) {
+                    treeNode.newTableName = ret.newTableName;
+                }
+                treeNode.xccli = ret.cli;
+                for (var prop in ret) {
+                    if (prop !== "newTableName" && prop !== "cli") {
+                        treeNode[prop] = ret[prop];
+                    }
+                }
+                // Pass cols to its parent
+                pushUpCols(treeNode);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
+        }
+    }
+    function getCli(node, cliArray) {
+        for (var i = 0; i < node.children.length; i++) {
+            getCli(node.children[i], cliArray);
+        }
+        if (node.value.class.indexOf(
+            "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
+            node.xccli) {
+            if (node.xccli.endsWith(";")) {
+                node.xccli = node.xccli.substring(0,
+                                                 node.xccli.length - 1);
+            }
+            cliArray.push(node.xccli);
+        }
+    }
     SQLCompiler.prototype = {
         compile: function(sqlQueryString, isJsonPlan) {
             var outDeferred = jQuery.Deferred();
             var self = this;
-            var promiseArray = [];
-            function traverseAndPushDown(node) {
-                for (var i = 0; i < node.children.length; i++) {
-                    traverseAndPushDown(node.children[i]);
-                }
-                if (node.value.class.indexOf(
-                    "org.apache.spark.sql.catalyst.plans.logical.") === 0) {
-                    promiseArray.push(pushDown.bind(self, node));
-                }
-            }
-            function pushDown(treeNode) {
-                var deferred = jQuery.Deferred();
-                var retStruct;
-
-                var treeNodeClass = treeNode.value.class.substring(
-                    "org.apache.spark.sql.catalyst.plans.logical.".length);
-                switch (treeNodeClass) {
-                    case ("Project"):
-                        retStruct = self._pushDownProject(treeNode);
-                        break;
-                    case ("Filter"):
-                        retStruct = self._pushDownFilter(treeNode);
-                        break;
-                    case ("Join"):
-                        retStruct = self._pushDownJoin(treeNode);
-                        break;
-                    case ("Sort"):
-                        retStruct = self._pushDownSort(treeNode);
-                        break;
-                    case ("Aggregate"):
-                        retStruct = self._pushDownAggregate(treeNode);
-                        break;
-                    case ("GlobalLimit"):
-                        retStruct = self._pushDownGlobalLimit(treeNode);
-                        break;
-                    case ("LocalLimit"):
-                        retStruct = self._pushDownIgnore(treeNode);
-                        break;
-                    default:
-                        console.error("Unexpected operator: " + treeNodeClass);
-                        retStruct = self._pushDownIgnore(treeNode);
-
-                }
-                retStruct
-                .then(function(ret) {
-                    if (ret.newTableName) {
-                        treeNode.newTableName = ret.newTableName;
-                    }
-                    treeNode.xccli = ret.cli;
-                    for (var prop in ret) {
-                        if (prop !== "newTableName" && prop !== "cli") {
-                            treeNode[prop] = ret[prop];
-                        }
-                    }
-                    // Pass cols to its parent
-                    pushUpCols(treeNode);
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-                return deferred.promise();
-            }
-            function getCli(node, cliArray) {
-                for (var i = 0; i < node.children.length; i++) {
-                    getCli(node.children[i], cliArray);
-                }
-                if (node.value.class.indexOf(
-                    "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
-                    node.xccli) {
-                    if (node.xccli.endsWith(";")) {
-                        node.xccli = node.xccli.substring(0,
-                                                         node.xccli.length - 1);
-                    }
-                    cliArray.push(node.xccli);
-                }
-            }
 
             var promise = isJsonPlan
                           ? PromiseHelper.resolve(sqlQueryString) // this is a json plan
@@ -685,7 +703,7 @@
                     newNode.children = [tree];
                     tree = newNode;
                 }
-                traverseAndPushDown(tree);
+                var promiseArray = traverseAndPushDown(self, tree);
                 PromiseHelper.chain(promiseArray)
                 .then(function() {
                     // Tree has been augmented with xccli
@@ -841,14 +859,20 @@
                 node.value.condition.slice(0), {extractAggregates: true});
 
             var aggEvalStrArray = [];
+            var subqueryArray = [];
             var filterString = genEvalStringRecur(treeNode,
-                                            {aggEvalStrArray: aggEvalStrArray},
-                                            undefined);
+                                            {aggEvalStrArray: aggEvalStrArray,
+                                             subqueryArray: subqueryArray},
+                                            {xcAggregate: true});
 
             var cliStatements = "";
 
             var tableName = node.children[0].newTableName;
             produceAggregateCli(self, aggEvalStrArray, tableName)
+            .then(function(cli) {
+                cliStatements += cli;
+                return produceSubqueryCli(self, subqueryArray);
+            })
             .then(function(cli) {
                 cliStatements += cli;
                 return self.sqlObj.filter(filterString, tableName);
@@ -885,7 +909,7 @@
                     assert(orderArray[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
                     var colName = orderArray[i][1].name
-                                                  .replace(/[\(|\)]/g, "_").toUpperCase();
+                                                  .replace(/[\(|\)|\.]/g, "_").toUpperCase();
 
                     var type = orderArray[i][1].dataType;
                     switch (type) {
@@ -919,7 +943,25 @@
 
             return self.sqlObj.sort(sortColsAndOrder, tableName);
         },
+        _pushDownXcAggregate: function(node) {
+            // This is for Xcalar Aggregate which produces a single value
+            var self = this;
 
+            assert(node.children.length === 1);
+            assert(node.value.groupingExpressions.length === 0);
+            assert(node.value.aggregateExpressions.length === 1);
+            assert(node.subqVarName);
+            assert(node.value.aggregateExpressions[0][0].class ===
+                "org.apache.spark.sql.catalyst.expressions.Alias");
+
+            var tableName = node.children[0].newTableName;
+            var treeNode = SQLCompiler.genExpressionTree(undefined,
+                           node.value.aggregateExpressions[0].slice(1));
+            var evalStr = genEvalStringRecur(treeNode);
+            return self.sqlObj.aggregateWithEvalStr(evalStr,
+                                                    tableName,
+                                                    node.subqVarName)
+        },
         _pushDownAggregate: function(node) {
             // There are 4 possible cases in aggregates (groupbys)
             // 1 - f(g) => Handled
@@ -1340,46 +1382,53 @@
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
-            if (opName.indexOf(".aggregate.") === -1) {
-                outStr += opLookup[opName] + "(";
-            } else {
-                if (opName.indexOf(".aggregate.") > -1) {
-                    if (opName === "expressions.aggregate.AggregateExpression")
-                    {
-                        if (condTree.aggTree) {
-                            // We need to resolve the aggTree and then push
-                            // the resolved aggTree's xccli into acc
-                            assert(condTree.children.length === 0);
-                            assert(acc);
-                            assert(acc.aggEvalStrArray);
+            if (opName.indexOf(".aggregate.") > -1) {
+                if (opName === "expressions.aggregate.AggregateExpression") {
+                    if (condTree.aggTree) {
+                        // We need to resolve the aggTree and then push
+                        // the resolved aggTree's xccli into acc
+                        assert(condTree.children.length === 0);
+                        assert(acc);
+                        assert(acc.aggEvalStrArray);
 
-                            // It's very important to not pass in acc.
-                            // This is what we are relying on to generate the
-                            // string. Otherwise it will assign it to
-                            // acc.operator
-                            var aggEvalStr =
-                                           genEvalStringRecur(condTree.aggTree,
-                                            undefined, options);
-                            var aggVarName = "XC_AGG_" +
-                                        Authentication.getHashId().substring(3);
+                        // It's very important to not pass in acc.
+                        // This is what we are relying on to generate the
+                        // string. Otherwise it will assign it to
+                        // acc.operator
+                        var aggEvalStr =
+                                       genEvalStringRecur(condTree.aggTree,
+                                        undefined, options);
+                        var aggVarName = "XC_AGG_" +
+                                    Authentication.getHashId().substring(3);
 
-                            acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
-                                                      aggVarName: aggVarName});
-                            if (options && !options.notAggVar) {
-                                outStr += "^"; // unused
-                            }
-                            outStr += aggVarName;
-                        } else {
-                            assert(condTree.children.length > 0);
+                        acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
+                                                  aggVarName: aggVarName});
+                        if (options && options.xcAggregate) {
+                            outStr += "^";
                         }
+                        outStr += aggVarName;
                     } else {
-                        if (!acc) {
-                            outStr += opLookup[opName] + "(";
-                        } else {
-                            acc.operator = opLookup[opName];
-                        }
+                        assert(condTree.children.length > 0);
+                    }
+                } else {
+                    if (!acc) {
+                        outStr += opLookup[opName] + "(";
+                    } else {
+                        acc.operator = opLookup[opName];
                     }
                 }
+            } else if (opName.indexOf(".ScalarSubquery") > -1) {
+                // Subquery should have subqueryTree and no child
+                assert(condTree.children.length === 0);
+                assert(condTree.subqueryTree);
+                assert(acc.subqueryArray);
+                var subqVarName = "XC_SUBQ_" +
+                                    Authentication.getHashId().substring(3);
+                condTree.subqueryTree.subqVarName = subqVarName;
+                acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
+                outStr += "^" + subqVarName;
+            } else {
+                outStr += opLookup[opName] + "(";
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
                 outStr += genEvalStringRecur(condTree.children[i], acc, options);
@@ -1387,7 +1436,8 @@
                     outStr += ",";
                 }
             }
-            if (opName.indexOf(".aggregate.") === -1 ||
+            if ((opName.indexOf(".aggregate.") === -1 &&
+                 opName.indexOf(".ScalarSubquery") === -1) ||
                 (opName !== "expressions.aggregate.AggregateExpression" &&
                  !acc)) {
                 outStr += ")";
@@ -1398,7 +1448,7 @@
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
                 if (condTree.value.name.indexOf(tablePrefix) !== 0) {
-                    outStr += condTree.value.name.replace(/[\(|\)]/g, "_")
+                    outStr += condTree.value.name.replace(/[\(|\)|\.]/g, "_")
                                       .toUpperCase();
                 } else {
                     outStr += condTree.value.name;
@@ -1430,10 +1480,11 @@
                 assert(evalList[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.Alias");
                 var acc = {aggEvalStrArray: aggEvalStrArray};
+                var genTreeOpts = {extractAggregates: true};
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
-                    evalList[i].slice(1), {extractAggregates: true});
-                var evalStr = genEvalStringRecur(treeNode, acc, undefined);
-                var newColName = evalList[i][0].name.replace(/[\(|\)]/g, "_").toUpperCase();
+                    evalList[i].slice(1), genTreeOpts);
+                var evalStr = genEvalStringRecur(treeNode, acc, options);
+                var newColName = evalList[i][0].name.replace(/[\(|\)|\.]/g, "_").toUpperCase();
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr};
                 colName = newColName;
@@ -1452,11 +1503,39 @@
                 colNameStruct = evalList[i][0];
                 assert(colNameStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                colName = colNameStruct.name.replace(/[\(|\)]/g, "_").toUpperCase();
+                colName = colNameStruct.name.replace(/[\(|\)|\.]/g, "_").toUpperCase();
             }
 
             columns.push(colName);
         }
+    }
+    function produceSubqueryCli(self, subqueryArray) {
+        var deferred = jQuery.Deferred();
+        if (subqueryArray.length === 0) {
+            return PromiseHelper.resolve("");
+        }
+        var promiseArray = []
+        for (var i = 0; i < subqueryArray.length; i++) {
+            // traverseAndPushDown returns promiseArray with length >= 1
+            promiseArray = promiseArray.concat(traverseAndPushDown(self,
+                                               subqueryArray[i].subqueryTree));
+        }
+        PromiseHelper.chain(promiseArray)
+        .then(function() {
+            var cliStatements = "";
+            // Replace subqueryName in filterString
+            // Subquery result must have only one value
+            for (var i = 0; i < subqueryArray.length; i++) {
+                var cliArray = [];
+                getCli(subqueryArray[i].subqueryTree, cliArray);
+                for (var j = 0; j < cliArray.length; j++) {
+                    cliStatements += cliArray[j];
+                }
+            }
+            deferred.resolve(cliStatements);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function produceAggregateCli(self, aggEvalStrArray, tableName) {
@@ -1555,7 +1634,7 @@
             "org.apache.spark.sql.execution.LogicalRDD") {
             for (var i = 0; i < treeNode.value.output.length; i++) {
                 arr.push(treeNode.value.output[i][0].name
-                                 .replace(/[\(|\)]/g, "_").toUpperCase());
+                                 .replace(/[\(|\)|\.]/g, "_").toUpperCase());
             }
         }
         if (treeNode.additionalRDDs) {
@@ -1574,7 +1653,7 @@
         if (treeNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
             if (arr.indexOf(treeNode.value.name) === -1) {
-                arr.push(treeNode.value.name.replace(/[\(|\)]/g, "_").toUpperCase());
+                arr.push(treeNode.value.name.replace(/[\(|\)|\.]/g, "_").toUpperCase());
             }
         }
 
