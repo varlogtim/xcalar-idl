@@ -53,8 +53,12 @@ window.TblManager = (function($, TblManager) {
             WSManager.addTable(newTableId, worksheet);
             tableAddedToWS = true;
         } else {
-        // the only case that worksheet is null is add from inActive list
             worksheet = WSManager.getWSFromTable(newTableId);
+            if (!worksheet) {
+                worksheet = WSManager.getActiveWS();
+                WSManager.addTable(newTableId, worksheet);
+                tableAddedToWS = true;
+            }
         }
 
         if (oldTableNames.length > 0) {

@@ -14,7 +14,8 @@ window.xcFunction = (function($, xcFunction) {
     // filter table column, returns resulting table name
     // fltOptions:
     //      filterString: eval string, required
-    //      formOpenTime: number
+    //      formOpenTime: number,
+    //      worksheet: (optional) wsId
     xcFunction.filter = function(colNum, tableId, fltOptions) {
         var deferred = jQuery.Deferred();
 
@@ -57,6 +58,9 @@ window.xcFunction = (function($, xcFunction) {
             var oldTables = [];
             if (!fltOptions.complement) {
                 oldTables.push(tableName);
+            }
+            if (fltOptions.worksheet) { // used in complement tables
+                worksheet = fltOptions.worksheet;
             }
             return TblManager.refreshTable([finalTableName], table.tableCols,
                                             oldTables, worksheet, txId,

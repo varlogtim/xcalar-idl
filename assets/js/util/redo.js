@@ -52,6 +52,8 @@ window.Redo = (function($, Redo) {
         var oldTables = [];
         if (!options.fltOptions.complement) {
             oldTables = [options.tableName];
+        } else {
+            worksheet = options.fltOptions.worksheet;
         }
         return (TblManager.refreshTable([options.newTableName], null,
                                             oldTables,

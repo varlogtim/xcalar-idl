@@ -2173,9 +2173,12 @@ window.Dag = (function($, Dag) {
             evalStr = "not(" + evalStr + ")";
         }
 
+        var worksheet = WSManager.getActiveWS();
+
         var fltOption = {
             filterString: evalStr,
-            complement: true
+            complement: true,
+            worksheet: worksheet
         };
         var nodeId = $tableIcon.data("index");
         var nodeIdMap = $tableWrap.closest(".dagWrap").data("allDagInfo")
