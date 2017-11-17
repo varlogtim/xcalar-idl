@@ -38,15 +38,12 @@ window.UExtSendSchema = (function(UExtSendSchema) {
     }
 
     // === Copied from derived conversion
-    function getDerivedCol(ext, tableInfo, col, srcTableName) {
-        var deferred = XcSDK.Promise.deferred();
-
-        var tableName = tableInfo.name;
+    function getDerivedCol(col) {
 
         if (col.type === 'array' || col.type === 'object') {
             // array and object columns will be projected away at the end
             // this case also handles 'DATA' column, and leaves table unchanged
-            deferred.resolve(tableName);
+            return;
         } else {
             // convert prefix field of primitive type to derived
             var mapFn;
@@ -62,25 +59,11 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             var mapStr = mapFn + "(" + col.backName + ")";
             var newColName = getDerivedColName(col.backName).toUpperCase();
 
-            ext.map(mapStr, tableName, newColName, ext.createTempTableName())
-            .then(function(tableAfterMap) {
-                // add new column to array of columns to be projected finally
-                tableInfo.colsToProject.push(newColName);
-                // update latest table name so that all modified columns end
-                // up in a single table
-                tableInfo.name = tableAfterMap;
-                deferred.resolve(tableAfterMap);
-            })
-            .fail(deferred.reject);
+            return {colName: newColName, mapStr: mapStr};
         }
 
-        return deferred.promise();
     }
 
-    /*
-    convertToDerived: Converts prefix fields to derived fields and removes object
-        and array fields from the given input table.
-    */
     function finalizeTable() {
         var ext = new XcSDK.Extension();
 
@@ -96,14 +79,22 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             var promises = [];
             var tableInfo = {"name": srcTableName, "colsToProject": []};
             var table;
-            // each promise processes one col of the table
+
+            var mapArray = [];
             for (var i = 0; i < cols.length; i++) {
                 var col = cols[i];
-                promises.push(getDerivedCol.bind(window, ext, tableInfo,
-                    col, srcTableName));
+                if (col.name === "DATA") {
+                    continue;
+                }
+                var colStruct = getDerivedCol(col);
+                if (!colStruct) {
+                    deferred.reject("Cannot have arrays / structs");
+                }
+                tableInfo.colsToProject.push(colStruct.colName);
+                mapArray.push(colStruct.mapStr);
             }
 
-            XcSDK.Promise.chain(promises)
+            ext.map(mapArray, srcTableName, tableInfo.colsToProject)
             .then(function(derivedTable) {
                 // project the processed prefix columns and the original
                 // original derived columns
