@@ -423,6 +423,8 @@ window.TableList = (function($, TableList) {
             return deferred.promise();
         }
 
+        var tableRenameMap = {}; // for orphaned tables without tableId
+
         tooManyColAlertHelper(tables, tableType, action, destWS)
         .then(function() {
             $tableList.find(".submit").addClass("xc-hidden");
@@ -438,7 +440,10 @@ window.TableList = (function($, TableList) {
                         if (tableType === TableType.Orphan) {
                             TableList.lockTable(xcHelper.getTableId(tableName));
                             addOrphanedTable(tableName, destWS)
-                            .then(function(ws){
+                            .then(function(ws, newTableName){
+                                if (newTableName !== tableName) {
+                                    tableRenameMap[tableName] = newTableName;
+                                }
                                 doneHandler($li, tableName);
                                 var tableIndex = gOrphanTables.indexOf(tableName);
                                 gOrphanTables.splice(tableIndex, 1);
@@ -484,7 +489,14 @@ window.TableList = (function($, TableList) {
                         if (tableType !== TableType.WSHidden) {
                             focusOnLastTable(tables);
                         }
-                        deferred.resolve(tables, ws);
+                        var finalTables = tables.map(function(name) {
+                            if (tableRenameMap[name]) {
+                                return tableRenameMap[name];
+                            } else {
+                                return name;
+                            }
+                        });
+                        deferred.resolve(finalTables, ws);
                     }
                 })
                 .fail(deferred.reject);
@@ -1011,7 +1023,7 @@ window.TableList = (function($, TableList) {
 
             TblManager.refreshTable([tableName], null, [], worksheet, null)
             .then(function() {
-                deferred.resolve(worksheet);
+                deferred.resolve(worksheet, tableName);
             })
             .fail(deferred.reject);
 
@@ -1026,7 +1038,7 @@ window.TableList = (function($, TableList) {
                                                 [], worksheet, null);
             })
             .then(function() {
-                deferred.resolve(worksheet);
+                deferred.resolve(worksheet, tableName);
             })
             .fail(deferred.reject);
 
