@@ -33,7 +33,8 @@
         "expressions.If": "if",
         "expressions.IfStr": "ifStr", // Xcalar generated
         "expressions.CaseWhen": null, // XXX we compile these to if and ifstr
-        "expressions.CaseWhenCodegen": null, /// XXX we compile these to if and ifstr
+        "expressions.CaseWhenCodegen": null, // XXX we compile these to if and
+                                             // ifstr
         // mathExpressions.scala
         "expressions.EulerNumber": null,
         "expressions.Pi": "pi",
@@ -122,7 +123,8 @@
         "expressions.StringReverse": null, // TODO
         "expressions.StringSpace": null, // TODO
         "expressions.Substring": "substring", // XXX 1-based index
-        "expressions.Right": "right", // XXX right(str, 5) == substring(str, -5, 0)
+        "expressions.Right": "right", // XXX right(str, 5) ==
+                                      // substring(str, -5, 0)
         "expressions.Left": "left", // XXX left(str, 4) == substring(str, 0, 4)
         "expressions.Length": "len",
         "expressions.BitLength": null, // TODO
@@ -286,8 +288,9 @@
                     startIndex.dataType === "integer") {
                     startIndex.value = "" + (startIndex.value * 1 - 1);
                     if (length.class.endsWith("Literal") &&
-                    length.dataType === "integer") {
-                        length.value = "" + (startIndex.value * 1 + length.value * 1);
+                        length.dataType === "integer") {
+                        length.value = "" + (startIndex.value * 1 +
+                                             length.value * 1);
                     } else {
                         var addN = addNode();
                         addN.children.push(node.children[1], node.children[2]);
@@ -296,7 +299,8 @@
                     }
                 } else {
                     var subNode = subtractNode();
-                    subNode.children.push(node.children[1], literalNumberNode(1));
+                    subNode.children.push(node.children[1],
+                                          literalNumberNode(1));
                     var addN = addNode();
                     addN.children.push(subNode, node.children[2]);
                     node.children[1] = subNode;
@@ -342,7 +346,7 @@
                 for (var i = 0; i < node.children.length; i++) {
                     if (i % 2 === 1) {
                         if (node.children[i].value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.Literal") {
+                          "org.apache.spark.sql.catalyst.expressions.Literal") {
                             type = node.children[i].value.dataType;
                             break;
                         }
@@ -384,7 +388,7 @@
 
                 // has else clause
                 if (node.children.length % 2 === 1) {
-                    lastNode.children[2] = node.children[node.children.length-1];
+                    lastNode.children[2] =node.children[node.children.length-1];
                 } else {
                     // no else clause
                     // We need to create our own terminal condition
@@ -463,15 +467,6 @@
                     assert(node.children[0].value.class
                                         .indexOf("expressions.aggregate.") > 0);
                     assert(node.children[0].children.length === 1);
-                    // XXX code below is wrong
-                    // var grandChildClass = node.children[0].children[0].value.class;
-                    // if (grandChildClass.endsWith("AttributeReference") ||
-                    //     grandChildClass.endsWith("Literal")) {
-                    //     // This is a simple aggregate. No need to extract and
-                    //     // convert to aggregate variables
-                    //     break;
-                    // }
-
                     // We need to cut the tree at this node, and instead of
                     // having a child, remove the child and assign it as an
                     // aggregateTree
@@ -489,8 +484,9 @@
                 assert(node.value.plan[0].class ===
                        "org.apache.spark.sql.catalyst.plans.logical.Aggregate");
                 node.value.plan[0].class =
-                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
-                var subqueryTree = SQLCompiler.genTree(undefined, node.value.plan);
+                      "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
+                var subqueryTree = SQLCompiler.genTree(undefined,
+                                                       node.value.plan);
                 node.subqueryTree = subqueryTree;
                 break;
             default:
@@ -527,7 +523,8 @@
             success: function(data) {
                 if (data.status === 200) {
                     try {
-                        deferred.resolve(JSON.parse(JSON.parse(data.stdout).sqlQuery));
+                        deferred.resolve(JSON.parse(JSON.parse(data.stdout)
+                                                        .sqlQuery));
                     } catch (e) {
                         deferred.reject(e);
                         console.error(e);
@@ -580,7 +577,8 @@
             // Push tempCols as well
             if (node.parent.tempCols) {
                 for (var i = 0; i < node.tempCols.length; i++) {
-                    assert(node.parent.tempCols.indexOf(node.tempCols[i]) === -1);
+                    assert(node.parent.tempCols.indexOf(node.tempCols[i]) ===
+                                                        -1);
                     node.parent.tempCols.push(node.tempCols[i]);
                 }
             } else {
@@ -592,7 +590,8 @@
         var newNode = new TreeNode(array.shift());
         if (parent) {
             newNode.parent = parent;
-            if (newNode.value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+            if (newNode.value.class ===
+                                  "org.apache.spark.sql.execution.LogicalRDD") {
                 // Push up here as we won't access it during traverseAndPushDown
                 pushUpCols(newNode);
             }
@@ -694,13 +693,15 @@
             var self = this;
 
             var promise = isJsonPlan
-                          ? PromiseHelper.resolve(sqlQueryString) // this is a json plan
+                          ? PromiseHelper.resolve(sqlQueryString)
+                          // this is a json plan
                           : sendPost({"sqlQuery": sqlQueryString});
 
             promise
             .then(function(jsonArray) {
                 var tree = SQLCompiler.genTree(undefined, jsonArray);
-                if (tree.value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+                if (tree.value.class ===
+                                  "org.apache.spark.sql.execution.LogicalRDD") {
                     // If the logicalRDD is root, we should add an extra Project
                     var newNode = ProjectNode(tree.value.output.slice(0, -1));
                     newNode.children = [tree];
@@ -721,7 +722,7 @@
                     var queryString = "[" + cliArray.join(",") + "]";
                     // queryString = queryString.replace(/\\/g, "\\");
                     // console.log(queryString);
-                    self.sqlObj.run(queryString, tree.newTableName, tree.allCols)
+                    self.sqlObj.run(queryString, tree.newTableName,tree.allCols)
                     .then(outDeferred.resolve)
                     .fail(outDeferred.reject);
                 })
@@ -912,7 +913,8 @@
                     assert(orderArray[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
                     var colName = orderArray[i][1].name
-                                                  .replace(/[\(|\)|\.]/g, "_").toUpperCase();
+                                                  .replace(/[\(|\)|\.]/g, "_")
+                                                  .toUpperCase();
 
                     var type = orderArray[i][1].dataType;
                     switch (type) {
@@ -963,7 +965,7 @@
             var evalStr = genEvalStringRecur(treeNode);
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
-                                                    node.subqVarName)
+                                                    node.subqVarName);
         },
         _pushDownAggregate: function(node) {
             // There are 4 possible cases in aggregates (groupbys)
@@ -1181,11 +1183,12 @@
             var condTree = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
             // NOTE: The full supportability of Xcalar's Join is represented by
-            // a tree where if we traverse from the root, it needs to be AND all the
-            // way and when it's not AND, it must be an EQ (stop traversing subtree)
+            // a tree where if we traverse from the root, it needs to be AND all
+            // the way and when it's not AND, it must be an EQ (stop traversing
+            // subtree)
             // For EQ subtrees, the left tree must resolve to one of the tables
-            // and the right tree must resolve to the other. Otherwise it's not an
-            // expression that we can support.
+            // and the right tree must resolve to the other. Otherwise it's not
+            // an expression that we can support.
             // The statements above rely on the behavior that the SparkSQL
             // optimizer will hoist join conditions that are essentially filters
             // out of the join clause. If this presumption is violated, then the
@@ -1436,7 +1439,8 @@
                 outStr += opLookup[opName] + "(";
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
-                outStr += genEvalStringRecur(condTree.children[i], acc, options);
+                outStr += genEvalStringRecur(condTree.children[i], acc,
+                                             options);
                 if (i < condTree.value["num-children"] -1) {
                     outStr += ",";
                 }
@@ -1489,7 +1493,8 @@
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
                     evalList[i].slice(1), genTreeOpts);
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
-                var newColName = evalList[i][0].name.replace(/[\(|\)|\.]/g, "_").toUpperCase();
+                var newColName = evalList[i][0].name.replace(/[\(|\)|\.]/g, "_")
+                                               .toUpperCase();
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr};
                 colName = newColName;
@@ -1508,7 +1513,8 @@
                 colNameStruct = evalList[i][0];
                 assert(colNameStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                colName = colNameStruct.name.replace(/[\(|\)|\.]/g, "_").toUpperCase();
+                colName = colNameStruct.name.replace(/[\(|\)|\.]/g, "_")
+                                            .toUpperCase();
             }
 
             columns.push(colName);
@@ -1519,7 +1525,7 @@
         if (subqueryArray.length === 0) {
             return PromiseHelper.resolve("");
         }
-        var promiseArray = []
+        var promiseArray = [];
         for (var i = 0; i < subqueryArray.length; i++) {
             // traverseAndPushDown returns promiseArray with length >= 1
             promiseArray = promiseArray.concat(traverseAndPushDown(self,
@@ -1658,7 +1664,8 @@
         if (treeNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
             if (arr.indexOf(treeNode.value.name) === -1) {
-                arr.push(treeNode.value.name.replace(/[\(|\)|\.]/g, "_").toUpperCase());
+                arr.push(treeNode.value.name.replace(/[\(|\)|\.]/g, "_")
+                                            .toUpperCase());
             }
         }
 
