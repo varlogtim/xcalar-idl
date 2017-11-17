@@ -1550,31 +1550,27 @@
                             joinType, lRename, rRename, tempTables, txId) {
         var deferred = jQuery.Deferred();
         // TODO: switch left and right and support right semi joins
-        var newColName = xcHelper.randName("XC_GB_COL");
-        var newGbTableName = getNewTableName(rIndexedTable);
         var antiJoinTableName;
 
-        tempTables.push(newGbTableName);
-        XcalarGroupBy("count", newColName, rIndexedColNames[0], rIndexedTable,
-                      newGbTableName, false, false, rIndexedColNames[0], txId)
-        .then(function() {
+        function doJoin() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
                 antiJoinTableName = getNewTableName(rIndexedTable);
-                return XcalarJoin(lIndexedTable, newGbTableName,
+                return XcalarJoin(lIndexedTable, rIndexedTable,
                                   antiJoinTableName,
                                   JoinOperatorT.LeftOuterJoin,
                                   lRename, rRename, txId);
             } else {
-                return XcalarJoin(lIndexedTable, newGbTableName, newTableName,
+                return XcalarJoin(lIndexedTable, rIndexedTable, newTableName,
                     JoinOperatorT.InnerJoin, lRename, rRename, txId);
             }
-        })
+        }
+        doJoin()
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
                 tempTables.push(antiJoinTableName);
-                return XcalarFilter("not(exists(" + newColName + "))",
+                return XcalarFilter("not(exists(" + rIndexedColNames[0] + "))",
                        antiJoinTableName, newTableName, txId);
             } else {
                 return PromiseHelper.resolve();

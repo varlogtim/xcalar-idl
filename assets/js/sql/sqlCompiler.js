@@ -568,20 +568,23 @@
                 for (var i = 0; i < node.allCols.length; i++) {
                     // There should be no duplicates
                     assert(node.parent.allCols.indexOf(node.allCols[i]) === -1);
-                    node.parent.allCols.push(node.allCols[i])
+                    node.parent.allCols.push(node.allCols[i]);
                 }
 
             } else {
-                node.parent.allCols = node.allCols;
+                // Must create a shallow copy of the array.
+                // Otherwise we are just assigning the pointer. So when the
+                // parent changes, the children change as well.
+                node.parent.allCols = node.allCols.slice(0);
             }
             // Push tempCols as well
             if (node.parent.tempCols) {
                 for (var i = 0; i < node.tempCols.length; i++) {
                     assert(node.parent.tempCols.indexOf(node.tempCols[i]) === -1);
-                    node.parent.tempCols.push(node.tempCols[i])
+                    node.parent.tempCols.push(node.tempCols[i]);
                 }
             } else {
-                node.parent.tempCols = node.tempCols;
+                node.parent.tempCols = node.tempCols.slice(0);
             }
         }
     }
@@ -1352,6 +1355,8 @@
                         joinType = JoinOperatorT.FullOuterJoin;
                         break;
                     case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
+                        // Turns out that left semi is identical to inner
+                        // except that it only keeps columns in the left table
                         joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
                         break;
                     case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
