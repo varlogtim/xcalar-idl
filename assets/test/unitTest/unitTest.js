@@ -47,11 +47,13 @@ var testDatasets = {
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;
+    var test;
 
     UnitTest.setup = function() {
 
         $(document).ready(function() {
             mocha.run();
+            test = TestSuite.createTest();
             console.log("Setup code coverage!!!");
         });
 
@@ -165,7 +167,7 @@ window.UnitTest = (function(UnitTest, $) {
             $("#inButton").click();
         }
 
-        TestSuite.__testOnly__.loadDS(dsName, url, pointCheck)
+        test.loadDS(dsName, url, pointCheck)
         .then(function() {
             deferred.resolve(dsName);
         })
@@ -189,7 +191,7 @@ window.UnitTest = (function(UnitTest, $) {
         // need to refine
 
         var sortColumnsAtoZ = true;
-        TestSuite.__testOnly__.createTable(dsName, sortColumnsAtoZ)
+        test.createTable(dsName, sortColumnsAtoZ)
         .then(deferred.resolve)
         .fail(deferred.reject);
 
