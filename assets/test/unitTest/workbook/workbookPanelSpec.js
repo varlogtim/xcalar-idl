@@ -172,7 +172,7 @@ describe("Workbook- Workbook Pane Test", function() {
 
         it("should edit nothing when no update", function(done) {
             var name = workbook.getName();
-            var description = workbook.getDescription();
+            var description = workbook.getDescription() || "";
             var test = false;
 
             WorkbookManager.updateDescription =

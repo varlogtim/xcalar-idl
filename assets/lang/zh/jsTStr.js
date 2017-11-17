@@ -566,6 +566,7 @@ WKBKTStr = {
 "WaitActivateFinish": "工作簿机激活中",
 "NoActive": "没有被激活的工作簿，请创建或激活工作簿",
 "Activate": '激活工作簿',
+"ActivateInstr": "激活工作簿会关闭当前激活的工作簿, 你确定要继续吗?",
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称和注释',
 "Duplicate": '复制工作簿',

@@ -287,17 +287,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         // Play button
         $workbookSection.on("click", ".activate", function() {
             clearActives();
-            var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.attr("data-workbook-id");
-            if (WorkbookManager.getActiveWKBK() === workbookId) {
-                $(".tooltip").remove();
-                WorkbookPanel.hide();
-            } else {
-                WorkbookManager.switchWKBK(workbookId)
-                .fail(function(error) {
-                    handleError(error, $workbookBox);
-                });
-            }
+            activateWorkbook($(this).closest(".workbookBox"));
         });
 
         // Edit button
@@ -584,6 +574,36 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         setTimeout(function() {
             $updateCard.removeClass("finishedLoading");
         }, 500);
+    }
+
+    function activateWorkbook($workbookBox) {
+        var workbookId = $workbookBox.attr("data-workbook-id");
+        var activeWKBKId = WorkbookManager.getActiveWKBK();
+        if (activeWKBKId === workbookId) {
+            $(".tooltip").remove();
+            WorkbookPanel.hide();
+        } else {
+            var deferred = jQuery.Deferred();
+
+            if (activeWKBKId == null) {
+                deferred.resolve();
+            } else {
+                Alert.show({
+                    title: WKBKTStr.Activate,
+                    msg: WKBKTStr.ActivateInstr,
+                    onConfirm: deferred.resolve,
+                    onCancel: deferred.reject
+                });
+            }
+
+            deferred.promise()
+            .then(function() {
+                WorkbookManager.switchWKBK(workbookId)
+                .fail(function(error) {
+                    handleError(error, $workbookBox);
+                });
+            });
+        }
     }
 
     function deleteWorkbookHelper($workbookBox) {

@@ -683,6 +683,7 @@ WKBKTStr = {
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
     "Activate": "Activate Workbook",
+    "ActivateInstr": "Acitvate workbook will cause deactivation of current active workbook, do you still want to continue?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
     "Duplicate": "Duplicate Workbook",
