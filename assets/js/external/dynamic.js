@@ -1,18 +1,18 @@
-window.xcDynamic = (function($, xcDynamic) {
+(function($) {
     console.log("dynamic loaded");
     // Insert patch code here. Remembmer that all js files will be minified and
     // uglified
     function versionCheck(v1str, v2str) {
         var v1 = v1str.split(".");
         var v2 = v2str.split(".");
-        if (1*v1[0] != 1*v2[0]) {
-            return (1*v1[0] < 1*v2[0]);
+        if (1 * v1[0] !== 1 * v2[0]) {
+            return (1 * v1[0] < 1 * v2[0]);
         }
-        if (1*v1[1] != 1*v2[1]) {
-            return (1*v1[1] < 1*v2[1]);
+        if (1 * v1[1] !== 1 * v2[1]) {
+            return (1 * v1[1] < 1 * v2[1]);
         }
-        if (1*v1[2] != 1*v2[2]) {
-            return (1*v1[2] < 1*v2[2]);
+        if (1 * v1[2] !== 1 * v2[2]) {
+            return (1 * v1[2] < 1 * v2[2]);
         }
     }
     if (XVM.getVersion() &&
@@ -22,7 +22,7 @@ window.xcDynamic = (function($, xcDynamic) {
         // Just wrap our patches with functions and call them here
         try {
             patchMixpanel();
-        } catch(error) {
+        } catch (error) {
             console.log("mixpanel patching fails");
         }
     }
@@ -85,6 +85,6 @@ window.xcDynamic = (function($, xcDynamic) {
                     "Host": window.location.hostname
                 });
             });
-        }
+        };
     }
-}(jQuery, {}));
+}(jQuery));

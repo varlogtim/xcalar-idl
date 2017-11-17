@@ -690,7 +690,6 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.MoveTableToWS] = function(options) {
         var tableId = options.tableId;
-        var tableName = gTables[tableId].tableName;
         var oldWS = options.oldWorksheetId;
         var tablePos = options.oldTablePos;
         WSManager.moveTable(tableId, oldWS, null, tablePos);

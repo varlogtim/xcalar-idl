@@ -335,7 +335,6 @@ window.SortView = (function($, SortView) {
     function setColumnCache(tableId) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
-        var $table = $("#xcTable-" + tableId);
         var tableKeys = table.getKeyName();
         var tableOrder = table.backTableMeta.ordering;
 

@@ -17,8 +17,6 @@ window.XcSupport = (function(XcSupport, $) {
     // constant
     var defaultCommitFlag = "commit-default";
 
-    var statsCache = {}; // Store temporary version of the Stats
-
     XcSupport.setup = function(stripEmail) {
         try {
             username = xcSessionStorage.getItem("xcalar-username");
@@ -401,7 +399,6 @@ window.XcSupport = (function(XcSupport, $) {
             return PromiseHelper.chain(promises);
         })
         .then(function() {
-            statsCache = data;
             console.log(statsMap);
             var file = "";
             for (var groupId in data) {
@@ -443,7 +440,6 @@ window.XcSupport = (function(XcSupport, $) {
                            .slice(-20);
             }
             header += "\n";
-            statsCache = header + file;
             console.info(data);
             deferred.resolve(header + file);
         });

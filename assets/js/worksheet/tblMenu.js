@@ -1199,8 +1199,7 @@ window.TblMenu = (function(TblMenu, $) {
     }
 
     function toggleHotKeys(event, $menu, menuMap) {
-        event.preventDefault();
-        if ($menu.hasClass("showingHotKeys")) {
+        var removeHotKeys = function() {
             for (var letter in menuMap) {
                 var $labels = $menu.find("." + menuMap[letter]).find(".label");
                 $labels.each(function() {
@@ -1210,7 +1209,9 @@ window.TblMenu = (function(TblMenu, $) {
                 });
             }
             $menu.removeClass("showingHotKeys");
-        } else {
+        };
+
+        var addHotKeys = function() {
             for (var letter in menuMap) {
                 var $labels = $menu.find("." + menuMap[letter]).find(".label");
                 $labels.each(function() {
@@ -1230,6 +1231,13 @@ window.TblMenu = (function(TblMenu, $) {
                 });
             }
             $menu.addClass("showingHotKeys");
+        };
+
+        event.preventDefault();
+        if ($menu.hasClass("showingHotKeys")) {
+            removeHotKeys();
+        } else {
+            addHotKeys();
         }
     }
 

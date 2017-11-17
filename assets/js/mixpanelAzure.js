@@ -53,10 +53,10 @@ window.xcMixpanel = (function($, xcMixpanel) {
     };
     xcMixpanel.forDev = function() {
         return false;
-    }
+    };
     xcMixpanel.init = function() {
         window.mixpanel.init("5678112905d2b1154062e2b2361848bd");
-    }
+    };
     xcMixpanel.addListeners = function() {
         var lastFocus;
         $(window).load(function() {
@@ -108,6 +108,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 "Host": window.location.hostname
             });
         });
-    }
+    };
     return (xcMixpanel);
 }(jQuery, {}));

@@ -181,11 +181,13 @@ window.TblFunc = (function(TblFunc, $) {
             var rect = $startingTableHead[0].getBoundingClientRect();
             var tableLeft = rect.left;
             var tableRight = rect.right;
+            var iconPosition;
+
             if (tableRight > windowWidth) { // right side of table is offscreen to the right
                 var position = tableRight - windowWidth + 3;
                 $startingTableHead.find('.dropdownBox')
                                     .css('right', position + 'px');
-                var iconPosition = mainFrameOffsetLeft - tableLeft;
+                iconPosition = mainFrameOffsetLeft - tableLeft;
                 iconPosition = Math.max(0, iconPosition);
                 iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
                 $startingTableHead.find(".lockIconWrap")
@@ -193,7 +195,7 @@ window.TblFunc = (function(TblFunc, $) {
                 tablesAreVisible = false;
             } else { // right side of table is visible
                 $startingTableHead.find('.dropdownBox').css('right', -3 + 'px');
-                var iconPosition = mainFrameOffsetLeft - tableLeft;
+                iconPosition = mainFrameOffsetLeft - tableLeft;
                 iconPosition = Math.max(0, iconPosition);
                 iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
                 $startingTableHead.find(".lockIconWrap")

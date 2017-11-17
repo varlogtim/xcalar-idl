@@ -1112,11 +1112,9 @@ window.QueryManager = (function(QueryManager, $) {
 
                 $query.find(".op .text").text(name);
             } else if (i === "start") {
-                var timeObj = info[i];
-
                 $statusDetail.find("." + i).find(".text").text(info[i].text);
                 xcTooltip.add($statusDetail.find("." + i).find(".text"), {
-                   title: info[i].tip
+                    title: info[i].tip
                 });
             } else {
                 $statusDetail.find("." + i).find(".text").text(info[i]);

@@ -654,11 +654,11 @@
     };
 
     xcHelper.getTableKeyFromMeta = function(tableMeta) {
-        var valueAttrs = tableMeta.valueAttrs || [];
+        // var valueAttrs = tableMeta.valueAttrs || [];
         return tableMeta.keyAttr.map(function(keyAttr) {
             var keyName = keyAttr.name;
             var valueArrayIndex = keyAttr.valueArrayIndex;
-            var prefixOfKey = "";
+            // var prefixOfKey = "";
             if (valueArrayIndex < 0) {
                 return null;
             }
@@ -1072,7 +1072,7 @@
         var end   = unit.length - 1;
 
         if (convertTo && unit.indexOf(convertTo) > -1) {
-            var start = unit.indexOf(convertTo);
+            start = unit.indexOf(convertTo);
             size *= (1 / Math.pow(1024, start));
         } else {
             while (size >= 1024 && start < end) {

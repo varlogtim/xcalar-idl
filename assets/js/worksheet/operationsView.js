@@ -3606,7 +3606,7 @@ window.OperationsView = (function($, OperationsView) {
                 return;
             }
 
-            var backName = progCol.getBackColName();
+            // var backName = progCol.getBackColName();
             var colType = progCol.getType();
             if (colType === ColumnType.integer && !progCol.isKnownType()) {
                 // for fat potiner, we cannot tell float or integer

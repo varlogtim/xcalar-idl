@@ -660,28 +660,9 @@ window.TblManager = (function($, TblManager) {
     }
 
     TblManager.restoreTableMeta = function(tables) {
-
-        for (var tableId in tables) {
-            var table = tables[tableId];
-
-            if (table.hasLock()) {
-                table.unlock();
-                table.beOrphaned();
-            }
-
-            if (table.isDropped()) {
-                table.beDropped(); // strips unnecessary data
-                gDroppedTables[tableId] = table;
-            } else {
-                gTables[tableId] = table;
-            }
-        }
-
-        cleanUpDroppedTables();
-
         // will delete older dropped tables if storing more than 1MB of
         // dropped table data
-        function cleanUpDroppedTables() {
+        var cleanUpDroppedTables = function() {
             var limit = 1 * MB;
             var droppedTablesStr = JSON.stringify(gDroppedTables);
             if (droppedTablesStr.length < limit) {
@@ -694,9 +675,9 @@ window.TblManager = (function($, TblManager) {
             var hashTag = Authentication.getInfo().hashTag;
             var hashTagLen = hashTag.length;
 
-            for (var i in gDroppedTables) {
-                dTableArray.push(gDroppedTables[i]);
-                numTotalCols += gDroppedTables[i].tableCols.length;
+            for (var id in gDroppedTables) {
+                dTableArray.push(gDroppedTables[id]);
+                numTotalCols += gDroppedTables[id].tableCols.length;
             }
 
             // estimate table size by column length
@@ -718,7 +699,25 @@ window.TblManager = (function($, TblManager) {
                     gDroppedTables[dTableArray[i].tableId] = dTableArray[i];
                 }
             }
+        };
+
+        for (var tableId in tables) {
+            var table = tables[tableId];
+
+            if (table.hasLock()) {
+                table.unlock();
+                table.beOrphaned();
+            }
+
+            if (table.isDropped()) {
+                table.beDropped(); // strips unnecessary data
+                gDroppedTables[tableId] = table;
+            } else {
+                gTables[tableId] = table;
+            }
         }
+
+        cleanUpDroppedTables();
     };
 
     TblManager.pullRowsBulk = function(tableId, jsonData, startIndex,
@@ -2489,13 +2488,13 @@ window.TblManager = (function($, TblManager) {
             } else {
                 options.offsetX = 5;
             }
-            setUnavailableClassesAndTips(colType, isNewCol, progCol);
+            setUnavailableClassesAndTips(colType, isNewCol);
             var $menu = $("#colMenu");
             xcHelper.dropdownOpen($el, $menu, options);
         });
 
 
-        function setUnavailableClassesAndTips(colType, isNewCol, progCol) {
+        function setUnavailableClassesAndTips(colType, isNewCol) {
             var $menu = $("#colMenu");
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .map, .operations, .profile, .corrAgg, " +

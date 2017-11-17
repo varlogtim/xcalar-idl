@@ -53,10 +53,10 @@ window.xcMixpanel = (function($, xcMixpanel) {
     };
     xcMixpanel.forDev = function() {
         return true;
-    }
+    };
     xcMixpanel.init = function() {
         window.mixpanel.init("574bbb62b63c814dd820da904059fb94");
-    }
+    };
     xcMixpanel.addListenersForDev = function() {
         var lastBlur;
         var jupyterFocus;
@@ -196,6 +196,6 @@ window.xcMixpanel = (function($, xcMixpanel) {
                 resizing = false;
             }
         }
-    }
+    };
     return (xcMixpanel);
 }(jQuery, {}));

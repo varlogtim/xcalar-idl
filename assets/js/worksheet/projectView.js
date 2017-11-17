@@ -13,7 +13,7 @@ window.ProjectView = (function($, ProjectView) {
         formHelper = new FormHelper($projectView, {
             "columnPicker": {
                 "state": "projectState",
-                 "colCallback": function($target, event) {
+                "colCallback": function($target, event) {
                     colHeaderClick($target, event);
                 },
             }
@@ -212,7 +212,7 @@ window.ProjectView = (function($, ProjectView) {
         } else {
             return;
         }
-        $projectView.find(".cols li.checked").each(function(i) {
+        $projectView.find(".cols li.checked").each(function() {
             var colNum = $(this).data("colnum");
             $table.find(".col" + colNum).addClass("modalHighlighted");
         });
@@ -531,7 +531,7 @@ window.ProjectView = (function($, ProjectView) {
                                            .find('.checkbox')
                                            .removeClass('checked');
         } else if (selectedCols === totalCols) {
-             $colList.closest(".columnGroup").find('.selectAllWrap')
+            $colList.closest(".columnGroup").find('.selectAllWrap')
                                             .find('.checkbox')
                                             .addClass('checked');
         }

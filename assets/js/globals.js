@@ -19,8 +19,8 @@ gMouseStatus = null;
 gPrefixLimit = 31;
 
 if (!has_require) {
-  gMouseEvents = new MouseEvents();
-  gLastClickTarget = $(window); // track which element was last clicked
+    gMouseEvents = new MouseEvents();
+    gLastClickTarget = $(window); // track which element was last clicked
 }
 
 gRescol = {

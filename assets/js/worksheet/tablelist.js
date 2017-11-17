@@ -220,7 +220,7 @@ window.TableList = (function($, TableList) {
 
             $section.find(".tableLists").empty();
 
-            var tables = getAllTables(isActive);
+            var tables = getAllTables();
             var options = {noAnimate: true,
                            sortType: type,
                            bulkAdd: true};
@@ -228,7 +228,7 @@ window.TableList = (function($, TableList) {
         });
 
         // XXX make this public in case we need to reuse elsewhere
-        function getAllTables(isActive) {
+        function getAllTables() {
             var tables = [];
             WSManager.getWSList().forEach(function(wsId) {
                 var ws = WSManager.getWSById(wsId);
@@ -1129,12 +1129,12 @@ window.TableList = (function($, TableList) {
         }
 
         moment.updateLocale('en', {
-            calendar : {
-                lastDay : '[Yesterday<br/>]LT',
-                sameDay : '[Today<br/>]LT',
-                nextDay : '[Tomorrow<br/>] LT',
-                lastWeek : 'dddd[<br/>]LT',
-                sameElse : 'll[<br/>]LT'
+            calendar: {
+                lastDay: '[Yesterday<br/>]LT',
+                sameDay: '[Today<br/>]LT',
+                nextDay: '[Tomorrow<br/>] LT',
+                lastWeek: 'dddd[<br/>]LT',
+                sameElse: 'll[<br/>]LT'
             }
         });
 
@@ -1217,7 +1217,7 @@ window.TableList = (function($, TableList) {
 
             var lockIcon = "";
             if (table.isNoDelete()) {
-                lockIcon =  '<div class="lockIcon"></div>';
+                lockIcon = '<div class="lockIcon"></div>';
             }
 
             var html =
