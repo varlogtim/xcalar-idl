@@ -176,9 +176,10 @@
             this.tempCols = [];
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
+                var acc = {numOps: 0};
                 var evalStr = genEvalStringRecur(SQLCompiler.genTree(undefined,
-                    rdds[i].slice(0)));
-                if (evalStr.indexOf("(") > 0) {
+                    rdds[i].slice(0)), acc);
+                if (acc.numOps > 0) {
                     debugger;
                     console.info(rdds[i]);
                 }
@@ -1039,7 +1040,7 @@
             for (var i = 0; i < gArray.length; i++) {
                 gArray[i].aggColName = gArray[i].evalStr;
                 delete gArray[i].evalStr;
-                if (gArray[i].aggColName.indexOf("(") > -1) {
+                if (gArray[i].numOps > 0) {
                     firstMapArray.push(gArray[i].aggColName);
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(3);
@@ -1052,9 +1053,10 @@
             // Step 3
             for (var i = 0; i < aggEvalStrArray.length; i++) {
                 var gbMapCol = {};
-                var rs = extractAndReplace(aggEvalStrArray[i].aggEvalStr);
+                var rs = extractAndReplace(aggEvalStrArray[i]);
+                assert(rs);
                 gbMapCol.operator = rs.firstOp;
-                if (rs.inside.indexOf("(") > -1) {
+                if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(3);
                     firstMapColNames.push(newColName);
@@ -1100,7 +1102,7 @@
             var secondMapArray = [];
             var secondMapColNames = [];
             for (var i = 0; i < fArray.length; i++) {
-                if (fArray[i].evalStr.indexOf("(") > -1) {
+                if (fArray[i].numOps > 0) {
                     secondMapArray.push(fArray[i].evalStr);
                     secondMapColNames.push(fArray[i].newColName);
                 }
@@ -1261,11 +1263,15 @@
                                        attributeReferencesOne);
                 getAttributeReferences(eqTree.children[1],
                                        attributeReferencesTwo);
+                var leftAcc = {numOps: 0};
+                var rightAcc = {numOps: 0};
                 if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
                     xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
                 {
-                    leftEvalStr = genEvalStringRecur(eqTree.children[0]);
-                    rightEvalStr = genEvalStringRecur(eqTree.children[1]);
+                    leftEvalStr = genEvalStringRecur(eqTree.children[0],
+                                                     leftAcc);
+                    rightEvalStr = genEvalStringRecur(eqTree.children[1],
+                                                      rightAcc);
                 } else if (xcHelper.arraySubset(attributeReferencesOne,
                                                 rightRDDCols) &&
                            xcHelper.arraySubset(attributeReferencesTwo,
@@ -1277,12 +1283,12 @@
                     console.error("can't do it :(");
                 }
 
-                if (leftEvalStr.indexOf("(") > 0) {
+                if (leftAcc.numOps > 0) {
                     leftMapArray.push(leftEvalStr);
                 } else {
                     leftCols.push(leftEvalStr);
                 }
-                if (rightEvalStr.indexOf("(") > 0) {
+                if (rightAcc.numOps > 0) {
                     rightMapArray.push(rightEvalStr);
                 } else {
                     rightCols.push(rightEvalStr);
@@ -1399,18 +1405,20 @@
                         assert(acc);
                         assert(acc.aggEvalStrArray);
 
-                        // It's very important to not pass in acc.
+                        // It's very important to include a flag in acc.
                         // This is what we are relying on to generate the
                         // string. Otherwise it will assign it to
                         // acc.operator
+                        var aggAcc = {numOps: 0, noAssignOp: true};
                         var aggEvalStr =
                                        genEvalStringRecur(condTree.aggTree,
-                                        undefined, options);
+                                        aggAcc, options);
                         var aggVarName = "XC_AGG_" +
                                     Authentication.getHashId().substring(3);
 
                         acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
-                                                  aggVarName: aggVarName});
+                                                  aggVarName: aggVarName,
+                                                  numOps: aggAcc.numOps});
                         if (options && options.xcAggregate) {
                             outStr += "^";
                         }
@@ -1419,10 +1427,15 @@
                         assert(condTree.children.length > 0);
                     }
                 } else {
-                    if (!acc) {
-                        outStr += opLookup[opName] + "(";
+                    if (acc) {
+                        if(acc.noAssignOp) {
+                            acc.numOps += 1;
+                            outStr += opLookup[opName] + "(";
+                        } else {
+                            acc.operator = opLookup[opName];
+                        }
                     } else {
-                        acc.operator = opLookup[opName];
+                        outStr += opLookup[opName] + "(";
                     }
                 }
             } else if (opName.indexOf(".ScalarSubquery") > -1) {
@@ -1436,6 +1449,9 @@
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
                 outStr += "^" + subqVarName;
             } else {
+                if (acc && acc.hasOwnProperty("numOps")) {
+                    acc.numOps += 1;
+                }
                 outStr += opLookup[opName] + "(";
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
@@ -1448,7 +1464,7 @@
             if ((opName.indexOf(".aggregate.") === -1 &&
                  opName.indexOf(".ScalarSubquery") === -1) ||
                 (opName !== "expressions.aggregate.AggregateExpression" &&
-                 !acc)) {
+                 (!acc || acc.noAssignOp))) {
                 outStr += ")";
             }
         } else {
@@ -1488,7 +1504,7 @@
             if (evalList[i].length > 1) {
                 assert(evalList[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.Alias");
-                var acc = {aggEvalStrArray: aggEvalStrArray};
+                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0};
                 var genTreeOpts = {extractAggregates: true};
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
                     evalList[i].slice(1), genTreeOpts);
@@ -1496,7 +1512,8 @@
                 var newColName = evalList[i][0].name.replace(/[\(|\)|\.]/g, "_")
                                                .toUpperCase();
                 var retStruct = {newColName: newColName,
-                                 evalStr: evalStr};
+                                 evalStr: evalStr,
+                                 numOps: acc.numOps};
                 colName = newColName;
                 if (options && options.operator) {
                     retStruct.operator = acc.operator;
@@ -1507,6 +1524,7 @@
                     var dataType = convertSparkTypeToXcalarType(
                         evalList[i][1].dataType);
                     retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
+                    retStruct.numOps += 1;
                 }
                 evalStrArray.push(retStruct);
             } else {
@@ -1588,10 +1606,11 @@
         return deferred.promise();
     }
 
-    function extractAndReplace(evalStr, replace) {
-        if (evalStr.indexOf("(") === -1) {
+    function extractAndReplace(aggEvalObj, replace) {
+        if (aggEvalObj.numOps === 0) {
             return;
         }
+        var evalStr = aggEvalObj.aggEvalStr;
         var leftBracketIndex = evalStr.indexOf("(");
         var rightBracketIndex = evalStr.lastIndexOf(")");
         var firstOp = evalStr.substring(0, leftBracketIndex);
