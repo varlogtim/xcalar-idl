@@ -21,6 +21,9 @@
   <% require themedCSS('xu') %>
   <% require themedCSS('opensans') %>
   <link rel="shortcut icon" href="$ThemeDir/images/favicon.ico" />
+  <% require javascript('framework/thirdparty/jquery/jquery.js') %>
+  <%-- Please move: Theme javascript (below) should be moved to mysite/code/page.php  --%>
+  <script type="text/javascript" src="{$ThemeDir}/javascript/common.js"></script>
 </head>
 
 <body class="$ClassName" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
@@ -29,10 +32,5 @@
   $Layout
 </div>
 <% include Footer %>
-
-<% require javascript('framework/thirdparty/jquery/jquery.js') %>
-<%-- Please move: Theme javascript (below) should be moved to mysite/code/page.php  --%>
-<script type="text/javascript" src="{$ThemeDir}/javascript/script.js"></script>
-
 </body>
 </html>
