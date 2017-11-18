@@ -482,7 +482,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 "formMode": true,
                 "error": ErrTStr.InvalidWBName,
                 "check": function() {
-                    return !xcHelper.isValidTableName($newWorkbookInput.val());
+                    return !xcHelper.checkNamePattern("workbook", "check", workbookName);
                 }
             },
             {

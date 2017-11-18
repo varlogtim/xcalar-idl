@@ -1296,6 +1296,23 @@ describe("xcHelper Test", function() {
             "action": "check",
             "name": "_ab9-c",
             "expect": true
+        }, {
+            "category": "workbook",
+            "action": "check",
+            "name": "ab9 --c",
+            "expect": true
+        }, {
+            "category": "workbook",
+            "action": "check",
+            "name": "_ab9c",
+            "expect": false
+        }, {
+            {
+            "category": "workbook",
+            "action": "check",
+            "name": "ab*9c",
+            "expect": false
+        }
         }];
 
         testCases.forEach(function(test) {

@@ -61,11 +61,45 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
     }
 
     function submitForm() {
+        var workbookId = activeWorkbookId;
+        if (!validate(workbookId)) {
+            return;
+        }
         var name = $modal.find(".name input").val();
         var description = $modal.find(".description input").val();
-        var workbookId = activeWorkbookId;
         WorkbookPanel.edit(workbookId, name, description);
         closeModal();
+    }
+
+    function validate(workbookId) {
+        var $input = $modal.find(".name input");
+        var workbookName = $input.val();
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $input,
+                "error": ErrTStr.InvalidWBName,
+                "check": function() {
+                    return !xcHelper.checkNamePattern("workbook", "check", workbookName);
+                }
+            },
+            {
+                "$ele": $input,
+                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                    "name": workbookName
+                }),
+                "check": function() {
+                    var workbooks = WorkbookManager.getWorkbooks();
+                    for (var wkbkId in workbooks) {
+                        if (workbooks[wkbkId].getName() === workbookName &&
+                            wkbkId !== workbookId) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        ]);
+        return isValid;
     }
 
     return WorkbookInfoModal;

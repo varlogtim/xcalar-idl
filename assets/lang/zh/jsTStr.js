@@ -205,7 +205,7 @@ ErrTStr = {
 'InvalidFile': '请选择一个文件或文件夹',
 'InvalidAggName': '聚合名称应以字母开头，仅包含字母，数字，连字符（ - ）或下划线（_）',
 'InvalidTableName': '表名应以字母开头，仅包含字母，数字，连字符（ - ）或下划线（_）',
-'InvalidWBName': '工作簿名称应以字母开头，仅包含字母，数字，连字符（ - ）或下划线（_）',
+'InvalidWBName': '工作簿名称应以字母开头，仅包含字母，数字，空格，连字符（ - ）或下划线（_）',
 'NoHashTag': '请输入无 # 符号的有效名称 ',
 'NoSpecialChar': '请输入无特殊字符的有效名称。',
 'NoSpecialCharOrSpace': '请输入无特殊字符或空格的有效名称。',

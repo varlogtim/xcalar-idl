@@ -2110,6 +2110,9 @@
             case "udfFn":
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
+            case "workbook":
+                namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
+                break;
             default:
                 namePattern = /^[a-zA-Z0-9_-]+$/;
                 antiNamePattern = /[^a-zA-Z0-9_-]/;
