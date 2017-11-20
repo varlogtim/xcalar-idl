@@ -2516,7 +2516,7 @@ describe("Persistent Constructor Test", function() {
 
                 XcalarFetchData = function() {
                     var json = JSON.stringify({"a": "b"});
-                    return PromiseHelper.resolve([{"value": json}]);
+                    return PromiseHelper.resolve([json]);
                 };
 
                 dsObj.fetch(1, 10)

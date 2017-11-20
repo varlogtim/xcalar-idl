@@ -22,3 +22,11 @@ XcalarOrderingTStr = {0 : 'Unordered',
 16 : 'Random',
 195936478 : 'Invalid'
 };
+XcalarOrderingTFromStr = {'Unordered' : 0,
+'Ascending' : 3,
+'Descending' : 5,
+'PartialAscending' : 11,
+'PartialDescending' : 13,
+'Random' : 16,
+'Invalid' : 195936478
+};

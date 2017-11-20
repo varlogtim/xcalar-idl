@@ -93,18 +93,18 @@ describe('RowManager Test', function() {
                 if (returnZero) {
                     returnZero = false;
                     return PromiseHelper.resolve({
-                        kvPair: [],
-                        numKvPairs: 0
+                        values: [],
+                        numValues: 0
                     });
                 } else {
                     return PromiseHelper.resolve({
-                        kvPair: [
-                        {key: 0,value: '{"rowNum":62}'},
-                        {key: 0,value: '{"rowNum":63}'},
-                        {key: 0,value: '{"rowNum":64}'},
-                        {key: 0,value: '{"rowNum":65}'},
+                        values: [
+                        '{"rowNum":62}',
+                        '{"rowNum":63}',
+                        '{"rowNum":64}',
+                        '{"rowNum":65}',
                         ],
-                        numKvPairs: 4
+                        numValues: 4
                     });
                 }
             };
@@ -175,20 +175,20 @@ describe('RowManager Test', function() {
                 if (returnThree) {
                     returnThree = false;
                     return PromiseHelper.resolve({
-                        kvPair: [
-                        {key: 0,value: '{"rowNum":61}'},
-                        {key: 0,value: '{"rowNum":62}'},
-                        {key: 0,value: '{"rowNum":63}'},
+                        values: [
+                        '{"rowNum":61}',
+                        '{"rowNum":62}',
+                        '{"rowNum":63}',
                         ],
-                        numKvPairs: 3
+                        numValues: 3
                     });
                 } else {
                     return PromiseHelper.resolve({
-                        kvPair: [
-                        {key: 0,value: '{"rowNum":64}'},
-                        {key: 0,value: '{"rowNum":65}'},
+                        values: [
+                        '{"rowNum":64}',
+                        '{"rowNum":65}',
                         ],
-                        numKvPairs: 2
+                        numValues: 2
                     });
                 }
             };
@@ -233,19 +233,19 @@ describe('RowManager Test', function() {
                 if (returnTwo) {
                     returnTwo = false;
                     return PromiseHelper.resolve({
-                        kvPair: [
-                        {key: 0,value: '{"rowNum":2}'},
-                        {key: 0,value: '{"rowNum":3}'},
+                        values: [
+                        '{"rowNum":2}',
+                        '{"rowNum":3}',
                         ],
-                        numKvPairs: 2
+                        numValues: 2
                     });
                 } else {
                     return PromiseHelper.resolve({
-                        kvPair: [
-                        {key: 0,value: '{"rowNum":4}'},
-                        {key: 0,value: '{"rowNum":5}'},
+                        values: [
+                        '{"rowNum":4}',
+                        '{"rowNum":5}',
                         ],
-                        numKvPairs: 2
+                        numValues: 2
                     });
                 }
             };
@@ -293,13 +293,13 @@ describe('RowManager Test', function() {
                         pairs.push({key: 0, value: '{"rowNum":' + (941 + i) + '}'});
                     }
                     return PromiseHelper.resolve({
-                        kvPair: pairs,
-                        numKvPairs: 58
+                        values: pairs,
+                        numValues: 58
                     });
                 } else if (count === 2 || count === 3) {
                     return PromiseHelper.resolve({
-                        kvPair: [],
-                        numKvPairs: 0
+                        values: [],
+                        numValues: 0
                     });
                 } else if (count === 4) {
                     console.error('should not get page 5 times');

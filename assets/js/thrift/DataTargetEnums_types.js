@@ -33,19 +33,39 @@ ExTargetTypeTStr = {0 : 'unknown',
 1 : 'file',
 2 : 'udf'
 };
+ExTargetTypeTFromStr = {'unknown' : 0,
+'file' : 1,
+'udf' : 2
+};
 ExExportCreateRuleTStr = {0 : 'unknown',
 1 : 'createOnly',
 2 : 'createOrAppend',
 3 : 'appendOnly',
 4 : 'deleteAndReplace'
 };
+ExExportCreateRuleTFromStr = {'unknown' : 0,
+'createOnly' : 1,
+'createOrAppend' : 2,
+'appendOnly' : 3,
+'deleteAndReplace' : 4
+};
 ExSFFileSplitTypeTStr = {0 : 'unknown',
 1 : 'none',
 2 : 'single',
 3 : 'size'
 };
+ExSFFileSplitTypeTFromStr = {'unknown' : 0,
+'none' : 1,
+'single' : 2,
+'size' : 3
+};
 ExSFHeaderTypeTStr = {0 : 'unknown',
 1 : 'every',
 2 : 'separate',
 3 : 'none'
+};
+ExSFHeaderTypeTFromStr = {'unknown' : 0,
+'every' : 1,
+'separate' : 2,
+'none' : 3
 };

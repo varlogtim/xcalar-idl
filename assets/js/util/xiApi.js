@@ -205,7 +205,7 @@
         // url, isRecur, maxSampleSize, skipRows, isRegex, pattern,
         // formatArgs is as follows:
         // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
-        // fieldDelim, recordDelim, hasHeader, quoteChar
+        // fieldDelim, recordDelim, schemaMode, quoteChar
         // moduleName, funcName, udfQuery
         if (txId == null || !dsArgs || !formatArgs || !dsArgs.url ||
             !formatArgs.format) {
@@ -221,13 +221,16 @@
 
         var fieldDelim;
         var recordDelim;
-        var hasHeader;
+        var schemaMode = CsvSchemaModeT.CsvSchemaModeNoneProvided;
         var quoteChar;
+        var typedColumns = [];
+        var schemaFile = ""; // Not implemented yet. Wait for backend
         if (format === "CSV") {
             fieldDelim = formatArgs.fieldDelim || "";
             recordDelim = formatArgs.recordDelim || "\n";
-            hasHeader = formatArgs.hasHeader || false;
+            schemaMode = formatArgs.schemaMode || CsvSchemaModeT.CsvSchemaModeNoneProvided;
             quoteChar = formatArgs.quoteChar || '"';
+            typedColumns = formatArgs.typedColumns || [];
         }
 
         var moduleName = formatArgs.moduleName || "";
@@ -237,7 +240,7 @@
         var options = {
             "fieldDelim": fieldDelim,
             "recordDelim": recordDelim,
-            "hasHeader": hasHeader,
+            "schemaMode": schemaMode,
             "moduleName": moduleName,
             "funcName": funcName,
             "isRecur": isRecur,
@@ -245,7 +248,9 @@
             "quoteChar": quoteChar,
             "skipRows": skipRows,
             "fileNamePattern": pattern,
-            "udfQuery": udfQuery
+            "udfQuery": udfQuery,
+            "typedColumns": typedColumns,
+            "schemaFile": schemaFile
         };
 
         return XcalarLoad(url, format, dsName, options, txId);
@@ -1020,9 +1025,10 @@
                                    totalRows, [], 0);
         })
         .then(function(result) {
+            // Can clean up here
             finalData = [];
             for (var i = 0, len = result.length; i < len; i++) {
-                finalData.push(result[i].value);
+                finalData.push(result[i]);
             }
             return XcalarSetFree(resultSetId);
         })

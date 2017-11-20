@@ -609,7 +609,8 @@ XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offse
     {
         "fieldDelim": "",
         "recordDelim": "\n",
-        "hasHeader": false,
+        "hasHeader": false, // Deprecated
+(future)"schemaMode": CsvSchemaModeT.[CsvSchemaModeNoneProvided|CsvSchemaModeUseHeader|CsvSchemaModeUseLoadInput]
         "moduleName": udfModule,
         "funcName": udfFunc,
         "isRecur": isRecur,
@@ -617,14 +618,33 @@ XcalarPreview = function(url, fileNamePattern, isRecur, numBytesRequested, offse
         "quoteChar": gDefaultQDelim,
         "skipRows": 0,
         "fileNamePattern": pattern,
-        "udfQuery": udfQuery
+        "udfQuery": udfQuery,
+        "typedColumns": [
+            {
+                "colName": "foo",
+                "colType": [DfString|DfFloat64|DfInt64]
+            }, ...
+        ]
     }
  */
 XcalarLoad = function(url, format, datasetName, options, txId) {
     options = options || {};
     var fieldDelim = options.fieldDelim;
     var recordDelim = options.recordDelim;
-    var hasHeader = options.hasHeader;
+    var schemaMode;
+
+    if (options.hasOwnProperty("hasHeader")) {
+        schemaMode = (options.hasHeader) ?
+                     CsvSchemaModeT.CsvSchemaModeUseHeader :
+                     CsvSchemaModeT.CsvSchemaModeNoneProvided;
+    } else {
+        schemaMode = options.schemaMode;
+    }
+
+    var typedColumns = [];
+    if (options.hasOwnProperty("typedColumns")) {
+        typedColumns = options.typedColumns;
+    }
     var moduleName = options.moduleName;
     var funcName = options.funcName;
     var isRecur = options.isRecur;
@@ -733,12 +753,9 @@ XcalarLoad = function(url, format, datasetName, options, txId) {
     loadArgs.csv.quoteDelim = quoteChar;
     loadArgs.recursive = isRecur;
     loadArgs.fileNamePattern = fileNamePattern;
-
-    if (hasHeader) {
-        loadArgs.csv.hasHeader = true;
-    } else {
-        loadArgs.csv.hasHeader = false;
-    }
+    loadArgs.csv.schemaFile = ""; // Not used yet. Wait for backend to implement;
+    loadArgs.csv.schemaMode = schemaMode;
+    loadArgs.csv.typedColumns = typedColumns;
     if (moduleName !== "" && funcName !== "") {
         loadArgs.udfLoadArgs = new XcalarApiUdfLoadArgsT();
         loadArgs.udfLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
@@ -1224,16 +1241,18 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
     }
     datasetName = parseDS(datasetName);
     var dhtName = ""; // XXX TODO fill in later
-    // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
+
     var ordering = XcalarOrderingT.XcalarOrderingUnordered;
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName, prefix, ordering);
+    var workItem = xcalarIndexWorkItem(datasetName, tablename,
+               [new XcalarApiKeyT({name: key, type: "DfUnknown", newField:""})],
+                                              ordering, prefix, dhtName);
     var def;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarIndexDataset(tHandle, datasetName, key, tablename,
-                                  dhtName, ordering, prefix);
+        def = xcalarIndex(tHandle, datasetName, tablename,
+               [new XcalarApiKeyT({name: key, type: "DfUnknown", newField:""})],
+                                 ordering, prefix, dhtName);
     }
 
     var query = XcalarGetQuery(workItem);
@@ -1277,6 +1296,10 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
     var unsortedSrcTablename;
     var query;
 
+    if (typeof(keys) === "string") {
+        keys = [keys];
+    }
+
     promise
     .then(function(unsortedTablename) {
         if (Transaction.checkCanceled(txId)) {
@@ -1287,15 +1310,23 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
         return xcHelper.getKeyTypes(keys, unsortedTablename);
     })
     .then(function(keyTypes) {
-        var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename,
-                                                tablename, keys, dhtName,
-                                                ordering, keyTypes);
+        var keyArray = [];
+        for (var i = 0; i < keys.length; i++) {
+            keyArray.push(new XcalarApiKeyT({
+                name: keys[i],
+                type: keyTypes[i],
+                newField: ""
+            }));
+        }
+        var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
+                                           tablename, keyArray, ordering,
+                                           dhtName);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarIndexTable(tHandle, unsortedSrcTablename, keys,
-                                    tablename, dhtName, ordering, keyTypes);
+            def = xcalarIndex(tHandle, unsortedSrcTablename, tablename,
+                              keyArray, ordering, dhtName);
         }
         query = XcalarGetQuery(workItem);
         if (!unsorted) {
@@ -1491,20 +1522,20 @@ XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, dat
         return XcalarGetNextPage(resultSetId, rowsToFetch);
     })
     .then(function(tableOfEntries) {
-        var kvPairs = tableOfEntries.kvPair;
-        var numKvPairs = tableOfEntries.numKvPairs;
+        var values = tableOfEntries.values;
+        var numValues = tableOfEntries.numValues;
         var numStillNeeds = 0;
 
-        if (numKvPairs < rowsToFetch) {
-            if (rowPosition + numKvPairs >= totalRows) {
+        if (numValues < rowsToFetch) {
+            if (rowPosition + numValues >= totalRows) {
                 numStillNeeds = 0;
             } else {
-                numStillNeeds = rowsToFetch - numKvPairs;
+                numStillNeeds = rowsToFetch - numValues;
             }
         }
 
-        kvPairs.forEach(function(kvPair) {
-            data.push(kvPair);
+        values.forEach(function(value) {
+            data.push(value);
         });
 
         if (numStillNeeds > 0) {
@@ -1520,7 +1551,7 @@ XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, dat
                 newPosition = rowPosition + 1;
                 console.warn("cannot fetch position", rowPosition);
             } else {
-                newPosition = rowPosition + numKvPairs;
+                newPosition = rowPosition + numValues;
             }
 
             return XcalarFetchData(resultSetId, newPosition, numStillNeeds,

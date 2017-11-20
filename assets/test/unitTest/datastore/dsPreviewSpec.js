@@ -369,10 +369,7 @@ describe("Dataset-DSPreview Test", function() {
 
             var oldFetch = XcalarFetchData;
             XcalarFetchData = function() {
-                return PromiseHelper.resolve([{
-                    "key": "0",
-                    "value": '{"column10":"Opportunity Source"}'
-                }]);
+                return PromiseHelper.resolve(['{"column10":"Opportunity Source"}']);
             };
 
             DSPreview.__testOnly__.getDataFromLoadUDF()
@@ -828,9 +825,7 @@ describe("Dataset-DSPreview Test", function() {
             };
 
             XcalarFetchData = function() {
-                return PromiseHelper.resolve([{
-                    "value": "test"
-                }]);
+                return PromiseHelper.resolve(["test"]);
             };
 
             DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds",{
@@ -862,9 +857,7 @@ describe("Dataset-DSPreview Test", function() {
 
             XcalarFetchData = function() {
                 var val = JSON.stringify({"a": "test"});
-                return PromiseHelper.resolve([{
-                    "value": val
-                }]);
+                return PromiseHelper.resolve([val]);
             };
 
             XcalarSetFree = function() {
@@ -897,9 +890,7 @@ describe("Dataset-DSPreview Test", function() {
             XcalarFetchData = function() {
                 test = true;
                 var val = JSON.stringify({"a": "test"});
-                return PromiseHelper.resolve([{
-                    "value": val
-                }]);
+                return PromiseHelper.resolve([val]);
             };
 
             var $section = $previewTable.closest(".datasetTbodyWrap");

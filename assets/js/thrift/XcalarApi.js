@@ -460,6 +460,9 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(url, name, format, 
     workItem.input.loadInput.dest = name;
     workItem.input.loadInput.size = maxSampleSize;
     workItem.input.loadInput.format = DfFormatTypeTStr[format];
+    workItem.input.loadInput.typedColumnsCount = 0;
+    workItem.input.loadInput.typedColumns = [];
+    workItem.input.loadInput.schemaFile = "";
 
     if (loadArgs) {
         workItem.input.loadInput.fileNamePattern = loadArgs.fileNamePattern;
@@ -473,8 +476,18 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(url, name, format, 
             workItem.input.loadInput.quoteDelim = loadArgs.csv.quoteDelim;
             workItem.input.loadInput.linesToSkip = loadArgs.csv.linesToSkip;
             workItem.input.loadInput.crlf = loadArgs.csv.isCRLF;
-            workItem.input.loadInput.header = loadArgs.csv.hasHeader;
+            workItem.input.loadInput.schemaMode = loadArgs.csv.schemaMode;
             workItem.input.loadInput.recursive = loadArgs.recursive;
+            if (loadArgs.csv.typedColumns) {
+                for (var ii = 0; ii < loadArgs.csv.typedColumns.length; ii++) {
+                    var typedColumn = new XcalarApiCsvTypedColumnT();
+                    typedColumn.colName = loadArgs.csv.typedColumns[ii].colName;
+                    typedColumn.colType = loadArgs.csv.typedColumns[ii].colType;
+                    workItem.input.loadInput.typedColumns.push(typedColumn);
+                }
+                workItem.input.loadInput.typedColumnsCount = workItem.input.loadInput.typedColumns.length;
+            }
+            workItem.input.loadInput.schemaFile = loadArgs.csv.schemaFile;
         }
     }
     return (workItem);
@@ -496,7 +509,7 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
                         "loadArgs.csv.quoteDelim = " + loadArgs.csv.quoteDelim + ", " +
                         "loadArgs.csv.linesToSkip = " + loadArgs.csv.linesToSkip + ", " +
                         "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " +
-                        "loadArgs.csv.hasHeader = " + loadArgs.csv.hasHeader);
+                        "loadArgs.csv.schemaMode = " + CsvSchemaModeTStr[loadArgs.csv.schemaMode]);
         }
     }
 
@@ -526,148 +539,52 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
 
 };
 
-xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(datasetName, keyName, dstTableName,
-                                    dhtName, fatptrPrefixName, ordering,
-                                    keyType) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.indexInput = new XcalarApiIndexInputT();
-
-    workItem.api = XcalarApisT.XcalarApiIndex;
-    workItem.input.indexInput.source = datasetName;
-    workItem.input.indexInput.dest = dstTableName;
-    workItem.input.indexInput.key = []
-    if (keyName) {
-        if (keyName.constructor === Array) {
-            for (var ii = 0; ii < keyName.length; ii++) {
-                var key = new XcalarApiKeyT();
-                key.name = keyName[ii];
-                if (keyType) {
-                    key.type = DfFieldTypeTStr[keyType[ii]];
-                } else {
-                    key.type = "DfUnknown";
-                }
-
-                workItem.input.indexInput.key.push(key);
-            }
-        } else {
-            var key = new XcalarApiKeyT();
-            key.name = keyName;
-
-            if (keyType) {
-                key.type = DfFieldTypeTStr[keyType];
-            } else {
-                key.type = "DfUnknown";
-            }
-
-            workItem.input.indexInput.key.push(key);
-        }
-    }
-
-    workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.prefix = fatptrPrefixName;
-    workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
-    workItem.input.indexInput.delaySort = false;
-    return (workItem);
-};
-
-xcalarIndexDataset = runEntity.xcalarIndexDataset = function(thriftHandle, datasetName, keyName, dstTableName,
-                            dhtName, ordering, fatptrPrefixName, keyType) {
-    var deferred = jQuery.Deferred();
-
-    if (verbose) {
-        console.log("xcalarIndexDataset(datasetName = " + datasetName +
-                    ", keyName = " + keyName + ", dstTableName = " +
-                    dstTableName + ", fatptrPrefixName = " +
-                    fatptrPrefixName + ", ordering = " + ordering +
-                    ", keyType = " + keyType + ")");
-    }
-
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName,
-                                              dstTableName, dhtName,
-                                              fatptrPrefixName, ordering,
-                                              keyType);
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var indexOutput = result.output.outputResult.indexOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-        }
-        indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(indexOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarIndexDataset() caught exception:", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTableName, dstTableName, keyName, dhtName,
-                                  ordering, keyType) {
+xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
+                                                                    dest,
+                                                                    keys,
+                                                                    ordering,
+                                                                    prefix,
+                                                                    dhtName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.api = XcalarApisT.XcalarApiIndex;
 
-    workItem.input.indexInput.source = srcTableName;
-    workItem.input.indexInput.dest = dstTableName;
+    workItem.input.indexInput.source = source;
+    workItem.input.indexInput.dest = dest;
     workItem.input.indexInput.key = [];
-    if (keyName) {
-        if (keyName.constructor === Array) {
-            for (var ii = 0; ii < keyName.length; ii++) {
-                var key = new XcalarApiKeyT();
-                key.name = keyName[ii];
-                if (keyType) {
-                    key.type = DfFieldTypeTStr[keyType[ii]];
-                } else {
-                    key.type = "DfUnknown";
-                }
-
-                workItem.input.indexInput.key.push(key);
-            }
-        } else {
-            var key = new XcalarApiKeyT();
-            key.name = keyName;
-            if (keyType) {
-                key.type = DfFieldTypeTStr[keyType];
-            } else {
-                key.type = "DfUnknown";
-            }
-
-            workItem.input.indexInput.key.push(key);
+    if (keys) {
+        for (var ii = 0; ii < keys.length; ii++) {
+            workItem.input.indexInput.key.push(keys[ii]);
         }
     }
 
     workItem.input.indexInput.dhtName = dhtName;
-    workItem.input.indexInput.prefix = "";
+    workItem.input.indexInput.prefix = prefix;
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     workItem.input.indexInput.delaySort = false;
     return (workItem);
 };
 
-xcalarIndexTable = runEntity.xcalarIndexTable = function(thriftHandle, srcTableName, keyName, dstTableName,
-                          dhtName, ordering, keyType) {
+xcalarIndex = runEntity.xcalarIndexTable = function(thriftHandle,
+                                                    source,
+                                                    dest,
+                                                    keys,
+                                                    ordering,
+                                                    prefix,
+                                                    dhtName) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
-        console.log("xcalarIndexTable(srcTableName = " + srcTableName +
-                   ", keyName = " + keyName + ", dstTableName = " +
-                    dstTableName + ", dhtName = " + dhtName +
-                    ", ordering = " + ordering +
-                    ", keyType = " + keyType + ")");
+        console.log("xcalarIndex(source = " +  source +
+                   ", keys = " + keys + ", dest = " +
+                    dest + ", prefix = " + prefix +
+                    ", dhtName = " + dhtName +
+                    ", ordering = " + ordering + ")");
     }
 
-    var workItem = xcalarIndexTableWorkItem(srcTableName, dstTableName,
-                                            keyName, dhtName, ordering,
-                                            keyType);
+    var workItem = xcalarIndexWorkItem(source, dest, keys, ordering,
+                                       prefix, dhtName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2505,10 +2422,8 @@ xcalarListExportTargetsWorkItem = runEntity.xcalarListExportTargetsWorkItem = fu
 
 xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHandle, typePattern, namePattern) {
     var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarListExportTargets(typePattern = " + typePattern +
+    console.log("xcalarListExportTargets(typePattern = " + typePattern +
                 ", namePattern = " + namePattern + ")");
-    }
 
     var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
 

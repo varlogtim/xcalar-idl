@@ -189,7 +189,7 @@ window.UExtNN = (function(UExtNN) {
                 return (XcalarGetNextPage(resultSet.resultSetId, 4));
             })
             .then(function(out) {
-                var json = jQuery.parseJSON(out.kvPair[0].value);
+                var json = jQuery.parseJSON(out.values[0]);
                 // debugger;
                 XcalarSetFree(resultSet.resultSetId);
             })
@@ -663,8 +663,8 @@ window.UExtNN = (function(UExtNN) {
                 }
 
                 var resultSet;
-                XcalarQueryWithCheck("nn_iteration_" + iteration
-                                     + Authentication.getHashId(),
+                XcalarQueryWithCheck("nn_iteration_" + iteration +
+                                     Authentication.getHashId(),
                                      queryStr, txId)
                 .then(function () {
                     return (XcalarMakeResultSetFromTable(totalError));
@@ -674,7 +674,7 @@ window.UExtNN = (function(UExtNN) {
                     return (XcalarGetNextPage(resultSet.resultSetId, 1));
                 })
                 .then(function(out) {
-                    var error = jQuery.parseJSON(out.kvPair[0].value)["constant"];
+                    var error = jQuery.parseJSON(out.values[0]).constant;
                     if (error > threshold) {
                         done = false;
                     } else {

@@ -615,7 +615,7 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
-            test.assert(result.numBytes == 20054016);
+            test.assert(result.numBytes == 17694720);
             test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
@@ -725,7 +725,10 @@ window.Function.prototype.bind = function() {
         lArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         lArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
         lArgs.csv.isCRLF = false;
-        lArgs.csv.hasHeader = true;
+        lArgs.csv.schemaMode = CsvSchemaModeT.CsvSchemaModeUseHeader;
+        lArgs.csv.typedColumnsCount = 0;
+        lArgs.csv.typedColumns = [];
+        lArgs.csv.schemaFile = "";
         return lArgs;
     }
 
@@ -955,19 +958,22 @@ window.Function.prototype.bind = function() {
     }
 
     function testIndexDatasetIntSync(test) {
-        test.trivial(xcalarIndexDataset(thriftHandle,
-                     loadOutput.dataset.name, "review_count",
-                     "yelp/user-review_count", "",
-                     XcalarOrderingT.XcalarOrderingUnordered,
-                                        DfFieldTypeT.DfInt64));
+        test.trivial(xcalarIndex(thriftHandle,
+                                 loadOutput.dataset.name,
+                                 "yelp/user-review_count",
+                                 [new XcalarApiKeyT({name:"review_count", type:"DfInt64", newField:""})],
+                                 XcalarOrderingT.XcalarOrderingUnordered,
+                                 "yelp_user"));
+
     }
 
     function testIndexDatasetInt(test) {
-        xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "votes.funny", "yelp/user-votes.funny", "",
-                           XcalarOrderingT.XcalarOrderingUnordered,
-                           "yelp_user",
-                           DfFieldTypeT.DfInt64)
+        xcalarIndex(thriftHandle,
+                    loadOutput.dataset.name,
+                    "yelp/user-votes.funny",
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", newField:""})],
+                    XcalarOrderingT.XcalarOrderingUnordered,
+                    "yelp_user")
         .done(function(indexOutput) {
             printResult(indexOutput);
             origTable = indexOutput.tableName;
@@ -977,10 +983,12 @@ window.Function.prototype.bind = function() {
     }
 
     function testIndexDatasetStr(test) {
-        xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "user_id", "yelp/user-user_id", "",
-                           XcalarOrderingT.XcalarOrderingUnordered,
-                           DfFieldTypeT.DfString)
+        xcalarIndex(thriftHandle,
+                    loadOutput.dataset.name,
+                    "yelp/user-user_id",
+                    [new XcalarApiKeyT({name:"user_id", type:"DfString", newField:""})],
+                    XcalarOrderingT.XcalarOrderingUnordered,
+                    "yelp_user")
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             origStrTable = indexStrOutput.tableName;
@@ -992,10 +1000,12 @@ window.Function.prototype.bind = function() {
     function testIndexDatasetWithPrefix(test) {
         var tableName = "yelpUserWithPrefix";
         var resultSetId;
-        xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "user_id", tableName, "",
-                           XcalarOrderingT.XcalarOrderingUnordered,
-                           "prefix", DfFieldTypeT.DfString)
+        xcalarIndex(thriftHandle,
+                    loadOutput.dataset.name,
+                    tableName,
+                    [new XcalarApiKeyT({name:"user_id", type:"DfString", newField:""})],
+                    XcalarOrderingT.XcalarOrderingUnordered,
+                    "prefix")
         .then(function() {
             return xcalarMakeResultSetFromTable(thriftHandle, tableName);
         })
@@ -1007,11 +1017,12 @@ window.Function.prototype.bind = function() {
             return xcalarResultSetNext(thriftHandle, resultSetId, 1);
         })
         .then(function(ret) {
-            var oneValue = JSON.parse(ret.kvPair[0].value);
+            var oneValue = JSON.parse(ret.values[0]);
             printResult(oneValue);
             for (var key in oneValue) {
                 printResult(key);
-                test.assert(key.indexOf("prefix::") === 0);
+                test.assert(key.indexOf("prefix::") === 0 ||
+                            key.indexOf("prefix-") === 0);
             }
 
             return xcalarFreeResultSet(thriftHandle, resultSetId);
@@ -1024,10 +1035,11 @@ window.Function.prototype.bind = function() {
     }
 
     function testIndexTable(test) {
-        test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
-                         "name", "yelp/user-name", "",
-                         XcalarOrderingT.XcalarOrderingUnordered,
-                                      DfFieldTypeT.DfString));
+        test.trivial(xcalarIndex(thriftHandle,
+                                 origStrTable,
+                                 "yelp/user-name",
+                                 [new XcalarApiKeyT({name:"yelp_user::name", type:"DfString", newField:""})],
+                                 XcalarOrderingT.XcalarOrderingUnordered));
     }
 
     function testRenameNode(test) {
@@ -1080,7 +1092,10 @@ window.Function.prototype.bind = function() {
         workItem.input.loadInput.loadArgs.csv.recordDelim = ",";
         workItem.input.loadInput.loadArgs.csv.fieldDelim = "\n";
         workItem.input.loadInput.loadArgs.csv.isCRLF = false;
-        workItem.input.loadInput.loadArgs.csv.hasHeader = false;
+        workItem.input.loadInput.loadArgs.csv.schemaMode = "none";
+        workItem.input.loadInput.loadArgs.csv.typedColumnsCount = 0;
+        workItem.input.loadInput.loadArgs.csv.typedColumns = [];
+        workItem.input.loadInput.loadArgs.csv.schemaFile = "";
         workItem.input.loadInput.dataset.url = "url";
         workItem.input.loadInput.dataset.datasetId = 2;
         workItem.input.loadInput.dataset.formatType =
@@ -1093,24 +1108,20 @@ window.Function.prototype.bind = function() {
     }
 
     function testIndexDatasetBogus(test) {
-         test.trivial(xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                      "garbage", "yelp/user-garbage", "",
-                      XcalarOrderingT.XcalarOrderingUnordered,
-                                       DfFieldTypeT.DfUnknown));
+         test.trivial(xcalarIndex(thriftHandle,
+                                  loadOutput.dataset.name,
+                                  "yelp/user-garbage",
+                                  [new XcalarApiKeyT({name:"garbage", type:"DfUnknown", newField:""})],
+                                  XcalarOrderingT.XcalarOrderingUnordered,
+                                  "yelp_user"));
     }
 
     function testIndexTable2(test) {
-        test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
-                     "yelping_since", "yelp/user-yelping_since", "",
-                     XcalarOrderingT.XcalarOrderingUnordered,
-                                      DfFieldTypeT.DfString));
-    }
-
-    function testIndexTableBogus(test) {
-        test.trivial(xcalarIndexTable(thriftHandle, origTable,
-                     "garbage2", "yelp/user-garbage2", "",
-                     XcalarOrderingT.XcalarOrderingUnordered,
-                                      DfFieldTypeT.DfUnknown));
+        test.trivial(xcalarIndex(thriftHandle,
+                                 origStrTable,
+                                 "yelp/user-yelping_since",
+                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", newField:""})],
+                                 XcalarOrderingT.XcalarOrderingUnordered));
     }
 
     function testGetTableRefCount(test) {
@@ -1300,16 +1311,14 @@ window.Function.prototype.bind = function() {
                             makeResultSetOutput1.resultSetId, 5)
         .then(function(resultNextOutput1) {
             printResult(resultNextOutput1);
-            test.assert(resultNextOutput1.numKvPairs > 0);
+            test.assert(resultNextOutput1.numValues > 0);
 
-            for (var i = 0, kvPair = null; i < resultNextOutput1.numKvPairs;
+            for (var i = 0, value = null; i < resultNextOutput1.numValues;
                  i++) {
-                kvPair = resultNextOutput1.kvPair[i];
+                value = resultNextOutput1.values[i];
 
-                console.log("\trecord[" + i.toString() + "].key = " +
-                            kvPair.key);
                 console.log("\trecord[" + i.toString() + "].value = " +
-                            kvPair.value);
+                            value);
             }
             test.pass();
         })
@@ -1336,15 +1345,13 @@ window.Function.prototype.bind = function() {
                             makeResultSetOutput2.resultSetId, 5)
         .then(function(resultNextOutput2) {
             printResult(resultNextOutput2);
-            test.assert(resultNextOutput2.numKvPairs > 0);
+            test.assert(resultNextOutput2.numValues > 0);
 
-            for (var i = 0, kvPair = null; i < resultNextOutput2.numKvPairs;
+            for (var i = 0, value = null; i < resultNextOutput2.numValues;
                  i ++) {
-                kvPair = resultNextOutput2.kvPair[i];
-                console.log("\trecord[" + i.toString() + "].key = " +
-                            kvPair.key);
+                value = resultNextOutput2.values[i];
                 console.log("\trecord[" + i.toString() + "].value = " +
-                            kvPair.value);
+                            value);
             }
             test.pass();
         })
@@ -1356,15 +1363,13 @@ window.Function.prototype.bind = function() {
                             makeResultSetOutput3.resultSetId, 5)
         .then(function(resultNextOutput3) {
             printResult(resultNextOutput3);
-            test.assert(resultNextOutput3.numKvPairs > 0);
+            test.assert(resultNextOutput3.numValues > 0);
 
-            for (var i = 0, kvPair = null; i < resultNextOutput3.numKvPairs;
+            for (var i = 0, value = null; i < resultNextOutput3.numValues;
                  i++) {
-                kvPair = resultNextOutput3.kvPair[i];
-                console.log("\trecord[" + i.toString() + "].key = " +
-                            kvPair.key);
+                value = resultNextOutput3.values[i];
                 console.log("\trecord[" + i.toString() + "].value = " +
-                            kvPair.value);
+                            value);
             }
             test.pass();
         })
@@ -1432,8 +1437,10 @@ window.Function.prototype.bind = function() {
         })
         .then(function(ret) {
             rs2= ret;
-            test.assert(ret.metaOutput.numValues == 2);
-            test.assert(ret.metaOutput.numImmediates == 1);
+            console.log(ret.metaOutput.numValues);
+            console.log(ret.metaOutput.numImmediates);
+            test.assert(ret.metaOutput.numValues == 3);
+            test.assert(ret.metaOutput.numImmediates == 2);
             return xcalarApiMap(thriftHandle, "complimentsFunnyPlusCute",
                                 "add(compliments.funny, compliments.cute)",
                                 "yelp/user-votes.funny-plus-useful-map",
@@ -1446,8 +1453,10 @@ window.Function.prototype.bind = function() {
         })
         .then(function(ret) {
             rs3 = ret;
-            test.assert(ret.metaOutput.numValues == 3);
-            test.assert(ret.metaOutput.numImmediates == 2);
+            console.log(ret.metaOutput.numValues);
+            console.log(ret.metaOutput.numImmediates);
+            test.assert(ret.metaOutput.numValues == 4);
+            test.assert(ret.metaOutput.numImmediates == 3);
             return xcalarProject(thriftHandle, 2,
                                  ["votesFunnyPlusUseful", "complimentsFunnyPlusCute"],
                                  "yelp/user-compliments.funny-plus-cute-map",
@@ -1460,6 +1469,8 @@ window.Function.prototype.bind = function() {
         })
         .then(function(ret) {
             rs4 = ret;
+            console.log(ret.metaOutput.numValues);
+            console.log(ret.metaOutput.numImmediates);
             test.assert(ret.metaOutput.numValues == 2);
             test.assert(ret.metaOutput.numImmediates == 2);
             return xcalarFreeResultSet(thriftHandle, rs4.resultSetId);
@@ -1487,6 +1498,12 @@ window.Function.prototype.bind = function() {
         map.sourceColumn = "yelp_user";
         map.destColumn = "leftDataset";
         map.columnType = "DfFatptr";
+        leftRenameMap.push(map);
+
+        var map = new XcalarApiRenameMapT();
+        map.sourceColumn = "yelp_user-votes.funny";
+        map.destColumn = "leftKey";
+        map.columnType = "DfInt64";
         leftRenameMap.push(map);
 
         var rightRenameMap = [];
@@ -1546,15 +1563,15 @@ window.Function.prototype.bind = function() {
 
     function testQuery(test) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-                    "yelp" + " --dsttable yelp-votesFunnyTable; index --key " +
-                    "review_count" +
+                    "yelp" + " --dsttable yelp-votesFunnyTable --prefix p; index --key " +
+                    "yelp_user::review_count" +
                     " --srctable yelp-votesFunnyTable --dsttable " +
                     "yelp-review_countTable;" +
                     "  map --eval \"add(1,2)\"  --srctable yelp-votesFunnyTable"
                     + " --fieldName newField --dsttable yelp-mapTable;" +
                     " filter yelp-mapTable \" sub(2,1)\" yelp-filterTable;" +
                     " groupBy --srctable yelp-filterTable --eval " +
-                    "\"avg(votes.cool)\" --fieldName avgCool --dsttable " +
+                    "\"avg(yelp_user::votes.cool)\" --fieldName avgCool --dsttable " +
                     "yelp-groupByTable;" +
                     " join --leftTable yelp-review_countTable --rightTable" +
                     "  yelp-groupByTable --joinTable " + queryTableName;
@@ -1566,9 +1583,9 @@ window.Function.prototype.bind = function() {
 
     function testGetDagOnAggr(test) {
         var query = "index --key xcalarRecordNum --dataset " + origDataset +
-                    " --dsttable yelpUsers#js0;" +
+                    " --dsttable yelpUsers#js0 --prefix p;" +
                     "aggregate --srctable yelpUsers#js0 --dsttable " +
-                    "yelpUsers-aggregate#js1 --eval \"count(review_count)\"";
+                    "yelpUsers-aggregate#js1 --eval \"count(yelp_user::review_count)\"";
 
         var locaQueryName = "aggr query";
 
@@ -1688,12 +1705,12 @@ window.Function.prototype.bind = function() {
     function testGroupBy(test) {
         test.trivial(xcalarGroupBy(thriftHandle, "yelp/user-votes.funny-gt900",
                       "yelp/user-votes.funny-gt900-average",
-                      "avg(votes.funny)", "averageVotesFunny", true));
+                      "avg(yelp_user::votes.funny)", "averageVotesFunny", true));
     }
 
     function testAggregate(test) {
         aggrTable = "aggrTable";
-        xcalarAggregate(thriftHandle, origStrTable, aggrTable, "sum(fans)")
+        xcalarAggregate(thriftHandle, origStrTable, aggrTable, "sum(yelp_user::fans)")
         .done(function(aggregateOutput) {
             console.log("jsonAnswer: " + JSON.stringify(aggregateOutput) +
                         "\n");
@@ -1716,11 +1733,11 @@ window.Function.prototype.bind = function() {
             // sorting the values to be able to predictably assert on the return from map
             // NOTE: sorting must be done AFTER map command - sorting won't be preserved
             // if we do sort, *then* map!!
-            return xcalarIndexTable(thriftHandle, ret.tableName,
-                                    "yelp_user::review_count",
-                                    "yelp/voted.cool-times-funny-sortedby-most_reviewed", "",
-                                    XcalarOrderingT.XcalarOrderingDescending,
-                                    DfFieldTypeT.DfInt64);
+            return xcalarIndex(thriftHandle,
+                               ret.tableName,
+                               "yelp/voted.cool-times-funny-sortedby-most_reviewed",
+                               [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", newField:""})],
+                               XcalarOrderingT.XcalarOrderingDescending)
         })
         .then(function(ret) {
             test.assert(ret.tableName === "yelp/voted.cool-times-funny-sortedby-most_reviewed");
@@ -1738,7 +1755,7 @@ window.Function.prototype.bind = function() {
                                        resultSetFromMapTable.resultSetId, 10);
         })
         .then(function(ret) {
-            test.assert(ret.numKvPairs > 0);
+            test.assert(ret.numValues > 0);
 
             return xcalarFreeResultSet(thriftHandle, resultSetFromMapTable.resultSetId);
         })
@@ -1846,7 +1863,7 @@ window.Function.prototype.bind = function() {
         target.type = ExTargetTypeT.ExTargetSFType;
         target.name = "Default";
         var numColumns = 2;
-        var columnNames = ["user_id", "name"];
+        var columnNames = ["yelp_user::user_id", "yelp_user::name"];
         var headerColumns = ["id_of_user", "user name"];
         var columns = columnNames.map(function (e, i) {
             var col = new ExColumnNameT();
@@ -1889,7 +1906,7 @@ window.Function.prototype.bind = function() {
         target.type = ExTargetTypeT.ExTargetSFType;
         target.name = "Default";
         var numColumns = 4;
-        var columnNames = ["votes.funny", "votes.useful", "user_id", "text"];
+        var columnNames = ["yelp_user::votes.funny", "yelp_user::votes.useful", "yelp_user::user_id", "yelp_user::text"];
         var headerColumns = ["votes.funny", "votes.useful", "id_of_user", "Review Contents"];
         var columns = columnNames.map(function (e, i) {
             var col = new ExColumnNameT();
@@ -1963,10 +1980,12 @@ window.Function.prototype.bind = function() {
             }, 50);
         }
 
-        xcalarIndexDataset(thriftHandle, yelpReviewsDataset,
-                           "votes.funny", "yelp/reviews-votes.funny", "",
-                           XcalarOrderingT.XcalarOrderingAscending,
-                           DfFieldTypeT.DfInt64)
+        xcalarIndex(thriftHandle,
+                    yelpReviewsDataset,
+                    "yelp/reviews-votes.funny",
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", newField:""})],
+                    XcalarOrderingT.XcalarOrderingAscending,
+                    "yelp_user")
         .then(exportAndCancel)
         .fail(function(reason) {
             test.fail("Index of reviews dataset failed with: " + StatusTStr[reason.xcalarStatus] +  " (" + reason + ")");
@@ -1977,7 +1996,7 @@ window.Function.prototype.bind = function() {
         retinaName = "yelpRetina-1";
         var dstTable = new XcalarApiRetinaDstT();
         dstTable.numColumns = 3;
-        var columnNames = ["user_id", "name", "votes.funny"];
+        var columnNames = ["yelp_user::user_id", "yelp_user::name", "yelp_user::votes.funny"];
         var headerColumns = ["User ID", "User Name", "Number of Funny Votes"];
         var columns = columnNames.map(function (e, i) {
             var col = new ExColumnNameT();
@@ -2412,7 +2431,7 @@ window.Function.prototype.bind = function() {
 
     // Witness to bug 2020
     function testApiMapStringToString(test) {
-        var evalString = "string(user_id)";
+        var evalString = "string(yelp_user::user_id)";
 
         xcalarApiMap(thriftHandle, "castUserId", evalString, origTable,
                      "user_id2")
@@ -2424,14 +2443,14 @@ window.Function.prototype.bind = function() {
 
     // Witness to bug 8711
     function testApiMapInPlaceReplace(test) {
-        var evalString = "string(user_id2)";
+        var evalString = "string(yelp_user::user_id2)";
         test.trivial(xcalarApiMap(thriftHandle, "castUserId", evalString,
                                   "user_id2", "inplaceReplace"));
     }
 
     // Witness to bug 238
     function testApiMapLongEvalString(test) {
-        var evalString = "add(votes.funny, 1)";
+        var evalString = "add(yelp_user::votes.funny, 1)";
         while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
@@ -2454,7 +2473,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testApiFilterLongEvalString(test) {
-        var evalString = "add(votes.funny, 1)";
+        var evalString = "add(yelp_user::votes.funny, 1)";
         while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
@@ -2802,6 +2821,7 @@ window.Function.prototype.bind = function() {
                 console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
                 console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
                 console.log("\tdatasetUsedBytes: ", topOutput.topOutputPerNode[ii].datasetUsedBytes);
+                console.log("\tsysMemUsedInBytes: ", topOutput.topOutputPerNode[ii].sysMemUsedInBytes);
                 console.log("\n\n");
             }
             test.pass();
@@ -2833,6 +2853,8 @@ window.Function.prototype.bind = function() {
                 console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
                 console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
                 console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
+                console.log("\tdatasetUsedBytes: ", topOutput.topOutputPerNode[ii].datasetUsedBytes);
+                console.log("\tsysMemUsedInBytes: ", topOutput.topOutputPerNode[ii].sysMemUsedInBytes);
                 console.log("\n\n");
             }
             test.pass();
@@ -2982,10 +3004,13 @@ window.Function.prototype.bind = function() {
         }
 
         function createDhtSuccessFn(status) {
-            xcalarIndexDataset(thriftHandle, yelpUserDataset,
-                               "average_stars", "yelp/user-average_stars",
-                               dhtName, XcalarOrderingT.XcalarOrderingInvalid,
-                               DfFieldTypeT.DfFloat64)
+            xcalarIndex(thriftHandle,
+                        yelpUserDataset,
+                        "yelp/user-average_stars",
+                        [new XcalarApiKeyT({name:"average_stars", type:"DfFloat64", newField:""})],
+                        XcalarOrderingT.XcalarOrderingInvalid,
+                        "yelp_user",
+                        dhtName)
             .done(indexDatasetSuccessFn)
             .fail(function(status) {
                 var reason = "Index dataset returned status: " + StatusTStr[status];
@@ -3573,7 +3598,96 @@ window.Function.prototype.bind = function() {
             test.pass();
         })
         .fail(test.fail);
+    }
 
+    function testCsvLoadWithSchema(test) {
+        var csvLoadOutput;
+        var dsName;
+        var dsResultSet;
+        var csvLoadArgs = new XcalarApiDfLoadArgsT();
+        csvLoadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        csvLoadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        csvLoadArgs.csv.fieldDelim = "|";
+        csvLoadArgs.csv.isCRLF = true;
+        csvLoadArgs.csv.schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
+        csvLoadArgs.csv.typedColumns = [
+            {
+                "colName": "R_REGIONKEY",
+                "colType": DfFieldTypeT.DfInt64
+            },
+            {
+                "colName": "R_NAME",
+                "colType": DfFieldTypeT.DfString
+            },
+            {
+                "colName": "R_COMMENT",
+                "colType": DfFieldTypeT.DfString
+            }
+        ];
+
+        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/tpchDatasets/region.tbl",
+                   "tpch-region", DfFormatTypeT.DfFormatCsv, 0, csvLoadArgs)
+        .then(function(result) {
+            printResult(result);
+            csvLoadOutput = result;
+            dsName = csvLoadOutput.dataset.name;
+            return (xcalarMakeResultSetFromDataset(thriftHandle, dsName))
+        })
+        .then(function(result) {
+            printResult(result);
+            dsResultSet = result;
+            return (xcalarResultSetNext(thriftHandle, dsResultSet.resultSetId, 1))
+        })
+        .then(function(rsOutput) {
+            printResult(rsOutput);
+            test.assert(rsOutput.numValues == 1);
+            var row = JSON.parse(rsOutput.values[0]);
+            test.assert(row.hasOwnProperty("R_REGIONKEY"));
+            test.assert(row.hasOwnProperty("R_NAME"));
+            test.assert(row.hasOwnProperty("R_COMMENT"));
+            test.assert(typeof(row["R_NAME"]) == "string");
+            test.assert(typeof(row["R_COMMENT"]) == "string");
+            test.assert(typeof(row["R_REGIONKEY"]) == "number");
+            return (xcalarDag(thriftHandle, dsName))
+        })
+        .then(function(dagOutput) {
+            printResult(dagOutput);
+            test.assert(dagOutput.numNodes === 1);
+            var dagNode = dagOutput.node[0];
+            test.assert(dagNode.name.name == dsName);
+            var dagNodeLoadInput = dagNode.input.loadInput;
+            console.log("dagNodeInput.recordDelim: \"" + dagNodeLoadInput.recordDelim + "\"")
+            console.log("csvLoadArgs.csv.recordDelim: \"" + csvLoadArgs.csv.recordDelim + "\"")
+            test.assert(dagNodeLoadInput.recordDelim === csvLoadArgs.csv.recordDelim);
+            test.assert(dagNodeLoadInput.fieldDelim === csvLoadArgs.csv.fieldDelim);
+            test.assert(dagNodeLoadInput.crlf === csvLoadArgs.csv.isCRLF);
+            console.log("dagNodeLoadInput.schemaMode: " + dagNodeLoadInput.schemaMode);
+            console.log("csvLoadArgs.csv.schemaMode: " + csvLoadArgs.csv.schemaMode);
+            test.assert(dagNodeLoadInput.schemaMode === csvLoadArgs.csv.schemaMode);
+            test.assert(dagNodeLoadInput.typedColumns.length === csvLoadArgs.csv.typedColumns.length);
+            for (var ii = 0; ii < csvLoadArgs.csv.typedColumns.length; ii++) {
+                test.assert(dagNodeLoadInput.typedColumns[ii].colName === csvLoadArgs.csv.typedColumns[ii].colName);
+                test.assert(dagNodeLoadInput.typedColumns[ii].colType === csvLoadArgs.csv.typedColumns[ii].colType);
+            }
+            return (xcalarFreeResultSet(thriftHandle, dsResultSet.resultSetId))
+        })
+        .then(function(result) {
+            return (xcalarDeleteDagNodes(thriftHandle, dsName, SourceTypeT.SrcDataset))
+        })
+        .then(function(deleteDagNodesOutput) {
+            printResult(deleteDagNodesOutput);
+            return (xcalarApiDeleteDatasets(thriftHandle, dsName));
+        })
+        .then(function(deleteDatasetsOutput) {
+            printResult(deleteDatasetsOutput);
+            test.assert(deleteDatasetsOutput.numDatasets == 1);
+            test.assert(deleteDatasetsOutput.statuses[0].dataset.name == dsName);
+            test.assert(deleteDatasetsOutput.statuses[0].status == StatusT.StatusOk);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
+        });
     }
 
     function testFuncDriverRun(test) {
@@ -3631,7 +3745,7 @@ window.Function.prototype.bind = function() {
     retinaFilterDagNodeId = 0;
     retinaFilterParamType = XcalarApisT.XcalarApiFilter;
     retinaFilterParam  = new XcalarApiParamFilterT();
-    retinaFilterParam.filterStr = "gt(votes.funny, <foo>)";
+    retinaFilterParam.filterStr = "gt(yelp_user::votes.funny, <foo>)";
     retinaExportParamType = XcalarApisT.XcalarApiExport;
     retinaExportParam = new XcalarApiParamExportT();
     retinaExportParam.fileName  = "retinaDstFile.csv";
@@ -3640,6 +3754,7 @@ window.Function.prototype.bind = function() {
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
+
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetLicense, "getLicense", defaultTimeout, TestCaseEnabled, "");
@@ -3683,7 +3798,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testIndexTable, "index table (str) Sync", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexDatasetBogus, "bogus index dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexTable2, "index table (str) 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testIndexTableBogus, "bogus index table 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetTableRefCount, "table refCount", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetTableMeta, "table meta", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testRenameNode, "rename node", defaultTimeout, TestCaseEnabled, "");
@@ -3822,6 +3936,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testLogLevelGet, "loglevelget", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testCsvLoadWithSchema, "csvloadwithschema", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 

@@ -18,3 +18,9 @@ SourceTypeTStr = {0 : 'Unknown',
 3 : 'Constant',
 4 : 'Export'
 };
+SourceTypeTFromStr = {'Unknown' : 0,
+'Dataset' : 1,
+'Table' : 2,
+'Constant' : 3,
+'Export' : 4
+};

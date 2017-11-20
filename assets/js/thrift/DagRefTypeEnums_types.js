@@ -18,3 +18,9 @@ DagRefTypeTStr = {0 : 'None',
 3 : 'dag node',
 4 : 'result set'
 };
+DagRefTypeTFromStr = {'None' : 0,
+'api' : 1,
+'operator' : 2,
+'dag node' : 3,
+'result set' : 4
+};

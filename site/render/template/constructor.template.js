@@ -2151,13 +2151,8 @@
 
                     try {
                         for (var i = 0, len = data.length; i < len; i++) {
-                            value = data[i].value;
+                            value = data[i];
                             json = jQuery.parseJSON(value);
-                            // HACK: this is based on the assumption no other
-                            // fields called xcalarRecordNum, if more than one xcalarRecordNum
-                            // in json, only one xcalarRecordNum will be in the
-                            // parsed obj, which is incorrect behavior
-                            delete json.xcalarRecordNum;
                             jsons.push(json);
                             // get unique keys
                             for (var key in json) {

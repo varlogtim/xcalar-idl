@@ -70,7 +70,7 @@ describe("Profile-Profile Engins Test", function() {
         oldFetch = XcalarFetchData;
         XcalarFetchData = function() {
             var d = JSON.stringify({a: 1});
-            return PromiseHelper.resolve([{value: d}]);
+            return PromiseHelper.resolve([d]);
         };
 
         oldMap = XIApi.map;
@@ -174,7 +174,7 @@ describe("Profile-Profile Engins Test", function() {
     it("ProfileEngine.fetchProfileData should handle error case", function(done) {
         var cacheFetch = XcalarFetchData;
         XcalarFetchData = function() {
-            return PromiseHelper.resolve([{value: "invalid thing to parse"}]);
+            return PromiseHelper.resolve(["invalid thing to parse"]);
         };
 
         ProfileEngine.fetchProfileData(0, 1)

@@ -1937,7 +1937,7 @@ window.DSPreview = (function($, DSPreview) {
             var rows = [];
 
             for (var i = 0, len = data.length; i < len; i++) {
-                var value = data[i].value;
+                var value = data[i];
                 var row = $.parseJSON(value);
                 delete row.xcalarRecordNum;
                 rows.push(row);

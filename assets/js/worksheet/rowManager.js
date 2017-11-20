@@ -290,17 +290,17 @@ window.RowManager = (function($, RowManager) {
             return getNextPage(table, numRowsToFetch);
         })
         .then(function(tableOfEntries) {
-            var kvPairs = tableOfEntries.kvPair;
-            var numKvPairs = tableOfEntries.numKvPairs;
+            var values = tableOfEntries.values;
+            var numValues = tableOfEntries.numValues;
 
-            if (numKvPairs < gNumEntriesPerPage) {
+            if (numValues < gNumEntriesPerPage) {
                 resultSetId = 0;
             }
 
-            var numRows = Math.min(numRowsToFetch, numKvPairs);
+            var numRows = Math.min(numRowsToFetch, numValues);
 
             for (var i = 0; i < numRows; i++) {
-                jsons.push(kvPairs[i].value);
+                jsons.push(values[i]);
             }
             deferred.resolve(jsons);
         })

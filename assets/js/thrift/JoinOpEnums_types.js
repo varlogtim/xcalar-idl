@@ -16,3 +16,8 @@ JoinOperatorTStr = {0 : 'innerJoin',
 2 : 'rightJoin',
 3 : 'fullOuterJoin'
 };
+JoinOperatorTFromStr = {'innerJoin' : 0,
+'leftJoin' : 1,
+'rightJoin' : 2,
+'fullOuterJoin' : 3
+};

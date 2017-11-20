@@ -24,3 +24,12 @@ DgDagStateTStr = {0 : 'Unknown state',
 6 : 'Dropped',
 7 : 'Error'
 };
+DgDagStateTFromStr = {'Unknown state' : 0,
+'Created' : 1,
+'Queued' : 2,
+'Processing' : 3,
+'Cleaned' : 4,
+'Ready' : 5,
+'Dropped' : 6,
+'Error' : 7
+};

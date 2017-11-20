@@ -188,11 +188,11 @@ window.ProfileEngine = (function(ProfileEngine) {
             var failed = false;
             for (var i = 0; i < numRows; i++) {
                 try {
-                    var value = $.parseJSON(data[i].value);
+                    var value = jQuery.parseJSON(data[i]);
                     value.rowNum = rowPosition + 1 + i;
                     profileData.push(value);
                 } catch (error) {
-                    console.error(error, data[i].value);
+                    console.error(error, data[i]);
                     failed = true;
                     err = error;
                 }
@@ -564,15 +564,15 @@ window.ProfileEngine = (function(ProfileEngine) {
                     upperRowStart = lowerRowEnd + 1;
                 }
 
-                defs.push(getMedian.bind(this, tableResultsetId,
+                defs.push(getMedian.bind(this, tableResultsetId, tableKeys,
                                         1, 1, zeroKey));
-                defs.push(getMedian.bind(this, tableResultsetId,
+                defs.push(getMedian.bind(this, tableResultsetId, tableKeys,
                                         1, numEntries, medianKey));
-                defs.push(getMedian.bind(this, tableResultsetId,
+                defs.push(getMedian.bind(this, tableResultsetId, tableKeys,
                                         1, lowerRowEnd, lowerKey));
-                defs.push(getMedian.bind(this, tableResultsetId,
+                defs.push(getMedian.bind(this, tableResultsetId, tableKeys,
                                         upperRowStart, numEntries, upperKey));
-                defs.push(getMedian.bind(this, tableResultsetId,
+                defs.push(getMedian.bind(this, tableResultsetId, tableKeys,
                                         numEntries, numEntries, fullKey));
                 return PromiseHelper.chain(defs);
             })
@@ -585,7 +585,8 @@ window.ProfileEngine = (function(ProfileEngine) {
             return innerDeferred.promise();
         }
 
-        function getMedian(tableResultsetId, startRow, endRow, statsKey) {
+        function getMedian(tableResultsetId, tableKeys, startRow, endRow,
+                           statsKey) {
             var innerDeferred = jQuery.Deferred();
             var numRows = endRow - startRow + 1;
             var rowNum;
@@ -609,12 +610,21 @@ window.ProfileEngine = (function(ProfileEngine) {
             var rowPosition = rowNum - 1;
             XcalarFetchData(tableResultsetId, rowPosition, rowsToFetch, endRow)
             .then(function(data) {
+                var tableKey = tableKeys[0];
+
                 var numRows = data.length;
                 if (numRows === rowsToFetch) {
                     if (isNum) {
                         var sum = 0;
                         for (var i = 0; i < rowsToFetch; i++) {
-                            sum += Number(data[i].key);
+                            try {
+                                var row = jQuery.parseJSON(data[i]);
+                                sum += Number(row[tableKey]);
+                            } catch(e) {
+                                console.warn(e);
+                                console.warn("Cannot Parse Struct");
+                                profileInfo.statsInfo[statsKey] = '--';
+                            }
                         }
 
                         var median = sum / rowsToFetch;
@@ -626,7 +636,14 @@ window.ProfileEngine = (function(ProfileEngine) {
                             profileInfo.statsInfo[statsKey] = median;
                         }
                     } else {
-                        profileInfo.statsInfo[statsKey] = data[0].key;
+                        try {
+                            profileInfo.statsInfo[statsKey] =
+                                            jQuery.parseJSON(data[0])[tableKey];
+                        } catch (e) {
+                            console.warn(e);
+                            console.warn("Cannot Parse Struct");
+                            profileInfo.statsInfo[statsKey] = '--';
+                        }
                     }
                 } else {
                     // when the data not return correctly, don't recursive try.

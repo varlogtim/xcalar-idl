@@ -239,7 +239,7 @@ window.UExtTF = (function(UExtTF) {
                 "format": "CSV",
                 "fieldDelim": ",",
                 "recordDelim": "\n",
-                "hasHeader": true,
+                "csvSchemaMode": CsvSchemaModeT.CsvSchemaModeUseHeader,
                 "quoteChar": '"'
             };
             return ext.load(dsArgs, formatArgs, dsName);
@@ -370,7 +370,7 @@ window.UExtTF = (function(UExtTF) {
                 "format": "CSV",
                 "fieldDelim": ",",
                 "recordDelim": "\n",
-                "hasHeader": true,
+                "csvSchemaMode": CsvSchemaModeT.CsvSchemaModeUseHeader,
                 "quoteChar": '"'
             };
             return ext.load(dsArgs, formatArgs, dsName);

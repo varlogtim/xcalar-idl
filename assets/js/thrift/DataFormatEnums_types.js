@@ -49,9 +49,33 @@ DfFieldTypeTStr = {0 : 'DfUnknown',
 15 : 'DfScalarObj',
 16 : 'DfOpRowMetaPtr'
 };
+DfFieldTypeTFromStr = {'DfUnknown' : 0,
+'DfString' : 1,
+'DfInt32' : 2,
+'DfUInt32' : 3,
+'DfInt64' : 4,
+'DfUInt64' : 5,
+'DfFloat32' : 6,
+'DfFloat64' : 7,
+'DfBoolean' : 8,
+'DfTimespec' : 9,
+'DfBlob' : 10,
+'DfNull' : 11,
+'DfMixed' : 12,
+'DfFatptr' : 13,
+'DfScalarPtr' : 14,
+'DfScalarObj' : 15,
+'DfOpRowMetaPtr' : 16
+};
 DfFormatTypeTStr = {0 : 'unknown',
 1 : 'json',
 2 : 'csv',
 3 : 'sql',
 4 : 'internal'
+};
+DfFormatTypeTFromStr = {'unknown' : 0,
+'json' : 1,
+'csv' : 2,
+'sql' : 3,
+'internal' : 4
 };
