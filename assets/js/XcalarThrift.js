@@ -1229,7 +1229,7 @@ XcalarDestroyDataset = function(dsName, txId) {
     }
 };
 
-XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
+XcalarIndexFromDataset = function(datasetName, key, tableName, prefix, txId) {
     // Note: datasetName must be of the form username.hashId.dsName
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1243,27 +1243,30 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
     var dhtName = ""; // XXX TODO fill in later
 
     var ordering = XcalarOrderingT.XcalarOrderingUnordered;
-    var workItem = xcalarIndexWorkItem(datasetName, tablename,
-               [new XcalarApiKeyT({name: key, type: "DfUnknown", keyFieldName:""})],
-                                              ordering, prefix, dhtName);
+    var keyArray = [new XcalarApiKeyT({
+        name: key,
+        type: DfFieldTypeTStr[DfFieldTypeT.DfUnknown],
+        keyFieldName: ""
+    })];
+    var workItem = xcalarIndexWorkItem(datasetName, tableName, keyArray,
+                                        ordering, prefix, dhtName);
     var def;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarIndex(tHandle, datasetName, tablename,
-               [new XcalarApiKeyT({name: key, type: "DfUnknown", keyFieldName:""})],
-                                 ordering, prefix, dhtName);
+        def = xcalarIndex(tHandle, datasetName, tableName, keyArray,
+                            ordering, prefix, dhtName);
     }
 
     var query = XcalarGetQuery(workItem);
-    Transaction.startSubQuery(txId, 'index from DS', tablename, query);
+    Transaction.startSubQuery(txId, "index from DS", tableName, query);
 
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query, tablename, ret.timeElapsed);
+            Transaction.log(txId, query, tableName, ret.timeElapsed);
             deferred.resolve(ret);
         }
     })
@@ -1276,7 +1279,7 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
 };
 
 // Key can be an array or just one column
-XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
+XcalarIndexFromTable = function(srcTablename, keys, dstTableName, ordering,
                                 txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1295,6 +1298,7 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
     }
     var unsortedSrcTablename;
     var query;
+    var newKeys = [];
 
     if (typeof(keys) === "string") {
         keys = [keys];
@@ -1307,29 +1311,30 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
                             .promise());
         }
         unsortedSrcTablename = unsortedTablename;
-        return xcHelper.getKeyTypes(keys, unsortedTablename);
+        return xcHelper.getKeyInfos(keys, unsortedTablename);
     })
-    .then(function(keyTypes) {
-        var keyArray = [];
-        for (var i = 0; i < keys.length; i++) {
-            keyArray.push(new XcalarApiKeyT({
-                name: keys[i],
-                type: DfFieldTypeTStr[keyTypes[i]],
-                keyFieldName: ""
-            }));
-        }
+    .then(function(keyInfos) {
+        var keyArray = keyInfos.map(function(keyInfo) {
+            newKeys.push(keyInfo.keyFieldName);
+            return new XcalarApiKeyT({
+                name: keyInfo.name,
+                type: DfFieldTypeTStr[keyInfo.type],
+                keyFieldName: keyInfo.keyFieldName
+            });
+        });
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
-                                           tablename, keyArray, ordering, "", "");
+                                           dstTableName, keyArray, ordering,
+                                            "", "");
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarIndex(tHandle, unsortedSrcTablename, tablename,
+            def = xcalarIndex(tHandle, unsortedSrcTablename, dstTableName,
                               keyArray, ordering, "", "");
         }
         query = XcalarGetQuery(workItem);
         if (!unsorted) {
-            Transaction.startSubQuery(txId, 'index', tablename, query);
+            Transaction.startSubQuery(txId, "index", dstTableName, query);
         }
         return def;
     })
@@ -1338,9 +1343,12 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             if (!unsorted) {
-                Transaction.log(txId, query, tablename, ret.timeElapsed);
+                Transaction.log(txId, query, dstTableName, ret.timeElapsed);
             }
-            deferred.resolve(ret);
+            deferred.resolve({
+                ret: ret,
+                newKeys: newKeys
+            });
         }
     })
     .fail(function(error) {

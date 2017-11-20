@@ -36,6 +36,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var finalTable;
         var colName = profileInfo.colName;
         var rename = xcHelper.stripColName(colName);
+        rename = xcHelper.parsePrefixColName(rename).name;
         var tableToDelete;
 
         profileInfo.groupByInfo.isComplete = "running";
@@ -103,7 +104,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             }
 
             finalTable = getNewName(tableName, ".profile.final", true);
-            colName = xcHelper.parsePrefixColName(rename).name;
+            colName = rename;
             return sortGroupby(txId, colName, groupbyTable, finalTable);
         })
         .then(function(maxVal, sumVal) {
@@ -349,9 +350,10 @@ window.ProfileEngine = (function(ProfileEngine) {
         });
 
         XIApi.sortAscending(txId, colName, tableName)
-        .then(function(tableAfterSort) {
+        .then(function(tableAfterSort, newKeys) {
             sortTable = tableAfterSort;
             profileInfo.statsInfo.unsorted = false;
+            profileInfo.statsInfo.key = newKeys[0];
             return runStats(sortTable, profileInfo);
         })
         .then(function() {
@@ -532,7 +534,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         function getStats(tableOrder, tableKeys) {
             if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
                 tableKeys.length !== 1 ||
-                tableKeys[0] !== profileInfo.colName) {
+                tableKeys[0] !== profileInfo.statsInfo.key) {
                 // when table is unsorted
                 profileInfo.statsInfo.unsorted = true;
                 return PromiseHelper.resolve();

@@ -654,11 +654,9 @@
     };
 
     xcHelper.getTableKeyFromMeta = function(tableMeta) {
-        // var valueAttrs = tableMeta.valueAttrs || [];
         return tableMeta.keyAttr.map(function(keyAttr) {
             var keyName = keyAttr.name;
             var valueArrayIndex = keyAttr.valueArrayIndex;
-            // var prefixOfKey = "";
             if (valueArrayIndex < 0) {
                 return null;
             }
@@ -3647,115 +3645,90 @@
         }
     };
 
-    // resolves an array of keyTypes
-    xcHelper.getKeyTypes = function(keys, tableName) {
+    // resolves an array of keyInfos
+    xcHelper.getKeyInfos = function(keys, tableName) {
         keys = (keys instanceof Array) ? keys : [keys];
         var deferred = jQuery.Deferred();
 
-        var getTypeHelper = function(key, tableName) {
-            var innerDeferred = jQuery.Deferred();
+        getColMetaHelper(tableName)
+        .then(function (colMeta, hasTableMeta) {
             var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var type;
-            var promise = null;
-            if (table) {
-                var progCol = table.getColByBackName(key);
-                if (progCol) {
-                    type = progCol.getType();
-                    type = translateFrontTypeToBackType(type, progCol.isKnownType());
-                    promise = PromiseHelper.resolve(type);
-                } else if (table.backTableMeta && table.backTableMeta.valueAttrs) {
-                    var colObjs = table.backTableMeta.valueAttrs;
-                    for (var i = 0; i < colObjs.length; i++) {
-                        var colObj = colObjs[i];
-                        if (colObj.name === key &&
-                            colObj.type !== DfFieldTypeT.DfFatptr) {
-                            promise = PromiseHelper.resolve(colObj.type);
-                            break;
-                        }
-                    }
-                    if (!promise) {
-                        promise = PromiseHelper.resolve(DfFieldTypeT.DfUnknown);
-                    }
-                } else {
-                    promise = searchTableMetaForKey(key, tableName);
-                }
-            } else {
-                promise = searchTableMetaForKey(key, tableName);
-                // XXX could also fetch some data and search for key
-            }
+            var res = keys.map(function(key) {
+                var type = null;
+                var keyFieldName = null;
+                var parsedName = xcHelper.parsePrefixColName(key);
 
-            promise
-            .always(function(foundType) {
-                if (foundType) {
-                    innerDeferred.resolve(foundType);
-                } else {
-                    // let backend guess the type
-                    innerDeferred.resolve(DfFieldTypeT.DfUnknown);
+                if (hasTableMeta) {
+                    if (parsedName.prefix !== "") {
+                        keyFieldName = getNewKeyFeildName(parsedName, colMeta);
+                    } else {
+                        keyFieldName = key;
+                        type = colMeta[key];
+                    }
                 }
+                // if no tableMeta, let backend handle it
+                return {
+                    name: key,
+                    type: type || DfFieldTypeT.DfUnknown,
+                    keyFieldName: keyFieldName || ""
+                };
             });
 
-            return innerDeferred.promise();
-        };
-
-        var promises = keys.map(function(key) {
-            return getTypeHelper(key, tableName);
-        });
-
-
-        PromiseHelper.when.apply(this, promises)
-        .then(function () {
-            deferred.resolve(Array.prototype.slice.call(arguments));
-        }); // always resolves
+            deferred.resolve(res);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
 
-    function translateFrontTypeToBackType(frontType, isKnownType) {
-        var type;
-        switch (frontType) {
-            case (ColumnType.boolean):
-                type = DfFieldTypeT.DfBoolean;
-                break;
-            case (ColumnType.float):
-            case (ColumnType.number): // fall through
-                type = isKnownType ? DfFieldTypeT.DfFloat64 : DfFieldTypeT.DfUnknown;
-                break;
-            case (ColumnType.integer):
-                type = isKnownType ? DfFieldTypeT.DfInt64 : DfFieldTypeT.DfUnknown;
-                break;
-            case (ColumnType.string):
-                type = DfFieldTypeT.DfString;
-                break;
-            default:
-                type = DfFieldTypeT.DfUnknown;
-                break;
+    function getColMetaHelper(tableName) {
+        var deferred = jQuery.Deferred();
+        var tableId = xcHelper.getTableId(tableName);
+        var table = gTables[tableId];
+        var colMeta;
+
+        if (table && table.backTableMeta) {
+            colMeta = changeColMetaToMap(table.backTableMeta.valueAttrs);
+            deferred.resolve(colMeta, true);
+        } else {
+            XcalarGetTableMeta(tableName)
+            .then(function(tableMeta) {
+                colMeta = changeColMetaToMap(tableMeta.valueAttrs);
+                deferred.resolve(colMeta, true);
+            })
+            .fail(function() {
+                deferred.resolve({}, false); // still resolve
+            });
         }
 
-        return type;
+        return deferred.promise();
     }
 
-    function searchTableMetaForKey(key, tableName) {
-        var deferred = jQuery.Deferred();
-        XcalarGetTableMeta(tableName)
-        .then(function(tableMeta) {
-            var colObjs = tableMeta.valueAttrs;
-            for (var i = 0; i < colObjs.length; i++) {
-                var colObj = colObjs[i];
-                if (colObj.name === key &&
-                    colObj.type !== DfFieldTypeT.DfFatptr) {
-                    deferred.resolve(colObj.type);
-                    return;
-                }
-            }
-            deferred.resolve(DfFieldTypeT.DfUnknown);
-        })
-        .fail(function() {
-            // just pass with null
-            deferred.resolve(DfFieldTypeT.DfUnknown);
-        });
+    function changeColMetaToMap(valueAttrs) {
+        var res = {};
+        try {
+            valueAttrs.forEach(function(valueAttr) {
+                res[valueAttr.name] = valueAttr.type;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return res;
+    };
 
-        return deferred.promise();
+    function getNewKeyFeildName(parsedName, takenNames) {
+        var name = xcHelper.stripColName(parsedName.name);
+        if (!takenNames.hasOwnProperty(name)) {
+            return name;
+        }
+
+        var name = parsedName.prefix + "--" + name;
+        var newName = name;
+        if (!takenNames.hasOwnProperty(newName)) {
+            return newName;
+        }
+
+        return xcHelper.randName(name);
     }
 
     // milliSeconds - integer
@@ -4350,12 +4323,9 @@
         /* Unit Test Only */
         if (root.unitTestMode) {
             xcHelper.__testOnly__ = {};
-            xcHelper.__testOnly__.searchTableMetaForKey = searchTableMetaForKey;
             xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                                   toggleUnnestandJsonOptions;
             xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
-            xcHelper.__testOnly__.translateFrontTypeToBackType =
-                                translateFrontTypeToBackType;
         }
         /* End Of Unit Test Only */
     }

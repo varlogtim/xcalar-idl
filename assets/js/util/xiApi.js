@@ -529,8 +529,8 @@
             return XcalarIndexFromTable(tableName, colName, newTableName,
                                         order, txId);
         })
-        .then(function() {
-            deferred.resolve(newTableName);
+        .then(function(res) {
+            deferred.resolve(newTableName, res.newKeys);
         })
         .fail(deferred.reject);
 
@@ -787,10 +787,7 @@
         var finalTable;
         var isMultiGroupby = (groupByCols.length !== 1);
         var renamedGroupByCols = [];
-
-        var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
-                                            isIncSample, sampleCols,
-                                            renamedGroupByCols);
+        var finalCols;
         // tableName is the original table name that started xiApi.groupby
         getGroupbyIndexedTable(txId, tableName, groupByCols)
         .then(function(resTable, resCols, tempTablesInIndex) {
@@ -804,13 +801,9 @@
                 finalTableName = getNewTableName(tableName, "-GB");
             }
             var gbTableName = finalTableName;
-            // incSample does not take renames
-
-            // XXX hack until backend support multikey after groupby
-            if (isMultiGroupby) {
-                isIncSample = true;
-            }
-            var newKeyFieldName = isIncSample ? null
+            // incSample does not take renames, multiGroupby already handle
+            // the name in index stage
+            var newKeyFieldName = (isIncSample || isMultiGroupby) ? null
                                   : xcHelper.parsePrefixColName(indexedColName)
                                             .name;
             var operators = [];
@@ -828,6 +821,12 @@
                                 icvMode, newKeyFieldName, txId);
         })
         .then(function() {
+            return getFinalGroupByCols(tableName, finalTableName, groupByCols,
+                                        gbArgs, isIncSample, sampleCols,
+                                        renamedGroupByCols);
+        })
+        .then(function(resCols) {
+            finalCols = resCols;
             var deferred = jQuery.Deferred();
             var resTable = finalTableName;
             var tempTablesInMap = [];
@@ -1194,6 +1193,7 @@
         return PromiseHelper.when.apply(this, promises);
     };
 
+
     function joinCast(txId, lInfo, rInfo) {
         var deferred = jQuery.Deferred();
 
@@ -1204,32 +1204,9 @@
         var rColNames = rInfo.columns;
         var rTableName = rInfo.tableName;
         var rCasts = rInfo.casts;
-
-        var len = lColNames.length;
-        var def1;
-        var def2;
-
-        if (len === 1 && !lCasts[0]) {
-            // single and no cast
-            def1 = PromiseHelper.resolve({
-                tableName: lTableName,
-                colNames: lColNames
-            });
-        } else {
-            // single join with cast or multi join
-            def1 = castMap(txId, lTableName, lColNames, lCasts);
-        }
-
-        if (len === 1 && !rCasts[0]) {
-            // single and no cast
-            def2 = PromiseHelper.resolve({
-                tableName: rTableName,
-                colNames: rColNames
-            });
-        } else {
-            // single join with cast or multi join
-            def2 = castMap(txId, rTableName, rColNames, rCasts);
-        }
+        // cast all keys into immediates first
+        var def1 = castMap(txId, lTableName, lColNames, lCasts);
+        var def2 = castMap(txId, rTableName, rColNames, rCasts);
 
         PromiseHelper.when(def1, def2)
         .then(function(lRes, rRes) {
@@ -1294,10 +1271,16 @@
         var mapStrs = [];
         var newFields = []; // this is for map
         var newColNames = []; // this is for index
+        var nameMap = {};
+
+        colNames.forEach(function(name) {
+            nameMap[name] = true;
+        });
 
         casts.forEach(function(typeToCast, index) {
             var colName = colNames[index];
             var parsedCol = xcHelper.parsePrefixColName(colName);
+            var name = xcHelper.stripColName(parsedCol.name);
             var newType;
             var newField = colName;
 
@@ -1312,11 +1295,16 @@
                     newType = "string";
                 }
                 newField = overWrite
-                           ? parsedCol.name
-                           : parsedCol.prefix + "_" + parsedCol.name;
+                           ? name
+                           : parsedCol.prefix + "--" + name;
+                // handle name conflict case
+                if (nameMap.hasOwnProperty(newField)) {
+                    newField = parsedCol.prefix + "--" + name;
+                    newField = xcHelper.getUniqColName(tableId, newField);
+                }
             } else {
                 newType = typeToCast;
-                newField = parsedCol.name;
+                newField = name;
             }
 
             if (newType != null) {
@@ -1666,6 +1654,21 @@
         return deferred.promise();
     }
 
+    function getTableKeys(tableName, txId) {
+        var deferred = jQuery.Deferred();
+        XIApi.checkOrder(tableName, txId)
+        .then(function(ordering, keys) {
+            if (keys.length === 0) {
+                deferred.resolve(null);
+            } else {
+                deferred.resolve(keys);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function replacePrefix(col, rename) {
         // for each fat ptr rename, find whether a column has this fat ptr as
         // a prefix. If so, fix up all fields in colStruct that pertains to the
@@ -1746,26 +1749,13 @@
     }
 
     function getGroupbyIndexedTable(txId, tableName, groupByCols) {
-        // From Jerene:
-        // 1. merge multi columns into one using concat xdf
-        // 2. sort this merged column
         var deferred = jQuery.Deferred();
         var groupByFields;
         var tempTables = [];
-        var def;
 
-        if (groupByCols.length === 1) {
-            // single group by
-            def = PromiseHelper.resolve({
-                tableName: tableName,
-                colNames: groupByCols
-            });
-        } else {
-            var casts = new Array(groupByCols.length).fill(null);
-            def = castMap(txId, tableName, groupByCols, casts, true);
-        }
-
-        def
+        // cast all keys into immediates first
+        var casts = new Array(groupByCols.length).fill(null);
+        castMap(txId, tableName, groupByCols, casts, true)
         .then(function(res) {
             if (res.newTable) {
                 tempTables.push(res.tableName);
@@ -1782,7 +1772,7 @@
         return deferred.promise();
     }
 
-    function getFinalGroupByCols(tableName, groupByCols, gbArgs,
+    function getFinalGroupByCols(tableName, finalTableName, groupByCols, gbArgs,
                                  isIncSample, sampleCols, renamedGroupByCols) {
         var dataCol = ColManager.newDATACol();
         var tableId = xcHelper.getTableId(tableName);
@@ -1816,7 +1806,7 @@
             console.warn("Cannot find table. Not handling sampleCols");
 
             newProgCols.push(dataCol);
-            return newProgCols;
+            return PromiseHelper.resolve(newProgCols);
         }
 
         var table = gTables[tableId];
@@ -1860,61 +1850,24 @@
             finalCols = newCols.map(function(col) {
                 return new ProgCol(col);
             });
+            return PromiseHelper.resolve(finalCols);
         } else {
-            finalCols = newProgCols.map(function(progCol) {
-                return progCol;
-            });
-            // finalCols = [newProgCol];
-            // Pull out each individual groupByCols
-            for (var i = 0; i < numGroupByCols; i++) {
-                var backColName = groupByCols[i];
-                var progCol = table.getColByBackName(backColName) || {};
-                var parsedPrefixName = xcHelper.parsePrefixColName(backColName);
-                var escapedName = xcHelper.stripColName(parsedPrefixName.name);
-                var colName;
-                if (escapedName in newColNames) {
-                    var limit = 50;
-                    var tries = 0;
-                    var newName = parsedPrefixName.prefix + "_" + escapedName;
-
-                    while (tries < limit) {
-                        if (newName in newColNames) {
-                            tries++;
-                            newName = escapedName + tries;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (tries >= limit) {
-                        newName = xcHelper.randName(escapedName);
-                    }
-                    escapedName = newName;
-                    colName = escapedName;
-                } else {
-                    colName = progCol.name || backColName;
-                }
-                colName = xcHelper.parsePrefixColName(colName).name;
-                colName = xcHelper.stripColName(colName);
-                newColNames[escapedName] = true;
-                renamedGroupByCols[i] = escapedName;
-
-                finalCols[numNewCols + i] = ColManager.newCol({
-                    "backName": escapedName,
-                    "name": colName,
-                    "type": progCol.type || null,
-                    "width": progCol.width || gNewCellWidth,
-                    "isNewCol": false,
-                    "userStr": '"' + colName + '" = pull(' + escapedName + ')',
-                    "func": {
-                        "func": "pull",
-                        "args": [escapedName]
-                    }
+            var deferred = jQuery.Deferred();
+            getTableKeys(finalTableName)
+            .then(function(keys) {
+                keys.forEach(function(keyName, index) {
+                    newProgCols.push(ColManager.newPullCol(keyName));
+                    renamedGroupByCols[index] = keyName;
                 });
-            }
-
-            finalCols[numNewCols + numGroupByCols] = dataCol;
+                newProgCols.push(dataCol);
+                deferred.resolve(newProgCols);
+            })
+            .fail(function() {
+                newProgCols.push(dataCol);
+                deferred.resolve(newProgCols); // still resolve
+            });
+            return deferred.promise();
         }
-        return finalCols;
     }
 
     function isValidTableName(tableName) {

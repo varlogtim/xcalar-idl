@@ -1692,8 +1692,13 @@
             fullQuartile: (number, optional): 100% row (last row)
         */
         function ProfileStatsInfo<%= v %>(options) {
+            options = options || {};
             var self = _super.call(this, options);
             <%= addVersion %>
+
+            if (<%= checkFunc %>(options)) {
+                self.key = options.key;
+            }
             return self;
         }
 

@@ -354,7 +354,17 @@ window.xcFunction = (function($, xcFunction) {
             var backColName = progCol.getBackColName();
             if (colInfo.length > 1) {
                 return PromiseHelper.resolve(tableName, colInfo, tableCols);
-            } else if (typeToCast == null) {
+            }
+
+            var parasedName = xcHelper.parsePrefixColName(backColName);
+            if (parasedName.prefix !== "") {
+                // if it's a prefix, need to cast to immeidate first
+                // as sort will create an immeidate and go back to sort table's
+                // parent table need to have the same column
+                typeToCast = typeToCast || progCol.getType();
+            }
+
+            if (typeToCast == null) {
                 return PromiseHelper.resolve(tableName, backColName, tableCols);
             }
 
@@ -362,7 +372,7 @@ window.xcFunction = (function($, xcFunction) {
 
             var innerDeferred = jQuery.Deferred();
             var mapString = xcHelper.castStrHelper(backColName, typeToCast);
-            var mapColName = xcHelper.stripColName(backColName) + "_" + typeToCast;
+            var mapColName = xcHelper.stripColName(parasedName.name);
 
             mapColName = xcHelper.getUniqColName(tableId, mapColName);
 

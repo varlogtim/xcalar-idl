@@ -2333,36 +2333,51 @@ describe("xcHelper Test", function() {
         $input.remove();
     });
 
-    describe("xcHelper.getKeyTypes", function() {
-        it("xcHelper.getKeyType on regular column should work", function(done) {
+    describe("xcHelper.getKeyInfos", function() {
+        it("xcHelper.getKeyInfos on regular column should work", function(done) {
             var progCol1 = ColManager.newCol({
                 "backName": "col",
                 "name": "col",
                 "isNewCol": false,
-                "type": "float"
+                "type": "string"
             });
             progCol1.immediate = true;
             progCol1.knownType = true;
-            var progCol2 = ColManager.newDATACol();
+            var progCol2 = ColManager.newCol({
+                "backName": "prefix:col",
+                "name": "prefix:col",
+                "isNewCol": false,
+                "type": "float"
+            });
 
             gTables["fakeId"] = new TableMeta({
                 "tableId": "fakeId",
                 "tableName": "test#fakeId",
-                "tableCols": [progCol1, progCol2]
+                "tableCols": [progCol1, progCol2, ColManager.newDATACol()]
             });
+            gTables["fakeId"].backTableMeta = {
+                valueAttrs: [{
+                    name: "col"
+                    type: DfFieldTypeT.DfString
+                }, {
+                    
+                }]
+            };
+
             xcHelper.getKeyTypes("col", "test#fakeId")
             .then(function(res) {
                 expect(res[0]).to.equal(7);
-                delete gTables["fakeId"];
                 done();
             })
             .fail(function() {
-                delete gTables["fakeId"];
                 done("fail");
+            })
+            .always(function() {
+                delete gTables["fakeId"];
             });
         });
 
-        it("xcHelper.getKeyType on missing column should work", function(done) {
+        it("xcHelper.getKeyInfos on missing column should work", function(done) {
             var progCol1 = ColManager.newDATACol();
 
             gTables["fakeId"] = new TableMeta({
@@ -2407,21 +2422,6 @@ describe("xcHelper Test", function() {
                 done();
             });
         });
-    });
-
-    it("translateFrontTypeToBackType should work", function() {
-        var fn = xcHelper.__testOnly__.translateFrontTypeToBackType;
-        expect(fn("string")).to.equal(1);
-        expect(fn("boolean")).to.equal(8);
-        expect(fn("number")).to.equal(0);
-        expect(fn("float")).to.equal(0);
-        expect(fn("integer")).to.equal(0);
-        expect(fn("number", true)).to.equal(7);
-        expect(fn("float", true)).to.equal(7);
-        expect(fn("integer", true)).to.equal(4);
-        expect(fn("array")).to.equal(0);
-        expect(fn("mixed")).to.equal(0);
-        expect(fn("unknown")).to.equal(0);
     });
 
     describe('xcHelper.getElapsedTimeStr())', function() {
