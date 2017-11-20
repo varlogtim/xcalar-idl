@@ -1185,6 +1185,8 @@
 
             var condTree = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
+
+            var optimization = {};
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all
             // the way and when it's not AND, it must be an EQ (stop traversing
@@ -1224,172 +1226,215 @@
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         // Can't do it :(
-                        assert(0);
-                        return PromiseHelper.resolve("Cannot do it;");
+                        optimization.notAndEqTree = true;
+                        break;
                     }
+                    // TODO: implement optimization for andOrEqJoins
                 }
             }
 
-            // children[0] === leftTable
-            // children[1] === rightTable
-            // Get all columns in leftTable and rightTable because in the eval
-            // string, it can be in either order. For example:
-            // WHERE t1.col1 = t2.col2 and t2.col3 = t1.col4
-            var leftRDDCols = [];
-            var rightRDDCols = [];
-            getAllCols(node.children[0], leftRDDCols);
-            getAllCols(node.children[1], rightRDDCols);
-
-            // Check all EQ subtrees and resolve the maps
             var leftTableName = node.children[0].newTableName;
             var rightTableName = node.children[1].newTableName;
 
-            var newLeftTableName = leftTableName;
-            var newRightTableName = rightTableName;
-
-            var leftCols = [];
-            var rightCols = [];
-
-            var leftMapArray = [];
-            var rightMapArray = [];
-            var cliArray = [];
-
-            while (eqSubtrees.length > 0) {
-                var eqTree = eqSubtrees.shift();
-                assert(eqTree.children.length === 2);
-
-                var attributeReferencesOne = [];
-                var attributeReferencesTwo = [];
-                getAttributeReferences(eqTree.children[0],
-                                       attributeReferencesOne);
-                getAttributeReferences(eqTree.children[1],
-                                       attributeReferencesTwo);
-                var leftAcc = {numOps: 0};
-                var rightAcc = {numOps: 0};
-                if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
-                    xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
-                {
-                    leftEvalStr = genEvalStringRecur(eqTree.children[0],
-                                                     leftAcc);
-                    rightEvalStr = genEvalStringRecur(eqTree.children[1],
-                                                      rightAcc);
-                } else if (xcHelper.arraySubset(attributeReferencesOne,
-                                                rightRDDCols) &&
-                           xcHelper.arraySubset(attributeReferencesTwo,
-                                                leftRDDCols)) {
-                    leftEvalStr = genEvalStringRecur(eqTree.children[1]);
-                    rightEvalStr = genEvalStringRecur(eqTree.children[0]);
+            if (!optimization.notAndEqTree) {
+                // For andEqTrees
+                var retStruct = __getJoinMapArrays(node, eqSubtrees);
+                if (!retStruct) {
+                    optimization.notOptimizable = true;
+                    joinPromise = __catchAllJoin(node);
                 } else {
-                    assert(0);
-                    console.error("can't do it :(");
+                    joinPromise = __handleAndEqJoins(this, retStruct,
+                                                     leftTableName,
+                                                     rightTableName,
+                                                     node);
                 }
+            } else {
+                joinPromise = __catchAllJoin(node);
+            }
+            return joinPromise;
+        }
+    };
+    // Helper functions for join
+    function __catchAllJoin(node) {
+        var deferred = jQuery.Deferred();
+        // TODO implement
+        return deferred.promise();
+    }
 
-                if (leftAcc.numOps > 0) {
-                    leftMapArray.push(leftEvalStr);
-                } else {
-                    leftCols.push(leftEvalStr);
-                }
-                if (rightAcc.numOps > 0) {
-                    rightMapArray.push(rightEvalStr);
-                } else {
-                    rightCols.push(rightEvalStr);
-                }
+    function __getJoinMapArrays(node, eqSubtrees) {
+        // children[0] === leftTable
+        // children[1] === rightTable
+        // Get all columns in leftTable and rightTable because in the eval
+        // string, it can be in either order. For example:
+        // WHERE t1.col1 = t2.col2 and t2.col3 = t1.col4
+        var leftRDDCols = [];
+        var rightRDDCols = [];
+        getAllCols(node.children[0], leftRDDCols);
+        getAllCols(node.children[1], rightRDDCols);
+
+        // Check all EQ subtrees and resolve the maps
+
+        var leftCols = [];
+        var rightCols = [];
+
+        var leftMapArray = [];
+        var rightMapArray = [];
+
+        while (eqSubtrees.length > 0) {
+            var eqTree = eqSubtrees.shift();
+            assert(eqTree.children.length === 2);
+
+            var attributeReferencesOne = [];
+            var attributeReferencesTwo = [];
+            getAttributeReferences(eqTree.children[0],
+                                   attributeReferencesOne);
+            getAttributeReferences(eqTree.children[1],
+                                   attributeReferencesTwo);
+            var leftAcc = {numOps: 0};
+            var rightAcc = {numOps: 0};
+            if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
+                xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
+            {
+                leftEvalStr = genEvalStringRecur(eqTree.children[0], leftAcc);
+                rightEvalStr = genEvalStringRecur(eqTree.children[1], rightAcc);
+            } else if (xcHelper.arraySubset(attributeReferencesOne,
+                                            rightRDDCols) &&
+                       xcHelper.arraySubset(attributeReferencesTwo,
+                                            leftRDDCols)) {
+                leftEvalStr = genEvalStringRecur(eqTree.children[1],
+                                                 leftAcc);
+                rightEvalStr = genEvalStringRecur(eqTree.children[0],
+                                                  rightAcc);
+            } else {
+                // E.g. table1.col1.substring(2) + table2.col2.substring(2)
+                // == table1.col3.substring(2) + table2.col4.substring(2)
+                // There is no way to reduce this to left and right tables
+                return;
             }
 
-            function handleMaps(mapStrArray, origTableName) {
-                var deferred = jQuery.Deferred();
-                if (mapStrArray.length === 0) {
-                    return deferred.resolve({newTableName: origTableName,
-                                             colNames: []});
-                }
-                var newColNames = [];
-                var tableId = xcHelper.getTableId(origTableName);
-                for (var i = 0; i < mapStrArray.length; i++) {
-                    newColNames.push("XC_JOIN_COL_" + tableId + "_" + i);
-                }
-                // Record temp cols
-                if (node.tempCols) {
-                    node.tempCols = node.tempCols.concat(newColNames);
-                } else {
-                    node.tempCols = newColNames;
-                }
-                var newTableName = xcHelper.getTableName(origTableName) +
-                                   Authentication.getHashId();
-                self.sqlObj.map(mapStrArray, origTableName, newColNames,
-                    newTableName)
-                .then(function(ret) {
-                    ret.colNames = newColNames;
-                    deferred.resolve(ret);
-                });
-                return deferred.promise();
+            if (leftAcc.numOps > 0) {
+                leftMapArray.push(leftEvalStr);
+            } else {
+                leftCols.push(leftEvalStr);
             }
+            if (rightAcc.numOps > 0) {
+                rightMapArray.push(rightEvalStr);
+            } else {
+                rightCols.push(rightEvalStr);
+            }
+        }
+        return {leftMapArray: leftMapArray,
+                leftCols: leftCols,
+                rightMapArray: rightMapArray,
+                rightCols: rightCols};
+    }
 
+    function __handleAndEqJoins(sqlCompiler, mapArrayStruct, newLeftTableName,
+                                newRightTableName, node) {
+        function handleMaps(mapStrArray, origTableName) {
             var deferred = jQuery.Deferred();
-            PromiseHelper.when(handleMaps(leftMapArray, newLeftTableName),
-                               handleMaps(rightMapArray, newRightTableName))
-            .then(function(retLeft, retRight) {
-                var lTableInfo = {};
-                lTableInfo.tableName = retLeft.newTableName;
-                lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
-                                                         leftCols);
-                lTableInfo.pulledColumns = [];
-                lTableInfo.rename = [];
-
-                var rTableInfo = {};
-                rTableInfo.tableName = retRight.newTableName;
-                rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
-                                                         rightCols);
-                rTableInfo.pulledColumns = [];
-                rTableInfo.rename = [];
-
-                if (retLeft.cli) {
-                    cliArray.push(retLeft.cli);
-                }
-
-                if (retRight.cli) {
-                    cliArray.push(retRight.cli);
-                }
-
-                var joinType;
-                switch (node.value.joinType.object) {
-                    case ("org.apache.spark.sql.catalyst.plans.Inner$"):
-                        joinType = JoinOperatorT.InnerJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
-                        joinType = JoinOperatorT.LeftOuterJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
-                        joinType = JoinOperatorT.RightOuterJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
-                        joinType = JoinOperatorT.FullOuterJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
-                        // Turns out that left semi is identical to inner
-                        // except that it only keeps columns in the left table
-                        joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
-                        joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
-                        joinType = JoinCompoundOperatorTStr.CrossJoin;
-                        break;
-                    default:
-                        assert(0);
-                        console.error("Join Type not supported");
-                        break;
-                }
-
-                return self.sqlObj.join(joinType, lTableInfo, rTableInfo);
-            })
+            if (mapStrArray.length === 0) {
+                return deferred.resolve({newTableName: origTableName,
+                                         colNames: []});
+            }
+            var newColNames = [];
+            var tableId = xcHelper.getTableId(origTableName);
+            for (var i = 0; i < mapStrArray.length; i++) {
+                newColNames.push("XC_JOIN_COL_" + tableId + "_" + i);
+            }
+            // Record temp cols
+            if (node.tempCols) {
+                node.tempCols = node.tempCols.concat(newColNames);
+            } else {
+                node.tempCols = newColNames;
+            }
+            var newTableName = xcHelper.getTableName(origTableName) +
+                               Authentication.getHashId();
+            self.sqlObj.map(mapStrArray, origTableName, newColNames,
+                newTableName)
             .then(function(ret) {
-                ret.cli = cliArray.join("") + ret.cli;
+                ret.colNames = newColNames;
                 deferred.resolve(ret);
             });
             return deferred.promise();
         }
-    };
+        var self = sqlCompiler;
+        var leftMapArray = mapArrayStruct.leftMapArray;
+        var rightMapArray = mapArrayStruct.rightMapArray;
+        var leftCols = mapArrayStruct.leftCols;
+        var rightCols = mapArrayStruct.rightCols;
+        var cliArray = [];
+        var deferred = jQuery.Deferred();
+        PromiseHelper.when(handleMaps(leftMapArray, newLeftTableName),
+                           handleMaps(rightMapArray, newRightTableName))
+        .then(function(retLeft, retRight) {
+            var lTableInfo = {};
+            lTableInfo.tableName = retLeft.newTableName;
+            lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
+                                                     leftCols);
+            lTableInfo.pulledColumns = [];
+            lTableInfo.rename = [];
+
+            var rTableInfo = {};
+            rTableInfo.tableName = retRight.newTableName;
+            rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
+                                                     rightCols);
+            rTableInfo.pulledColumns = [];
+            rTableInfo.rename = [];
+
+            if (retLeft.cli) {
+                cliArray.push(retLeft.cli);
+            }
+
+            if (retRight.cli) {
+                cliArray.push(retRight.cli);
+            }
+
+            var joinType;
+            switch (node.value.joinType.object) {
+                case ("org.apache.spark.sql.catalyst.plans.Inner$"):
+                    joinType = JoinOperatorT.InnerJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
+                    joinType = JoinOperatorT.LeftOuterJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
+                    joinType = JoinOperatorT.RightOuterJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
+                    joinType = JoinOperatorT.FullOuterJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
+                    // Turns out that left semi is identical to inner
+                    // except that it only keeps columns in the left table
+                    joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
+                    joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
+                    break;
+                case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
+                    joinType = JoinCompoundOperatorTStr.CrossJoin;
+                    break;
+                default:
+                    assert(0);
+                    console.error("Join Type not supported");
+                    break;
+            }
+
+            return self.sqlObj.join(joinType, lTableInfo, rTableInfo);
+        })
+        .then(function(retJoin) {
+            var overallRetStruct = {};
+            overallRetStruct.newTableName = retJoin.newTableName;
+            cliArray.push(retJoin.cli);
+            overallRetStruct.cli = cliArray.join("");
+            deferred.resolve(overallRetStruct);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+    // End of helper functions for join
 
     function genEvalStringRecur(condTree, acc, options) {
         // Traverse and construct tree
