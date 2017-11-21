@@ -4,11 +4,11 @@ window.xcFunction = (function($, xcFunction) {
         "Left Outer Join": JoinOperatorT.LeftOuterJoin,
         "Right Outer Join": JoinOperatorT.RightOuterJoin,
         "Full Outer Join": JoinOperatorT.FullOuterJoin,
+        "Cross Join": JoinOperatorT.CrossJoin,
         "Left Semi Join": JoinCompoundOperatorTStr.LeftSemiJoin,
         "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
         "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
         "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin,
-        "Cross Join": JoinCompoundOperatorTStr.CrossJoin,
     };
 
     // filter table column, returns resulting table name

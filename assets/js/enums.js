@@ -394,7 +394,6 @@ JoinCompoundOperator = {
     "Right Semi Join": 11,
     "Left Anti Semi Join": 12,
     "Right Anti Semi Join": 13,
-    "Cross Join": 14,
 };
 
 JoinCompoundOperatorTStr = {
@@ -402,5 +401,4 @@ JoinCompoundOperatorTStr = {
     RightSemiJoin: "Right Semi Join",
     LeftAntiSemiJoin: "Left Anti Semi Join",
     RightAntiSemiJoin: "Right Anti Semi Join",
-    CrossJoin: "Cross Join"
 };

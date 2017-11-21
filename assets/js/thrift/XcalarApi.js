@@ -1741,7 +1741,7 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
 
 xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, rightTableName, joinTableName,
                             joinType, leftRenameMap, rightRenameMap,
-                            collisionCheck) {
+                            evalString, collisionCheck) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
@@ -1760,7 +1760,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     }
 
     workItem.input.joinInput.dest = joinTableName;
-
+    workItem.input.joinInput.evalString = evalString;
     workItem.input.joinInput.joinType = JoinOperatorTStr[joinType];
     workItem.input.joinInput.renameMap = [];
     workItem.input.joinInput.renameMap[0] = [];
@@ -1777,7 +1777,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
 };
 
 xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
-                    joinType, leftRenameMap, rightRenameMap, collisionCheck) {
+                    joinType, leftRenameMap, rightRenameMap, evalString, collisionCheck) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -1788,13 +1788,14 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
                     ", leftRenameMap = [" + leftRenameMap + "]" +
                     ", rightRenameMap = [" + rightRenameMap + "]" +
                     ", collisionCheck = " + collisionCheck +
+                    ", evalString = " + evalString +
                     ")");
     }
 
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,
-                                      collisionCheck);
+                                      evalString, collisionCheck);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var joinOutput = result.output.outputResult.joinOutput;

@@ -3815,6 +3815,7 @@ XcalarApiIndexInputT = function(args) {
   this.ordering = null;
   this.dhtName = null;
   this.delaySort = null;
+  this.broadcast = null;
   if (args) {
     if (args.source !== undefined) {
       this.source = args.source;
@@ -3836,6 +3837,9 @@ XcalarApiIndexInputT = function(args) {
     }
     if (args.delaySort !== undefined) {
       this.delaySort = args.delaySort;
+    }
+    if (args.broadcast !== undefined) {
+      this.broadcast = args.broadcast;
     }
   }
 };
@@ -3916,6 +3920,13 @@ XcalarApiIndexInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.BOOL) {
+        this.broadcast = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3969,6 +3980,11 @@ XcalarApiIndexInputT.prototype.write = function(output) {
   if (this.delaySort !== null && this.delaySort !== undefined) {
     output.writeFieldBegin('delaySort', Thrift.Type.BOOL, 7);
     output.writeBool(this.delaySort);
+    output.writeFieldEnd();
+  }
+  if (this.broadcast !== null && this.broadcast !== undefined) {
+    output.writeFieldBegin('broadcast', Thrift.Type.BOOL, 8);
+    output.writeBool(this.broadcast);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5183,6 +5199,7 @@ XcalarApiJoinInputT = function(args) {
   this.dest = null;
   this.joinType = null;
   this.renameMap = null;
+  this.evalString = null;
   if (args) {
     if (args.source !== undefined) {
       this.source = args.source;
@@ -5195,6 +5212,9 @@ XcalarApiJoinInputT = function(args) {
     }
     if (args.renameMap !== undefined) {
       this.renameMap = args.renameMap;
+    }
+    if (args.evalString !== undefined) {
+      this.evalString = args.evalString;
     }
   }
 };
@@ -5280,6 +5300,13 @@ XcalarApiJoinInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.STRING) {
+        this.evalString = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -5336,6 +5363,11 @@ XcalarApiJoinInputT.prototype.write = function(output) {
       }
     }
     output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  if (this.evalString !== null && this.evalString !== undefined) {
+    output.writeFieldBegin('evalString', Thrift.Type.STRING, 5);
+    output.writeString(this.evalString);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

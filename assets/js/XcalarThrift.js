@@ -2336,7 +2336,12 @@ XcalarAggregate = function(evalStr, dstAggName, srcTablename, txId) {
     return deferred.promise();
 };
 
-XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename, txId) {
+
+/** options contain
+    evalString: filter string for cross joins
+*/
+XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename,
+                      options, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2346,6 +2351,11 @@ XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename, txId)
     var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+
+    var evalString = "";
+    if (joinType === JoinOperatorT.CrossJoin && options) {
+        evalString = options.evalString || "";
     }
 
     getUnsortedTableName(left, right, txId)
@@ -2368,13 +2378,15 @@ XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename, txId)
 
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType, leftRenameMap,
-                                          rightRenameMap, coll);
+                                          rightRenameMap, evalString, coll);
+
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
             def = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
-                              joinType, leftRenameMap, rightRenameMap, coll);
+                             joinType, leftRenameMap, rightRenameMap,
+                             evalString, coll);
         }
         query = XcalarGetQuery(workItem);
         Transaction.startSubQuery(txId, 'join', dst, query);

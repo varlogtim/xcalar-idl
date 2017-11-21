@@ -9,15 +9,18 @@ JoinOperatorT = {
   'InnerJoin' : 0,
   'LeftOuterJoin' : 1,
   'RightOuterJoin' : 2,
-  'FullOuterJoin' : 3
+  'FullOuterJoin' : 3,
+  'CrossJoin' : 4
 };
 JoinOperatorTStr = {0 : 'innerJoin',
 1 : 'leftJoin',
 2 : 'rightJoin',
-3 : 'fullOuterJoin'
+3 : 'fullOuterJoin',
+4 : 'crossJoin'
 };
 JoinOperatorTFromStr = {'innerJoin' : 0,
 'leftJoin' : 1,
 'rightJoin' : 2,
-'fullOuterJoin' : 3
+'fullOuterJoin' : 3,
+'crossJoin' : 4
 };

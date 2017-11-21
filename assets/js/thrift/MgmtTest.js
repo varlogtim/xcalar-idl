@@ -1574,6 +1574,43 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testCrossJoin(test) {
+        var leftRenameMap = [];
+        var map = new XcalarApiRenameMapT();
+        map.sourceColumn = "yelp_user";
+        map.destColumn = "leftDataset";
+        map.columnType = "DfFatptr";
+        leftRenameMap.push(map);
+
+        var map = new XcalarApiRenameMapT();
+        map.sourceColumn = "yelp_user-votes.funny";
+        map.destColumn = "leftKey";
+        map.columnType = "DfInt64";
+        leftRenameMap.push(map);
+
+        var rightRenameMap = [];
+        var map2 = new XcalarApiRenameMapT();
+        map2.sourceColumn = "yelp_user";
+        map2.destColumn = "rightDataset";
+        map2.columnType = "DfFatptr";
+        rightRenameMap.push(map2);
+
+        xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
+                   "yelp/user-votes.funny-gt900",
+                   "yelp/user-dummyjoin",
+                   JoinOperatorT.InnerJoin,
+                   leftRenameMap, rightRenameMap,
+                   "neq(leftKey, yelp_user-votes.funny)")
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(JSON.stringify(reason));
+        });
+    }
+
     function testUnion(test) {
         var renameMaps = [];
         var tables = [];

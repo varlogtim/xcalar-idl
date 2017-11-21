@@ -603,6 +603,7 @@
         options:
             newTableName: string, final table's name, optional
             clean: boolean, remove intermediate table if set true
+            evalString: cross join filter's eval string
     */
     XIApi.join = function(txId, joinType, lTableInfo, rTableInfo, options) {
         if (!(lTableInfo instanceof Object) ||
@@ -651,7 +652,8 @@
             rCasts = [rCasts];
         }
 
-        if (lColNames.length < 1 || lColNames.length !== rColNames.length) {
+        if ((joinType !== JoinOperatorT.CrossJoin && lColNames.length < 1) ||
+            lColNames.length !== rColNames.length) {
             return PromiseHelper.reject("Invalid args in join");
         }
 
@@ -683,14 +685,7 @@
             // Step 2: index the left table and right table
             // lIndexColNames = res.lColNames;
             rIndexColNames = res.rColNames;
-            if (joinType === JoinCompoundOperatorTStr.CrossJoin) {
-                // After the index, any type of join will do, so default to
-                // inner
-                joinType = JoinOperatorT.InnerJoin;
-                return crossJoinIndexHelper(res, rRename, txId);
-            } else {
-                return joinIndexCheck(res, txId);
-            }
+            return joinIndexCheck(res, txId);
         })
         .then(function(lIndexedTable, rIndexedTable, tempTablesInIndex) {
             tempTables = tempTables.concat(tempTablesInIndex);
@@ -701,8 +696,7 @@
             }
 
             // Step 3: Check if semi join
-            if (joinType in JoinCompoundOperator &&
-                joinType !== JoinCompoundOperatorTStr.CrossJoin) {
+            if (joinType in JoinCompoundOperator) {
                 // This call will call Xcalar Join because it will swap the
                 // left and right tables
                 return semiJoinHelper(lIndexedTable, rIndexedTable,
@@ -710,10 +704,18 @@
                                       newTableName, joinType, lRename, rRename,
                                       tempTables,
                                       txId);
+            } else if (joinType === JoinOperatorT.CrossJoin) {
+                var joinOptions;
+                if (options && options.evalString) {
+                    joinOptions = {evalString: options.evalString};
+                }
+                return XcalarJoin(lIndexedTable, rIndexedTable, newTableName,
+                                  joinType, lRename, rRename, joinOptions,
+                                  txId);
             } else {
                 // Step 3: join left table and right table
                 return XcalarJoin(lIndexedTable, rIndexedTable, newTableName,
-                                  joinType, lRename, rRename, txId);
+                                  joinType, lRename, rRename, undefined, txId);
             }
         })
         .then(function() {
@@ -1207,9 +1209,24 @@
         var rColNames = rInfo.columns;
         var rTableName = rInfo.tableName;
         var rCasts = rInfo.casts;
-        // cast all keys into immediates first
-        var def1 = castMap(txId, lTableName, lColNames, lCasts);
-        var def2 = castMap(txId, rTableName, rColNames, rCasts);
+
+        var def1;
+        var def2;
+        if (lInfo.length === 0 && rInfo.length === 0) {
+            // cross join
+            def1 = PromiseHelper.resolve({
+                tableName: lTableName,
+                colNames: lColNames
+            });
+
+            def2 = PromiseHelper.resolve({
+                tableName: rTableName,
+                colNames: rColNames
+            });
+        } else {
+            def1 = castMap(txId, lTableName, lColNames, lCasts);
+            def2 = castMap(txId, rTableName, rColNames, rCasts);
+        }
 
         PromiseHelper.when(def1, def2)
         .then(function(lRes, rRes) {
@@ -1333,6 +1350,16 @@
         var rColNames = joinInfo.rColNames;
         var lTableName = joinInfo.lTableName;
         var rTableName = joinInfo.rTableName;
+
+        if (lColNames.length === 0) {
+            if (rColNames.length !== 0) {
+                return PromiseHelper.reject("Both lColNames and rColNames " +
+                                            "must be empty for outer joins");
+            }
+            return PromiseHelper.resolve(joinInfo.lTableName,
+                                         joinInfo.rTableName,
+                                         txId);
+        }
 
         if (lTableName === rTableName &&
             isSameKey(lColNames, rColNames))
@@ -1474,74 +1501,6 @@
         return deferred.promise();
     }
 
-    function crossJoinIndexHelper(joinInfo, rRename, txId) {
-        var deferred = jQuery.Deferred();
-
-        var lTableName = joinInfo.lTableName;
-        var rTableName = joinInfo.rTableName;
-
-        var lNewColName = xcHelper.randName("XC_JOIN_CL");
-        var lMapTableName = getNewTableName(lTableName);
-        var lIndexTableName = getNewTableName(lTableName);
-
-        var rNewColName;
-        var rMapTableName;
-        var rIndexTableName;
-
-        var lDef;
-        var rDef;
-
-        var selfJoin = false;
-
-        // 1. Generate a column of 1s on the left and right
-        // 2. Index by the columns and resolve the two new table names
-        lDef = XcalarMap(lNewColName, "int(1)", lTableName, lMapTableName, txId)
-        .then(function() {
-            return XcalarIndexFromTable(lMapTableName, lNewColName,
-                                        lIndexTableName,
-                                        XcalarOrderingT.XcalarOrderingUnordered,
-                                        txId);
-        });
-
-        if (lTableName !== rTableName) {
-            rNewColName = xcHelper.randName("XC_JOIN_CR");
-            rMapTableName = getNewTableName(rTableName);
-            rIndexTableName = getNewTableName(rTableName);
-            rDef = XcalarMap(rNewColName, "int(1)", rTableName, rMapTableName,
-                             txId)
-            .then(function() {
-                return XcalarIndexFromTable(rMapTableName, rNewColName,
-                                            rIndexTableName,
-                                        XcalarOrderingT.XcalarOrderingUnordered,
-                                            txId);
-            });
-        } else {
-            selfJoin = true;
-            rRename.push({"new": lNewColName + "1",
-                          "orig": lNewColName,
-                          "type": DfFieldTypeT.DfUnknown});
-            rIndexTableName = lIndexTableName;
-            rDef = lDef;
-        }
-
-        PromiseHelper.when(lDef, rDef)
-        .then(function() {
-            var tempTables = [];
-
-            tempTables.push(lMapTableName);
-            tempTables.push(lIndexTableName);
-            if (!selfJoin) {
-                tempTables.push(rMapTableName);
-                tempTables.push(rIndexTableName);
-            }
-
-            deferred.resolve(lIndexTableName, rIndexTableName, tempTables);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
                             newTableName,
                             joinType, lRename, rRename, tempTables, txId) {
@@ -1556,10 +1515,10 @@
                 return XcalarJoin(lIndexedTable, rIndexedTable,
                                   antiJoinTableName,
                                   JoinOperatorT.LeftOuterJoin,
-                                  lRename, rRename, txId);
+                                  lRename, rRename, undefined, txId);
             } else {
                 return XcalarJoin(lIndexedTable, rIndexedTable, newTableName,
-                    JoinOperatorT.InnerJoin, lRename, rRename, txId);
+                    JoinOperatorT.InnerJoin, lRename, rRename, undefined, txId);
             }
         }
         doJoin()

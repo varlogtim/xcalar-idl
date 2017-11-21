@@ -607,7 +607,8 @@ StatusT = {
   'StatusNoDsUsers' : 598,
   'StatusJsonQueryParseError' : 599,
   'StatusXemNotConfigured' : 600,
-  'StatusNoDatasetMemory' : 601
+  'StatusNoDatasetMemory' : 601,
+  'StatusTableEmpty' : 602
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1210,7 +1211,8 @@ StatusTStr = {0 : 'Success',
 598 : 'There are no users of the dataset',
 599 : 'Error parsing JSON query',
 600 : 'Required XEM configuration parameters not present',
-601 : 'Out of dataset memory'
+601 : 'Out of dataset memory',
+602 : 'Table is empty'
 };
 StatusTFromStr = {'Success' : 0,
 'Operation not permitted' : 1,
@@ -1813,5 +1815,6 @@ StatusTFromStr = {'Success' : 0,
 'There are no users of the dataset' : 598,
 'Error parsing JSON query' : 599,
 'Required XEM configuration parameters not present' : 600,
-'Out of dataset memory' : 601
+'Out of dataset memory' : 601,
+'Table is empty' : 602
 };

@@ -331,6 +331,7 @@
             options:
                 newTableName: string, final table's name, optional
                 clean: boolean, remove intermediate table if set true
+                evalString: for crossJoins only. filter string after crossjoin
         */
         join: function(joinType, lTableInfo, rTableInfo, options) {
             var deferred = jQuery.Deferred();
