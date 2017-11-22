@@ -3521,7 +3521,7 @@ XcalarApiEvalT.prototype.write = function(output) {
 XcalarApiKeyT = function(args) {
   this.name = null;
   this.type = null;
-  this.newField = null;
+  this.keyFieldName = null;
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
@@ -3529,8 +3529,8 @@ XcalarApiKeyT = function(args) {
     if (args.type !== undefined) {
       this.type = args.type;
     }
-    if (args.newField !== undefined) {
-      this.newField = args.newField;
+    if (args.keyFieldName !== undefined) {
+      this.keyFieldName = args.keyFieldName;
     }
   }
 };
@@ -3564,7 +3564,7 @@ XcalarApiKeyT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
-        this.newField = input.readString().value;
+        this.keyFieldName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -3590,9 +3590,9 @@ XcalarApiKeyT.prototype.write = function(output) {
     output.writeString(this.type);
     output.writeFieldEnd();
   }
-  if (this.newField !== null && this.newField !== undefined) {
-    output.writeFieldBegin('newField', Thrift.Type.STRING, 3);
-    output.writeString(this.newField);
+  if (this.keyFieldName !== null && this.keyFieldName !== undefined) {
+    output.writeFieldBegin('keyFieldName', Thrift.Type.STRING, 3);
+    output.writeString(this.keyFieldName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

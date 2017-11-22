@@ -1244,14 +1244,14 @@ XcalarIndexFromDataset = function(datasetName, key, tablename, prefix, txId) {
 
     var ordering = XcalarOrderingT.XcalarOrderingUnordered;
     var workItem = xcalarIndexWorkItem(datasetName, tablename,
-               [new XcalarApiKeyT({name: key, type: "DfUnknown", newField:""})],
+               [new XcalarApiKeyT({name: key, type: "DfUnknown", keyFieldName:""})],
                                               ordering, prefix, dhtName);
     var def;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
         def = xcalarIndex(tHandle, datasetName, tablename,
-               [new XcalarApiKeyT({name: key, type: "DfUnknown", newField:""})],
+               [new XcalarApiKeyT({name: key, type: "DfUnknown", keyFieldName:""})],
                                  ordering, prefix, dhtName);
     }
 
@@ -1314,19 +1314,18 @@ XcalarIndexFromTable = function(srcTablename, keys, tablename, ordering,
         for (var i = 0; i < keys.length; i++) {
             keyArray.push(new XcalarApiKeyT({
                 name: keys[i],
-                type: keyTypes[i],
-                newField: ""
+                type: DfFieldTypeTStr[keyTypes[i]],
+                keyFieldName: ""
             }));
         }
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
-                                           tablename, keyArray, ordering,
-                                           dhtName);
+                                           tablename, keyArray, ordering, "", "");
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
             def = xcalarIndex(tHandle, unsortedSrcTablename, tablename,
-                              keyArray, ordering, dhtName);
+                              keyArray, ordering, "", "");
         }
         query = XcalarGetQuery(workItem);
         if (!unsorted) {
