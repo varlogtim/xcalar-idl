@@ -126,7 +126,8 @@ XcalarApisT = {
   'XcalarApiGetCurrentXemConfig' : 117,
   'XcalarApiListUserDatasets' : 118,
   'XcalarApiUnion' : 119,
-  'XcalarApiFunctionInvalid' : 120
+  'XcalarApiTarget' : 120,
+  'XcalarApiFunctionInvalid' : 121
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -248,7 +249,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 117 : 'XcalarApiGetCurrentXemConfig',
 118 : 'XcalarApiListUserDatasets',
 119 : 'XcalarApiUnion',
-120 : 'XcalarApiFunctionInvalid'
+120 : 'XcalarApiTarget',
+121 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {'XcalarApiUnknown' : 0,
 'XcalarApiGetVersion' : 1,
@@ -370,5 +372,6 @@ XcalarApisTFromStr = {'XcalarApiUnknown' : 0,
 'XcalarApiGetCurrentXemConfig' : 117,
 'XcalarApiListUserDatasets' : 118,
 'XcalarApiUnion' : 119,
-'XcalarApiFunctionInvalid' : 120
+'XcalarApiTarget' : 120,
+'XcalarApiFunctionInvalid' : 121
 };

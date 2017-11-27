@@ -215,6 +215,7 @@ window.Function.prototype.bind = function() {
     var envLicenseDir = system.env.XCE_LICENSEDIR;
     var envLicenseFile = system.env.XCE_LIC_FILE;
     var numUsrnodes = 3;
+    var targetName = "Default Shared Root";
 
     console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
@@ -303,7 +304,7 @@ window.Function.prototype.bind = function() {
     function getDatasetCount(datasetName) {
         var numRows = -1;
         var deferred = jQuery.Deferred();
-        xcalarMakeResultSetFromDataset(thriftHandle, ".XcalarDS."+datasetName)
+        xcalarMakeResultSetFromDataset(thriftHandle, datasetPrefix+datasetName)
         .then(function(ret) {
             numRows = ret.numEntries;
             console.log(JSON.stringify(ret));
@@ -578,9 +579,13 @@ window.Function.prototype.bind = function() {
     }
 
     function testPreview(test) {
-        var url = "nfs://" + qaTestDir + "/yelp/user";
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/yelp/user";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
 
-        xcalarPreview(thriftHandle, url, "*", false, 11, 2)
+        xcalarPreview(thriftHandle, sourceArgs, 11, 2)
         .then(function(result) {
             printResult(result);
             var previewOutput = result;
@@ -601,17 +606,76 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testLoad(test) {
-        loadArgs = new XcalarApiDfLoadArgsT();
-        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.quoteDelim = XcalarApiDefaultQuoteDelimT;
-        loadArgs.csv.linesToSkip = 0;
-        loadArgs.csv.isCRLF = false;
+    function testTarget(test) {
+        var targetName = "mgmtdtest target";
+        var targetType = "shared";
+        var targetParams = {"mountpoint": "/netstore"};
+        // Add target
+        xcalarTargetCreate(thriftHandle, targetType, targetName, targetParams)
+        .then(function() {
+            // Get list of keys using this keyname as a regex
+            return xcalarTargetList(thriftHandle);
+        })
+        .then(function(targetList) {
+            var targFound = false;
+            for (var ii = 0; ii < targetList.length; ii++) {
+                if (targetList[ii].name === targetName) {
+                    targFound = true;
+                    break;
+                }
+            }
+            test.assert(targFound);
+            return xcalarTargetDelete(thriftHandle, targetName);
+        })
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(result) {
+            test.fail(StatusTStr[result["xcalarStatus"]]);
+        });
+    }
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/yelp/user", "yelp",
-                   DfFormatTypeT.DfFormatJson, 0, loadArgs)
+    function testListTargetTypes(test) {
+        var typeId = "shared";
+        var typeName = "Shared Storage Mount";
+        var parameterName = "mountpoint";
+        // Add target
+        xcalarTargetTypeList(thriftHandle)
+        .then(function(targetTypeList) {
+            var thisTargType = null;
+            for (var ii = 0; ii < targetTypeList.length; ii++) {
+                if (targetTypeList[ii].type_id === typeId) {
+                    thisTargType = targetTypeList[ii];
+                }
+            }
+            test.assert(thisTargType !== null);
+            test.assert(thisTargType.type_id === typeId);
+            test.assert(thisTargType.type_name === typeName);
+            test.assert(typeof(thisTargType.description) === "string");
+            test.assert(thisTargType.parameters.length === 1);
+            test.assert(typeof(thisTargType.parameters[0].description) === "string");
+        })
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(result) {
+            test.fail(StatusTStr[result["xcalarStatus"]]);
+        });
+    }
+
+    function testLoad(test) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/yelp/user";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
+
+        xcalarLoad(thriftHandle, "yelp", sourceArgs, parseArgs, 0)
         .then(function(result) {
             printResult(result);
             loadOutput = result;
@@ -623,9 +687,9 @@ window.Function.prototype.bind = function() {
         })
         .then(function(count) {
             test.assert(count === 70817);
-            return (xcalarLoad(thriftHandle, "nfs://" + qaTestDir +
-                               "/yelp/reviews", "yelpReviews",
-                               DfFormatTypeT.DfFormatJson, 0, loadArgs));
+            // Reuse the last call's sourceArgs
+            sourceArgs.path = qaTestDir + "/yelp/reviews";
+            return (xcalarLoad(thriftHandle, "yelpReviews", sourceArgs, parseArgs, 0));
         })
         .then(function(result) {
             yelpReviewsDataset = result.dataset.name;
@@ -643,17 +707,17 @@ window.Function.prototype.bind = function() {
     function testLoadRegex(test) {
         var yelpTipDataset = "";
         var yelpTipLoadOutput = "";
-        loadArgs = new XcalarApiDfLoadArgsT();
-        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.isCRLF = false;
-        loadArgs.fileNamePattern = "re:(user|tip)\\/.*\\.json";
-        loadArgs.recursive = true;
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir +
-                   "/yelp", "yelpTip",
-                   DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/yelp";
+        sourceArgs.fileNamePattern = "re:(user|tip)\\/.*\\.json";
+        sourceArgs.recursive = true;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
+
+        xcalarLoad(thriftHandle, "yelpTip", sourceArgs, parseArgs, 0)
         .then(function(result) {
             printResult(result);
             yelpTipLoadOutput = result;
@@ -719,31 +783,22 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function loadHelper() {
-        var lArgs = new XcalarApiDfLoadArgsT();
-        lArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        lArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        lArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        lArgs.csv.isCRLF = false;
-        lArgs.csv.schemaMode = CsvSchemaModeT.CsvSchemaModeUseHeader;
-        lArgs.csv.typedColumnsCount = 0;
-        lArgs.csv.typedColumns = [];
-        lArgs.csv.schemaFile = "";
-        return lArgs;
-    }
-
     function testLoadEdgeCaseDos(test) {
-        var lArgs = loadHelper();
-        lArgs.csv.isCRLF = false;
-        lArgs.csv.fieldDelim = "\t";
-        lArgs.csv.recordDelim = "\r";
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir +
-                   "/edgeCases/dosFormat.csv", "dosFormat",
-                   DfFormatTypeT.DfFormatCsv, 0, lArgs)
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/edgeCases/dosFormat.csv";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseCsv";
+        parseArgs.parserArgJson = JSON.stringify({"recordDelim": "\r", "schemaMode": "header"});
+
+        xcalarLoad(thriftHandle, "dosFormat", sourceArgs, parseArgs, 0)
         .then(function(result) {
             return getDatasetCount("dosFormat");
         })
         .then(function(numRows) {
+            console.log("got numrows " + numRows);
             test.assert(numRows == 123);
             test.pass();
         })
@@ -754,14 +809,16 @@ window.Function.prototype.bind = function() {
 
 
     function testBadLoad(test) {
-        loadArgs = new XcalarApiDfLoadArgsT();
-        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.isCRLF = false;
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/edgeCases/bad.json";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json",
-                   "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "bad", sourceArgs, parseArgs, 0)
         .then(function(result) {
             test.fail("load succeeded when it should have failed");
         })
@@ -785,15 +842,19 @@ window.Function.prototype.bind = function() {
     }
 
     function testBulkDestroyDs(test) {
-        loadArgs = new XcalarApiDfLoadArgsT();
-        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.isCRLF = false;
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/yelp/reviews";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/yelp/reviews",
-                   "review", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        console.log("doing first load");
+        xcalarLoad(thriftHandle, "review", sourceArgs, parseArgs, 0)
         .then(function(result) {
+            console.log("finished first load");
             var testloadOutput = result;
             return xcalarDeleteDagNodes(thriftHandle, "*",
                                         SourceTypeT.SrcDataset);
@@ -823,18 +884,6 @@ window.Function.prototype.bind = function() {
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason.xcalarStatus]);
-        });
-    }
-
-    function testLoadBogus(test) {
-        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson,
-                   0, loadArgs)
-        .then(function(bogusOutput) {
-            printResult(bogusOutput);
-            test.fail("load succeeded when it should have failed");
-        })
-        .fail(function() {
-            test.pass();
         });
     }
 
@@ -875,7 +924,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testListDatasetUsers(test) {
-        var datasetName = ".XcalarDS.yelp";
+        var datasetName = datasetPrefix + "yelp";
         xcalarListDatasetUsers(thriftHandle, datasetName)
             .then(function(listDatasetUsersOutput) {
                 printResult(listDatasetUsersOutput);
@@ -918,7 +967,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testLockDataset(test) {
-        var datasetName = ".XcalarDS.yelp";
+        var datasetName = datasetPrefix + "yelp";
         var testLockSession = "mgmtdTestLockSession" + (new Date().getTime());
 
         // Start a new session
@@ -947,7 +996,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testLockAlreadyLockedDataset(test) {
-        var datasetName = ".XcalarDS.yelp";
+        var datasetName = datasetPrefix + "yelp";
         xcalarLockDataset(thriftHandle, datasetName)
         .then(function() {
             test.fail("Locking dataset should have failed.");
@@ -961,7 +1010,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  loadOutput.dataset.name,
                                  "yelp/user-review_count",
-                                 [new XcalarApiKeyT({name:"review_count", type:"DfInt64", newField:""})],
+                                 [new XcalarApiKeyT({name:"review_count", type:"DfInt64", keyFieldName:""})],
                                  XcalarOrderingT.XcalarOrderingUnordered,
                                  "yelp_user"));
 
@@ -971,7 +1020,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     loadOutput.dataset.name,
                     "yelp/user-votes.funny",
-                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", newField:""})],
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:""})],
                     XcalarOrderingT.XcalarOrderingUnordered,
                     "yelp_user")
         .done(function(indexOutput) {
@@ -986,7 +1035,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     loadOutput.dataset.name,
                     "yelp/user-user_id",
-                    [new XcalarApiKeyT({name:"user_id", type:"DfString", newField:""})],
+                    [new XcalarApiKeyT({name:"user_id", type:"DfString", keyFieldName:""})],
                     XcalarOrderingT.XcalarOrderingUnordered,
                     "yelp_user")
         .done(function(indexStrOutput) {
@@ -1038,7 +1087,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-name",
-                                 [new XcalarApiKeyT({name:"yelp_user::name", type:"DfString", newField:""})],
+                                 [new XcalarApiKeyT({name:"yelp_user::name", type:"DfString", keyFieldName:""})],
                                  XcalarOrderingT.XcalarOrderingUnordered));
     }
 
@@ -1079,29 +1128,26 @@ window.Function.prototype.bind = function() {
     }
 
     function testGetQueryLoad(test) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = "url";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
+
         var workItem = new WorkItem();
         workItem.input = new XcalarApiInputT();
         workItem.input.loadInput = new XcalarApiBulkLoadInputT();
-        workItem.input.loadInput.dataset = new XcalarApiDatasetT();
         workItem.input.loadInput.loadArgs = new XcalarApiDfLoadArgsT();
-        workItem.input.loadInput.loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
+        workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
         workItem.api = XcalarApisT.XcalarApiBulkLoad;
-        workItem.input.loadInput.maxSize = 1024;
-        workItem.input.loadInput.dagNodeId = 9;
-        workItem.input.loadInput.loadArgs.csv.recordDelim = ",";
-        workItem.input.loadInput.loadArgs.csv.fieldDelim = "\n";
-        workItem.input.loadInput.loadArgs.csv.isCRLF = false;
-        workItem.input.loadInput.loadArgs.csv.schemaMode = "none";
-        workItem.input.loadInput.loadArgs.csv.typedColumnsCount = 0;
-        workItem.input.loadInput.loadArgs.csv.typedColumns = [];
-        workItem.input.loadInput.loadArgs.csv.schemaFile = "";
-        workItem.input.loadInput.dataset.url = "url";
-        workItem.input.loadInput.dataset.datasetId = 2;
-        workItem.input.loadInput.dataset.formatType =
-                                                     DfFormatTypeT.DfFormatJson;
-        workItem.input.loadInput.dataset.name = "datasetName";
-        workItem.input.loadInput.dataset.loadIsComplete = false;
+        workItem.input.loadInput.dest = "datasetName";
+        workItem.input.loadInput.loadArgs.size = 1024;
 
         console.log(xcalarApiGetQuery(thriftHandle, workItem));
         test.pass();
@@ -1111,7 +1157,7 @@ window.Function.prototype.bind = function() {
          test.trivial(xcalarIndex(thriftHandle,
                                   loadOutput.dataset.name,
                                   "yelp/user-garbage",
-                                  [new XcalarApiKeyT({name:"garbage", type:"DfUnknown", newField:""})],
+                                  [new XcalarApiKeyT({name:"garbage", type:"DfUnknown", keyFieldName:""})],
                                   XcalarOrderingT.XcalarOrderingUnordered,
                                   "yelp_user"));
     }
@@ -1120,7 +1166,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-yelping_since",
-                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", newField:""})],
+                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", keyFieldName:""})],
                                  XcalarOrderingT.XcalarOrderingUnordered));
     }
 
@@ -1528,43 +1574,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testCrossJoin(test) {
-        var leftRenameMap = [];
-        var map = new XcalarApiRenameMapT();
-        map.sourceColumn = "yelp_user";
-        map.destColumn = "leftDataset";
-        map.columnType = "DfFatptr";
-        leftRenameMap.push(map);
-
-        var map = new XcalarApiRenameMapT();
-        map.sourceColumn = "yelp_user-votes.funny";
-        map.destColumn = "leftKey";
-        map.columnType = "DfInt64";
-        leftRenameMap.push(map);
-
-        var rightRenameMap = [];
-        var map2 = new XcalarApiRenameMapT();
-        map2.sourceColumn = "yelp_user";
-        map2.destColumn = "rightDataset";
-        map2.columnType = "DfFatptr";
-        rightRenameMap.push(map2);
-
-        xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
-                   "yelp/user-votes.funny-gt900",
-                   "yelp/user-dummyjoin",
-                   JoinOperatorT.InnerJoin,
-                   leftRenameMap, rightRenameMap,
-                   "neq(leftKey, yelp_user-votes.funny)")
-        .then(function(result) {
-            printResult(result);
-            newTableOutput = result;
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(JSON.stringify(reason));
-        });
-    }
-
     function testUnion(test) {
         var renameMaps = [];
         var tables = [];
@@ -1773,7 +1782,7 @@ window.Function.prototype.bind = function() {
             return xcalarIndex(thriftHandle,
                                ret.tableName,
                                "yelp/voted.cool-times-funny-sortedby-most_reviewed",
-                               [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", newField:""})],
+                               [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:""})],
                                XcalarOrderingT.XcalarOrderingDescending)
         })
         .then(function(ret) {
@@ -2020,7 +2029,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     yelpReviewsDataset,
                     "yelp/reviews-votes.funny",
-                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", newField:""})],
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:""})],
                     XcalarOrderingT.XcalarOrderingAscending,
                     "yelp_user")
         .then(exportAndCancel)
@@ -2445,7 +2454,12 @@ window.Function.prototype.bind = function() {
     }
 
     function testListFiles(test) {
-        xcalarListFiles(thriftHandle, "nfs:///", false, "")
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = "/";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        xcalarListFiles(thriftHandle, sourceArgs)
         .done(function(listFilesOutput) {
             printResult(listFilesOutput);
 
@@ -3044,7 +3058,7 @@ window.Function.prototype.bind = function() {
             xcalarIndex(thriftHandle,
                         yelpUserDataset,
                         "yelp/user-average_stars",
-                        [new XcalarApiKeyT({name:"average_stars", type:"DfFloat64", newField:""})],
+                        [new XcalarApiKeyT({name:"average_stars", type:"DfFloat64", keyFieldName:""})],
                         XcalarOrderingT.XcalarOrderingInvalid,
                         "yelp_user",
                         dhtName)
@@ -3082,20 +3096,16 @@ window.Function.prototype.bind = function() {
                             "PyExecOnLoadTest", content)
             .done(function(uploadPythonOutput) {
                 if (status == StatusT.StatusOk) {
-                    loadArgs = new XcalarApiDfLoadArgsT();
-                    loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-                    loadArgs.udfLoadArgs = new XcalarApiUdfLoadArgsT();
-                    loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-                    loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-                    loadArgs.csv.isCRLF = false;
-                    loadArgs.udfLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
+                    var sourceArgs = new DataSourceArgsT();
+                    sourceArgs.targetName = targetName;
+                    sourceArgs.path = qaTestDir + "/yelp/user";
+                    sourceArgs.fileNamePattern = "";
+                    sourceArgs.recursive = false;
+                    var parseArgs = new ParseArgsT();
+                    parseArgs.parserFnName = "PyExecOnLoadTest:poorManCsvToJson";
+                    parseArgs.parserArgJson = "{}";
 
-                    xcalarLoad(thriftHandle,
-                               "nfs://" + qaTestDir + "/operatorsTest/movies/movies.csv",
-                               "movies",
-                               DfFormatTypeT.DfFormatJson,
-                               0,
-                               loadArgs)
+                    xcalarLoad(thriftHandle, "movies", sourceArgs, parseArgs, 0)
                     .done(function(result) {
                         printResult(result);
                         loadOutput = result;
@@ -3478,83 +3488,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testDemoFile(test) {
-        var testFileName = "mgmtdTest";
-        var url = "demo:///" + testFileName;
-        var fileContents = "ABCD1234!@#$";
-
-        xcalarListFiles(thriftHandle, "demo:///")
-        .then(function(listFilesOutput) {
-            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
-                var fileName = listFilesOutput.files[ii].name;
-                if (fileName === testFileName) {
-                    return xcalarDemoFileDelete(thriftHandle, fileName);
-                }
-            }
-        })
-        .then(function(result) {
-            printResult(result);
-            return xcalarDemoFileCreate(thriftHandle, testFileName);
-        })
-        .then(function(createResult) {
-            printResult(createResult);
-            test.assert(createResult.error == null);
-            return xcalarDemoFileAppend(thriftHandle, testFileName, fileContents);
-        })
-        .then(function(appendResult) {
-            printResult(appendResult);
-            test.assert(appendResult.error == null);
-            return xcalarPreview(thriftHandle, url, "*", false, 100, 0);
-        })
-        .then(function(previewResult) {
-            var preview = JSON.parse(previewResult.outputJson);
-            test.assert(atob(preview.base64Data) === fileContents);
-            return xcalarDemoFileDelete(thriftHandle, testFileName);
-        })
-        .then(function(deleteResult) {
-            test.assert(deleteResult.error == null);
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason.xcalarStatus]);
-        });
-    }
-
-    function testDemoFileAlreadyExists(test) {
-        var testFileName = "mgmtdTestAlreadyExist";
-        var url = "demo:///" + testFileName;
-
-        xcalarListFiles(thriftHandle, "demo:///")
-        .then(function(listFilesOutput) {
-            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
-                var fileName = listFilesOutput.files[ii].name;
-                if (fileName === testFileName) {
-                    return xcalarDemoFileDelete(thriftHandle, fileName);
-                }
-            }
-        })
-        .then(function(result) {
-            if (result != null) {
-                printResult(result);
-                test.assert(result.error == null);
-            }
-            return xcalarDemoFileCreate(thriftHandle, testFileName);
-        })
-        .then(function(createResult) {
-            printResult(createResult);
-            test.assert(createResult.error == null);
-            return xcalarDemoFileCreate(thriftHandle, testFileName);
-        })
-        .then(function(result) {
-            test.assert(result.error != null);
-            test.assert(result.error.indexOf("already exists") !== -1);
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason.xcalarStatus]);
-        });
-    }
-
     function testFuncDriverList(test) {
         xcalarApiListFuncTest(thriftHandle, "libhello::*")
         .done(function(listFuncTestOutput) {
@@ -3609,6 +3542,8 @@ window.Function.prototype.bind = function() {
                     prop === "xcalarApiGetQueryOld") continue;
                 // Deprecated API which hasn't been removed
                 if (prop === "xcalarGetStatsByGroupId") continue;
+                // This API throws an exception if you pass it incorrect arguments
+                if (prop === "xcalarPreview") continue;
                 // Don't run without arguments as full size support bundle is
                 // generated.
                 if (prop === "xcalarApiSupportGenerate") continue;
@@ -3638,32 +3573,40 @@ window.Function.prototype.bind = function() {
     }
 
     function testCsvLoadWithSchema(test) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/tpchDatasets/region.tbl";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
         var csvLoadOutput;
         var dsName;
         var dsResultSet;
-        var csvLoadArgs = new XcalarApiDfLoadArgsT();
-        csvLoadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        csvLoadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-        csvLoadArgs.csv.fieldDelim = "|";
-        csvLoadArgs.csv.isCRLF = true;
-        csvLoadArgs.csv.schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
-        csvLoadArgs.csv.typedColumns = [
-            {
-                "colName": "R_REGIONKEY",
-                "colType": DfFieldTypeT.DfInt64
-            },
-            {
-                "colName": "R_NAME",
-                "colType": DfFieldTypeT.DfString
-            },
-            {
-                "colName": "R_COMMENT",
-                "colType": DfFieldTypeT.DfString
-            }
-        ];
 
-        xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/tpchDatasets/region.tbl",
-                   "tpch-region", DfFormatTypeT.DfFormatCsv, 0, csvLoadArgs)
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseCsv";
+        var csvArgs = {
+            "recordDelim": XcalarApiDefaultRecordDelimT,
+            "fieldDelim":"|",
+            "isCRLF": true,
+            "schemaMode": "loadInput",
+            "typedColumns": [
+                {
+                    "colName": "R_REGIONKEY",
+                    "colType": "DfInt64"
+                },
+                {
+                    "colName": "R_NAME",
+                    "colType": "DfString"
+                },
+                {
+                    "colName": "R_COMMENT",
+                    "colType": "DfString"
+                }
+            ]
+        };
+        parseArgs.parserArgJson = JSON.stringify(csvArgs);
+
+        xcalarLoad(thriftHandle, "tpch-region", sourceArgs, parseArgs, 0)
         .then(function(result) {
             printResult(result);
             csvLoadOutput = result;
@@ -3692,19 +3635,18 @@ window.Function.prototype.bind = function() {
             test.assert(dagOutput.numNodes === 1);
             var dagNode = dagOutput.node[0];
             test.assert(dagNode.name.name == dsName);
-            var dagNodeLoadInput = dagNode.input.loadInput;
-            console.log("dagNodeInput.recordDelim: \"" + dagNodeLoadInput.recordDelim + "\"")
-            console.log("csvLoadArgs.csv.recordDelim: \"" + csvLoadArgs.csv.recordDelim + "\"")
-            test.assert(dagNodeLoadInput.recordDelim === csvLoadArgs.csv.recordDelim);
-            test.assert(dagNodeLoadInput.fieldDelim === csvLoadArgs.csv.fieldDelim);
-            test.assert(dagNodeLoadInput.crlf === csvLoadArgs.csv.isCRLF);
-            console.log("dagNodeLoadInput.schemaMode: " + dagNodeLoadInput.schemaMode);
-            console.log("csvLoadArgs.csv.schemaMode: " + csvLoadArgs.csv.schemaMode);
-            test.assert(dagNodeLoadInput.schemaMode === csvLoadArgs.csv.schemaMode);
-            test.assert(dagNodeLoadInput.typedColumns.length === csvLoadArgs.csv.typedColumns.length);
-            for (var ii = 0; ii < csvLoadArgs.csv.typedColumns.length; ii++) {
-                test.assert(dagNodeLoadInput.typedColumns[ii].colName === csvLoadArgs.csv.typedColumns[ii].colName);
-                test.assert(dagNodeLoadInput.typedColumns[ii].colType === csvLoadArgs.csv.typedColumns[ii].colType);
+            var loadArgs = dagNode.input.loadInput.loadArgs;
+            var parseArgs = JSON.parse(loadArgs.parseArgs.parserArgJson);
+            console.log("ParseArgs: " + loadArgs.parseArgs.parserArgJson);
+            console.log("CsvArgs: " + JSON.stringify(csvArgs));
+            test.assert(parseArgs.recordDelim === csvArgs.recordDelim);
+            test.assert(parseArgs.fieldDelim === csvArgs.fieldDelim);
+            test.assert(parseArgs.isCRLF === csvArgs.isCRLF);
+            test.assert(parseArgs.schemaMode === csvArgs.schemaMode);
+            test.assert(parseArgs.typedColumns.length === csvArgs.typedColumns.length);
+            for (var ii = 0; ii < csvArgs.typedColumns.length; ii++) {
+                test.assert(parseArgs.typedColumns[ii].colName === csvArgs.typedColumns[ii].colName);
+                test.assert(parseArgs.typedColumns[ii].colType === csvArgs.typedColumns[ii].colType);
             }
             return (xcalarFreeResultSet(thriftHandle, dsResultSet.resultSetId))
         })
@@ -3800,6 +3742,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testTarget, "test target operations", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListTargetTypes, "test target types", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testApisWithNoArgs, "call Xcalar APIs without args", defaultTimeout, TestCaseEnabled, "");
 
@@ -3821,7 +3765,6 @@ window.Function.prototype.bind = function() {
     // Xc-1981
     addTestCase(testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseDisabled, "1981");
 
-    addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListUserDatasets, "list user's datasets", defaultTimeout, TestCaseEnabled, "");
@@ -3890,17 +3833,15 @@ window.Function.prototype.bind = function() {
     addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-
     // XXX: will be enabled when retina update is cleaned up
     addTestCase(testUpdateRetinaExport, "updateRetinaExport", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
-
-    addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testExportRetina, "exportRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testExportRetina, "exportRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
 
@@ -3944,9 +3885,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
-
-    addTestCase(testDemoFile, "demo file ops test", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testDemoFileAlreadyExists, "demo file already exist test", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");

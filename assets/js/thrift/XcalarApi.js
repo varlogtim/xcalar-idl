@@ -389,14 +389,178 @@ xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
     return (deferred.promise());
 };
 
-xcalarPreviewWorkItem = runEntity.xcalarPreviewWorkItem = function(url, fileNamePattern, recursive, numBytesRequested, offset) {
+xcalarTargetWorkItem = runEntity.xcalarTargetWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiTarget;
+    workItem.input.targetInput = new XcalarApiTargetInputT();
+    workItem.input.targetInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarTargetCreate = runEntity.xcalarTargetCreate = function(thriftHandle, targetTypeId, targetName, targetParams) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarTargetCreate(targetTypeId = " + targetTypeId +
+                                      " targetName = " + targetName +
+                                      " targetParams = " + JSON.stringify(targetParams) +
+                                         ")");
+    }
+
+    var inputObj = {
+        "func": "addTarget",
+        "targetTypeId": targetTypeId,
+        "targetName": targetName,
+        "targetParams": targetParams};
+
+    var workItem = xcalarTargetWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var targetOutput = result.output.outputResult.targetOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // targetOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        targetOutput = JSON.parse(targetOutput.outputJson);
+        targetOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(targetOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarTargetCreate() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarTargetDelete = runEntity.xcalarTargetDelete = function(thriftHandle, targetName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarTargetDelete(targetName = " + targetName + ")");
+    }
+
+    var inputObj = {
+        "func": "deleteTarget",
+        "targetName": targetName};
+
+    var workItem = xcalarTargetWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var targetOutput = result.output.outputResult.targetOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // targetOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        targetOutput = JSON.parse(targetOutput.outputJson);
+        targetOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(targetOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarTargetDelete() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarTargetList = runEntity.xcalarTargetList = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarTargetList()");
+    }
+
+    var inputObj = {"func": "listTargets"};
+
+    var workItem = xcalarTargetWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var targetOutput = result.output.outputResult.targetOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // targetOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        targetOutput = JSON.parse(targetOutput.outputJson);
+        deferred.resolve(targetOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarTargetList() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarTargetTypeList()");
+    }
+
+    var inputObj = {"func": "listTypes"};
+
+    var workItem = xcalarTargetWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var targetOutput = result.output.outputResult.targetOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // targetOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        targetOutput = JSON.parse(targetOutput.outputJson);
+        deferred.resolve(targetOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarTargetTypeList() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPreviewWorkItem = runEntity.xcalarPreviewWorkItem = function(sourceArgs, numBytesRequested, offset) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     var inputObj = {"func" : "preview",
-                    "url" : url,
-                    "namePattern" : fileNamePattern,
-                    "recursive" : recursive,
+                    "sourceArgs" : {
+                        "targetName": sourceArgs.targetName,
+                        "path": sourceArgs.path,
+                        "fileNamePattern": sourceArgs.fileNamePattern,
+                        "recursive": sourceArgs.recursive
+                    },
                     "offset" : offset,
                     "bytesRequested" : numBytesRequested};
 
@@ -406,17 +570,15 @@ xcalarPreviewWorkItem = runEntity.xcalarPreviewWorkItem = function(url, fileName
     return (workItem);
 };
 
-xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, url, fileNamePattern, recursive, numBytesRequested, offset) {
+xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, sourceArgs, numBytesRequested, offset) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarPreview(url = " + url +
-                    ", fileNamePattern = " + fileNamePattern +
-                    ", recursive = " + recursive +
+        console.log("xcalarPreview(sourceArgs = " + sourceArgs +
                     ", numBytesRequested = " + numBytesRequested +
-                    ", offset =" + offset);
+                    ", offset =" + offset + ")");
     }
 
-    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset);
+    var workItem = xcalarPreviewWorkItem(sourceArgs, numBytesRequested, offset);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -450,71 +612,33 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, url, fileNamePa
     return (deferred.promise());
 };
 
-xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(url, name, format, maxSampleSize, loadArgs) {
+xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, parseArgs, maxSize) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
+    workItem.input.loadInput.loadArgs = new XcalarApiDfLoadArgsT();
 
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
-    workItem.input.loadInput.url = url;
     workItem.input.loadInput.dest = name;
-    workItem.input.loadInput.size = maxSampleSize;
-    workItem.input.loadInput.format = DfFormatTypeTStr[format];
-    workItem.input.loadInput.typedColumnsCount = 0;
-    workItem.input.loadInput.typedColumns = [];
-    workItem.input.loadInput.schemaFile = "";
+    workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
+    workItem.input.loadInput.loadArgs.parseArgs = parseArgs
 
-    if (loadArgs) {
-        workItem.input.loadInput.fileNamePattern = loadArgs.fileNamePattern;
-        if (loadArgs.udfLoadArgs) {
-            workItem.input.loadInput.udf = loadArgs.udfLoadArgs.fullyQualifiedFnName;
-        }
+    workItem.input.loadInput.loadArgs.size = maxSize;
 
-        if (loadArgs.csv) {
-            workItem.input.loadInput.recordDelim = loadArgs.csv.recordDelim;
-            workItem.input.loadInput.fieldDelim = loadArgs.csv.fieldDelim;
-            workItem.input.loadInput.quoteDelim = loadArgs.csv.quoteDelim;
-            workItem.input.loadInput.linesToSkip = loadArgs.csv.linesToSkip;
-            workItem.input.loadInput.crlf = loadArgs.csv.isCRLF;
-            workItem.input.loadInput.schemaMode = loadArgs.csv.schemaMode;
-            workItem.input.loadInput.recursive = loadArgs.recursive;
-            if (loadArgs.csv.typedColumns) {
-                for (var ii = 0; ii < loadArgs.csv.typedColumns.length; ii++) {
-                    var typedColumn = new XcalarApiCsvTypedColumnT();
-                    typedColumn.colName = loadArgs.csv.typedColumns[ii].colName;
-                    typedColumn.colType = loadArgs.csv.typedColumns[ii].colType;
-                    workItem.input.loadInput.typedColumns.push(typedColumn);
-                }
-                workItem.input.loadInput.typedColumnsCount = workItem.input.loadInput.typedColumns.length;
-            }
-            workItem.input.loadInput.schemaFile = loadArgs.csv.schemaFile;
-        }
-    }
     return (workItem);
 };
 
-xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
+// The caller may pass in whatever values they want
+xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgs, parseArgs, maxSize) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
-        console.log("xcalarLoad(url = " + url + ", name = " + name +
-                    ", format = " +
-                    DfFormatTypeTStr[format] + ", maxSampleSize = " +
-                    maxSampleSize.toString() + ", recursive = " +
-            loadArgs.recursive + ", fileNamePattern = " +
-            loadArgs.fileNamePattern + ")");
-        if (format === DfFormatTypeT.DfFormatCsv) {
-            console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
-                        "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
-                        "loadArgs.csv.quoteDelim = " + loadArgs.csv.quoteDelim + ", " +
-                        "loadArgs.csv.linesToSkip = " + loadArgs.csv.linesToSkip + ", " +
-                        "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " +
-                        "loadArgs.csv.schemaMode = " + CsvSchemaModeTStr[loadArgs.csv.schemaMode]);
-        }
+        console.log("xcalarLoad(sourceArgs = " + JSON.stringify(sourceArgs) +
+                    ", parseArgs = " + JSON.stringify(parseArgs) +
+                    ", maxSize = " + maxSize + ")");
     }
 
-    var workItem = xcalarLoadWorkItem(url, name, format, maxSampleSize,
-                                      loadArgs);
+    var workItem = xcalarLoadWorkItem(name, sourceArgs, parseArgs, maxSize);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2553,25 +2677,23 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
     return (deferred.promise());
 };
 
-xcalarListFilesWorkItem = runEntity.xcalarListFilesWorkItem = function(url, recursive, fileNamePattern) {
+xcalarListFilesWorkItem = runEntity.xcalarListFilesWorkItem = function(sourceArgs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
 
     workItem.api = XcalarApisT.XcalarApiListFiles;
-    workItem.input.listFilesInput.url = url;
-    workItem.input.listFilesInput.recursive = recursive;
-    workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
+    workItem.input.listFilesInput.sourceArgs = sourceArgs;
     return (workItem);
 };
 
-xcalarListFiles = runEntity.xcalarListFiles = function(thriftHandle, url, recursive, fileNamePattern) {
+xcalarListFiles = runEntity.xcalarListFiles = function(thriftHandle, sourceArgs) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarListFiles(url = " + url + ")");
+        console.log("xcalarListFiles(sourceArgs = " + sourceArgs + ")");
     }
 
-    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern);
+    var workItem = xcalarListFilesWorkItem(sourceArgs);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -4338,130 +4460,6 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
     })
     .fail(function(error) {
         console.log("xcalarApiDeleteDatasets() caught exceptions: ", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-xcalarDemoFileWorkItem = runEntity.xcalarDemoFileWorkItem = function(inJson) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-
-    workItem.api = XcalarApisT.XcalarApiDemoFile;
-    workItem.input.demoFileInput = new XcalarApiDemoFileInputT();
-    workItem.input.demoFileInput.inputJson = inJson;
-    return (workItem);
-};
-
-xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, fileName) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarDemoFileCreate(fileName = " + fileName +
-                                         ")");
-    }
-
-    var inputObj = {"func": "demoCreate", "fileName": fileName};
-
-    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var demoFileOutput = result.output.outputResult.demoFileOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            return deferred.reject({xcalarStatus: status, log: log});
-        }
-
-        // demoFileOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
-        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
-        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(demoFileOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarDemoFileCreate() caught exception:", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, fileName, fileContents) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarDemoFileAppend(fileName = " + fileName +
-                                         "fileContents = " + fileContents +
-                                         ")");
-    }
-
-    var inputObj = {"func": "demoAppend",
-                    "fileName": fileName,
-                    "data": btoa(fileContents)};
-
-    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var demoFileOutput = result.output.outputResult.demoFileOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            return deferred.reject({xcalarStatus: status, log: log});
-        }
-
-        // demoFileOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
-        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
-        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(demoFileOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarDemoFileAppend() caught exception:", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, fileName) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarDemoFileDelete(fileName = " + fileName +
-                                         ")");
-    }
-
-    var inputObj = {"func": "demoDelete", "fileName": fileName};
-
-    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var demoFileOutput = result.output.outputResult.demoFileOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            return deferred.reject({xcalarStatus: status, log: log});
-        }
-
-        // demoFileOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
-        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
-        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(demoFileOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarDemoFileDelete() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 
