@@ -15,7 +15,7 @@ describe("Workbook Info Modal Test", function() {
         expect($modal.find(".name input").val())
         .to.equal(workbook.getName());
         expect($modal.find(".description input").val())
-        .to.equal(workbook.getDescription());
+        .to.equal(workbook.getDescription() || "");
     });
 
     it("should show name error", function() {

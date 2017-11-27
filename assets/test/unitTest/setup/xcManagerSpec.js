@@ -198,18 +198,6 @@ describe("xcManager Test", function() {
             Log.errorLog = oldFunc;
         });
 
-        it("window.onunload should autoSendEmail", function() {
-            var oldFunc = LiveHelpModal.autoSendEmail;
-            var test = false;
-            LiveHelpModal.autoSendEmail = function() { test = true; };
-
-            window.onunload();
-            expect(test).to.be.true;
-
-            // clear up
-            LiveHelpModal.autoSendEmail = oldFunc;
-        });
-
         it("window.beforeunload should work", function() {
             var oldUnLoad = xcManager.unload;
             var oldLogCheck = Log.hasUncommitChange;

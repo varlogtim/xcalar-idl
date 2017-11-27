@@ -1307,12 +1307,10 @@ describe("xcHelper Test", function() {
             "name": "_ab9c",
             "expect": false
         }, {
-            {
             "category": "workbook",
             "action": "check",
             "name": "ab*9c",
             "expect": false
-        }
         }];
 
         testCases.forEach(function(test) {
@@ -2334,39 +2332,58 @@ describe("xcHelper Test", function() {
     });
 
     describe("xcHelper.getKeyInfos", function() {
-        it("xcHelper.getKeyInfos on regular column should work", function(done) {
-            var progCol1 = ColManager.newCol({
-                "backName": "col",
-                "name": "col",
-                "isNewCol": false,
-                "type": "string"
-            });
-            progCol1.immediate = true;
-            progCol1.knownType = true;
-            var progCol2 = ColManager.newCol({
-                "backName": "prefix:col",
-                "name": "prefix:col",
-                "isNewCol": false,
-                "type": "float"
-            });
-
-            gTables["fakeId"] = new TableMeta({
+        it("xcHelper.getKeyInfos on regular table should work", function(done) {
+            var table = new TableMeta({
                 "tableId": "fakeId",
-                "tableName": "test#fakeId",
-                "tableCols": [progCol1, progCol2, ColManager.newDATACol()]
+                "tableName": "test#fakeId"
             });
-            gTables["fakeId"].backTableMeta = {
+            table.backTableMeta = {
                 valueAttrs: [{
-                    name: "col"
+                    name: "prefix",
+                    type: DfFieldTypeT.DfFatptr
+                }, {
+                    name: "col",
                     type: DfFieldTypeT.DfString
                 }, {
-                    
+                    name: "test",
+                    type: DfFieldTypeT.DfFloat64
+                }, {
+                    name: "prefix--test",
+                    type: DfFieldTypeT.DfFloat64
                 }]
             };
+            gTables["fakeId"] = table;
 
-            xcHelper.getKeyTypes("col", "test#fakeId")
-            .then(function(res) {
-                expect(res[0]).to.equal(7);
+            var keys = ["col", "prefix::a", "prefix::col", "prefix::test"];
+            var expectedArray = [{
+                name: "col",
+                type: DfFieldTypeT.DfString,
+                keyFieldName: "col"
+            }, {
+                name: "prefix::a",
+                type: DfFieldTypeT.DfUnknown,
+                keyFieldName: "a"
+            }, {
+                name: "prefix::col",
+                type: DfFieldTypeT.DfUnknown,
+                keyFieldName: "prefix--col"
+            }];
+
+            xcHelper.getKeyInfos(keys, "test#fakeId")
+            .then(function(keyArray) {
+                expect(keyArray).to.be.an("array");
+                expect(keyArray.length).to.equal(4);
+
+                expectedArray.forEach(function(expected, index) {
+                    var keyRes = keyArray[index];
+                    expect(keyRes.name).to.equal(expected.name);
+                    expect(keyRes.type).to.equal(expected.type);
+                    expect(keyRes.keyFieldName).to.equal(expected.keyFieldName);
+                });
+
+                var specialRes = keyArray[3];
+                expect(specialRes.keyFieldName).not.to.equal("prefix--test");
+                expect(specialRes.keyFieldName).to.contains("prefix--test");
                 done();
             })
             .fail(function() {
@@ -2377,49 +2394,50 @@ describe("xcHelper Test", function() {
             });
         });
 
-        it("xcHelper.getKeyInfos on missing column should work", function(done) {
-            var progCol1 = ColManager.newDATACol();
-
-            gTables["fakeId"] = new TableMeta({
-                "tableId": "fakeId",
-                "tableName": "test#fakeId",
-                "tableCols": [progCol1]
-            });
-            gTables["fakeId"].backTableMeta = {
-                valueAttrs: [{name: "col2", type: 4}]
-            };
-
-            xcHelper.getKeyTypes("col2", "test#fakeId")
-            .then(function(res) {
-                expect(res[0]).to.equal(4);
-                delete gTables["fakeId"];
-                done();
-            })
-            .fail(function() {
-                delete gTables["fakeId"];
-                done("fail");
-            });
-        });
-
-        it("xcHelper.searchTableMetaForKey should work", function(done) {
-            var cachedFn = XcalarGetTableMeta;
+        it("xcHelper.getKeyInfos on missing table meta should work", function(done) {
+            var oldFunc = XcalarGetTableMeta;
             XcalarGetTableMeta = function() {
                 return PromiseHelper.resolve({
                     valueAttrs: [{
-                        name: "col1",
-                        type: 3
-                    }, {
-                        name: "col2",
-                        type: 4
+                        name: "col",
+                        type: DfFieldTypeT.DfString
                     }]
                 });
             };
-            var fn = xcHelper.__testOnly__.searchTableMetaForKey;
-            fn("col2", "tName")
-            .then(function(ret) {
-                expect(ret).to.equal(4);
-                XcalarGetTableMeta = cachedFn;
+
+            xcHelper.getKeyInfos(["col"], "test#fakeId")
+            .then(function(res) {
+                expect(res.length).to.equal(1);
+                expect(res[0].type).to.equal(DfFieldTypeT.DfString);
+                expect(res[0].keyFieldName).to.equal("col");
                 done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetTableMeta = oldFunc;
+            });
+        });
+
+        it("xcHelper.getKeyInfos on missing table meta should work case2", function(done) {
+            var oldFunc = XcalarGetTableMeta;
+            XcalarGetTableMeta = function() {
+                return PromiseHelper.reject();
+            };
+
+            xcHelper.getKeyInfos(["col"], "test#fakeId")
+            .then(function(res) {
+                expect(res.length).to.equal(1);
+                expect(res[0].type).to.equal(DfFieldTypeT.DfUnknown);
+                expect(res[0].keyFieldName).to.equal("");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetTableMeta = oldFunc;
             });
         });
     });

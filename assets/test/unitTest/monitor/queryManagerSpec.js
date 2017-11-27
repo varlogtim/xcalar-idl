@@ -338,6 +338,9 @@ describe('QueryManager Test', function() {
                 $queryList.find(".query").last().remove();
                 delete queryLists[999];
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -363,31 +366,31 @@ describe('QueryManager Test', function() {
             WSManager.getWSFromTable = cachedFn;
         });
 
-        it("focus on table output should work", function(done) {
-            var fakeQuery = new XcQuery({});
-            queryLists[999] = fakeQuery;
-            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
-            var cachedFn = WSManager.getWSFromTable;
-            WSManager.getWSFromTable = function() {
-                return true;
-            };
-            fakeQuery.getOutputTableName = function() {
-                return "fakeTable#fakeId";
-            };
+        // it("focus on table output should work case 2", function(done) {
+        //     var fakeQuery = new XcQuery({});
+        //     queryLists[999] = fakeQuery;
+        //     $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+        //     var cachedFn = WSManager.getWSFromTable;
+        //     WSManager.getWSFromTable = function() {
+        //         return true;
+        //     };
+        //     fakeQuery.getOutputTableName = function() {
+        //         return "fakeTable#fakeId";
+        //     };
 
-            $("#monitor-inspect").click();
+        //     $("#monitor-inspect").click();
 
-            UnitTest.testFinish(function() {
-                return $("#alertHeader .text").text() === "Table Not Found";
-            })
-            .then(function() {
-                UnitTest.hasAlertWithTitle("table not found", {confirm: true});
-                WSManager.getWSFromTable = cachedFn;
-                $queryList.find(".query").last().remove();
-                delete queryLists[999];
-                done();
-            });
-        });
+        //     UnitTest.testFinish(function() {
+        //         return $("#alertHeader .text").text() === "Table Not Found";
+        //     })
+        //     .then(function() {
+        //         UnitTest.hasAlertWithTitle("table not found", {confirm: true});
+        //         WSManager.getWSFromTable = cachedFn;
+        //         $queryList.find(".query").last().remove();
+        //         delete queryLists[999];
+        //         done();
+        //     });
+        // });
     });
 
     describe('Canceling', function() {

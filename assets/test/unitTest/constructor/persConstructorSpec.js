@@ -2676,7 +2676,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(worksheet).to.be.an.instanceof(WorksheetObj);
-            expect(Object.keys(worksheet).length).to.equal(10);
+            expect(Object.keys(worksheet).length).to.equal(9);
             expect(worksheet).have.property("version")
             .and.to.equal(currentVersion);
             expect(worksheet).have.property("id")
@@ -2687,7 +2687,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("testDate");
             expect(worksheet).have.property("pendingTables")
             .and.to.be.an("array");
-            expect(worksheet).have.property("orphanedTables")
+            expect(worksheet).have.property("tables")
             .and.to.be.an("array");
             expect(worksheet).have.property("tempHiddenTables")
             .and.to.be.an("array");
@@ -3111,18 +3111,21 @@ describe("Persistent Constructor Test", function() {
     describe("ProfileStatsInfo Constructor Test", function() {
         it("Should have 7 attributes", function() {
             var statsInfo = new ProfileStatsInfo({
-                "unsorted": false,
-                "zeroQuartile": 2,
-                "lowerQuartile": 2,
-                "median": 3,
-                "upperQuartile": 2,
-                "fullQuartile": 4
+                key: "test",
+                unsorted: false,
+                zeroQuartile: 2,
+                lowerQuartile: 2,
+                median: 3,
+                upperQuartile: 2,
+                fullQuartile: 4
             });
 
             expect(statsInfo).to.be.an.instanceof(ProfileStatsInfo);
-            expect(Object.keys(statsInfo).length).to.equal(7);
+            expect(Object.keys(statsInfo).length).to.equal(8);
             expect(statsInfo).to.have.property("version")
             .and.to.equal(currentVersion);
+            expect(statsInfo).to.have.property("key")
+            .and.to.equal("test");
             expect(statsInfo).to.have.property("unsorted").and.to.be.false;
             expect(statsInfo).to.have.property("zeroQuartile")
             .and.to.equal(2);

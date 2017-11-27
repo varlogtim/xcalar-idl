@@ -41,7 +41,9 @@ describe("Profile-Profile Engins Test", function() {
 
         oldSort = XcalarIndexFromTable;
         XcalarIndexFromTable = function() {
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve({
+                newKeys: []
+            });
         };
 
         oldAgg = XIApi.aggregateWithEvalStr;

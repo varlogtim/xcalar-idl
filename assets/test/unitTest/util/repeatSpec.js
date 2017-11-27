@@ -39,7 +39,9 @@ describe("Repeat Test", function() {
             var indexCalled = false;
             XcalarIndexFromTable = function() {
                 indexCalled = true;
-                return PromiseHelper.resolve();
+                return PromiseHelper.resolve({
+                    newKeys: []
+                });
             };
             TblManager.refreshTable = function() {
                 return PromiseHelper.resolve();
