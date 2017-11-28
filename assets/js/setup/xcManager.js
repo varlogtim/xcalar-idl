@@ -149,8 +149,7 @@ window.xcManager = (function(xcManager, $) {
                             "name": NewUserTStr.openGuide,
                             "className": "confirm",
                             "func": function() {
-                                var url = "https://university.xcalar.com/" +
-                                        "confluence/display/XU/Self-Paced+Training";
+                                var url = "https://discourse.xcalar.com/c/xcalar-training-videos";
                                 window.open(url, "_blank");
                             }
                         }],
