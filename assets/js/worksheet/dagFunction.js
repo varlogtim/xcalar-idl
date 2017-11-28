@@ -100,12 +100,6 @@ window.DagFunction = (function($, DagFunction) {
             var numParents = nodes[i].numParent;
             var tag = nodes[i].tag;
             var state = nodes[i].state;
-
-
-            // XXX this sometimes has an id of "0", why do we use this method?
-            // if (nodes[i].api === XcalarApisT.XcalarApiBulkLoad) {
-            //     dagNodeId = nodes[i].input.loadInput.dataset.datasetId;
-            // }
             var treeNode = new TreeValue(nodes[i].api, inputStruct, dagNodeId,
                                     inputName, name, numParents, tag, state);
             valArray.push(treeNode);

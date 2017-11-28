@@ -480,7 +480,7 @@ window.DF = (function($, DF) {
             if (df) {
                 var retinaNodes = df.retinaNodes;
                 try {
-                    exportTarget = retinaNodes[0].input.exportInput.meta.target.name;
+                    exportTarget = retinaNodes[0].input.exportInput.targetName;
                     var exportTargetObj = DSExport.getTarget(exportTarget);
                     options.exportTarget = exportTargetObj.info.name;
                     options.exportLocation = exportTargetObj.info.formatArg;

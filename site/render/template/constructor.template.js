@@ -1918,7 +1918,7 @@
                 .then(function(res) {
                     try {
                         var udf = res.node[0].input.loadInput.loadArgs
-                                  .udfLoadArgs.fullyQualifiedFnName;
+                                  .parseArgs.parserFnName;
                         if (udf === "default:openExcel") {
                             self.displayFormat = "Excel";
                         } else {

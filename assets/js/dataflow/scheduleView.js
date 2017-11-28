@@ -754,7 +754,7 @@ window.Scheduler = (function(Scheduler, $) {
         var notFound = false;
         for (var i = 0; i < exportNodes.length; i++) {
             var exportInfo = exportNodes[0].input.exportInput;
-            var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+            var fileName = exportInfo.fileName;
             var sysParamFound = false;
             for (var paramName in systemParams) {
                 var sysParam = "<" + paramName + ">";
