@@ -1311,6 +1311,21 @@ describe("xcHelper Test", function() {
             "action": "check",
             "name": "ab*9c",
             "expect": false
+        }, {
+            "category": "target",
+            "action": "check",
+            "name": "ab9 --c",
+            "expect": true
+        }, {
+            "category": "target",
+            "action": "check",
+            "name": "_ab9c",
+            "expect": false
+        }, {
+            "category": "target",
+            "action": "check",
+            "name": "ab*9c",
+            "expect": false
         }];
 
         testCases.forEach(function(test) {

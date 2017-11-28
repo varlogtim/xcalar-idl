@@ -208,7 +208,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
     }
 
     function isDefaultTarget(targetName) {
-        var defaultTargetList = ["Default Shared Root", "Default S3 Account"];
+        var defaultTargetList = ["Default Shared Root",
+                                "Preconfigured Azure Storage Account",
+                                "Preconfigured Google Cloud Storage Account",
+                                "Preconfigured S3 Account"];
         return defaultTargetList.includes(targetName);
     }
 
@@ -381,13 +384,20 @@ window.DSTargetManager = (function($, DSTargetManager) {
     }
 
     function validateForm($form) {
+        var $targetName = $("#dsTarget-name");
         var targetType = $("#dsTarget-type .text").data("id");
-        var targetName = $("#dsTarget-name").val();
+        var targetName = $targetName.val();
         var targetParams = {};
         var eles = [{
-            $ele: $("#dsTarget-name")
+            $ele: $targetName
         }, {
-            $ele: $("#dsTarget-name"),
+            $ele: $targetName,
+            error: ErrTStr.InvalidTargetName,
+            check: function() {
+                return !xcHelper.checkNamePattern("target", "check", targetName);
+            },
+        }, {
+            $ele: $targetName,
             error: xcHelper.replaceMsg(DSTargetTStr.TargetExists, {
                 target: targetName
             }),

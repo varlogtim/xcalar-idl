@@ -1150,6 +1150,7 @@ table.datasetTable {
             .error {
                 color: @color-text-error;
                 margin: 10px;
+                .text-selection;
             }
 
             &.manyFiles {
@@ -3020,6 +3021,10 @@ table.datasetTable {
             .gridIcon .icon {
                 font-size: 28px;
             }
+
+            .label {
+                padding: 0 1px;
+            }
         }
 
         &.listView {
@@ -3059,7 +3064,8 @@ table.datasetTable {
 // ds target
 #datastore-target-view {
     .cardContainer {
-        min-height: ~"calc(100% - 5px)";
+        .size(@min-height: ~"calc(100% - 5px)", @max-height: 100%);
+        overflow-y: auto;
 
         .cardMain {
             .text-selection;
@@ -3074,6 +3080,13 @@ table.datasetTable {
     .formSection {
         padding-bottom: 20px;
         border-bottom: 1px solid @color-border-pinkish-grey2;
+
+        &.description {
+            .formRow {
+                .size(@height: auto);
+                white-space: normal;
+            }
+        }
 
         .dropDownList {
             .styleDropDownList(~"calc(100% - 130px)", 30px);

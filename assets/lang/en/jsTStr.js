@@ -218,6 +218,7 @@ ErrTStr = {
     'InvalidAggName': 'Aggregate name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)',
     'InvalidTableName': 'Table name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)',
     'InvalidWBName': 'Workbook name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
+    'InvalidTargetName': 'Target name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
     'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
@@ -345,7 +346,7 @@ ErrWRepTStr = {
     'TableConflict': 'Table "<name>" already exists, ' +
                         'please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
-    'NoPathInLoad': 'Path <path> was not found.',
+    'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',

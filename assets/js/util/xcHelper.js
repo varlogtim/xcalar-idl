@@ -2132,6 +2132,7 @@
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
             case "workbook":
+            case "target":
                 namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
                 break;
             default:
