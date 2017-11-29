@@ -78,7 +78,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
 
         setTarget(targetName);
-        path = path || getHistoryPath(targetName);
+        if (path === "/") {
+            path = getHistoryPath(targetName);
+        }
 
         var paths = parsePath(path);
         setPath(paths[paths.length - 1]);
