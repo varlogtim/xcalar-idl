@@ -958,7 +958,6 @@ window.Dag = (function($, Dag) {
         var $dagWrap = $dagTable.closest('.dagWrap');
         var idMap = $dagWrap.data('allDagInfo').nodeIdMap;
         var node = idMap[id];
-        // var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
         for (var i = 0; i < node.parents.length; i++) {
             var parentId = node.parents[i].value.dagNodeId;
             if (idMap[parentId].value.state === DgDagStateT.DgDagStateDropped) {

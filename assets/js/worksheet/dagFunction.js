@@ -547,7 +547,6 @@ window.DagFunction = (function($, DagFunction) {
             console.log(finalTableName);
 
             var worksheet = WSManager.getWSFromTable(tableId);
-            xcHelper.unlockTable(tableId);
             TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
                                     worksheet, txId);
@@ -590,8 +589,7 @@ window.DagFunction = (function($, DagFunction) {
                 struct.dest = translation[struct.dest];
             } else {
                 var tableName = xcHelper.getTableName(struct.dest);
-                // var newTableName = tableName + Authentication.getHashId();
-                var newTableName = tableName + Math.round(Math.random() * 10000);
+                var newTableName = tableName + Authentication.getHashId();
                 translation[struct.dest] = newTableName;
                 struct.dest = newTableName;
             }

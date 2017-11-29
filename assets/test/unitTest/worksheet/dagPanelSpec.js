@@ -786,7 +786,7 @@ describe("Dag Panel Test", function() {
 
                     var text = $("#dagSchema .content").text();
                     expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
-                    expect(text.indexOf('"size": "384KB"')).to.be.gt(-1);
+                    expect(text.indexOf('"size": "256KB"')).to.be.gt(-1);
                     expect(text.indexOf('"default:parseCsv"')).to.equal(-1);
                 });
             });
@@ -1254,7 +1254,7 @@ describe("Dag Panel Test", function() {
                     return PromiseHelper.reject();
                 };
 
-                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(1);
+                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(0);
                 // var tId = $actionType.next().data("id");
                 var tName = $actionType.next().data("tablename");
 
@@ -1290,7 +1290,7 @@ describe("Dag Panel Test", function() {
                     return PromiseHelper.resolve();
                 };
 
-                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(1);
+                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(0);
                 var tId = $actionType.next().data("id");
                 var tName = $actionType.next().data("tablename");
 
@@ -1751,7 +1751,6 @@ describe("Dag Panel Test", function() {
             var datasets = $dagWrap.data().allDagInfo.datasets;
             var loadInfo = datasets[tableName].loadInfo;
             var cachedLoadInfo = xcHelper.deepCopy(loadInfo);
-            loadInfo.loadArgs = {csv: {recordDelim: "\t"}};
             loadInfo.format === "csv";
 
             var cachedDS = DS.getDSObj;
@@ -1909,28 +1908,28 @@ describe("Dag Panel Test", function() {
 
         it("getIconHtml", function() {
             var fn = DagDraw.__testOnly__.getIconHtml;
-            var res = fn("filter", {type: "filtergt"});
+            var res = fn({subType: "filtergt", taggedType: "filter"});
             expect(res.indexOf("filter-greaterthan")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filterge"});
+            res = fn({subType: "filterge", taggedType: "filter"});
             expect(res.indexOf("filter-greaterthan")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filterlt"});
+            res = fn({subType: "filterlt", taggedType: "filter"});
             expect(res.indexOf("filter-lessthan")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filterle"});
+            res = fn({subType: "filterle", taggedType: "filter"});
             expect(res.indexOf("filter-lessthan-equalto")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filternot"});
+            res = fn({subType: "filternot", taggedType: "filter"});
             expect(res.indexOf("filter-not-equal")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filterlike"});
+            res = fn({subType: "filterlike", taggedType: "filter"});
             expect(res.indexOf("filter")).to.be.gt(-1);
 
-            res = fn("filter", {type: "filterothers"});
+            res = fn({subType: "filterothers", taggedType: "filter"});
             expect(res.indexOf("filter")).to.be.gt(-1);
 
-            res = fn("filter", {type: "other"});
+            res = fn({subType: "other", taggedType: "filter"});
             expect(res.indexOf("filter")).to.be.gt(-1);
         });
 
@@ -1963,19 +1962,19 @@ describe("Dag Panel Test", function() {
             };
 
             var res = fn(node, "filterInput");
-            expect(res.type).to.equal("filternot");
+            expect(res.subType).to.equal("filternot");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: not(eq(col, 2))");
 
             node.value.struct = {eval: [{evalString: "other(col, 2)"}]};
             res = fn(node, "filterInput");
 
-            expect(res.type).to.equal("filterother");
+            expect(res.subType).to.equal("filterother");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: other(col, 2)");
-            expect(res.column).to.equal("col");
+            expect(res.opText).to.equal("col");
 
             node.value.struct = {eval: [{evalString: "other(col, 2)"}]};
             res = fn(node, "otherInput");
-            expect(res.type).to.equal("other");
+            expect(res.subType).to.equal("other");
             expect(res.tooltip).to.equal("Other");
         });
 
@@ -1983,10 +1982,10 @@ describe("Dag Panel Test", function() {
             var fn = DagDraw.__testOnly__.getFilterInfo;
             var info = {};
             fn(info, "not(x)", ["abc"]);
-            expect(info.column).to.equal("x");
-            expect(info.text).to.equal("not(x)");
+            expect(info.opText).to.equal("x");
+            expect(info.eval).to.equal("not(x)");
             expect(info.tooltip).to.equal("Filtered table &quot;abc&quot;: not(x)");
-            expect(info.type).to.equal("filternot");
+            expect(info.subType).to.equal("filternot");
         });
     });
 
@@ -2067,23 +2066,23 @@ describe("Dag Panel Test", function() {
             expect(tree.value.display.depth).to.equal(0);
 
             expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
-            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.true;
 
-            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
-            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(3).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(3).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(3).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(3).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
-            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
-            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(9).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(9).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(9).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(9).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
             // the aggregate table
-            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
-            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
-            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(7).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(7).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(7).find(".dagTable").data("index")].value.display.depth).to.equal(2);
 
             // the expand icon
             expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
@@ -2098,16 +2097,16 @@ describe("Dag Panel Test", function() {
             expect(nodes[$tableWraps.eq(27).find(".dagTable").data("index")].value.display.depth).to.equal(3.3);
 
             // top and left-most table aside from dataset
-            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
-            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
-
-            // dataset
             expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
             expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 5 + "px");
-            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(5);
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 5 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(5);
         });
 
         it("expanded layout should be correct", function() {
@@ -2125,23 +2124,23 @@ describe("Dag Panel Test", function() {
             expect(tree.value.display.depth).to.equal(0);
 
             expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
-            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.true;
 
-            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
-            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(3).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(3).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(3).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(3).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
-            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
-            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(9).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(9).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(9).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(9).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
             // the aggregate table
-            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
-            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
-            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(7).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(7).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(7).find(".dagTable").data("index")].value.display.depth).to.equal(2);
 
             // the expand icon
             expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
@@ -2157,16 +2156,16 @@ describe("Dag Panel Test", function() {
             expect(nodes[$tableWraps.eq(27).find(".dagTable").data("index")].value.display.depth).to.equal(17);
 
             // top and left-most table aside from dataset
-            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
-            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
-
-            // dataset
             expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
             expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 18 + "px");
-            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(18);
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 18 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(18);
         });
 
         it("condensed layout should be correct", function() {
@@ -2183,23 +2182,23 @@ describe("Dag Panel Test", function() {
             expect(tree.value.display.depth).to.equal(0);
 
             expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
-            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.true;
 
-            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
-            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(3).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(3).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(3).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(3).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
-            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
-            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
-            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+            expect($tableWraps.eq(9).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(9).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(9).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(9).find(".dagTable").data("index")].value.display.depth).to.equal(1);
 
             // the aggregate table
-            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
-            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
-            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(7).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(7).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(7).find(".dagTable").data("index")].value.display.depth).to.equal(2);
 
             // the expand icon
             expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
@@ -2214,16 +2213,16 @@ describe("Dag Panel Test", function() {
             expect(Math.round(nodes[$tableWraps.eq(27).find(".dagTable").data("index")].value.display.depth * 10) / 10).to.equal(3.3);
 
             // top and left-most table aside from dataset
-            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
-            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
-            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
-
-            // dataset
             expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
             expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
-            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 5 + "px");
-            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(5);
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 5 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(5);
         });
     });
 
@@ -2261,9 +2260,10 @@ describe("Dag Panel Test", function() {
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0]).to.equal("join#" + joinId);
 
-            node = oldNode.parents[0].parents[0];
+            node = oldNode.parents[0].parents[0].parents[0];
+
             //  not part of group
-            expect(node.value.display.tagHeader).to.be.undefined;
+            expect(node.value.display.tagHeader).to.be.true;
             expect(node.value.display.isHiddenTag).to.be.undefined;
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0].indexOf("join#")).to.equal(-1);
@@ -2286,15 +2286,15 @@ describe("Dag Panel Test", function() {
 
         it("expanding and collapsing should work", function() {
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
-            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("214px");
+            expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("214px");
             //expand
             $joinDagWrap.find(".tagHeader").eq(0).click();
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.false;
-            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("428px");
+            expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("642px");
             // collapse
             $joinDagWrap.find(".tagHeader").eq(0).click();
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
-            expect($joinDagWrap.find(".dagTableWrap").eq(2).css("right")).to.be.equal("214px");
+            expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("214px");
         });
 
         it("getAllAncestors should work", function() {
@@ -2302,22 +2302,25 @@ describe("Dag Panel Test", function() {
             node = origNode;
             // join operation group
             var group = fn(node, true);
-            expect(group.length).to.equal(3);
+            expect(group.length).to.equal(4);
             expect(group[0].value.inputName).to.equal("joinInput");
             expect(group[1].value.inputName).to.equal("indexInput");
-            expect(group[2].value.inputName).to.equal("indexInput");
+            expect(group[2].value.inputName).to.equal("mapInput");
         });
 
         it("checkIsNodeHiddenTag() should work", function() {
             var fn = DagDraw.__testOnly__.checkIsNodeHiddenTag;
             var child1 = {
-                value: {tag: "a"}
+                value: {tag: "a"},
+                children: []
             };
             var child2 = {
-                value: {tag: "a"}
+                value: {tag: "a"},
+                children: []
             };
             var node = {
-                children: [child1, child2]
+                children: [child1, child2],
+                parents: [0]
             };
 
             expect(fn(["a"], node)).to.be.true;
@@ -2385,7 +2388,7 @@ describe("Dag Panel Test", function() {
                     "indexInput": {
                         "dhtName": "",
                         "source": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
-                        "key": {name: "xcalarRecordNum"},
+                        "key": [{name: "xcalarRecordNum"}],
                         "dest": "yelp_academic_dataset_user_fixed#DP0",
                         "ordering": 0,
                         "fatptrPrefixName": "",
@@ -2408,7 +2411,7 @@ describe("Dag Panel Test", function() {
                     "indexInput": {
                         "dhtName": "",
                         "source": "yelp_academic_dataset_user_fixed#DP0",
-                        "key": {"name": "yelp_academic_dataset_user_fixe::type"},
+                        "key": [{"name": "yelp_academic_dataset_user_fixe::type"}],
                         "destTable": "yelp_academic_dataset_user_fixed#DP3",
                         "ordering": 3,
                         "fatptrPrefixName": "",

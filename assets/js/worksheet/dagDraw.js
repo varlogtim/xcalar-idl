@@ -115,8 +115,8 @@ window.DagDraw = (function($, DagDraw) {
                     dagDepth = Math.max(dagDepth, getDagDepth(sets[i]));
 
                 }
-                dagImageHtml += drawMultiExportNodes(trees, storedInfo,
-                                                          drawn, sets, exportsDrawn);
+                dagImageHtml += drawMultiExportNodes(trees, storedInfo, drawn,
+                                                     sets, exportsDrawn);
 
             } catch (err) {
                 console.error(err);
@@ -236,7 +236,8 @@ window.DagDraw = (function($, DagDraw) {
             yCoors.push(0);
             adjustNodePositions(sets[i], storedInfo);
             condenseHeight(sets[i], condenseSeen, yCoors, curY - initialY);
-            positionMultiExportNodes(trees, yCoors, dagInfo.sets, exportsSeen, condenseSeen);
+            positionMultiExportNodes(trees, yCoors, dagInfo.sets, exportsSeen,
+                                     condenseSeen);
             curY = yCoors.length + initialY;
             dagDepth = Math.max(dagDepth, getDagDepth(sets[i]));
         }
@@ -472,8 +473,7 @@ window.DagDraw = (function($, DagDraw) {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(canvasClone, -10, 50);
             ctx.save();
-            var tableTitleText = $dagWrap.find('.tableTitleArea')
-                                         .text();
+            var tableTitleText = $dagWrap.find('.tableTitleArea').text();
             ctx.font = '600 15px Open Sans';
             ctx.fillStyle = tableTitleColor;
             ctx.fillText(tableTitleText, 30, 22);
@@ -1099,14 +1099,14 @@ window.DagDraw = (function($, DagDraw) {
                                             node.value.dagNodeId + '"]');
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var info = getDagNodeInfo(node, key);
-        var operation = info.operation;
+        var operation = info.type;
 
-        if (info.type === "sort") {
+        if (info.subType === "sort") {
             operation = "sort";
-        } else if (info.type === "createTable") {
+        } else if (info.subType === "createTable") {
             operation = "Create Table";
         }
-        var classes = "actionType dropdownBox tagHeader " + info.opType;
+        var classes = "actionType dropdownBox tagHeader " + info.type;
         var tagIconTip;
         var tagId = xcHelper.getTableId(node.value.tag);
         var tagName = getOpFromTag(node.value.tag);
@@ -1127,13 +1127,13 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         $operation.attr("class", classes);
-        $operation.data("type", operation);
-        $operation.data("info", info.text);
+        $operation.data("type", info.type);
+        $operation.data("info", info.eval);
         xcTooltip.changeText($operation.find(".actionTypeWrap"),
                              info.tooltip, true);
         xcTooltip.changeText($operation.find(".groupTagIcon"), tagIconTip, true);
-        $operation.find(".dagIcon").html(getIconHtml(info.opType, info));
-        $operation.find(".typeTitle").text(operation);
+        $operation.find(".dagIcon").html(getIconHtml(info));
+        $operation.find(".typeTitle").text(info.text);
         $operation.find(".opInfoText").text(info.opText);
     }
 
@@ -1340,17 +1340,12 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         var opText = info.opText;
-        var operation = info.operation;
         var classes = "";
         var dataAttr = "";
         var groupTagIcon = "";
-
+        var typeTitle = info.text;
         var resultTableName = node.value.name;
-        if (info.type === "sort") {
-            operation = "sort";
-        } else if (info.type === "createTable") {
-            operation = "Create Table";
-        }
+
         if (node.value.display.hasTagGroup) {
             classes += " tagHeader ";
             var tagIconTip;
@@ -1380,12 +1375,12 @@ window.DagDraw = (function($, DagDraw) {
                             '</i>';
         }
 
-        classes += " " + info.opType + " ";
+        classes += " " + info.type + " ";
 
         originHTML += '<div class="actionType dropdownBox ' + classes + '" ' +
                     dataAttr +
-                    'data-type="' + operation + '" ' +
-                    'data-info="' + info.text + '" ' +
+                    'data-type="' + info.type + '" ' +
+                    'data-info="' + info.eval + '" ' +
                     'data-table="' + resultTableName + '"' +
                     'data-id="' + node.value.dagNodeId + '">' +
                         '<div class="actionTypeWrap" ' +
@@ -1393,9 +1388,9 @@ window.DagDraw = (function($, DagDraw) {
                         'data-container="body" data-original-title="' +
                         info.tooltip + '"' +'>' +
                             '<div class="dagIcon">' +
-                                getIconHtml(info.opType, info) +
+                                getIconHtml(info) +
                             '</div>' +
-                            '<span class="typeTitle">' + operation + '</span>' +
+                            '<span class="typeTitle">' + typeTitle + '</span>' +
                             '<span class="opInfoText">' + opText + '</span>' +
                         '</div>' +
                         groupTagIcon +
@@ -1516,8 +1511,9 @@ window.DagDraw = (function($, DagDraw) {
         return html;
     }
 
-    function getIconHtml(operation, info) {
-        var type = info.type;
+    function getIconHtml(info) {
+        var operation = info.taggedType;
+        var type = info.subType;
         var iconClass = "";
         var prefix = "xi-";
         switch (operation) {
@@ -1540,7 +1536,7 @@ window.DagDraw = (function($, DagDraw) {
             case (SQLOps.Aggr):
                 iconClass = "aggregate";
                 break;
-            case ("Create Table"):
+            case ("createTable"):
                 iconClass = "index";
                 break;
             case ("index"):
@@ -1572,15 +1568,6 @@ window.DagDraw = (function($, DagDraw) {
 
         return '<i class="icon ' + prefix + iconClass + '"></i>';
     }
-
-    /*
-    icons we need
-
-    gt, ge, lt, le
-    regex
-    not equal
-    index should be like old icon
-     */
 
     function getFilterIconClass(type) {
         var iconClass = "filter";
@@ -1662,16 +1649,24 @@ window.DagDraw = (function($, DagDraw) {
         var value = node.value.struct;
         var info = {
             type: "unknown",
+            taggedType: "",
+            subType: "",
             text: "",
             opText: "",
-            operation: "",
-            opType: "",
+            eval: "",
             tooltip: "",
             state: DgDagStateTStr[node.value.state]
         };
         var parentNames = node.getSourceNames(true);
         var taggedInfo;
         var isCollapsedTag = false;
+
+        info.type = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
+        info.type = info.type.slice(0, info.type.length - 5);
+        info.text = info.type;
+        info.subType = info.type;
+        info.taggedType = info.type;
+
         if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
             node.value.tags.length === 1) {
             taggedInfo = setTaggedOpInfo(info, value, node, parentNames);
@@ -1681,24 +1676,16 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         if (!taggedInfo) {
-            info.operation = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
-            info.operation = info.operation.slice(0, info.operation.length - 5);
-            info.opType = info.operation;
             switch (key) {
                 case ('aggregateInput'):
                     evalStr = value.eval[0].evalString;
-                    info.type = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
-                    info.text = evalStr;
+                    info.subType = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
+                    info.eval = evalStr;
                     info.tooltip = "Aggregate: " + evalStr;
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('loadInput'):
-                    // info.url = value.url;
-                    // var loadInfo = xcHelper.deepCopy(value);
-                    // info.loadInfo = loadInfo;
-                    // loadInfo.name = loadInfo.dest;
-                    // delete loadInfo.dest;
                     info.url = value.loadArgs.sourceArgs.path;
                     var loadInfo = xcHelper.deepCopy(value);
                     info.loadInfo = loadInfo;
@@ -1735,8 +1722,8 @@ window.DagDraw = (function($, DagDraw) {
 
                     parenIndex = evalStr.indexOf("(");
                     var type = evalStr.substr(0, parenIndex);
-                    info.type = "groupBy" + type;
-                    info.text = evalStr;
+                    info.subType = "groupBy" + type;
+                    info.eval = evalStr;
                     info.tooltip = evalStr + " Grouped by " + groupedOn + sampleStr;
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
@@ -1748,39 +1735,44 @@ window.DagDraw = (function($, DagDraw) {
                     if (!node.parents[0] || node.parents[0].value.api ===
                         XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
-                        info.type = "createTable";
+                        info.subType = "createTable";
+                        info.taggedType = "createTable";
                         info.opText = "";
-                        info.text = "indexed on " + xcHelper.listToEnglish(keyNames);
+                        info.eval = "indexed on " + xcHelper.listToEnglish(keyNames);
+                        info.text = "Create Table";
                     } else if (value.ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
                         value.ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                        info.type = "sort";
-                        info.opType = SQLOps.Sort;
+                        info.taggedType = "sort";
+                        info.subType = SQLOps.Sort;
                         info.order = value.ordering.toLowerCase();
                         var order = "(" + info.order + ") ";
                         info.tooltip = "Sorted " + order + "on " +
                                       xcHelper.listToEnglish(keyNames);
 
-                        info.text = "sorted " + order + "on " +
-                                    xcHelper.listToEnglish(keyNames);
+                        info.text = "Sort";
                         info.opText = keyNames.join(", ");
+                        info.eval = "sorted " + order + "on " +
+                                    xcHelper.listToEnglish(keyNames);
                     } else {
                         var indexFieldStr = "";
                         info.tooltip = "Indexed by " + xcHelper.listToEnglish(keyNames);
-                        info.type = "index";
-                        info.text = "indexed on " + xcHelper.listToEnglish(keyNames);
+                        info.subType = "index";
+                        info.taggedType = "index";
+                        info.text = "Index";
                         info.opText = keyNames.join(", ");
+                        info.eval = "indexed on " + xcHelper.listToEnglish(keyNames);
                     }
                     break;
                 case ('joinInput'):
                     var srcCols = getJoinSrcCols(node, isCollapsedTag);
                     var lSrcCols = srcCols.left;
                     var rSrcCols = srcCols.right;
-                    info.text = value.joinType;
+                    info.eval = value.joinType;
 
-                    var joinType = info.text.slice(0, info.text.indexOf("Join"));
-                    info.type = joinType;
+                    var joinType = info.eval.slice(0, info.eval.indexOf("Join"));
+                    info.subType = joinType;
                     var joinText = "";
                     if (joinType.indexOf("Outer") > -1) {
                         var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
@@ -1820,8 +1812,8 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     evalStr = evalStr.slice(0, -2);
                     fieldNames = fieldNames.slice(0, -2);
-                    info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
-                    info.text = evalStr;
+                    info.subType = "map" + evalStr.slice(0, evalStr.indexOf('('));
+                    info.eval = evalStr;
                     info.tooltip = "Map: " + evalStr + ".<br>" + fieldNames;
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
@@ -1836,11 +1828,9 @@ window.DagDraw = (function($, DagDraw) {
                         info.opText = info.opText.slice(0, 80) + "...";
                     }
                     info.tooltip = "Projected columns: " + info.opText;
-                    info.text = info.tooltip;
-                    info.type = "project";
+                    info.eval = info.tooltip;
                     break;
                 case ('exportInput'):
-                    info.type = "export";
                     // XXX fix url
                     info.url = value.fileName || "";
                     info.opText = "";
@@ -1852,8 +1842,9 @@ window.DagDraw = (function($, DagDraw) {
                     } else {
                         name = key;
                     }
-                    info.type = name;
+                    info.subType = name;
                     info.text = name;
+                    info.eval = name;
                     info.tooltip = name[0].toUpperCase() + name.slice(1);
                     info.opText = "";
                     break;
@@ -1868,7 +1859,7 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         info.tooltip = info.tooltip.replace(/"/g, "&quot;");
-        info.text = info.text.replace(/"/g, "&quot;");
+        info.eval = info.eval.replace(/"/g, "&quot;");
 
         return (info);
     }
@@ -1878,12 +1869,13 @@ window.DagDraw = (function($, DagDraw) {
         var opFound = true;
         var evalStr;
         var ancestors;
-        info.operation = taggedOp;
+        var opType = taggedOp;
 
         switch (taggedOp) {
             case (SQLOps.SplitCol):
                 evalStr = value.eval[0].evalString;
-                info.text = evalStr;
+                info.text = "Split Column";
+                info.eval = evalStr;
                 info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(','));
                 var delimiter = $.trim(evalStr.slice(
@@ -1895,7 +1887,8 @@ window.DagDraw = (function($, DagDraw) {
             case (SQLOps.ChangeType):
                 ancestors = getTaggedAncestors(node);
                 evalStr = value.eval[0].evalString;
-                info.text = evalStr;
+                info.eval = evalStr;
+                info.text = "Change Type";
                 if (value.eval.length > 1) {
                     // multiple casts, show general info
                     info.tooltip = "Changed column type of multiple columns";
@@ -1912,7 +1905,7 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     info.tooltip = "Changed column " + info.opText +
                                     " type to " + castType;
-                    info.type = info.operation + "-" + castType;
+                    info.subType = opType + "-" + castType;
                 }
                 break;
             case (SQLOps.GroupBy):
@@ -1959,20 +1952,19 @@ window.DagDraw = (function($, DagDraw) {
                 if (taggedOp.indexOf(SQLOps.Ext) === 0) {
                     info.tooltip = taggedOp;
                     info.text = taggedOp;
-                    info.opType = SQLOps.Ext;
+                    info.subType = SQLOps.Ext;
+                    taggedOp = SQLOps.Ext;
                 } else {
                     opFound = false;
                 }
                 break;
         }
 
-        if (!info.opType) {
-            info.opType = info.operation;
+        if (!info.subType) {
+            info.subType = opType;
         }
         if (opFound) {
-            if (info.type === "unknown") {
-                info.type = taggedOp;
-            }
+            info.taggedType = taggedOp;
             return info;
         } else {
             return null;
@@ -2053,8 +2045,8 @@ window.DagDraw = (function($, DagDraw) {
         var parenIndex = filterStr.indexOf("(");
         var abbrFilterType = filterStr.slice(0, parenIndex);
 
-        info.type = "filter" + abbrFilterType;
-        info.text = filterStr;
+        info.subType = "filter" + abbrFilterType;
+        info.eval = filterStr;
         filterType = "";
         var filterTypeMap = {
             "gt": "greater than",
