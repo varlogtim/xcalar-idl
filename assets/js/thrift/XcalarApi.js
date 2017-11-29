@@ -687,6 +687,7 @@ xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
     workItem.input.indexInput.prefix = prefix;
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     workItem.input.indexInput.delaySort = false;
+    workItem.input.indexInput.broadcast = false;
     return (workItem);
 };
 

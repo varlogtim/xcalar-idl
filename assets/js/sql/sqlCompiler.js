@@ -520,7 +520,8 @@
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             url: planServer + "/sqlquery/" +
-                 WorkbookManager.getActiveWKBK() + "/true/true",
+                 encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())) +
+                 "/true/true",
             success: function(data) {
                 if (data.status === 200) {
                     try {

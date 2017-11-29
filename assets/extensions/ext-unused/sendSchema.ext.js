@@ -156,7 +156,8 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             type: 'PUT',
             data: JSON.stringify(struct),
             contentType: 'application/json; charset=utf-8',
-            url: planServer + "/schemaupdate/" + WorkbookManager.getActiveWKBK(),
+            url: planServer + "/schemaupdate/" +
+                 encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())),
             success: function(data) {
                 if (data.status === 200) {
                     try {
