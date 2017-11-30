@@ -25,7 +25,7 @@ require("jsdom").env("", function(err, window) {
         next();
     });
 
-    var hostname = "http://bellman.int.xcalar.com:27000";
+    var hostname = "http://dave.int.xcalar.com:27000";
 
     // "/sql/schemaupdate/:sesId"
     app.put("/sql/schemaupdate/:sesId", function(req, res) {

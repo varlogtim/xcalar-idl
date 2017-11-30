@@ -1186,7 +1186,6 @@
             var condTree = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
 
-            var optimization = {};
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all
             // the way and when it's not AND, it must be an EQ (stop traversing
@@ -1202,6 +1201,7 @@
             // Check AND conditions and take note of all the EQ subtrees
             var eqSubtrees = [];
             var andSubtrees = [];
+            var catchAll = false;
             if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
@@ -1209,12 +1209,12 @@
                 "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                 eqSubtrees.push(condTree);
             } else {
-                // Can't do it :(
-                assert(0);
-                return PromiseHelper.resolve("Cannot do it;");
+                // No optimization
+                console.info("catchall join");
+                catchAll = true;
             }
 
-            while (andSubtrees.length > 0) {
+            while (andSubtrees.length > 0 && !catchAll) {
                 var andTree = andSubtrees.shift();
                 assert(andTree.children.length === 2);
                 for (var i = 0; i < andTree.children.length; i++) {
@@ -1226,7 +1226,8 @@
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         // Can't do it :(
-                        optimization.notAndEqTree = true;
+                        catchAll = true;
+                        console.info("catchall join");
                         break;
                     }
                     // TODO: implement optimization for andOrEqJoins
@@ -1236,29 +1237,47 @@
             var leftTableName = node.children[0].newTableName;
             var rightTableName = node.children[1].newTableName;
 
-            if (!optimization.notAndEqTree) {
+            if (!catchAll) {
                 // For andEqTrees
                 var retStruct = __getJoinMapArrays(node, eqSubtrees);
                 if (!retStruct) {
-                    optimization.notOptimizable = true;
-                    joinPromise = __catchAllJoin(node);
+                    catchAll = true;
+                    joinPromise = __catchAllJoin(self, node, condTree,
+                                                 leftTableName,
+                                                 rightTableName);
                 } else {
-                    joinPromise = __handleAndEqJoins(this, retStruct,
+                    joinPromise = __handleAndEqJoins(self, retStruct,
                                                      leftTableName,
                                                      rightTableName,
                                                      node);
                 }
             } else {
-                joinPromise = __catchAllJoin(node);
+                joinPromise = __catchAllJoin(self, node, condTree, leftTableName,
+                                             rightTableName);
             }
             return joinPromise;
         }
     };
     // Helper functions for join
-    function __catchAllJoin(node) {
-        var deferred = jQuery.Deferred();
-        // TODO implement
-        return deferred.promise();
+    function __catchAllJoin(sqlCompiler, node, condTree, leftTableName,
+                            rightTableName) {
+        // var deferred = jQuery.Deferred();
+        var acc = {}; // for ScalarSubquery use case
+        var filterEval = genEvalStringRecur(condTree, acc, undefined);
+        var lTableInfo = {};
+        lTableInfo.tableName = leftTableName;
+        lTableInfo.columns = []; // CrossJoin does not need columns
+        lTableInfo.pulledColumns = [];
+        lTableInfo.rename = []; // XXX FIXME
+
+        var rTableInfo = {};
+        rTableInfo.tableName = rightTableName;
+        rTableInfo.columns = []; // CrossJoin does not need columns
+        rTableInfo.pulledColumns = [];
+        rTableInfo.rename = []; // XXX FIXME
+        return sqlCompiler.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
+                                       rTableInfo, {evalString: filterEval});
+        // return deferred.promise();
     }
 
     function __getJoinMapArrays(node, eqSubtrees) {
