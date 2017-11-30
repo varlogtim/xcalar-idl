@@ -2057,7 +2057,8 @@ window.ColManager = (function($, ColManager) {
                 }
             }
             var oldVal = $td.find(".originalData").text();
-            if (oldVal != null) {
+            if (oldVal != null && !$td.find(".undefined").length &&
+                !$td.find(".null").length) {
                 // not knf
                 var newVal = formatColumnCell(oldVal, format, decimal);
                 $td.children(".displayedData").text(newVal);
