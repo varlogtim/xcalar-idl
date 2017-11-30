@@ -1195,6 +1195,7 @@ SQLTStr = {
     "HideCol": "Hide Column",
     "HideTable": "Hide Table",
     "HideWS": "Hide Worksheet",
+    "MakeTemp": "Send to Temporary List",
     "MarkPrefix": "Mark Prefix",
     "MaximizeCols": "Maximize Columns",
     "MaximizeTable": "Maximize Table",

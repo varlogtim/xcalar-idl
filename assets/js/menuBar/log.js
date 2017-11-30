@@ -1200,6 +1200,7 @@ window.Log = (function($, Log) {
             case (SQLOps.AddNewCol):
             case (SQLOps.PullCol):
             case (SQLOps.PullMultipleCols):
+            case (SQLOps.MakeTemp):
             case (SQLOps.ActiveTables):
             case (SQLOps.RenameCol):
             case (SQLOps.TextAlign):

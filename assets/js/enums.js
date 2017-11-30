@@ -320,6 +320,7 @@ SQLOps = {
     DelWS: "deleteWorksheet",
     HideWS: "hideWorksheet",
     UnHideWS: "unhideWorksheet",
+    MakeTemp: "sendTableToTemporary",
     MoveTableToWS: "moveTableToWorkSheet",
     MoveInactiveTableToWS: "moveInactiveTableToWorksheet",
     RevertTable: "revertTable",

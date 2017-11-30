@@ -299,6 +299,8 @@ window.TblManager = (function($, TblManager) {
     // keepInWS: boolean, if true will not remove table from WSManager
     // noFocusWS: boolean, if true will not focus on tableId's Worksheet
     // force: boolean, if true will change table meta before async returns
+    // removeAfter: boolean, if true will remove table html after freeing result
+    //                      set
     TblManager.sendTableToOrphaned = function(tableId, options) {
         var deferred = jQuery.Deferred();
         options = options || {};
@@ -313,12 +315,46 @@ window.TblManager = (function($, TblManager) {
 
         table.freeResultset()
         .then(function() {
+            if (options.removeAfter) {
+                removeTableDisplay(tableId);
+            }
             if (!options.force) {
                 tableCleanup(tableId, false, options);
             }
             deferred.resolve();
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    TblManager.sendTableToTempList = function(tableId) {
+        var deferred = jQuery.Deferred();
+        var ws = WSManager.getWSFromTable(tableId);
+        var tablePos = WSManager.getTableRelativePosition(tableId);
+
+        var sqlOptions = {
+            "operation": SQLOps.MakeTemp,
+            "worksheetId": ws,
+            "tablePos": tablePos,
+            "tableId": tableId,
+            "tableName": gTables[tableId].getName(),
+            "htmlExclude": ["tableId", "tablePos", "worksheetId"]
+        };
+
+        var options =  {removeAfter: true,
+                        noFocusWS: true};
+        xcHelper.lockTable(tableId);
+
+        TblManager.sendTableToOrphaned(tableId, options)
+        .then(function() {
+            Log.add(SQLTStr.MakeTemp, sqlOptions);
+            deferred.resolve();
+        })
+        .fail(deferred.reject)
+        .always(function() {
+            xcHelper.unlockTable(tableId);
+        });
 
         return deferred.promise();
     };

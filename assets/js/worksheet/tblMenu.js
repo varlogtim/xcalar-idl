@@ -89,6 +89,15 @@ window.TblMenu = (function(TblMenu, $) {
             TblManager.unHideTable(tableId);
         });
 
+        $tableMenu.on('mouseup', '.makeTempTable', function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+
+            var tableId = $tableMenu.data('tableId');
+            TblManager.sendTableToTempList(tableId);
+        });
+
         $tableMenu.on('mouseup', '.deleteTable', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
@@ -1131,6 +1140,7 @@ window.TblMenu = (function(TblMenu, $) {
             j: "jupyterTable",
             m: "hideTable",
             s: "multiCast",
+            t: "makeTempTable",
             u: "unhideTable",
             x: "exitOp"
         };

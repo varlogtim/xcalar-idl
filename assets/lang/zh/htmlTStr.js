@@ -110,6 +110,7 @@ module.exports = {
         "RoundHint": "例: 输入2,保留2位小数位",
         "RoundTitle": "小数位数",
         "SaveImage": "保存图片",
+        "SendToTemp": "Send to temporary list",
         "ShowExportCols": "查看导出的列",
         "ShowSchema": "显示模式",
         "Skew": "查看倾斜细节",

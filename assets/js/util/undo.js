@@ -277,7 +277,6 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
-
     undoFuncs[SQLOps.GroupBy] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(options.newTableName);
@@ -734,6 +733,14 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.MakeTemp] = function(options) {
+        var refreshOptions = {
+            "isUndo": true,
+            "position": options.tablePos
+        };
+        return TblManager.refreshTable([options.tableName], null, [], options.worksheetId, null, refreshOptions);
+    };
+
     undoFuncs[SQLOps.DelWS] = function(options) {
         var delType = options.delType;
         var wsId = options.worksheetId;
@@ -772,8 +779,6 @@ window.Undo = (function($, Undo) {
         }
 
         function makeWorksheetHelper() {
-            // var firstLen = WSManager.getWSList().length;
-
             WSManager.addWS(wsId, wsName, wsIndex);
             var $tabs = $("#worksheetTabs .worksheetTab");
             var $tab = $tabs.eq(wsIndex);
@@ -815,14 +820,6 @@ window.Undo = (function($, Undo) {
         TblManager.updateHeaderAndListInfo(tableId);
         TblFunc.moveFirstColumn();
     }
-
-    // function focusOnActiveWS(options) {
-    //     var wsId = WSManager.getWSFromTable(options.tableId);
-    //     var activeWS = WSManager.getActiveWS();
-    //     if (activeWS !== wsId) {
-    //         WSManager.focusOnWorksheet(wsId);
-    //     }
-    // }
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {

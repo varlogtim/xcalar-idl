@@ -251,6 +251,7 @@ module.exports = {
         "RoundHint": "e.g. an input of 2 would change 1.2345 to 1.23",
         "RoundTitle": "Num decimals to keep",
         "SaveImage": "Save image",
+        "SendToTemp": "Send to temporary list",
         "ShowExportCols": "View exported columns",
         "ShowSchema": "Show schema",
         "Skew": "View skew details",
