@@ -33,6 +33,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "gtJoin": "select * from customer4, nation4 where c_nationkey > n_nationkey",
         // Doesn't work yet
         "gtJoinWithSubQuery": "select * from nation4, customer4 where c_nationkey - (select avg(c_nationkey) from customer4) > n_nationkey - (select avg(n_nationkey) from nation4)",
+        "gbWithMapStr": "select avg(l_tax), l_tax/2 from lineitem3 group by l_tax/2",
+        "joinWithCollision": "select * from region r1, region r2 where r1.r_regionkey = r2.r_regionkey",
     };
 
     SqlTestSuite.runSqlTests = function() {

@@ -188,7 +188,9 @@
                     this.newTableName = evalStr.substring(tablePrefix.length);
                     break;
                 } else {
-                    this.allCols.push(evalStr);
+                    var col = {colName: evalStr,
+                               colId: rdds[i][0].exprId.id};
+                    this.allCols.push(col);
                 }
             }
         }
@@ -568,19 +570,11 @@
     function pushUpCols(node) {
         // Push cols names to its direct parent
         if (node.parent) {
-            if (node.parent.allCols) {
-                // Only happens when parent is Join
-                for (var i = 0; i < node.allCols.length; i++) {
-                    // There should be no duplicates
-                    assert(node.parent.allCols.indexOf(node.allCols[i]) === -1);
-                    node.parent.allCols.push(node.allCols[i]);
-                }
-
-            } else {
-                // Must create a shallow copy of the array.
+            if (!node.parent.allCols) {
+                // Must create a deep copy of the array.
                 // Otherwise we are just assigning the pointer. So when the
                 // parent changes, the children change as well.
-                node.parent.allCols = node.allCols.slice(0);
+                node.parent.allCols = jQuery.extend(true, [], node.allCols);
             }
             // Push tempCols as well
             if (node.parent.tempCols) {
@@ -713,6 +707,8 @@
                     // If the logicalRDD is root, we should add an extra Project
                     var newNode = ProjectNode(tree.value.output.slice(0, -1));
                     newNode.children = [tree];
+                    tree.parent = newNode;
+                    pushUpCols(tree);
                     tree = newNode;
                 }
                 var promiseArray = traverseAndPushDown(self, tree);
@@ -759,10 +755,33 @@
             var evalStrArray = [];
             var aggEvalStrArray = [];
 
+            var options = {};
+            if (node.children[0].renamedCols) {
+                options.renamedColIds = getRenamedCols(node.children[0])
+                                        .renamedColIds;
+            }
             genMapArray(node.value.projectList, columns, evalStrArray,
-                        aggEvalStrArray);
+                        aggEvalStrArray, options);
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0);
+
+            // Change node.allCols
+            var allCols = node.allCols;
+            node.allCols = [];
+            for (var i = 0; i < columns.length; i++) {
+                for (var j = 0; j < allCols.length; j++) {
+                    if (columns[i] === allCols[j].rename ||
+                        (columns[i] === allCols[j].colName &&
+                         !allCols[j].rename)) {
+                        node.allCols.push(allCols[j]);
+                        if (columns[i] === allCols[j].rename) {
+                            node.renamedCols = true;
+                        }
+                        break;
+                    }
+                }
+            }
+
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {
                     return o.evalStr;
@@ -770,12 +789,6 @@
                 var newColNames = evalStrArray.map(function(o) {
                     return o.newColName;
                 });
-                if (!node.additionalRDDs) {
-                    node.additionalRDDs = [];
-                }
-                for (var i = 0; i < newColNames.length; i++) {
-                    node.additionalRDDs.push(newColNames[i]);
-                }
                 var newTableName = xcHelper.getTableName(tableName) +
                                    Authentication.getHashId();
                 var cli;
@@ -794,8 +807,6 @@
                 self.sqlObj.project(columns, tableName)
                 .then(deferred.resolve);
             }
-            // In Project we just keep what is left
-            node.allCols = columns;
             return deferred.promise();
         },
 
@@ -872,10 +883,17 @@
 
             var aggEvalStrArray = [];
             var subqueryArray = [];
+            var options = {};
+            if (node.children[0].renamedCols) {
+                options.renamedColIds = getRenamedCols(node.children[0])
+                                        .renamedColIds;
+                node.renamedCols = true;
+            }
+            options.xcAggregate = true;
             var filterString = genEvalStringRecur(treeNode,
                                             {aggEvalStrArray: aggEvalStrArray,
                                              subqueryArray: subqueryArray},
-                                            {xcAggregate: true});
+                                             options);
 
             var cliStatements = "";
 
@@ -903,7 +921,7 @@
         _pushDownSort: function(node) {
             var self = this;
             assert(node.children.length === 1);
-            function genSortStruct(orderArray) {
+            function genSortStruct(orderArray, options) {
                 var sortColsAndOrder = [];
                 for (var i = 0; i < orderArray.length; i++) {
                     var order = orderArray[i][0].direction.object;
@@ -923,6 +941,11 @@
                     var colName = orderArray[i][1].name
                                                   .replace(/[\(|\)|\.]/g, "_")
                                                   .toUpperCase();
+                    var id = orderArray[i][1].exprId.id;
+                    if (options && options.renamedColIds &&
+                        options.renamedColIds.indexOf(id) !== -1) {
+                        colName += "_E" + id;
+                    }
 
                     var type = orderArray[i][1].dataType;
                     switch (type) {
@@ -951,7 +974,12 @@
                 }
                 return sortColsAndOrder;
             }
-            var sortColsAndOrder = genSortStruct(node.value.order);
+            var options = {};
+            if (node.children[0].renamedCols) {
+                options.renamedColIds = getRenamedCols(node.children[0])
+                                        .renamedColIds;
+            }
+            var sortColsAndOrder = genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.sort(sortColsAndOrder, tableName);
@@ -970,7 +998,12 @@
             var tableName = node.children[0].newTableName;
             var treeNode = SQLCompiler.genExpressionTree(undefined,
                            node.value.aggregateExpressions[0].slice(1));
-            var evalStr = genEvalStringRecur(treeNode);
+            var options = {};
+            if (node.children[0].renamedCols) {
+                options.renamedColIds = getRenamedCols(node.children[0])
+                                        .renamedColIds;
+            }
+            var evalStr = genEvalStringRecur(treeNode, undefined, options);
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
                                                     node.subqVarName);
@@ -987,26 +1020,37 @@
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
+            var options = {};
+            if (node.children[0].renamedCols) {
+                options.renamedColIds = getRenamedCols(node.children[0])
+                                        .renamedColIds;
+            }
+
             // Resolve group on clause
             var gbCols = [];
             var gbEvalStrArray = [];
             var gbAggEvalStrArray = [];
-            genMapArray(node.value.groupingExpressions, gbCols, gbEvalStrArray,
-                        gbAggEvalStrArray);
-
-            assert(gbEvalStrArray.length === 0); // XXX TODO
-            assert(gbAggEvalStrArray.length === 0); // XXX TODO
+            if (node.value.groupingExpressions.length > 0) {
+                for (var i = 0; i < node.value.groupingExpressions.length; i++) {
+                    // subquery is not allowed in GROUP BY
+                    assert(node.value.groupingExpressions[i][0].class !==
+                    "org.apache.spark.sql.catalyst.expressions.ScalarSubquery");
+                }
+                options.groupby = true;
+                genMapArray(node.value.groupingExpressions, gbCols, gbEvalStrArray,
+                            gbAggEvalStrArray, options);
+                assert(gbAggEvalStrArray.length === 0);
+                // aggregate functions are not allowed in GROUP BY
+            }
 
             // Resolve each group's map clause
             var columns = [];
             var evalStrArray = [];
             var aggEvalStrArray = [];
+            options.operator = true;
+            options.groupby = false;
             genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
-                        aggEvalStrArray, {operator: true});
-
-            if (!node.additionalRDDs) {
-                node.additionalRDDs = [];
-            }
+                        aggEvalStrArray, options);
 
             // Here are the steps on how we compile groupbys
             // 1. For all in evalStrArray, split into gArray and fArray based
@@ -1038,12 +1082,36 @@
                 } else {
                     fArray.push(evalStrArray[i]);
                 }
-                node.additionalRDDs.push(evalStrArray[i].newColName);
             }
 
             // Step 2
             var firstMapArray = [];
             var firstMapColNames = [];
+
+            // Push the group by eval string into firstMapArray
+            for (var i = 0; i < gbEvalStrArray.length; i++) {
+                var inAgg = false;
+                // Check if the gbExpression is also in aggExpression
+                for (var j = 0; j < fArray.length; j++) {
+                    var origGbColName = gbEvalStrArray[i].newColName;
+                    // This is importatnt as there will be an alias in aggExp
+                    // but no agg in gbExp. So we need to compare the evalStr
+                    if (gbEvalStrArray[i].evalStr === fArray[j].evalStr) {
+                        var newGbColName = fArray[j].newColName;
+                        firstMapColNames.push(newGbColName);
+                        gbCols[gbCols.indexOf(origGbColName)] = newGbColName;
+                        inAgg = true;
+                        // Mark fArray[i] as "used in group by"
+                        fArray[j].groupby = true;
+                        break;
+                    }
+                }
+                if (!inAgg) {
+                    firstMapColNames.push(gbEvalStrArray[i].newColName);
+                }
+                firstMapArray.push(gbEvalStrArray[i].evalStr);
+            }
+
             for (var i = 0; i < gArray.length; i++) {
                 gArray[i].aggColName = gArray[i].evalStr;
                 delete gArray[i].evalStr;
@@ -1058,6 +1126,7 @@
             }
 
             // Step 3
+            var gbColNames = [];
             for (var i = 0; i < aggEvalStrArray.length; i++) {
                 var gbMapCol = {};
                 var rs = extractAndReplace(aggEvalStrArray[i]);
@@ -1074,6 +1143,7 @@
                 }
                 gbMapCol.newColName = aggEvalStrArray[i].aggVarName;
                 gArray.push(gbMapCol);
+                gbColNames.push(gbMapCol.newColName);
             }
 
             // Step 4
@@ -1109,7 +1179,7 @@
             var secondMapArray = [];
             var secondMapColNames = [];
             for (var i = 0; i < fArray.length; i++) {
-                if (fArray[i].numOps > 0) {
+                if (fArray[i].numOps > 0 && !fArray[i].groupby) {
                     secondMapArray.push(fArray[i].evalStr);
                     secondMapColNames.push(fArray[i].newColName);
                 }
@@ -1171,17 +1241,44 @@
             // End of Step 6
 
             // In Aggregate we record allCols as well as temp cols
-            // XXX FIXME there are some bugs here.
             if (node.tempCols) {
-                node.tempCols = node.tempCols.concat(firstMapColNames);
-                node.tempCols = node.tempCols.concat(secondMapColNames);
+                node.tempCols = node.tempCols.concat(firstMapColNames)
+                                             .concat(secondMapColNames);
             } else {
                 node.tempCols = firstMapColNames.concat(secondMapColNames);
+            }
+            for (var i = 0; i < gbCols.length; i++) {
+                // If gbCol is a map str, it will exist in firstMapColNames
+                // We should avoid adding it twice.
+                if (firstMapColNames.indexOf(gbCols[i]) === -1) {
+                    node.tempCols.push(gbCols[i]);
+                }
             }
             if (tempCol) {
                 node.tempCols.push(tempCol);
             }
-            node.allCols = columns;
+            assertCheckTempColCollision(node.tempCols);
+
+            var allCols = node.allCols;
+            node.allCols = [];
+            for (var i = 0; i < columns.length; i++) {
+                var newCol = true;
+                for (var j = 0; j < allCols.length; j++) {
+                    if (columns[i] === allCols[j].rename ||
+                        (columns[i] === allCols[j].colName &&
+                         !allCols[j].rename)) {
+                        node.allCols.push(allCols[j]);
+                        newCol = false;
+                        if (columns[i] === allCols[j].rename) {
+                            node.renamedCols = true;
+                        }
+                        break;
+                    }
+                }
+                if (newCol) {
+                    node.allCols.push({colName: columns[i]});
+                }
+            }
             return deferred.promise();
         },
 
@@ -1274,13 +1371,24 @@
         lTableInfo.tableName = leftTableName;
         lTableInfo.columns = []; // CrossJoin does not need columns
         lTableInfo.pulledColumns = [];
-        lTableInfo.rename = []; // XXX FIXME
+        lTableInfo.rename = [];
 
         var rTableInfo = {};
         rTableInfo.tableName = rightTableName;
         rTableInfo.columns = []; // CrossJoin does not need columns
         rTableInfo.pulledColumns = [];
-        rTableInfo.rename = []; // XXX FIXME
+        rTableInfo.rename = [];
+        __resolveCollision(node.children[0].allCols,
+                         node.children[1].allCols,
+                         lTableInfo.rename, rTableInfo.rename);
+        if (lTableInfo.rename.length > 0) {
+            node.renamedCols = true;
+        }
+        assertCheckCollision(node.children[0].allCols,
+                              node.children[1].allCols);
+        node.allCols = jQuery.extend(true, [], node.children[0].allCols
+                                             .concat(node.children[1].allCols));
+
         return sqlCompiler.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
                                        rTableInfo, {evalString: filterEval});
         // return deferred.promise();
@@ -1292,10 +1400,17 @@
         // Get all columns in leftTable and rightTable because in the eval
         // string, it can be in either order. For example:
         // WHERE t1.col1 = t2.col2 and t2.col3 = t1.col4
-        var leftRDDCols = [];
-        var rightRDDCols = [];
-        getAllCols(node.children[0], leftRDDCols);
-        getAllCols(node.children[1], rightRDDCols);
+
+        // Here the getRenamedCols modifies left/rightRDDCols
+        var leftRetStruct = getRenamedCols(node.children[0],
+                                           {returnColArray: true});
+        var leftOptions = {renamedColIds: leftRetStruct.renamedColIds};
+        var leftRDDCols = leftRetStruct.rddCols;
+
+        var rightRetStruct = getRenamedCols(node.children[1],
+                                           {returnColArray: true});
+        var rightOptions = {renamedColIds: rightRetStruct.renamedColIds};
+        var rightRDDCols = rightRetStruct.rddCols;
 
         // Check all EQ subtrees and resolve the maps
 
@@ -1311,25 +1426,30 @@
 
             var attributeReferencesOne = [];
             var attributeReferencesTwo = [];
+            var options = {};
+            options.renamedColIds = leftOptions.renamedColIds
+                                    .concat(rightOptions.renamedColIds);
             getAttributeReferences(eqTree.children[0],
-                                   attributeReferencesOne);
+                                   attributeReferencesOne, options);
             getAttributeReferences(eqTree.children[1],
-                                   attributeReferencesTwo);
+                                   attributeReferencesTwo, options);
             var leftAcc = {numOps: 0};
             var rightAcc = {numOps: 0};
             if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
                 xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
             {
-                leftEvalStr = genEvalStringRecur(eqTree.children[0], leftAcc);
-                rightEvalStr = genEvalStringRecur(eqTree.children[1], rightAcc);
+                leftEvalStr = genEvalStringRecur(eqTree.children[0],
+                                                 leftAcc, leftOptions);
+                rightEvalStr = genEvalStringRecur(eqTree.children[1],
+                                                  rightAcc, rightOptions);
             } else if (xcHelper.arraySubset(attributeReferencesOne,
                                             rightRDDCols) &&
                        xcHelper.arraySubset(attributeReferencesTwo,
                                             leftRDDCols)) {
                 leftEvalStr = genEvalStringRecur(eqTree.children[1],
-                                                 leftAcc);
+                                                 rightAcc, rightOptions);
                 rightEvalStr = genEvalStringRecur(eqTree.children[0],
-                                                  rightAcc);
+                                                  leftAcc, leftOptions);
             } else {
                 // E.g. table1.col1.substring(2) + table2.col2.substring(2)
                 // == table1.col3.substring(2) + table2.col4.substring(2)
@@ -1355,7 +1475,8 @@
     }
 
     function __handleAndEqJoins(sqlCompiler, mapArrayStruct, newLeftTableName,
-                                newRightTableName, node) {
+                                newRightTableName, node,
+                                leftRDDCols, rightRDDCols) {
         function handleMaps(mapStrArray, origTableName) {
             var deferred = jQuery.Deferred();
             if (mapStrArray.length === 0) {
@@ -1373,6 +1494,7 @@
             } else {
                 node.tempCols = newColNames;
             }
+            assertCheckTempColCollision(node.tempCols);
             var newTableName = xcHelper.getTableName(origTableName) +
                                Authentication.getHashId();
             self.sqlObj.map(mapStrArray, origTableName, newColNames,
@@ -1406,6 +1528,13 @@
                                                      rightCols);
             rTableInfo.pulledColumns = [];
             rTableInfo.rename = [];
+
+            __resolveCollision(node.children[0].allCols,
+                             node.children[1].allCols,
+                             lTableInfo.rename, rTableInfo.rename);
+            if (lTableInfo.rename.length > 0) {
+                node.renamedCols = true;
+            }
 
             if (retLeft.cli) {
                 cliArray.push(retLeft.cli);
@@ -1453,13 +1582,104 @@
             overallRetStruct.newTableName = retJoin.newTableName;
             cliArray.push(retJoin.cli);
             overallRetStruct.cli = cliArray.join("");
+
+            assertCheckCollision(node.children[0].allCols,
+                                 node.children[1].allCols);
+            node.allCols = jQuery.extend(true, [], node.children[0].allCols
+                                             .concat(node.children[1].allCols));
             deferred.resolve(overallRetStruct);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
+    function __resolveCollision(leftCols, rightCols, leftRename, rightRename) {
+        // There could be three colliding cases:
+
+        // 1. their xx their => keep the left and rename the right using the
+        // exprId. according to spark's documentation, it's guaranteed to be
+        // globally unique. Also, I confirmed that in the corner case
+        // (subquery+join) we made, it is referring to the correct id. How it
+        //  works is like: the exprId is firstly generated in the subquery and
+        //  then referred by the outside query.
+
+        // 2. our xx our => just append a random ID. In the query, there will
+        // be no reference to columns generated by us. Therefore all we need to
+        // do is to resolve the collision. No need to worry about other
+        // references in genXXX() functions.
+
+        // 3. our xx their => rename their column using exprId because of
+        // reasons listed in case 1 & 2.
+        for (var i = 0; i < leftCols.length; i++) {
+            for (var j = 0; j < rightCols.length; j++) {
+                if (leftCols[i].colName === rightCols[j].colName) {
+                    var oldName = rightCols[j].colName;
+                    if (rightCols[j].colId) {
+                        // Right has ID, rename right
+                        var newName = oldName + "_" + rightCols[j].colId;
+                        rightRename.push(xcHelper.getJoinRenameMap(oldName,
+                                         newName));
+                        rightCols[j].rename = newName;
+                    } else if (leftCols[i].colId) {
+                        // Right has no ID and left has ID, rename left
+                        var newName = oldName + "_" + leftCols[i].colId;
+                        leftRename.push(xcHelper.getJoinRenameMap(oldName,
+                                         newName));
+                        leftCols[i].rename = newName;
+                    } else {
+                        // Neither has ID, append a random hash value
+                        var newName = oldName + "_" +
+                                      Authentication.getHashId().substring(3);
+                        rightRename.push(xcHelper.getJoinRenameMap(oldName,
+                                         newName));
+                        rightCols[j].rename = newName;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    function assertCheckCollision(leftCols, rightCols) {
+        for (var i = 0; i < leftCols.length; i++) {
+            for (var j = 0; j < rightCols.length; j++) {
+                if (leftCols[i].colName === rightCols[j].colName &&
+                    leftCols[i].rename === rightCols[j].rename) {
+                    assert(0);
+                    // We've already resolved collision.
+                    // So this should never get hit.
+                }
+            }
+        }
+    }
+    function assertCheckTempColCollision(tempCols) {
+        var set = new Set();
+        for (var i = 0; i < tempCols.length; i++) {
+            if (set.has(tempCols[i])) {
+                assert(0);
+                // We should never hit this
+            }
+            set.add(tempCols[i]);
+        }
+    }
     // End of helper functions for join
+    function getRenamedCols(node, options) {
+        // Second argument is used by Join to push colName/rename into rddCols
+        var retStruct = {renamedColIds: []};
+        if (options && options.returnColArray) {
+            retStruct.rddCols = [];
+        }
+        for (var i = 0; i < node.allCols.length; i++) {
+            if (node.allCols[i].rename) {
+                retStruct.renamedColIds.push(node.allCols[i].colId);
+                if (options.returnColArray) {
+                    retStruct.rddCols.push(node.allCols[i].rename);
+                }
+            } else if (options.returnColArray) {
+                retStruct.rddCols.push(node.allCols[i].colName);
+            }
+        }
+        return retStruct;
+    }
 
     function genEvalStringRecur(condTree, acc, options) {
         // Traverse and construct tree
@@ -1499,7 +1719,7 @@
                     }
                 } else {
                     if (acc) {
-                        if(acc.noAssignOp) {
+                        if (acc.noAssignOp) {
                             acc.numOps += 1;
                             outStr += opLookup[opName] + "(";
                         } else {
@@ -1549,6 +1769,11 @@
                 } else {
                     outStr += condTree.value.name;
                 }
+                var id = condTree.value.exprId.id;
+                if (options && options.renamedColIds &&
+                    options.renamedColIds.indexOf(id) !== -1) {
+                    outStr += "_E" + id;
+                }
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string") {
@@ -1573,15 +1798,27 @@
             var colNameStruct;
             var colName;
             if (evalList[i].length > 1) {
-                assert(evalList[i][0].class ===
-                "org.apache.spark.sql.catalyst.expressions.Alias");
-                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0};
                 var genTreeOpts = {extractAggregates: true};
-                var treeNode = SQLCompiler.genExpressionTree(undefined,
-                    evalList[i].slice(1), genTreeOpts);
+                if (options && options.groupby) {
+                    var treeNode = SQLCompiler.genExpressionTree(undefined,
+                        evalList[i].slice(0), genTreeOpts);
+                } else {
+                    assert(evalList[i][0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Alias");
+                    var treeNode = SQLCompiler.genExpressionTree(undefined,
+                        evalList[i].slice(1), genTreeOpts);
+                }
+                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0};
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
-                var newColName = evalList[i][0].name.replace(/[\(|\)|\.]/g, "_")
-                                               .toUpperCase();
+
+                if (options && options.groupby) {
+                    var newColName = evalStr.replace(/[\(|\)|\.]/g, "_")
+                                                   .toUpperCase();
+                } else {
+                    var newColName = evalList[i][0].name
+                                                   .replace(/[\(|\)|\.]/g, "_")
+                                                   .toUpperCase();
+                }
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
                                  numOps: acc.numOps};
@@ -1589,7 +1826,7 @@
                 if (options && options.operator) {
                     retStruct.operator = acc.operator;
                 }
-                if (evalList[i].length === 2) {
+                if (evalList[i].length === 2 && (!options || !options.groupby)) {
                     // This is a special alias case
                     assert(evalList[i][1].dataType);
                     var dataType = convertSparkTypeToXcalarType(
@@ -1604,8 +1841,12 @@
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
                 colName = colNameStruct.name.replace(/[\(|\)|\.]/g, "_")
                                             .toUpperCase();
+                var id = colNameStruct.exprId.id;
+                if (options && options.renamedColIds &&
+                    options.renamedColIds.indexOf(id) !== -1) {
+                    colName += "_E" + id;
+                }
             }
-
             columns.push(colName);
         }
     }
@@ -1730,37 +1971,23 @@
         return tablesSeen;
     }
 
-    function getAllCols(treeNode, arr) {
-        if (treeNode.value.class ===
-            "org.apache.spark.sql.execution.LogicalRDD") {
-            for (var i = 0; i < treeNode.value.output.length; i++) {
-                arr.push(treeNode.value.output[i][0].name
-                                 .replace(/[\(|\)|\.]/g, "_").toUpperCase());
-            }
-        }
-        if (treeNode.additionalRDDs) {
-            for (var i = 0; i < treeNode.additionalRDDs.length; i++) {
-                if (arr.indexOf(treeNode.additionalRDDs[i]) === -1) {
-                    arr.push(treeNode.additionalRDDs[i]);
-                }
-            }
-        }
-        for (var i = 0; i < treeNode.children.length; i++) {
-            getAllCols(treeNode.children[i], arr);
-        }
-    }
-
-    function getAttributeReferences(treeNode, arr) {
+    function getAttributeReferences(treeNode, arr, options) {
         if (treeNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
-            if (arr.indexOf(treeNode.value.name) === -1) {
-                arr.push(treeNode.value.name.replace(/[\(|\)|\.]/g, "_")
+            var attrName = treeNode.value.name;
+            var id = treeNode.value.exprId.id;
+            if (options && options.renamedColIds &&
+                options.renamedColIds.indexOf(id) !== -1) {
+                attrName += "_E" + id;
+            }
+            if (arr.indexOf(attrName) === -1) {
+                arr.push(attrName.replace(/[\(|\)|\.]/g, "_")
                                             .toUpperCase());
             }
         }
 
         for (var i = 0; i < treeNode.children.length; i++) {
-            getAttributeReferences(treeNode.children[i], arr);
+            getAttributeReferences(treeNode.children[i], arr, options);
         }
     }
 
