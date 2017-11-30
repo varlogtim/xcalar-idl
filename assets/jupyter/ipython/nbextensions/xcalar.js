@@ -160,7 +160,7 @@ define(function() {
                                 '    pass\n';
                         texts.push(text);
 
-                        text =  '#The following function is a sample of how a streaming UDF should be written\n' +
+                        text =  '#The following function is a sample of how an import UDF should be written\n' +
                                 'def __sampleCsvReader(inp, ins):\n' +
                                 '    hasHeader = False\n' +
                                 '    fieldDelim = ","\n' +
