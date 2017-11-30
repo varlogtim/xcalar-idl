@@ -4620,21 +4620,34 @@ html.microsoft {
     }
 
     .modalTopMain {
-        padding: 10px 15px;
-        .size(@height: 45px);
+        padding: 7px 20px;
+        .size(@height: 39px);
 
         .row {
             .size(@height: 25px);
-            .flex-display;
+            line-height: 25px;
 
             > div {
-                .flex(1 1 auto);
+                float: left;
+            }
+
+            .name {
+                .size(@max-width: 80%);
+                padding-right: 22px;
+
+                .text {
+                    color: @color-bg-select-blue;
+                }
+            }
+
+            .size {
+                .size(@min-width: 20%);
             }
         }
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 137px)");
+        .size(@height: ~"calc(100% - 161px)");
         overflow-y: auto;
 
         .loadingSection {
@@ -4677,6 +4690,12 @@ html.microsoft {
 
             .grid-unit {
                 box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+                opacity: @opacity-unhover;
+                .text-selection;
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
             }
         }
 
@@ -4688,34 +4707,43 @@ html.microsoft {
                 .position(relative);
                 .size(@width: 20%, @height: 30px);
                 float: left;
-                cursor: default;
                 padding-left: 10px;
                 .font(@size: 12px, @line-height: 30px);
                 .textOverflowOneLine;
 
                 &:first-child {
-                    margin-left: 15px;
-                }
-
-                &.view {
-                    .size(@width: 20px);
-                    padding-left: 0;
+                    margin-left: 20px;
                 }
 
                 &.name {
                     cursor: pointer;
+                    padding-left: 0;
+                    .flex(1 1 auto);
+
+                    .view {
+                        .size(@width: 15px);
+                        .position(relative, @left: -5px);
+                        display: inline-block;
+                        float: left;
+                    }
 
                     .icon {
                         margin-left: 5px;
+                    }
+
+                    .text {
+                        margin-left: 7px;
                     }
                 }
 
                 &.size {
                     .size(@width: 150px);
+                    .flex(0 0 150px);
                 }
 
                 &.status {
                     .size(@width: 150px);
+                    .flex(0 0 150px);
                     text-transform: capitalize;
                 }
 
@@ -4753,6 +4781,11 @@ html.microsoft {
                 }
             }
         }
+    }
+
+    .modalBottom {
+        .size(@height: 86px);
+        padding-right: 20px;
     }
 
     .dagSection {

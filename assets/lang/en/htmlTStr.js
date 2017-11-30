@@ -978,7 +978,8 @@ module.exports = {
         "Wkbkname": "Workbook Name",
         "Edit": "Edit Workbook",
         "Description": "Workbook Description",
-        "Preview": "Workbook Preview"
+        "Preview": "Workbook Preview",
+        "TotalUsage": "Total Size"
     },
 
     "deleteTable": {

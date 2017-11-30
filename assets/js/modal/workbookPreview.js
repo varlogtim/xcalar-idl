@@ -63,12 +63,13 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function getTableNameFromEle(ele) {
-        return $(ele).closest(".grid-unit").find(".name").text();
+        return $(ele).closest(".grid-unit").find(".name").data("title");
     }
 
     function reset() {
         curTableList = [];
         $workbookPreview.find(".title.active").removeClass("active");
+        updateTotalSize("--");
     }
 
     function closeModal() {
@@ -78,6 +79,10 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         $workbookPreview.find(".listSection").empty();
         closeDag();
         curWorkbookId = null;
+    }
+
+    function updateTotalSize(size) {
+        $workbookPreview.find(".infoSection .size .text").text(size);
     }
 
     function showWorkbookInfo(workbookId) {
@@ -237,21 +242,17 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function updateTableList(tableList) {
+        var totalSize = 0;
         var html = tableList.map(function(tableInfo) {
+            totalSize += tableInfo.sizeInNum;
             return '<div class="grid-unit">' +
-                        '<div class="view">' +
-                            '<i class="view icon xc-action xi-dfg2 fa-15"' +
-                            ' data-toggle="tooltip" data-container="body"' +
-                            ' data-placement="top"' +
-                            ' data-title="' + TooltipTStr.OpenQG + '"' +
-                            '></i>' +
-                        '</div>' +
-                        '<div class="name xc-action tooltipOverflow"' +
+                        '<div class="name tooltipOverflow"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
                         ' data-title="' + tableInfo.name + '"' +
                         '>' +
-                            tableInfo.name +
+                            '<i class="view icon xi-dfg2 fa-15"></i>' +
+                            '<span class="text">' + tableInfo.name + '</span>' +
                         '</div>' +
                         '<div class="size">' +
                             tableInfo.size +
@@ -278,6 +279,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                     '</div>';
         }).join("");
         $workbookPreview.find(".listSection").html(html);
+        updateTotalSize(xcHelper.sizeTranslator(totalSize));
     }
 
     function deleteTable(tableName) {
