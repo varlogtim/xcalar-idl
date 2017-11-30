@@ -1059,6 +1059,7 @@ module.exports = {
         "CreateImportUDF": "创建导入用UDF",
         "TestImportUDF": "测试导入用UDF",
         "UDFTemplate": "UDF模板",
+        "TestUDF": "导入UDF测试信息",
         "JupyterNotebook": "Jupyter Notebook",
         "CodeSnippets": "代码段",
         "SelectSampleRows": "请从表中选择要作为样本的行数",

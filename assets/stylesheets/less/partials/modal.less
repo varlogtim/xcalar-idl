@@ -1834,6 +1834,9 @@ html.microsoft {
         .close {
             top: 5px;
         }
+        .altText2 {
+            display: none;
+        }
     }
     .modalInstruction {
         height: 50px;
@@ -1876,6 +1879,7 @@ html.microsoft {
         .newImportForm {
             display: block;
         }
+
         .modalInstruction .text {
             display: none;
             &.altText2 {
@@ -1891,6 +1895,12 @@ html.microsoft {
     &.type-testImport {
         .testImportForm {
             display: block;
+        }
+        .modalHeader .text {
+            display: none;
+            &.altText2 {
+                display: inline;
+            }
         }
     }
     .row {

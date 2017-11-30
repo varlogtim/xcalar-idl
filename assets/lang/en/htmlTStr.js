@@ -1136,6 +1136,7 @@ module.exports = {
         "CreateImportUDF": "Create Import UDF",
         "TestImportUDF": "Test Existing Import UDF",
         "UDFTemplate": "UDF Template",
+        "TestUDF": "Info For Import UDF Test",
         "JupyterNotebook": "Jupyter Notebook",
         "CodeSnippets": "Code Snippets",
         "SelectSampleRows": "Select the number of rows to sample from this table",
