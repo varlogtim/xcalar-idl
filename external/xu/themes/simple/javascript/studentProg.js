@@ -1,12 +1,17 @@
-var stage;
-var errorAttempt;
-var special;
-
-var special;
+var eventCode;
 var questions;
 var oldData = "";
 
+var trainingType;
+var trainingID;
+var questionNum;
+
+var userInRow = false;
+
 var lastPullReturned = true;
+var isFirstTime = true;
+var gridWidth = 200;
+var gridHeight = 150;
 
 function pullData() {
     if (lastPullReturned) {
@@ -15,9 +20,9 @@ function pullData() {
             url: "api/pullStage",
             type: "POST",
             data: {
-                "stage" : stage,
-                "errorAttempt": errorAttempt,
-                "EventCode" : special
+                "trainingType": trainingType,
+                "trainingID": trainingID,
+                "EventCode" : eventCode
             },
             success: function(data) {
                 displayStudentProgress(data);
@@ -30,7 +35,6 @@ function pullData() {
     }
 }
 
-
 $(document).ready(function() {
     $(".main").hide();
     $('.ProgressPage').append('<div class="inputBoxes">'+
@@ -38,22 +42,17 @@ $(document).ready(function() {
         '<select id="trainingType"><option value="adventure">adventure</option><option value="exercise">exercise</option></select><br>'+
         '<label>Training ID:</label>' +
         '<input id="trainingID"/><br>' +
-        '<label>Number of Questions</label>' +
-        '<input id="questionsInput"/><br>' +
         '<label>Event Code</label>' +
-        '<input id="special"/><br>' +
+        '<input id="eventCode"/><br>' +
         '<button class="button">Submit</button>' +
         '</div>');
     $(".button").on('click', function() {
-        var trainingID = $("#trainingID").val();
-        var questionsNum = $("#questionsInput").val();
-        special = $("#special").val();
-        if (trainingID != "" && questionsNum != "" && special != "") {
+        trainingID = $("#trainingID").val();
+        trainingType = $("#trainingType").val();
+        eventCode = $("#eventCode").val();
+        if (trainingID != "" && eventCode != "") {
             $(".inputBoxes").hide();
             $(".main").show();
-            stage = 'Stage_for_' + $("#trainingType").val() + "_" + trainingID;
-            errorAttempt = 'ErrorAttempt_for_' + $("#trainingType").val() + "_" + trainingID;
-            questions = parseInt(questionsNum);
             setInterval(function() {
                 pullData();
             }, 2000);
@@ -63,231 +62,141 @@ $(document).ready(function() {
 
 function displayStudentProgress(data) {
     if (oldData != data) {
-        var images = d3.selectAll("image");
-        console.log(data)
         var echoedData = JSON.parse(data);
         var numQuestions = questions;
         var users = echoedData[0];
         var emails = echoedData[1];
-        var questionProgress = echoedData[2];
-        var wrongAnswers = echoedData[3];
-        var studentData = getStudentData(questionProgress);
+        var stage = echoedData[2];
+        var errorAttempts = echoedData[3];
+        questionNum = echoedData[4];
 
-        if (images[0].length == 0) {
-            displayProgressFirstTime(studentData, wrongAnswers, numQuestions, users, emails);
-        } else {
-            var trackWidth = 100 * numQuestions;
-            var horizontalSpacing = calculateHorizontalPictureSpacing(numQuestions, trackWidth);
-            updateProgress(studentData, wrongAnswers, horizontalSpacing);
-        }
+        display(users, stage, errorAttempts, questionNum);
         oldData = data;
     }
 }
 
-function updateProgress(studentData, wrongAnswers, horizontalSpacing) {
-    var pictureWidth = 50;
-    var numStudents = studentData.length;
-    var images = d3.selectAll("image");
-    var wrongAnswerLabels = d3.selectAll(".wrongAnswerLabel");
-
-    images.transition()
-            .duration(1500)
-            .attr("x", function(d, i) {
-                return horizontalIconLocation(studentData[i]["currentQuestion"], horizontalSpacing, pictureWidth);
-            });
-    wrongAnswerLabels.text(function(d, i){
-        return wrongAnswers[i];
-    });
-}
-
-function displayProgressFirstTime(studentData, wrongAnswers, numQuestions, users, emails) {
-    var svgContainer;
-    var numStudents = studentData.length;
-    d3.selectAll("svg").remove();
-    var mainRect = $(".main").get(0).getBoundingClientRect();
-    var trackWidth = 100 * numQuestions;
-    var numTracks = numStudents;
-    var trackHeight = 65 * (numTracks);
-    var pictureWidth = 50;
-    var pictureHeight = 50;
-    var verticalSpacing = calculateVerticalPictureSpacing(numStudents, trackHeight);
-    var horizontalSpacing = calculateHorizontalPictureSpacing(numQuestions, trackWidth);
-    var startWidth = horizontalSpacing + 50;
-    var finishWidth = horizontalSpacing + 50;
-    var maxUserNameLength = getMaxUserName(users);
-    $(".ProgressPage").css("background", "#4D5B67");
-    svgContainer = d3.select(".main")
-                         .append("svg")
-                         .style("display", "block")
-                         .style("margin", "auto")
-                         .style("overflow", "visible")
-                         .attr("width", startWidth + trackWidth + finishWidth + 200)
-                         .attr("height", trackHeight + 100)
-                         .attr("class", "displayData")
-                         .append("g")
-                         .attr("transform", "translate (" + 0 + ", " + 75 + ")");
-    svgContainer.append("text")
-                    .attr("text-anchor", "start")
-                    .style("fill", "#FFFFFF")
-                    .style("font-weight", "bold")
-                    .attr("font-size", "18px")
-                    .text("WRONG ATTEMPTS")
-                    .attr("transform", "translate (" + (startWidth + trackWidth + finishWidth + 20) + ", " + (-20) + ") rotate(90)");
-    svgContainer.append("rect")
-                                .attr("width", trackWidth)
-                                .attr("height", trackHeight)
-                                .style("fill", "#E26340")
-                                .style("stroke", "#FFFFFF")
-                                .style("stroke-width", "1px")
-                                .attr("transform", "translate (" + startWidth + ", " + 0 + ")");
-    svgContainer.append("rect")
-                                .attr("transform", "translate (" + startWidth + trackWidth + ", " + 0 + ")")
-                                .attr("width", finishWidth)
-                                .attr("height", trackHeight)
-                                .style("fill", "#E26340")
-                                .style("stroke", "#FFFFFF")
-                                .style("stroke-width", "1px");
-    svgContainer.append("text")
-                .style("fill", "#FFFFFF")
-                .attr("text-anchor", "middle")
-                .attr("font-size", "60px")
-                .style("font-weight", "bold")
-                .attr("transform", "translate (" + (startWidth + trackWidth + (finishWidth / 2) + 10) + ", " + trackHeight / 2 + ") rotate(90)")
-                .text("FINISH LINE");
-
-    for (var i = 0, picPos = 5; i < numStudents && picPos < trackHeight; i++, picPos += 65) {
-        svgContainer.append("g")
-                    .append("svg:image")
-                    .attr("class", "icon")
-                    .attr("href", studentData[i]["icon"])
-                    .attr("width", pictureWidth)
-                    .attr("height", pictureHeight)
-                    .attr("transform", "rotate(90)")
-                    .attr("y", picPos)
-                    .attr("transform", "translate (" + startWidth + ", " + 0 + ")");
-        appendUserInfoCounts(i, picPos)
-        appendWrongAnswerCounts(i, picPos)
+function display(users, stage, errorAttempts, questionNum) {
+    if (isFirstTime) {
+        showUserInRow = (users && users.length > 10) ? true : false;
+        if (showUserInRow) {
+            $("#userStageGraph").addClass("rotate");
+        } else {
+            $("#userStageGraph").removeClass("rotate");
+        }
+        drawOutline();
+        isFirstTime = false;
     }
+    updateUserStatus();
 
-    svgContainer.selectAll("image")
-                .transition()
-                .duration(1500)
-                .attr("x", function(d, i) {
-                    return horizontalIconLocation(studentData[i]["currentQuestion"], horizontalSpacing, pictureWidth);
-                });
+    function drawOutline() {
+        var basicHtml = "";
 
-    appendQuestionLabels(numQuestions, svgContainer, horizontalSpacing, trackHeight, startWidth);
-    appendPolylines(svgContainer, startWidth, startWidth + trackWidth, trackHeight);
+        basicHtml += '<div class="columnWrapper">'
+             + getQuestionId()
+             + '<div class="rowWrapper">'
+             + getUserNames()
+             + '<div class="rowWrapper field">'
+             + getGrids()
+             + getFinishLine()
+             + '</div>'
+             + '</div>'
+             + '</div>';
+        $("#userStageGraph").html(basicHtml);
+        if (users.length >= 10) {
+            $("#grids .rowWrapper").last().addClass("noBottomLine");
+        }
+        getUserStage();
 
-    function appendUserInfoCounts(i, textHeight) {
-        svgContainer.append("text")
-                .attr("class", "userInfoLabel")
-                .attr("text-anchor", "start")
-                .style("fill", "#FFFFFF")
-                .style("font-weight", "bold")
-                .style("white-space", "pre")
-                .attr("font-size", "18px")
-                .html(full(users[i]))
-                .attr("transform", "translate (" + 0 + ", " + (textHeight + (pictureWidth / 2)) + ")");
+        function getFinishLine() {
+            var html = '<div class="columnWrapper">'
+                    + '<img class="flag upper" src="themes/simple/images/flag.svg">'
+                    + '<div class="finishLineWrapper"><div class="finishLine">FINISH LINE</div></div>'
+                    + '<img class="flag lower" src="themes/simple/images/flag.svg">'
+                    + '</div>';
+            return html;
+        }
 
-        function full(str) {
-            if (str.length < maxUserNameLength) {
-                str = Array((maxUserNameLength - str.length) * 2).join(" ") + str;
+        function getQuestionId() {
+            var html = "";
+            html += '<div class="rowWrapper" id="questionId"><div class="grid"></div>';
+            for (var i = 0; i < questionNum; i++) {
+                html += '<div class="grid">Q' + (i + 1) +'</div>';
             }
-            return str;
+            html += '<div class="grid"></div><div class="grid wrongAnswerWrapper"><div class="wrongAnswers">WRONG ANSWERS</div></div>';
+            html += '</div>';
+            return html;
+        }
+
+        function getUserNames() {
+            var html = "";
+            html += '<div id="userNames">';
+            for (var i = 0; i < users.length; i++) {
+                html += '<div class="rowWrapper"><div class="grid name">' + users[i] + '</div></div>';
+            }
+            html += "</div>";
+            return html;
+        }
+
+        function getGrids() {
+            var html = "";
+            html += '<div id="grids">';
+            for (var i = 0; i < users.length; i++) {
+                html += '<div class="rowWrapper">';
+                for (var j = 0; j < questionNum; j++) {
+                    html += '<div class="grid"></div>';
+                }
+                html += '<div class="grid spaceForIcons"></div><div class="grid errorAttempt">0</div>';
+                html += '</div>';
+            }
+            html += "</div>";
+            return html;
+        }
+
+        function getUserStage() {
+            for (var i = 0; i < users.length; i++) {
+                var picPath = "themes/simple/images/userIcons/Token_" + (i % 30 + 1) + ".png";
+                var firstCap = users[i].charAt(0).toUpperCase();
+                var id = "userIcon-" + i;
+                var html = '<div class="grid userIcon" id="' + id + '">'
+                        + '<span>' + firstCap + '</span>'
+                        + '<img class="icon" src="' + picPath + '">'
+                        + '</div>';
+                $("#grids").append(html);
+                $("#" + id).css({'left':0, 'top':(gridHeight * i)});
+            }
         }
     }
 
-    function getMaxUserName() {
-        var max = 0;
-        for (var i = 0; i  < users.length; i++) {
-            var user = users[i];
-            max = Math.max(user.length, max);
+    function updateUserStatus() {
+
+        setErrorAttempt();
+        setUserStage();
+
+        function setErrorAttempt() {
+            for (var i = 0; i < errorAttempts.length; i++) {
+                var $ele = $("#grids .errorAttempt").eq(i);
+                var errorAttempt = errorAttempts[i];
+                if ($ele) {
+                    var oldAttempt = $ele.html();
+                    if (oldAttempt != errorAttempt) {
+                        $ele.html(errorAttempt);
+                    }
+                }
+            }
         }
-        return max;
+        function setUserStage() {
+            for (var i = 0; i < stage.length; i++) {
+                var id = "userIcon-" + i;
+                var $ele = $("#" + id);
+                var userStage = stage[i];
+                var newLeft = gridWidth * userStage;
+                if ($ele) {
+                    var oldLeft = $ele.css('left');
+                    if (oldLeft != newLeft) {
+                        $ele.animate({left: newLeft}, 3000);
+                    }
+                }
+            }
+        }
     }
-
-    function appendWrongAnswerCounts(i, textHeight) {
-        svgContainer.append("text")
-                    .attr("class", "wrongAnswerLabel")
-                    .attr("text-anchor", "start")
-                    .style("fill", "#FFFFFF")
-                    .style("font-weight", "bold")
-                    .attr("font-size", "18px")
-                    .text(wrongAnswers[i])
-                    .attr("transform", "translate (" + (trackWidth + finishWidth + 20) + ", " + (textHeight + (pictureWidth / 2)) + ") rotate(90)");
-    }
-}
-
-function horizontalIconLocation(currQuestion, horizontalSpacing, pictureWidth) {
-    return ((currQuestion * horizontalSpacing) + horizontalSpacing / 2) - (pictureWidth / 2);
-}
-
-function getStudentData(data) {
-    var studentData = [];
-    var picNum;
-    var filePath;
-    for (var i = 0; i < data.length; i++) {
-        picNum = i <= 29 ? i : i % 30;
-        filePath = "themes/simple/images/userIcons/Token_" + (picNum + 1) + ".png";
-        studentData.push({
-            "currentQuestion": data[i],
-            "icon": filePath
-        });
-    }
-    return studentData;
-}
-
-function appendPolylines(svgContainer, start, end, height) {
-    var currHeight = 65;
-    var p1;
-    var p2;
-    while (currHeight <= height - 30) {
-        svgContainer.append("polyline")
-                    .attr("points", function() {
-                        p1 = [start, currHeight];
-                        p2 = [end, currHeight];
-                        return [p1, p2];
-                    })
-                    .style("stroke", "#FFFFFF")
-                    .style("stroke-width", "1px");
-        currHeight += 65;
-    }
-}
-
-function appendQuestionLabels(numQuestions, svgContainer, horizontalSpacing, height, startWidth) {
-    var move = [];
-    move[1] = -25;
-    var horizontaslPos = horizontalSpacing / 2;
-    var p1, p2;
-    for (var i = 0; i < numQuestions; i++) {
-        move[0] = horizontaslPos + startWidth;
-        svgContainer.append("text")
-                    .attr("text-anchor", "middle")
-                    .attr("transform", "translate(" + move + ") rotate(90)")
-                    .style("fill", "#FFFFFF")
-                    .style("stroke-width", "2px")
-                    .style("font-weight", "bold")
-                    .style("font-size", "18px")
-                    .text(function() {
-                        return "Q" + (i + 1);
-                    });
-        svgContainer.append("polyline")
-                    .attr("points", function() {
-                        p1 = [startWidth + horizontaslPos + (horizontalSpacing / 2), 0];
-                        p2 = [startWidth + horizontaslPos + (horizontalSpacing / 2), height];
-                        return [p1, p2];
-                    })
-                    .style("stroke", "#FFFFFF")
-                    .style("stroke-dasharray", ("2,2"));
-        horizontaslPos += horizontalSpacing;
-    }
-}
-
-function calculateVerticalPictureSpacing(numStudents, trackHeight) {
-    return trackHeight / (numStudents);
-}
-
-function calculateHorizontalPictureSpacing(numQuestions, trackWidth) {
-    return trackWidth / (numQuestions);
 }

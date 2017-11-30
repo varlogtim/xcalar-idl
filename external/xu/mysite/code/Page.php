@@ -59,52 +59,73 @@ class Page_Controller extends ContentController {
         }
     }
 
-    public function shouldShowCorrectness() {
-        $users = LoginSubmission::get()->filter(array(
-            'ID' => $_SESSION["currentUserID"],
-        ));
-        $user = $users[0];
-        $eventCode = $user->EventCode;
+    public function getUserRecord($userID) {
+        $user = LoginSubmission::get()->byID($userID);
+        return $user;
+    }
+
+    public function getEventCodeRecord($eventCode) {
         $eventCodeRecords = RegionEventCode::get()->filter(array(
             'EventCode' => $eventCode
         ));
         if (count($eventCodeRecords) == 0) {
-            return false;
+            return NULL;
         } else {
             $eventCodeRecord = $eventCodeRecords[0];
+            return $eventCodeRecord;
+        }
+    }
+
+    public function shouldShowCorrectness() {
+        $userID = $_SESSION["currentUserID"];
+        $user = $this->getUserRecord($userID);
+        if (is_null($user)) {
+            return false;
+        } else {
+            $eventCode = $user->EventCode;
+            $eventCodeRecord = $this->getEventCodeRecord($eventCode);
+        }
+        if (is_null($eventCodeRecord)) {
+            return false;
+        } else {
             return $eventCodeRecord->ShowCorrectness;
         }
     }
 
     public function shouldShowExercise() {
-        $users = LoginSubmission::get()->filter(array(
-            'ID' => $_SESSION["currentUserID"],
-        ));
-        $user = $users[0];
-        $eventCode = $user->EventCode;
-        $eventCodeRecords = RegionEventCode::get()->filter(array(
-            'EventCode' => $eventCode
-        ));
-        if (count($eventCodeRecords) == 0) {
+        $userID = $_SESSION["currentUserID"];
+        $user = $this->getUserRecord($userID);
+        if (is_null($user)) {
             return false;
         } else {
-            $eventCodeRecord = $eventCodeRecords[0];
+            $eventCode = $user->EventCode;
+            $eventCodeRecord = $this->getEventCodeRecord($eventCode);
+        }
+        if (is_null($eventCodeRecord)) {
+            return false;
+        } else {
             return $eventCodeRecord->ShowExercise;
         }
     }
 
     public function getCurrentUserName() {
         $userID = $_SESSION["currentUserID"];
-        $regs = LoginSubmission::get()->byID($userID);
-        $currentUser = $regs->Name;
-        return $currentUser;
+        $user = $this->getUserRecord($userID);
+        if (is_null($user)) {
+            return "";
+        } else {
+            return $user->Name;
+        }
     }
 
     public function getCurrentUserEmail() {
         $userID = $_SESSION["currentUserID"];
-        $regs = LoginSubmission::get()->byID($userID);
-        $currentUserEmail = $regs->Email;
-        return $currentUserEmail;
+        $user = $this->getUserRecord($userID);
+        if (is_null($user)) {
+            return "";
+        } else {
+            return $user->Email;
+        }
     }
 
    /*
@@ -113,24 +134,29 @@ class Page_Controller extends ContentController {
     *  Stage_for_adventure_1, Stage_for_exercise_2
     */
     public function getUserStage($userID) {
-        $user = LoginSubmission::get()->byID($userID);
+        $user = $this->getUserRecord($userID);
         $key = 'Stage_for_'.($this->getTrainingType()).'_'.($this->getTrainingID());
-        return $user->$key;
+        if (is_null($user)) {
+            return 0;
+        } else {
+            return $user->$key;
+        }
     }
 
     public function setUserStage($userID, $stage) {
-        $user = LoginSubmission::get()->byID($userID);
+        $user = $this->getUserRecord($userID);
         $key = 'Stage_for_'.($this->getTrainingType()).'_'.($this->getTrainingID());
-        $user->$key = $stage;
-        $user->write();
-
-        if (($user->$key) == ($this->QuestionNum)) {
-            $this->setTotalTimeTaken($userID);
-        } else if (($user->$key) == (($this->QuestionNum) - 1)) {
-            // for exercise not showing correctness, the user can reselect answer many times
-            // if user stage drop from full to (full - 1), then the use does not finished all questions
-            // should clear total time taken
-            $this->clearTotalTimeTaken($userID);
+        if (!is_null($user)) {
+            $user->$key = $stage;
+            $user->write();
+            if (($user->$key) == ($this->QuestionNum)) {
+                $this->setTotalTimeTaken($userID);
+            } else if (($user->$key) == (($this->QuestionNum) - 1)) {
+                // for exercise not showing correctness, the user can reselect answer many times
+                // if user stage drop from full to (full - 1), then the use does not finished all questions
+                // should clear total time taken
+                $this->clearTotalTimeTaken($userID);
+            }
         }
     }
 
@@ -141,33 +167,29 @@ class Page_Controller extends ContentController {
         $trainingType = $this->getTrainingType();
         $trainingID = $this->getTrainingID();
 
-        $users = UserAnswer::get()->filter(array(
+        $userAnswers = UserAnswer::get()->filter(array(
             'UserID' => $userID,
             'TrainingType' => $trainingType,
             'TrainingID' => $trainingID,
             'QuestionID' => $questionID
         ));
 
-        if (count($users) == 0) {
-            $user = UserAnswer::create();
-            $user->UserID = $userID;
-            $user->TrainingID = $trainingID;
-            $user->TrainingType = $trainingType;
-            $user->QuestionID = $questionID;
-            $user->write();
-            return $user;
+        if (count($userAnswers) == 0) {
+            $userAnswer = UserAnswer::create();
+            $userAnswer->UserID = $userID;
+            $userAnswer->TrainingID = $trainingID;
+            $userAnswer->TrainingType = $trainingType;
+            $userAnswer->QuestionID = $questionID;
+            $userAnswer->write();
+            return $userAnswer;
         } else {
-            return $users[0];
+            return $userAnswers[0];
         }
     }
 
     public function getUserAnswer($userID, $questionID) {
-        $user = $this->getUserAnswerRecord($userID, $questionID);
-        if (is_null($user)) {
-            return NULL;
-        } else {
-            return $user->Answer;
-        }
+        $userAnswer = $this->getUserAnswerRecord($userID, $questionID);
+        $userAnswer->Answer;
     }
 
     public function setUserAnswer($userID, $questionID, $userAnswer, $isCorrect) {
@@ -191,8 +213,10 @@ class Page_Controller extends ContentController {
                 'TrainingType' => $this->getTrainingType(),
                 'QuestionID' => $i
             ));
-            $correctRecord = $correctRecords[0];
-            $totalTimeTaken += ($correctRecord->TimeTaken);
+            if (count($correctRecords) > 0) {
+                $correctRecord = $correctRecords[0];
+                $totalTimeTaken += ($correctRecord->TimeTaken);
+            }
         }
         // Total Time taken equals to the sum of time taken for each question
         $timeTakenRecord->TimeTaken = $totalTimeTaken;
@@ -202,7 +226,7 @@ class Page_Controller extends ContentController {
     public function clearTotalTimeTaken($userID) {
         $timeTakenRecord = $this->getTimeTakenRecord($userID);
         $questionNum = $this->getQuestionNumber();
-        $timeTakenRecord->TimeTaken = $totalTimeTaken;
+        $timeTakenRecord->TimeTaken = 0;
         $timeTakenRecord->write();
     }
 
@@ -317,9 +341,11 @@ class Page_Controller extends ContentController {
     }
 
     public function increaseErrorAttempt($userID) {
-        $user = LoginSubmission::get()->byID($userID);
+        $user = $this->getUserRecord($userID);
         $key = 'ErrorAttempt_for_'.($this->getTrainingType()).'_'.($this->getTrainingID());
-        $user->$key = ($user->$key) + 1;
-        $user->write();
+        if (!is_null($user)) {
+            $user->$key = ($user->$key) + 1;
+            $user->write();
+        }
     }
 }

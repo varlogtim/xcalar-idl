@@ -313,6 +313,164 @@ a {
     .font(@color: @color-bg-dusk-blue);
 }
 
+.progressPage {
+    background-color: @color-river-bed;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+#userStageGraph {
+    font-family: "Open Sans";
+    font-size: 70px;
+    font-weight: bold;
+    font-stretch: condensed;
+    text-align: center;
+    color: @color-white;
+
+    width: auto;
+    height: auto;
+
+    #questionId {
+        margin-right: 400px;
+        margin-left: auto;
+        .grid {
+            border: none;
+            background-color: transparent;
+            height: 200px;
+        }
+        .wrongAnswers {
+            font-size: 40px;
+            width: 600px;
+        }
+    }
+    #userNames {
+        margin-top: 0px;
+        margin-bottom: auto;
+        font-size: 40px;
+    }
+    .field {
+        background-color: @color-flame-pea;
+        border: 5px solid @color-white;
+        position: relative;
+    }
+    .finishLineWrapper {
+        display: inline-block;
+        overflow: hidden;
+        width: 400px;
+        height: 1200px;
+    }
+    .wrongAnswerWrapper {
+        display: inline-block;
+        overflow: hidden;
+        width: 300px;
+        height: 1200px;
+    }
+    .finishLine {
+        overflow: visible;
+        font-weight: bold;
+        font-size: 60px;
+        margin: auto;
+        font-family: "Open Sans";
+        font-size: 200px;
+        font-weight: bold;
+        font-stretch: condensed;
+        line-height: 1.04;
+        text-align: center;
+
+        display: inline-block;
+        white-space: nowrap;
+        transform: translate(300px, 0) rotate(90deg);
+        transform-origin: 0 0;
+    }
+    .grid {
+        width: 200px;
+        height: 150px;
+        border-bottom: 5px solid @color-white;
+        border-right: 3px dotted @color-white;
+        border-left: none;
+        border-top: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        &.name {
+            background-color: @color-river-bed;
+        }
+        &.name, &.spaceForIcons, &.errorAttempt {
+            border: none;
+        }
+    }
+   .userIcon {
+        border: none;
+        background-color: transparent;
+    }
+    #grids {
+        position: relative;
+        min-height: 1500px;
+    }
+    .noBottomLine {
+        .grid {
+            border-bottom: none;
+        }
+    }
+    .userIcon {
+        position: absolute;
+        z-index: 1000;
+        span {
+            z-index: 1500;
+            left: auto;
+            right: auto;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            z-index: 1300;
+            top: 28px;
+            left: 45px;
+        }
+        span, img {
+            position: absolute;
+        }
+    }
+    .rowWrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .columnWrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &.rotate {
+        transform: rotate(-90deg);
+        #questionId .grid, .grid.errorAttempt, .userIcon span {
+            transform: rotate(90deg);
+        }
+        .flag {
+            transform: translate(0,153px)rotate(90deg);
+        }
+    }
+
+    .flag {
+        position: absolute;
+        &.upper {
+            top: -138px;
+            right: -98px;
+        }
+        &.lower {
+            bottom: 40px;
+            right: -98px;
+        }
+    }
+}
+
 /* footer */
 footer {
     .size(@width: 100%, @height: 40px);

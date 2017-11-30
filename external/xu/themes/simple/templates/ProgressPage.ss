@@ -18,13 +18,13 @@
 </head>
 
 <body class="$ClassName">
-<div class="main" id="main" role="main">
-</div>
+    <div class="main progressPage" id="main" role="main">
+        <div id="userStageGraph"></div>
+    </div>
 
 <% require javascript('framework/thirdparty/jquery/jquery.js') %>
 <% require javascript('framework/thirdparty/d3/d3.min.js') %>
 <%-- Please move: Theme javascript (below) should be moved to mysite/code/page.php  --%>
 <script type="text/javascript" src="{$ThemeDir}/javascript/studentProg.js"></script>
-<link rel="stylesheet" type="text/css" href="{$ThemeDir}/css/studentProg.css">
 </body>
 </html>

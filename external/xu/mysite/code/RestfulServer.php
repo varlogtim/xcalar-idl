@@ -63,12 +63,12 @@ class RestfulServer_Controller extends ContentController {
     }
 
     function pullStage() {
-        $stage = $_POST["stage"];
-        $errorAttempt = $_POST["errorAttempt"];
+        $trainingType = $_POST["trainingType"];
+        $trainingID = $_POST["trainingID"];
         $eventCode = $_POST["EventCode"];
 
-        if (isset($stage) &&
-            isset($errorAttempt) &&
+        if (isset($trainingType) &&
+            isset($trainingID) &&
             isset($eventCode)
         ){
             $name = 'Name';
@@ -77,6 +77,9 @@ class RestfulServer_Controller extends ContentController {
             $emails = [];
             $stages = [];
             $errorAttempts = [];
+            $questionNum = 0;
+            $stage = "Stage_for_" . $trainingType . "_" . $trainingID;
+            $errorAttempt = "ErrorAttempt_for_" . $trainingType . "_" . $trainingID;
 
             $userRecords = LoginSubmission::get()->filter(array(
                 'EventCode' => $eventCode
@@ -88,7 +91,31 @@ class RestfulServer_Controller extends ContentController {
                 array_push($stages, $userRecord->$stage);
                 array_push($errorAttempts, $userRecord->$errorAttempt);
             }
-            echo "[",json_encode($userNames), ",", json_encode($emails), ",", json_encode($stages), ",", json_encode($errorAttempts), "]";
+
+            if ($trainingType == "adventure") {
+                $trainings = RegionsPageAdventure::get()->filter(array(
+                    'AdventureID' => $trainingID,
+                ));
+                if (count($trainings) == 0) {
+                    $questionNum = 0;
+                } else {
+                    $training = $trainings[0];
+                    $controller = RegionsPageAdventure_Controller::create($training);
+                    $questionNum = $controller->getQuestionNumber();
+                }
+            } else {
+                $trainings = RegionsPageExercise::get()->filter(array(
+                    'ExerciseID' => $trainingID,
+                ));
+                if (count($trainings) == 0) {
+                    $questionNum = 0;
+                } else {
+                    $training = $trainings[0];
+                    $controller = RegionsPageExercise_Controller::create($training);
+                    $questionNum = $controller->getQuestionNumber();
+                }
+            }
+            echo "[",json_encode($userNames), ",", json_encode($emails), ",", json_encode($stages), ",", json_encode($errorAttempts), ",", json_encode($questionNum), "]";
         }
     }
 }
