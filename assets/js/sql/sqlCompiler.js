@@ -140,6 +140,7 @@
         "expressions.FormatNumber": null, // TODO
         "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
+        "expressions.IsNull": null, // XXX we have to put not(exists)
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
         "expressions.aggregate.Max": "max",
@@ -414,23 +415,28 @@
             case ("expressions.In"):
                 // XXX TODO Minor. When the list gets too long, we are forced
                 // to convert this to a udf and invoke the UDF instead.
+
+                // Note: The first OR node or the ONLY eq node will be the root
+                // of the tree
                 assert(node.children.length >= 2);
-                var retNode;
                 var prevOrNode;
                 var newEqNode;
+                retNode = undefined;
                 for (var i = 0; i < node.children.length - 1; i++) {
                     newEqNode = eqNode();
                     newEqNode.children.push(node.children[0]);
                     newEqNode.children.push(node.children[i+1]);
                     node.children[0].parent = newEqNode;
                     node.children[i+1].parent = newEqNode;
-                    if (i < node.children.length -2) {
+                    if (i < node.children.length - 2) {
                         var newOrNode = orNode();
                         newOrNode.children.push(newEqNode);
                         newEqNode.parent = newOrNode;
                         if (prevOrNode) {
                             prevOrNode.children.push(newOrNode);
                             newOrNode.parent = prevOrNode;
+                        } else {
+                            retNode = newOrNode;
                         }
                         prevOrNode = newOrNode;
                     } else {
@@ -440,9 +446,9 @@
                         }
                     }
                 }
-                if (prevOrNode) {
-                    retNode = prevOrNode;
-                } else {
+                if (!retNode) {
+                    // Edge case where it's in just one element
+                    // e.g. a in [1]
                     retNode = newEqNode;
                 }
 
