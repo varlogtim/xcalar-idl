@@ -1766,41 +1766,7 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     break;
                 case ('joinInput'):
-                    var srcCols = getJoinSrcCols(node, isCollapsedTag);
-                    var lSrcCols = srcCols.left;
-                    var rSrcCols = srcCols.right;
-                    info.eval = value.joinType;
-
-                    var joinType = info.eval.slice(0, info.eval.indexOf("Join"));
-                    info.subType = joinType;
-                    var joinText = "";
-                    if (joinType.indexOf("Outer") > -1) {
-                        var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
-                        firstPart = firstPart[0].toUpperCase() + firstPart.slice(1);
-                        joinText = firstPart + " Outer";
-                    } else {
-                        joinText = joinType[0].toUpperCase() + joinType.slice(1);
-                    }
-
-                    info.tooltip = joinText + " Join between table &quot;" +
-                                   parentNames[0] + "&quot; and table &quot;" +
-                                   parentNames[1] + "&quot; where ";
-                    var invalidColFound = false;
-                    for (var i = 0; i < lSrcCols.length; i++) {
-                        if (i > 0) {
-                            info.tooltip += ", " ;
-                        }
-                        info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
-                        if (!lSrcCols[i] || !rSrcCols[i]) {
-                            invalidColFound = true;
-                        }
-                    }
-                    if (invalidColFound) {
-                        info.tooltip = joinText + " Join between table &quot;" +
-                                   parentNames[0] + "&quot; and table &quot;" +
-                                   parentNames[1] + "&quot;";
-                    }
-                    info.opText = parentNames[0] + ", " + parentNames[1];
+                    info = getJoinInfo(info, node, value, parentNames, isCollapsedTag);
                     break;
                 case ('mapInput'):
                     var evalStrs = value.eval;
@@ -1885,7 +1851,6 @@ window.DagDraw = (function($, DagDraw) {
                                 delimiter;
                 break;
             case (SQLOps.ChangeType):
-                ancestors = getTaggedAncestors(node);
                 evalStr = value.eval[0].evalString;
                 info.eval = evalStr;
                 info.text = "Change Type";
@@ -1948,6 +1913,27 @@ window.DagDraw = (function($, DagDraw) {
                 tooltip = tooltip.slice(0, -2) + "<br>" + sampleStr;
                 info.tooltip = tooltip;
                 break;
+            case (SQLOps.Join):
+                var joinSubType = "";
+                if (node.value.api !== XcalarApisT.XcalarApiJoin) {
+                    if (node.value.api === XcalarApisT.XcalarApiFilter) {
+                        joinSubType = "Left Anti Semi";
+                    }
+                    // cross join has a custom eval string we need to check for
+                    ancestors = getTaggedAncestors(node);
+                    for (var i = 0; i < ancestors.length; i++) {
+                        var ancestor = ancestors[i];
+                        if (ancestor.value.api === XcalarApisT.XcalarApiJoin) {
+                            node = ancestor;
+                            value = node.value.struct;
+                            break;
+                        }
+                    }
+                }
+                info = getJoinInfo(info, node, value, parentNames, true,
+                                    joinSubType);
+
+                break;
             default:
                 if (taggedOp.indexOf(SQLOps.Ext) === 0) {
                     info.tooltip = taggedOp;
@@ -1969,6 +1955,53 @@ window.DagDraw = (function($, DagDraw) {
         } else {
             return null;
         }
+    }
+
+    function getJoinInfo(info, node, value, parentNames, isCollapsedTag,
+                        joinSubType) {
+        var srcCols = getJoinSrcCols(node, isCollapsedTag);
+        var lSrcCols = srcCols.left;
+        var rSrcCols = srcCols.right;
+        var joinText = "";
+        info.text = "Join";
+        if (joinSubType) {
+            info.eval = joinSubType;
+            info.subType = joinSubType;
+            joinText = joinSubType;
+        } else {
+            info.eval = value.joinType;
+            var joinType = info.eval.slice(0, info.eval.indexOf("Join"));
+            info.subType = joinType;
+            if (joinType.indexOf("Outer") > -1) {
+                var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
+                firstPart = firstPart[0].toUpperCase() + firstPart.slice(1);
+                joinText = firstPart + " Outer";
+            } else {
+                joinText = joinType[0].toUpperCase() + joinType.slice(1);
+            }
+        }
+
+        info.tooltip = joinText + " Join between table &quot;" +
+                       parentNames[0] + "&quot; and table &quot;" +
+                       parentNames[1] + "&quot; where ";
+        var invalidColFound = false;
+        for (var i = 0; i < lSrcCols.length; i++) {
+            if (i > 0) {
+                info.tooltip += ", " ;
+            }
+            info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
+            if (!lSrcCols[i] || !rSrcCols[i]) {
+                invalidColFound = true;
+            }
+        }
+        if (invalidColFound) {
+            info.tooltip = joinText + " Join between table &quot;" +
+                       parentNames[0] + "&quot; and table &quot;" +
+                       parentNames[1] + "&quot;";
+        }
+        info.opText = parentNames[0] + ", " + parentNames[1];
+
+        return info;
     }
 
     function getJoinSrcCols(node, isCollapsedTag) {
