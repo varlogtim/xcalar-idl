@@ -1266,6 +1266,7 @@ window.Log = (function($, Log) {
             case (SQLOps.Finalize):
             case (SQLOps.Ext):
             case (SQLOps.Query):
+            case (SQLOps.DFRerun):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

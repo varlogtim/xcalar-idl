@@ -814,6 +814,9 @@ window.ColManager = (function($, ColManager) {
         var columnName = $colInput.val().trim();
         var error;
         var table = gTables[tableId];
+        if (!table) {
+            table = gDroppedTables[tableId];
+        }
         xcTooltip.hideAll();
 
         options = options || {};
@@ -863,6 +866,9 @@ window.ColManager = (function($, ColManager) {
     {
         options = options || {};
         var table = gTables[tableId];
+        if (!table) {
+            table = gDroppedTables[tableId];
+        }
         var numCols = table.getNumCols();
         var exists = false;
         for (var curColNum = 1; curColNum <= numCols; curColNum++) {

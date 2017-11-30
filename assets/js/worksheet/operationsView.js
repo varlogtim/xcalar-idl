@@ -21,15 +21,15 @@ window.OperationsView = (function($, OperationsView) {
     var quotesNeeded = [];
     var aggNames = [];
     var suggestLists = [[]]; // groups of arguments
-    var isOpen = false;
     var allowInputChange = true;
     var functionsListScrollers = [];
     var aggFunctionsListScroller;
     var tableId;
     var formHelper;
-    var formOpenTime; // stores the last time the form was opened
     var listMax = 30; // max length for hint list
     var focusedColListNum = null; // to track shift-clicking columns
+    var isEditMode = false;
+    var table;
 
     // shows valid cast types
     var castMap = {
@@ -614,9 +614,6 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $operationsView.on('click', '.focusTable', function() {
-            if (!gTables[tableId]) {
-                return;
-            }
             xcHelper.centerFocusedTable(tableId, true);
         });
 
@@ -647,10 +644,11 @@ window.OperationsView = (function($, OperationsView) {
                         if (!gTables[tableId]) {
                             return;
                         }
+                        table = gTables[tableId];
                         xcHelper.centerFocusedTable(tableId, true);
                         updateColNamesCache();
                         if (operatorName === "group by") {
-                            var listHtml = getTableColList(tableId);
+                            var listHtml = getTableColList();
                             $activeOpSection.find(".cols").html(listHtml);
                             $activeOpSection.find(".selectAllCols")
                                             .removeClass('checked');
@@ -774,22 +772,27 @@ window.OperationsView = (function($, OperationsView) {
     // prefill: object, used to prefill the form
     OperationsView.show = function(currTableId, currColNums, operator,
                                    options) {
-        if (isOpen) {
+        if (formHelper.isOpen()) {
             return PromiseHelper.reject();
         }
         options = options || {};
-
-        if (options.restoreTime && options.restoreTime !== formOpenTime) {
+        if (options.restoreTime &&
+            options.restoreTime !== formHelper.getOpenTime()) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
             return PromiseHelper.reject();
         }
         var deferred = jQuery.Deferred();
-        isOpen = true;
 
         formHelper.showView();
-        formOpenTime = Date.now();
+
+        isEditMode = options.prefill ? true : false;
+        if (options.prefill && options.prefill.isDroppedTable) {
+            table = gDroppedTables[currTableId];
+        } else if (currTableId) {
+            table = gTables[currTableId];
+        }
 
         if (options.restore) {
             $activeOpSection.removeClass('xc-hidden');
@@ -805,7 +808,7 @@ window.OperationsView = (function($, OperationsView) {
                 colNum = currColNums[0];
             }
             if (currColNums && currColNums.length) {
-                currentCol = gTables[tableId].getCol(colNum);
+                currentCol = table.getCol(colNum);
                 colName = currentCol.getFrontColName(true);
                 isNewCol = currentCol.isNewCol;
             }
@@ -872,7 +875,7 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     OperationsView.close = function() {
-        if (isOpen) {
+        if (formHelper.isOpen()) {
             closeOpSection();
         }
     };
@@ -986,18 +989,13 @@ window.OperationsView = (function($, OperationsView) {
             aggNames.push(aggs[i].aggName);
         }
 
-        if (!restore) {
-            // var tableCols = gTables[tableId].tableCols;
-            // var colNames = [];
-            // tableCols.forEach(function(col) {
-            //     // skip data column
-            //     if (!col.isDATACol() && !col.isEmptyCol()) {
-            //         // Add $ since this is the current format of column
-            //         colNames.push('$' + col.name);
-            //     }
-            // });
-            // colNames.concat(aggNames);
-
+        if (restore) {
+           if (operatorName === "group by") {
+                $activeOpSection.find(".arg:visible").each(function() {
+                    checkHighlightTableCols($(this));
+                });
+            }
+        } else {
             populateInitialCategoryField(operatorName);
             fillInputPlaceholder(0);
 
@@ -1007,12 +1005,6 @@ window.OperationsView = (function($, OperationsView) {
                 populateGroupOnFields(colNums);
             } else {
                 $activeOpSection.find('.functionsInput').focus();
-            }
-        } else {
-            if (operatorName === "group by") {
-                $activeOpSection.find(".arg:visible").each(function() {
-                    checkHighlightTableCols($(this));
-                });
             }
         }
 
@@ -1041,21 +1033,43 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.removeWaitingBG();
         formHelper.refreshTabbing();
 
-        if (options.prefill) {
+        if (!options.prefill) {
+            return;
+        }
+
+        if (operatorName === "group by") {
+            for (var i = 0; i < options.prefill.indexedFields.length; i++) {
+                if (i > 0) {
+                    addGroupOnArg(0);
+                }
+                var name = options.prefill.indexedFields[i];
+                $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
+                checkHighlightTableCols($activeOpSection.find('.gbOnArg').last());
+            }
+            $activeOpSection.find('.gbOnArg').last().blur();
+        }
+
+        for (var i = 0; i < options.prefill.ops.length; i++) {
+            var $group;
             if (operatorName === "map") {
-                $("#mapFilter").val(options.prefill.op).trigger("input");
+                $("#mapFilter").val(options.prefill.ops[i]).trigger("input");
                 $activeOpSection.find(".functionsMenu").find("li").filter(function() {
-                    return $(this).text() === options.prefill.op;
+                    return $(this).text() === options.prefill.ops[i];
                 }).click();
+                $group = $activeOpSection.find('.group').eq(i);
             } else {
-                $activeOpSection.find(".functionsInput").val(options.prefill.op).change();
+                if (operatorName ===  "group by" && i > 0) {
+                    addGroupbyGroup();
+                }
+                $group = $activeOpSection.find('.group').eq(i);
+                $group.find(".functionsInput").val(options.prefill.ops[i]).change();
             }
 
-            var params = options.prefill.args;
-            var $args = $activeOpSection.find(".arg:visible:not(.gbOnArg)"); // handle checkboxes ex. contains
-            for (var i = 0; i < params.length; i++) {
-                if ($args.eq(i).length) {
-                    var arg = params[i];
+            var params = options.prefill.args[i];
+            var $args = $group.find(".arg:visible:not(.gbOnArg)"); // handle checkboxes ex. contains
+            for (var j = 0; j < params.length; j++) {
+                if ($args.eq(j).length) {
+                    var arg = params[j];
                     if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
                         if (isNaN(arg) && arg.indexOf("(") === -1 &&
                             arg !== "true" && arg !== "false" &&
@@ -1069,24 +1083,42 @@ window.OperationsView = (function($, OperationsView) {
                             arg = arg.slice(1, -1);
                         }
                     }
-                    $args.eq(i).val(arg);
+                    $args.eq(j).val(arg);
+
+                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
+                        if (arg === "true") {
+                            $args.eq(j).closest(".row").find(".boolArgWrap .checkbox")
+                                                .addClass("checked");
+                        }
+                    }
+
                 } else {
                     break;
                 }
             }
-            if (options.prefill.newField) {
-                $activeOpSection.find(".colNameRow .arg:visible").val(options.prefill.newField);
+            if (options.prefill.newFields) {
+                $group.find(".colNameRow .arg:visible").val(options.prefill.newFields[i]);
             }
-            if (options.prefill.dest) {
-                $activeOpSection.find(".newTableName:visible").val(options.prefill.dest);
-            }
-            checkIfStringReplaceNeeded(true);
         }
+
+        if (options.prefill.dest) {
+            $activeOpSection.find(".newTableName:visible").val(options.prefill.dest);
+        }
+
+        if (options.prefill.icv) {
+            $activeOpSection.find(".icvMode .checkbox").addClass("checked");
+        }
+        if (options.prefill.includeSample) {
+            $activeOpSection.find(".incSample .checkbox").addClass("checked");
+        }
+
+        checkIfStringReplaceNeeded(true);
     }
 
     function populateGroupOnFields(colNums) {
         for (var i = 0; i < colNums.length; i++) {
-            var progCol = gTables[tableId].getCol(colNums[i]);
+
+            var progCol = table.getCol(colNums[i]);
             if (!progCol.isNewCol) {
                 if (i > 0) {
                     addGroupOnArg(0);
@@ -1624,8 +1656,7 @@ window.OperationsView = (function($, OperationsView) {
         $functionsList.append($startsWith);
         $functionsList.append($includes);
 
-        $activeOpSection.find('.argsSection')
-                       .addClass('inactive');
+        $activeOpSection.find('.argsSection').addClass('inactive');
         $operationsView.find('.icvMode').addClass('inactive');
         $activeOpSection.find('.descriptionText').empty();
         $operationsView.find('.strPreview').empty();
@@ -1640,7 +1671,7 @@ window.OperationsView = (function($, OperationsView) {
         if (refresh) {
             tableName = $tableListSection.find('.dropDownList .text').text();
         } else {
-            tableName = gTables[tableId].getName();
+            tableName = table.getName();
             $tableListSection.find('.dropDownList .text').text(tableName);
             updateColNamesCache();
         }
@@ -2013,9 +2044,6 @@ window.OperationsView = (function($, OperationsView) {
 
     // noHighlight: boolean; if true, will not highlight new changes
     function checkIfStringReplaceNeeded(noHighlight) {
-        if (!gTables[tableId]) {
-            return;
-        }
         quotesNeeded = [];
 
         $activeOpSection.find('.group').each(function(i) {
@@ -2086,9 +2114,6 @@ window.OperationsView = (function($, OperationsView) {
         if (operatorName !== "group by") {
             return;
         }
-        if (!gTables[tableId]) {
-            return;
-        }
 
         var arg = $input.val().trim();
         var prevColNum = $input.data("colnum");
@@ -2100,7 +2125,7 @@ window.OperationsView = (function($, OperationsView) {
 
         if (xcHelper.hasValidColPrefix(arg)) {
             arg = parseColPrefixes(arg);
-            var colNum = gTables[tableId].getColNumByFrontName(arg);
+            var colNum = table.getColNumByFrontName(arg);
             if (colNum > -1) {
                 $input.data("colnum", colNum);
                 $table.find(".col" + colNum).addClass("modalHighlighted");
@@ -2504,12 +2529,12 @@ window.OperationsView = (function($, OperationsView) {
         var deferred = jQuery.Deferred();
         var isPassing = true;
 
-        if (!gTables[tableId]) {
+        if (!gTables[tableId] && !isEditMode) {
             statusBoxShowHelper('Table no longer exists.',
                             $activeOpSection.find('.tableList'));
             return deferred.reject().promise();
         }
-        if (!gTables[tableId].isActive()) {
+        if (!isEditMode && !gTables[tableId].isActive()) {
             statusBoxShowHelper(TblTStr.NotActive,
                             $activeOpSection.find('.tableList'));
             return PromiseHelper.reject();
@@ -2593,17 +2618,19 @@ window.OperationsView = (function($, OperationsView) {
 
         // all operations have their own way to show error StatusBox
         switch (operatorName) {
+            case ('filter'):
+            case ('map'):
+                isPassing = true;
+                break;
             case ('aggregate'):
                 isPassing = aggregateCheck(args);
                 break;
-            case ('filter'):
-                isPassing = true;
-                break;
             case ('group by'):
-                isPassing = groupByCheck(args, hasMultipleSets);
-                break;
-            case ('map'):
-                isPassing = true;
+                if (isEditMode) {
+                    isPassing = true;
+                } else {
+                    isPassing = groupByCheck(args, hasMultipleSets);
+                }
                 break;
             default:
                 showErrorMessage(0);
@@ -2713,8 +2740,11 @@ window.OperationsView = (function($, OperationsView) {
                                                         null, checkOpts);
                     if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
                                     .hasClass('checked')) {
-                        isPassing = xcHelper.tableNameInputChecker(
+                        if (!isEditMode) {
+                            isPassing = xcHelper.tableNameInputChecker(
                                         $activeOpSection.find('.newTableName'));
+                        }
+
                     }
                     if (!isPassing) {
                         return false;
@@ -2763,7 +2793,6 @@ window.OperationsView = (function($, OperationsView) {
 
     // returns an array of objects that include the new type and argument number
     function getCastInfo(args, groupNum) {
-        var table = gTables[tableId];
         var colTypeInfos = [];
 
         // set up colTypeInfos, filter out any that shouldn't be casted
@@ -2841,98 +2870,99 @@ window.OperationsView = (function($, OperationsView) {
                 arg = trimmedArg;
                 // leave it
             } else if (xcHelper.hasValidColPrefix(trimmedArg)) {
-                // if it contains a column name
-                // note that field like pythonExc can have more than one $col
-                // containsColumn = true;
                 arg = parseColPrefixes(trimmedArg);
+                if (!isEditMode) {
+                    // if it contains a column name
+                    // note that field like pythonExc can have more than one $col
+                    // containsColumn = true;
+                    var frontColName = arg;
+                    var tempColNames = arg.split(",");
+                    var backColNames = "";
 
-                var frontColName = arg;
-                var tempColNames = arg.split(",");
-                var backColNames = "";
-
-                for (var i = 0; i < tempColNames.length; i++) {
-                    if (i > 0) {
-                        backColNames += ",";
+                    for (var i = 0; i < tempColNames.length; i++) {
+                        if (i > 0) {
+                            backColNames += ",";
+                        }
+                        var backColName = getBackColName(tempColNames[i].trim());
+                        if (!backColName) {
+                            errorText = ErrTStr.InvalidOpNewColumn;
+                            isPassing = false;
+                            $errorInput = $input;
+                            args.push(arg);
+                            return;
+                        }
+                        backColNames += backColName;
                     }
-                    var backColName = getBackColName(tempColNames[i].trim());
-                    if (!backColName) {
-                        errorText = ErrTStr.InvalidOpNewColumn;
-                        isPassing = false;
-                        $errorInput = $input;
-                        args.push(arg);
-                        return;
-                    }
-                    backColNames += backColName;
-                }
 
-                arg = backColNames;
+                    arg = backColNames;
 
-                // Since there is currently no way for users to specify what
-                // col types they are expecting in the python functions, we will
-                // skip this type check if the function category is user defined
-                // function.
-                if (operatorName !== "map" || !isUDF()) {
-                    var types;
-                    if (tempColNames.length > 1 &&
-                        (operatorName !== "group by" ||
-                        (operatorName === "group by" &&
-                         $input.closest('.gbOnRow').length === 0))) {
-                        // non group by fields cannot have multiple column
-                        //  names;
-                        allColTypes.push({});
-                        errorText = ErrTStr.InvalidColName;
-                        $errorInput = $input;
-                        isPassing = false;
-                    } else {
-                        colTypes = getAllColumnTypesFromArg(frontColName);
-                        types = parseType(typeid);
-                        if (colTypes.length) {
-                            allColTypes.push({
-                                "inputTypes": colTypes,
-                                "requiredTypes": types,
-                                "inputNum": inputNum
-                            });
-                        } else {
+                    // Since there is currently no way for users to specify what
+                    // col types they are expecting in the python functions, we will
+                    // skip this type check if the function category is user defined
+                    // function.
+                    if (operatorName !== "map" || !isUDF()) {
+                        var types;
+                        if (tempColNames.length > 1 &&
+                            (operatorName !== "group by" ||
+                            (operatorName === "group by" &&
+                             $input.closest('.gbOnRow').length === 0))) {
+                            // non group by fields cannot have multiple column
+                            //  names;
                             allColTypes.push({});
-                            if (!$("#container").hasClass("dfEditState")) {
-                            errorText = xcHelper.replaceMsg(
-                                ErrWRepTStr.InvalidCol, {
-                                    "name": frontColName
+                            errorText = ErrTStr.InvalidColName;
+                            $errorInput = $input;
+                            isPassing = false;
+                        } else {
+                            colTypes = getAllColumnTypesFromArg(frontColName);
+                            types = parseType(typeid);
+                            if (colTypes.length) {
+                                allColTypes.push({
+                                    "inputTypes": colTypes,
+                                    "requiredTypes": types,
+                                    "inputNum": inputNum
                                 });
-                                $errorInput = $input;
-                                isPassing = false;
-                            }
-                        }
-                    }
-
-                    if (isPassing || inputsToCast.length) {
-                        var isCasted = $input.data('casted');
-                        if (!isCasted) {
-                            var numTypes = colTypes.length;
-
-                            for (var i = 0; i < numTypes; i++) {
-                                if (colTypes[i] == null) {
-                                    console.error("colType is null/col not " +
-                                        "pulled!");
-                                    continue;
-                                }
-
-                                errorText = validateColInputType(types,
-                                                        colTypes[i], $input);
-                                if (errorText != null) {
-                                    isPassing = false;
+                            } else {
+                                allColTypes.push({});
+                                if (!isEditMode) {
+                                    errorText = xcHelper.replaceMsg(
+                                        ErrWRepTStr.InvalidCol, {
+                                        "name": frontColName
+                                    });
                                     $errorInput = $input;
-                                    inputsToCast.push(inputNum);
-                                    if (!castText) {
-                                        castText = errorText;
-                                    }
-                                    break;
+                                    isPassing = false;
                                 }
                             }
                         }
+
+                        if (isPassing || inputsToCast.length) {
+                            var isCasted = $input.data('casted');
+                            if (!isCasted) {
+                                var numTypes = colTypes.length;
+
+                                for (var i = 0; i < numTypes; i++) {
+                                    if (colTypes[i] == null) {
+                                        console.error("colType is null/col not " +
+                                            "pulled!");
+                                        continue;
+                                    }
+
+                                    errorText = validateColInputType(types,
+                                                            colTypes[i], $input);
+                                    if (errorText != null) {
+                                        isPassing = false;
+                                        $errorInput = $input;
+                                        inputsToCast.push(inputNum);
+                                        if (!castText) {
+                                            castText = errorText;
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        allColTypes.push({});
                     }
-                } else {
-                    allColTypes.push({});
                 }
             } else if (!isPassing) {
                 arg = trimmedArg;
@@ -3176,7 +3206,7 @@ window.OperationsView = (function($, OperationsView) {
         var aggStr;
         if (!hasFuncFormat(args[0])) {
             aggColNum = getColNum(args[0]);
-            tableCol = gTables[tableId].getCol(aggColNum);
+            tableCol = table.getCol(aggColNum);
             aggStr = tableCol.getBackColName();
         } else {
             aggStr = args[0];
@@ -3191,17 +3221,28 @@ window.OperationsView = (function($, OperationsView) {
             aggName = null;
         }
         var options = {
-            formOpenTime: formOpenTime
+            formOpenTime: formHelper.getOpenTime()
         };
 
-        var startTime = Date.now();
-        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName,
-                             options)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            submissionFailHandler(startTime, error);
-            deferred.reject();
-        });
+        if (isEditMode) {
+            DagEdit.store({
+                args: {
+                        "eval": [{"evalString": aggrOp + "(" + aggStr + ")",
+                                  "newField": ""}]
+                    }
+            });
+            deferred.resolve();
+        } else {
+             var startTime = Date.now();
+            xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName,
+                                 options)
+            .then(deferred.resolve)
+            .fail(function(error) {
+                submissionFailHandler(startTime, error);
+                deferred.reject();
+            });
+        }
+
         return deferred.promise();
     }
 
@@ -3230,7 +3271,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var startTime = Date.now();
 
-        if ($("#container").hasClass("dfEditState")) {
+        if (isEditMode) {
             DagEdit.store({
                 args: {
                         "eval": [{"evalString": filterString, "newField": ""}]
@@ -3240,7 +3281,7 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             xcFunction.filter(filterColNum, tableId, {
                 filterString: filterString,
-                formOpenTime: formOpenTime
+                formOpenTime: formHelper.getOpenTime()
             })
             .then(deferred.resolve)
             .fail(function(error) {
@@ -3254,7 +3295,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function getColNum(backColName) {
-        return gTables[tableId].getColNumByBackName(backColName);
+        return table.getColNumByBackName(backColName);
     }
 
     function groupBy(operators, args, colTypeInfos) {
@@ -3335,7 +3376,7 @@ window.OperationsView = (function($, OperationsView) {
             "isJoin": isJoin,
             "icvMode": icvMode,
             "isKeepOriginal": isKeepOriginal,
-            "formOpenTime": formOpenTime,
+            "formOpenTime": formHelper.getOpenTime(),
             "dstTableName": dstTableName,
             "columnsToKeep": colsToKeep
         };
@@ -3348,7 +3389,7 @@ window.OperationsView = (function($, OperationsView) {
             options.isJoin = false;
         }
 
-        if ($("#container").hasClass("dfEditState")) {
+        if (isEditMode) {
             var evals = [];
             for (var i = 0; i < gbArgs.length; i++) {
                 var op = gbArgs[i].operator;
@@ -3436,7 +3477,7 @@ window.OperationsView = (function($, OperationsView) {
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
         var mapOptions = {
-            formOpenTime: formOpenTime
+            formOpenTime: formHelper.getOpenTime()
         };
         if (isNewCol) {
             mapOptions.replaceColumn = true;
@@ -3455,7 +3496,7 @@ window.OperationsView = (function($, OperationsView) {
         var hasWeirdQuotes = (mapStr.indexOf("“") > -1 ||
                               mapStr.indexOf("”") > -1);
 
-        if ($("#container").hasClass("dfEditState")) {
+        if (isEditMode) {
             DagEdit.store({
                 args: {
                         "eval": [{"evalString": mapStr, "newField": newColName}],
@@ -3611,7 +3652,7 @@ window.OperationsView = (function($, OperationsView) {
             value = spaces;
         }
         var colType = null;
-        var progCol = gTables[tableId].getColByFrontName(value);
+        var progCol = table.getColByFrontName(value);
         if (progCol != null) {
             colType = progCol.getType();
         }
@@ -3621,7 +3662,6 @@ window.OperationsView = (function($, OperationsView) {
 
     function getAllColumnTypesFromArg(argValue) {
         var values = argValue.split(",");
-        var table = gTables[tableId];
         var types = [];
 
         values.forEach(function(value) {
@@ -3696,7 +3736,6 @@ window.OperationsView = (function($, OperationsView) {
             return (false);
         }
 
-        var table = gTables[tableId];
         var value;
         var trimmedVal;
         for (var i = 0; i < numValues; i++) {
@@ -4092,7 +4131,6 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function getBackColName(frontColName) {
-        var table = gTables[tableId];
         var progCol = table.getColByFrontName(frontColName);
         if (progCol != null) {
             return progCol.getBackColName();
@@ -4104,11 +4142,6 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function getAutoGenColName(name) {
-        var table = gTables[tableId];
-        if (!table) {
-            return "";
-        }
-
         var limit = 20; // we won't try more than 20 times
         name = name.replace(/\s/g, '');
         var newName = name;
@@ -4268,7 +4301,6 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function closeOpSection() {
-        isOpen = false;
         // highlighted column sticks out if we don't close it early
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
         toggleOperationsViewDisplay(true);
@@ -4331,7 +4363,7 @@ window.OperationsView = (function($, OperationsView) {
 
         fillTableList();
         if (operatorName === "group by") {
-            var listHtml = getTableColList(tableId);
+            var listHtml = getTableColList();
             $activeOpSection.find(".cols").html(listHtml);
             $activeOpSection.find(".selectAllCols")
                             .removeClass('checked');
@@ -4507,7 +4539,6 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             $operationsView.find(".strPreview").append('<span class="aggColStrWrap"></span>');
         }
-
     }
 
     function addMapArg($btn) {
@@ -4722,10 +4753,10 @@ window.OperationsView = (function($, OperationsView) {
         return (html);
     }
 
-    function getTableColList(tableId) {
+    function getTableColList() {
         var html = "";
         var numBlanks = 10; // to take up flexbox space
-        var allCols = gTables[tableId].tableCols;
+        var allCols = table.tableCols;
         for (var i = 0; i < allCols.length; i++) {
             var progCol = allCols[i];
             if (progCol.isEmptyCol() || progCol.isDATACol()) {

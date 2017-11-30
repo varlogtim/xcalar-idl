@@ -50,6 +50,7 @@ StatusMessageTStr = {
     'StoredProc': 'Performing Stored Procedure',
     'StoredProcFailed': 'Stored Procedure execution failed',
     'SettingExtensions': 'Setting up extensions',
+    'RerunFailed': 'Rerunning Dataflow Failed',
     'CurrReplay': 'Currently Replaying',
     'CompReplay': 'Completed Replaying',
     "PleaseWait": "Please wait",
@@ -115,6 +116,8 @@ TooltipTStr = {
     "UDFNoMain": "UDF requires a 'main' function",
     "UnexpectedNode": "Dataflow has an unexpected operation",
     "TempTableNotFound": "Table not found in active dataflows",
+    "NoUndoActiveForm": "Close active form to undo or redo",
+    "NoUndoEditMode": "Exit dataflow editing to undo or redo",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",

@@ -3091,7 +3091,7 @@
                                                     validTypes) {
         // XXx Cheng: this function may need to refactor
         var backCols = [];
-        var table = gTables[tblId];
+        var table = gTables[tblId] || gDroppedTables[tblId];
         if (!table) {
             return {
                 invalid: true,
@@ -3396,7 +3396,11 @@
 
     xcHelper.getColNameMap = function(tableId) {
         var colNameMap = {};
-        var cols = gTables[tableId].getAllCols();
+        var table = gTables[tableId];
+        if (!table) {
+            table = gDroppedTables[tableId];
+        }
+        var cols = table.getAllCols();
         var name;
         for (var i = 0; i < cols.length; i++) {
             name = cols[i].backName.trim();

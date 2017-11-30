@@ -244,8 +244,11 @@
             }
         }
     }
-    .columnPickerTip {
+    .noUndoTip {
         display: none;
+        width: 50px;
+        .position(absolute, @top: 0, @left: 10px);
+        cursor: not-allowed;
     }
 }
 
@@ -265,11 +268,8 @@
 
 #container.columnPicker {
     #undoRedoArea {
-        .columnPickerTip {
-            width: 50px;
-            .position(absolute, @top: 0, @left: 10px);
+        .noUndoTip {
             display: block;
-            cursor: not-allowed;
         }
     }
     #undo, #redo {

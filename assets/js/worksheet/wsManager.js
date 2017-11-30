@@ -1138,6 +1138,9 @@ window.WSManager = (function($, WSManager) {
 
         $workSheetTabs[0].oncontextmenu = function(event) {
             var $target = $(event.target).closest(".worksheetTab");
+            if (DagEdit.isEditMode()) {
+                return;
+            }
             if ($target.length) {
                 $target.find(".wsMenu").trigger("click");
                 event.preventDefault();

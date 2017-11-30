@@ -205,6 +205,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ("project"):
                     ProjectView.close();
                     break;
+                case ("dfEdit"):
+                    DagEdit.toggle();
+                    break;
                 default:
                     break;
             }
@@ -1014,6 +1017,9 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ("project"):
                     ProjectView.close();
+                    break;
+                case ("dfEdit"):
+                    DagEdit.toggle();
                     break;
                 default:
                     break;

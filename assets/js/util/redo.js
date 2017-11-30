@@ -125,6 +125,12 @@ window.Redo = (function($, Redo) {
                                         worksheet));
     };
 
+    redoFuncs[SQLOps.DFRerun] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return TblManager.refreshTable([options.newTableName], null,
+                                [options.tableName], worksheet);
+    };
+
     redoFuncs[SQLOps.Finalize] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,

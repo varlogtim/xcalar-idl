@@ -11,7 +11,6 @@ window.JoinView = (function($, JoinView) {
                           // and redisplay columns list
     var joinEstimatorType = "inner"; // if user changes join type,
                                      // rerun estimator
-    var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
     var lFatPtrCache;
@@ -21,6 +20,9 @@ window.JoinView = (function($, JoinView) {
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
     var focusedThNum;
+    var isEditMode;
+    var lTable;
+    var rTable;
 
     var validTypes = [ColumnType.integer, ColumnType.float, ColumnType.string,
                       ColumnType.boolean];
@@ -153,6 +155,13 @@ window.JoinView = (function($, JoinView) {
         var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
+                if (isEditMode && $li.hasClass("advanced") &&
+                    joinType !== "Cross Join") {
+                    $li.removeClass("selected");
+                    return true; // keeps menu open
+                }
+
+
                 var $input = $joinTypeSelect.find(".text");
                 var prevType = $input.text();
                 var tableIds;
@@ -236,7 +245,7 @@ window.JoinView = (function($, JoinView) {
 
         var leftTableList = new MenuHelper($leftTableDropdown, {
             "onOpen": function() {
-                fillTableLists(null, true);
+                fillTableLists(true);
             },
             "onSelect": function($li) {
                 tableListSelect($li, 0);
@@ -246,7 +255,7 @@ window.JoinView = (function($, JoinView) {
 
         var rightTableList = new MenuHelper($rightTableDropdown, {
             "onOpen": function() {
-                fillTableLists(null, true);
+                fillTableLists(true);
             },
             "onSelect": function($li) {
                 tableListSelect($li, 1);
@@ -298,6 +307,22 @@ window.JoinView = (function($, JoinView) {
             $joinView.find('.joinClause').each(function() {
                 $(this).find('.clause').eq(index).val("");
             });
+            var tableId;
+            if (index === 0) {
+                var tableName = $leftTableDropdown.find('.text').val();
+                tableId = xcHelper.getTableId(tableName);
+                lTable = gTables[tableId];
+                if (!lTable) {
+                    lTable = gDroppedTables[tableId];
+                }
+            } else {
+                var tableName = $rightTableDropdown.find('.text').val();
+                tableId = xcHelper.getTableId(tableName);
+                rTable = gTables[tableId];
+                if (!rTable) {
+                    rTable = gDroppedTables[tableId];
+                }
+            }
 
             checkNextBtn();
             updatePreviewText();
@@ -311,19 +336,20 @@ window.JoinView = (function($, JoinView) {
 
             var tableId = tableIds[index];
             if (gTables[tableId]) {
+                var table = gTables[tableId];
                 TblFunc.focusTable(tableId);
                 activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
                 if (isSemiJoin()) {
                     if (isLeftSemiJoin()) {
                         if (index === 0) {
-                            selectAllTableCols(tableId);
+                            selectAllTableCols(table);
                         }
                     } else if (index === 1) {
                         selectAllTableCols(tableId);
                     }
                 } else {
-                    selectAllTableCols(tableId);
+                    selectAllTableCols(table);
                 }
 
             } else {
@@ -565,9 +591,8 @@ window.JoinView = (function($, JoinView) {
         }
     };
 
-    // JoinView.show = function(tableId, colNums, restore, restoreTime) {
     JoinView.show = function(tableId, colNums, options) {
-        if (isOpen) {
+        if (formHelper.isOpen()) {
             return;
         }
         options = options || {};
@@ -579,8 +604,27 @@ window.JoinView = (function($, JoinView) {
             // overwritten
             return;
         }
-        isOpen = true;
         formHelper.showView();
+
+        isEditMode = options.prefill ? true : false;
+        if (options.prefill) {
+            if (options.prefill.isLeftDroppedTable) {
+                lTable = gDroppedTables[tableId];
+            } else {
+                lTable = gTables[tableId];
+            }
+
+            var rTName = options.prefill.rightTable;
+            var rTId = xcHelper.getTableId(rTName);
+
+            if (options.prefill.isRightDroppedTable) {
+                rTable = gDroppedTables[rTId];
+            } else {
+                rTable = gTables[rTId]
+            }
+        } else if (!restore) {
+            lTable = gTables[tableId];
+        }
 
         if (restore) {
             if ($joinView.hasClass('nextStep')) {
@@ -590,13 +634,19 @@ window.JoinView = (function($, JoinView) {
             restoreSelectedTableCols();
         } else {
             resetJoinView();
-            fillTableLists(tableId);
+            fillTableLists();
             for (var i = 0; i < colNums.length; i++) {
                 addClause(true, tableId, colNums[i]);
             }
             updatePreviewText();
             $rightTableDropdown.find("input").focus();
         }
+
+
+        if (options.prefill) {
+            restorePrefill(options.prefill);
+        }
+
         formHelper.setup();
 
         $("body").on("keypress.joinModal", function(event) {
@@ -624,12 +674,41 @@ window.JoinView = (function($, JoinView) {
         });
     };
 
+    function restorePrefill(options) {
+        $rightTableDropdown.find('.text').val(options.rightTable);
+        $rightTableDropdown.find('.text').data("val", options.rightTable);
+        $rightTableDropdown.find('li').filter(function() {
+            return ($(this).text() === options.rightTable);
+        }).addClass('selected');
+
+        selectAllTableCols(rTable);
+
+        for (var i = 0; i < options.srcCols.left.length; i++) {
+            var cols =  [options.srcCols.left[i], options.srcCols.right[i]];
+            addClause(true, null, null, cols);
+        }
+
+
+        // var joinType = options.joinType.toLowerCase().replace(/\s/g, "");
+        var joinTextMap = {
+            "innerJoin": "Inner Join",
+            "leftJoin": "Left Outer Join",
+            "rightJoin": "Right Outer Join",
+            "fullOuterJoin": "Full Outer Join"
+        };
+        var joinType = joinTextMap[options.joinType];
+        $joinTypeSelect.find("li").filter(function() {
+            return $(this).text() === joinType;
+        }).trigger(fakeEvent.mouseup);
+
+        $joinTableName.val(options.dest);
+    }
+
     JoinView.close = function() {
-        if (!isOpen) {
+        if (!formHelper.isOpen()) {
             return;
         }
 
-        isOpen = false;
         lastSideClicked = null;
         focusedListNum = null;
         focusedThNum = null;
@@ -754,9 +833,21 @@ window.JoinView = (function($, JoinView) {
         resetRenames();
     }
 
-    function selectAllTableCols(tableId) {
+    // function selectAllTableCols(tableId) {
+    //     var $table = $("#xcTable-" + tableId);
+    //     var allCols = gTables[tableId].getAllCols();
+    //     for (var i = 0; i < allCols.length; i++) {
+    //         var progCol = allCols[i];
+    //         if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
+    //             $table.find(".col" + (i + 1)).addClass("modalHighlighted");
+    //         }
+    //     }
+    // }
+
+    function selectAllTableCols(table) {
+        var tableId = table.getId();
         var $table = $("#xcTable-" + tableId);
-        var allCols = gTables[tableId].getAllCols();
+        var allCols = table.getAllCols();
         for (var i = 0; i < allCols.length; i++) {
             var progCol = allCols[i];
             if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
@@ -1012,6 +1103,10 @@ window.JoinView = (function($, JoinView) {
             return false;
         }
 
+        if (isEditMode) {
+            return true;
+        }
+
         var lCols = joinKeys.lCols;
         var rCols = joinKeys.rCols;
         var tableIds = getTableIds();
@@ -1020,19 +1115,19 @@ window.JoinView = (function($, JoinView) {
         var rightColRes;
 
         if (leftColRes.invalid) {
-            columnErrorHandler('left', leftColRes, tableIds[0]);
+            columnErrorHandler('left', leftColRes, lTable);
             return false;
         } else {
             rightColRes = xcHelper.convertFrontColNamesToBack(rCols,
                                                                   tableIds[1],
                                                                   validTypes);
             if (rightColRes.invalid) {
-                columnErrorHandler('right', rightColRes, tableIds[1]);
+                columnErrorHandler('right', rightColRes, rTable);
                 return (false);
             }
         }
 
-        var matchRes = checkMatchingColTypes(leftColRes, rightColRes, tableIds);
+        var matchRes = checkMatchingColTypes(leftColRes, rightColRes);
 
         if (!matchRes.success) {
             var $row = $clauseContainer.find('.joinClause').eq(matchRes.errors[0].row);
@@ -1107,7 +1202,7 @@ window.JoinView = (function($, JoinView) {
         };
     }
 
-    function columnErrorHandler(side, colRes, tableId) {
+    function columnErrorHandler(side, colRes, table) {
         var errorText;
         var $clauseSection;
         var $input;
@@ -1124,7 +1219,7 @@ window.JoinView = (function($, JoinView) {
         }).eq(0);
 
         if (colRes.reason === 'notFound') {
-            var tableName = gTables[tableId].getName();
+            var tableName = table.getName();
             errorText = xcHelper.replaceMsg(ErrWRepTStr.ColNotInTable, {
                 "name": colRes.name,
                 "table": tableName
@@ -1143,9 +1238,7 @@ window.JoinView = (function($, JoinView) {
 
     // assumes lCols and rCols exist, returns obj with sucess property
     // will return obj with success:false if has definitivly mismatching types
-    function checkMatchingColTypes(lCols, rCols, tableIds) {
-        var lTable = gTables[tableIds[0]];
-        var rTable = gTables[tableIds[1]];
+    function checkMatchingColTypes(lCols, rCols) {
         var lProgCol;
         var rProgCol;
         var lType;
@@ -1279,27 +1372,29 @@ window.JoinView = (function($, JoinView) {
 
     // generates all left and right table columns to keep
     function displayAllColumnsList() {
-        var tableIds = getTableIds();
-        var start;
-        var end;
+        $joinView.find(".cols").empty();
         if (isSemiJoin()) {
             if (isLeftSemiJoin()) {
-                start = 0;
-                end = 1;
+                var html = getTableColList(lTable);
+                $joinView.find(".cols").eq(0).html(html);
+                $joinView.find(".selectAll").eq(0).addClass("checked");
+                selectAllTableCols(lTable);
             } else {
-                start = 1;
-                end = 2;
+                var html = getTableColList(rTable);
+                $joinView.find(".cols").eq(1).html(html);
+                $joinView.find(".selectAll").eq(1).addClass("checked");
+                selectAllTableCols(rTable);
             }
         } else {
-            start = 0;
-            end = 2;
-        }
-        $joinView.find(".cols").empty();
-        for (var i = start; i < end; i++) {
-            var html = getTableColList(tableIds[i]);
-            $joinView.find(".cols").eq(i).html(html);
-            $joinView.find(".selectAll").eq(i).addClass("checked");
-            selectAllTableCols(tableIds[i]);
+            var html = getTableColList(lTable);
+            $joinView.find(".cols").eq(0).html(html);
+            $joinView.find(".selectAll").eq(0).addClass("checked");
+            selectAllTableCols(lTable);
+
+            html = getTableColList(rTable);
+            $joinView.find(".cols").eq(1).html(html);
+            $joinView.find(".selectAll").eq(1).addClass("checked");
+            selectAllTableCols(rTable);
         }
     }
 
@@ -1388,7 +1483,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function hasColsAndTableNames() {
-        if (hasValidTableNames()) {
+        if (lTable && rTable) {
             if (isCrossJoin()) {
                 return true; // passes, no columns needed for cross join
             }
@@ -1445,7 +1540,6 @@ window.JoinView = (function($, JoinView) {
             }
         });
 
-        var lTable = gTables[lTableId];
         lCols = lCols.map(function(colName) {
             var progCol = lTable.getColByFrontName(colName);
             var backColName = progCol.getBackColName();
@@ -1453,7 +1547,6 @@ window.JoinView = (function($, JoinView) {
             return new XcSDK.Column(backColName, colType);
         });
 
-        var rTable = gTables[rTableId];
         rCols = rCols.map(function(colName) {
             var progCol = rTable.getColByFrontName(colName);
             var backColName = progCol.getBackColName();
@@ -1482,9 +1575,9 @@ window.JoinView = (function($, JoinView) {
         }
     }
 
-    function getTableColList(tableId) {
+    function getTableColList(table) {
         var html = "";
-        var allCols = gTables[tableId].tableCols;
+        var allCols = table.tableCols;
         for (var i = 0; i < allCols.length; i++) {
             var progCol = allCols[i];
             if (progCol.isEmptyCol() || progCol.isDATACol()) {
@@ -1510,16 +1603,12 @@ window.JoinView = (function($, JoinView) {
     function submitForm() {
         // check validation
         // if submit is enabled, that means first view is already valid
-        var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
-        if (!isValidTableName) {
-            return PromiseHelper.reject();
-        }
-        if (!validTableNameChecker()) {
-            return PromiseHelper.reject();
-        }
-
-        if (!validJoinTables()) {
-            return PromiseHelper.reject();
+        if (!isEditMode) {
+            if (!xcHelper.tableNameInputChecker($joinTableName) ||
+                !validTableNameChecker() ||
+                !validJoinTables()) {
+                return PromiseHelper.reject();
+            }
         }
 
         var deferred = jQuery.Deferred();
@@ -1535,7 +1624,6 @@ window.JoinView = (function($, JoinView) {
 
         return deferred.promise();
     }
-
 
     function executeChecks($renames, $origNames, $newNames, origArray,
                            renameArray, isFatptr) {
@@ -1601,16 +1689,26 @@ window.JoinView = (function($, JoinView) {
 
         var origFormOpenTime = formHelper.getOpenTime();
 
-        xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
-        .then(function(finalTableName) {
-            submitJoinKeyData(joinKeyDataToSubmit);
-            deferred.resolve(finalTableName);
-        })
-        .fail(function(error) {
-            submissionFailHandler(lJoinInfo.tableId, rJoinInfo.tableId,
-                                  origFormOpenTime, error);
-            deferred.reject();
-        });
+        if (isEditMode) {
+            DagEdit.store({
+                args: {
+                    joinType: joinType,
+                },
+                indexFields: [lJoinInfo.colNames, rJoinInfo.colNames]
+            });
+        } else {
+            xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
+            .then(function(finalTableName) {
+                submitJoinKeyData(joinKeyDataToSubmit);
+                deferred.resolve(finalTableName);
+            })
+            .fail(function(error) {
+                submissionFailHandler(lJoinInfo.tableId, rJoinInfo.tableId,
+                                      origFormOpenTime, error);
+                deferred.reject();
+            });
+        }
+
 
         return deferred.promise();
     }
@@ -1627,15 +1725,14 @@ window.JoinView = (function($, JoinView) {
         var tableIds = getTableIds();
         var lTableId = tableIds[0];
         var rTableId = tableIds[1];
-        var lTable = gTables[lTableId];
-        var rTable = gTables[rTableId];
 
         // Must collect joinKey data here in case old tables not kept
-        var joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols,
-                                                        lTableId, rTableId);
+        var joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols);
         // set up "joining on" columns
-        var lColNums = getColNumFromName(lCols, lTable);
-        var rColNums = getColNumFromName(rCols, rTable);
+        var lColNums = getColNumsFromName(lCols, lTable);
+        var rColNums = getColNumsFromName(rCols, rTable);
+        var lColNames = getColNames(lCols, lTable);
+        var rColNames = getColNames(rCols, rTable);
         // set up "keeping" columns
         var colNamesToKeep = getColNamesToKeep(lTable, rTable);
         var lColsToKeep = colNamesToKeep.left;
@@ -1644,6 +1741,7 @@ window.JoinView = (function($, JoinView) {
         var lJoinInfo = {
             "tableId": lTableId,
             "colNums": lColNums,
+            "colNames": lColNames,
             "casts": getCasts(0),
             "pulledColumns": lColsToKeep,
             "rename": null
@@ -1651,6 +1749,7 @@ window.JoinView = (function($, JoinView) {
         var rJoinInfo = {
             "tableId": rTableId,
             "colNums": rColNums,
+            "colNames": rColNames,
             "casts": getCasts(1),
             "pulledColumns": rColsToKeep,
             "rename": null
@@ -1708,7 +1807,7 @@ window.JoinView = (function($, JoinView) {
         // Now that we have all the columns that we want to rename, we
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
-        if (!gTurnOnPrefix) {
+        if (!gTurnOnPrefix || isEditMode) {
             return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
@@ -1953,12 +2052,27 @@ window.JoinView = (function($, JoinView) {
         return prefixes;
     }
 
-    function getColNumFromName(cols, table) {
+    function getColNumsFromName(cols, table) {
+        if (isEditMode) {
+            return [];
+        }
         var colNums = cols.map(function(colName) {
             var progCol = table.getColByFrontName(colName);
             return table.getColNumByBackName(progCol.getBackColName());
         });
         return colNums;
+    }
+
+    function getColNames(cols, table) {
+        var colNames = cols.map(function(colName) {
+            var progCol = table.getColByFrontName(colName);
+            if (!progCol) {
+                return colName;
+            } else {
+                return progCol.getBackColName();
+            }
+        });
+        return colNames;
     }
 
     function getColNamesToKeep(lTable, rTable) {
@@ -1996,7 +2110,10 @@ window.JoinView = (function($, JoinView) {
         return colsToKeep;
     }
 
-    function prepJoinKeyDataSubmit(lCols, rCols, lTableId, rTableId) {
+    function prepJoinKeyDataSubmit(lCols, rCols) {
+        if (isEditMode) {
+            return null;
+        }
         var dataPerClause = [];
         // Iterate over each clause, treating every pair of left|right clause
         // as a completely independent data point.
@@ -2004,9 +2121,7 @@ window.JoinView = (function($, JoinView) {
             for (var i = 0; i < lCols.length; i++) {
                 var curSrcBackName = lCols[i];
                 var curDestBackName = rCols[i];
-                var joinKeyInputs = getJoinKeyInputs(lTableId,
-                                                    curSrcBackName,
-                                                    rTableId);
+                var joinKeyInputs = getJoinKeyInputs(curSrcBackName);
                 var dataToSubmit = xcSuggest.processJoinKeyData(
                                                             joinKeyInputs,
                                                             curDestBackName);
@@ -2207,7 +2322,7 @@ window.JoinView = (function($, JoinView) {
         }
     }
 
-    function addClause(noAnimation, tableId, colNum) {
+    function addClause(noAnimation, tableId, colNum, colNames) {
 
         var progCol;
         if (tableId && colNum != null) {
@@ -2218,13 +2333,12 @@ window.JoinView = (function($, JoinView) {
         }
 
         var $newClause = $(multiClauseTemplate);
-        var tableIds = getTableIds();
-        if (gTables[tableIds[0]]) {
+        if (lTable) {
             var $leftClause = $newClause.find(".leftClause");
             xcTooltip.remove($leftClause);
             $leftClause.attr("disabled", false).removeClass("inActive");
         }
-        if (gTables[tableIds[1]]) {
+        if (rTable) {
             var $rightClause = $newClause.find(".rightClause");
             xcTooltip.remove($rightClause);
             $rightClause.attr("disabled", false).removeClass("inActive");
@@ -2234,7 +2348,10 @@ window.JoinView = (function($, JoinView) {
         if (tableId && colNum != null) {
             var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
-        } else if (gTables[tableIds[0]]) {
+        } else if (colNames) {
+            $div.find('.arg').eq(0).val(colNames[0]);
+            $div.find('.arg').eq(1).val(colNames[1]);
+        } else if (lTable) {
             $div.find('.arg').eq(0).focus();
         }
 
@@ -2257,17 +2374,12 @@ window.JoinView = (function($, JoinView) {
         updatePreviewText();
         $joinView.removeClass('nextStep');
         $("#container").removeClass("joinState2");
-        updateJoinTableName();
+        $joinTableName.val("");
         resetRenames();
         $joinView.find(".tableListSection .arg").data("val", "");
     }
 
-    function updateJoinTableName() {
-        var joinTableName = "";
-        $joinTableName.val(joinTableName);
-    }
-
-    function fillTableLists(origTableId, refresh) {
+    function fillTableLists(refresh) {
         var tableLis = WSManager.getTableList();
 
         $leftTableDropdown.find('ul').html(tableLis);
@@ -2285,13 +2397,13 @@ window.JoinView = (function($, JoinView) {
             }).addClass('selected');
         } else {
             // select li and fill left table name dropdown
-            var tableName = gTables[origTableId].getName();
+            var tableName = lTable.getName();
             $leftTableDropdown.find('.text').val(tableName);
             $leftTableDropdown.find('.text').data("val", tableName);
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === tableName);
             }).addClass('selected');
-            selectAllTableCols(origTableId);
+            selectAllTableCols(lTable);
         }
     }
 
@@ -2330,33 +2442,34 @@ window.JoinView = (function($, JoinView) {
         $el.focus();
     }
 
-    function getColInputs(tableId, frontColName) {
-        var col = gTables[tableId].getColByFrontName(frontColName);
+    function getColInputs(table, frontColName) {
+        var col = table.getColByFrontName(frontColName);
         if (!col) {
             return null;
         }
         var backColName = col.getBackColName();
         var type = col.getType();
-        var colNum = gTables[tableId].getColNumByBackName(backColName);
-        var data = gTables[tableId].getColContents(colNum);
+        var colNum = table.getColNumByBackName(backColName);
+        var data = table.getColContents(colNum);
         var requiredInfo = {
             'type': type,
             'name': col.getFrontColName(), // without prefix
             'data': data,
             'uniqueIdentifier': backColName, // Only IDs chosen result,
-            'tableId': tableId
+            'tableId': table.getId()
         };
         return requiredInfo;
     }
 
-    function getJoinKeyInputs(tableId, val, suggTableId) {
-        var srcInfo = getColInputs(tableId, val);
+    function getJoinKeyInputs(val) {
+        var table = lTable;
+        var suggTable = rTable;
+        var srcInfo = getColInputs(table, val);
         var destInfo = [];
-        var suggTable = gTables[suggTableId];
         var suggCols = suggTable.getAllCols();
         for (var i = 0; i < suggCols.length; i++) {
             if (!suggCols[i].isDATACol()) {
-                var result = getColInputs(suggTableId,
+                var result = getColInputs(suggTable,
                     suggCols[i].getFrontColName(true));
                 if (result !== null) {
                     destInfo.push(result);
@@ -2371,7 +2484,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
-        var inputs = getJoinKeyInputs(tableId, val, suggTableId);
+        var inputs = getJoinKeyInputs(val);
         if (inputs.srcColInfo == null) {
             return JoinKeySuggestion.KeyNotFound;
         }

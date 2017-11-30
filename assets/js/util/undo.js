@@ -361,6 +361,21 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
+    undoFuncs[SQLOps.DFRerun] = function(options) {
+        var deferred = jQuery.Deferred();
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
+
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
+
+        return TblManager.refreshTable([options.tableName], null,
+                                [options.newTableName], worksheet, null,
+                                refreshOptions);
+    };
+
     undoFuncs[SQLOps.Finalize] = function(options) {
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);

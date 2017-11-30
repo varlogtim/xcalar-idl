@@ -345,7 +345,8 @@ SQLOps = {
     Finalize: "finalizeTable",
     Ext: "extension",
     MarkPrefix: "markPrefix",
-    Replay: "Replay"
+    Replay: "Replay",
+    DFRerun: "Dataflow Rerun"
 };
 
 XcalarMode = {

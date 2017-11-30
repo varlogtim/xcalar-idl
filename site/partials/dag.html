@@ -72,6 +72,15 @@
         <li class="editOp" data-action="editOp">
           Edit Operation
         </li>
+        <li class="expandTag" data-action="expandTag">
+          Reveal Operations
+        </li>
+        <li class="collapseTag" data-action="collapseTag">
+          Hide Operations
+        </li>
+        <li class="undoEdit" data-action="undoEdit">
+          Undo Edit
+        </li>
     </ul>
     <ul class="menu dagTableDropDown">
       <li class="unexpectedInfo">
@@ -121,11 +130,32 @@
       <li class="showSchema">
         <%= dicts.MenuTStr.ShowSchema %>
       </li>
+      <li class="exitEdit">
+        Exit Dataflow Editing
+      </li>
     </ul>
 
   </div>
   <div id="dagScrollBarWrap">
     <div class="sizer"></div>
+  </div>
+</div>
+
+<div id="mapPreForm" class="schemaPopup">
+  <div id="mapPreFormTitle" class="title">
+    <div class="titleContentWrap">
+      <span class="tableName">Map</span>
+      <span class="numCols" title=""></span>
+    </div>
+    <div class="close" data-container="body"
+       data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+      <i class="icon xi-close"></i>
+    </div>
+  </div>
+  <div class="subHeader">
+    <div class="text">Choose an operation to edit</div>
+  </div>
+  <div class="content">
   </div>
 </div>
 

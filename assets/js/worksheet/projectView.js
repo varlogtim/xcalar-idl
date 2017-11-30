@@ -4,9 +4,10 @@ window.ProjectView = (function($, ProjectView) {
     var exportHelper;
     var tableId;
     var $table;
-    var isOpen = false;
     var focusedListNum;
     var focusedThNum;
+    var table;
+    var isEditMode;
 
     ProjectView.setup = function() {
         $projectView = $("#projectView");
@@ -25,15 +26,21 @@ window.ProjectView = (function($, ProjectView) {
     };
 
     ProjectView.show = function(tId, colNums, options) {
-        if (isOpen) {
+        if (formHelper.isOpen()) {
             return;
         }
         options = options || {};
         if (options.restoreTime && options.restoreTime !== formHelper.getOpenTime()) {
             return;
         }
-        isOpen = true;
         formHelper.showView();
+
+        isEditMode = options.prefill ? true : false;
+        if (options.prefill && options.prefill.isDroppedTable) {
+            table = gDroppedTables[tId];
+        } else if (!options.restoreTime) {
+            table = gTables[tId];
+        }
 
         if (options.restoreTime) {
             restoreSelectedTableCols();
@@ -61,10 +68,9 @@ window.ProjectView = (function($, ProjectView) {
     };
 
     ProjectView.close = function() {
-        if (!isOpen) {
+        if (!formHelper.isOpen()) {
             return;
         }
-        isOpen = false;
 
         formHelper.hideView();
 
@@ -79,7 +85,7 @@ window.ProjectView = (function($, ProjectView) {
     };
 
     ProjectView.updateColumns = function() {
-        if (!isOpen) {
+        if (!formHelper.isOpen()) {
             return;
         }
         var selectedCols = exportHelper.getExportColumns();
@@ -192,6 +198,10 @@ window.ProjectView = (function($, ProjectView) {
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
                     tableId = $li.data('id');
+                    if (!gTables[tableId]) {
+                        return;
+                    }
+                    table = gTables[tableId];
                     $table = $('#xcTable-' + tableId);
                     clearAllCols();
                     refreshTableColList();
@@ -219,7 +229,7 @@ window.ProjectView = (function($, ProjectView) {
     }
 
     function refreshTableColList() {
-        var allCols = gTables[tableId].getAllCols();
+        var allCols = table.getAllCols();
         var splitName;
         var prefixed = [];
         var derived = [];
@@ -350,7 +360,7 @@ window.ProjectView = (function($, ProjectView) {
         if (refresh) {
             tableName = $tableListSection.find('.dropDownList .text').text();
         } else {
-            tableName = gTables[tableId].getName();
+            tableName = table.getName();
             $tableListSection.find('.dropDownList .text').text(tableName);
         }
 
@@ -371,7 +381,7 @@ window.ProjectView = (function($, ProjectView) {
     }
 
     function selectInitialTableCols(colNums) {
-        var allCols = gTables[tableId].getAllCols();
+        var allCols = table.getAllCols();
         for (var i = 0; i < colNums.length; i++) {
             var colNum = colNums[i];
             if (!allCols[colNum - 1].backName.trim().length ||
@@ -435,13 +445,9 @@ window.ProjectView = (function($, ProjectView) {
     }
 
     function selectCol(colNum, fromTableHeader) {
-        if (!gTables[tableId]) {
-            return;
-        }
         $table.find('.col' + colNum).addClass('modalHighlighted');
 
         var $colList = $projectView.find(".cols");
-
         var $li = $colList.find('li[data-colnum="' + colNum + '"]');
 
         if (fromTableHeader) {
@@ -453,7 +459,7 @@ window.ProjectView = (function($, ProjectView) {
         }
         $li.addClass('checked').find('.checkbox').addClass('checked');
 
-        checkToggleSelectAllBox(tableId);
+        checkToggleSelectAllBox();
     }
 
     function deselectCol(colNum, fromTableHeader) {
@@ -470,7 +476,7 @@ window.ProjectView = (function($, ProjectView) {
         }
         $li.removeClass('checked')
                 .find('.checkbox').removeClass('checked');
-        checkToggleSelectAllBox(tableId);
+        checkToggleSelectAllBox();
     }
 
     function selectAll(isPrefix, $group) {
@@ -544,7 +550,7 @@ window.ProjectView = (function($, ProjectView) {
                 "$ele": $projectView.find('.tableList').find(".text"),
                 "error": ErrTStr.TableNotExists,
                 "check": function() {
-                    return !gTables[tableId];
+                    return !gTables[tableId] && !isEditMode;
                 }
             }
         ]);
@@ -553,7 +559,7 @@ window.ProjectView = (function($, ProjectView) {
             return PromiseHelper.reject({"error": "tableNotFound"});
         }
 
-        if (!gTables[tableId].isActive()) {
+        if (!isEditMode && !gTables[tableId].isActive()) {
             StatusBox.show(TblTStr.NotActive,
                             $projectView.find('.tableList').find(".text"));
             return PromiseHelper.reject({"error": "tableNotFound"});
@@ -599,7 +605,7 @@ window.ProjectView = (function($, ProjectView) {
             "formOpenTime": formHelper.getOpenTime()
         };
 
-        if ($("#container").hasClass("dfEditState")) {
+        if (isEditMode) {
             DagEdit.store({
                 tableId: tableId,
                 args: {columns: backColumnNames}

@@ -1932,6 +1932,13 @@ FormHelper.prototype = {
         }
 
         this.$form.addClass('xc-hidden');
+        $(".dagWrap").removeClass("editing");
+        $(".xcTableWrap").removeClass("editing");
+        $("#container").removeClass("editingForm");
+        $(".dagWrap .dagTable").removeClass("editing");
+        if ($("#container").hasClass("dfEditState")) {
+            TblFunc.focusTable($(".dagWrap.editMode").data("id"));
+        }
         if (this.mainMenuState != null) {
 
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
@@ -1939,6 +1946,7 @@ FormHelper.prototype = {
         }
         StatusBox.forceHide();
         xcTooltip.hideAll();
+
     },
 
     checkBtnFocus: function() {
@@ -1968,6 +1976,9 @@ FormHelper.prototype = {
         $form.find(".focusable").off(".xcForm")
                                   .removeClass("focusable");
         $(".xcTableWrap").removeClass("columnPicker");
+        $(".dagWrap").removeClass("editing");
+        $(".xcTableWrap").removeClass("editing");
+        $("#container").removeClass("editingForm");
         var $noColPickers = $(".xcTable").find('.noColumnPicker')
                                          .removeClass('noColumnPicker')
                                          .removeAttr("data-tipClasses");

@@ -59,8 +59,60 @@ window.DagFunction = (function($, DagFunction) {
             } else {
                 for (var i = 0; i < node.parents.length; i++) {
                     var parent = node.parents[i];
-                    var parentName = parent.value.name;
-                    parentNames.push(parentName);
+                    parentNames.push(parent.value.name);
+                }
+            }
+
+            return parentNames;
+        },
+
+        getTagSourceNames: function() {
+            var parentNames = [];
+            var node = this;
+
+            if (node.value.display.hasTagGroup) {
+                var parents = [];
+                search(node);
+
+                function search(node) {
+                    for (var i = 0; i < node.parents.length; i++) {
+                        var parentNode = node.parents[i];
+                        if (parentNode.value.display.isInTagGroup ||
+                            parentNode.value.display.isHidden) {
+                            search(parentNode);
+                        } else { // may produce duplicate parents on purpose
+                            parents.push(parentNode);
+                        }
+                    }
+                }
+                for (var i = 0; i < parents.length; i++) {
+                    parentNames.push(parents[i].value.name);
+                }
+            } else {
+                for (var i = 0; i < node.parents.length; i++) {
+                    var parent = node.parents[i];
+                    parentNames.push(parent.value.name);
+                }
+            }
+
+            return parentNames;
+        },
+
+        getNonIndexSourceNames: function() {
+            var parentNames = [];
+            var node = this;
+
+            search(node);
+
+            function search(node) {
+                for (var i = 0; i < node.parents.length; i++) {
+                    if (node.parents[i].value.api !== XcalarApisT.XcalarApiIndex ||
+                        node.parents[i].value.struct.source.indexOf(gDSPrefix) ===
+                        0) {
+                        parentNames.push(node.parents[i].value.name);
+                    } else {
+                        search(node.parents[i]);
+                    }
                 }
             }
 
@@ -76,6 +128,7 @@ window.DagFunction = (function($, DagFunction) {
         this.inputName = inputName;
         this.name = name;
         this.numParents = numParents;
+        this.indexedFields = [];
         this.tag = tag;
         this.tags = [];
         this.state = state;
@@ -135,6 +188,8 @@ window.DagFunction = (function($, DagFunction) {
         trees.splice(0, 0, tree);
         var sets = getSets(trees);
 
+        setIndexedFields(sets);
+
         lineageStruct.tree = tree;
         lineageStruct.trees = trees;
         lineageStruct.sets = sets;
@@ -147,6 +202,80 @@ window.DagFunction = (function($, DagFunction) {
         }
         return lineageStruct;
     };
+
+    // only being used for group by
+    function setIndexedFields(sets) {
+        var seen = {};
+        for (var i = 0; i < sets.length; i++) {
+            var tree = sets[i];
+            search(tree);
+        }
+
+        function search(node) {
+            if (seen[node.value.name]) {
+                return;
+            }
+            seen[node.value.name] = true;
+            if (node.value.api === XcalarApisT.XcalarApiGroupBy) {
+                node.value.indexedFields = getIndexedFields(node);
+            } else if (node.value.api === XcalarApisT.XcalarApiJoin) {
+                node.value.indexedFields = getJoinIndexedFields(node);
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                search(node.parents[i]);
+            }
+        }
+    }
+
+    function getIndexedFields(node) {
+        var cols = [];
+        search(node);
+        function search(node) {
+            // if parent node is join, it's indexed by left parent, ignore right
+            var numParents = Math.min(node.parents.length, 1);
+            for (var i = 0; i < numParents; i++) {
+                var parentNode = node.parents[i];
+                if (parentNode.value.api === XcalarApisT.XcalarApiIndex) {
+                    cols = parentNode.value.struct.key.map(function(key) {
+                        return key.name;
+                    });
+                    return cols;
+                } else {
+                    search(parentNode);
+                }
+            }
+        }
+
+        return cols;
+    }
+
+    function getJoinIndexedFields(node) {
+        var cols = {left: [], right: []};
+        search(node.parents[0], true);
+        search(node.parents[1]);
+
+        function search(node, isLeft) {
+            if (node.value.api === XcalarApisT.XcalarApiIndex) {
+                var keys = node.value.struct.key.map(function(key) {
+                    return key.name;
+                });
+                if (isLeft) {
+                    cols.left = keys;
+                } else {
+                    cols.right = keys;
+                }
+                return;
+            }
+            // if parent node is join, it's indexed by left parent, ignore right
+            var numParents = Math.min(node.parents.length, 1);
+            for (var i = 0; i < numParents; i++) {
+                search(node.parents[i], isLeft);
+            }
+        }
+
+        return cols;
+    }
+
 
     DagFunction.destruct = function(tableId) {
         delete dagLineage[tableId];
@@ -297,7 +426,13 @@ window.DagFunction = (function($, DagFunction) {
             console.error('Cannot focus table due to no worksheet!');
             return;
         }
-        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+
+        var $wsListItem = $('#worksheetTab-' + wsId);
+        if ($wsListItem.hasClass("hiddenTab")) {
+            $wsListItem.find(".unhide").click();
+        } else {
+            $wsListItem.trigger(fakeEvent.mousedown);
+        }
 
         if ($dagPanel.hasClass('full')) {
             $('#dagPulloutTab').click();
@@ -418,9 +553,27 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    // DagFunction.runProcedureWithParams("schedule2#kU683", {"schedule2#kU682":{"eval": [{"evalString":"eq(schedule1::class_id, 2)","newField":""}]}})
+    function searchTreeForName(tree, name) {
+        var foundNode;
+        search(tree);
+        function search(node) {
+            if (node.value.name === name) {
+                foundNode = node;
+                return;
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                if (!foundNode) {
+                    search(node.parents[i]);
+                } else {
+                    break;
+                }
+            }
+        }
+        return foundNode;
+    }
+
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
-    DagFunction.runProcedureWithParams = function(tableName, params, doNotRun) {
+    DagFunction.runProcedureWithParams = function(tableName, params, newNodes, doNotRun) {
         // XXX need to handle old struct format
         if (doNotRun) {
             console.log("Sample Usage: ");
@@ -457,6 +610,10 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
 
+        // create new index nodes into valueArray and modify it's child node
+        var newNodesArray = [];
+        insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray);
+
         // Time to deep clone the tree. We cannot use deepCopy trick due to
         // constructor functions.
         var allEndPoints = [];
@@ -467,6 +624,7 @@ window.DagFunction = (function($, DagFunction) {
             console.info("Tree Empty!");
             return;
         }
+
         var treeNodeArray = getOrderedDedupedNodes(allEndPoints,
                              "TreeNode");
         if (treeNodeArray.length === 0) {
@@ -477,7 +635,14 @@ window.DagFunction = (function($, DagFunction) {
         // start node (s)
         var startNodes = [];
         for (var i = 0; i < paramNodes.length; i++) {
-            startNodes[i] = findTreeNodeInNodeArray(paramNodes[i], treeNodeArray);
+            startNodes.push(findTreeNodeInNodeArray(paramNodes[i], treeNodeArray));
+        }
+
+        for (var i = 0; i < newNodesArray.length; i++) {
+            var newTreeNode = findTreeNodeInNodeArray(newNodesArray[i], treeNodeArray);
+            newTreeNode.value.tag = newTreeNode.children[0].value.tag;
+            newTreeNode.value.tags = newTreeNode.value.tag.split(",");
+            startNodes.push(newTreeNode);
         }
 
         if (doNotRun) {
@@ -503,37 +668,39 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
 
-        // Step 3. From start of treeNodeArray, start renaming all nodes
+        // Step 3. From start of treeNodeArray (left side of the graph), start renaming all nodes
         var translation = {};
-        var randomQueryNum = Math.ceil(Math.random() * 10000);
+        var tagHeaders = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var destTableStruct = {};
-            var originTableStruct = [];
-
-            destTableStruct = treeNodesToRerun[i].value.struct;
-            for (var j = 0; j < treeNodesToRerun[i].parents.length; j++) {
-                originTableStruct.push(treeNodesToRerun[i].parents[j].value.struct);
-            }
+            var destTableStruct = treeNodesToRerun[i].value.struct;
+            var destTableValue = treeNodesToRerun[i].value;
 
             if (i > 0) {
-                updateSourceName(destTableStruct, translation);
+                updateSourceName(destTableStruct, translation, tagHeaders);
             }
 
-            updateDestinationName(destTableStruct, translation, randomQueryNum);
+            updateDestinationName(destTableValue, translation, tagHeaders);
         }
 
         var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length - 1].value;
         var finalTableName = finalTreeValue.struct.dest;
 
+        // store the old tags so we can replace and add back with no tags after
+        // query is run
+        var nameToTagsMap = {};
+        for (var i = 0; i < treeNodesToRerun.length; i++) {
+            nameToTagsMap[treeNodesToRerun[i].value.struct.dest] = treeNodesToRerun[i].value.tags;
+        }
+
         var sql = {
-            "operation": SQLOps.Query,
+            "operation": SQLOps.DFRerun,
             "tableName": tableName,
             "tableId": tableId,
             "newTableName": finalTableName
         };
         var txId = Transaction.start({
             "msg": 'Rerun: ' + tableName,
-            "operation": SQLOps.Query,
+            "operation": SQLOps.DFRerun,
             "sql": sql,
             "steps": 1
         });
@@ -542,14 +709,25 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.lockTable(tableId, txId);
 
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
+
+        console.log(JSON.parse(entireString));
+
+
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
             console.log(finalTableName);
 
             var worksheet = WSManager.getWSFromTable(tableId);
-            TblManager.refreshTable([finalTableName],
+            return TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
-                                    worksheet, txId);
+                                    // gTables[tableId].tableCols, null,
+                                    worksheet, txId, {noTag: true,
+                                        focusOnWorkspace: true});
+        })
+        .then(function() {
+            var finalTableId = xcHelper.getTableId(finalTableName);
+
+            return tagNodesAfterEdit(finalTableId, nameToTagsMap, tagHeaders);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, txId);
@@ -560,15 +738,15 @@ window.DagFunction = (function($, DagFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId, txId);
+
             console.error(error);
             Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.StoredProcFailed,
+                "failMsg": StatusMessageTStr.RerunFailed,
                 "error": error
             });
         });
 
         function updateSourceName(struct, translation) {
-
             if ("source" in struct) {
                 if (typeof struct.source === "string") {
                     if (translation[struct.source]) {
@@ -584,14 +762,23 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        function updateDestinationName(struct, translation, randomQueryNum) {
-            if (struct.dest in translation) {
-                struct.dest = translation[struct.dest];
+        function updateDestinationName(value, translation, tagHeaders) {
+            if (value.struct.dest in translation) {
+                value.struct.dest = translation[value.struct.dest];
             } else {
-                var tableName = xcHelper.getTableName(struct.dest);
-                var newTableName = tableName + Authentication.getHashId();
-                translation[struct.dest] = newTableName;
-                struct.dest = newTableName;
+                var tableName = xcHelper.getTableName(value.struct.dest);
+                var oldId = xcHelper.getTableId(value.struct.dest);
+                var newId = Authentication.getHashId();
+                var newTableName = tableName + newId;
+
+                for (var i = 0; i < value.tags.length; i++) {
+                    if (xcHelper.getTableId(value.tags[i]) === oldId) {
+                        tagHeaders[value.tags[i]] = xcHelper.getTableName(value.tags[i]) + newId;
+                    }
+                }
+
+                translation[value.struct.dest] = newTableName;
+                value.struct.dest = newTableName;
             }
         }
 
@@ -621,6 +808,136 @@ window.DagFunction = (function($, DagFunction) {
             return (true);
         }
     };
+
+    function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
+        for (var name in newNodes) {
+            var indexNodes = newNodes[name];
+            for (var i = 0; i < indexNodes.length; i++) {
+                var indexNode = indexNodes[i];
+                var struct = new XcalarApiIndexInputT();
+                struct.broadcast = false;
+                struct.delaySort = false;
+                struct.dhtName = "";
+                struct.key = indexNode.keys;
+                struct.ordering = "Unordered";
+                struct.prefix = ""; // XXX check what to use here
+                struct.source = indexNode.src;
+                struct.dest = xcHelper.getTableName(indexNode.src) + ".index" +
+                              Authentication.getHashId();
+
+                var node = new TreeValue(XcalarApisT.XcalarApiIndex, struct, 0,
+                                    'indexInput',
+                                    struct.dest, 1, "", DgDagStateT.DgDagStateReady);
+                var dest;
+                for (var j = 0; j < valueArray.length; j++) {
+                    if (valueArray[j].name === name) {
+                        dest = valueArray[j];
+                        break;
+                    }
+                }
+                if (typeof dest.struct.source === "string") {
+                    dest.struct.source = struct.dest;
+                } else {
+                    for (var j = 0; j < dest.struct.source.length; j++) {
+                        if (dest.struct.source[j] === struct.source) {
+                            dest.struct.source[j] = struct.dest;
+                        }
+                    }
+                }
+
+                valueArray.unshift(node);
+                newNodesArray.push(struct.dest);
+            }
+        }
+    }
+
+    function tagNodesAfterEdit(tableId, nameToTagsMap, tagHeaders) {
+        var newTree = $("#dagWrap-" + tableId).data("allDagInfo").tree;
+        var newTagMap = {};
+
+        search(newTree);
+
+        function search(node) {
+            var newTag = "";
+            if (nameToTagsMap[node.value.name]) {
+                newTag = "";
+                var oldTags = nameToTagsMap[node.value.name];
+                for (var i = 0; i < oldTags.length; i++) {
+                    var tag = tagHeaders[oldTags[i]];
+                    if (tag) {
+                        if (newTag) {
+                            newTag += ",";
+                        }
+                        newTag += tag;
+                    }
+                }
+                if (newTag) {
+                    if (!newTagMap[newTag]) {
+                        newTagMap[newTag] = [];
+                    }
+                    newTagMap[newTag].push(node.value.name);
+                }
+
+            } else {
+                newTag = node.value.tag;
+                var hasChange = false;
+                for (var i = 0; i < node.value.tags.length; i++) {
+                    var tag = node.value.tags[i];
+                    if (tagHeaders[tag]) {
+                        newTag += "," + tagHeaders[tag];
+                        hasChange = true;
+
+                    }
+                }
+                if (hasChange) {
+                    if (!newTagMap[newTag]) {
+                        newTagMap[newTag] = [];
+                    }
+                    newTagMap[newTag].push(node.value.name);
+                }
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                search(node.parents[i]);
+            }
+        }
+
+        return  retagNodes(newTagMap, tableId);
+    }
+
+    // always resolves
+    function retagNodes(tagMap, tableId) {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        for (var tag in tagMap) {
+            promises.push(XcalarTagDagNodes(tag, tagMap[tag]));
+        }
+        PromiseHelper.when.apply(null, promises)
+        .then(function() {
+            var $dagWrap = $("#dagWrap-" + tableId);
+            var dagInfo = $dagWrap.data("allDagInfo");
+            var nodeIdMap = dagInfo.nodeIdMap;
+            var $dagTable;
+            var node;
+            var id;
+            for (var tag in tagMap) {
+                var tables = tagMap[tag];
+                for (var i = 0; i < tables.length; i++) {
+                    $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
+                                          tables[i] + "']");
+                    if (!$dagTable.length) {
+                        continue;
+                    }
+                    id = $dagTable.data("index");
+                    node = nodeIdMap[id];
+                    node.value.tag = tag;
+                }
+            }
+            DagDraw.refreshDagImage(tableId, null, []);
+        })
+        .always(deferred.resolve);
+
+        return deferred.promise();
+    }
 
     function getXcalarQueryCli(orderedArray) {
         globalArray = [];
@@ -846,3 +1163,69 @@ window.DagFunction = (function($, DagFunction) {
     return DagFunction;
 }(jQuery, {}));
 
+var testfail = [
+    {
+        "operation": "XcalarApiIndex",
+        "args": {
+            "source": "teachers#kU1214",
+            "dest": "teachers.index#kU1217",
+            "key": [
+                {
+                    "name": "teachers::teacher_id",
+                    "keyFieldName": "teachers::teacher_id",
+                    "type": "DfUnknown"
+                },
+                {
+                    "name": "teachers::teacher_name",
+                    "keyFieldName": "teachers::teacher_name",
+                    "type": "DfUnknown"
+                }
+            ],
+            "prefix": "",
+            "ordering": "Unordered",
+            "dhtName": "",
+            "delaySort": false,
+            "broadcast": false
+        }
+    },
+    {
+        "operation": "XcalarApiIndex",
+        "args": {
+            "source": "teachers-GB#kU1206",
+            "dest": "teachers-GB.index#kU1218",
+            "key": [
+                {
+                    "name": "teacher_id",
+                    "keyFieldName": "teacher_id",
+                    "type": "DfUnknown"
+                },
+                {
+                    "name": "teacher_id_count",
+                    "keyFieldName": "teacher_id_count",
+                    "type": "DfUnknown"
+                }
+            ],
+            "prefix": "",
+            "ordering": "Unordered",
+            "dhtName": "",
+            "delaySort": false,
+            "broadcast": false
+        }
+    },
+    {
+        "operation": "XcalarApiJoin",
+        "args": {
+            "source": [
+                "teachers.index#kU1217",
+                "teachers-GB.index#kU1218"
+            ],
+            "dest": "onj#kU1219",
+            "joinType": "fullOuterJoin",
+            "renameMap": [
+                [],
+                []
+            ],
+            "evalString": ""
+        }
+    }
+]

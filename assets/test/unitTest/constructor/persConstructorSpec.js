@@ -1881,7 +1881,7 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("DSObj Constructor Test", function() {
+    describe.skip("DSObj Constructor Test", function() {
         it("Should have 10 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",

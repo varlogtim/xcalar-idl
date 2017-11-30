@@ -22,6 +22,7 @@ window.TblManager = (function($, TblManager) {
         -position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo
         -replacingDest: string, where to send old tables that are being replaced
+        -noTag: boolean, if true will not tag nodes
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
                                        worksheet, txId, options)
@@ -115,7 +116,8 @@ window.TblManager = (function($, TblManager) {
                 "from": options.from,
                 "replacingDest": options.replacingDest,
                 "ws": worksheet,
-                "txId": txId
+                "txId": txId,
+                "noTag": options.noTag
             };
 
             return addTable(newTableName, tablesToReplace, tablesToRemove,
@@ -212,7 +214,8 @@ window.TblManager = (function($, TblManager) {
         afterStartup: boolean to indicate if the table is added after page load
         selectCol: number or array of numbers. column to be highlighted when
                     table is ready,
-        txId: string, used for tagging operations before creating dag
+        txId: string, used for tagging operations before creating dag,
+        noTag: boolean, if true will not tag nodes
     */
     TblManager.parallelConstruct = function(tableId, tableToReplace, options) {
         options = options || {};
@@ -406,7 +409,12 @@ window.TblManager = (function($, TblManager) {
             if (gTables[tableId].status === TableType.Active) {
                 $('#workspaceTab').click();
                 wsId = WSManager.getWSFromTable(tableId);
-                $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+                var $wsListItem = $('#worksheetTab-' + wsId);
+                if ($wsListItem.hasClass("hiddenTab")) {
+                    $wsListItem.find(".unhide").click();
+                } else {
+                    $wsListItem.trigger(fakeEvent.mousedown);
+                }
 
                 if ($("#dagPanel").hasClass('full')) {
                     $('#dagPulloutTab').click();
@@ -435,7 +443,9 @@ window.TblManager = (function($, TblManager) {
                 $('#workspaceTab').click();
                 wsId = WSManager.getActiveWS();
                 WSManager.moveInactiveTable(tableId, wsId, tableType, true)
-                .then( deferred.resolve)
+                .then(function() {
+                    deferred.resolve({tableFromInactive: true});
+                })
                 .fail(deferred.reject);
             }
         } else {
@@ -446,7 +456,9 @@ window.TblManager = (function($, TblManager) {
                     wsId = WSManager.getActiveWS();
                     WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan,
                                                 true)
-                    .then(deferred.resolve)
+                    .then(function() {
+                        deferred.resolve({tableFromInactive: true});
+                    })
                     .fail(deferred.reject);
                 } else {
                     deferred.reject();
@@ -1451,6 +1463,7 @@ window.TblManager = (function($, TblManager) {
         TblFunc.matchHeaderSizes($table);
     };
 
+    // $tableWrap is optional
     TblManager.alignTableEls = function($tableWrap) {
         TblFunc.moveTableTitles($tableWrap);
         TblFunc.moveTableDropdownBoxes();
@@ -1599,7 +1612,8 @@ window.TblManager = (function($, TblManager) {
                 through an undo,
         -replacingDest: string, where to send old tables that are being replaced
         -ws: string, worksheet id of where new table will go
-        -txId: string, used for tagging dag operations
+        -txId: string, used for tagging dag operations,
+        -noTag: boolean, if true will not tag nodes
     */
     function addTable(newTableName, tablesToReplace, tablesToRemove, options) {
         var deferred = jQuery.Deferred();
@@ -1614,7 +1628,8 @@ window.TblManager = (function($, TblManager) {
             selectCol: options.selectCol,
             wsId: options.ws,
             position: options.position,
-            txId: options.txId
+            txId: options.txId,
+            noTag: options.noTag
         };
         TblManager.parallelConstruct(newTableId, tablesToReplace[0],
                                     parallelOptions)
@@ -1859,7 +1874,7 @@ window.TblManager = (function($, TblManager) {
     function createDag(tableId, tableToReplace, options) {
         var deferred = jQuery.Deferred();
         var promise;
-        if (options.txId != null) {
+        if (options.txId != null && !options.noTag) {
             promise = DagFunction.tagNodes(options.txId);
         } else {
             promise = PromiseHelper.resolve();
@@ -2302,7 +2317,6 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
             if ($("#container").hasClass("columnPicker") ||
-                $("#container").hasClass("dfEditState") ||
                 ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
                 // not focus when in modal unless bypassModa is true
                 return;

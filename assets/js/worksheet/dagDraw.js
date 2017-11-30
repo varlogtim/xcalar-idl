@@ -1114,27 +1114,26 @@ window.DagDraw = (function($, DagDraw) {
         } else if (info.subType === "createTable") {
             operation = "Create Table";
         }
-        var classes = "actionType dropdownBox tagHeader " + info.type;
+
         var tagIconTip;
         var tagId = xcHelper.getTableId(node.value.tag);
         var tagName = getOpFromTag(node.value.tag);
         var tagGroup = generalInfo.tagGroups[tagId].group;
         var numInGroup = tagGroup.length + 1; // include self + 1
         if (node.value.display.tagCollapsed) {
-            classes += " collapsed ";
+            $operation.removeClass("expanded").addClass("collapsed");
             tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
                             {number: numInGroup,
                              op: tagName[0].toUpperCase() + tagName.slice(1)
                             });
         } else {
-            classes += " expanded ";
+            $operation.removeClass("collapsed").addClass("expanded");
             tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
                             {number: numInGroup,
                              op: tagName[0].toUpperCase() + tagName.slice(1)
                             });
         }
 
-        $operation.attr("class", classes);
         $operation.data("type", info.type);
         $operation.data("info", info.eval);
         xcTooltip.changeText($operation.find(".actionTypeWrap"),
@@ -1920,6 +1919,7 @@ window.DagDraw = (function($, DagDraw) {
                     tooltip += col + ", ";
                     info.opText += col + ", ";
                 }
+                info.text = "Group by";
                 info.opText = info.opText.slice(0, -2);
                 tooltip = tooltip.slice(0, -2) + "<br>" + sampleStr;
                 info.tooltip = tooltip;
@@ -2170,7 +2170,6 @@ window.DagDraw = (function($, DagDraw) {
         }
         info.opText = info.opText;
         return info;
-
     }
 
     function getGroupedOnText(node) {

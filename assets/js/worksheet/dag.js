@@ -88,21 +88,21 @@ window.Dag = (function($, Dag) {
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="' +
-                            'Edit' + '" ' +
+                            'Edit mode' + '" ' +
                         'class="btn btn-small editBtn startEdit">' +
                             '<i class="icon xi-edit"></i>' +
-                        '</div>' +
-                         '<div data-toggle="tooltip" data-container="body" ' +
-                        'data-placement="top" title="' +
-                            'Exit editing mode' + '" ' +
-                        'class="btn btn-small editBtn endEdit">' +
-                            '<i class="icon xi-undo-highlight"></i>' +
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="' +
                             'Run' + '" ' +
                         'class="btn btn-small runBtn">' +
                             '<i class="icon xi-run"></i>' +
+                        '</div>' +
+                         '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            'Exit editing mode' + '" ' +
+                        'class="btn btn-small editBtn endEdit">' +
+                            '<i class="icon xi-undo-highlight"></i>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -956,14 +956,8 @@ window.Dag = (function($, Dag) {
             }, 300);
         });
 
-        $dagWrap.on("click", ".tagHeader", function(event) {
-            if ($("#container").hasClass("dfEditState")) {
-                if ($(event.target).closest(".groupTagIcon").length) {
-                    Dag.toggleTaggedGroup($dagWrap, $(this));
-                }
-            } else {
-                Dag.toggleTaggedGroup($dagWrap, $(this));
-            }
+        $dagWrap.on("click", ".groupTagIcon", function() {
+            Dag.toggleTaggedGroup($dagWrap, $(this).closest(".tagHeader"));
         });
 
         $dagWrap.on("mouseenter", ".groupTagIcon", function() {
@@ -1033,6 +1027,41 @@ window.Dag = (function($, Dag) {
 
     Dag.getTableIconByName = function($dagWrap, tableName) {
         return $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]');
+    };
+
+    Dag.updateEditedOperation = function(treeNode, editingNode, indexNodes, param) {
+        var dagWrapName = treeNode.value.name;
+        var dagWrapId = xcHelper.getTableId(dagWrapName);
+        var $dagWrap = $("#dagWrap-" + dagWrapId);
+        var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
+        var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType")
+                                                        .addClass("hasEdit");
+
+        var tip = '<div class="dagTableTip">' +
+                    '<div>' + JSON.stringify(param, null, 2) + '</div>' +
+                  '</div>';
+        // $opIcon.append(tip);
+        if (indexNodes && indexNodes.length) {
+            for (var i = 0; i < indexNodes.length; i++) {
+                $dagTable = Dag.getTableIcon($dagWrap, indexNodes[i].value.dagNodeId);
+                $dagTable.closest(".dagTableWrap").find(".actionType").addClass("hasEdit");
+            }
+        }
+    };
+
+    Dag.removeEditedOperation = function(treeNode, editingNode, indexNodes) {
+        var dagWrapName = treeNode.value.name;
+        var dagWrapId = xcHelper.getTableId(dagWrapName);
+        var $dagWrap = $("#dagWrap-" + dagWrapId);
+        var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
+        var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType").removeClass("hasEdit");
+        $opIcon.find(".dagTableTip").remove();
+        if (indexNodes) {
+            for (var i = 0; i < indexNodes.length; i++) {
+                $dagTable = Dag.getTableIcon($dagWrap, indexNodes[i].value.dagNodeId);
+                $dagTable.closest(".dagTableWrap").find(".actionType").removeClass("hasEdit");
+            }
+        }
     };
 
     function prettify(loadInfo) {

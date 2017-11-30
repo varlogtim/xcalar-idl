@@ -286,52 +286,10 @@ html.firefox, html.microsoft {
             background-color: @color-bg-btn-hover-blue;
         }
     }
-    &.selected, &.tempFocused {
+
+    &.selected, &.editing, &.tempFocused {
         .dagTableIcon, .dataStoreIcon {
             box-shadow: 0px 0px 10px 4px @color-dag-glowing;
-        }
-    }
-
-    .dagTableTip {
-        background-color: @color-bg-white-three;
-        line-height: 12px;
-        .horizontal-align;
-        .position(absolute, @top: -23px);
-        white-space: nowrap;
-        border: 1px solid @color-bg-unselect-gray;
-        font-size: 10px;
-        padding: 1px 4px 2px;
-        .rounded(2px);
-        margin-left:  -3px;
-        text-align: left;
-
-        > div {
-            .flex-display;
-            .justify-content(space-between);
-        }
-
-        &:after, &:before {
-            top: 100%;
-            left: 50%;
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        &:after {
-            border-color: transparent;
-            border-top-color: @color-bg-white-three;
-            border-width: 6px;
-            margin-left: -6px;
-        }
-        &:before {
-            border-color: transparent;
-            border-top-color: @color-bg-unselect-gray;
-            border-width: 7px;
-            margin-left: -7px;
         }
     }
 }
@@ -474,7 +432,7 @@ html.firefox, html.microsoft {
         }
 
         .editBtn {
-            display: none !important; // XXX unhide when dataflow editing is ready!
+            // display: none !important; // XXX unhide when dataflow editing is ready!
         }
     }
 
@@ -497,6 +455,49 @@ html.firefox, html.microsoft {
     .columnOriginInfo {
         position: fixed;
         display: none; // xxx temporarily disabled
+    }
+
+    .dagTableTip {
+        background-color: @color-bg-white-three;
+        line-height: 12px;
+        .horizontal-align;
+        .position(absolute, @top: -23px);
+        white-space: nowrap;
+        border: 1px solid @color-bg-unselect-gray;
+        font-size: 10px;
+        padding: 1px 4px 2px;
+        .rounded(2px);
+        margin-left:  -3px;
+        text-align: left;
+
+        > div {
+            .flex-display;
+            .justify-content(space-between);
+        }
+
+        &:after, &:before {
+            top: 100%;
+            left: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        &:after {
+            border-color: transparent;
+            border-top-color: @color-bg-white-three;
+            border-width: 6px;
+            margin-left: -6px;
+        }
+        &:before {
+            border-color: transparent;
+            border-top-color: @color-bg-unselect-gray;
+            border-width: 7px;
+            margin-left: -7px;
+        }
     }
 }
 
@@ -812,10 +813,9 @@ html.firefox, html.microsoft {
         margin: auto 20px;
         margin-right: 36px;
         z-index: 1;
+        cursor: pointer;
 
         &.tagHeader {
-            cursor: pointer;
-
             .actionTypeWrap {
                 border: 1px solid @color-bg-select-blue;
             }
@@ -843,6 +843,14 @@ html.firefox, html.microsoft {
                 .groupTagIcon {
                     .transform(rotate(90deg));
                 }
+            }
+        }
+
+        .dagTableTip {
+            margin-left: -30px;
+            > div {
+                // white-space: pre;
+                z-index: 1;
             }
         }
 
@@ -1290,14 +1298,51 @@ html.firefox, html.microsoft {
     }
 }
 
+#mapPreForm {
+    .subHeader {
+        > div {
+            width: 100%;
+        }
+    }
+    .row {
+        .flex-display;
+        .justify-content(space-between);
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+
+        &:hover {
+            color: @color-font-select-blue;
+        }
+
+        .xi-edit {
+            font-size: 12px;
+            // display: none; // XXX temporary
+        }
+
+        .text {
+            display: none;
+        }
+    }
+
+    .optionSection {
+        padding: 0px 5px;
+    }
+}
+
 #container.dfEditState {
+    .disabledStyle {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
     #dagPanel {
         .dagWrap {
-            opacity: 0.3;
-            pointer-events: none;
+            display: none;
+
             &.editMode {
-                opacity: 1;
-                pointer-events: initial;
+                display: block;
+
                 .addDataFlow, .startEdit, .saveImageBtn, .newTabImageBtn {
                     display: none;
                 }
@@ -1311,8 +1356,11 @@ html.firefox, html.microsoft {
                     content: " ";
                 }
 
+                .hasParamMixin {
+                    border: 3px solid @color-bg-fern-green;
+                }
+
                 .actionType {
-                    cursor: pointer;
                     &:after {
                         top: -2px;
                         left: 14px;
@@ -1322,42 +1370,111 @@ html.firefox, html.microsoft {
                         .paramMixin;
                         pointer-events: none;
                     }
-                    // &.hasParam:after {
-                    //     .hasParamMixin;
-                    // }
+                    &.hasEdit {
+                        &:after {
+                            .hasParamMixin;
+                        }
+                    }
                 }
 
                 .actionType {
                     &.index {
-                        cursor: default;
                         &:after {
                             content: none;
+                        }
+                        &.hasEdit {
+                            &:after {
+                                content: " ";
+                            }
                         }
                     }
                 }
 
             }
+            &.editing {
+                display: none;
+            }
         }
 
-        // .actionTypeWrap {
-        //     cursor: pointer;
-        //     border: 1px solid @color-bg-select-blue;
-        // }
-
+        .dagTableDropDown {
+            li:not(.showSchema) {
+                display: none;
+            }
+            .exitEdit {
+                display: list-item !important;
+            }
+        }
     }
 
-    #operationsView {
+    #functionArea, #skewInfoArea {
+        .disabledStyle;
+    }
+
+    #operationsView, #projectView, #joinView {
         .tableListSection {
             cursor: not-allowed;
             .dropDownList {
-                pointer-events: none;
+                .disabledStyle;
             }
+        }
+
+        .gbCheckboxes, .keepTablesCBWrap {
+            cursor: not-allowed;
+            > div {
+                .disabledStyle;
+            }
+        }
+
+        .newTableNameRow {
+            cursor: not-allowed;
+            input {
+                .disabledStyle;
+            }
+        }
+
+    }
+
+    #joinView {
+        .smartSuggestSection {
+            cursor: not-allowed;
+            .smartSuggest {
+                .disabledStyle;
+            }
+        }
+        #joinType .advanced:not(:last-child) {
+            opacity: 0.5;
+            cursor: not-allowed;
+            &:hover {
+                background-color: @color-white;
+            }
+        }
+        .colsToKeepSection {
+            cursor: not-allowed;
+            .columnsWrap, .leftColHeading, .rightColHeading {
+                .disabledStyle;
+            }
+        }
+        .estimatorWrap {
+            cursor: not-allowed;
+            .subHeading {
+                .disabledStyle;
+            }
+        }
+        .keepTablesCBWrap {
+            .disabledStyle;
+        }
+        #joinTableNameInput {
+            .disabledStyle;
         }
     }
 
     #colMenu, #tableMenu {
         li, .divider {
             display: none !important;
+        }
+
+        .exitDFEdit {
+            display: list-item !important;
         }
     }
     // &.projectState {
@@ -1367,8 +1484,77 @@ html.firefox, html.microsoft {
     //         }
     //     }
     // }
-    &.dfEditState {
+    &.editingForm {
+        .xcTableWrap.editingDf {
+            display: none;
+        }
+    }
 
+    .xcTableWrap:not(.editing):not(.editingDf) {
+        opacity: 0.2;
+        pointer-events: none;
+        display: none;
+    }
+
+    #undoRedoArea {
+        .noUndoTip {
+            display: block;
+        }
+    }
+    #undo, #redo {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .tableListSection {
+        cursor: not-allowed;
+        > div, > ul {
+            .disabledStyle;
+        }
+        .buttonSection {
+            opacity: 1;
+            > div, > i {
+                opacity:  0.5;
+            }
+        }
+    }
+
+    .worksheetTab {
+        > span, > i, > input {
+            opacity: 0.5;
+        }
+        input {
+            pointer-events: none;
+        }
+        .wsMenu {
+            pointer-events: none;
+        }
+        #hiddenWorksheetTabs {
+            cursor: not-allowed;
+            li {
+                pointer-events: none;
+            }
+        }
+    }
+
+    #monitor-queries {
+        #monitor-inspect {
+            .disabledStyle;
+        }
     }
 }
 
+// XXX temporarily hiding edit
+#dagPanel {
+    .startEdit, .dagOperationDropDown .editOp {
+        display: none;
+    }
+    &.on {
+        .startEdit {
+            display: block;
+        }
+        .dagOperationDropDown .editOp {
+            display: list-item;
+        }
+    }
+}
