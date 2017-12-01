@@ -1182,10 +1182,11 @@ input {
     .content {
         width: ~"calc(100% - 50px)";
         padding: 12px 24px 12px 12px;
+        overflow-y: auto;
     }
 
     .close {
-        .position(absolute, @top: 14px, @right: 8px);
+        .position(absolute, @top: 14px, @right: 10px);
         .size(14px, 14px);
         display: inline-block;
         color: @color-black;
