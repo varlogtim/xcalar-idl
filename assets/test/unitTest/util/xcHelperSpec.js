@@ -1040,11 +1040,7 @@ describe("xcHelper Test", function() {
             "error": ErrTStr.TooLong
         }, {
             "val": "testDupName",
-            "valid": false,
-            "error": ErrTStr.TableConflict,
-            "options": {
-                onErr: function() { onErrTrigger = true; }
-            }
+            "valid": true
         }];
 
         testCases.forEach(function(testCase) {

@@ -1520,11 +1520,6 @@
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
             error = ErrTStr.TooLong;
-        } else {
-            var validTableName = xcHelper.checkDupTableName(newTableName);
-            if (!validTableName) {
-                error = ErrTStr.TableConflict;
-            }
         }
 
         if (error != null) {
@@ -3676,7 +3671,6 @@
 
         getColMetaHelper(tableName)
         .then(function (colMeta, hasTableMeta) {
-            var tableId = xcHelper.getTableId(tableName);
             var res = keys.map(function(key) {
                 var type = null;
                 var keyFieldName = null;
@@ -3738,7 +3732,7 @@
             console.error(e);
         }
         return res;
-    };
+    }
 
     function getNewKeyFeildName(parsedName, takenNames) {
         var name = xcHelper.stripColName(parsedName.name);

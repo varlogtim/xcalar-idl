@@ -511,10 +511,6 @@ window.DF = (function($, DF) {
             if (df.activeSession) {
                 var newTableName = withoutHashId ? df.newTableName :
                                                    df.nameWithHash;
-                if (checkExistingTableName(xcHelper.getTableName(newTableName)))
-                {
-                    return null;
-                }
                 res.activeSession = df.activeSession;
                 res.newTableName = newTableName;
             }
@@ -533,15 +529,6 @@ window.DF = (function($, DF) {
             delete df.nameWithHash;
         }
     };
-
-    function checkExistingTableName(newTableName) {
-        if (!xcHelper.checkDupTableName(newTableName)) {
-            Alert.error(DFTStr.RunFail, ErrTStr.TableConflict);
-            return true;
-        }
-        return false;
-    }
-
 
     /* Unit Test Only */
     if (window.unitTestMode) {
