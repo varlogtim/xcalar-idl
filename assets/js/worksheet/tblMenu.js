@@ -488,7 +488,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             var colNums = $colMenu.data('colNums');
             var tableId = $colMenu.data('tableId');
-            ColManager.delCol(colNums, tableId);
+            ColManager.hideCol(colNums, tableId);
         });
 
         $subMenu.on('click', '.inputAction', function() {

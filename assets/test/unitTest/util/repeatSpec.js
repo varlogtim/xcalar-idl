@@ -313,7 +313,7 @@ describe("Repeat Test", function() {
         });
 
         it("hide col should work", function(done) {
-            ColManager.delCol([3], tableId)
+            ColManager.hideCol([3], tableId)
             .then(function() {
                 TblManager.highlightColumn($table.find("th.col2"));
                 Log.repeat();

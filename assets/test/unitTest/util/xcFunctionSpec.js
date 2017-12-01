@@ -21,26 +21,29 @@ describe("xcFunction Test", function() {
                 tableId = xcHelper.getTableId(tableName);
 
                 // remove "time" column
-                ColManager.delCol([6], tableId)
-                .then(function(){
-                    // create 2 immediates and then delete the first one
-
-                    xcFunction.map(1, tableId, "immediate1", "add(" + xcHelper.getPrefixColName(prefix, "class_id") + ", 2)")
-                    .then(function(tName2) {
-                        tableName2 = tName2;
-                        var tId = xcHelper.getTableId(tableName2);
-                        xcFunction.map(1, tId, "immediate2", "add(immediate1, 3)")
-                        .then(function(tName3) {
-                            tableName3 = tName3;
-                            tableId3 = xcHelper.getTableId(tableName3);
-                            ColManager.delCol([1], tableId3)
-                            .then(done);
-                        });
-                    });
-                });
-            });
+                return ColManager.hideCol([6], tableId);
+            })
+            .then(function(){
+                // create 2 immediates and then delete the first one
+                return xcFunction.map(1, tableId, "immediate1", "add(" + xcHelper.getPrefixColName(prefix, "class_id") + ", 2)");
+            })
+            .then(function(tName2) {
+                tableName2 = tName2;
+                var tId = xcHelper.getTableId(tableName2);
+                return xcFunction.map(1, tId, "immediate2", "add(immediate1, 3)");
+            })
+            .then(function(tName3) {
+                tableName3 = tName3;
+                tableId3 = xcHelper.getTableId(tableName3);
+                return ColManager.hideCol([1], tableId3);
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
         });
-
 
         it("new table should have correct columns", function(done) {
             // check initial state
@@ -69,8 +72,12 @@ describe("xcFunction Test", function() {
                 expect(table.hasCol("class_id")).to.be.true;
 
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
+
 
         after(function(done) {
             XcalarDeleteTable(tableName)

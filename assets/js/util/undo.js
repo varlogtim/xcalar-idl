@@ -451,7 +451,7 @@ window.Undo = (function($, Undo) {
         if (options.direction === ColDir.Right) {
             colNum++;
         }
-        return ColManager.delCol([colNum], options.tableId);
+        return ColManager.hideCol([colNum], options.tableId);
     };
 
     undoFuncs[SQLOps.HideCol] = function(options) {
@@ -488,13 +488,13 @@ window.Undo = (function($, Undo) {
             if (options.direction === ColDir.Right) {
                 colNum++;
             }
-            return (ColManager.delCol([colNum], options.tableId));
+            return (ColManager.hideCol([colNum], options.tableId));
         }
     };
 
     undoFuncs[SQLOps.PullMultipleCols] = function(options) {
         focusTableHelper(options);
-        return (ColManager.delCol(options.colNums, options.tableId,
+        return (ColManager.hideCol(options.colNums, options.tableId,
                                  {"noAnimate": true}));
     };
 

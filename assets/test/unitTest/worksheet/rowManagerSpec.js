@@ -25,7 +25,7 @@ describe('RowManager Test', function() {
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);
 
-            return ColManager.delCol([1,2,3,4,5,6,7,8,9,10,11,12], tableId);
+            return ColManager.hideCol([1,2,3,4,5,6,7,8,9,10,11,12], tableId);
         })
         .then(function() {
             done();

@@ -165,7 +165,7 @@ window.Repeat = (function($, Repeat) {
     };
 
     repeatFuncs[SQLOps.HideCol] = function(options, colNums, tableId) {
-        return (ColManager.delCol(colNums, tableId));
+        return (ColManager.hideCol(colNums, tableId));
     };
 
     repeatFuncs[SQLOps.TextAlign] = function(options, colNums, tableId) {

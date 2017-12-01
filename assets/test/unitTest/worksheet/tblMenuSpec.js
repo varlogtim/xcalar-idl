@@ -703,9 +703,9 @@ describe('TableMenu Test', function() {
         });
         describe('main menu', function() {
             it('hideColumn', function() {
-                var cachedFunc = ColManager.delCol;
+                var cachedFunc = ColManager.hideCol;
                 var called = false;
-                ColManager.delCol = function(colNums, tId) {
+                ColManager.hideCol = function(colNums, tId) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
@@ -717,7 +717,7 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.hideColumn').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.delCol = cachedFunc;
+                ColManager.hideCol = cachedFunc;
             });
 
             it('minimize', function() {
@@ -1395,9 +1395,9 @@ describe('TableMenu Test', function() {
             });
 
             it('deleteColumns', function() {
-                var cachedFunc = ColManager.delCol;
+                var cachedFunc = ColManager.hideCol;
                 var called = false;
-                ColManager.delCol = function(colNums, tId) {
+                ColManager.hideCol = function(colNums, tId) {
                     expect(colNums[0]).to.equal(11);
                     expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
@@ -1410,7 +1410,7 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.hideColumn').last().trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.delCol = cachedFunc;
+                ColManager.hideCol = cachedFunc;
             });
 
             it('minimizeColumns', function() {

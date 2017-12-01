@@ -565,7 +565,7 @@ describe('ColManager Test', function() {
             var colLen = getColLen(tableId);
 
             expect(table.hasCol("average_stars")).to.be.true;
-            ColManager.delCol([1, 2], tableId);
+            ColManager.hideCol([1, 2], tableId);
             expect(getColLen(tableId) - colLen).to.equal(-2);
             var progCol = table.getCol(1);
             expect(progCol.isEmptyCol()).to.be.false;

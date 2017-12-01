@@ -710,7 +710,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.HideCol] = function(options) {
         var args = getArgs(options);
-        ColManager.delCol.apply(window, args);
+        ColManager.hideCol.apply(window, args);
 
         return PromiseHelper.resolve(null);
     };

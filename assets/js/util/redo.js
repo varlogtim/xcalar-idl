@@ -188,7 +188,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.HideCol] = function(options) {
         focusTableHelper(options);
-        return (ColManager.delCol(options.colNums, options.tableId));
+        return (ColManager.hideCol(options.colNums, options.tableId));
     };
 
     redoFuncs[SQLOps.PullCol] = function(options) {

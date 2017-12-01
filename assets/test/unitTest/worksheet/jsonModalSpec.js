@@ -149,7 +149,7 @@ describe('JsonModal Test', function() {
 
     describe('pulling out a field', function() {
         it('pulling a field out should work', function(done) {
-            ColManager.delCol([1], tableId, {noAnimate: true})
+            ColManager.hideCol([1], tableId, {noAnimate: true})
             .then(function() {
                 var $averageStarsKey = $jsonModal.find('.jKey').filter(function() {
                     return ($(this).text() === "average_stars");
@@ -169,6 +169,9 @@ describe('JsonModal Test', function() {
                 setTimeout(function() {
                     done();
                 }, 100);
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -724,10 +727,13 @@ describe('JsonModal Test', function() {
             for (var i = 0; i < numCols - 1; i++) {
                 colNums.push(i + 1); // colnums 1 indexed
             }
-            ColManager.delCol(colNums, tableId, {noAnimate: true})
+            ColManager.hideCol(colNums, tableId, {noAnimate: true})
             .then(function() {
                 $jsonModal.find(".jsonWrap").data("colnum", 1);
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 

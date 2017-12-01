@@ -70,7 +70,7 @@ window.ColManager = (function($, ColManager) {
 
     //options
     // noAnimate: boolean, if true, no animation is applied
-    ColManager.delCol = function(colNums, tableId, options) {
+    ColManager.hideCol = function(colNums, tableId, options) {
         options = options || {};
         // deletes an array of columns
         var deferred = jQuery.Deferred();
