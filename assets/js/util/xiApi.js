@@ -690,9 +690,11 @@
         .then(function(lIndexedTable, rIndexedTable, tempTablesInIndex) {
             tempTables = tempTables.concat(tempTablesInIndex);
             if (!isValidTableName(newTableName)) {
-                newTableName = getNewTableName(lTableName.substring(0, 5) +
+                var leftPart = lTableName.split("#")[0];
+                var rightPart = rTableName.split("#")[0];
+                newTableName = getNewTableName(leftPart.substring(0, 5) +
                                                "-" +
-                                               rTableName.substring(0, 5));
+                                               rightPart.substring(0, 5));
             }
 
             // Step 3: Check if semi join
@@ -1508,20 +1510,30 @@
         // TODO: switch left and right and support right semi joins
         var antiJoinTableName;
 
+
+
         function doJoin() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
                 antiJoinTableName = getNewTableName(rIndexedTable);
-                return XcalarJoin(lIndexedTable, rIndexedTable,
+                return XcalarJoin(lIndexedTable, newGbTableName,
                                   antiJoinTableName,
                                   JoinOperatorT.LeftOuterJoin,
                                   lRename, rRename, undefined, txId);
             } else {
-                return XcalarJoin(lIndexedTable, rIndexedTable, newTableName,
+                return XcalarJoin(lIndexedTable, newGbTableName, newTableName,
                     JoinOperatorT.InnerJoin, lRename, rRename, undefined, txId);
             }
         }
-        doJoin()
+
+        var newColName = xcHelper.randName("XC_GB_COL");
+        var newGbTableName = getNewTableName(rIndexedTable);
+        // XXX FIXME rIndexedColNames[0] is wrong in the cases where it is
+        // called a::b, and there's another immediate called b
+        // This is because a::b will becomes b.
+        XcalarGroupByWithEvalStrings([newColName], ["count(1)"], rIndexedTable,
+                      newGbTableName, false, false, rIndexedColNames[0], txId)
+        .then(doJoin)
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
@@ -1694,7 +1706,7 @@
         return col.name !== "DATA";
     }
 
-    // For xiApi.join, deepy copy of right table and left table columns
+    // For xiApi.join, deep copy of right table and left table columns
     function createJoinedColumns(lTableId, rTableId, pulledLColNames,
                                 pulledRColNames, lRename, rRename) {
         // Combine the columns from the 2 current tables
