@@ -209,7 +209,10 @@
             <div class="mainHeading"><%= dicts.bottomMenu.HelpTopics %></div>
           </div>
           <div class="resultsArea">
-            <div class="mainHeading"><%= dicts.bottomMenu.SearchRes %></div>
+            <div class="mainHeading">
+              <span><%= dicts.bottomMenu.SearchRes %></span>
+              <button id="discourseButton" class="btn"><%= dicts.bottomMenu.SearchDiscourse %></button>
+            </div>
             <span class="noResults"><%= dicts.bottomMenu.useSearch %><br/><a href="<%= dicts.paths.helpUserDocs %>" target="xchelp" class="visitHelpGuide"><%= dicts.bottomMenu.visitHelp %></a></span>
             <iframe id="mcfResults"></iframe>
           </div>

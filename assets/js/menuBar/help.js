@@ -34,6 +34,12 @@ window.Help = (function($, Help) {
             $searchInput.val("");
         });
 
+        $("#discourseButton").click(function() {
+            var searchText = $searchInput.val();
+            window.open("https://discourse.xcalar.com/search?q=" + searchText,
+                        "xcalar");
+        });
+
         $searchInput.on("keyup", function(event) {
             if (event.which === keyCode.Enter) {
                 if ($searchInput.val().trim() === "") {

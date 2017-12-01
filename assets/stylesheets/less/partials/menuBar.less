@@ -1213,11 +1213,27 @@ ul.CodeMirror-hints {
 
     .resultsArea {
         display: none;
+        overflow: hidden;
 
         #mcfResults {
             border: none;
             width: 100%;
             height: ~"calc(100% - 47px)";
+        }
+
+        .noResults {
+            .vertical-align;
+            .horizontal-align;
+            position: absolute;
+            top: 40%;
+            color: @color-text-lightGray;
+        }
+
+        #discourseButton {
+            height: 26px;
+            line-height: 26px;
+            margin-left: 10px;
+            width: 170px;
         }
 
     }
@@ -1235,16 +1251,6 @@ ul.CodeMirror-hints {
         overflow-y: auto;
         word-wrap: break-word;
         position: relative;
-    }
-
-    .resultsArea {
-        .noResults{
-            .vertical-align;
-            .horizontal-align;
-            position: absolute;
-            top: 40%;
-            color: @color-text-lightGray;
-        }
     }
 
     .noResults {
