@@ -1,0 +1,26 @@
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^xcalar\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.xcalar\.com$
+RewriteCond %{REQUEST_URI} !^/[0-9]+\..+\.cpaneldcv$
+RewriteCond %{REQUEST_URI} !^/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^getstarted\/?$ "https\:\/\/xcalar\.com\/getstarted\.html" [R=301,L]
+RewriteCond %{HTTP_HOST} ^xcalar\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.xcalar\.com$
+RewriteCond %{REQUEST_URI} !^/[0-9]+\..+\.cpaneldcv$
+RewriteCond %{REQUEST_URI} !^/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^support\.html$ "https\:\/\/www\.xcalar\.com\/resources\.html" [R=301,L]
+
+## EXPIRES CACHING ##
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType css/components.css "access 1 year"
+ExpiresByType css/normalize.css "access 1 year"
+ExpiresByType css/font-awesome.min.css "access 1 year"
+ExpiresByType fonts/* "access 1 year"
+ExpiresByType images/* "access 1 year"
+ExpiresByType videos/* "access 1 year"
+ExpiresByType js/webfont.js "access 1 year"
+ExpiresByType js/analytics.js "access 1 year"
+ExpiresDefault "access 1 month"
+</IfModule>
+## EXPIRES CACHING ##
