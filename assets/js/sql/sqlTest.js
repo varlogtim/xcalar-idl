@@ -35,6 +35,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "gtJoinWithSubQuery": "select * from nation4, customer4 where c_nationkey - (select avg(c_nationkey) from customer4) > n_nationkey - (select avg(n_nationkey) from nation4)",
         "gbWithMapStr": "select avg(l_tax), l_tax/2 from lineitem3 group by l_tax/2",
         "joinWithCollision": "select * from region r1, region r2 where r1.r_regionkey = r2.r_regionkey",
+        "aliasCollision": "select * from (select r_regionkey as key from region) as t1, (select r_regionkey as key from region) as t2 where t1.key = t2.key",
+        // Doesn't work yet. Returns empty result
+        "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
     };
 
     SqlTestSuite.runSqlTests = function() {

@@ -874,16 +874,6 @@
                 .then(function() {
                     tempTablesInMap = tempTablesInMap.concat([resTable,
                                                               newTableName]);
-                    var prevName = newTableName;
-                    newTableName = getNewTableName(newTableName);
-                    for (var i = 0; i < prevCols.length; i++) {
-                        newFieldNames.push(prevCols[i].getBackColName());
-                    }
-
-                    return XcalarProject(newFieldNames, prevName, newTableName,
-                                         txId);
-                })
-                .then(function() {
                     deferred.resolve(newTableName, tempTablesInMap);
                 })
                 .fail(deferred.reject);
