@@ -49,7 +49,9 @@ xcalarConnectThrift = runEntity.xcalarConnectThrift = function(hostname) {
 
     console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")");
 
-    var transport = new Thrift.Transport(thriftUrl);
+    var options = {"customHeaders": {"Connection": "keep-alive"}};
+
+    var transport = new Thrift.Transport(thriftUrl, options);
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -243,6 +245,17 @@ xcalarSetConfigParam = runEntity.xcalarSetConfigParam = function(thriftHandle, p
     });
 
     return (deferred.promise());
+};
+
+// If a thrift API must operate in the context of a specific session, set this
+// session's name first by calling setSessionName(), and then invoke the API.
+// This is similar to the use of the setUserIdAndName() function. Do not rely
+// on just the userIdName and userIdUnique to identify a session (which works
+// in the old model where a user has only one active session, and an API can
+// be invoked only on an active session).
+
+setSessionName = runEntity.SessionName = function(name) {
+    sessionName = name;
 };
 
 setUserIdAndName = runEntity.setUserIdAndName = function(name, id, hashFunc) {
@@ -687,7 +700,6 @@ xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
     workItem.input.indexInput.prefix = prefix;
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     workItem.input.indexInput.delaySort = false;
-    workItem.input.indexInput.broadcast = false;
     return (workItem);
 };
 
@@ -1356,25 +1368,23 @@ xcalarApiCancelOp = runEntity.xcalarApiCancelOp = function(thriftHandle, dstDagN
     return (deferred.promise());
 };
 
-xcalarDagWorkItem = runEntity.xcalarDagWorkItem = function(tableName, sessionName) {
+xcalarDagWorkItem = runEntity.xcalarDagWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.dagTableNameInput = new XcalarApiDagTableNameInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetDag;
     workItem.input.dagTableNameInput.tableInput = tableName;
-    workItem.sessionName = sessionName;
     return (workItem);
 };
 
-xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName, sessionName) {
+xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarDag(tableName = " + tableName + ", sessionName = " +
-                    sessionName + ")");
+        console.log("xcalarDag(tableName = " + tableName + ")");
     }
 
-    var workItem = xcalarDagWorkItem(tableName, sessionName);
+    var workItem = xcalarDagWorkItem(tableName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1397,7 +1407,7 @@ xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName, sessionName)
     return (deferred.promise());
 };
 
-xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(patternMatch, srcType, sessionName) {
+xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(patternMatch, srcType) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -1405,20 +1415,18 @@ xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(pat
     workItem.input.listDagNodesInput = new XcalarApiDagNodeNamePatternInputT();
     workItem.input.listDagNodesInput.namePattern = patternMatch;
     workItem.input.listDagNodesInput.srcType = srcType;
-    workItem.sessionName = sessionName;
 
     return (workItem);
 };
 
-xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMatch, srcType, sessionName) {
+xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMatch, srcType) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarListTables(patternMatch = " + patternMatch + ")" +
-                    " srcType = " + srcType + "sessionName = " + sessionName);
+        console.log("xcalarListTables(patternMatch = " + patternMatch +
+                    ", srcType = " + srcType + ")");
     }
 
-    var workItem = xcalarListDagNodesWorkItem(patternMatch, srcType,
-                                              sessionName);
+    var workItem = xcalarListDagNodesWorkItem(patternMatch, srcType);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3606,7 +3614,7 @@ xcalarApiSessionInactWorkItem = runEntity.xcalarApiSessionInactWorkItem = functi
 xcalarApiSessionInact = runEntity.xcalarApiSessionInact = function(thriftHandle, name, noCleanup) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSessionInact(name = )", name);
+        console.log("xcalarApiSessionInact(name = " + name + ")");
     }
     var workItem = xcalarApiSessionInactWorkItem(name, noCleanup);
 
@@ -3644,7 +3652,7 @@ xcalarApiSessionListWorkItem = runEntity.xcalarApiSessionListWorkItem = function
 xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, pattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSessionList(pattern = )", pattern);
+        console.log("xcalarApiSessionList(pattern = " + pattern + ")");
     }
 
     var workItem = xcalarApiSessionListWorkItem(pattern);
@@ -3688,7 +3696,7 @@ xcalarApiSessionPersistWorkItem = runEntity.xcalarApiSessionPersistWorkItem = fu
 xcalarApiSessionPersist = runEntity.xcalarApiSessionPersist = function(thriftHandle, pattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSessionPersist(pattern = )", pattern);
+        console.log("xcalarApiSessionPersist(pattern = " + pattern + ")");
     }
 
     var workItem = xcalarApiSessionPersistWorkItem(pattern);

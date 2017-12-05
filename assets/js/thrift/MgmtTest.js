@@ -851,10 +851,8 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseJson";
         parseArgs.parserArgJson = "{}";
 
-        console.log("doing first load");
         xcalarLoad(thriftHandle, "review", sourceArgs, parseArgs, 0)
         .then(function(result) {
-            console.log("finished first load");
             var testloadOutput = result;
             return xcalarDeleteDagNodes(thriftHandle, "*",
                                         SourceTypeT.SrcDataset);

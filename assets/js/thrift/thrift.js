@@ -46,7 +46,7 @@ var Thrift = {
      * @const {string} Version
      * @memberof Thrift
      */
-    Version: '0.9.2',
+    Version: '0.10.0',
 
     /**
      * Thrift IDL type string to Id mapping.
@@ -272,6 +272,25 @@ Thrift.TApplicationException.prototype.getCode = function() {
     return this.code;
 };
 
+Thrift.TProtocolExceptionType = {
+    UNKNOWN: 0,
+    INVALID_DATA: 1,
+    NEGATIVE_SIZE: 2,
+    SIZE_LIMIT: 3,
+    BAD_VERSION: 4,
+    NOT_IMPLEMENTED: 5,
+    DEPTH_LIMIT: 6
+};
+
+Thrift.TProtocolException = function TProtocolException(type, message) {
+    Error.call(this);
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
+    this.type = type;
+    this.message = message;
+};
+Thrift.inherits(Thrift.TProtocolException, Thrift.TException, 'TProtocolException');
+
 /**
  * Constructor Function for the XHR transport.
  * If you do not specify a url then you must handle XHR operations on
@@ -291,6 +310,7 @@ Thrift.Transport = Thrift.TXHRTransport = function(url, options) {
     this.wpos = 0;
     this.rpos = 0;
     this.useCORS = (options && options.useCORS);
+    this.customHeaders = options ? (options.customHeaders ? options.customHeaders : {}): {};
     this.send_buf = '';
     this.recv_buf = '';
 };
@@ -327,7 +347,7 @@ Thrift.TXHRTransport.prototype = {
         var xreq = this.getXmlHttpRequestObject();
 
         if (xreq.overrideMimeType) {
-            xreq.overrideMimeType('application/json');
+            xreq.overrideMimeType('application/vnd.apache.thrift.json; charset=utf-8');
         }
 
         if (callback) {
@@ -343,10 +363,30 @@ Thrift.TXHRTransport.prototype = {
                   }
                 };
               }());
+
+            // detect net::ERR_CONNECTION_REFUSED and call the callback.
+            xreq.onerror =
+                (function() {
+                  var clientCallback = callback;
+                  return function() {
+                      clientCallback();
+                  };
+                }());
+
         }
 
         xreq.open('POST', this.url, !!async);
-        xreq.setRequestHeader('Connection', 'keep-alive');
+
+        // add custom headers
+        Object.keys(self.customHeaders).forEach(function(prop) {
+            xreq.setRequestHeader(prop, self.customHeaders[prop]);
+        });
+
+        if (xreq.setRequestHeader) {
+            xreq.setRequestHeader('Accept', 'application/vnd.apache.thrift.json; charset=utf-8');
+            xreq.setRequestHeader('Content-Type', 'application/vnd.apache.thrift.json; charset=utf-8');
+        }
+
         xreq.send(this.send_buf);
         if (async && callback) {
             return;
@@ -383,15 +423,19 @@ Thrift.TXHRTransport.prototype = {
 
         var thriftTransport = this;
 
+        // XXX Begin Xcalar code
         $.support.cors = true;
+        // End Xcalar code
 
         var jqXHR = jQuery.ajax({
+            // XXX Begin Xcalar code
             crossDomain: true,
+            // End Xcalar code
             url: this.url,
             data: postData,
             type: 'POST',
             cache: false,
-            contentType: 'application/json',
+            contentType: 'application/vnd.apache.thrift.json; charset=utf-8',
             dataType: 'text thrift',
             converters: {
                 'text thrift' : function(responseData) {
@@ -688,6 +732,8 @@ Thrift.TWebSocketTransport.prototype = {
  *     var protocol  = new Thrift.Protocol(transport);
  */
 Thrift.TJSONProtocol = Thrift.Protocol = function(transport) {
+    this.tstack = [];
+    this.tpos = [];
     this.transport = transport;
 };
 
@@ -1002,8 +1048,19 @@ Thrift.Protocol.prototype = {
     },
 
     /** Serializes a string */
-    writeBinary: function(str) {
-        this.writeString(str);
+    writeBinary: function(binary) {
+        var str = '';
+        if (typeof binary == 'string') {
+            str = binary;
+        } else if (binary instanceof Uint8Array) {
+            var arr = binary;
+            for (var i = 0; i < arr.length; ++i) {
+                str += String.fromCharCode(arr[i]);
+            }
+        } else {
+            throw new TypeError('writeBinary only accepts String or Uint8Array.');
+        }
+        this.tstack.push('"' + btoa(str) + '"');
     },
 
     /**
@@ -1022,26 +1079,32 @@ Thrift.Protocol.prototype = {
         this.rpos = [];
 
         if (typeof JSON !== 'undefined' && typeof JSON.parse === 'function') {
-            var msg = this.transport.readAll();
-            var regex = new RegExp('{"tf":[^01]}', "g");
-            msg = msg.replace(regex, '{"tf":0}');
-            try {
-                this.robj = JSON.parse(msg);
-            } catch (error) {
-                console.error("thrift parse error", error, msg);
-                this.robj = eval(this.transport.readAll());
-            }
+            this.robj = JSON.parse(this.transport.readAll());
+            // XXX Begin Xcalar code
+            // var msg = this.transport.readAll();
+            // var regex = new RegExp('{"tf":[^01]}', "g");
+            // msg = msg.replace(regex, '{"tf":0}');
+            // try {
+            //     this.robj = JSON.parse(msg);
+            // } catch (error) {
+            //     console.error("thrift parse error", error, msg);
+            //     this.robj = eval(this.transport.readAll());
+            // }
+            // XXX End Xcalar code
 
         } else if (typeof jQuery !== 'undefined') {
-            var msg = this.transport.readAll();
-            var regex = new RegExp('{"tf":[^01]}', "g");
-            msg = msg.replace(regex, '{"tf":0}');
-            try {
-                this.robj = jQuery.parseJSON(msg);
-            } catch (error) {
-                console.error("thrift parse error", error, msg);
-                this.robj = eval(this.transport.readAll());
-            }
+            this.robj = jQuery.parseJSON(this.transport.readAll());
+            // XXX Begin Xcalar code
+            // var msg = this.transport.readAll();
+            // var regex = new RegExp('{"tf":[^01]}', "g");
+            // msg = msg.replace(regex, '{"tf":0}');
+            // try {
+            //     this.robj = JSON.parse(msg);
+            // } catch (error) {
+            //     console.error("thrift parse error", error, msg);
+            //     this.robj = eval(this.transport.readAll());
+            // }
+            // XXX End Xcalar code
         } else {
             this.robj = eval(this.transport.readAll());
         }
@@ -1216,7 +1279,7 @@ Thrift.Protocol.prototype = {
         r.size = list.shift();
 
         this.rpos.push(this.rstack.length);
-        this.rstack.push(list);
+        this.rstack.push(list.shift());
 
         return r;
     },
@@ -1241,7 +1304,7 @@ Thrift.Protocol.prototype = {
 
     /** Returns an object with a value property set to
      *  False unless the next number in the protocol buffer
-     *  is 1, in which case teh value property is True */
+     *  is 1, in which case the value property is True */
     readBool: function() {
         var r = this.readI32();
 
@@ -1322,7 +1385,9 @@ Thrift.Protocol.prototype = {
     /** Returns the an object with a value property set to the
         next value found in the protocol buffer */
     readBinary: function() {
-        return this.readString();
+        var r = this.readI32();
+        r.value = atob(r.value);
+        return r;
     },
 
     /**
@@ -1452,3 +1517,69 @@ Thrift.Multiplexer.prototype.createClient = function (serviceName, SCl, transpor
 
 
 
+var copyList, copyMap;
+
+copyList = function(lst, types) {
+
+  if (!lst) {return lst; }
+
+  var type;
+
+  if (types.shift === undefined) {
+    type = types;
+  }
+  else {
+    type = types[0];
+  }
+  var Type = type;
+
+  var len = lst.length, result = [], i, val;
+  for (i = 0; i < len; i++) {
+    val = lst[i];
+    if (type === null) {
+      result.push(val);
+    }
+    else if (type === copyMap || type === copyList) {
+      result.push(type(val, types.slice(1)));
+    }
+    else {
+      result.push(new Type(val));
+    }
+  }
+  return result;
+};
+
+copyMap = function(obj, types){
+
+  if (!obj) {return obj; }
+
+  var type;
+
+  if (types.shift === undefined) {
+    type = types;
+  }
+  else {
+    type = types[0];
+  }
+  var Type = type;
+
+  var result = {}, val;
+  for(var prop in obj) {
+    if(obj.hasOwnProperty(prop)) {
+      val = obj[prop];
+      if (type === null) {
+        result[prop] = val;
+      }
+      else if (type === copyMap || type === copyList) {
+        result[prop] = type(val, types.slice(1));
+      }
+      else {
+        result[prop] = new Type(val);
+      }
+    }
+  }
+  return result;
+};
+
+Thrift.copyMap = copyMap;
+Thrift.copyList = copyList;
