@@ -685,7 +685,7 @@
             // Step 2: index the left table and right table
             // lIndexColNames = res.lColNames;
             rIndexColNames = res.rColNames;
-            return joinIndexCheck(res, txId);
+            return joinIndexCheck(res, lTableInfo.removeNulls, txId);
         })
         .then(function(lIndexedTable, rIndexedTable, tempTablesInIndex) {
             tempTables = tempTables.concat(tempTablesInIndex);
@@ -741,14 +741,14 @@
     };
 
     /*
-     * gbArgs: an array of objects with operator, aggColName, and newColName
+     * gbArgs: an array of objects with operator, aggColName, distinct, and newColName
      *         properties - for multi group by operations
      * options:
      *  isIncSample: true/false, include sample or not,
      *               not specified is equal to false
      *  sampleCols: array, sampleColumns to keep,
      *              only used when isIncSample is true
-     *  icvMode: true/false, icv mode or not
+     *  icvMode: true/false, icv mode or not,
      *  newTableName: string, dst table name, optional
      *  clean: true/false, if set true, will remove intermediate tables
      */
@@ -777,14 +777,30 @@
 
         var aliasArray = [];
         var opArray = [];
+        var distinctColArray = [];
 
         for (var i = 0; i < gbArgs.length; i++) {
             if (!gbArgs[i].operator) {
                 aliasArray.push(gbArgs[i]);
+            } else if (gbArgs[i].isDistinct) {
+                distinctColArray.push(gbArgs[i]);
             } else {
                 opArray.push(gbArgs[i]);
             }
         }
+
+        var tempCols = [];
+        // XXX This is one extra groupby that can be avoided. But for code
+        // cleanliness, we're going to use this workaround for now. Eventually
+        // If opArray.length === 0, we want to skip until after the first
+        // XcalarGroupBy call
+        if (opArray.length === 0) {
+            var tempColName = "XC_COUNT_" + xcHelper.getTableId(tableName);
+            opArray = [{operator: "count", aggColName: "1", newColName:
+                        tempColName}];
+            tempCols.push(tempColName);
+        }
+
         gbArgs = opArray;
 
         var deferred = jQuery.Deferred();
@@ -836,9 +852,9 @@
             finalCols = resCols;
             var deferred = jQuery.Deferred();
             var resTable = finalTableName;
-            var tempTablesInMap = [];
 
             if (aliasArray.length > 0) {
+                // XXX Remove aliasArray. Unused
                 // Included sample to do some renames
                 var newFieldNames = [];
                 var evalStrs = [];
@@ -878,20 +894,25 @@
                 })
                 .fail(deferred.reject);
             } else {
-                deferred.resolve(resTable, tempTablesInMap);
+                deferred.resolve(resTable);
             }
             return deferred.promise();
         })
-        .then(function(resTable, tempTablesInMap) {
+        .then(function(resTable) {
+            // XXX Check whether tempTables is well tracked
+            return distinctGroupby(tableName, groupByCols, distinctColArray,
+                                   resTable, tempTables, tempCols, txId);
+        })
+        .then(function(resTable) {
             finalTable = resTable;
-            tempTables = tempTables.concat(tempTablesInMap);
             if (clean) {
                 // remove intermediate table
                 return XIApi.deleteTableAndMetaInBulk(txId, tempTables, true);
             }
         })
         .then(function() {
-            deferred.resolve(finalTable, finalCols, renamedGroupByCols);
+            deferred.resolve(finalTable, finalCols, renamedGroupByCols,
+                             tempCols);
         })
         .fail(deferred.reject);
 
@@ -1334,7 +1355,7 @@
         };
     }
 
-    function joinIndexCheck(joinInfo, txId) {
+    function joinIndexCheck(joinInfo, removeNulls, txId) {
         var deferred = jQuery.Deferred();
         var deferred1;
         var deferred2;
@@ -1342,6 +1363,9 @@
         var rColNames = joinInfo.rColNames;
         var lTableName = joinInfo.lTableName;
         var rTableName = joinInfo.rTableName;
+
+        // XXX remove this when Eric's change to keep FNFs goes in
+        removeNulls = false;
 
         if (lColNames.length === 0) {
             if (rColNames.length !== 0) {
@@ -1365,11 +1389,25 @@
             deferred2 = checkTableIndex(rColNames, rTableName, txId);
         }
 
+        var lIndexedTable;
+        var rIndexedTable;
+        var tempTables;
         PromiseHelper.when(deferred1, deferred2)
         .then(function(res1, res2) {
-            var lIndexedTable = res1[0];
-            var rIndexedTable = res2[0];
-            var tempTables = res1[2].concat(res2[2]);
+            lIndexedTable = res1[0];
+            rIndexedTable = res2[0];
+            tempTables = res1[2].concat(res2[2]);
+
+            if (removeNulls) {
+                var newTableName = getNewTableName(tableName, ".noNulls");
+                tempTables.push(newTableName);
+                return XcalarFilter("exists(" + lColNames[0] + ")", res1[0],
+                                    newTableName, txId);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function() {
             deferred.resolve(lIndexedTable, rIndexedTable, tempTables);
         })
         .fail(function() {
@@ -1494,13 +1532,11 @@
     }
 
     function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
-                            newTableName,
-                            joinType, lRename, rRename, tempTables, txId) {
+                            newTableName, joinType, lRename, rRename,
+                            tempTables, txId) {
         var deferred = jQuery.Deferred();
         // TODO: switch left and right and support right semi joins
         var antiJoinTableName;
-
-
 
         function doJoin() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
@@ -1832,6 +1868,176 @@
             });
             return deferred.promise();
         }
+    }
+
+    /* an array of objects with operator, aggColName, distinct, and newColName
+     *         properties - for multi group by operations
+     */
+    function distinctGroupby(tableName, groupOnCols, distinctColArray, curTable,
+                             tempTableArray, tempCols, txId)
+        {
+        // The below is an optimization. If multiple aggOps are operating on the
+        // same column, we only need do that groupby once
+        var deferred = jQuery.Deferred();
+        var aggCols = {};
+        for (var i = 0;  i < distinctColArray.length; i++) {
+            var aggCol = distinctColArray[i].aggColName;
+            if (aggCol in aggCols) {
+                aggCols[aggCol].push(distinctColArray[i]);
+            } else {
+                aggCols[aggCol] = [distinctColArray[i]];
+            }
+        }
+
+        var promiseArray = [];
+        var structArray = [];
+        for (var key in aggCols) {
+            promiseArray.push(computeDistinctGroupby(tableName,
+                                                     groupOnCols,
+                                                     key, aggCols[key],
+                                                     tempTableArray, tempCols,
+                                                     structArray,
+                                                     txId));
+        }
+        PromiseHelper.when.apply($, promiseArray)
+        .then(function() {
+            // Now we want to do cascading joins on the newTableNames
+            return cascadingJoins(structArray, curTable, groupOnCols,
+                                  tempTableArray, tempCols, txId);
+        })
+        .then(function(finalJoinedTable) {
+            deferred.resolve(finalJoinedTable, tempTableArray, tempCols);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function computeDistinctGroupby(origTableName, groupOnCols, distinctCol,
+                                    aggEvalStrArray, tempTableArray, tempCols,
+                                    finalStructArray, txId) {
+        var deferred = jQuery.Deferred();
+
+        if (groupOnCols.indexOf(distinctCol) === -1) {
+            newGroupOnArray = groupOnCols.concat([distinctCol]);
+        } else {
+            newGroupOnArray = groupOnCols;
+        }
+        var gbDistinctTableName = getNewTableName(origTableName, "gbDistinct");
+        var gbTableName = getNewTableName(origTableName, "gb");
+        var newIndexTable = getNewTableName(origTableName, "index");
+        checkTableIndex(newGroupOnArray, origTableName, txId)
+        .then(function(indexedTableName, shouldIndex, tempTables) {
+            tempTableArray = tempTableArray.concat(tempTables);
+            var newCountColName = "XC_COUNT_" + xcHelper.getTableId(gbTableName);
+            tempCols.push(newCountColName);
+            return XcalarGroupByWithEvalStrings([newCountColName],
+                                                ["count(1)"],
+                                                indexedTableName,
+                                                gbDistinctTableName, false, false,
+                                                newGroupOnArray[0], txId);
+            // XXX [0] argument needs to be fixed once bohan's fix goes in
+        })
+        .then(function() {
+            return XcalarIndexFromTable(gbDistinctTableName, groupOnCols,
+                                        newIndexTable,
+                                        XcalarOrderingT.XcalarOrderingUnordered,
+                                        txId);
+        })
+        .then(function() {
+            var aggEvalStrFlattened = [];
+            var newColNames = [];
+            for (var i = 0; i < aggEvalStrArray.length; i++) {
+                aggEvalStrFlattened.push(aggEvalStrArray[i].operator + "(" +
+                                         aggEvalStrArray[i].aggColName + ")");
+                newColNames.push(aggEvalStrArray[i].newColName);
+            }
+            if (Transaction.isSimulate(txId)) {
+                SQLApi.cacheIndexTable(gbTableName, groupOnCols, newIndexTable);
+            }
+            // TODO add the same cacheIndexTable for interactive
+            return XcalarGroupByWithEvalStrings(newColNames,
+                                                aggEvalStrFlattened,
+                                                newIndexTable,
+                                                gbTableName, false, false,
+                                                newGroupOnArray[0], txId);
+        })
+        .then(function() {
+            tempTableArray.push(gbDistinctTableName);
+            tempTableArray.push(newIndexTable);
+            tempTableArray.push(gbTableName);
+            finalStructArray.push({tableName: gbTableName,
+                                   cols: newGroupOnArray});
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function cascadingJoins(structArray, origGbTable, joinCols, tempTableArray,
+                            tempCols, txId) {
+        var joinTables = [];
+        function indexOnOrigCols(tn, indexCols) {
+            var deferred = jQuery.Deferred();
+            checkTableIndex(joinCols, tn, txId)
+            .then(function(indexedTableName, shouldIndex, tempTables) {
+                tempTableArray = tempTableArray.concat(tempTables);
+                joinTables.push({tableName: indexedTableName,
+                                 cols: indexCols});
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
+        }
+
+        var promiseArray = [];
+        var deferred = jQuery.Deferred();
+        tempTableArray.push(origGbTable);
+        for (var i = 0; i < structArray.length; i++) {
+            promiseArray.push(indexOnOrigCols(structArray[i].tableName,
+                                              structArray[i].cols));
+        }
+
+        var finalJoinedTable;
+        PromiseHelper.when.apply($, promiseArray)
+        .then(function() {
+            promiseArray = [];
+            var curTableName = origGbTable;
+            for (var i = 0; i < joinTables.length; i++) {
+                // The index cols will collide for sure. So we must rename these
+                // The newly generated columns cannot collide because they will
+                // be renamed earlier on XXX add asserts / fixme
+                var rRename = [];
+                var rTableId = xcHelper.getTableId(joinTables[i].tableName);
+                for (var j = 0; j < joinTables[i].cols.length; j++) {
+                    rRename.push({
+                        new: joinTables[i].cols[j] + "_" + rTableId,
+                        orig: joinTables[i].cols[j],
+                        type: DfFieldTypeT.DfUnknown
+                    });
+                    tempCols.push(joinTables[i].cols[j] + "_" + rTableId);
+                }
+                var newTableName = getNewTableName(origGbTable, "join");
+                if (i < joinTables.length - 1) { // Don't push final table
+                    tempTableArray.push(newTableName);
+                }
+
+                promiseArray.push(
+                    XcalarJoin.bind($, curTableName, joinTables[i].tableName,
+                                    newTableName, JoinOperatorT.InnerJoin,
+                                    [], rRename, undefined, txId));
+                curTableName = newTableName;
+            }
+            finalJoinedTable = curTableName;
+
+            return PromiseHelper.chain(promiseArray);
+        })
+        .then(function() {
+            deferred.resolve(finalJoinedTable);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function isValidTableName(tableName) {

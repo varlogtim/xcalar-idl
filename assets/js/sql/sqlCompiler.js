@@ -1278,9 +1278,59 @@
             var self = this;
             assert(node.children.length === 2); // It's a join. So 2 kids only
 
+            // Special case for Anti Semi Joins
+            // Check if root node is OR
+            // If yes, assert OR's one child is &= tree. Other child is isNull,
+            // followed by the identical &= tree
+            // If root node is not OR, tree must be &=
+            // If root node is OR, change root node to be &= subTree and set
+            // removeNull to true
+            // The above assertion and changes causes left anti semi joins to
+            // forever be an &= subtree.
+            if (node.value.joinType.object ===
+                "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
+                if (node.value.condition[0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Or") {
+                    var leftSubtree = [node.value.condition[1]];
+                    var rightSubtree = [];
+                    var numNodesInLeftTree = leftSubtree[0]["num-children"];
+                    var idx = 1;
+                    while (numNodesInLeftTree > 0) {
+                        leftSubtree.push(node.value.condition[++idx]);
+                        numNodesInLeftTree += node.value.condition[idx]["num-children"];
+                        numNodesInLeftTree--;
+                    }
+                    for (var i = idx+1; i < node.value.condition.length; i++) {
+                        rightSubtree.push(node.value.condition[i]);
+                    }
+
+                    // Find the subtree that has IsNull as the first node and
+                    // assign that as the right subtree
+                    if (leftSubtree[0].class ===
+                        "org.apache.spark.sql.catalyst.expressions.IsNull") {
+                        var tempTree = rightSubtree;
+                        rightSubtree = leftSubtree;
+                        leftSubtree = tempTree;
+                    }
+                    // Remove the IsNull node
+                    rightSubtree.shift();
+                    // Assert that both subtrees are the same by stringifying
+                    assert(JSON.stringify(leftSubtree) ===
+                           JSON.stringify(rightSubtree));
+                    // All good, now set removeNull to true and over write the
+                    // condition array with the left subtree
+                    node.xcRemoveNull = true;
+                    node.value.condition = leftSubtree;
+                } else {
+                    node.xcRemoveNull = false;
+                }
+            }
+
             var condTree = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0));
+
             node.xcCols = [];
+
             // NOTE: The full supportability of Xcalar's Join is represented by
             // a tree where if we traverse from the root, it needs to be AND all
             // the way and when it's not AND, it must be an EQ (stop traversing
@@ -1366,7 +1416,12 @@
     // Helper functions for join
     function __catchAllJoin(sqlCompiler, node, condTree, leftTableName,
                             rightTableName) {
-        // var deferred = jQuery.Deferred();
+
+        assert((node.value.joinType.object !==
+                "org.apache.spark.sql.catalyst.plans.LeftSemi$") &&
+               (node.value.joinType.object !==
+                "org.apache.spark.sql.catalyst.plans.LeftAnti$"));
+
         var lTableInfo = {};
         lTableInfo.tableName = leftTableName;
         lTableInfo.columns = []; // CrossJoin does not need columns
@@ -1403,7 +1458,6 @@
 
         return sqlCompiler.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
                                        rTableInfo, {evalString: filterEval});
-        // return deferred.promise();
     }
 
     function __getJoinMapArrays(node, eqSubtrees) {
@@ -1531,6 +1585,11 @@
                                                      leftCols);
             lTableInfo.pulledColumns = [];
             lTableInfo.rename = [];
+            if (node.xcRemoveNull) {
+                // This flag is set for left anti semi join. It means to
+                // removeNulls in the left table
+                lTableInfo.removeNull = true;
+            }
 
             var rTableInfo = {};
             rTableInfo.tableName = retRight.newTableName;
@@ -1700,6 +1759,9 @@
         if (opName in opLookup) {
             if (opName.indexOf(".aggregate.") > -1) {
                 if (opName === "expressions.aggregate.AggregateExpression") {
+                    if (acc) {
+                        acc.isDistinct = condTree.value.isDistinct;
+                    }
                     if (condTree.aggTree) {
                         // We need to resolve the aggTree and then push
                         // the resolved aggTree's xccli into acc
@@ -1834,6 +1896,11 @@
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
                                  numOps: acc.numOps};
+
+                if (acc.isDistinct) {
+                    retStruct.isDistinct = true;
+                }
+
                 if (options && options.operator) {
                     retStruct.operator = acc.operator;
                 }

@@ -8,6 +8,8 @@
     }
 
     // static function
+    // This is order sensitive. When index is no longer index sensitive,
+    // we can do colNames.sort and then do the toString
     SQLApi.cacheIndexTable = function(tableName, colNames, indexTable) {
         var colKey = getIndexColKey(colNames);
         indexTableCache[tableName] = indexTableCache[tableName] || {};
@@ -372,12 +374,14 @@
             options.icvMode = false;
 
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(finalTable, finalCols, renamedGroupByCols) {
+            .then(function(finalTable, finalCols, renamedGroupByCols,
+                           tempCols) {
                 var cli = self._end(txId);
                 deferred.resolve({
                     "newTableName": finalTable,
                     "newColumns": finalCols,
                     "renamedColumns": renamedGroupByCols,
+                    "tempCols": tempCols,
                     "cli": cli
                 });
             })
