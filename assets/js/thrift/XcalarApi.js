@@ -1567,7 +1567,14 @@ xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandl
             status = status.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
+            if (status === StatusT.StatusNoDsUsers) {
+                listDatasetUsersOutput = new XcalarApiListDatasetUsersOutputT();
+                listDatasetUsersOutput.usersCount = 0;
+                listDatasetUsersOutput.user = [];
+                deferred.resolve(listDatasetUsersOutput);
+            } else {
+                deferred.reject({xcalarStatus: status, log: log});
+            }
         } else {
             deferred.resolve(listDatasetUsersOutput);
         }
@@ -1609,13 +1616,13 @@ xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandl
         var status = result.output.hdr.status;
         var listUserDatasetsOutput = result.output.outputResult.listUserDatasetsOutput;
         var log = result.output.hdr.log;
-
         if (result.jobStatus != StatusT.StatusOk) {
             status = status.jobStatus;
         }
 
         if (status != StatusT.StatusOk) {
-            if (status === StatusT.StatusDsNotFound) {
+            if (status === StatusT.StatusNoDsUsers ||
+                status === StatusT.StatusDsNotFound) {
                 listUserDatasetsOutput = new XcalarApiListUserDatasetsOutputT();
                 listUserDatasetsOutput.dataset = [];
                 listUserDatasetsOutput.datasetCount = 0;
