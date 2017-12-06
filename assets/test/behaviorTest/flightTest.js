@@ -16,6 +16,7 @@ window.FlightTest = (function(FlightTest, $) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
+        initializeForms();
         return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
     };
 
@@ -60,6 +61,10 @@ window.FlightTest = (function(FlightTest, $) {
                       defaultTimeout, TestCaseDisabled); // disabled
         test.add(jsonModalTest, "JsonModalTest",
                       defaultTimeout, TestCaseEnabled);
+    }
+
+    function initializeForms() {
+        $("#operationsView").find(".keepTable").click(); // keep gb table
     }
 
     function flightTest(deferred, testName, currentTestNumber) {
@@ -162,7 +167,7 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart3_2() {
             console.log("start flightTestPart3_2", "map to get uniqueNum");
             var tableId = getFirstTableInWS(0);
-    
+
             test.trigOpModal(tableId, "ArrDelay", "map")
             .then(function() {
                 var $section = $("#operationsView .opSection.map");

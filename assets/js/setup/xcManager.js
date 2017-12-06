@@ -72,6 +72,7 @@ window.xcManager = (function(xcManager, $) {
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
             // restore user settings
+            OperationsView.restore();
             JoinView.restore();
             FileBrowser.restore();
             JupyterPanel.initialize();

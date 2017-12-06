@@ -542,6 +542,7 @@ window.xcFunction = (function($, xcFunction) {
     // gbArgs is array of {operator:str, aggCol:str, newColName:str,
     //                     cast:null or str} objects
     // options:  isIncSample: boolean, isJoin: boolean, icvMode: boolean,
+    //           isKeepOriginal: boolean
     //           formOpenTime: int, columnsToKeep: array of colnums, casts
     xcFunction.groupBy = function(tableId, gbArgs, groupByCols, options) {
         // Validation
@@ -558,6 +559,7 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
         var isIncSample = options.isIncSample || false;
         var isJoin = options.isJoin || false;
+        var isKeepOriginal = options.isKeepOriginal || false;
         var table = gTables[tableId];
 
         var tableName = table.getName();
@@ -670,6 +672,8 @@ window.xcFunction = (function($, xcFunction) {
                     colsToSelect.push(i + 1);
                 }
                 tableOptions.selectCol = colsToSelect;
+                tablesToReplace = [tableName];
+            } else if (!isKeepOriginal) {
                 tablesToReplace = [tableName];
             }
 

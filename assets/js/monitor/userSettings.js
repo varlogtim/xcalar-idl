@@ -216,9 +216,8 @@ window.UserSettings = (function($, UserSettings) {
                     }
                 } else {
                     shouldCommit = true;
+                    break;
                 }
-
-                break;
             }
         }
         return shouldCommit;

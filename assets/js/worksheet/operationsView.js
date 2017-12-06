@@ -514,10 +514,12 @@ window.OperationsView = (function($, OperationsView) {
                 // selected
                 var $newTableNameRow = $activeOpSection
                                             .find('.newTableNameRow');
-                var $keepTableBox = $checkbox.closest('.gbCheckboxes')
-                                             .find('.keepTable .checkbox');
-                if ($keepTableBox.hasClass('checked')) {
+                var $joinBackBox = $checkbox.closest('.gbCheckboxes')
+                                             .find('.joinBack .checkbox');
+                var $keepTableBox = $activeOpSection.find(".keepTable .checkbox");
+                if ($joinBackBox.hasClass('checked')) {
                     $newTableNameRow.addClass('inactive');
+                    $keepTableBox.removeClass("checked");
                 } else {
                     $newTableNameRow.removeClass('inactive');
                 }
@@ -530,6 +532,13 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     $operationsView.find(".groupByColumnsSection")
                                    .addClass("xc-hidden");
+                }
+            } else if ($(this).hasClass("keepTable")) {
+                if ($checkbox.hasClass("checked")) {
+                    $activeOpSection.find('.joinBack .checkbox')
+                                    .removeClass("checked");
+                    $activeOpSection.find('.newTableNameRow')
+                                     .removeClass('inactive');
                 }
             }
 
@@ -748,6 +757,14 @@ window.OperationsView = (function($, OperationsView) {
         .fail(function(error) {
             Alert.error("List XDFs failed", error.error);
         });
+    };
+
+    OperationsView.restore = function() {
+        // restore user saved preferences
+        var keepOriginalTable = UserSettings.getPref('keepGBTable');
+        if (keepOriginalTable) {
+            $operationsView.find('.keepTable .checkbox').addClass('checked');
+        }
     };
 
     // options
@@ -2689,7 +2706,7 @@ window.OperationsView = (function($, OperationsView) {
 
                     isPassing = !ColManager.checkColName($nameInput, tableId,
                                                         null, checkOpts);
-                    if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
+                    if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
                                     .hasClass('checked')) {
                         isPassing = xcHelper.tableNameInputChecker(
                                         $activeOpSection.find('.newTableName'));
@@ -3286,10 +3303,13 @@ window.OperationsView = (function($, OperationsView) {
 
         var isIncSample = $activeOpSection.find('.incSample .checkbox')
                                     .hasClass('checked');
-        var isJoin = $activeOpSection.find('.keepTable .checkbox')
+        var isJoin = $activeOpSection.find('.joinBack .checkbox')
                                     .hasClass('checked');
         var icvMode = $activeOpSection.find(".icvMode .checkbox")
                                     .hasClass("checked");
+
+        var isKeepOriginal = $activeOpSection.find(".keepTable .checkbox")
+                                             .hasClass("checked");
         var colsToKeep = [];
 
         if (isIncSample) {
@@ -3309,6 +3329,7 @@ window.OperationsView = (function($, OperationsView) {
             "isIncSample": isIncSample,
             "isJoin": isJoin,
             "icvMode": icvMode,
+            "isKeepOriginal": isKeepOriginal,
             "formOpenTime": formOpenTime,
             "dstTableName": dstTableName,
             "columnsToKeep": colsToKeep
@@ -3316,6 +3337,10 @@ window.OperationsView = (function($, OperationsView) {
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
             options.isIncSamples = false;
+        }
+        if (options.isJoin && options.isKeepOriginal) {
+            console.warn('shouldnt be able to select join and keep table');
+            options.isJoin = false;
         }
 
         if ($("#container").hasClass("dfEditState")) {
@@ -4278,8 +4303,10 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.newTableNameRow').addClass('inactive')
                        .find('.newTableName').val("");
 
-        // empty all checkboxes
-        $operationsView.find('.checkbox').removeClass('checked');
+        // empty all checkboxes except keeptable checkbox
+        $operationsView.find(".checkbox").filter(function() {
+            return !$(this).parent().hasClass("keepTable");
+        }).removeClass("checked");
         $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.gbCheckboxes').addClass('inactive');
         $operationsView.find(".advancedSection").addClass("inactive");

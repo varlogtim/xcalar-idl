@@ -281,7 +281,8 @@ window.Undo = (function($, Undo) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(options.newTableName);
         var promise;
-        if (options.options && options.options.isJoin) {
+        if (options.options && options.options.isJoin ||
+            !options.options.isKeepOriginal) {
             var worksheet = WSManager.getWSFromTable(tableId);
             var refreshOptions = {
                 isUndo: true,
