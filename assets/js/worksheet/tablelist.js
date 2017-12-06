@@ -54,9 +54,26 @@ window.TableList = (function($, TableList) {
                 return;
             }
             var tableId = $(this).closest('.tableInfo').data("id");
-            xcHelper.centerFocusedTable(tableId, true);
+            var animate = true;
+            xcHelper.centerFocusedTable(tableId, animate);
+            Dag.focusDagForActiveTable(null, false, animate);
+
             // stop propogation
             return false;
+        });
+
+        // focus on temp table
+        $("#orphanedTableListSection").on("click", ".tableListBox .tableName",
+            function() {
+            var tableName = $(this).closest('.tableInfo').data("tablename");
+            var found = Dag.focusTempTable(tableName);
+            if (!found) {
+                var options = {
+                    "title": TooltipTStr.TempTableNotFound
+                };
+                var displayTime = 2000;
+                xcTooltip.transient($(this).parent(), options, displayTime);
+            }
         });
 
         // select a table list

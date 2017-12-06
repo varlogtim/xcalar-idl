@@ -286,7 +286,7 @@ html.firefox, html.microsoft {
             background-color: @color-bg-btn-hover-blue;
         }
     }
-    &.selected {
+    &.selected, &.tempFocused {
         .dagTableIcon, .dataStoreIcon {
             box-shadow: 0px 0px 10px 4px @color-dag-glowing;
         }
@@ -382,6 +382,12 @@ html.firefox, html.microsoft {
         }
         .tableTitleArea {
             color: @color-font-select-blue;
+        }
+
+        .headerTable {
+            .tableTitle {
+                color: @color-font-select-blue;
+            }
         }
     }
 

@@ -1242,6 +1242,9 @@ window.DagDraw = (function($, DagDraw) {
             tooltipTxt = CommonTxtTstr.ClickToOpts;
         }
         tableClasses += dagInfo.state + " ";
+        if (node.children.length === 0) {
+            tableClasses += " headerTable ";
+        }
 
         // check for datastes
         if (dagOpHtml === "") {

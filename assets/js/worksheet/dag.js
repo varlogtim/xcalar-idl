@@ -250,7 +250,7 @@ window.Dag = (function($, Dag) {
         });
     };
 
-    Dag.focusDagForActiveTable = function(tableId, tableFocused) {
+    Dag.focusDagForActiveTable = function(tableId, tableFocused, animate) {
         // tableId given only when initial dag is created
         var activeTableId;
         var $dagWrap;
@@ -265,6 +265,9 @@ window.Dag = (function($, Dag) {
             DagPanel.adjustScrollBarPositionAndSize();
         } else {
             activeTableId = gActiveTableId;
+            if (!activeTableId) {
+                return;
+            }
             $dagWrap = $('#dagWrap-' + activeTableId);
             $dag = $dagWrap.find('.dagImageWrap');
 
@@ -281,18 +284,75 @@ window.Dag = (function($, Dag) {
                 }
             }
 
-            $dag.scrollLeft($dag.find('.dagImage').width());
+            verticallyFocusDagWrap($dagWrap);
 
-            var scrollTop = $dagPanel.find('.dagArea').scrollTop();
-            var dagTop = $dagWrap.position().top;
-
-            if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
-                $dagPanel.scrollTop(0);
+            if (animate && !gMinModeOn) {
+                var tableName = gTables[activeTableId].getName();
+                var $tableIcon = Dag.getTableIconByName($dagWrap, tableName);
+                $tableIcon.addClass("tempFocused");
+                setTimeout(function() {
+                    $tableIcon.removeClass("tempFocused");
+                }, 1200);
+                $dag.animate({scrollLeft: $dag.find(".canvas").width()}, 500, function() {
+                    DagPanel.setScrollBarId($(window).height());
+                    DagPanel.adjustScrollBarPositionAndSize();
+                });
             } else {
-                $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
+                $dag.scrollLeft($dag.find('.canvas').width());
             }
+
             DagPanel.setScrollBarId($(window).height());
             DagPanel.adjustScrollBarPositionAndSize();
+        }
+    };
+
+    // finds first visible tableicon or first nonvisible
+    // does not scroll to descendant table in worksheet
+    Dag.focusTempTable = function(tableName) {
+        if ($dagPanel.hasClass("xc-hidden")) {
+            return true;
+        }
+        var activeWS = WSManager.getActiveWS();
+        var $visibleDagWraps = $(".dagWrap.worksheet-" + activeWS);
+        var $tables = Dag.getTableIconByName($visibleDagWraps, tableName);
+        var $table;
+        var dagWrapId;
+        if (!$tables.length) {
+            $tables = Dag.getTableIconByName($(".dagWrap.inActive"), tableName);
+            if ($tables.length) {
+                $table = $tables.eq(0);
+                dagWrapId = $table.closest(".dagWrap").data("id");
+                var wsId = WSManager.getWSFromTable(dagWrapId);
+                WSManager.focusOnWorksheet(wsId);
+            }
+        } else {
+            $table = $tables.eq(0);
+        }
+
+        if ($table) {
+            var $dagWrap = $table.closest(".dagWrap");
+            dagWrapId = $dagWrap.data("id");
+            TblFunc.focusTable(dagWrapId);
+            verticallyFocusDagWrap($dagWrap);
+
+            $table.addClass("tempFocused");
+            setTimeout(function() {
+                $table.removeClass("tempFocused");
+            }, 1200);
+
+            var scrollLeft = $table.closest(".dagTableWrap").position().left -
+                ($dagWrap.find(".dagImageWrap").width() / 2) + Dag.tableWidth;
+            $dagWrap.find(".dagImageWrap").animate({scrollLeft: scrollLeft},
+                500, function() {
+                DagPanel.setScrollBarId($(window).height());
+                DagPanel.adjustScrollBarPositionAndSize();
+            });
+
+            DagPanel.setScrollBarId($(window).height());
+            DagPanel.adjustScrollBarPositionAndSize();
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -971,6 +1031,10 @@ window.Dag = (function($, Dag) {
         return $dagWrap.find('.dagTable[data-index=' + nodeId + ']');
     };
 
+    Dag.getTableIconByName = function($dagWrap, tableName) {
+        return $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]');
+    };
+
     function prettify(loadInfo) {
         var html = xcHelper.prettifyJson(loadInfo);
         html = "{\n" + html + "}";
@@ -1544,7 +1608,7 @@ window.Dag = (function($, Dag) {
         var dagAreaHeight = $dagArea.height();
         var dagTop = $dagWrap.position().top;
 
-        if (dagTop + 30 > dagAreaHeight || dagTop + dagHeight < 50) {
+        if (dagTop + 110 > dagAreaHeight || dagTop + dagHeight < 90) {
             return (false);
         }
         return (true);
@@ -2303,6 +2367,17 @@ window.Dag = (function($, Dag) {
             "xcalarInput": xcalarInput,
             "op": op
         };
+    }
+
+    function verticallyFocusDagWrap($dagWrap) {
+        var scrollTop = $dagPanel.find('.dagArea').scrollTop();
+        var dagTop = $dagWrap.position().top;
+
+        if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
+            $dagPanel.scrollTop(0);
+        } else {
+            $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
+        }
     }
 
 

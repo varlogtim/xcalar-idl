@@ -114,6 +114,7 @@ TooltipTStr = {
     "SysOperation": "System generated operation",
     "UDFNoMain": "UDF requires a 'main' function",
     "UnexpectedNode": "Dataflow has an unexpected operation",
+    "TempTableNotFound": "Table not found in active dataflows",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
