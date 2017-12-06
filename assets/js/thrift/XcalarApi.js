@@ -620,19 +620,19 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, sourceArgs, num
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            // previewOutput has a jsonOutput field which is a json formatted string
+            // which has several fields of interest:
+            // {"fileName" :
+            //  "relPath" :
+            //  "fullPath" :
+            //  "base64Data" :
+            //  "thisDataSize" :
+            //  "totalDataSize" :
+            //  }
+            previewOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(previewOutput);
         }
-
-        // previewOutput has a jsonOutput field which is a json formatted string
-        // which has several fields of interest:
-        // {"fileName" :
-        //  "relPath" :
-        //  "fullPath" :
-        //  "base64Data" :
-        //  "thisDataSize" :
-        //  "totalDataSize" :
-        //  }
-        previewOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(previewOutput);
     })
     .fail(function(error) {
         console.log("xcalarPreview() caught exception:", error);
