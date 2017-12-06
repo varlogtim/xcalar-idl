@@ -292,16 +292,7 @@ describe('FnBar Test', function() {
                 .to.equal(oldText);
                 // TODO: test on editable columns.
             });
-            it("fnbar clear & save should work", function() {
-                // Tested above
-                var randString = "RANDOMRANDOMSTRINGSTRING";
-                $table.find('th.col2 .dragArea').mousedown();
-                editor.setValue("="+randString);
-                FnBar.clear();
-                expect(editor.getValue().endsWith(randString)).to.equal(false);
-                $table.find('th.col2 .dragArea').mousedown();
-                expect(editor.getValue().endsWith(randString)).to.equal(true);
-            });
+
             // it("fnbar focusCursor should work", function() {
             //     // This function doesn't do as much as you'd think
             //     // Only calls editor.focus(), which adds inFocus class

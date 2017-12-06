@@ -381,7 +381,7 @@ describe("Dataset-File Browser Test", function() {
                 return PromiseHelper.reject({error: oldBrowserErr});
             };
 
-            FileBrowser.show(null)
+            FileBrowser.show(null, "")
             .then(function() {
                 done("fail");
             })
@@ -398,7 +398,7 @@ describe("Dataset-File Browser Test", function() {
                 return PromiseHelper.reject({"error": errorMsg});
             };
 
-            FileBrowser.show(gDefaultSharedRoot)
+            FileBrowser.show(gDefaultSharedRoot, "")
             .then(function() {
                 done("fail");
             })
@@ -445,7 +445,7 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it('Should show the filebrowser', function(done) {
-            FileBrowser.show(gDefaultSharedRoot)
+            FileBrowser.show(gDefaultSharedRoot, "")
             .then(function() {
                 var $li = $pathLists.find("li:first-of-type");
                 expect($li.text()).to.equal("/");
@@ -596,7 +596,7 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("Should click confirm to sumbitForm", function(done) {
-            FileBrowser.show(gDefaultSharedRoot)
+            FileBrowser.show(gDefaultSharedRoot, "")
             .then(function() {
                 var $grid = findGrid("netstore");
                 $grid.click(); // focus on it

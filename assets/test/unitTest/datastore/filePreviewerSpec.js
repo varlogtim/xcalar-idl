@@ -131,7 +131,7 @@ describe("Dataset-File Previewer Test", function() {
             FileBrowser.show({
                 targetName: gDefaultSharedRoot,
                 path: "/"
-            });
+            }, "/");
         });
 
         it("FilePreviewer.isOpen should work", function() {

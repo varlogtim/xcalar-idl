@@ -290,7 +290,7 @@ describe('RowManager Test', function() {
                 if (count === 1) {
                     var pairs = [];
                     for (var i = 0; i < 58; i++) {
-                        pairs.push({key: 0, value: '{"rowNum":' + (941 + i) + '}'});
+                        pairs.push('{"rowNum":' + (941 + i) + '}');
                     }
                     return PromiseHelper.resolve({
                         values: pairs,

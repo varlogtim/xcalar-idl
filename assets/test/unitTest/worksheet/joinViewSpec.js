@@ -68,8 +68,8 @@ describe("JoinView Test", function() {
         it("join type should be selected", function() {
             expect($("#joinType .text:visible")).to.have.lengthOf(1);
             expect($("#joinType .text").text()).to.equal("Inner Join");
-            expect($("#joinType li").length).to.equal(4); // in left right full
-            // expect($("#joinType li").length).to.equal(9); // in left right full
+            // expect($("#joinType li").length).to.equal(4); // in left right full
+            expect($("#joinType li").length).to.equal(9); // in left right full
             // l-semi r-semi l-anti r-anti cross
         });
 
@@ -368,8 +368,8 @@ describe("JoinView Test", function() {
             $("#joinType").find(".text").trigger(fakeEvent.click);
 
             expect($("#joinType").find(".list:visible").length).to.equal(1);
-            expect($("#joinType").find("li:visible").length).to.equal(4);
-            // expect($("#joinType").find("li:visible").length).to.equal(9);
+            // expect($("#joinType").find("li:visible").length).to.equal(4);
+            expect($("#joinType").find("li:visible").length).to.equal(9);
             expect($("#joinType").find(".text").text()).to.equal("Inner Join");
 
             $("#joinType").find("li").eq(1).trigger(fakeEvent.mouseup);

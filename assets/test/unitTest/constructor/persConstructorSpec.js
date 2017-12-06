@@ -2237,8 +2237,8 @@ describe("Persistent Constructor Test", function() {
                         "input": {
                             "loadInput": {
                                 "loadArgs": {
-                                    "udfLoadArgs": {
-                                        "fullyQualifiedFnName": "default:openExcel"
+                                    "parseArgs": {
+                                        "parserFnName": "default:openExcel"
                                     }
                                 }
                             }
@@ -2276,8 +2276,8 @@ describe("Persistent Constructor Test", function() {
                         "input": {
                             "loadInput": {
                                 "loadArgs": {
-                                    "udfLoadArgs": {
-                                        "fullyQualifiedFnName": "test"
+                                    "parseArgs": {
+                                        "parserFnName": "test"
                                     }
                                 }
                             }

@@ -433,8 +433,6 @@ describe("Worksheet Test", function() {
         });
 
         it("Should add table to worksheet", function() {
-            expect(worksheet.orphanedTables.length).to.equal(0);
-
             WSManager.addTable(tableId);
             expect(worksheet.pendingTables.length).to.equal(1);
             expect(worksheet.pendingTables[0]).to.equal(tableId);

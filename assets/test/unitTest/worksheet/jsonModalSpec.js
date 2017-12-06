@@ -46,15 +46,15 @@ describe('JsonModal Test', function() {
         });
 
         it ('second row should be correct', function() {
-            expect($jsonModal.find('.tab').length).to.equal(2);
-            expect($jsonModal.find('.tab:visible').length).to.equal(2);
-            expect($jsonModal.find('.tab').eq(1).text()).to.equal(prefix);
+            expect($jsonModal.find('.tab').length).to.equal(3);
+            expect($jsonModal.find('.tab:visible').length).to.equal(3);
+            expect($jsonModal.find('.tab').eq(2).text()).to.equal(prefix);
             expect($jsonModal.find('.tab.active').eq(0).length).to.equal(1);
             expect($jsonModal.find('.tab.active').eq(1).length).to.equal(0);
         });
 
         it('json text should be correct', function() {
-            expect($jsonModal.find('.jObject').length).to.equal(1);
+            expect($jsonModal.find('.jObject').length).to.equal(2);
             expect($jsonModal.find('.jObject:visible').length).to.equal(1);
             var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
             expect(Object.keys(jsonObj).length).to.equal(12);

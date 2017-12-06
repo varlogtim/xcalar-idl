@@ -79,13 +79,19 @@ xcalarGetNumNodes = runEntity.xcalarGetNumNodes = function(thriftHandle) {
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var getNumNodesOutput = result.output.outputResult.getNumNodesOutput;
         var log = result.output.hdr.log;
-        // No status
+
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: result.jobStatus, log: log});
+            status = status.jobStatus;
         }
-        deferred.resolve(getNumNodesOutput);
+        // No status
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getNumNodesOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarGetNumNodes() caught exception:", error);
@@ -124,8 +130,9 @@ xcalarGetVersion = runEntity.xcalarGetVersion = function(thriftHandle) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getVersionOutput);
         }
-        deferred.resolve(getVersionOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetVersion() caught exception:", error);
@@ -165,8 +172,9 @@ xcalarGetLicense = runEntity.xcalarGetLicense = function(thriftHandle) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getLicenseOutput);
         }
-        deferred.resolve(getLicenseOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetLicense() caught exception:", error);
@@ -192,13 +200,18 @@ xcalarGetConfigParams = runEntity.xcalarGetConfigParams = function(thriftHandle)
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var getConfigParamsOutput = result.output.outputResult.getConfigParamsOutput;
         var log = result.output.hdr.log;
         // No status
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: result.jobStatus, log: log});
+            status = result.jobStatus;
         }
-        deferred.resolve(getConfigParamsOutput);
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getConfigParamsOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarGetConfigParams() caught exception:", error);
@@ -236,8 +249,9 @@ xcalarSetConfigParam = runEntity.xcalarSetConfigParam = function(thriftHandle, p
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarSetConfigParam() caught exception:", error);
@@ -308,8 +322,9 @@ xcalarAppSet = runEntity.xcalarAppSet = function(thriftHandle, name, hostType, d
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarAppSet() caught exception:", error);
@@ -351,8 +366,9 @@ xcalarAppRun = runEntity.xcalarAppRun = function(thriftHandle, name, isGlobal, i
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(appRunOutput);
         }
-        deferred.resolve(appRunOutput);
     })
     .fail(function(error) {
         console.log("xcalarAppRun() caught exception:", error);
@@ -391,8 +407,9 @@ xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log, output: appReapOutput});
+        } else {
+            deferred.resolve(appReapOutput);
         }
-        deferred.resolve(appReapOutput);
     })
     .fail(function(error) {
         console.log("xcalarAppReap() caught exception:", error);
@@ -634,7 +651,7 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, p
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
     workItem.input.loadInput.dest = name;
     workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
-    workItem.input.loadInput.loadArgs.parseArgs = parseArgs
+    workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
     workItem.input.loadInput.loadArgs.size = maxSize;
 
@@ -663,9 +680,10 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgs, par
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log, output: loadOutput});
+        } else {
+            loadOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(loadOutput);
         }
-        loadOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(loadOutput);
     })
     .fail(function(error) {
         console.log("xcalarLoad() caught exception:", error);
@@ -734,9 +752,10 @@ xcalarIndex = runEntity.xcalarIndexTable = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(indexOutput);
         }
-        indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(indexOutput);
     })
     .fail(function(error) {
         console.log("xcalarIndexTable() caught exception:", error);
@@ -787,8 +806,9 @@ xcalarGetMetaInt = runEntity.xcalarGetMetaInt = function(thriftHandle, datasetNa
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(metaOutput);
         }
-        deferred.resolve(metaOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetMeta() caught exception:", error);
@@ -830,8 +850,9 @@ xcalarShutdown = runEntity.xcalarShutdown = function(thriftHandle, force) {
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarShutdown() caught exception:", error);
@@ -871,8 +892,9 @@ xcalarGetStats = runEntity.xcalarGetStats = function(thriftHandle, nodeId) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(statOutput);
         }
-        deferred.resolve(statOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetStats() caught exception:", error);
@@ -912,8 +934,9 @@ xcalarRenameNode = runEntity.xcalarRenameNode = function(thriftHandle, oldName, 
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarRenameNode() caught exception:", error);
@@ -954,8 +977,9 @@ xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, nu
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarTagDagNodes() caught exception:", error);
@@ -997,8 +1021,9 @@ xcalarCommentDagNodes = runEntity.xcalarCommentDagNodes = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarCommentDagNodes() caught exception:", error);
@@ -1042,8 +1067,9 @@ xcalarGetStatsByGroupId = runEntity.xcalarGetStatsByGroupId = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(statOutput);
         }
-        deferred.resolve(statOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetStatsByGroupId() caught exception:", error);
@@ -1080,8 +1106,10 @@ xcalarResetStats = runEntity.xcalarResetStats = function(thriftHandle, nodeId) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
+
     })
     .fail(function(error) {
         console.log("xcalarResetStats() caught exception:", error);
@@ -1122,8 +1150,9 @@ xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(statGroupIdMapOutput);
         }
-        deferred.resolve(statGroupIdMapOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetStatGroupIdMap() caught exception:", error);
@@ -1164,8 +1193,9 @@ xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(queryOutput);
         }
-        deferred.resolve(queryOutput);
     })
     .fail(function(error) {
         console.log("xcalarQuery() caught exception:", error);
@@ -1205,9 +1235,9 @@ xcalarQueryState = runEntity.xcalarQueryState = function(thriftHandle, queryName
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(queryStateOutput);
         }
-
-        deferred.resolve(queryStateOutput);
     })
     .fail(function(error) {
         console.log("xcalarQueryState() caught exception:", error);
@@ -1244,9 +1274,9 @@ xcalarQueryCancel = runEntity.xcalarQueryCancel = function(thriftHandle, queryNa
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarQueryCancel() caught exception:", error);
@@ -1283,9 +1313,9 @@ xcalarQueryDelete = runEntity.xcalarQueryDelete = function(thriftHandle, queryNa
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarQueryDelete() caught exception:", error);
@@ -1321,8 +1351,9 @@ xcalarApiGetOpStats = runEntity.xcalarApiGetOpStats = function(thriftHandle, dst
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(opStatsOutput);
         }
-        deferred.resolve(opStatsOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiGetOpStats() caught exception: ", error);
@@ -1357,8 +1388,9 @@ xcalarApiCancelOp = runEntity.xcalarApiCancelOp = function(thriftHandle, dstDagN
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiCancelOp() caught exception: ", error);
@@ -1396,8 +1428,9 @@ xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(dagOutput);
         }
-        deferred.resolve(dagOutput);
     })
     .fail(function(error) {
         console.log("xcalarDag() caught exception: " + error);
@@ -1430,14 +1463,20 @@ xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMa
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var listNodesOutput = result.output.outputResult.listNodesOutput;
         var log = result.output.hdr.log;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
-            listNodesOutput.numTables = 0;
-            deferred.reject({xcalarStatus:result.jobStatus, log: log});
+            status = status.jobStatus;
         }
-        deferred.resolve(listNodesOutput);
+
+        if (status !== StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listNodesOutput);
+        }
+
     })
     .fail(function(error) {
         console.log("xcalarListTables() caught exception:", error);
@@ -1465,13 +1504,26 @@ xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var listDatasetsOutput = result.output.outputResult.listDatasetsOutput;
         var log = result.output.hdr.log;
-        // No job specific status
+
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus:result.jobStatus, log: log});
+            status = status.jobStatus;
         }
-        deferred.resolve(listDatasetsOutput);
+
+        if (status != StatusT.StatusOk) {
+            if (status === StatusT.StatusDsNotFound) {
+                listDatasetsOutput = new XcalarApiListDatasetsOutputT();
+                listDatasetsOutput.numDatasets = 0;
+                listDatasetsOutput.datasets = [];
+                deferred.resolve(listDatasetsOutput);
+            } else {
+                deferred.reject({xcalarStatus: status, log: log});
+            }
+        } else {
+            deferred.resolve(listDatasetsOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarListDatasets() caught exception:", error);
@@ -1507,13 +1559,18 @@ xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandl
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var listDatasetUsersOutput = result.output.outputResult.listDatasetUsersOutput;
         var log = result.output.hdr.log;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject(result.jobStatus, log);
+            status = status.jobStatus;
         }
-        deferred.resolve(listDatasetUsersOutput);
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listDatasetUsersOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarListDatasetUsers() caught exception:", error);
@@ -1549,13 +1606,27 @@ xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandl
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var status = result.output.hdr.status;
         var listUserDatasetsOutput = result.output.outputResult.listUserDatasetsOutput;
         var log = result.output.hdr.log;
-        // No job specific status
+
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject(result.jobStatus, log);
+            status = status.jobStatus;
         }
-        deferred.resolve(listUserDatasetsOutput);
+
+        if (status != StatusT.StatusOk) {
+            if (status === StatusT.StatusDsNotFound) {
+                listUserDatasetsOutput = new XcalarApiListUserDatasetsOutputT();
+                listUserDatasetsOutput.dataset = [];
+                listUserDatasetsOutput.datasetCount = 0;
+                deferred.resolve(listUserDatasetsOutput);
+            } else {
+                deferred.reject({xcalarStatus: status, log: log});
+            }
+        } else {
+            deferred.resolve(listUserDatasetsOutput);
+        }
+
     })
     .fail(function(error) {
         console.log("xcalarListUserDatasets() caught exception:", error);
@@ -1598,8 +1669,9 @@ xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, dataset
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status, log);
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarLockDataset() caught exception:", error);
@@ -1607,7 +1679,7 @@ xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, dataset
     });
 
     return (deferred.promise());
-}
+};
 
 xcalarMakeResultSetFromTableWorkItem = runEntity.xcalarMakeResultSetFromTableWorkItem = function(tableName) {
     var workItem = new WorkItem();
@@ -1642,8 +1714,9 @@ xcalarMakeResultSetFromTable = runEntity.xcalarMakeResultSetFromTable = function
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(makeResultSetOutput);
         }
-        deferred.resolve(makeResultSetOutput);
     })
     .fail(function(error) {
         console.log("xcalarMakeResultSetFromTable() caught exception:", error);
@@ -1689,8 +1762,9 @@ xcalarMakeResultSetFromDataset = runEntity.xcalarMakeResultSetFromDataset = func
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(makeResultSetOutput);
         }
-        deferred.resolve(makeResultSetOutput);
     })
     .fail(function(error) {
         console.log("xcalarMakeResultSetFromDataset() caught exception:", error);
@@ -1737,8 +1811,9 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(resultSetNextOutput);
         }
-        deferred.resolve(resultSetNextOutput);
     })
     .fail(function(error) {
         console.log("xcalarResultSetNext() caught exception:", error);
@@ -1755,7 +1830,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
     workItem.api = XcalarApisT.XcalarApiJoin;
-    workItem.input.joinInput.source = []
+    workItem.input.joinInput.source = [];
     if (leftTableName) {
         workItem.input.joinInput.source.push(leftTableName);
     } else {
@@ -1816,9 +1891,10 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            joinOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(joinOutput);
         }
-        joinOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(joinOutput);
     })
     .fail(function(error) {
         console.log("xcalarJoin() caught exception:", error);
@@ -1876,9 +1952,10 @@ xcalarUnion = runEntity.xcalarUnion = function(thriftHandle, sources,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            unionOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(unionOutput);
         }
-        unionOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(unionOutput);
     })
     .fail(function(error) {
         console.log("xcalarUnion() caught exception:", error);
@@ -1927,9 +2004,10 @@ xcalarProject = runEntity.xcalarProject = function(thriftHandle, numColumns, col
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            projectOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(projectOutput);
         }
-        projectOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(projectOutput);
     })
     .fail(function(error) {
         console.log("xcalarProject() caught exception: " + error);
@@ -1978,9 +2056,10 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            filterOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(filterOutput);
         }
-        filterOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(filterOutput);
     })
     .fail(function(error) {
         console.log("xcalarFilter() caught exception: " + error);
@@ -2046,9 +2125,10 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(groupByOutput);
         }
-        groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(groupByOutput);
     })
     .fail(function(error) {
         console.log("xcalarGroupBy() caught exception: " + error);
@@ -2083,9 +2163,10 @@ xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, d
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(groupByOutput);
         }
-        groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(groupByOutput);
     })
     .fail(function(error) {
         console.log("xcalarGroupBy() caught exception: " + error);
@@ -2124,8 +2205,9 @@ xcalarResultSetAbsolute = runEntity.xcalarResultSetAbsolute = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarResultSetAbsolute() caught exception:", error);
@@ -2162,8 +2244,9 @@ xcalarFreeResultSet = runEntity.xcalarFreeResultSet = function(thriftHandle, res
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarResultSetAbsolute() caught exception:", error);
@@ -2203,10 +2286,11 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log, output: deleteDagNodesOutput});
-        }
-        deleteDagNodesOutput.timeElapsed =
+        } else {
+            deleteDagNodesOutput.timeElapsed =
             result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(deleteDagNodesOutput);
+            deferred.resolve(deleteDagNodesOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarDeleteDagNodes() caught exception:", error);
@@ -2246,8 +2330,9 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getTableRefCountOutput);
         }
-        deferred.resolve(getTableRefCountOutput);
     })
     .fail(function(error) {
         console.log("xcalarDeleteTable() caught exception:", error);
@@ -2315,9 +2400,10 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(mapOutput);
         }
-        mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(mapOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiMap() caught exception:", error);
@@ -2352,9 +2438,10 @@ xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(mapOutput);
         }
-        mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(mapOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiMap() caught exception:", error);
@@ -2400,9 +2487,10 @@ xcalarApiGetRowNum = runEntity.xcalarApiGetRowNum = function(thriftHandle, newFi
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            getRowNumOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(getRowNumOutput);
         }
-        getRowNumOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(getRowNumOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiGetRowNum() caught exception:", error);
@@ -2492,8 +2580,9 @@ xcalarAddExportTarget = runEntity.xcalarAddExportTarget = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarAddExportTarget() caught exception:", error);
@@ -2532,8 +2621,9 @@ xcalarRemoveExportTarget = runEntity.xcalarRemoveExportTarget = function(thriftH
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarRemoveExportTarget() caught exception:", error);
@@ -2573,8 +2663,9 @@ xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listExportTargetsOutput);
         }
-        deferred.resolve(listExportTargetsOutput);
     })
     .fail(function(error) {
         console.log("xcalarListExportTargets() caught exception:", error);
@@ -2598,7 +2689,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     workItem.input.exportInput.sorted = sorted;
 
     if (!target) {
-        return (workItem)
+        return (workItem);
     }
 
     workItem.input.exportInput.targetName = target.name;
@@ -2607,7 +2698,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     if (target.type == ExTargetTypeT.ExTargetSFType) {
         var sfInput = specInput.sfInput;
         workItem.input.exportInput.fileName = sfInput.fileName;
-        workItem.input.exportInput.format = DfFormatTypeTStr[sfInput.format]
+        workItem.input.exportInput.format = DfFormatTypeTStr[sfInput.format];
         workItem.input.exportInput.splitRule =
             ExSFFileSplitTypeTStr[sfInput.splitRule.type];
         if (sfInput.splitRule.spec) {
@@ -2629,7 +2720,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     } else {
         var udfInput = specInput.udfInput;
         workItem.input.exportInput.fileName = udfInput.fileName;
-        workItem.input.exportInput.format = DfFormatTypeTStr[udfInput.format]
+        workItem.input.exportInput.format = DfFormatTypeTStr[udfInput.format];
         workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[udfInput.headerType];
 
         if (udfInput.formatArgs.csv) {
@@ -2674,10 +2765,11 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            var exportOutput = {status: status};
+            exportOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(exportOutput);
         }
-        var exportOutput = {status: status};
-        exportOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(exportOutput);
     })
     .fail(function(error) {
         console.log("xcalarExport() caught exception:", error);
@@ -2716,8 +2808,9 @@ xcalarListFiles = runEntity.xcalarListFiles = function(thriftHandle, sourceArgs)
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listFilesOutput);
         }
-        deferred.resolve(listFilesOutput);
     })
     .fail(function(error) {
         console.log("xcalarListFiles() caught exception:", error);
@@ -2751,8 +2844,9 @@ xcalarApiDeleteRetina = runEntity.xcalarApiDeleteRetina = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiDeleteRetina() caught exception: ", error);
@@ -2791,8 +2885,10 @@ xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaNam
         var log = result.output.hdr.log;
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
+
     })
     .fail(function(error) {
         console.log("xcalarMakeRetina() caught exception:", error);
@@ -2828,8 +2924,9 @@ xcalarListRetinas = runEntity.xcalarListRetinas = function(thriftHandle) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listRetinasOutput);
         }
-        deferred.resolve(listRetinasOutput);
     })
     .fail(function(error) {
         console.log("xcalarListRetinas() caught exception:", error);
@@ -2867,8 +2964,9 @@ xcalarGetRetina = runEntity.xcalarGetRetina = function(thriftHandle, retinaName)
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getRetinaOutput);
         }
-        deferred.resolve(getRetinaOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetRetina() caught exception: " + error);
@@ -2924,8 +3022,9 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
         var log = result.output.hdr.log;
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarUpdateRetina() caught exception:", error);
@@ -2979,8 +3078,9 @@ xcalarUpdateRetinaExport = runEntity.xcalarUpdateRetinaExport = function(thriftH
         var log = result.output.hdr.log;
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarUpdateRetinaExport() caught exception:", error);
@@ -3042,9 +3142,10 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            retinaOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(retinaOutput);
         }
-        retinaOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(retinaOutput);
     })
     .fail(function(error) {
         console.log("xcalarExecuteRetina() caught exception:", error);
@@ -3084,8 +3185,9 @@ xcalarListParametersInRetina = runEntity.xcalarListParametersInRetina = function
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listParametersInRetinaOutput);
         }
-        deferred.resolve(listParametersInRetinaOutput);
     })
     .fail(function(error) {
         console.log("xcalarListParametersInRetina() caught exception:", error);
@@ -3124,8 +3226,9 @@ xcalarKeyList = runEntity.xcalarKeyList = function(thriftHandle, scope, keyRegex
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(keyListOutput);
         }
-        deferred.resolve(keyListOutput);
     })
     .fail(function(jqXHR) {
         console.log("xcalarKeyList() caught exception:", jqXHR);
@@ -3165,8 +3268,9 @@ xcalarKeyLookup = runEntity.xcalarKeyLookup = function(thriftHandle, scope, key)
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(keyLookupOutput);
         }
-        deferred.resolve(keyLookupOutput);
     })
     .fail(function(error) {
         console.log("xcalarKeyLookup() caught exception:", error);
@@ -3215,8 +3319,9 @@ xcalarKeyAddOrReplace = runEntity.xcalarKeyAddOrReplace = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarKeyAddOrReplace() caught exception:", error);
@@ -3254,8 +3359,9 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarUpdateLicense() caught exception:", error);
@@ -3299,8 +3405,9 @@ xcalarKeyAppend = runEntity.xcalarKeyAppend = function(thriftHandle, scope, key,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarKeyAppend() caught exception:", error);
@@ -3372,8 +3479,9 @@ xcalarKeySetIfEqual = runEntity.xcalarKeySetIfEqual = function(thriftHandle, sco
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarKeySetIfEqual() caught exception:", error);
@@ -3412,8 +3520,9 @@ xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key)
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarKeyLookup() caught exception:", error);
@@ -3456,9 +3565,9 @@ xcalarApiTop = runEntity.xcalarApiTop = function(thriftHandle, measureIntervalIn
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(topOutput);
         }
-
-        deferred.resolve(topOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiTop() caught exception: ", error);
@@ -3502,9 +3611,9 @@ xcalarApiGetMemoryUsage = runEntity.xcalarApiGetMemoryUsage = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(memoryUsageOutput);
         }
-
-        deferred.resolve(memoryUsageOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiGetMemoryUsage() caught exception: ", error);
@@ -3547,8 +3656,9 @@ xcalarApiSessionNew = runEntity.xcalarApiSessionNew = function(thriftHandle, ses
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionNew() caught exception:", error);
@@ -3587,8 +3697,9 @@ xcalarApiSessionDelete = runEntity.xcalarApiSessionDelete = function(thriftHandl
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionDelete() caught exception:", error);
@@ -3628,8 +3739,9 @@ xcalarApiSessionInact = runEntity.xcalarApiSessionInact = function(thriftHandle,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionInact() caught exception:", error);
@@ -3669,9 +3781,9 @@ xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, p
 
         if (status != StatusT.StatusOk && status != StatusT.StatusSessionNotFound) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(sessionListOutput);
         }
-
-        deferred.resolve(sessionListOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionList() caught exception:", error);
@@ -3712,8 +3824,9 @@ xcalarApiSessionPersist = runEntity.xcalarApiSessionPersist = function(thriftHan
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(sessionListOutput);
         }
-        deferred.resolve(sessionListOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionPersist() caught exception:", error);
@@ -3759,9 +3872,10 @@ xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandl
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            result.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(result);
         }
-        result.timeElapsed = result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionSwitch() caught exception:", error);
@@ -3801,8 +3915,9 @@ xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandl
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
         }
-        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionRename() caught exception:", error);
@@ -3842,9 +3957,9 @@ xcalarApiListXdfs = runEntity.xcalarApiListXdfs = function(thriftHandle, fnNameP
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listXdfsOutput);
         }
-
-        deferred.resolve(listXdfsOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiListXdfs() caught exception: ", error);
@@ -3889,9 +4004,9 @@ xcalarApiUdfAdd = runEntity.xcalarApiUdfAdd = function(thriftHandle, type, modul
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log, output: udfAddUpdateOutput});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiUdfAdd() caught exception: ", error);
@@ -3921,9 +4036,9 @@ xcalarApiUdfUpdate = runEntity.xcalarApiUdfUpdate = function(thriftHandle, type,
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log, output: udfAddUpdateOutput});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiUdfUpdate() caught exception: ", error);
@@ -3963,9 +4078,9 @@ xcalarApiUdfDelete = runEntity.xcalarApiUdfDelete = function(thriftHandle, modul
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiUdfDelete() caught exception: ", error);
@@ -4005,9 +4120,9 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result.output.outputResult.udfGetOutput);
         }
-
-        deferred.resolve(result.output.outputResult.udfGetOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiUdfGet() caught exception: ", error);
@@ -4032,7 +4147,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         json["args"] = workItem.input.indexInput;
         break;
     case XcalarApisT.XcalarApiProject:
-        json["args"] = workItem.input.projectInput
+        json["args"] = workItem.input.projectInput;
         break;
     case XcalarApisT.XcalarApiGetRowNum:
         json["args"] = workItem.input.getRowNumInput;
@@ -4047,7 +4162,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         json["args"] = workItem.input.joinInput;
         break;
     case XcalarApisT.XcalarApiUnion:
-        json["args"]  = workItem.input.unionInput
+        json["args"]  = workItem.input.unionInput;
         break;
     case XcalarApisT.XcalarApiMap:
         json["args"] = workItem.input.mapInput;
@@ -4088,9 +4203,9 @@ xcalarApiGetQueryOld = runEntity.xcalarApiGetQueryOld = function(thriftHandle, w
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getQueryOutput);
         }
-
-        deferred.resolve(getQueryOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiGetQuery() caught exception: ", error);
@@ -4098,7 +4213,7 @@ xcalarApiGetQueryOld = runEntity.xcalarApiGetQueryOld = function(thriftHandle, w
     });
 
     return (deferred.promise());
-}
+};
 
 xcalarApiCreateDhtWorkItem = runEntity.xcalarApiCreateDhtWorkItem = function(dhtName, upperBound, lowerBound, ordering) {
     var workItem = new WorkItem();
@@ -4135,9 +4250,9 @@ xcalarApiCreateDht = runEntity.xcalarApiCreateDht = function(thriftHandle, dhtNa
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiCreateDht() caught exception: ", error);
@@ -4177,9 +4292,9 @@ xcalarApiDeleteDht = runEntity.xcalarApiDeleteDht = function(thriftHandle, dhtNa
         if (status != StatusT.StatusOk &&
             status != StatusT.StatusNsNotFound) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarApiDeleteDht() caught exception: ", error);
@@ -4221,12 +4336,13 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
         if (status != StatusT.StatusOk &&
             status != StatusT.StatusNsNotFound) {
             deferred.reject({xcalarStatus: status, log: log});
-        }
-        var supportGenerateOutput =
+        } else {
+            var supportGenerateOutput =
             result.output.outputResult.supportGenerateOutput;
-        supportGenerateOutput.timeElapsed =
-            result.output.hdr.elapsed.milliseconds;
-        deferred.resolve(supportGenerateOutput);
+            supportGenerateOutput.timeElapsed =
+                result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(supportGenerateOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarApiSupportGenerate() caught exception: ", error);
@@ -4277,9 +4393,9 @@ xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle,
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(importRetinaOutput);
         }
-
-        deferred.resolve(importRetinaOutput);
     })
     .fail(function (error) {
         console.log("xcalarApiImportRetina() caught exception: ", error);
@@ -4319,12 +4435,12 @@ xcalarApiExportRetina = runEntity.xcalarApiExportRetina = function(thriftHandle,
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            exportRetinaOutput.retina = atob(exportRetinaOutput.retina);
+            exportRetinaOutput.retinaCount = exportRetinaOutput.retina.length;
+
+            deferred.resolve(exportRetinaOutput);
         }
-
-        exportRetinaOutput.retina = atob(exportRetinaOutput.retina);
-        exportRetinaOutput.retinaCount = exportRetinaOutput.retina.length;
-
-        deferred.resolve(exportRetinaOutput);
     })
     .fail(function (error) {
         console.log("xcalarApiExportRetina() caught exception: ", error);
@@ -4374,9 +4490,9 @@ xcalarApiStartFuncTest = runEntity.xcalarApiStartFuncTest = function(thriftHandl
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(startFuncTestOutput);
         }
-
-        deferred.resolve(startFuncTestOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiStartFuncTest() caught exception: ", error);
@@ -4418,9 +4534,9 @@ xcalarApiListFuncTest = runEntity.xcalarApiListFuncTest = function(thriftHandle,
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(listFuncTestOutput);
         }
-
-        deferred.resolve(listFuncTestOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiListFuncTest() caught exception: ", error);
@@ -4462,11 +4578,12 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
 
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
-        }
-        deleteDatasetsOutput.timeElapsed =
+        } else {
+            deleteDatasetsOutput.timeElapsed =
             result.output.hdr.elapsed.milliseconds;
 
-        deferred.resolve(deleteDatasetsOutput);
+            deferred.resolve(deleteDatasetsOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarApiDeleteDatasets() caught exceptions: ", error);
@@ -4509,8 +4626,9 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
         }
-        deferred.resolve(status);
     })
     .fail(function(error) {
         console.log("xcalarLogLevelSet() caught exception:", error);
@@ -4545,8 +4663,9 @@ xcalarLogLevelGet = runEntity.xcalarLogLevelGet = function(thriftHandle) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status, log);
+        } else {
+            deferred.resolve(logLevelGetOutput);
         }
-        deferred.resolve(logLevelGetOutput);
     })
     .fail(function(error) {
         console.log("xcalarLogLevelGet() caught exception:", error);
@@ -4589,9 +4708,9 @@ xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measure
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(topOutput);
         }
-
-        deferred.resolve(topOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiTop() caught exception: ", error);
@@ -4618,19 +4737,18 @@ xcalarGetCurrentXemConfig = runEntity.xcalarGetCurrentXemConfig = function(thrif
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var getXemConfigOutput = result.output.outputResult.getCurrentXemConfigOutput;
-        var status = result.output.hdr.status
+        var status = result.output.hdr.status;
         var log = result.output.hdr.log;
 
-       if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-       }
-
-        status = result.jobStatus;
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
         }
 
-        deferred.resolve(getXemConfigOutput);
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getXemConfigOutput);
+        }
     })
     .fail(function(error) {
         console.log("xcalarGetCurrentXemConfigGetWorkItem failure");
@@ -4671,8 +4789,9 @@ xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(getIpAddrOutput);
         }
-        deferred.resolve(getIpAddrOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetIpAddr() caught exception:", error);

@@ -286,7 +286,7 @@ describe("Repeat Test", function() {
             })
             .then(function() {
                 var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Maximize Columns");
+                expect(lastLog.title).to.equal("Unminimize Columns");
                 expect(lastLog.options.colNums[0]).to.equal(3);
                 expect(lastLog.options.colNums[1]).to.equal(4);
                 done();
@@ -434,7 +434,7 @@ describe("Repeat Test", function() {
             Log.repeat()
             .then(function() {
                 var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Maximize Table");
+                expect(lastLog.title).to.equal("Unminimize Table");
                 expect(lastLog.options.tableId).to.equal(tableId2);
                 done();
             })
