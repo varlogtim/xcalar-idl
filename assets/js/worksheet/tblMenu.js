@@ -844,6 +844,7 @@ window.TblMenu = (function(TblMenu, $) {
             var notValid = false;
             var uniqueVals = {};
             var isExist = false;
+            var isNull = false;
             var colVal;
 
             var cells = gTables[tableId].highlightedCells;
@@ -851,6 +852,10 @@ window.TblMenu = (function(TblMenu, $) {
                 var cellInfo = cells[row][colNum];
                 if (cellInfo.isUndefined) {
                     isExist = true;
+                    continue;
+                }
+                if (cellInfo.isNull) {
+                    isNull = true;
                     continue;
                 }
                 colVal = cellInfo.val;
@@ -908,7 +913,7 @@ window.TblMenu = (function(TblMenu, $) {
                 var operator = $li.hasClass("tdFilter") ? FltOp.Filter :
                                                           FltOp.Exclude;
                 var options = xcHelper.getFilterOptions(operator, colName,
-                                        uniqueVals, isExist);
+                                        uniqueVals, isExist, isNull);
 
                 if (options != null) {
                     xcFunction.filter(colNum, tableId, options);

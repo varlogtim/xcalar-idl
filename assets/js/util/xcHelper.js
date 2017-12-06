@@ -323,7 +323,8 @@
         return castStrs;
     };
 
-    xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist) {
+    xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist,
+         isNull) {
         var colVals = [];
 
         for (var val in uniqueVals) {
@@ -351,6 +352,13 @@
                     str = "not(exists(" + colName + "))";
                 }
             }
+            if (isNull) {
+                if (len > 0 || isExist) {
+                    str = "or(" + str + ", isNull(" + colName + "))";
+                } else {
+                    str = "isNull(" + colName + ")";
+                }
+            }
         } else if (operator === FltOp.Exclude){
             if (len > 0) {
                 for (i = 0; i < len - 1; i++) {
@@ -366,6 +374,13 @@
                     str = "and(" + str + ", exists(" + colName + "))";
                 } else {
                     str = "exists(" + colName + ")";
+                }
+            }
+            if (isNull) {
+                if (len > 0 || isExist) {
+                    str  = "and(" + str + ", not(isNull(" + colName + "))";
+                } else {
+                    str = "not(isNull(" + colName + ")";
                 }
             }
         } else {
@@ -4085,7 +4100,7 @@
         var columnType = tableCol.type;
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
-        var notAllowed = $div.find('.null, .blank').length;
+        var notAllowed = $div.find('.blank').length;
 
         var cellCount = 0;
         var isMultiCell = false;
@@ -4098,7 +4113,7 @@
                 }
                 var cell = gTables[tableId].highlightedCells[row][col];
                 cells.push(cell);
-                if (cell.isNull || cell.isBlank) {
+                if (cell.isBlank) {
                     notAllowed = true;
                 }
             }
@@ -4146,7 +4161,8 @@
     // returns true if cell is mixed and not an object or array
     // assumes cells from only 1 column are highlighted
     function isInvalidMixed(columnType, cells) {
-        var filterTypes = ["string", "float", "integer", "boolean", "undefined"];
+        var filterTypes = ["string", "float", "integer", "boolean", "undefined",
+                            "null"];
         var type;
         var invalidFound = false;
         var typeFound;
