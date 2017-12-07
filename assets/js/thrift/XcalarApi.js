@@ -653,7 +653,7 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, p
     workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
     workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
-    workItem.input.loadInput.loadArgs.size = maxSize;
+    workItem.input.loadInput.loadArgs.maxSize = maxSize;
 
     return (workItem);
 };
