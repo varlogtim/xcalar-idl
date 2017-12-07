@@ -1350,6 +1350,7 @@
             // Check AND conditions and take note of all the EQ subtrees
             var eqSubtrees = [];
             var andSubtrees = [];
+            var filterSubtrees = [];
             var catchAll = false;
             if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.And") {
@@ -1363,47 +1364,71 @@
                 catchAll = true;
             }
 
-            while (andSubtrees.length > 0 && !catchAll) {
-                var andTree = andSubtrees.shift();
-                assert(andTree.children.length === 2);
-                for (var i = 0; i < andTree.children.length; i++) {
-                    if (andTree.children[i].value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.And") {
-                        andSubtrees.push(andTree.children[i]);
-                    } else if (andTree.children[i].value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.EqualTo") {
-                        eqSubtrees.push(andTree.children[i]);
-                    } else {
-                        // Can't do it :(
-                        catchAll = true;
-                        console.info("catchall join");
-                        break;
-                    }
-                    // TODO: implement optimization for andOrEqJoins
-                }
-            }
-
             var leftTableName = node.children[0].newTableName;
             var rightTableName = node.children[1].newTableName;
 
-            if (!catchAll) {
-                // For andEqTrees
-                var retStruct = __getJoinMapArrays(node, eqSubtrees);
-                if (!retStruct) {
-                    catchAll = true;
+            var joinPromise;
+
+            var leftRetStruct = getRenamedCols(node.children[0],
+                                           {returnColArray: true});
+            var leftRenames = leftRetStruct.renamedColIds;
+            var rightRetStruct = getRenamedCols(node.children[1],
+                                               {returnColArray: true});
+            var rightRenames = rightRetStruct.renamedColIds;
+            var allRenames = leftRenames.concat(rightRenames);
+
+            if (catchAll) {
+                joinPromise = __catchAllJoin(self, node, condTree, leftTableName,
+                                             rightTableName);
+            } else {
+                while (andSubtrees.length > 0) {
+                    var andTree = andSubtrees.shift();
+                    assert(andTree.children.length === 2);
+                    for (var i = 0; i < andTree.children.length; i++) {
+                        if (andTree.children[i].value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.And") {
+                            andSubtrees.push(andTree.children[i]);
+                        } else if (andTree.children[i].value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                            eqSubtrees.push(andTree.children[i]);
+                        } else {
+                            filterSubtrees.push(andTree.children[i]);
+                        }
+                    }
+                }
+
+                var retStruct = __getJoinMapArrays(node, eqSubtrees, allRenames);
+
+                if (retStruct.catchAll) {
+                    // not a single eq can be untangled. defaulting back to
+                    // catchall join
                     joinPromise = __catchAllJoin(self, node, condTree,
                                                  leftTableName,
                                                  rightTableName);
                 } else {
-                    joinPromise = __handleAndEqJoins(self, retStruct,
-                                                     leftTableName,
-                                                     rightTableName,
-                                                     node);
+                    if (retStruct.filterSubtrees.length > 0) {
+                        filterSubtrees = filterSubtrees.concat(
+                                                    retStruct.filterSubtrees);
+                    }
+
+                    var partialPromise = __handleAndEqJoins(self, retStruct,
+                                                            leftTableName,
+                                                            rightTableName,
+                                                            node);
+                    if (filterSubtrees.length > 0) {
+                        joinPromise = partialPromise
+                                      .then(function(ret) {
+                                        return __filterJoinedTable(self.sqlObj,
+                                                                   ret,
+                                                                   allRenames,
+                                                                filterSubtrees);
+                                      });
+                    } else {
+                        joinPromise = partialPromise;
+                    }
                 }
-            } else {
-                joinPromise = __catchAllJoin(self, node, condTree, leftTableName,
-                                             rightTableName);
             }
+
             node.usrCols = jQuery.extend(true, [], node.children[0].usrCols
                                          .concat(node.children[1].usrCols));
             node.xcCols = jQuery.extend(true, [], node.xcCols
@@ -1489,6 +1514,8 @@
         var leftMapArray = [];
         var rightMapArray = [];
 
+        var filterSubtrees = [];
+
         while (eqSubtrees.length > 0) {
             var eqTree = eqSubtrees.shift();
             assert(eqTree.children.length === 2);
@@ -1496,6 +1523,7 @@
             var attributeReferencesOne = [];
             var attributeReferencesTwo = [];
             var options = {};
+            var dontPush = false;
             options.renamedColIds = leftOptions.renamedColIds
                                     .concat(rightOptions.renamedColIds);
             if (options.renamedColIds.length > 0) {
@@ -1526,24 +1554,38 @@
                 // E.g. table1.col1.substring(2) + table2.col2.substring(2)
                 // == table1.col3.substring(2) + table2.col4.substring(2)
                 // There is no way to reduce this to left and right tables
-                return;
+                filterSubtrees.push(eqTree);
+                dontPush = true;
             }
 
-            if (leftAcc.numOps > 0) {
-                leftMapArray.push(leftEvalStr);
-            } else {
-                leftCols.push(leftEvalStr);
-            }
-            if (rightAcc.numOps > 0) {
-                rightMapArray.push(rightEvalStr);
-            } else {
-                rightCols.push(rightEvalStr);
+            if (!dontPush) {
+                if (leftAcc.numOps > 0) {
+                    leftMapArray.push(leftEvalStr);
+                } else {
+                    leftCols.push(leftEvalStr);
+                }
+                if (rightAcc.numOps > 0) {
+                    rightMapArray.push(rightEvalStr);
+                } else {
+                    rightCols.push(rightEvalStr);
+                }
             }
         }
-        return {leftMapArray: leftMapArray,
-                leftCols: leftCols,
-                rightMapArray: rightMapArray,
-                rightCols: rightCols};
+
+        var retStruct = {};
+
+        if (leftMapArray.length + leftCols.length === 0) {
+            assert(rightCols.length + rightCols.length ===0);
+            retStruct.catchAll = true;
+            retStruct.filterSubtrees = filterSubtrees;
+        } else {
+            retStruct = {leftMapArray: leftMapArray,
+                         leftCols: leftCols,
+                         rightMapArray: rightMapArray,
+                         rightCols: rightCols,
+                         filterSubtrees: filterSubtrees};
+        }
+        return retStruct;
     }
 
     function __handleAndEqJoins(sqlCompiler, mapArrayStruct, newLeftTableName,
@@ -1668,6 +1710,38 @@
 
         return deferred.promise();
     }
+
+    function __filterJoinedTable(sqlObj, ret, renames, filterSubtrees) {
+        var joinTablename = ret.newTableName;
+        var cliSoFar = ret.cli;
+        var filterEvalStrArray = [];
+        var finalEvalStr = "";
+        var deferred = jQuery.Deferred();
+
+        for (var i = 0; i < filterSubtrees.length; i++) {
+            var subtree = filterSubtrees[i];
+            var options = {renamedColIds: renames};
+
+            filterEvalStrArray.push(genEvalStringRecur(subtree, undefined,
+                                                       options));
+        }
+        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
+            finalEvalStr += "and(" + filterEvalStrArray[i] + ",";
+        }
+        finalEvalStr += filterEvalStrArray[filterEvalStrArray.length - 1];
+        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
+            finalEvalStr += ")";
+        }
+
+        sqlObj.filter(finalEvalStr, joinTablename)
+        .then(function(ret) {
+            deferred.resolve({newTableName: ret.newTableName,
+                              cli: cliSoFar + ret.cli});
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function __resolveCollision(leftCols, rightCols, leftRename, rightRename) {
         // There could be three colliding cases:
 
