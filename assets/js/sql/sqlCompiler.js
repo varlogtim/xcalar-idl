@@ -579,6 +579,7 @@
         // it. Then it goes to usrCols. We just need to record it in sparkCols.
         // 2) "exist" in Existence Join. We will handle it when implementing
         // Existence Join.
+        // 3) "Expand" logical plan
 
         // Push cols names to its direct parent, except from Join
         if (node.parent && node.parent.value.class !==
@@ -629,11 +630,11 @@
 
             var treeNodeClass = treeNode.value.class.substring(
                 "org.apache.spark.sql.catalyst.plans.logical.".length);
-            if (treeNodeClass !== "Join" && treeNode.children[0].renamedCols) {
-                treeNode.options = {};
+            if (treeNode.children.length === 1 &&
+                treeNode.children[0].renamedCols) {
                 // Join is handled in pushDownJoin
-                treeNode.options.renamedColIds = getRenamedCols(treeNode.children[0])
-                                                                .renamedColIds;
+                treeNode.options = {renamedColIds: getRenamedCols(treeNode.children[0])
+                                                   .renamedColIds};
             }
             switch (treeNodeClass) {
                 case ("Project"):
@@ -1229,6 +1230,9 @@
                 assert(ret);
                 newTableName = ret.newTableName;
                 cli += ret.cli;
+                for (var i = 0; i < ret.tempCols.length; i++) {
+                    node.xcCols.push({colName: ret.tempCols[i]});
+                }
                 return secondMapPromise();
             })
             .then(function(ret) {

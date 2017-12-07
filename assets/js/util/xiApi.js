@@ -780,9 +780,7 @@
         var distinctColArray = [];
 
         for (var i = 0; i < gbArgs.length; i++) {
-            if (!gbArgs[i].operator) {
-                aliasArray.push(gbArgs[i]);
-            } else if (gbArgs[i].isDistinct) {
+            if (gbArgs[i].isDistinct) {
                 distinctColArray.push(gbArgs[i]);
             } else {
                 opArray.push(gbArgs[i]);
@@ -850,55 +848,7 @@
         })
         .then(function(resCols) {
             finalCols = resCols;
-            var deferred = jQuery.Deferred();
             var resTable = finalTableName;
-
-            if (aliasArray.length > 0) {
-                // XXX Remove aliasArray. Unused
-                // Included sample to do some renames
-                var newFieldNames = [];
-                var evalStrs = [];
-                var prevCols = finalCols;
-                for (var i = 0; i < aliasArray.length; i++) {
-                    var type = aliasArray[i].dataType;
-                    newFieldNames.push(aliasArray[i].newColName);
-                    evalStrs.push(type + "(" + aliasArray[i].aggColName + ")");
-                    var colType = null;
-                    switch (type) {
-                        case ("float"):
-                            colType = ColumnType.float;
-                            break;
-                        case ("int"):
-                            colType = ColumnType.integer;
-                            break;
-                        case ("bool"):
-                            colType = ColumnType.boolean;
-                            break;
-                        case ("string"):
-                            colType = ColumnType.string;
-                            break;
-                        default:
-                            break;
-                    }
-                    finalCols.push(ColManager.newPullCol(
-                                        aliasArray[i].newColName,
-                                        aliasArray[i].newColName, colType));
-                }
-                var newTableName = getNewTableName(resTable);
-                XcalarMap(newFieldNames, evalStrs, resTable,
-                          newTableName, txId)
-                .then(function() {
-                    tempTablesInMap = tempTablesInMap.concat([resTable,
-                                                              newTableName]);
-                    deferred.resolve(newTableName, tempTablesInMap);
-                })
-                .fail(deferred.reject);
-            } else {
-                deferred.resolve(resTable);
-            }
-            return deferred.promise();
-        })
-        .then(function(resTable) {
             // XXX Check whether tempTables is well tracked
             return distinctGroupby(tableName, groupByCols, distinctColArray,
                                    resTable, tempTables, tempCols, txId);
