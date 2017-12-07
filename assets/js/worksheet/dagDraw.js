@@ -951,14 +951,16 @@ window.DagDraw = (function($, DagDraw) {
             var parent = parents[i];
             if (!node.value.display.isHidden &&
                 !node.value.display.isHiddenTag) {
+                var expandDiff;
+                var seen;
                 if (node.value.display.depth > parent.value.display.depth - 1) {
                     var diff = node.value.display.depth -
                                parent.value.display.depth;
                     var condDiff = node.value.display.condensedDepth -
                                     parent.value.display.condensedDepth;
-                    var expandDiff = node.value.display.expandedDepth -
+                    expandDiff = node.value.display.expandedDepth -
                                      parent.value.display.expandedDepth;
-                    var seen = {};
+                    seen = {};
                     adjustNodePositionsHelper(parent, diff + 1,
                                               expandDiff + 1, condDiff + 1,
                                               storedInfo, seen);
@@ -966,9 +968,9 @@ window.DagDraw = (function($, DagDraw) {
 
                 } else if (node.value.display.expandedDepth >
                     parent.value.display.expandedDepth - 1) {
-                    var expandDiff = node.value.display.expandedDepth -
+                    expandDiff = node.value.display.expandedDepth -
                                      parent.value.display.expandedDepth;
-                    var seen = {};
+                    seen = {};
                     adjustNodePositionsHelper(parent, 0,
                                               expandDiff + 1, 0,
                                               storedInfo, seen);
@@ -1004,33 +1006,39 @@ window.DagDraw = (function($, DagDraw) {
             var newExpandAmount = expandAmount;
             var newCondAmount = condAmount;
 
-            if (parentNode.value.display.depth >= node.value.display.depth +
-                                                 newAmount) {
-                // no need to shift if parentnode already positioned enough
-                // to the left
+            // "parentNode" (the one to the left of "node") needs to be at least
+            // 1 depth unit greater than "node's" depth
+            if (parentNode.value.display.depth >= (node.value.display.depth + 1)) {
+                // no need to shift if "parentNode" already positioned at least
+                // 1 depth unit to the left of "node"
                 newAmount = 0;
-            } else if (parentNode.value.display.depth + newAmount >
+            } else if (parentNode.value.display.depth + amount >
                                             node.value.display.depth + 1) {
-                // decrease amount of shift if shift would result in extra
-                // space
+                // did not pass the first if so
+                // "parentNode" is less than 1 depth unit to the left of "node"
+                // and may even be to the right of it. See what it's new position
+                // would be (which is parentNode.depth + amount) and if it's
+                // more than 1 depth unit to the left of "node", decrease the
+                // amount of shift otherwise keeping the amount
+                // shift would result in extra space
                 newAmount = (node.value.display.depth + 1) -
                             parentNode.value.display.depth;
-            }
+            } // otherwise keep shifting the same amount
 
             if (parentNode.value.display.condensedDepth >=
-                        node.value.display.condensedDepth + newCondAmount) {
+                        (node.value.display.condensedDepth + 1)) {
                 newCondAmount = 0;
             } else if (parentNode.value.display.condensedDepth +
-                    newCondAmount > node.value.display.condensedDepth + 1) {
+                    condAmount > node.value.display.condensedDepth + 1) {
                 newCondAmount = (node.value.display.condensedDepth + 1) -
                                 parentNode.value.display.condensedDepth;
             }
 
             if (parentNode.value.display.expandedDepth >=
-                node.value.display.expandedDepth + newExpandAmount) {
+                (node.value.display.expandedDepth + 1)) {
                 newExpandAmount = 0;
             } else if (parentNode.value.display.expandedDepth +
-                    newExpandAmount > node.value.display.expandedDepth + 1) {
+                    expandAmount > node.value.display.expandedDepth + 1) {
                 newExpandAmount = (node.value.display.expandedDepth + 1) -
                                   parentNode.value.display.expandedDepth;
             }
@@ -1040,7 +1048,7 @@ window.DagDraw = (function($, DagDraw) {
                 newAmount = Math.max(0, newAmount);
                 newExpandAmount = Math.max(0, newExpandAmount);
                 newCondAmount = Math.max(0, newCondAmount);
-                adjustNodePositionsHelper(node.parents[i], newAmount,
+                adjustNodePositionsHelper(parentNode, newAmount,
                                         newExpandAmount,
                                       newCondAmount, storedInfo, seen);
             }
