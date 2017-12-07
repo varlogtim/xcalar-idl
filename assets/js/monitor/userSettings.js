@@ -214,7 +214,7 @@ window.UserSettings = (function($, UserSettings) {
                     if (shouldCommit) {
                         break;
                     }
-                } else {
+                } else if (typeof userPrefs[key] !== "function") {
                     shouldCommit = true;
                     break;
                 }

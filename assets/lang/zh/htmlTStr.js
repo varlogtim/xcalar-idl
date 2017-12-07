@@ -776,7 +776,9 @@ module.exports = {
         "mapInstr": "选择一个类别（例如Arithmetic）。然后选择一个函数，例如add，输入相应参数。列名应以$为前缀，例如$column1。",
         "newTableName": "新表名",
         "noFunc": "没有可以选择的函数",
-        "or": "or"
+        "or": "or",
+        "keepTable": "Keep original table",
+        "keepTableHint": "Keep the original table and append the new table to the current worksheet"
     },
     "paths": {
         "helpUserDocs": "assets/help/user/Content/Home.htm",

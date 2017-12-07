@@ -344,7 +344,6 @@ describe('FnBar Test', function() {
 
                 editor.setValue('= filter(eq(' + prefix + gPrefixSign +
                     'average_stars, 0))');
-
                 FnBar.__testOnly__.functionBarEnter()
                 .then(function() {
                     expect(passed).to.be.true;

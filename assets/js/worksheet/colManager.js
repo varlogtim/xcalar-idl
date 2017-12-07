@@ -1293,8 +1293,17 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.parseFuncString = function (funcString, func) {
-        // assumes we are sending in a valid func ex. map(add(3,2))
+    // assumes we are sending in a valid func ex. map(add(3,2))
+    ColManager.parseFuncString = function (funcString) {
+        var func = {args: []};
+
+        parseFuncString(funcString, func);
+
+        func = func.args[0];
+        return func;
+    };
+
+    function parseFuncString(funcString, func) {
         var tempString = "";
         var newFunc;
         var inQuotes = false;
@@ -1334,8 +1343,7 @@ window.ColManager = (function($, ColManager) {
                     newFunc = new ColFunc({name: tempString.trim()});
                     func.args.push(newFunc);
                     tempString = "";
-                    i += ColManager.parseFuncString(funcString.substring(i + 1),
-                                                    newFunc);
+                    i += parseFuncString(funcString.substring(i + 1), newFunc);
                 } else if (funcString[i] === "," || funcString[i] === ")") {
                     // tempString could be blank if funcString[i] is a comma
                     // after a )
@@ -1348,8 +1356,10 @@ window.ColManager = (function($, ColManager) {
                         // true if it's an int or decimal, false if its anything
                         // else such as 0xff 1e2 or 023 -- we will keep these as
                         // strings to retain the formatting
+                        // if "0" treat as 0, but if "010", treat as "010" to
+                        // preserve it as "010" is 8 in base 8
                             if (/^[0-9.]+$/.test(tempString) &&
-                            tempString[0] !== "0") {
+                            (tempString[0] !== "0" || tempString === "0")) {
                                 if (func && func.name && func.name.indexOf("pull") > -1) {
                                     // treat as string if in pull function
                                 } else {
@@ -1371,7 +1381,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
         return (i + 1);
-    };
+    }
 
     // used for mixed columns when we want to get the type inside a td
     ColManager.getCellType = function($td, tableId) {

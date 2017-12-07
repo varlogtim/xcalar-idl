@@ -466,7 +466,13 @@ FnBarTStr = {
 'NewColTitle': '需要新列',
 'NewColMsg': '请创建一个新列来执行映射。',
 'ParseError': 'Could not parse function.',
-'InvalidNumParens': '您的函数字符串应采用<operation>（op（arg1，arg2，...））的形式'
+'InvalidNumParens': '您的函数字符串应采用<operation>（op（arg1，arg2，...））的形式',
+'UnknownColumnOp': 'The following column(s) may not be present in this table:<br/><b>' +
+                    '<columns></b>',
+'UnknownFuncOp': 'The following functions(s) may not be valid:<br/><b>' +
+                    '<funcs></b>',
+'WantContinue': 'Do you want to continue?'
+
 };
 ScrollTStr = {
 'BookMark': '行<row>'

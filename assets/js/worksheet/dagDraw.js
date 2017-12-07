@@ -2236,9 +2236,7 @@ window.DagDraw = (function($, DagDraw) {
         if (node.value.api === XcalarApisT.XcalarApiMap) {
             var evals = node.value.struct.eval;
             for (var i = 0; i < evals.length; i++) {
-                var func = {args: []};
-                ColManager.parseFuncString(evals[i].evalString, func);
-                func = func.args[0];
+                var func = ColManager.parseFuncString(evals[i].evalString);
                 cols = cols.concat(getSourceColNames(func));
             }
         }

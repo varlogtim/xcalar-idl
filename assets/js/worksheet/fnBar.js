@@ -24,6 +24,7 @@ window.FnBar = (function(FnBar, $) {
             "indentWithTabs": true,
             "indentUnit": 4,
             "matchBrackets": true,
+            "matchTags": true,
             "placeholder": WSTStr.SearchTableAndColumn,
             "autoCloseBrackets": true
         });
@@ -357,20 +358,25 @@ window.FnBar = (function(FnBar, $) {
                 onlyMainOperators = true;
             }
             var hideXcUDF = UserSettings.getPref("hideXcUDF");
-            var word = /[\w$:^]+/; // allow : and ^
+            var word = /[\w$:^\s]+/; // allow : and ^
+            var wordNoSpace = /[\w$:^]+/; // allow : and ^ and space
             var cur = editor.getCursor();
             var fnBarText = editor.getLine(0);
             var list = [];
             var seen = {};
             var end = cur.ch;
             var start = end;
-            while (end && word.test(fnBarText.charAt(end))) {
+            while (end && wordNoSpace.test(fnBarText.charAt(end))) {
                 ++end;
             }
             while (start && word.test(fnBarText.charAt(start - 1))) {
                 --start;
             }
+            while (start && fnBarText.charAt(start) === " " && start < end) {
+                ++start;
+            }
             var curWord = (start !== end && fnBarText.slice(start, end));
+
             if (!curWord) {
                 if (onlyMainOperators) {
                     for (var i = 0; i < suggestedMainOperators.length; i++) {
@@ -481,7 +487,6 @@ window.FnBar = (function(FnBar, $) {
                 }
             }
         });
-
 
         function autocompleteSelect(cm, data, completion) {
             var text = completion.templateTwo || completion.text;
@@ -622,111 +627,155 @@ window.FnBar = (function(FnBar, $) {
             return deferred.promise();
         }
 
-        if (fnBarVal.indexOf('=') === 0) {
-            var $table = $colInput.closest('.dataTable');
-            var tableId = xcHelper.parseTableId($table);
-            var colNum = xcHelper.parseColNum($colInput);
-            var table = gTables[tableId];
-            var tableCol = table.tableCols[colNum - 1];
-            var colName = tableCol.getBackColName();
-            var frontColName = tableCol.getFrontColName();
-            var cursor = editor.getCursor();
-            var alertTitle;
-            var alertMsg;
-            var confirmFunc;
+        if (fnBarVal.indexOf("=") !== 0) {
+            return PromiseHelper.reject();
+        }
 
-            if (tableCol.isNewCol && frontColName === "") {
-                // when it's new column and do not give name yet
-                StatusBox.show(ErrTStr.NoEmpty, $colInput);
-                deferred.reject();
-                return deferred.promise();
+        var $table = $colInput.closest('.dataTable');
+        var tableId = xcHelper.parseTableId($table);
+        var colNum = xcHelper.parseColNum($colInput);
+        var table = gTables[tableId];
+        var tableCol = table.tableCols[colNum - 1];
+        var colName = tableCol.getBackColName();
+        var frontColName = tableCol.getFrontColName();
+        var cursor = editor.getCursor();
+        var alertTitle;
+        var alertMsg;
+        var confirmFunc;
+
+        if (tableCol.isNewCol && frontColName === "") {
+            // when it's new column and do not give name yet
+            StatusBox.show(ErrTStr.NoEmpty, $colInput);
+            return PromiseHelper.reject();
+        }
+
+        $fnBar.removeClass("inFocus");
+
+        var newFuncStr = '"' + frontColName + '" ' + fnBarVal;
+        var oldUsrStr  = tableCol.userStr;
+        var fnBarValNoSpace = xcHelper.removeNonQuotedSpaces(
+                                                    fnBarVal.slice(1));
+        var oldUsrStrNoSpace = tableCol.stringifyFunc();
+
+        $colInput.blur();
+        // when usrStr not change
+        if (fnBarValNoSpace === oldUsrStrNoSpace) {
+            return PromiseHelper.reject();
+        }
+
+        var operation = getOperationFromFuncStr(newFuncStr);
+        if (mainOperators.indexOf(operation) < 0) {
+            invalidOperationHandler(operation, fnBarVal);
+            return PromiseHelper.reject();
+        } else if (operation !== "pull") {
+            // check if correct number of parenthesis exists, should have
+            // at least two
+            if (newFuncStr.replace(/[^(]/g, "").length < 2) {
+                invalidNumParensHandler(operation);
+                return PromiseHelper.reject();
+            }
+        }
+
+        // prevent doing a map on an existing column
+        if (operation === "map" && !tableCol.isNewCol) {
+            alertTitle = FnBarTStr.NewColTitle;
+            alertMsg = FnBarTStr.NewColMsg;
+            confirmFunc = function() {
+                tableCol.userStr = oldUsrStr;
+                ColManager.addNewCol(colNum, tableId, ColDir.Left, {
+                    userStr: '"" ' + fnBarVal
+                });
+                isAlertOpen = false;
+            };
+            var buttonOption = {
+                name: CommonTxtTstr.NEWCOLUMN,
+                func: confirmFunc
+            };
+            showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
+                             confirmFunc, buttonOption);
+            deferred.reject();
+        } else {
+            confirmFunc = function() {
+                var innerDeferred = jQuery.Deferred();
+                ColManager.execCol(operation, newFuncStr, tableId, colNum)
+                .then(function(ret) {
+                    if (ret === "update") {
+                        TblManager.updateHeaderAndListInfo(tableId);
+                        KVStore.commit();
+                    }
+                    FnBar.focusCursor();
+                    innerDeferred.resolve(ret);
+                })
+                .fail(innerDeferred.reject);
+
+                isAlertOpen = false;
+
+                return innerDeferred.promise();
+            };
+
+            var funcStr = xcHelper.parseUserStr(fnBarVal);
+            funcStr = funcStr.substring(funcStr.indexOf("(") + 1,
+                                                funcStr.lastIndexOf(")"));
+            var funcObj = ColManager.parseFuncString(funcStr);
+
+            var selectedColNames;
+            if (operation !== "pull") {
+                selectedColNames = getColNamesFromFunc(funcObj);
             }
 
-            $fnBar.removeClass("inFocus");
-
-            var newFuncStr = '"' + frontColName + '" ' + fnBarVal;
-            var oldUsrStr  = tableCol.userStr;
-            var fnBarValNoSpace = xcHelper.removeNonQuotedSpaces(
-                                                        fnBarVal.slice(1));
-            var oldUsrStrNoSpace = tableCol.stringifyFunc();
-
-            $colInput.blur();
-            // when usrStr not change
-            if (fnBarValNoSpace === oldUsrStrNoSpace) {
-                deferred.reject();
-                return deferred.promise();
-            }
-
-            var operation = getOperationFromFuncStr(newFuncStr);
-            if (mainOperators.indexOf(operation) < 0) {
-                invalidOperationHandler(operation, fnBarVal);
-                deferred.reject();
-                return deferred.promise();
-            } else if (operation !== "pull") {
-                // check if correct number of parenthesis exists, should have
-                // at least two
-                if (newFuncStr.replace(/[^(]/g, "").length < 2) {
-                    invalidNumParensHandler(operation);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-            }
-
-            // prevent doing a map on an existing column
-            if (operation === "map" && !tableCol.isNewCol) {
-                alertTitle = FnBarTStr.NewColTitle;
-                alertMsg = FnBarTStr.NewColMsg;
-                confirmFunc = function() {
-                    tableCol.userStr = oldUsrStr;
-                    ColManager.addNewCol(colNum, tableId, ColDir.Left, {
-                        userStr: '"" ' + fnBarVal
-                    });
-                    isAlertOpen = false;
-                };
-                var buttonOption = {
-                    name: CommonTxtTstr.NEWCOLUMN,
-                    func: confirmFunc
-                };
+            // show alert if column in string does not match selected col,
+            // only used for filter since map cannot be performed on filled
+            // column
+            if (!tableCol.isEmptyCol() &&
+                !checkForSelectedColName(operation, colName, selectedColNames)) {
+                alertTitle = AlertTStr.CONFIRMATION;
+                alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
+                    colName: colName
+                });
                 showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
-                                 confirmFunc, buttonOption);
+                                 confirmFunc);
                 deferred.reject();
+            } else if (checkDuplicatePull(tableId, colNum, operation, funcStr)) {
+                // only checks for pull operation
+                duplicatePullHandler();
+                return PromiseHelper.reject();
             } else {
-                confirmFunc = function() {
-                    var innerDeferred = jQuery.Deferred();
-                    ColManager.execCol(operation, newFuncStr, tableId, colNum)
-                    .then(function(ret) {
-                        if (ret === "update") {
-                            TblManager.updateHeaderAndListInfo(tableId);
-                            KVStore.commit();
-                        }
-                        FnBar.focusCursor();
-                        innerDeferred.resolve(ret);
-                    })
-                    .fail(innerDeferred.reject);
-
-                    isAlertOpen = false;
-
-                    return innerDeferred.promise();
-                };
-
-                // show alert if column in string does not match selected col
-                if (!tableCol.isEmptyCol() &&
-                    !checkForSelectedColName(operation, fnBarVal, colName)) {
-                    alertTitle = AlertTStr.CONFIRMATION;
-                    alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
-                        colName: colName
+                if (operation === "pull") {
+                    confirmFunc()
+                    .then(deferred.resolve)
+                    .fail(function() {
+                        parseErrorHandler();
+                        deferred.reject();
                     });
-                    showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
-                                     confirmFunc);
-                    deferred.reject();
-                } else if (checkDuplicatePull(tableId, colNum, operation,
-                    fnBarVal)) {
-                    duplicatePullHandler();
-                    deferred.reject();
-                    return deferred.promise();
                 } else {
+                    if (funcStr[funcStr.length - 1] !== ")") {
+                        invalidNumParensHandler(operation);
+                        return PromiseHelper.reject();
+                    }
 
-                    // no errors, submit the function
+                    var unknownColNames = getUnknownSelectedColNames(
+                                            selectedColNames, tableId);
+                    var unknownFuncs = getUnknownFuncs(funcObj);
+                    if (unknownColNames.length || unknownFuncs.length) {
+                        alertTitle = AlertTStr.CONFIRMATION;
+                        alertMsg = "";
+                        if (unknownColNames.length) {
+                            alertMsg += xcHelper.replaceMsg(FnBarTStr.UnknownColumnOp, {
+                                columns: unknownColNames.join().split(",")
+                            }) + "<br/>";
+                        }
+                        if (unknownFuncs.length) {
+                            alertMsg += xcHelper.replaceMsg(FnBarTStr.UnknownFuncOp, {
+                                funcs: unknownFuncs.join().split(",")
+                            }) + "<br/>";
+                        }
+                        alertMsg += FnBarTStr.WantContinue;
+
+                        showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
+                                         confirmFunc);
+                        return PromiseHelper.reject();
+                    }
+
                     confirmFunc()
                     .then(deferred.resolve)
                     .fail(function() {
@@ -735,9 +784,8 @@ window.FnBar = (function(FnBar, $) {
                     });
                 }
             }
-        } else {
-            deferred.reject();
         }
+
         return deferred.promise();
     }
 
@@ -831,17 +879,10 @@ window.FnBar = (function(FnBar, $) {
         });
     }
 
-    function checkDuplicatePull(tableId, colNum, op, funcStr) {
+    function checkDuplicatePull(tableId, colNum, op, name) {
         if (op !== "pull") {
             return false;
         }
-        var func = {args: []};
-        ColManager.parseFuncString(funcStr, func);
-        var name = "";
-        if (func.args[0] && func.args[0].args) {
-            name = func.args[0].args[0];
-        }
-
         var exists = ColManager.checkDuplicateName(tableId, colNum, name);
         return exists;
     }
@@ -849,24 +890,25 @@ window.FnBar = (function(FnBar, $) {
 
     // will return false if column names detected and colName is not found
     // among them. Otherwise, will return true
-    function checkForSelectedColName(op, funcStr, colName) {
+    function checkForSelectedColName(op, colName, selectedColNames) {
         if (op === "pull") {
             return true; // ignore check for pull
         }
-        var func = {args: []};
-        ColManager.parseFuncString(funcStr, func);
-        var names = [];
-        getNames(func.args);
-
-        if (names.length && names.indexOf(colName) === -1) {
+        if (selectedColNames.length && selectedColNames.indexOf(colName) === -1) {
             return false;
+        } else {
+            return true;
         }
+    }
 
-        return true;
+    function getColNamesFromFunc(funcObj) {
+        var names = [];
+        getNames(funcObj.args);
+        return names;
 
         function getNames(args) {
             for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
+                if (typeof args[i] === "string" && !/[0-9.]/.test(args[i][0])) {
                     if (args[i][0] !== "\"" &&
                         args[i][args.length - 1] !== "\"" &&
                         names.indexOf(args[i]) === -1) {
@@ -883,6 +925,56 @@ window.FnBar = (function(FnBar, $) {
         var operation = xcHelper.parseUserStr(funcStr);
         operation = operation.substr(0, operation.indexOf("(")).trim();
         return (operation);
+    }
+
+    function getUnknownSelectedColNames(selectedColNames, tableId) {
+        var table = gTables[tableId];
+        var unknowns = [];
+        var colName;
+        var splitColName;
+        for (var i = 0; i < selectedColNames.length; i++) {
+            colName = selectedColNames[i];
+
+            if (!table.hasColWithBackName(colName, true) &&
+                !aggMap.hasOwnProperty(colName)) {
+                // try first part of obj/array names
+                splitColName = colName.split(/[.[]+/);
+                if (splitColName.length === 1 ||
+                    !table.hasColWithBackName(splitColName[0])) {
+                    unknowns.push(colName);
+                }
+            }
+        }
+
+        return unknowns;
+    }
+
+    function getUnknownFuncs(funcObj) {
+        var unknownFuncs = [];
+        var funcs = [];
+        getFuncs(funcObj);
+
+        function getFuncs(fnObj) {
+            if (fnObj.name) {
+                if (funcs.indexOf(fnObj.name) === -1) {
+                    funcs.push(fnObj.name);
+                }
+            }
+            for (var i = 0; i < fnObj.args.length; i++) {
+                if (typeof fnObj.args[i] === "object") {
+                    getFuncs(fnObj.args[i]);
+                }
+            }
+        }
+
+        for (var i = 0; i < funcs.length; i++) {
+            if (!xdfMap.hasOwnProperty(funcs[i]) &&
+                !udfMap.hasOwnProperty(funcs[i])) {
+                unknownFuncs.push(funcs[i]);
+            }
+        }
+
+        return unknownFuncs;
     }
 
     /* Unit Test Only */

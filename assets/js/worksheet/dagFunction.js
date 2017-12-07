@@ -803,10 +803,9 @@ window.DagFunction = (function($, DagFunction) {
         }
         for (var i = 0; i < evalStrs.length; i++) {
             var evalStr = evalStrs[i].evalString;
-            var func = {args: []};
             var tables = [];
             try {
-                ColManager.parseFuncString(evalStr, func);
+                var func = ColManager.parseFuncString(evalStr, func);
                 tables = getAggNamesFromFunc(func);
             } catch (err) {
                 console.error("could not parse eval str", evalStr);

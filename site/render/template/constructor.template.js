@@ -794,7 +794,7 @@
                 return null;
             },
 
-            hasColWithBackName: function(backColName) {
+            hasColWithBackName: function(backColName, includeMeta) {
                 // this check if table has the backCol,
                 // it does not check frontCol
                 var tableCols = this.tableCols || [];
@@ -806,6 +806,17 @@
                         continue;
                     } else if (progCol.getBackColName() === backColName) {
                         return true;
+                    }
+                }
+                if (includeMeta && this.backTableMeta &&
+                    this.backTableMeta.valueAttrs) {
+                    var derivedFields = this.backTableMeta.valueAttrs;
+                    for (var i = 0, len = derivedFields.length; i < len; i++) {
+                        if (derivedFields[i].type !== DfFieldTypeT.DfFatptr) {
+                            if (derivedFields[i].name === backColName) {
+                                return true;
+                            }
+                        }
                     }
                 }
 
@@ -1252,10 +1263,9 @@
                 // var close = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
                 // var name = funcString.substring(open + 1, close);
                 var funcSt = funcString.substring(funcString.indexOf("=") + 1);
-                var func = {args: []};
 
-                ColManager.parseFuncString(funcSt, func);
-                self.func = new ColFunc(func.args[0]);
+                var func = ColManager.parseFuncString(funcSt);
+                self.func = new ColFunc(func);
             },
             <%}%>
         });

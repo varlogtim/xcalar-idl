@@ -533,9 +533,15 @@ FnBarTStr = {
     'NewColMsg': 'Please create a new column to perform a map.',
     'PullExists': 'This column has already been pulled.',
     'ParseError': 'Could not parse function.',
+    'WantContinue': 'Do you want to continue?',
     // with replace
     'InvalidNumParens': 'Your function string should take the form ' +
-                        'of <operation>(op(arg1, arg2, ...))'
+                        'of <operation>(op(arg1, arg2, ...))',
+    'UnknownColumnOp': 'The following column(s) may not be present in this table:<br/><b>' +
+                    '<columns></b>',
+    'UnknownFuncOp': 'The following functions(s) may not be valid:<br/><b>' +
+                    '<funcs></b>'
+
 };
 
 ScrollTStr = {
