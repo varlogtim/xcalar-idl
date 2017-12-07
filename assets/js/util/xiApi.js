@@ -1533,14 +1533,14 @@
         var table = null;
         var indexTable;
 
-        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-            // in case we have no meta of the table
-            console.warn("cannot find the table");
-        } else if (Transaction.isSimulate(txId)) {
+        if (Transaction.isSimulate(txId)) {
             indexTable = SQLApi.getIndexTable(tableName, colNames);
             if (indexTable != null) {
                 return PromiseHelper.resolve(indexTable, true, [], true);
             }
+        } else if (tableId == null || !gTables.hasOwnProperty(tableId)) {
+            // in case we have no meta of the table
+            console.warn("cannot find the table");
         } else {
             table = gTables[tableId];
             tableCols = table.tableCols;
@@ -1840,19 +1840,19 @@
         }
 
         var promiseArray = [];
-        var structArray = [];
+        var distinctGbTables = [];
         for (var key in aggCols) {
             promiseArray.push(computeDistinctGroupby(tableName,
                                                      groupOnCols,
                                                      key, aggCols[key],
                                                      tempTableArray, tempCols,
-                                                     structArray,
+                                                     distinctGbTables,
                                                      txId));
         }
         PromiseHelper.when.apply($, promiseArray)
         .then(function() {
             // Now we want to do cascading joins on the newTableNames
-            return cascadingJoins(structArray, curTable, groupOnCols,
+            return cascadingJoins(distinctGbTables, curTable, groupOnCols,
                                   tempTableArray, tempCols, txId);
         })
         .then(function(finalJoinedTable) {
@@ -1865,17 +1865,23 @@
 
     function computeDistinctGroupby(origTableName, groupOnCols, distinctCol,
                                     aggEvalStrArray, tempTableArray, tempCols,
-                                    finalStructArray, txId) {
+                                    distinctGbTableNames, txId) {
         var deferred = jQuery.Deferred();
+        var reuseIndex = false;
 
         if (groupOnCols.indexOf(distinctCol) === -1) {
             newGroupOnArray = groupOnCols.concat([distinctCol]);
         } else {
+            reuseIndex = true;
             newGroupOnArray = groupOnCols;
         }
         var gbDistinctTableName = getNewTableName(origTableName, "gbDistinct");
         var gbTableName = getNewTableName(origTableName, "gb");
-        var newIndexTable = getNewTableName(origTableName, "index");
+        tempTableArray.push(gbDistinctTableName);
+        tempTableArray.push(gbTableName);
+
+        var newIndexTable;
+
         checkTableIndex(newGroupOnArray, origTableName, txId)
         .then(function(indexedTableName, shouldIndex, tempTables) {
             tempTableArray = tempTableArray.concat(tempTables);
@@ -1889,10 +1895,17 @@
             // XXX [0] argument needs to be fixed once bohan's fix goes in
         })
         .then(function() {
-            return XcalarIndexFromTable(gbDistinctTableName, groupOnCols,
-                                        newIndexTable,
+            if (reuseIndex) {
+                newIndexTable = gbDistinctTableName;
+                return PromiseHelper.resolve();
+            } else {
+                newIndexTable = getNewTableName(origTableName, "index");
+                tempTableArray.push(newIndexTable);
+                return XcalarIndexFromTable(gbDistinctTableName, groupOnCols,
+                                            newIndexTable,
                                         XcalarOrderingT.XcalarOrderingUnordered,
-                                        txId);
+                                            txId);
+            }
         })
         .then(function() {
             var aggEvalStrFlattened = [];
@@ -1902,6 +1915,8 @@
                                          aggEvalStrArray[i].aggColName + ")");
                 newColNames.push(aggEvalStrArray[i].newColName);
             }
+            // This is to optimize the join later so that it doesn't have to
+            // re-index
             if (Transaction.isSimulate(txId)) {
                 SQLApi.cacheIndexTable(gbTableName, groupOnCols, newIndexTable);
             }
@@ -1913,11 +1928,7 @@
                                                 newGroupOnArray[0], txId);
         })
         .then(function() {
-            tempTableArray.push(gbDistinctTableName);
-            tempTableArray.push(newIndexTable);
-            tempTableArray.push(gbTableName);
-            finalStructArray.push({tableName: gbTableName,
-                                   cols: newGroupOnArray});
+            distinctGbTableNames.push(gbTableName);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1925,64 +1936,43 @@
         return deferred.promise();
     }
 
-    function cascadingJoins(structArray, origGbTable, joinCols, tempTableArray,
-                            tempCols, txId) {
-        var joinTables = [];
-        function indexOnOrigCols(tn, indexCols) {
-            var deferred = jQuery.Deferred();
-            checkTableIndex(joinCols, tn, txId)
-            .then(function(indexedTableName, shouldIndex, tempTables) {
-                tempTableArray = tempTableArray.concat(tempTables);
-                joinTables.push({tableName: indexedTableName,
-                                 cols: indexCols});
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-            return deferred.promise();
-        }
-
+    function cascadingJoins(distinctGbTablenames, origGbTable, joinCols,
+                            tempTableArray, tempCols, txId) {
         var promiseArray = [];
         var deferred = jQuery.Deferred();
         tempTableArray.push(origGbTable);
-        for (var i = 0; i < structArray.length; i++) {
-            promiseArray.push(indexOnOrigCols(structArray[i].tableName,
-                                              structArray[i].cols));
-        }
 
         var finalJoinedTable;
-        PromiseHelper.when.apply($, promiseArray)
-        .then(function() {
-            promiseArray = [];
-            var curTableName = origGbTable;
-            for (var i = 0; i < joinTables.length; i++) {
-                // The index cols will collide for sure. So we must rename these
-                // The newly generated columns cannot collide because they will
-                // be renamed earlier on XXX add asserts / fixme
-                var rRename = [];
-                var rTableId = xcHelper.getTableId(joinTables[i].tableName);
-                for (var j = 0; j < joinTables[i].cols.length; j++) {
-                    rRename.push({
-                        new: joinTables[i].cols[j] + "_" + rTableId,
-                        orig: joinTables[i].cols[j],
-                        type: DfFieldTypeT.DfUnknown
-                    });
-                    tempCols.push(joinTables[i].cols[j] + "_" + rTableId);
-                }
-                var newTableName = getNewTableName(origGbTable, "join");
-                if (i < joinTables.length - 1) { // Don't push final table
-                    tempTableArray.push(newTableName);
-                }
-
-                promiseArray.push(
-                    XcalarJoin.bind($, curTableName, joinTables[i].tableName,
-                                    newTableName, JoinOperatorT.InnerJoin,
-                                    [], rRename, undefined, txId));
-                curTableName = newTableName;
+        var curTableName = origGbTable;
+        for (var i = 0; i < distinctGbTablenames.length; i++) {
+            // The index cols will collide for sure. So we must rename these
+            // The newly generated columns cannot collide because they will
+            // be renamed earlier on XXX add asserts / fixme
+            var rRename = [];
+            var rTableId = xcHelper.getTableId(distinctGbTablenames[i]);
+            for (var j = 0; j < joinCols.length; j++) {
+                rRename.push({
+                    new: joinCols[j] + "_" + rTableId,
+                    orig: joinCols[j],
+                    type: DfFieldTypeT.DfUnknown
+                });
+                tempCols.push(joinCols[j] + "_" + rTableId);
             }
-            finalJoinedTable = curTableName;
+            var newTableName = getNewTableName(origGbTable, "join");
+            if (i < distinctGbTablenames.length - 1) { // Don't push final table
+                tempTableArray.push(newTableName);
+            }
 
-            return PromiseHelper.chain(promiseArray);
-        })
+            promiseArray.push(
+                XcalarJoin.bind($, curTableName, distinctGbTablenames[i],
+                                newTableName, JoinOperatorT.InnerJoin,
+                                [], rRename, undefined, txId));
+            curTableName = newTableName;
+        }
+
+        finalJoinedTable = curTableName;
+
+        PromiseHelper.chain(promiseArray)
         .then(function() {
             deferred.resolve(finalJoinedTable);
         })

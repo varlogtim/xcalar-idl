@@ -7,6 +7,10 @@
         return this;
     }
 
+    SQLApi.getCacheTable = function() {
+        return indexTableCache;
+    }
+
     // static function
     // This is order sensitive. When index is no longer index sensitive,
     // we can do colNames.sort and then do the toString

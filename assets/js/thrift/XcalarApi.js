@@ -4190,6 +4190,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         break;
     }
 
+    json.args.broadcast = false;
     return (JSON.stringify(json));
 };
 
