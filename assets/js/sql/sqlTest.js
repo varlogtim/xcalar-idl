@@ -37,7 +37,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "joinWithCollision": "select * from region r1, region r2 where r1.r_regionkey = r2.r_regionkey",
         "aliasCollision": "select * from (select r_regionkey as key from region) as t1, (select r_regionkey as key from region) as t2 where t1.key = t2.key",
         // Doesn't work yet. Returns empty result
-        "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
+        "crossJoin": "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
     };
 
     SqlTestSuite.runSqlTests = function() {
