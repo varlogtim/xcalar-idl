@@ -173,6 +173,8 @@ window.MainMenu = (function($, MainMenu) {
             ExportView.close();
             SmartCastView.close();
             DFCreateView.close();
+            SortView.close();
+            ProjectView.close();
             ignoreRestoreState = false;
         }
     };

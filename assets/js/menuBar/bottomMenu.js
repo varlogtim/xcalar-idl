@@ -305,15 +305,10 @@ window.BottomMenu = (function($, BottomMenu) {
 
         refreshEditor();
 
-        OperationsView.close();
-        JoinView.close();
-        ExportView.close();
-        SmartCastView.close();
-        DFCreateView.close();
-        // close these views before we open extensionManager otherwise
-        // extensionmanager listeners and classes might be removed
-
         if (sectionId === "extension-ops") {
+            MainMenu.closeForms();
+            // close these views before we open extensionManager otherwise
+            // extensionmanager listeners and classes might be removed
             ExtensionManager.openView();
         } else {
             ExtensionManager.closeView();
