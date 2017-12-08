@@ -1377,57 +1377,55 @@
             var rightRenames = rightRetStruct.renamedColIds;
             var allRenames = leftRenames.concat(rightRenames);
 
-            if (catchAll) {
-                joinPromise = __catchAllJoin(self, node, condTree, leftTableName,
-                                             rightTableName);
-            } else {
-                while (andSubtrees.length > 0) {
-                    var andTree = andSubtrees.shift();
-                    assert(andTree.children.length === 2);
-                    for (var i = 0; i < andTree.children.length; i++) {
-                        if (andTree.children[i].value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.And") {
-                            andSubtrees.push(andTree.children[i]);
-                        } else if (andTree.children[i].value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.EqualTo") {
-                            eqSubtrees.push(andTree.children[i]);
-                        } else {
-                            filterSubtrees.push(andTree.children[i]);
-                        }
-                    }
-                }
-
-                var retStruct = __getJoinMapArrays(node, eqSubtrees, allRenames);
-
-                if (retStruct.catchAll) {
-                    // not a single eq can be untangled. defaulting back to
-                    // catchall join
-                    joinPromise = __catchAllJoin(self, node, condTree,
-                                                 leftTableName,
-                                                 rightTableName);
-                } else {
-                    if (retStruct.filterSubtrees.length > 0) {
-                        filterSubtrees = filterSubtrees.concat(
-                                                    retStruct.filterSubtrees);
-                    }
-
-                    var partialPromise = __handleAndEqJoins(self, retStruct,
-                                                            leftTableName,
-                                                            rightTableName,
-                                                            node);
-                    if (filterSubtrees.length > 0) {
-                        joinPromise = partialPromise
-                                      .then(function(ret) {
-                                        return __filterJoinedTable(self.sqlObj,
-                                                                   ret,
-                                                                   allRenames,
-                                                                filterSubtrees);
-                                      });
+            while (andSubtrees.length > 0) {
+                var andTree = andSubtrees.shift();
+                assert(andTree.children.length === 2);
+                for (var i = 0; i < andTree.children.length; i++) {
+                    if (andTree.children[i].value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.And") {
+                        andSubtrees.push(andTree.children[i]);
+                    } else if (andTree.children[i].value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                        eqSubtrees.push(andTree.children[i]);
                     } else {
-                        joinPromise = partialPromise;
+                        filterSubtrees.push(andTree.children[i]);
                     }
                 }
             }
+
+            var retStruct;
+            if (!catchAll) {
+                retStruct = __getJoinMapArrays(node, eqSubtrees, allRenames);
+            }
+            if (catchAll || retStruct.catchAll) {
+                // not a single eq can be untangled. defaulting back to
+                // catchall join
+                joinPromise = __catchAllJoin(self, node, condTree,
+                                             leftTableName,
+                                             rightTableName);
+            } else {
+                if (retStruct.filterSubtrees.length > 0) {
+                    filterSubtrees = filterSubtrees.concat(
+                                                retStruct.filterSubtrees);
+                }
+
+                var partialPromise = __handleAndEqJoins(self, retStruct,
+                                                        leftTableName,
+                                                        rightTableName,
+                                                        node);
+                if (filterSubtrees.length > 0) {
+                    joinPromise = partialPromise
+                                  .then(function(ret) {
+                                    return __filterJoinedTable(self.sqlObj,
+                                                               ret,
+                                                               allRenames,
+                                                               filterSubtrees);
+                                  });
+                } else {
+                    joinPromise = partialPromise;
+                }
+            }
+
 
             node.usrCols = jQuery.extend(true, [], node.children[0].usrCols
                                          .concat(node.children[1].usrCols));
