@@ -141,6 +141,14 @@
         "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
         "expressions.IsNull": null, // XXX we have to put not(exists)
+
+        // datetimeExpressions.scala
+        "expressions.Year": "cut", // Split string and extract year
+        "expressions.Month": "cut",
+        "expressions.DayOfMonth": "cut",
+        "expressions.convertDate": "convertDate", // This is for date casting
+        "expressions.convertFromUnixTS": "convertFromUnixTS",
+
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
         "expressions.aggregate.Max": "max",
@@ -156,7 +164,8 @@
         "expressions.aggregate.Percentile": null,
         "expressions.aggregate.PivotFirst": null,
         "expressions.aggregate.AggregateExpression": null,
-        "expressions.ScalarSubquery": null
+        "expressions.ScalarSubquery": null,
+        "expressions.XCEPassThrough": null
     };
 
     var tablePrefix = "XC_TABLENAME_";
@@ -275,6 +284,33 @@
                 "num-children" : 2,
                 "left" : 0,
                 "right" : 1
+            });
+        }
+        function stringToDateNode(origNode) {
+            var node = new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.convertDate",
+                "num-children" : 3
+            });
+            node.children = [origNode,
+                             literalStringNode("%Y-%m-%d"),
+                             literalStringNode("%Y-%m-%d")];
+            origNode.parent = node;
+            return node;
+        }
+        function timestampToDateNode(origNode) {
+            var node = new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.convertFromUnixTS",
+                "num-children" : 2
+            });
+            node.children = [origNode, literalStringNode("%Y-%m-%d")];
+            origNode.parent = node;
+            return node;
+        }
+        function castNode(xcType) {
+            return new TreeNode({
+                "class" : "org.apache.spark.sql.catalyst.expressions.XcType."
+                          + xcType,
+                "num-children" : 1
             });
         }
 
@@ -498,6 +534,82 @@
                 var subqueryTree = SQLCompiler.genTree(undefined,
                                                        node.value.plan);
                 node.subqueryTree = subqueryTree;
+                break;
+            case ("expressions.Year"):
+            case ("expressions.Month"):
+            case ("expressions.DayOfMonth"):
+                // Spark will first try to cast the string/timestamp to DATE
+
+                // Following formats are allowed:
+                // "yyyy"
+                // "yyyy-[m]m"
+                // "yyyy-[m]m-[d]d"
+                // "yyyy-[m]m-[d]d "
+                // "yyyy-[m]m-[d]d *"
+                // "yyyy-[m]m-[d]dT*"
+                // timestamp
+                assert(node.children.length === 1 &&
+                       node.children[0].value.class ===
+                       "org.apache.spark.sql.catalyst.expressions.Cast");
+                var dateCastNode = node.children[0];
+                assert(dateCastNode.value.dataType === "date" &&
+                       dateCastNode.children.length === 1);
+
+                // Prepare three children for the node
+                var cutIndex = ["Year", "Month", "DayOfMonth"]
+                        .indexOf(opName.substring(opName.lastIndexOf(".") + 1));
+                var cutIndexNode = literalNumberNode(cutIndex + 1);
+                var delimNode = literalStringNode("-");
+                var dateNode;
+
+                // dateCastNode's child can be a column or another cast node
+                var childNode = dateCastNode.children[0];
+                if (childNode.value.class === "org.apache.spark.sql.catalyst." +
+                                             "expressions.AttributeReference") {
+                    // If the child is a column, it must be of string type
+                    assert(childNode.value.dataType === "string");
+                    dateNode = stringToDateNode(childNode);
+                } else {
+                    // Otherwise, it has to be another cast node of str/ts type
+                    assert(childNode.value.class ===
+                           "org.apache.spark.sql.catalyst.expressions.Cast" &&
+                           childNode.children.length === 1);
+                    if (childNode.value.dataType === "string") {
+                        dateNode = stringToDateNode(childNode.children[0]);
+                    } else if (childNode.value.dataType === "timestamp") {
+                        // If it is timestamp cast, we need to first cast the
+                        // child to timestamp and then cast timestamp to date
+                        if (childNode.children[0].value.dataType !==
+                                                                 "double") {
+                            // Convert it to int and then to timestamp
+                            var timestampNode = castNode("float");
+                            timestampNode.children = [childNode.children[0]];
+                            childNode.children[0].parent = timestampNode;
+                            dateNode = timestampToDateNode(timestampNode);
+                        } else {
+                            dateNode = timestampToDateNode(childNode.children[0]);
+                        }
+                    } else {
+                        // Other cases should have been rejected by spark
+                        assert(0);
+                    }
+                }
+                node.children = [dateNode, cutIndexNode, delimNode];
+                dateNode.parent = node;
+                cutIndexNode.parent = node;
+                delimNode.parent = node;
+                node.value["num-children"] = 3;
+
+                var intCastNode = castNode("int");
+                intCastNode.children = [node, literalNumberNode(10)];
+                intCastNode.value["num-children"] = 2;
+                if (idx !== undefined) {
+                    var parent = node.parent;
+                    intCastNode.parent = parent;
+                    parent.children[idx] = intCastNode;
+                } else {
+                    retNode = intCastNode;
+                }
                 break;
             default:
                 break;
@@ -1892,7 +2004,12 @@
                 if (acc && acc.hasOwnProperty("numOps")) {
                     acc.numOps += 1;
                 }
-                outStr += opLookup[opName] + "(";
+                if (opName === "expressions.XCEPassThrough") {
+                    assert(condTree.value.name !== undefined);
+                    outStr += "sql:" + condTree.value.name + "(";
+                } else {
+                    outStr += opLookup[opName] + "(";
+                }
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
                 outStr += genEvalStringRecur(condTree.children[i], acc,
