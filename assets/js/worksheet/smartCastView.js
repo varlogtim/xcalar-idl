@@ -150,6 +150,11 @@ window.SmartCastView = (function($, SmartCastView) {
             return;
         }
 
+        if (!gTables[curTableId].isActive()) {
+            StatusBox.show(TblTStr.NotActive, $castTable);
+            return;
+        }
+
         for (var colNum = 1; colNum < len; colNum++) {
             var newType = newColTypes[colNum];
 

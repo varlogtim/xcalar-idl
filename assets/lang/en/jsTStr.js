@@ -1045,7 +1045,8 @@ TblTStr = {
     'ToTemp': 'SEND TO TEMPORARY',
     'ToTempTip': 'Tables will be sent to the temporary tables list',
     'TempStatus': 'Temporary',
-    'ActiveStatus': "Active"
+    'ActiveStatus': "Active",
+    "NotActive": "Table is not active."
 };
 
 ColTStr = {

@@ -553,6 +553,12 @@ window.ProjectView = (function($, ProjectView) {
             return PromiseHelper.reject({"error": "tableNotFound"});
         }
 
+        if (!gTables[tableId].isActive()) {
+            StatusBox.show(TblTStr.NotActive,
+                            $projectView.find('.tableList').find(".text"));
+            return PromiseHelper.reject({"error": "tableNotFound"});
+        }
+
         var frontColumnNames = exportHelper.getExportColumns();
 
         isValid = xcHelper.validate([

@@ -343,12 +343,17 @@ window.DFCreateView = (function($, DFCreateView) {
             var tableName = $.trim($input.val());
             var tableId = xcHelper.getTableId(tableName);
             var $group = $input.closest(".group");
+            var groupId = $group.attr("data-id");
+
+            if (tableId !== groupId) {
+                $("#xcTable-" + groupId).find(".modalHighlighted")
+                                .removeClass('modalHighlighted');
+            }
             if (gTables[tableId]) {
                 if (getGroup(tableId).length) {
                     StatusBox.show(DFTStr.TableAlreadySelected, $input, true);
                     return;
                 }
-                // this should go inside .change
                 $group.attr("data-id", tableId);
                 createColumnsList(tableId);
                 selectInitialTableCols(tableId);

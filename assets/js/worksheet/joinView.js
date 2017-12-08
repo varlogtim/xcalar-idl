@@ -1348,6 +1348,25 @@ window.JoinView = (function($, JoinView) {
         }
     }
 
+    function validJoinTables() {
+        var tableIds = getTableIds();
+        if (!gTables[tableIds[0]].isActive() || !gTables[tableIds[1]].isActive()) {
+            toggleNextView();
+            var index;
+            if (!gTables[tableIds[0]].isActive()) {
+                index = 0;
+            } else {
+                index = 1;
+            }
+            var text = TblTStr.NotActive;
+            var $tableInput = $joinView.find(".tableListSection .arg").eq(index);
+            StatusBox.show(text, $tableInput, false);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     // returns array of 2 table ids if no args passed in
     // or returns corresponding id if index passed in
     function getTableIds(index) {
@@ -1496,6 +1515,10 @@ window.JoinView = (function($, JoinView) {
             return PromiseHelper.reject();
         }
         if (!validTableNameChecker()) {
+            return PromiseHelper.reject();
+        }
+
+        if (!validJoinTables()) {
             return PromiseHelper.reject();
         }
 

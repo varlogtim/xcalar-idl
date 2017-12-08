@@ -167,6 +167,11 @@ window.SortView = (function($, SortView) {
             return;
         }
 
+        if (!gTables[curTableId].isActive()) {
+            StatusBox.show(TblTStr.NotActive, $sortTable);
+            return;
+        }
+
         for (var i = 0; i < newColOrders.length; i++) {
             var colNum = newColOrders[i].colNum;
             var newOrder = newColOrders[i].order;

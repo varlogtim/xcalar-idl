@@ -168,6 +168,7 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.closeForms = function() {
         if (isFormOpen) {
             ignoreRestoreState = true;
+
             OperationsView.close();
             JoinView.close();
             ExportView.close();
@@ -175,6 +176,7 @@ window.MainMenu = (function($, MainMenu) {
             DFCreateView.close();
             SortView.close();
             ProjectView.close();
+
             ignoreRestoreState = false;
         }
     };

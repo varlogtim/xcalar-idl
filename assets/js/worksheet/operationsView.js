@@ -2505,9 +2505,14 @@ window.OperationsView = (function($, OperationsView) {
         var isPassing = true;
 
         if (!gTables[tableId]) {
-            statusBoxShowHelper('Table no longer exists',
+            statusBoxShowHelper('Table no longer exists.',
                             $activeOpSection.find('.tableList'));
             return deferred.reject().promise();
+        }
+        if (!gTables[tableId].isActive()) {
+            statusBoxShowHelper(TblTStr.NotActive,
+                            $activeOpSection.find('.tableList'));
+            return PromiseHelper.reject();
         }
         var $groups = $activeOpSection.find('.group');
 

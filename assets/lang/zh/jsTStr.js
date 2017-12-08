@@ -894,7 +894,8 @@ TblTStr = {
 'ActiveFail': '活动表失败',
 'Truncate': '其他字符被截断',
 'TempStatus': '临时',
-'ActiveStatus': "激活"
+'ActiveStatus': "激活",
+"NotActive": "Table is not active"
 };
 ColTStr = {
 'SplitColWarn': '许多列会生成',

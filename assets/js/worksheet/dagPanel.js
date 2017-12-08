@@ -528,7 +528,7 @@ window.DagPanel = (function($, DagPanel) {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
-                    $menu.find('.focusTable')
+                    $menu.find('.focusTable, .makeTempTable')
                          .removeClass('hidden');
                     if (!tableLocked && !inColumnPickerMode) {
                         $menu.find('.deleteTable')
@@ -549,14 +549,15 @@ window.DagPanel = (function($, DagPanel) {
             var operator = $dagTable.siblings('.actionType').data('type');
             if (operator === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
-                            '.addNoDelete').addClass('hidden');
+                            '.addNoDelete, .makeTempTable').addClass('hidden');
             } else if (activeFound) {
                 // already in WS, cannot add or revert to worksheet
                 $menu.find('.addTable, .revertTable').addClass('hidden');
+                $menu.find(".makeTempTable").removeClass("hidden");
             } else {
                 // not in WS, allow adding and reverting, disallow archiving
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
-                $menu.find('.focusTable').addClass('hidden');
+                $menu.find('.focusTable, .makeTempTable').addClass('hidden');
             }
 
             var $dagWrap = $dagTable.closest('.dagWrap');
@@ -1007,6 +1008,14 @@ window.DagPanel = (function($, DagPanel) {
             var tableId = $menu.data('tableId');
             var tableName = $menu.data('tablename');
             deleteTable(tableId, tableName);
+        });
+
+        $menu.find(".makeTempTable").mouseup(function(event) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
+                return;
+            }
+            var tableId = $menu.data('tableId');
+            TblManager.sendTableToTempList(tableId);
         });
 
         $menu.find('.showSchema').mouseup(function(event) {
