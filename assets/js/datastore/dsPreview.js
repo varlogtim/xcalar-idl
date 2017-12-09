@@ -2168,6 +2168,11 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             $previewTable.removeClass("has-delimiter");
         }
+
+        if (window.isBrowserSafari) {
+            $previewTable.removeClass("dataTable");
+            setTimeout(function() {$previewTable.addClass("dataTable");}, 0);
+        }
     }
 
     function toggleHeader(promote, changePreview) {

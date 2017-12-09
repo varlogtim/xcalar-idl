@@ -15,8 +15,8 @@
             return (1 * v1[2] < 1 * v2[2]);
         }
     }
-    if (XVM.getVersion() &&
-        versionCheck(XVM.getVersion().split("-")[0], "1.3.0")) {
+    var version = XVM.getVersion();
+    if (version && versionCheck(version.split("-")[0], "1.3.0")) {
         // Make sure our patch only applies to certain versions
         // Change the second argument above as we need
         // Just wrap our patches with functions and call them here
@@ -24,6 +24,13 @@
             patchMixpanel();
         } catch (error) {
             console.log("mixpanel patching fails");
+        }
+    }
+    if (version && versionCheck(version.split("-")[0], "1.3.1")) {
+         try {
+            patchDSPreview();
+        } catch (error) {
+            console.log("ds preview fails");
         }
     }
     function patchMixpanel() {
@@ -86,5 +93,36 @@
                 });
             });
         };
+    }
+
+    function patchDSPreview() {
+        var targetNode = document.getElementById('previewTable');
+        // Options for the observer (which mutations to observe)
+        var config = {childList: true};
+        var observer;
+        // Callback function to execute when mutations are observed
+        var callback = function(mutationsList) {
+            if (window.isBrowserSafari) {
+                for (var mutation of mutationsList) {
+                    if (mutation.type == 'childList') {
+                        if (!$("#previewTable tbody").hasClass("patch")) {
+                            console.log("patch preview!");
+                            $("#previewTable tbody").addClass("patch")
+                            $("#previewTable").removeClass("dataTable");
+                            setTimeout(function() {$("#previewTable").addClass("dataTable");}, 0);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                observer.disconnect();
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        observer = new MutationObserver(callback);
+
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
     }
 }(jQuery));
