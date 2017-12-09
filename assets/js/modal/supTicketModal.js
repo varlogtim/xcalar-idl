@@ -6,6 +6,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var $ticketIdSection;
     var $severitySection;
     var $commentSection;
+    var $ticketIdInput;
     var tickets = [];
     var firstTouch = true;
     var subjectLimit = 100;
@@ -18,6 +19,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $ticketIdSection = $modal.find(".ticketIDSection");
         $severitySection = $modal.find(".severitySection");
         $commentSection = $modal.find(".commentSection");
+        $ticketIdInput = $modal.find(".customTicketRow input");
 
         modalHelper = new ModalHelper($modal, {
             noEnter: true
@@ -212,11 +214,19 @@ window.SupTicketModal = (function($, SupTicketModal) {
             $ticketIdSection.addClass("inactive");
             $commentSection.removeClass("inactive");
 
+            $ticketIdInput.val("");
+
             $ticketIdSection.find(".tableBody .row").addClass("xc-hidden");
             $btn.closest(".row").removeClass("xc-hidden");
             $modal.find("textArea").focus();
 
         }, {deselectFromContainer: true});
+
+        $ticketIdInput.on("input", function() {
+            if ($(this).val()) {
+                $ticketIdSection.find(".radioButton").removeClass("active");
+            }
+        });
 
         // expand comment section in table
         $ticketIdSection.on("click", ".subjectWrap, .expand", function() {
@@ -304,6 +314,13 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 }
             }
         });
+        $ticketIdSection.on("mousedown", ".radioButtonGroup", function() {
+            if ($ticketIdSection.hasClass("inactive")) {
+                $ticketIdSection.removeClass("inactive");
+                $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
+                $commentSection.addClass("inactive");
+            }
+        });
         $commentSection.mousedown(function() {
             if ($commentSection.hasClass("inactive")) {
                 $commentSection.removeClass("inactive");
@@ -341,10 +358,14 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var genBundle = false;
         var issueType = getIssueType();
         var ticketId;
+        var needsOrgCheck = false;
         if (issueType === CommonTxtTstr.Existing) {
             var $radio = $ticketIdSection.find(".radioButton.active");
             if ($radio.length) {
                 ticketId = parseInt($radio.find(".label").text());
+            } else if ($ticketIdInput.val()) {
+                ticketId = parseInt($ticketIdInput.val());
+                needsOrgCheck = true;
             } else {
                 StatusBox.show(MonitorTStr.SelectExistingTicket,
                     $ticketIdSection.find(".tableBody"));
@@ -375,6 +396,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             "subject": subject,
             "comment": comment,
             "severity": severity,
+            "needsOrgCheck": needsOrgCheck,
             "userIdName": userIdName,
             "userIdUnique": userIdUnique,
             "sessionName": WorkbookManager.getActiveWKBK(),
@@ -399,6 +421,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var time = Date.now();
             var ticket;
             var bundleSendAttempted = false;
+            var errHandled = false;
 
             SupTicketModal.fetchLicenseInfo()
             .then(function(licenseObj) {
@@ -406,7 +429,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
             })
             .then(function(ret) {
                 if (ret.logs.indexOf("error") > -1) {
-                    ticketError(genBundle, bundleSendAttempted);
+                    ticketError(genBundle, bundleSendAttempted, ret.logs);
+                    errHandled = true;
                     return PromiseHelper.reject();
                 }
 
@@ -458,7 +482,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 deferred.resolve();
             })
             .fail(function() {
-                ticketError(genBundle, bundleSendAttempted);
+                if (!errHandled) {
+                    ticketError(genBundle, bundleSendAttempted);
+                }
                 deferred.reject();
             })
             .always(function() {
@@ -470,16 +496,33 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return deferred.promise();
     }
 
-    function ticketError(genBundle, bundleSendAttempted) {
+    function ticketError(genBundle, bundleSendAttempted, logs) {
+        var detail = "";
+        if (logs) {
+            try {
+                var parsedLog = JSON.parse(logs);
+                var error = parsedLog.error;
+                if (typeof error === "object") {
+                    detail = JSON.stringify(error);
+                } else {
+                    detail = error;
+                }
+            } catch (err) {
+                detail = "";
+                console.warn(err);
+            }
+        }
+
         $modal.addClass('downloadMode');
         var msg = "Ticket failed, try downloading and uploading to " +
                   "ZenDesk.";
         if ($modal.is(":visible")) {
             StatusBox.show(msg, $modal.find('.download'), false, {
-                highZindex: $modal.hasClass('locked')
+                highZindex: $modal.hasClass('locked'),
+                detail: detail
             });
         } else {
-            Alert.error('Submit Ticket Failed', msg);
+            Alert.error('Submit Ticket Failed', msg + " " + detail);
         }
         if (genBundle && !bundleSendAttempted) {
             submitBundle(0);
@@ -574,6 +617,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.find(".subjectInput").val("").trigger("input");
         $modal.find(".genBundleRow").find(".label").text("2. " +
                                     MonitorTStr.AdditionalInfo + ":");
+        $ticketIdInput.val("");
 
         $modal.removeClass('downloadMode downloadSuccess bundleError');
         $ticketIdSection.removeClass("expanded").removeClass("inactive");
@@ -748,6 +792,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 ticketStr = ticketStr.slice(0, -1);
                 ticketStr += ',"xiLog":' + logStr + "}";
             }
+
             return XFTSupportTools.fileTicket(ticketStr);
         })
         .then(deferred.resolve)

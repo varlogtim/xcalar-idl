@@ -20,7 +20,8 @@ window.StatusBox = (function($, StatusBox){
      *                          prevent closing for a split second (useful if
      *                          scroll event tries to close status box)
      *      persist: if set true, the box will not hide unless click
-     *               on close button
+     *               on close button,
+     *      detail: string, extra information text to display
      */
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
