@@ -617,7 +617,6 @@ window.DagPanel = (function($, DagPanel) {
             var $dagTable = $opIcon.closest(".dagTableWrap").find(".dagTable");
             var tableName = $opWrap.data("table");
             var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
 
             $menu.find(".expandTag, .collapseTag, .undoEdit").addClass("xc-hidden");
 
@@ -665,6 +664,20 @@ window.DagPanel = (function($, DagPanel) {
                     if ($opWrap.hasClass("hasEdit")) {
                         $menu.find(".undoEdit").removeClass("xc-hidden");
                     }
+                }
+            }
+
+            if ($dagTable.hasClass(DgDagStateTStr[DgDagStateT.DgDagStateDropped])) {
+                xcHelper.disableMenuItem($menu.find(".commentOp"), {
+                    "title": "Cannot add comment to operation if table has been dropped"
+                });
+            } else {
+                $menu.find(".commentOp").removeClass("unavailable");
+                xcTooltip.remove($menu.find(".commentOp"));
+                if ($opWrap.hasClass("hasComment")) {
+                    $menu.find(".commentOp").text(DFTStr.EditComment);
+                } else {
+                    $menu.find(".commentOp").text(DFTStr.NewComment);
                 }
             }
 
@@ -1151,6 +1164,9 @@ window.DagPanel = (function($, DagPanel) {
                     var allDagInfo = $dagWrap.data("allDagInfo");
                     var node = allDagInfo.nodeIdMap[nodeId];
                     DagEdit.undoEdit(node);
+                    break;
+                case ("commentOp"):
+                    DFCommentModal.show($menu.data("opIcon"), nodeId);
                     break;
                 case ("expandTag"):
                 case ("collapseTag"):

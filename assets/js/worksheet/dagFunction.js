@@ -121,7 +121,7 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     var TreeValue = function(api, struct, dagNodeId, inputName, name,
-                             numParents, tag, state) {
+                             numParents, tag, comment, state) {
         this.api = api;
         this.struct = struct;
         this.dagNodeId = dagNodeId;
@@ -131,6 +131,7 @@ window.DagFunction = (function($, DagFunction) {
         this.indexedFields = [];
         this.tag = tag;
         this.tags = [];
+        this.comment = comment;
         this.state = state;
         this.display = {};
         this.exportNode = null; // reference to export node if it has one
@@ -152,9 +153,10 @@ window.DagFunction = (function($, DagFunction) {
             var name = nodes[i].name.name;
             var numParents = nodes[i].numParent;
             var tag = nodes[i].tag;
+            var comment = nodes[i].comment;
             var state = nodes[i].state;
             var treeNode = new TreeValue(nodes[i].api, inputStruct, dagNodeId,
-                                    inputName, name, numParents, tag, state);
+                                    inputName, name, numParents, tag, comment, state);
             valArray.push(treeNode);
             if (nodes[i].api === XcalarApisT.XcalarApiExport && i !== 0) {
                 startPoints.push(treeNode);
@@ -723,6 +725,16 @@ window.DagFunction = (function($, DagFunction) {
             nameToTagsMap[treeNodesToRerun[i].value.struct.dest] = treeNodesToRerun[i].value.tags;
         }
 
+        var commentsToNamesMap = {};
+        for (var i = 0; i < treeNodesToRerun.length; i++) {
+            if (treeNodesToRerun[i].value.comment &&
+                !commentsToNamesMap[treeNodesToRerun[i].value.comment]) {
+                commentsToNamesMap[treeNodesToRerun[i].value.comment] = [];
+            }
+            commentsToNamesMap[treeNodesToRerun[i].value.comment].push(
+                                        treeNodesToRerun[i].value.struct.dest);
+        }
+
         var sql = {
             "operation": SQLOps.DFRerun,
             "tableName": tableName,
@@ -740,11 +752,10 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.lockTable(tableId, txId);
 
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
+        var finalTableId;
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
-            console.log(finalTableName);
-
             var worksheet = WSManager.getWSFromTable(tableId);
             return TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
@@ -753,9 +764,12 @@ window.DagFunction = (function($, DagFunction) {
                                         focusOnWorkspace: true});
         })
         .then(function() {
-            var finalTableId = xcHelper.getTableId(finalTableName);
+            finalTableId = xcHelper.getTableId(finalTableName);
 
             return tagNodesAfterEdit(finalTableId, nameToTagsMap, tagHeaders);
+        })
+        .then(function() {
+            return recommentAfterEdit(finalTableId, commentsToNamesMap);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, txId);
@@ -837,6 +851,7 @@ window.DagFunction = (function($, DagFunction) {
         }
     };
 
+    // for new index nodes
     function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
         for (var name in newNodes) {
             var indexNodes = newNodes[name];
@@ -879,6 +894,33 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
+    function recommentAfterEdit(tableId, commentsToNamesMap) {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        var commentedTables = [];
+
+        for (var comment in commentsToNamesMap) {
+            var tables = commentsToNamesMap[comment];
+            promises.push(XcalarCommentDagNodes(comment, tables));
+        }
+
+        PromiseHelper.when.apply(null, promises)
+        .then(function() {
+            var $dagWrap = $("#dagWrap-" + tableId);
+            for (var comment in commentsToNamesMap) {
+                var tables = commentsToNamesMap[comment];
+                for (var i = 0; i < tables.length; i++) {
+                    var $dagTable = Dag.getTableIconByName($dagWrap, tables[i]);
+                    var $opIcon = $dagTable.siblings(".actionType");
+                    Dag.updateComment($opIcon, comment);
+                }
+            }
+        })
+        .fail(function() {
+            // could not persist comments
+        });
+    }
+
     function tagNodesAfterEdit(tableId, nameToTagsMap, tagHeaders) {
         var newTree = $("#dagWrap-" + tableId).data("allDagInfo").tree;
         var newTagMap = {};
@@ -905,7 +947,6 @@ window.DagFunction = (function($, DagFunction) {
                     }
                     newTagMap[newTag].push(node.value.name);
                 }
-
             } else {
                 newTag = node.value.tag;
                 var hasChange = false;
@@ -914,7 +955,6 @@ window.DagFunction = (function($, DagFunction) {
                     if (tagHeaders[tag]) {
                         newTag += "," + tagHeaders[tag];
                         hasChange = true;
-
                     }
                 }
                 if (hasChange) {

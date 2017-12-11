@@ -176,8 +176,6 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
-        var $dagPanel = $('#dagPanel');
-
         // rename dagWrap header
         $dagPanel.find('.tableName').filter(function() {
             return ($(this).text() === oldTableName);
@@ -983,6 +981,14 @@ window.Dag = (function($, Dag) {
             $dagWrap.find(".tagHighlighted").removeClass("tagHighlighted");
         });
 
+        $dagWrap.on("click", ".commentIcon", function() {
+            if ($dagWrap.closest("#dfViz").length) {
+                return;
+            }
+            var $opIcon = $(this).closest(".actionType");
+            DFCommentModal.show($opIcon, $opIcon.data("id"));
+        });
+
         dagScrollListeners($dagWrap.find('.dagImageWrap'));
     };
 
@@ -1080,6 +1086,25 @@ window.Dag = (function($, Dag) {
                 $dagTable.closest(".dagTableWrap").find(".actionType").removeClass("hasEdit");
             }
         }
+    };
+
+    Dag.updateComment = function($opIcon, newComment, node) {
+        var commentStr = "Comments: " +
+                                xcHelper.escapeDblQuoteForHTML(newComment);
+        $opIcon.find(".tipIcons").append('<div class="commentIcon" ' +
+                    'data-toggle="tooltip" data-placement="top" ' +
+                    'data-container="body" data-original-title="' +
+                    commentStr + '" ' +
+                    'data-tiphtml="false">' +
+                    '<i class="icon xi-info-circle commentIcon">' +
+                    '</i></div>');
+        $opIcon.addClass("hasComment");
+        if (!node) {
+            var nodeIdMap = $opIcon.closest(".dagWrap").data("allDagInfo")
+                                                       .nodeIdMap;
+            node = nodeIdMap[$opIcon.data("id")];
+        }
+        node.value.comment = newComment;
     };
 
     function prettify(loadInfo) {

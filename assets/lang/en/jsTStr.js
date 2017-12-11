@@ -887,7 +887,9 @@ DFTStr = {
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports',
-    "TableAlreadySelected": "This table is already selected."
+    "TableAlreadySelected": "This table is already selected.",
+    "NewComment": "Add a comment",
+    "EditComment": "View / edit comment"
 };
 
 DSTStr = {

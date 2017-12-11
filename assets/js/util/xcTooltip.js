@@ -105,8 +105,8 @@ window.xcTooltip = (function(xcTooltip, $) {
                 .removeAttr("title");
     };
 
-    xcTooltip.changeText = function($element, text, empty) {
-        if (text == null && !empty) {
+    xcTooltip.changeText = function($element, text, allowEmpty) {
+        if (text == null && !allowEmpty) {
             return;
         }
 

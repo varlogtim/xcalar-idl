@@ -136,7 +136,11 @@ module.exports = {
         "UnlockTbl": "解锁",
         "Unsavable": "无法保存图像",
         "ViewDetails": "查看详情",
-        "Visual": "Tableau可视化"
+        "Visual": "Tableau可视化",
+        "EditOp": "Edit operation",
+        "RevealOps": "Reveal operations",
+        "HideOps": "Hide operations",
+        "UndoEdit": "Undo edit"
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",

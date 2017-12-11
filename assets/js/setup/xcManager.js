@@ -551,6 +551,7 @@ window.xcManager = (function(xcManager, $) {
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();
         JupyterUDFModal.setup();
+        DFCommentModal.setup();
     }
 
     function setupUserArea() {

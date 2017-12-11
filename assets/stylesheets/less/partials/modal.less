@@ -6,6 +6,10 @@
     z-index: @z-index-modal;
     background-color: @color-white;
 
+    &.shadow {
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
+    }
+
     .modalHeader {
         background-color: @color-bg-dusk-blue;
         color: @color-white;
@@ -173,7 +177,6 @@
     z-index: @z-index-modal;
     display: none;
     overflow: visible;
-    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.2);
     .transition(opacity 0.3s);
     &.hidden {
         opacity: 0;
@@ -1506,7 +1509,6 @@ html.microsoft {
     .size(@width: 520px, @height: @modalBaseHeight);
     bottom: auto;
     z-index: 100;
-    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
     .flex-display;
     .flex-direction(column);
 
@@ -1822,7 +1824,6 @@ html.microsoft {
 #jupyterUDFTemplateModal {
     .size(@width: 400px, @height: 290px);
     font-size: 12px;
-    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
 
     .ui-resizable-handle {
         z-index: 9 !important; // below dropdown list
@@ -4166,7 +4167,6 @@ html.microsoft {
 #aboutModal {
     .size(@width: 400px, @height: auto);
     bottom: auto;
-    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
 
     .modalHeader {
         .size(@height: 25px);
@@ -4352,7 +4352,6 @@ html.microsoft {
     width: 400px;
     height: auto !important;
     bottom: auto;
-    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
 
     &.folder {
         .ds {
@@ -5324,5 +5323,68 @@ html.microsoft {
             text-decoration: underline;
         }
         cursor: pointer;
+    }
+}
+
+#dfCommentModal {
+    .size(400px, 250px, @min-width: 400px, @min-height: 250px);
+
+    .modalHeader {
+        .text {
+            padding-left: 85px;
+            padding-right: 85px;
+        }
+    }
+    .modalInstruction {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        height: 46px;
+        .text {
+            line-height: 36px;
+            font-size: 13px;
+        }
+    }
+    .modalMain {
+        .size(@height: ~"calc(100% - 152px)");
+        overflow: auto;
+        background: @color-bg-white-three;
+        font-size: 13px;
+    }
+    .modalBottom {
+        .size(@height: 70px);
+    }
+
+    .formRow {
+        .flex-display;
+        .flex-direction(column);
+        height: 100%;
+        padding: 10px;
+    }
+
+    .subHeading {
+        .flex-display;
+        .justify-content(space-between);
+        margin-bottom: 5px;
+
+        .optionButtons {
+            color: @color-font-select-blue;
+            margin-right: 2px;
+            .icon {
+                font-size: 13px;
+            }
+        }
+    }
+
+    .xc-textArea {
+        width: 100%;
+        .flex(1 0 auto);
+        font-size: 13px;
+    }
+    &.hasComment {
+        // .xc-textArea {
+        //     background: @color-bg-white-three;
+        //     border: none;
+        // }
+        .size(400px, 350px);
     }
 }

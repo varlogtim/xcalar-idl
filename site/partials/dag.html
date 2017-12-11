@@ -69,17 +69,20 @@
         </li>
     </ul>
     <ul class="menu dagOperationDropDown">
+        <li class="undoEdit" data-action="undoEdit">
+          <%= dicts.MenuTStr.UndoEdit %>
+        </li>
         <li class="editOp" data-action="editOp">
-          Edit operation
+          <%= dicts.MenuTStr.EditOp %>
+        </li>
+        <li class="commentOp" data-action="commentOp">
+          <%= dicts.MenuTStr.CommentOp %>
         </li>
         <li class="expandTag" data-action="expandTag">
-          Reveal operations
+          <%= dicts.MenuTStr.RevealOps %>
         </li>
         <li class="collapseTag" data-action="collapseTag">
-          Hide operations
-        </li>
-        <li class="undoEdit" data-action="undoEdit">
-          Revert to original operation
+          <%= dicts.MenuTStr.HideOps %>
         </li>
     </ul>
     <ul class="menu dagTableDropDown">
@@ -197,4 +200,7 @@
   </div>
   <div class="content"></div>
 </div>
+
+
+
 <!-- End Of Dag Panel -->

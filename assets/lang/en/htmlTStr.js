@@ -278,7 +278,12 @@ module.exports = {
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
         "ViewDetails": "View details",
-        "Visual": "Visualize in Tableau"
+        "Visual": "Visualize in Tableau",
+        "EditOp": "Edit operation",
+        "RevealOps": "Reveal operations",
+        "HideOps": "Hide operations",
+        "UndoEdit": "Revert to original operation",
+        "CommentOp": "Add a comment"
     },
 
     "TooltipTStr": {
@@ -351,12 +356,6 @@ module.exports = {
         "HelpTopics": "Help Topics",
         "SearchRes": "Results",
         "SearchDiscourse": "SEARCH DISCOURSE",
-        "Find": "Find",
-        "noRes": "There are no help results",
-        "useSearch": "Search for a topic or",
-        "visitHelp": "click here to visit our help guide",
-        "InPageHelp": "IN-PAGE HELP",
-        "Walkthrough": "Start a Walkthrough",
         "wkbkTutor": "Workbook Tutorial",
         "dsTutor1": "Datasets Tutorial - Part 1",
         "dsTutor2": "Datasets Tutorial - Part 2",

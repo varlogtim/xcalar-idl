@@ -1353,6 +1353,7 @@ window.DagDraw = (function($, DagDraw) {
         var classes = "";
         var dataAttr = "";
         var groupTagIcon = "";
+        var commentIcon = "";
         var typeTitle = info.text;
         var resultTableName = node.value.name;
 
@@ -1377,12 +1378,24 @@ window.DagDraw = (function($, DagDraw) {
                             });
             }
             dataAttr += " data-tag='" + node.value.tags[0] + "' ";
-            groupTagIcon += '<i data-tagid="' + tagId + '" ' +
-                            'data-toggle="tooltip" data-placement="top" ' +
+            groupTagIcon += '<div class="groupTagIcon" data-tagid="' + tagId +
+                            '" data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" data-original-title="' +
                             tagIconTip + '" ' +
-                            'class="icon xi-ellipsis-h-circle groupTagIcon">' +
-                            '</i>';
+                            '><i class="icon xi-ellipsis-h-circle">' +
+                            '</i></div>';
+        }
+
+        if (node.value.comment) {
+            classes += " hasComment ";
+            var comment = "Comments: " +
+                            xcHelper.escapeDblQuoteForHTML(node.value.comment);
+            commentIcon += '<div class="commentIcon" ' +
+                            'i data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" data-tiphtml="false" ' +
+                            'data-original-title="' + comment + '" ' +
+                            '><i class="icon xi-info-circle">' +
+                            '</i></div>';
         }
 
         classes += " " + info.type + " ";
@@ -1403,7 +1416,9 @@ window.DagDraw = (function($, DagDraw) {
                             '<span class="typeTitle">' + typeTitle + '</span>' +
                             '<span class="opInfoText">' + opText + '</span>' +
                         '</div>' +
-                        groupTagIcon +
+                        '<div class="tipIcons">' +
+                            groupTagIcon + commentIcon +
+                        '</div>' +
                     '</div>';
 
         return (originHTML);

@@ -97,6 +97,9 @@
     if (this.$element.data('tipclasses') != null) {
       options.tipclasses = this.$element.data('tipclasses');
     }
+    if (this.$element.data('tiphtml') != null) {
+      options.tiphtml = this.$element.data('tiphtml');
+    }
     // end xcalar custom code
 
     if (options.delay && typeof options.delay == 'number') {
@@ -303,8 +306,14 @@
   Tooltip.prototype.setContent = function () {
     var $tip  = this.tip()
     var title = this.getTitle()
+    var textType;
+    if (this.options.tiphtml != null) {
+      textType = this.options.tiphtml ? 'html' : 'text';
+    } else {
+      textType = this.options.html ? 'html' : 'text';
+    }
 
-    $tip.find('.tooltip-inner')[this.options.html ? 'html' : 'text'](title)
+    $tip.find('.tooltip-inner')[textType](title)
     $tip.removeClass('fade in top bottom left right')
   }
 

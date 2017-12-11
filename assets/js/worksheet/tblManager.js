@@ -2548,7 +2548,8 @@ window.TblManager = (function($, TblManager) {
             var $menu = $("#colMenu");
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .map, .operations, .profile, .corrAgg, " +
-                    ".extensions, .changeDataType, .format, .roundToFixed");
+                    ".extensions, .changeDataType, .format, .roundToFixed, " +
+                    ".project");
             $lis.removeClass("unavailable");
             xcTooltip.remove($lis);
             if (colType === ColumnType.object || colType === ColumnType.array) {

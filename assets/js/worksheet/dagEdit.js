@@ -283,7 +283,8 @@ window.DagEdit = (function($, DagEdit) {
                     if ($(event.target).closest('#mapPreForm').length === 0 &&
                         $(event.target).closest('#dagScrollBarWrap').length === 0) {
                         $mapPreForm.removeClass("active");
-                        $(document).off("hideMapPreForm");
+                        $(document).off(".hideMapPreForm");
+                        $(".dagWrap .dagTable").removeClass("editing");
                     }
                 });
 
@@ -452,7 +453,7 @@ window.DagEdit = (function($, DagEdit) {
 
         $mapPreForm.on("click", ".row", function() {
             $mapPreForm.removeClass("active");
-            $(document).off("hideMapPreForm");
+            $(document).off(".hideMapPreForm");
 
             var index = $(this).index();
             mapIndex = index;
