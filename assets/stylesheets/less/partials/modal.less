@@ -3095,6 +3095,17 @@ html.microsoft {
 
 #dfParamModal {
     .size(@width: 920px, @height: 550px, @min-width: 800px, @min-height: 425px);
+    font-size: 12px;
+  
+    input {
+        font-size: 12px;  
+    }
+  
+    .radioButtonGroup {
+        .radioButton {
+            font-size: 12px;
+        }
+    }
 
     .modalTopMain {
         .size(@width: 100%, @height: ~"calc(100% - 152px)");
@@ -3114,7 +3125,7 @@ html.microsoft {
 
     .heading {
         .size(@height: 14px);
-        .font(@line-height: 14px, @size: 11px, @weight: 600,
+        .font(@line-height: 14px, @weight: 600,
                 @color: @color-font-navy);
         margin-bottom: 12px;
     }
@@ -3157,7 +3168,7 @@ html.microsoft {
                     &:first-child {
                         text-transform: capitalize;
                         margin-left: 0px;
-                        min-width: 60px;
+                        min-width: 110px;
                         .flex(0 0 auto);
                     }
                     &:last-child {
@@ -3175,14 +3186,42 @@ html.microsoft {
                         color: @color-font-select-blue;
                     }
                 }
+
+                &.innerEditableRow.createRule, &.innerEditableRow.headerType, &.innerEditableRow.splitRule {
+                    .radioButtonGroup {
+                        display: flex;
+                        flex-direction: column;
+                        line-height: 40px;
+                        margin-bottom: 5px;
+                    }
+                }
+                &.innerEditableRow.sorted {
+                    .radioButtonGroup {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        margin-bottom: 5px;
+
+                        .radioButton {
+                            width: 122px;
+                            min-width: 122px;
+                            max-width: 122px;
+                        }
+                    }
+                }
+                .radioButtonGroup {
+                    width: 100%;
+                }
             }
         }
         .advancedOpts {
-            .size(@height: 100%);
+            .size(@height: auto);
             .position(relative);
             float: right;
             margin-right: 3px;
             z-index: @z-index-dfAdvancedOpts;
+            right: 20px;
 
             &.active {
                 .optionBox {
@@ -3209,7 +3248,6 @@ html.microsoft {
                 z-index: 3;
                 input {
                     margin-top: 3px;
-                    font-size: 12px;
                 }
             }
         }
@@ -3301,7 +3339,6 @@ html.microsoft {
             .rounded;
             cursor: pointer;
             color: @color-white;
-            font-size: 13px;
             float: left;
 
             &:hover {
@@ -3389,6 +3426,9 @@ html.microsoft {
 
             .newParam {
                 font-weight: 600 !important;
+            }
+
+            input::-webkit-input-placeholder {
                 font-size: 12px;
             }
         }
@@ -3444,7 +3484,6 @@ html.microsoft {
                 width: ~"calc(100% + 1px)";
                 padding: 0px;
                 font-weight: 600;
-                font-size: 12px;
                 box-shadow: none;
                 display: block;
                 margin: 0px;
@@ -3473,10 +3512,10 @@ html.microsoft {
             }
         }
 
-        ul {
-            width: 118px;
+        // ul {
+        //     width: 118px;
 
-        }
+        // }
         li {
             height: 26px;
             line-height: 26px;
@@ -3619,43 +3658,16 @@ html.microsoft {
         }
     }
 
-    &.export {
-        .advancedOpts {
-            display: block;
-        }
-        .editableTable, .advancedOpts {
-            width: 49%;
-            display: inline-block;
-        }
-        .editableTable {
-            min-height: 70px;
-        }
-        &.default {
-        }
-        &.import {
-            .parameterList {
-                pointer-events: none;
-                .xc-disabled;
-            }
-            .target {
-                display: none;
-            }
-            .defaultParam {
-                display: none;
-            }
-        }
-        .radioButton {
-            &.unavailable {
-                pointer-events: none;
-            }
-        }
+    .exportSetting, .exportSettingButton {
+        display: none;
     }
 
     &.export {
         .advancedOpts {
             display: block;
+            margin-top: 35px;
         }
-        .editableTable, .advancedOpts {
+        .editableParamQuery, .advancedOpts {
             width: 49%;
             display: inline-block;
         }
@@ -3669,16 +3681,75 @@ html.microsoft {
                 pointer-events: none;
                 .xc-disabled;
             }
-            .target {
+            .exportSettingButton, .target, .createRule, .fieldDelim, .quoteDelim, .recordDelim,
+            .format, .headerType, .sorted, .splitRule {
                 display: none;
             }
             .defaultParam {
                 display: none;
             }
         }
+        .innerEditableRow.quoteDelim {
+            margin-bottom: 5px;
+        }
         .radioButton {
             &.unavailable {
                 pointer-events: none;
+            }
+        }
+        .exportSetting {
+            display: block;
+            &.templateRow {
+                width: 50%;
+                float: left;
+                position: relative;
+                .boxed {
+                    width: ~"calc(100% - 110px)";
+                }
+                &:nth-child(2n) {
+                    .boxed {
+                        margin-right: 15px;
+                    }
+                }
+            }
+        }
+        .exportSettingButton {
+            overflow: hidden;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            .icon {
+                font-size: 14px;
+            }
+            span {
+                margin-left: 5px;
+            }
+            .icon, span {
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+        .retinaSection {
+            &.expanded {
+                .xi-plus-circle-outline {
+                    display: none;
+                }
+                .xi-minus-circle-outline {
+                    display: inline-block;
+                }
+            }
+
+            &.collapsed {
+                .xi-plus-circle-outline {
+                    display: inline-block;
+                }
+                .xi-minus-circle-outline {
+                    display: none;
+                }
+                .exportSetting {
+                    display: none;
+                }
             }
         }
     }

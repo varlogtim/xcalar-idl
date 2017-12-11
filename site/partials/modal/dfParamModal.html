@@ -17,7 +17,7 @@
     <div class="text"><%= dicts.dfParam.instr %></div>
   </div>
   <div class="modalTopMain">
-    <div class="templateSection clearfix retinaSection">
+    <div class="templateSection clearfix retinaSection collapsed">
       <div class="heading"><%= dicts.dfParam.query %>:</div>
        <div class="templateTable">
         <div class="template flexContainer"></div>
@@ -36,13 +36,23 @@
       </div>
     </div>
     <div class="border"></div>
-    <div class="editableParamQuery retinaSection">
+    <div class="editableParamQuery retinaSection collapsed">
       <div class="heading"><%= dicts.dfParam.editParam %>:</div>
       <div class="editableTable">
-        <div class="editableRow flexContainer"></div>
+        <div class="editableRow flexContainer">
+        </div>
       </div>
-      <div class="advancedOpts">
+      <div class="heading exportSettingButton">
+        <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="" data-original-title="Toggle advanced options"></i>
+        <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="" data-original-title="Toggle advanced options"></i>
+        <span class="text"><%= dicts.dfParam.exportSetting %></span>
       </div>
+      <div class="exportSettingTable exportSetting">
+        <div class="settingRow flexContainer">
+        </div>
+      </div>
+    </div>
+    <div class="advancedOpts">
     </div>
     <!-- defaultListSection -->
     <div class="defaultListSection retinaParameter">

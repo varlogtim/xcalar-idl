@@ -45,10 +45,6 @@ window.DFParamModal = (function($, DFParamModal){
         $advancedOpts = $dfParamModal.find(".advancedOpts");
         xdpMode = XVM.getLicenseMode();
         modalHelper = new ModalHelper($dfParamModal, {
-            resizeCallback: function() {
-                var tableW = $paramLists.closest(".tableContainer").width();
-                $paramLists.width(tableW);
-            }
         });
 
         $dfParamModal.find('.cancel, .close').click(function() {
@@ -89,7 +85,9 @@ window.DFParamModal = (function($, DFParamModal){
             return (event.which !== keyCode.Enter);
         });
 
-        $dfParamModal.on("click", ".editableTable .defaultParam", function() {
+        $dfParamModal.on("click",
+            ".editableTable .defaultParam, .exportSettingTable .defaultParam",
+        function() {
             setParamDivToDefault($(this).siblings("input"));
         });
 
@@ -125,6 +123,23 @@ window.DFParamModal = (function($, DFParamModal){
             df.removeParameter(toDeleteName);
             $(this).closest(".draggableDiv").remove();
             hasChange = true;
+        });
+
+        $dfParamModal.on("click", ".xi-plus-circle-outline", function() {
+            $(this).closest(".retinaSection").removeClass("collapsed")
+            .addClass("expanded");
+            return false;
+        });
+
+        $dfParamModal.on("click", ".xi-minus-circle-outline", function() {
+            $(this).closest(".retinaSection").removeClass("expanded")
+            .addClass("collapsed");
+            return false;
+        });
+
+        $dfParamModal.on("click", ".exportSettingButton span", function() {
+            $(this).closest(".exportSettingButton").find(".icon:visible").click();
+            return false;
         });
 
         function addNewParam() {
@@ -244,6 +259,19 @@ window.DFParamModal = (function($, DFParamModal){
                 fillUpRows();
             }
         });
+
+        $dfParamModal.on("click", ".exportSettingTable .radioButton", function() {
+            var $radioButton = $(this).closest(".radioButton");
+            $radioButton.siblings().removeClass("active");
+            $radioButton.addClass("active");
+            if ($(this).closest(".radioButtonGroup").hasClass("splitRule")) {
+                if ($(this).closest(".radioButton").data("option") === "size") {
+                    $(".exportSettingTable .innerEditableRow.maxSize").removeClass("xc-hidden");
+                } else {
+                    $(".exportSettingTable .innerEditableRow.maxSize").addClass("xc-hidden");
+                }
+            }
+        });
     };
 
     DFParamModal.show = function($currentIcon) {
@@ -283,7 +311,7 @@ window.DFParamModal = (function($, DFParamModal){
         var paramValue = $currentIcon.data('paramValue');
         defaultParam = paramValue;
 
-        getExportInfo(type)
+        getExportInfo(type, dfName)
         .always(function(info) {
             // async may return after user decides to delete df while waiting
             if (DFCard.getCurrentDF() !== dfName ||
@@ -472,14 +500,21 @@ window.DFParamModal = (function($, DFParamModal){
         event.preventDefault();
     };
 
-    function getExportInfo(type) {
+    function getExportInfo(type, dfName) {
+        var deferred = jQuery.Deferred();
         if (type !== "export") {
             return PromiseHelper.resolve({});
         } else {
-            var deferred = jQuery.Deferred();
-            DSExport.getDefaultPath()
-            .then(function(path) {
-                deferred.resolve({defaultPath: path});
+            XcalarGetRetina(dfName)
+            .then(function(data){
+                if (data && data.retina && data.retina.retinaDag
+                    && data.retina.retinaDag.node
+                    && data.retina.retinaDag.node.length > 0) {
+                    var exportNode = data.retina.retinaDag.node[0];
+                    deferred.resolve($.extend({}, exportNode.input.exportInput));
+                } else {
+                    deferred.resolve();
+                }
             })
             .fail(deferred.reject);
             return deferred.promise();
@@ -577,48 +612,53 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function exportSetup() {
-        var $list = $dfParamModal.find('.tdWrapper.dropDownList');
+        $dfParamModal.find('.target .dropDownList').find('ul').html(getExportTargetList());
+        var $lists = $dfParamModal.find('.tdWrapper.dropDownList');
+        for (var i = 0; i < $lists.length; i++) {
+            var $list = $($lists[i]);
+            var dropdownHelper = new MenuHelper($list, {
+                "onSelect": function($li) {
+                    func = selectDelim($li);
+                    var $input = $li.closest('.tdWrapper.dropDownList').find("input");
+                    if (func === $.trim($input.val())) {
+                        return;
+                    }
+                    $input.val(func);
+                },
+                "onOpen": function() {
+                    var $lis = $list.find('li')
+                                    .sort(sortHTML)
+                                    .show();
+                    $lis.prependTo($list.find('ul'));
+                    $list.find('ul').width($list.width() - 1);
 
-        var dropdownHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                var func = $li.text();
-                var $input = $list.find("input.editableParamDiv");
+                    $list.find('.scrollArea.bottom').css('bottom', 1);
+                    setTimeout(function() {
+                        $list.find('.scrollArea.bottom').css('bottom', 0);
+                    });
+                },
+                "container": "#dfParamModal",
+                "bounds": "#dfParamModal .modalTopMain",
+                "bottomPadding": 2,
+                "exclude": '.draggableDiv, .defaultParam'
+            });
+            dropdownHelper.setupListeners();
+        }
 
-                if (func === $.trim($input.val())) {
-                    return;
-                }
-
-                $input.val(func);
-                updateNumArgs(func);
-            },
-            "onOpen": function() {
-                var $lis = $list.find('li')
-                                .sort(sortHTML)
-                                .show();
-                $lis.prependTo($list.find('ul'));
-                $list.find('ul').width($list.width() - 1);
-
-                $list.find('.scrollArea.bottom').css('bottom', 1);
-                setTimeout(function() {
-                    $list.find('.scrollArea.bottom').css('bottom', 0);
-                });
-            },
-            "container": "#dfParamModal",
-            "bounds": "#dfParamModal .modalTopMain",
-            "bottomPadding": 2,
-            "exclude": '.draggableDiv, .defaultParam'
-        });
-        dropdownHelper.setupListeners();
-
-        $list.find("input").change(function() {
-            var func = $.trim($(this).val());
-            updateNumArgs(func);
-        });
-
-        $list.find('ul').html(getExportTargetList());
-        var $input = $list.find("input.editableParamDiv");
-        var func = $.trim($input.val());
-        updateNumArgs(func);
+        function selectDelim($li) {
+            switch ($li.attr("name")) {
+                case "tab":
+                    return "\\t";
+                case "comma":
+                    return ",";
+                case "LF":
+                    return "\\n";
+                case "CR":
+                    return "\\r";
+                default:
+                    return $li.text();
+            }
+        }
     }
 
     // options:
@@ -683,7 +723,8 @@ window.DFParamModal = (function($, DFParamModal){
                                 '<div class="boxed large">' +
                                     xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
                                 '</div>' +
-                            '</div>';
+                            '</div>' +
+                            getDefaultExportSetting(options);
             editableText +=
                             '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
@@ -728,6 +769,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                                 tooltipCover +
                             '</div>';
+            setUpExportSettingTable(options);
         } else { // not a datastore but a table
             paramValue = paramValue[0];
             if (!checkForOneParen(paramValue)) {
@@ -805,6 +847,356 @@ window.DFParamModal = (function($, DFParamModal){
             $dfParamModal.removeClass("export");
             $advancedOpts.html("");
         }
+    }
+
+
+    function setUpExportSettingTable(options) {
+        var createRule = options.createRule;
+        var quoteDelim = options.quoteDelim;
+        var fieldDelim = options.fieldDelim;
+        var recordDelim = options.recordDelim;
+        var headerType = options.headerType;
+        var sorted = options.sorted + "";
+        var splitRule = options.splitRule;
+        // numFiles is not implemented, only maxSize matters
+        var maxSize = (options.splitSize == null) ? "" : (options.splitSize + "");
+
+        var settingText = "";
+        var createRuleOptions = {
+            "createOnly": "Create Only",
+            "createOrAppend": "Create or Append",
+            "appendOnly": "Append Only",
+            "deleteAndReplace": "deleteAndReplace"
+        };
+        var recordDelimOptions = {
+            "LF": "\\n",
+            "CR": "\\r"
+        };
+        var fieldDelimOptions = {
+            "tab": "Tab (\\t)",
+            "comma": "Comma (,)"
+        };
+        var headerTypeOptions = {
+            "every": "Every File",
+            "separate": "Separate File",
+            "none": "No Header export",
+        };
+        var sortedOptions = {
+            "true": "true",
+            "false": "false"
+        };
+        var splitRuleOptions = {
+            "none": "Multiple Files",
+            "single": "One File",
+            "size": "Set Up Split Size"
+        };
+
+        settingText += getExportSettingRadioButtonGroup(2, 'Create Rule', 'createRule', createRule, createRuleOptions) +
+                        getExportSettingInput(3, 'Record Delimeter', 'recordDelim', recordDelim, true, recordDelimOptions) +
+                        getExportSettingInput(4, 'Field Delimeter', 'fieldDelim', fieldDelim, true, fieldDelimOptions) +
+                        getExportSettingInput(5, 'Quote Character', 'quoteDelim', quoteDelim, false) +
+                        getExportSettingRadioButtonGroup(6, 'Header Type', 'headerType', headerType, headerTypeOptions) +
+                        getExportSettingRadioButtonGroup(7, 'Sorted', 'sorted', sorted, sortedOptions) +
+                        getExportSettingRadioButtonGroup(8, 'SplitRule', 'splitRule', splitRule, splitRuleOptions) +
+                        getExportSettingInput(9, 'Max Size', ((splitRule === 'size')? 'maxSize' :'maxSize xc-hidden'), maxSize, false);
+
+        $dfParamModal.find(".exportSettingTable .settingRow").html(settingText);
+
+        function getExportSettingDefault(name, defaultValue) {
+            return '<div class="templateRow">' +
+                '<div>' +
+                    name + ':' +
+                '</div>' +
+                '<div class="boxed large">' +
+                    xcHelper.escapeHTMLSpecialChar(defaultValue) +
+                '</div>' +
+            '</div>';
+        }
+
+        function getExportSettingInput(inputNum, name, className, defaultValue, hasDropDown, dropDownList) {
+            var html = '<div class="innerEditableRow ' + className + '">' +
+                        '<div class="static">' +
+                            name + ':' +
+                        '</div>';
+            var divClass = "boxed xc-input";
+            if (hasDropDown) {
+                html += '<div class="tdWrapper dropDownList boxed medium-small">';
+            } else {
+                html += '<div class="tdWrapper boxed medium-small">';
+            }
+
+            html += '<input class="' + divClass + '" ' +
+                  'data-target="' + inputNum + '" ' +
+                  'spellcheck="false" type="text" value=' + specialCharToStr(defaultValue) + '>';
+
+            if (hasDropDown) {
+                html += '<div class="list">' +
+                        '<ul>' + getDropDownList(dropDownList) +
+                        '</ul>' +
+                        '<div class="scrollArea top">' +
+                          '<i class="arrow icon xi-arrow-up"></i>' +
+                        '</div>' +
+                        '<div class="scrollArea bottom">' +
+                          '<i class="arrow icon xi-arrow-down"></i>' +
+                        '</div>' +
+                        '</div>';
+            }
+            html += '<div title="' + CommonTxtTstr.DefaultVal + '" ' +
+                    'class="defaultParam iconWrap xc-action" ' +
+                    'data-toggle="tooltip" ' +
+                    'data-placement="top" data-container="body">' +
+                        '<i class="icon xi-restore center fa-15"></i>' +
+                    '</div>' +
+                    '</div>';
+            html += '</div>';
+            return html;
+
+            function getDropDownList(dropDownList) {
+                var res = '';
+                if (dropDownList) {
+                    for (var key in dropDownList) {
+                        res += '<li name="' + key + '" class="">' + dropDownList[key] + '</li>';
+                    }
+                    return res;
+                } else {
+                    return '<li>first item</li>';
+                }
+            }
+        }
+
+        function getExportSettingRadioButtonGroup(inputNum, name, className, defaultValue, options) {
+            var html = '<div class="innerEditableRow ' + className + '"' + 'data-target="' + inputNum + '">' +
+                        '<div class="static">' +
+                            name + ':' +
+                        '</div>';
+            html +='<div class="optionBox radioButtonGroup ' + className + '">';
+            for (var key in options) {
+                var isActive = "";
+                if (key === defaultValue) {
+                    isActive = "active";
+                }
+                html += '<div class="radioButton ' + isActive + '" data-option="' + key + '">' +
+                            '<div class="radio">' +
+                                '<i class="icon xi-radio-selected"></i>' +
+                                '<i class="icon xi-radio-empty"></i>' +
+                            '</div>' +
+                            '<div class="label">' +
+                                options[key] +
+                            '</div>' +
+                        '</div>';
+            }
+            html += "</div>";
+            html += "</div>";
+            return html;
+        }
+    }
+
+    function getDefaultExportSetting(options) {
+        var createRule = options.createRule;
+        var quoteDelim = options.quoteDelim;
+        var fieldDelim = options.fieldDelim;
+        var recordDelim = options.recordDelim;
+        var headerType = options.headerType;
+        var sorted = options.sorted + "";
+        var splitRule = options.splitRule;
+        // numFiles is not implemented, only maxSize matters
+        var maxSize = (options.splitSize == null) ? "" : (options.splitSize + "");
+
+        var defaultText = '<div class="heading exportSettingButton">' +
+                          '<i class="icon xi-plus-circle-outline advancedIcon'+
+                          ' minimized" data-container="body"' +
+                          ' data-toggle="tooltip" title="" '+
+                          'data-original-title="Toggle advanced options"></i>'+
+                          '<i class="icon xi-minus-circle-outline advancedIcon'+
+                          ' minimized" data-container="body"' +
+                          ' data-toggle="tooltip" title="" '+
+                          'data-original-title="Toggle advanced options"></i>'+
+                          '<span class="text">Advance Export Settings</span>' +
+                          '</div>';
+
+        defaultText += getExportSettingDefault('Create Rule', createRule) +
+                        getExportSettingDefault('Record Delimeter', recordDelim) +
+                        getExportSettingDefault('Field Delimeter', fieldDelim) +
+                        getExportSettingDefault('Quote Character', quoteDelim) +
+                        getExportSettingDefault('Header Type', headerType) +
+                        getExportSettingDefault('Sorted', sorted) +
+                        getExportSettingDefault('SplitRule', splitRule) +
+                        getExportSettingDefault('Max Size', maxSize);
+
+        function getExportSettingDefault(name, defaultValue) {
+            return '<div class="templateRow exportSetting">' +
+                '<div>' +
+                    name + ':' +
+                '</div>' +
+                '<div class="boxed">' +
+                    specialCharToStr(defaultValue) +
+                '</div>' +
+            '</div>';
+        }
+        return defaultText;
+    }
+
+    function specialCharToStr(input) {
+        switch (input) {
+            case "\t":
+                return "\\t";
+            case '"':
+                return '&quot;';
+            case "\n":
+                return "\\n";
+            case "\r":
+                return "\\r";
+            case "'":
+                return "&apos;";
+            default:
+                return input;
+        }
+    }
+
+    function strToSpecialChar(input) {
+        switch (input) {
+            case "\\t":
+                return "\t";
+            case '\"':
+                return '"';
+            case "\'":
+                return "'";
+            case "\\n":
+                return "\n";
+            case "\\r":
+                return "\r";
+            default:
+                return input;
+        }
+    }
+
+    function getExportOptions() {
+        var exportOptions = {};
+        var prefix = ".exportSettingTable .innerEditableRow";
+        var inputSuffix = ' input';
+        var buttonSuffix = ' .radioButton.active';
+        var createRule = $dfParamModal.find(prefix + ".createRule" + buttonSuffix)
+                         .data("option");
+        var recordDelim = $dfParamModal
+                          .find(prefix + ".recordDelim" + inputSuffix).val();
+        var fieldDelim = $dfParamModal
+                         .find(prefix + ".fieldDelim" + inputSuffix).val();
+        var quoteDelim = $dfParamModal
+                         .find(prefix + ".quoteDelim" + inputSuffix).val();
+        var headerType = $dfParamModal.find(prefix + ".headerType" + buttonSuffix)
+                         .data("option");
+        var sorted = $dfParamModal.find(prefix + ".sorted" + buttonSuffix)
+                     .data("option");
+        var splitRule = $dfParamModal.find(prefix + ".splitRule" + buttonSuffix)
+                        .data("option");
+        var maxSize = $dfParamModal
+                      .find(prefix + ".maxSize" + inputSuffix).val();
+
+        exportOptions.createRule = createRule;
+        exportOptions.recordDelim = strToSpecialChar(recordDelim);
+        exportOptions.fieldDelim = strToSpecialChar(fieldDelim);
+        exportOptions.quoteDelim = strToSpecialChar(quoteDelim);
+        exportOptions.headerType = headerType;
+        exportOptions.sorted = (sorted === "true")? true : false;
+        exportOptions.splitRule = splitRule;
+        exportOptions.maxSize = (splitRule === "size") ? Number(maxSize) : null;
+        return exportOptions;
+    }
+
+    function saveExportOptions(retName, dagNodeId, options) {
+        var deferred = jQuery.Deferred();
+
+        var target = new ExExportTargetHdrT();
+        target.type = options.targetType;
+        target.name = options.targetName;
+
+        var specInput = new ExInitExportSpecificInputT();
+
+        if (target.type === ExTargetTypeT.ExTargetSFType) {
+            specInput.sfInput = new ExInitExportSFInputT();
+            specInput.sfInput.fileName = options.fileName;
+            // We only support CSV, json / sql is not supported, internal should not be exposed
+            specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+            specInput.sfInput.formatArgs = getFormatArgs(options.fieldDelim,
+                                options.recordDelim, options.quoteDelim);
+            specInput.sfInput.splitRule = getSplitRule(options.splitRule, options.maxSize);
+            specInput.sfInput.headerType = getHeaderType(options.headerType);
+
+        } else if (target.type === ExTargetTypeT.ExTargetUDFType) {
+            specInput.udfInput = new ExInitExportSFInputT();
+            specInput.udfInput.fileName = options.fileName;
+            specInput.udfInput.format = DfFormatTypeT.DfFormatCsv;
+            specInput.udfInput.formatArgs = getFormatArgs(options.fieldDelim,
+                                options.recordDelim, options.quoteDelim);
+            specInput.udfInput.headerType = getHeaderType(options.headerType);
+        }
+
+        function getFormatArgs(fieldDelim, recordDelim, quoteDelim) {
+            var formatArgs = new ExInitExportFormatSpecificArgsT();
+            formatArgs.csv = new ExInitExportCSVArgsT();
+            formatArgs.csv.fieldDelim = fieldDelim;
+            formatArgs.csv.recordDelim = recordDelim;
+            formatArgs.csv.quoteDelim = quoteDelim;
+            return formatArgs;
+        }
+
+        function getSplitRule(splitType, maxSize) {
+            var splitRule = new ExSFFileSplitRuleT();
+            switch (splitType) {
+                case "none":
+                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
+                    break;
+                case "single":
+                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitForceSingle;
+                    break;
+                case "size":
+                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitSize;
+                    splitRule.spec = new ExSFFileSplitSpecificT();
+                    splitRule.spec.maxSize = maxSize;
+                    break;
+                default:
+                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitUnknownType;
+                    break;
+            }
+            return splitRule;
+        }
+
+        function getHeaderType() {
+            switch (options.headerType) {
+                case "every":
+                    return ExSFHeaderTypeT.ExSFHeaderEveryFile;
+                case "separate":
+                    return ExSFHeaderTypeT.ExSFHeaderSeparateFile;
+                case "none":
+                    return ExSFHeaderTypeT.ExSFHeaderNone;
+                default:
+                    return ExSFHeaderTypeT.ExSFHeaderUnknownType;
+            }
+        }
+
+        var createRule = getCreateRule(options.createRule);
+        function getCreateRule(createRuleStr) {
+            switch (createRuleStr) {
+                case "createOnly":
+                    return ExExportCreateRuleT.ExExportCreateOnly;
+                case "createOrAppend":
+                    return ExExportCreateRuleT.ExExportCreateOrAppend;
+                case "appendOnly":
+                    return ExExportCreateRuleT.ExExportAppendOnly;
+                case "deleteAndReplace":
+                    return ExExportCreateRuleT.ExExportDeleteAndReplace;
+                default:
+                    return ExExportCreateRuleT.ExExportUnknownRule;
+            }
+        }
+
+        var sorted = options.sorted;
+
+        XcalarUpdateRetinaExport(retName, dagNodeId, target, specInput,
+                                  createRule, sorted)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     // returns true if exactly 1 open paren exists
@@ -1410,6 +1802,17 @@ window.DFParamModal = (function($, DFParamModal){
                 closeDFParamModal(true);
                 XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues)
                 .then(function() {
+                    if (type === "export") {
+                        var options = getExportOptions();
+                        options.fileName = paramValues.fileName;
+                        options.targetName = paramValues.targetName;
+                        options.targetType = paramValues.targetType;
+                        return saveExportOptions(retName, dagNodeId, options);
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
+                })
+                .then(function() {
                     return XcalarGetRetina(retName);
                 })
                 .then(function(retStruct) {
@@ -1419,6 +1822,7 @@ window.DFParamModal = (function($, DFParamModal){
                         "paramType": paramType,
                         "paramValue": paramQuery
                     };
+
                     deferred.resolve(paramInfo);
                 })
                 .fail(deferred.reject);
@@ -1633,11 +2037,11 @@ window.DFParamModal = (function($, DFParamModal){
                 }
                 $templateVals.eq(i).text(paramVal);
             }
-            $dfParamModal.find(".template .boxed:gt(" +
-                            (retinaNode.paramValue.length - 1) + ")").remove();
-            if ($dfParamModal.find(".template .boxed").length === 1) {
-                $dfParamModal.find(".template").find(".static").remove();
-            }
+            // $dfParamModal.find(".template .boxed:gt(" +
+            //                 (retinaNode.paramValue.length - 1) + ")").remove();
+            // if ($dfParamModal.find(".template .boxed").length === 1) {
+            //     $dfParamModal.find(".template").find(".static").remove();
+            // }
 
             var $editableDivs = $editableRow.find("input.editableParamDiv");
 

@@ -383,6 +383,7 @@ module.exports = {
     "dfParam": {
         "currParamList": "当前参数列表",
         "editParam": "参数化操作",
+        "exportSetting": "输出设置",
         "empty": "空值",
         "instr": "要将此操作转换为参数化操作，请单击\"添加新的参数化操作\"按钮，然后将参数拖放到相应的位置。",
         "param": "参数",
