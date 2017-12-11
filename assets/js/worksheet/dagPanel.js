@@ -641,21 +641,32 @@ window.DagPanel = (function($, DagPanel) {
                     title: "Editing this operation is not supported"
                 });
             } else {
-                xcTooltip.remove($menu.find(".editOp"));
-                if ($opWrap.hasClass("collapsed")) {
-                    $menu.find(".editOp").addClass("unavailable");
-                    xcTooltip.add($menu.find(".editOp"), {
-                        title: "Expand to edit operation"
+                var hasDroppedParentNoMeta = false;
+                if ($opWrap.hasClass("project")) {
+                    hasDroppedParentNoMeta = Dag.hasDroppedParentAndNoMeta($dagTable);
+                }
+
+                if (hasDroppedParentNoMeta) {
+                    xcHelper.disableMenuItem($menu.find(".editOp"), {
+                        "title": "Cannot edit operation if descendant table has been dropped"
                     });
                 } else {
-                    $menu.find(".editOp").removeClass("unavailable");
-                }
+                    xcTooltip.remove($menu.find(".editOp"));
 
-                if ($opWrap.hasClass("hasEdit")) {
-                    $menu.find(".undoEdit").removeClass("xc-hidden");
+                    if ($opWrap.hasClass("collapsed")) {
+                        $menu.find(".editOp").addClass("unavailable");
+                        xcTooltip.add($menu.find(".editOp"), {
+                            title: "Expand to edit operation"
+                        });
+                    } else {
+                        $menu.find(".editOp").removeClass("unavailable");
+                    }
+
+                    if ($opWrap.hasClass("hasEdit")) {
+                        $menu.find(".undoEdit").removeClass("xc-hidden");
+                    }
                 }
             }
-
 
             positionAndShowDagTableDropdown($opIcon, $menu, $(event.target));
             xcMenu.addKeyboardNavigation($menu);

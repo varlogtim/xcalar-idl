@@ -572,6 +572,35 @@ window.DagFunction = (function($, DagFunction) {
         return foundNode;
     }
 
+    // if a startNode has a dropped parent, we need to search all of its parents
+    // until we find one that is not dropped and add it to the startNodes list
+    function includeDroppedNodesInStartNodes(startNodes) {
+        var seen = {};
+        for (var i = 0; i < startNodes.length; i++) {
+            var node = startNodes[i];
+            var parents = node.parents;
+            for (var j = 0; j < parents.length; j++) {
+                if (parents[j].value.state !== DgDagStateT.DgDagStateReady) {
+                    findNonDroppedParent(parents[j], node);
+                }
+            }
+        }
+
+        function findNonDroppedParent(node, child) {
+            if (seen[node.value.name]) {
+                return;
+            }
+            seen[node.value.name] = true;
+            if (node.value.state === DgDagStateT.DgDagStateReady) {
+                startNodes.push(child);
+                return;
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                findNonDroppedParent(node.parents[i], node);
+            }
+        }
+    }
+
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
     DagFunction.runProcedureWithParams = function(tableName, params, newNodes, doNotRun) {
         // XXX need to handle old struct format
@@ -650,6 +679,8 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
 
+        includeDroppedNodesInStartNodes(startNodes);
+
         var involvedNames = getAllNamesFromStart(deepCopyTree, startNodes);
         if (involvedNames.length === 0) {
             console.info("No involved xids.");
@@ -709,9 +740,6 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.lockTable(tableId, txId);
 
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
-
-        console.log(JSON.parse(entireString));
-
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {

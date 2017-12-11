@@ -1021,6 +1021,24 @@ window.Dag = (function($, Dag) {
         return false;
     };
 
+    Dag.hasDroppedParentAndNoMeta = function($dagTable) {
+        var nodeId = $dagTable.data('index');
+        var idMap = $dagTable.closest(".dagWrap").data("allDagInfo")
+                                                         .nodeIdMap;
+        var node = idMap[nodeId];
+        for (var i = 0; i < node.parents.length; i++) {
+            if (node.parents[i].value.state ===
+                DgDagStateT.DgDagStateDropped) {
+                var parentName = node.parents[i].value.name;
+                var tId = xcHelper.getTableId(parentName);
+                if (!gDroppedTables[tId]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
     Dag.getTableIcon = function($dagWrap, nodeId) {
         return $dagWrap.find('.dagTable[data-index=' + nodeId + ']');
     };

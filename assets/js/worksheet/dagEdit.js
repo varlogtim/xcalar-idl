@@ -17,7 +17,9 @@ window.DagEdit = (function($, DagEdit) {
     // XXX temporary
     DagEdit.off = function() {
         $("#dagPanel").removeClass("on");
-    }
+    };
+
+    // DagEdit.on();
 
   	DagEdit.getInfo = function() {
   		return {params: params,
@@ -54,6 +56,7 @@ window.DagEdit = (function($, DagEdit) {
                 xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                                      TooltipTStr.NoUndoActiveForm);
                 StatusMessage.updateLocation(true);
+                TblManager.alignTableEls();
                 MainMenu.closeForms();
             } else {
                 isEditMode = false;
@@ -192,12 +195,12 @@ window.DagEdit = (function($, DagEdit) {
     };
 
     DagEdit.undoEdit = function(node) {
-        var linkedNodes = linkedNodes[node.value.name];
+        var lNodes = linkedNodes[node.value.name];
         var toDelete = [];
-        if (linkedNodes) {
-            for (var i = 0; i < linkedNodes.length; i++) {
-                toDelete.push(linkedNodes[i].value.name);
-                delete params[linkedNodes[i].value.name];
+        if (lNodes) {
+            for (var i = 0; i < lNodes.length; i++) {
+                toDelete.push(lNodes[i]);
+                delete params[lNodes[i].value.name];
             }
             delete linkedNodes[node.value.name];
         }

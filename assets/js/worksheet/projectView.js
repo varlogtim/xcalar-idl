@@ -43,6 +43,7 @@ window.ProjectView = (function($, ProjectView) {
         }
 
         if (options.restoreTime) {
+            $table = $('#xcTable-' + tableId);
             restoreSelectedTableCols();
         } else {
             tableId = tId;
@@ -126,22 +127,15 @@ window.ProjectView = (function($, ProjectView) {
 
         $projectView.find('.exportColumnsSection').on('click', 'li', function(event) {
             var $li = $(this);
-            var isPrefix = $li.closest(".prefixedSection").length;
+            if ($li.closest(".prefixedSection").length) {
+                focusedListNum = null;
+                focusedThNum = null;
+                return;
+            }
             var colNum = $li.data('colnum');
             var toHighlight = false;
             if (!$li.hasClass('checked')) {
                 toHighlight = true;
-            }
-
-            if (isPrefix) {
-                if (toHighlight) {
-                    selectAll(isPrefix, $li.closest(".prefixGroup"));
-                } else {
-                    deselectAll(isPrefix, $li.closest(".prefixGroup"));
-                }
-                focusedListNum = null;
-                focusedThNum = null;
-                return;
             }
 
             if (event.shiftKey && focusedListNum != null) {
@@ -241,13 +235,13 @@ window.ProjectView = (function($, ProjectView) {
             var colName = allCols[i].getFrontColName(true);
             var colNum = i + 1;
 
-            splitName = xcHelper.parsePrefixColName(colName);
             var prefix = allCols[i].getPrefix();
             if (prefix) {
+                splitName = xcHelper.parsePrefixColName(colName);
                 if (!prefixedGroups[prefix]) {
                     prefixedGroups[prefix] = {prefix: prefix, group: []};
                 }
-                prefixedGroups[prefix].group.push({colName: colName,
+                prefixedGroups[prefix].group.push({colName: splitName.name,
                                 colNum: colNum});
             } else {
                 derived.push({colName: colName,
@@ -313,10 +307,6 @@ window.ProjectView = (function($, ProjectView) {
                         'data-container="body">' +
                             group[j].colName +
                         '</span>' +
-                        '<div class="checkbox">' +
-                            '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                            '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                        '</div>' +
                     '</li>';
             }
             for (var j = 0; j < 10; j++) {
@@ -565,7 +555,17 @@ window.ProjectView = (function($, ProjectView) {
             return PromiseHelper.reject({"error": "tableNotFound"});
         }
 
-        var frontColumnNames = exportHelper.getExportColumns();
+        var frontColumnNames = exportHelper.getExportColumns(
+                                $projectView.find(".derivedSection"));
+
+        $projectView.find(".prefixGroup").each(function() {
+            var $group = $(this);
+            var prefix = $group.find(".prefixName").text();
+            $group.find("li.checked").each(function() {
+                frontColumnNames.push(prefix + gPrefixSign +
+                                      $(this).text().trim());
+            });
+        });
 
         isValid = xcHelper.validate([
             {
@@ -594,9 +594,8 @@ window.ProjectView = (function($, ProjectView) {
                 errorText = ErrTStr.SourceTableNotExists;
             }
             isValid = false;
-        }
-
-        if (!isValid) {
+            StatusBox.show(errorText,
+                           $projectView.find(".exportColumnsSection"));
             return PromiseHelper.reject({"error": "invalid input"});
         }
 
@@ -615,9 +614,7 @@ window.ProjectView = (function($, ProjectView) {
             .then(deferred.resolve)
             .fail(deferred.reject);
         }
-
-
-
     }
+
     return (ProjectView);
 }(jQuery, {}));
