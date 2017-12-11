@@ -401,7 +401,7 @@ window.DF = (function($, DF) {
             tableArray.push(retinaDstTable);
         }
 
-        return XcalarMakeRetina(retName, tableArray);
+        return XcalarMakeRetina(retName, tableArray, []);
     }
 
     // called after retina is created to update the ids of dag nodes

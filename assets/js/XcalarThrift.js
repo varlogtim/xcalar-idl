@@ -3078,18 +3078,7 @@ XcalarListFiles = function(args) {
     // }
 };
 
-// XXX TODO THIS NEEDS TO HAVE A Log.add
-// This tableArray is an array of structs.
-// Each struct is of the form: numColumns, tableName, columnNames
-// TableName is of the form namedInput columnNames is just an array of strings
-// that correspond to the column names
-// If you have 2 DFs in your DF, put the last table of both DFs into the
-// tableArray
-// When you call makeRetina, we duplicate the DAG, append an export DAG node,
-// and give it all new DagNodeIds. So when you call updateRetina, make sure to
-// pass in the DagNodeIds that are part of this new Retina instead of the
-// original DAG
-XcalarMakeRetina = function(retName, tableArray, txId) {
+XcalarSynthesize = function(srcTableName, dstTableName, columns) {
     if ([null, undefined].indexOf(tHandle) !== -1 ||
         retName === "" || retName == null ||
         tableArray == null || tableArray.length <= 0)
@@ -3102,7 +3091,41 @@ XcalarMakeRetina = function(retName, tableArray, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
-    xcalarMakeRetina(tHandle, retName, tableArray)
+        var thriftError = thriftLog("XcalarSynthesize", error);
+    xcalarMakeRetina(tHandle, srcTableName, dstTableName, columns)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarSynthesize", error);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+// XXX TODO THIS NEEDS TO HAVE A Log.add
+// This tableArray is an array of structs.
+// Each struct is of the form: numColumns, tableName, columnNames
+// TableName is of the form namedInput columnNames is just an array of strings
+// that correspond to the column names
+// If you have 2 DFs in your DF, put the last table of both DFs into the
+// tableArray
+// When you call makeRetina, we duplicate the DAG, append an export DAG node,
+// and give it all new DagNodeIds. So when you call updateRetina, make sure to
+// pass in the DagNodeIds that are part of this new Retina instead of the
+// original DAG
+XcalarMakeRetina = function(retName, tableArray, srcTables, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1 ||
+        retName === "" || retName == null ||
+        tableArray == null || tableArray.length <= 0)
+    {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+    // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
+    xcalarMakeRetina(tHandle, retName, tableArray, srcTables)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarMakeRetina", error);

@@ -653,7 +653,7 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, p
     workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
     workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
-    workItem.input.loadInput.loadArgs.maxSize = maxSize;
+    workItem.input.loadInput.loadArgs.size = maxSize;
 
     return (workItem);
 };
@@ -718,6 +718,7 @@ xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
     workItem.input.indexInput.prefix = prefix;
     workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     workItem.input.indexInput.delaySort = false;
+    workItem.input.indexInput.broadcast = false;
     return (workItem);
 };
 
@@ -2458,6 +2459,61 @@ xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
     return (deferred.promise());
 };
 
+xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(srcTableName, dstTableName, columns) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.synthesizeInput = new XcalarApiSynthesizeInputT();
+    workItem.input.synthesizeInput.source = new XcalarApiNamedInputT();
+    workItem.input.synthesizeInput.dstTable = new XcalarApiTableInputT();
+
+    workItem.api = XcalarApisT.XcalarApiSynthesize;
+    workItem.input.synthesizeInput.source.name = srcTableName;
+    workItem.input.synthesizeInput.source.isTable = true;
+    workItem.input.synthesizeInput.dstTable.tableName = dstTableName;
+    workItem.input.synthesizeInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    if (columns) {
+        workItem.input.synthesizeInput.numColumns = columns.length;
+    } else {
+        workItem.input.synthesizeInput.numColumns = 0;
+    }
+    workItem.input.synthesizeInput.columns = columns;
+    return (workItem);
+};
+
+xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName, dstTableName, columns) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiSynthesize(srcTableName = " + srcTableName +
+                    ", dstTableName = " + dstTableName + ")");
+    }
+
+    var workItem = xcalarApiSynthesizeWorkItem(srcTableName, dstTableName,
+                                               columns);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var synthesizeOutput = result.output.outputResult.synthesizeOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            synthesizeOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(synthesizeOutput);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarApiSynthesize() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarApiGetRowNumWorkItem = runEntity.xcalarApiGetRowNumWorkItem = function(srcTableName, dstTableName,
                               newFieldName) {
     var workItem = new WorkItem();
@@ -2863,7 +2919,7 @@ xcalarApiDeleteRetina = runEntity.xcalarApiDeleteRetina = function(thriftHandle,
     return (deferred.promise());
 };
 
-xcalarMakeRetinaWorkItem = runEntity.xcalarMakeRetinaWorkItem = function(retinaName, tableArray) {
+xcalarMakeRetinaWorkItem = runEntity.xcalarMakeRetinaWorkItem = function(retinaName, tableArray, srcTables) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.makeRetinaInput = new XcalarApiMakeRetinaInputT();
@@ -2874,16 +2930,23 @@ xcalarMakeRetinaWorkItem = runEntity.xcalarMakeRetinaWorkItem = function(retinaN
         workItem.input.makeRetinaInput.numTables = tableArray.length;
     }
     workItem.input.makeRetinaInput.tableArray = tableArray;
+    if (srcTables) {
+        workItem.input.makeRetinaInput.numSrcTables = srcTables.length;
+    } else {
+        workItem.input.makeRetinaInput.numSrcTables = 0;
+    }
+    workItem.input.makeRetinaInput.srcTables = srcTables;
     return (workItem);
 };
 
-xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaName, tableArray) {
+xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaName, tableArray, srcTables) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeRetina(retinaName = " + retinaName +
+                    ", srcTables = " + JSON.stringify(srcTables) +
                     ", tableArray = " + JSON.stringify(tableArray) + ")");
     }
-    var workItem = xcalarMakeRetinaWorkItem(retinaName, tableArray);
+    var workItem = xcalarMakeRetinaWorkItem(retinaName, tableArray, srcTables);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

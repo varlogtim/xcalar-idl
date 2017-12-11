@@ -1852,6 +1852,12 @@ window.Function.prototype.bind = function() {
                            "yelp/user-votes.funny-rowNum"));
     }
 
+    function testApiSynthesize(test) {
+        test.trivial(xcalarApiSynthesize(thriftHandle,
+                           "yelp/user-votes.funny-gt900",
+                           "yelp/user-votes.funny-synthesize", []));
+    }
+
     function testDestroyDatasetInUse(test) {
         xcalarDeleteDagNodes(thriftHandle, loadOutput.dataset.name, SourceTypeT.SrcDataset)
         .then(function(status) {
@@ -2089,7 +2095,6 @@ window.Function.prototype.bind = function() {
         dstTable.target = new XcalarApiNamedInputT();
         dstTable.target.name = "yelp/user-votes.funny-gt900-average";
         dstTable.target.isTable = true;
-        var innerDeferred;
         xcalarMakeRetina(thriftHandle, retinaName, [dstTable])
         .then(function(status) {
             printResult(status);
@@ -2097,27 +2102,20 @@ window.Function.prototype.bind = function() {
         })
         .fail(function(reason) {
             if (reason.xcalarStatus === StatusT.StatusRetinaAlreadyExists) {
-                innerDeferred = xcalarApiDeleteRetina(thriftHandle, retinaName);
+                console.log("Retina " + retinaName + " already exists. Deleting and trying again")
+                xcalarApiDeleteRetina(thriftHandle, retinaName)
+                .then(function() {
+                    testMakeRetina(test);
+                })
+                .fail(function(reason) {
+                    reason = "deleteRetina failed with status: " + StatusTStr[reason.xcalarStatus];
+                    test.fail(reason);
+                })
             } else {
                 reason = "makeRetina failed with status: " + StatusTStr[reason.xcalarStatus];
                 test.fail(reason);
             }
         });
-
-        if (innerDeferred) {
-            innerDeferred
-            .then(function() {
-                xcalarMakeRetina(thriftHandle, retinaName, [dstTable]);
-            })
-            .then(function(status) {
-                printResult(status);
-                test.pass();
-            })
-            .fail(function(reason) {
-                reason = "makeRetina failed with status: " + StatusTStr[reason.xcalarStatus];
-                test.fail(reason);
-            });
-        }
     }
 
     function testListRetinas(test) {
