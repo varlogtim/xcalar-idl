@@ -103,11 +103,12 @@
         // Callback function to execute when mutations are observed
         var callback = function(mutationsList) {
             if (window.isBrowserSafari) {
-                for (var mutation of mutationsList) {
+                for (var i = 0; i < mutationsList.length; i++) {
+                    var mutation = mutationsList[i];
                     if (mutation.type == 'childList') {
                         if (!$("#previewTable tbody").hasClass("patch")) {
                             console.log("patch preview!");
-                            $("#previewTable tbody").addClass("patch")
+                            $("#previewTable tbody").addClass("patch");
                             $("#previewTable").removeClass("dataTable");
                             setTimeout(function() {$("#previewTable").addClass("dataTable");}, 0);
                             break;
