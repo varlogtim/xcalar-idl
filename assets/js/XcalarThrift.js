@@ -3091,8 +3091,8 @@ XcalarSynthesize = function(srcTableName, dstTableName, columns) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
-        var thriftError = thriftLog("XcalarSynthesize", error);
-    xcalarMakeRetina(tHandle, srcTableName, dstTableName, columns)
+    var thriftError = thriftLog("XcalarSynthesize", error);
+    xcalarApiSynthesize(tHandle, srcTableName, dstTableName, columns)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSynthesize", error);
