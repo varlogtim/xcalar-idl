@@ -639,7 +639,8 @@ JoinTStr = {
 UnionTStr = {
     "ChooseType": "Select the resultant column type",
     "OneTableToUnion": "Need at least two tables to union.",
-    "Cast": "Colunms to union have different types, please select a type for the resultant column."
+    "Cast": "Colunms to union have different types, please select a type for the resultant column.",
+    "AddCol": "Click to add to the union table"
 };
 
 ExportTStr = {

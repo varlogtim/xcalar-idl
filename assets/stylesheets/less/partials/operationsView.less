@@ -2100,9 +2100,25 @@
 
 #unionView {
     @instr-h: 61px;
-    @top-h: 141px;
+    @top-h: 211px;
     @bottom-h: 121px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
+
+    .subHeading {
+        .size(@height: 30px);
+        font-weight: 600;
+        margin-top: 0;
+
+        > span {
+            .size(@height: 15px);
+            .font(@weight: 600, @line-height: 15px);
+        }
+    }
+
+    .divider {
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-border-union;
+    }
 
     .mainContent {
         overflow: hidden;
@@ -2118,12 +2134,13 @@
 
     .topSection {
         .size(@height: @top-h);
-        padding: 26px 0;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid @color-border-union;
 
         .dedup {
             .size(@height: 30px);
             margin-left: 22px;
-            margin-bottom: 25px;
 
             .header {
                 float: left;
@@ -2134,6 +2151,10 @@
             .modeList {
                 .size(@width: 200px);
             }
+        }
+
+        .divider {
+            margin: 15px 0;
         }
 
         .addTable {
@@ -2165,10 +2186,6 @@
     }
 
     .tableSection, .resultSection, .candidateSection {
-        .subHeading {
-            .size(@height: 30px);
-        }
-
         .removeTable, .addCol, .down {
             .font(@size: 8px);
             .size(@width: 20px, @height: 100%);
@@ -2202,7 +2219,7 @@
                 }
 
                 > div {
-                    .size(@height: 25px);
+                    .size(@height: 26px);
                     line-height: 25px;
                     .position(relative);
                 }
@@ -2235,17 +2252,15 @@
     }
 
     .tableSection {
+        margin-top: 26px;
         .size(@height: 50px);
-        padding-bottom: 23px;
-        border-bottom: 1px solid @color-border-union;
     }
 
     .resultSection {
-        padding: 4px 0 23px 0;
+        padding: 15px 0 15px 0;
         border-bottom: 1px solid @color-border-union;
 
         .resultCol {
-            margin-top: 19px;
             .position(relative);
 
             &.placeholder {
@@ -2276,6 +2291,7 @@
                 }
 
                 li {
+                    padding-left: 20px;
                     color: @color-bg-select-blue;
                 }
             }
@@ -2283,7 +2299,6 @@
             .resultColAction {
                 .size(@width: 40px);
                 .position(absolute, @top: 0, @left: 244px);
-
 
                 .icon {
                     display: inline-block;
@@ -2303,6 +2318,7 @@
         .inputCol {
             .text {
                 padding-right: 20px;
+                border-top: none;
             }
 
             .down {
@@ -2312,14 +2328,15 @@
     }
 
     .candidateSection {
-        padding-top: 23px;
+        padding-top: 15px;
 
         .subHeading {
-            margin-top: 0;
+            .text {
+                .size(@width: 120px);
+            }
 
-            > span {
-                .size(@height: 15px);
-                .font(@weight: 600, @line-height: 15px);
+            .qMark {
+                .position(relative, @top: -1px);
             }
         }
 
@@ -2333,6 +2350,7 @@
 
         .inputCol {
             border-top: 1px solid @color-border-union;
+            cursor: pointer;
 
             &:first-child {
                 border-top: none;
@@ -2341,7 +2359,7 @@
     }
 
     .resultSection, .candidateSection {
-        .size(@width: 100%, @min-height: 50px);
+        .size(@width: 100%);
         .flex(1 1 50px);
     }
 }

@@ -11,6 +11,9 @@
       <p class="instructions"><%= dicts.unionView.Instr %></p>
       <!-- topSection -->
       <section class="topSection">
+        <div class="subHeading clearfix">
+          <span class="text"><%= dicts.unionView.TableTitle %></span>
+        </div>
         <div class="dedup">
           <div class="header"><%= dicts.unionView.Mode %>:</div>
           <div class="dropDownList modeList">
@@ -25,22 +28,26 @@
               </ul>
             </div>
           </div>
-
         </div>
+        <div class="divider"></div>
         <button class="btn addTable"><%= dicts.unionView.AddTable %></button>
-      </section>
-      <section class="middleSection">
         <div class="tableSection">
           <div class="listSection"></div>
         </div>
+      </section>
+      <section class="middleSection">
         <!-- result part -->
         <div class="resultSection">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.unionView.ColumnTitle %></span>
+          </div>
           <div class="listSection"></div>
         </div>
         <!-- drop part -->
         <div class="candidateSection">
           <div class="subHeading clearfix">
             <span class="text"><%= dicts.unionView.CandidateTitle %></span>
+            <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.unionView.CandidateHint %>"></i>
           </div>
           <div class="listSection">
             <div class="lists"></div>
@@ -54,7 +61,7 @@
           </div>
           <input class="newTableName" type="text" required spellcheck="false" autofocus>
         </div>
-        <button type="button" class="btn center confirm"><%= dicts.unionView.Union %></button>
+        <button type="button" class="btn center confirm"><%= dicts.unionView.UnionAll %></button>
       </section>
     </div>
   </div>

@@ -27,6 +27,7 @@ window.UnionView = (function(UnionView, $) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
+            autoResizeView();
             return;
         }
         if (!restore) {
@@ -49,6 +50,7 @@ window.UnionView = (function(UnionView, $) {
         formHelper.clear();
         StatusBox.forceHide(); // hides any error boxes;
         xcTooltip.hideAll();
+        autoResizeView(true);
     };
 
     function addEvents() {
@@ -74,13 +76,14 @@ window.UnionView = (function(UnionView, $) {
             removeTable($(this).closest(".lists").index());
         });
 
-        $unionView.on("click", ".addCol", function() {
-            var $col = $(this).closest(".inputCol");
+        $unionView.on("click", ".candidateSection .inputCol", function() {
+            var $col = $(this);
             var colName = $col.find(".text").text();
             var colType = $col.data("type");
             var index = $col.closest(".lists").index();
 
             addColumn({name: colName, type: colType}, index);
+            xcTooltip.hideAll();
         });
 
         $unionView.on("click", ".removeCol", function() {
@@ -96,8 +99,10 @@ window.UnionView = (function(UnionView, $) {
         var $modeList = $unionView.find(".modeList");
         new MenuHelper($modeList, {
             onSelect: function($li) {
-                $modeList.find(".text").text($li.text());
+                var mode = $li.text();
+                $modeList.find(".text").text(mode);
                 $modeList.data("option", $li.attr("name"));
+                $unionView.find(".confirm").text(mode);
             },
             container: "#unionView",
             bounds: "#unionView"
@@ -203,13 +208,21 @@ window.UnionView = (function(UnionView, $) {
         autoResizeView();
     }
 
-    function autoResizeView() {
+    function autoResizeView(reset) {
         var $mainMenu = $("#mainMenu");
         var sectionW = parseFloat($unionView.find(".lists").eq(0).css("min-width")) + 5;
         var minWidth = parseFloat($mainMenu.css("min-width"));
-        var width = minWidth + Math.max(0, tableInfoLists.length - 2) * sectionW;
-        width = Math.min(width, $("#workspacePanel").width() * 0.5);
-        $mainMenu.width(width);
+        var width;
+        if (reset) {
+            $mainMenu.width(minWidth);
+        } else {
+            width = minWidth + Math.max(0, tableInfoLists.length - 2) * sectionW;
+            width = Math.min(width, $("#workspacePanel").width() * 0.5);
+
+            if (width > $mainMenu.width()) {
+                $mainMenu.width(width);
+            }
+        }
     }
 
     function setupDrodownList() {
@@ -223,15 +236,15 @@ window.UnionView = (function(UnionView, $) {
                 onSelect: function($li) {
                     var tableName = $li.text();
                     var $text = $dropDownList.find(".text");
-                    if (tableName === $text.text()) {
+                    if (tableName === $text.val()) {
                         return;
                     }
-                    $text.text(tableName);
+                    $text.val(tableName);
                     selectTable($li.data("id"), $li.closest(".lists").index());
                     xcTooltip.hideAll();
                 },
-                container: "#unionView .middleSection",
-                bounds: "#unionView .middleSection"
+                container: "#unionView",
+                bounds: "#unionView"
             }).setupListeners();
         });
 
@@ -296,9 +309,8 @@ window.UnionView = (function(UnionView, $) {
                     '<div class="dropDownList unionTableList">' +
                         '<i class="removeTable icon xi-close-no-circle ' +
                         'xc-action"></i>' +
-                        '<div class="text">' +
-                            tableName +
-                        '</div>' +
+                        '<input class="text" value="' + tableName + '" ' +
+                        'placeholder="' + SideBarTStr.SelectTable + '">' +
                         '<div class="iconWrapper">' +
                             '<i class="icon xi-arrow-down"></i>' +
                         '</div>' +
@@ -394,8 +406,10 @@ window.UnionView = (function(UnionView, $) {
                             '</div>' +
                             '<i class="down icon xi-arrow-down xc-action"></i>';
             } else {
-                innerHTML = '<div class="text"></div>' +
-                            '<i class="down icon xi-arrow-down xc-action"></i>';
+                innerHTML = '<div class="text"></div>';
+                if (tableId != null) {
+                    innerHTML += '<i class="down icon xi-arrow-down xc-action"></i>';
+                }
             }
 
             if (tableId != null) {
@@ -431,7 +445,11 @@ window.UnionView = (function(UnionView, $) {
                 var colType = col.type;
                 var colName = col.name;
                 return '<div class="inputCol" data-type="' + colType + '">' +
-                            '<i class="addCol icon xi-plus xc-action"></i>' +
+                            '<i class="addCol icon xi-plus"' +
+                            ' data-toggle="tooltip" data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="' + UnionTStr.AddCol + '"' +
+                            '></i>' +
                             '<div class="text textOverflowOneLine"' +
                             ' tooltipOverflow"' +
                             ' data-toggle="tooltip" data-container="body"' +
@@ -551,7 +569,7 @@ window.UnionView = (function(UnionView, $) {
 
         var tableNameValids = [];
         $unionTableList.each(function() {
-            tableNameValids.push({$ele: $(this)});
+            tableNameValids.push({$ele: $(this).find(".text")});
         });
         if (!xcHelper.validate(tableNameValids)) {
             return false;

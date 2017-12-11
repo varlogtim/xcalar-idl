@@ -539,6 +539,12 @@ JoinTStr = {
                            "every record on the right table",
 'MismatchDetail': '无法连接类型为<type1>和<type2>的列'
 };
+UnionTStr = {
+"ChooseType": "选择结果列的类型",
+"OneTableToUnion": "需要至少两张表才能合并",
+"Cast": "进行合并的列类型不同，请选择结果列的类型。"
+"AddCol": "点击添加列至合并表"
+};
 ExportTStr = {
 'Success': '导出成功',
 'InvalidType': '选择无效类型',
