@@ -412,8 +412,9 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         $form.find(".params .formRow").each(function() {
             var $param = $(this);
-            var $input = $(this).find("input:not(.optional)");
-            if ($input.length) {
+            var $input = $(this).find("input");
+            if ($input.length &&
+                (!$input.hasClass("optional") || $input.val().trim() !== "")) {
                 eles.push({$ele: $input});
                 targetParams[$param.find("label").data("name")] = $input.val();
             }

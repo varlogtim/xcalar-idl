@@ -868,7 +868,7 @@ describe("Dataset-DSObj Test", function() {
             DS.focusOn = oldFunc;
         });
 
-        it("Should click .delete to delte folder/ds", function() {
+        it("Should click .delete to delete folder/ds", function() {
             var oldFunc = DS.remove;
             var test = false;
             DS.remove = function() {
@@ -885,7 +885,7 @@ describe("Dataset-DSObj Test", function() {
             DS.remove = oldFunc;
         });
 
-        it("Should click .multiDelete to delte folder/ds", function() {
+        it("Should click .multiDelete to delete folder/ds", function() {
             var oldFunc = DS.remove;
             var test = false;
             DS.remove = function() {

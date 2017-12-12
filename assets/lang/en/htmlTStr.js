@@ -558,7 +558,7 @@ module.exports = {
         "AdditionalInfo": "Additional Information",
         "TargetInfo": "Data Target Information",
         "TargetInfoInstr": "Details about the selected data target are provided below. To create a new target, click the button on the top left corner of the left panel.",
-        "DELETETARGET": "DELTE TARGET"
+        "DELETETARGET": "DELETE TARGET"
     },
 
     // keep in sync with the FileProtocol in enums.js
