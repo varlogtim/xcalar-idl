@@ -1805,7 +1805,7 @@ XcalarGetConstants = function(constantName) {
     return (deferred.promise());
 };
 
-XcalarGetTables = function(tableName, sessionName) {
+XcalarGetTables = function(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1822,7 +1822,7 @@ XcalarGetTables = function(tableName, sessionName) {
         patternMatch = tableName;
     }
 
-    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable, sessionName)
+    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarGetTables", error);
@@ -2945,7 +2945,7 @@ XcalarCancelOp = function(dstTableName, statusesToIgnore) {
 
 };
 
-XcalarGetDag = function(tableName, sessionName) {
+XcalarGetDag = function(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2955,7 +2955,7 @@ XcalarGetDag = function(tableName, sessionName) {
         return (deferred.promise());
     }
 
-    xcalarDag(tHandle, tableName, sessionName)
+    xcalarDag(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarGetDag", error);

@@ -98,8 +98,9 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
 
         $workbookPreview.addClass("loading");
+        setSessionName(workbookName);
 
-        XcalarGetTables("*", workbookName)
+        XcalarGetTables("*")
         .then(function(res) {
             nodeInfo = res.nodeInfo;
             return getTableKVStoreMeta(workbookId);
@@ -124,6 +125,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                 $workbookPreview.removeClass("loading");
             }
         });
+
+        setSessionName("");
         return deferred.promise();
     }
 
@@ -335,6 +338,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         $workbookPreview.addClass("dagMode")
                         .find(".dagSection").append($dagWrap);
 
+        setSessionName(workbookName);
+
         XcalarGetDag(tableName, workbookName)
         .then(function(dagObj) {
             if (curId === id) {
@@ -356,6 +361,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             }
             deferred.reject(error);
         });
+
+        setSessionName("");
         return deferred.promise();
     }
 
