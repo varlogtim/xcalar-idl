@@ -253,7 +253,7 @@
             <span>Configure Parameters for LDAP</span>
           </div>
         </div>
-      <div class="section ldapSection radioButtonGroup" id="ldapDeployChoice">
+        <div class="section ldapSection radioButtonGroup" id="ldapDeployChoice">
           <div class="radioButton active noPreConfig" data-option="xcalarLdap">
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
@@ -321,6 +321,31 @@
               <div class="inputWrap">
                 <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
                 <div class="bar">Server Key File</div>
+              </div>
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Xce User]">
+                <div class="bar">AD User Group</div>
+              </div>
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Xce Admin]">
+                <div class="bar">AD Admin Group</div>
+              </div>
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[]">
+                <div class="bar">AD Domain</div>
+              </div>
+            </div>
+            <div>
+              <div class="checkboxLine">
+                <div class="checkbox adSubGroupTree">
+                  <i class="icon xi-ckbox-empty"></i>
+                  <i class="icon xi-ckbox-selected"></i>
+                </div>
+              </div>
+              <div class="label">
+                <div class="name">
+                  Enable Group Subtree Search
+                </div>
               </div>
             </div>
             <div class="hint">

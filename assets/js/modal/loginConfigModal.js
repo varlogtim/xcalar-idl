@@ -57,12 +57,18 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $("#loginConfigLdapSearchFilter").val(ldapConfig.searchFilter);
             $("#loginConfigLdapServerKeyFile").val(ldapConfig.serverKeyFile);
 
-            if (ldapConfig.useTLS === "true") {
+            if (ldapConfig.useTLS) {
                 $("#loginConfigLdapEnableTLS").addClass("checked");
             }
 
-            if (ldapConfig.activeDir === "true") {
+            if (ldapConfig.activeDir) {
                 $("#ldapChoice").find(".radioButton").eq(0).click();
+                $("#loginConfigADUserGroup").val(ldapConfig.adUserGroup);
+                $("#loginConfigADAdminGroup").val(ldapConfig.adAdminGroup);
+                $("#loginConfigADDomain").val(ldapConfig.adDomain);
+                if (loginConfig.adSubGroupTree) {
+                    $("#loginConfigEnableADGroupChain").addClass("checked");
+                }
             } else {
                 $("#ldapChoice").find(".radioButton").eq(1).click();
             }
@@ -75,6 +81,10 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         $modal.find(".loginSectionToggle").click(function() {
             $(this).find(".checkbox").toggleClass("checked");
             $(this).next().toggleClass("xc-hidden");
+        });
+
+        $("#loginConfigEnableADGroupChain").click(function() {
+            $(this).toggleClass("checked");
         });
 
         $("#loginConfigLdapEnableTLS").click(function() {
@@ -161,12 +171,17 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function submitLdapConfig() {
         var deferred = jQuery.Deferred();
         var ldapConfigEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox").hasClass("checked");
-        var activeDir = (ldapChoice === "ad") ? "true" : "false";
+        var activeDir = (ldapChoice === "ad") ? true : false;
         var ldap_uri = $("#loginConfigLdapUrl").val();
         var userDN = $("#loginConfigLdapUserDn").val();
         var searchFilter = $("#loginConfigLdapSearchFilter").val();
-        var enableTLS = $("#loginConfigLdapEnableTLS").hasClass("checked") ? "true" : "false";
+        var enableTLS = $("#loginConfigLdapEnableTLS").hasClass("checked") ? true : false;
         var serverKeyFile = $("#loginConfigLdapServerKeyFile").val();
+        var adUserGroup = $("#loginConfigADUserGroup").val();
+        var adAdminGroup = $("#loginConfigADAdminGroup").val();
+        var adDomain = $("#loginConfigADDomain").val();
+        var adSubGroupTree =
+            $("#loginConfigEnableADGroupChain").hasClass("checked") ? true : false;
 
         if (ldapConfig == null) {
             if (ldapConfigEnabled) {
@@ -182,9 +197,14 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             ldapConfig.userDN !== userDN ||
             ldapConfig.searchFilter !== searchFilter ||
             ldapConfig.enableTLS !== enableTLS ||
-            ldapConfig.serverKeyFile !== serverKeyFile)
+            ldapConfig.serverKeyFile !== serverKeyFile ||
+            ldapConfig.adUserGroup !== adUserGroup ||
+            ldapConfig.adAdminGroup !== adAdminGroup ||
+            ldapConfig.adDomain !== adDomain ||
+            ldapConfig.adSubGroupTree !== adSubGroupTree)
         {
-            setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter, activeDir, serverKeyFile)
+            setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter,
+                          activeDir, serverKeyFile, adUserGroup, adAdminGroup, adDomain, adSubGroupTree)
             .then(deferred.resolve)
             .fail(function(errorMsg) {
                 deferred.reject(errorMsg, true);

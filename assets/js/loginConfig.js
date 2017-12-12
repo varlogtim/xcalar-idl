@@ -162,7 +162,8 @@ function getDefaultAdminConfig(hostname) {
     return deferred.promise();
 }
 
-function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, searchFilter, activeDir, serverKeyFile) {
+function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, searchFilter,
+                       activeDir, serverKeyFile, adUserGroup, adAdminGroup, adDomain, adSubGroupTree) {
     var deferred = jQuery.Deferred();
     var ldapConfigOut = {
         ldapConfigEnabled: ldapConfigEnabledIn,
@@ -171,8 +172,23 @@ function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, 
         useTLS: useTLS,
         searchFilter: searchFilter,
         activeDir: activeDir,
-        serverKeyFile: serverKeyFile
+        serverKeyFile: serverKeyFile,
     };
+
+    if (ldapConfigOut.activeDir) {
+        ldapConfigOut.adUserGroup = adUserGroup;
+        ldapConfigOut.adAdminGroup = adAdminGroup;
+        ldapConfigOut.adDomain = adDomain;
+        ldapConfigOut.adSubGroupTree = adSubGroupTree;
+    } else {
+        var propArray = [ 'adUserGroup', 'adAdminGroup',
+                          'adDomain', 'adSubGroupTree' ];
+        for (var ii = 0; ii < propArray.length; ii++) {
+            if (ldapConfigOut.hasOwnProperty(propArray[ii])) {
+                delete ldapConfigOut[propArray[ii]];
+            }
+        }
+    }
 
     $.ajax({
         "type": "POST",

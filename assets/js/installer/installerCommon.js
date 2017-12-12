@@ -34,8 +34,12 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "searchFilter": "g",      // only when xcalarInstall is false
                 "serverKeyFile": "h",     // only when xcalarInstall is false
                 "activeDir": "i",         // only when xcalarInstall is false
-                "useTLS": "j"             // only when xcalarInstall is false
-                "ldapConfigEnabled": "k"  // only when xcalarInstall is false
+                "useTLS": "j",            // only when xcalarInstall is false
+                "ldapConfigEnabled": "k", // only when xcalarInstall is false
+                "adUserGroup": "l",       // only when xcalarInstall is false and activeDir is true
+                "adAdminGroup: "m",       // only when xcalarInstall is false and activeDir is true
+                "adDomain": "n",          // only when xcalarInstall is false and activeDir is true
+                "adSubGroupTree": "o"     // only when xcalarInstall is false and activeDir is true
             }
         }
 
@@ -43,10 +47,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         {"discoverResult": {"hosts": ['fake host 1'],
                             "privHosts": ['fake priv host 1'],
                             "ldapConfig": {
-                                            "activeDir": "false",
+                                            "activeDir": false,
                                             "searchFilter": "(memberof=cn=xceUsers,ou=Groups,dc=xcalar,dc=com)",
                                             "userDN": "mail=%username%,ou=People,dc=xcalar,dc=com",
-                                            "useTLS": "true",
+                                            "useTLS": true,
                                             "serverKeyFile": "/opt/ca/ldap.cert",
                                             "ldap_uri": "ldap://127.0.0.1:389",
                                             "xcalarInstall": false
@@ -402,11 +406,18 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         var $params = $form.find(".ldapParams:visible");
         // Check that all fields are populated
         var allPopulated = true;
-        $params.find("input").each(function(idx, val) {
-            if ($.trim($(val).val()).length === 0) {
+
+        // $params.find("input").each(function(idx, val) {
+        //     if ($.trim($(val).val()).length === 0) {
+        //         allPopulated = false;
+        //     }
+        // });
+
+        for (i = 0; i < 4; i += 1) {
+            if ($.trim($params.find("input").eq(i).val()).length === 0) {
                 allPopulated = false;
             }
-        });
+        }
 
         if (!allPopulated) {
             return deferred.reject("Blank arguments",
@@ -446,11 +457,29 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     "searchFilter": getVal($params.find("input").eq(2)),
                     "serverKeyFile": getVal($params.find("input").eq(3)),
                     "activeDir": $form.find("#ADChoice .radioButton.active")
-                                      .data("option"),
+                                       .data("option"),
                     "useTLS": $form.find("#TLSChoice .radioButton.active")
                                    .data("option"),
                     "ldapConfigEnabled": true
                 };
+                if (res.ldap.activeDir) {
+                    for (i = 4; i < 7; i += 1) {
+                        if ($.trim($params.find("input").eq(i).val()).length === 0) {
+                            allPopulated = false;
+                        }
+                    }
+
+                    if (!allPopulated) {
+                        return deferred.reject("Blank arguments",
+                                               "Please populate all fields").promise();
+                    }
+
+                    res.ldap.adUserGroup = getVal($params.find("input").eq(4));
+                    res.ldap.adAdminGroup = getVal($params.find("input").eq(5));
+                    res.ldap.adDomain = getVal($params.find("input").eq(6));
+                    res.ldap.adSubGroupTree = $form.find(".checkbox.adSubGroupTree")
+                        .hasClass("checked");
+                }
                 deferred.resolve(res);
             }
         }

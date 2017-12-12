@@ -25,6 +25,7 @@ var waadFieldsRequired = [ "tenant", "clientId", "waadEnabled" ];
 var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
 var ldapConfigFieldsRequired = [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ];
+var ldapConfigFieldsAdOptional = [ "adUserGroup", "adAdminGroup", "adDomain", "adSubGroupTree" ];
 var ldapConfig;
 var trustedCerts;
 
@@ -264,14 +265,14 @@ function writeToFile(filePath, fileContents, fileOptions) {
             return deferred.promise();
         }
 
-        console.log("Successfully wrote " + JSON.stringify(fileContents) + " to " + filePath)
+        console.log("Successfully wrote " + JSON.stringify(fileContents, null, 2) + " to " + filePath)
         deferred.resolve();
     }
 
     if (fileOptions == null) {
-        fs.writeFile(filePath, JSON.stringify(fileContents), callback);
+        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), callback);
     } else {
-        fs.writeFile(filePath, JSON.stringify(fileContents), fileOptions, callback);
+        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), fileOptions, callback);
     }
 
     return deferred.promise();
@@ -334,6 +335,12 @@ function setLdapConfig(ldapConfigIn) {
                     throw "Invalid ldapConfig provided"
                 }
                 ldapConfigOut[ldapConfigFieldsRequired[ii]] = ldapConfigIn[ldapConfigFieldsRequired[ii]];
+            }
+
+            for (var ii = 0; ii < ldapConfigFieldsAdOptional.length; ii++) {
+                if (ldapConfigIn.hasOwnProperty(ldapConfigFieldsAdOptional[ii])) {
+                    ldapConfigOut[ldapConfigFieldsAdOptional[ii]] = ldapConfigIn[ldapConfigFieldsAdOptional[ii]];
+                }
             }
         } catch (error) {
             return jQuery.Deferred().reject(error).promise();
@@ -435,26 +442,45 @@ function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
 
     ldapConn.userDN = ldapConfig.userDN;
     ldapConn.searchFilter = ldapConfig.searchFilter;
-    ldapConn.activeDir = (ldapConfig.activeDir === 'true');
-    ldapConn.useTLS = (ldapConfig.useTLS === 'true');
-
-    ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup"))
-                                    ? ldapConfig.adUserGroup
-                                    : "Xce User";
-
-    ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup"))
-                                    ? ldapConfig.adAdminGroup
-                                    : "Xce Admin";
+    ldapConn.activeDir = ldapConfig.activeDir;
+    ldapConn.useTLS = ldapConfig.useTLS;
+    ldapConn.useSubGroupTree = false;
 
     ldapConn.client = ldap.createClient({
         url: ldapConn.client_url,
         timeout: 10000,
         connectTimeout: 20000
     });
-    if ((ldapConn.activeDir) && (ldapConfig.hasOwnProperty("adDomain")) &&
-        (ldapConn.username.indexOf("@") <= -1)) {
-        ldapConn.username = ldapConn.username + "@" + ldapConfig.adDomain;
+
+    if (ldapConn.activeDir) {
+        ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup"))
+                                    ? ldapConfig.adUserGroup
+                                    : "Xce User";
+
+        ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup"))
+                                    ? ldapConfig.adAdminGroup
+                                    : "Xce Admin";
+
+        if ((ldapConfig.hasOwnProperty("adDomain")) &&
+            (ldapConn.username.indexOf("@") <= -1)) {
+            ldapConn.username = ldapConn.username + "@" + ldapConfig.adDomain;
+        }
+
+        if (ldapConn.username.indexOf("@") > -1) {
+            ldapConn.shortName = ldapConn.username.substring(0, ldapConn.username.indexOf("@"));
+        } else {
+            ldapConn.shortName = ldapConn.username;
+        }
+
+        if (ldapConfig.hasOwnProperty("adSubGroupTree")) {
+            ldapConn.useSubGroupTree = ldapConfig.adSubGroupTree;
+        }
+
+    } else {
+        ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
+        ldapConn.username = ldapConn.userDN;
     }
+
     var searchFilter = (ldapConn.searchFilter !== "")
                      ? ldapConn.searchFilter.replace('%username%',ldapConn.username)
                      : undefined;
@@ -466,10 +492,7 @@ function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
         scope: 'sub',
         attributes: activeDir
     };
-    if (!ldapConn.activeDir) {
-        ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
-        ldapConn.username = ldapConn.userDN;
-    }
+
     // Use TLS Protocol
     if (ldapConn.useTLS) {
         var tlsOpts = {
@@ -492,6 +515,8 @@ function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     return deferred.promise();
 }
 
+
+
 function ldapAuthentication(ldapConn, loginId) {
     // LDAP Authentication
     var deferred = jQuery.Deferred();
@@ -500,6 +525,8 @@ function ldapAuthentication(ldapConn, loginId) {
         if (error) {
             xcConsole.log("Failure: Binding process " + error.message);
             increaseLoginId();
+            ldapConn.hasBind = false;
+            ldapConn.client.unbind();
             deferred.reject("ldapAuthentication fails");
         } else {
             xcConsole.log('Success: Binding process finished!');
@@ -508,7 +535,8 @@ function ldapAuthentication(ldapConn, loginId) {
                     xcConsole.log('Searching entries.....');
                     try {
                         writeEntry(entry, loginId, ldapConn.activeDir,
-                                   ldapConn.adUserGroup, ldapConn.adAdminGroup);
+                                   ldapConn.adUserGroup, ldapConn.adAdminGroup,
+                                   ldapConn.useSubGroupTree);
                     } catch (error) {
                         xcConsole.log('Failure: Writing entry ' + error);
                         deferred.reject("ldapAuthentication fails");
@@ -522,7 +550,6 @@ function ldapAuthentication(ldapConn, loginId) {
 
                 search.on('end', function() {
                     xcConsole.log('Success: Search process finished!');
-                    ldapConn.client.unbind();
                     deferred.resolve('ldapAuthentication succeeds', loginId);
                 });
             });
@@ -531,7 +558,64 @@ function ldapAuthentication(ldapConn, loginId) {
     return deferred.promise();
 }
 
-function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
+function ldapGroupRetrieve(ldapConn, groupType, loginId) {
+    var deferred = jQuery.Deferred();
+
+    if (!(ldapConn.hasBind) || !(ldapConn.activeDir) ||
+        !(ldapConn.useSubGroupTree)) {
+        deferred.resolve('No group retrieval needed for ' + groupType);
+    } else {
+        searchFilter = '';
+        sAMAFilter = '(sAMAccountName=' + ldapConn.shortName + ')';
+
+        if (groupType === 'user') {
+            searchFilter = "(&(objectCategory=Person)" + sAMAFilter +
+                "(memberOf:1.2.840.113556.1.4.1941:=" + ldapConn.adUserGroup + "))";
+        } else if (groupType === 'admin') {
+            searchFilter = "(&(objectCategory=Person)" + sAMAFilter +
+                "(memberOf:1.2.840.113556.1.4.1941:=" + ldapConn.adUserGroup + "))";
+        } else {
+            deferred.reject("Unknown group retrieve type: " + groupType);
+        }
+
+        groupSearchOpts = {
+            filter: searchFilter,
+            scope: 'sub',
+            attributes: 'sAMAccountName'
+        };
+
+        ldapConn.client.search(ldapConn.userDN, groupSearchOpts, function(error, search) {
+
+            search.on('searchEntry', function(entry) {
+                xcConsole.log('Searching entries.....');
+                var user = users.get(loginId);
+
+                if (groupType === 'user') {
+                    xcConsole.log('User ' + ldapConn.shortName + ' found in user group');
+                    user.setIsADUser(true);
+                } else if (groupType === 'admin') {
+                    xcConsole.log('User ' + ldapConn.shortName + ' found in admin group');
+                    user.setIsADUser(true);
+                    user.setEmployeeType("administrator");
+                }
+            });
+
+            search.on('error', function(error) {
+                xcConsole.log('Failure: Group searching process ' + error.message);
+                deferred.reject("Group search process fails " + groupType);
+            });
+
+            search.on('end', function() {
+                xcConsole.log('Success: Search process finished!');
+                deferred.resolve('Group search process succeeds for ' + groupType, loginId);
+            });
+        });
+    }
+
+    return deferred.promise();
+}
+
+function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGroupSubtree) {
     if (entry.object) {
         var entryObject = entry.object;
         var user = users.get(loginId);
@@ -541,20 +625,25 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
         if (activeDir) {
             user.setEmployeeType("user");
             user.setIsADUser(false);
-            // For normal user, memberOf is a String
-            if (typeof(entryObject.memberOf) === "string") {
-                entryObject.memberOf = [entryObject.memberOf];
-            }
-            var array = entryObject.memberOf;
-            for (var i = 0; i < array.length; i++) {
-                var element =  array[i];
-                var admin_re = new RegExp("^CN=" + adAdminGroup + "*");
-                if (admin_re.test(element)) {
-                    user.setEmployeeType("administrator");
+            // if useGroupSubtree is set, we need to query the ldap,
+            // so we set membership in ldapGroupRetrieve
+            if (!useGroupSubtree) {
+                // For normal user, memberOf is a String
+                if (typeof(entryObject.memberOf) === "string") {
+                    entryObject.memberOf = [entryObject.memberOf];
                 }
-                var user_re = new RegExp("^CN=" + adUserGroup + "*");
-                if (user_re.test(element)) {
-                    user.setIsADUser(true);
+                var array = entryObject.memberOf;
+                for (var i = 0; i < array.length; i++) {
+                    var element =  array[i];
+                    var admin_re = new RegExp("^CN=" + adAdminGroup + "*");
+                    if (admin_re.test(element)) {
+                        user.setIsADUser(true);
+                        user.setEmployeeType("administrator");
+                    }
+                    var user_re = new RegExp("^CN=" + adUserGroup + "*");
+                    if (user_re.test(element)) {
+                        user.setIsADUser(true);
+                    }
                 }
             }
         } else {
@@ -609,6 +698,12 @@ function ldapLogin(credArray) {
     })
     .then(function() {
         return ldapAuthentication(ldapConn, globalLoginId);
+    })
+    .then(function() {
+        return ldapGroupRetrieve(ldapConn, 'user', globalLoginId);
+    })
+    .then(function() {
+        return ldapGroupRetrieve(ldapConn, 'admin', globalLoginId);
     })
     .then(function(message, currLoginId) {
         increaseLoginId();

@@ -101,6 +101,31 @@
             <input id="loginConfigLdapServerKeyFile" type="text" class="xc-input">
           </div>
         </div>
+        <div class="clearfix">
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adUserGroup %></div>
+            <input id="loginConfigADUserGroup" type="text" class="xc-input">
+          </div>
+          <div class="formBiRow">
+            <div class="label"><%= dicts.loginConfig.adAdminGroup %></div>
+            <input id="loginConfigADAdminGroup" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="formRow">
+            <div class="label"><%= dicts.loginConfig.adDomain %></div>
+            <input id="loginConfigADDomain" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="optionSet formRow">
+          <div class="label"><%= dicts.loginConfig.enableADGroupChain %></div>
+          <div class="optionSelector">
+            <div id="loginConfigEnableADGroupChain" class="checkbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
+          </div>
+        </div>
         <div class="optionSet formRow">
           <div class="label"><%= dicts.loginConfig.enableTLS %></div>
           <div class="optionSelector">

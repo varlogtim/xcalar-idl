@@ -14,6 +14,13 @@ window.Installer = (function(Installer, $) {
             }
         });
 
+        $forms.find(".checkbox.adSubGroupTree").click(function() {
+            // If option is the same as before, ignore and return
+            $(this).toggleClass("checked");
+            return false;
+        });
+
+
         $("#hostForm .btn.servers").on("click", function() {
             var $form = $(this).closest("form");
             generateHostFields($form);
