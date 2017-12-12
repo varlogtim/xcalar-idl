@@ -1,5 +1,6 @@
 genHTML = require('./site/render/genHTML.js');
 genCtor = require('./site/render/genConstructor.js');
+removeDebug = require('./site/render/removeDebug.js');
 exec = require('child_process').exec;
 tmpDest = 'site/tmp';
 prettifyOptions = {
@@ -232,6 +233,10 @@ module.exports = function(grunt) {
       }
       done();
     });
+  });
+
+  grunt.registerTask('removeDebug', function() {
+    removeDebug();
   });
 
 

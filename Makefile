@@ -22,6 +22,8 @@ all: generateHtml build prod alert
 
 installer: generateHtml build prod removeConfig
 
+rc: generateHtml build removeDebug prod removeConfig
+
 trunk: generateHtml thriftSync thriftAlert removeConfig
 
 debug: generateHtml build debug removeConfig
@@ -57,12 +59,16 @@ build: $(DESTDIR) generateHtml
 	@cd $(DESTDIR)/$(PRODUCTNAME)/assets/python && python2.7 genHelpAnchors.py
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/autoGenFiles.sh
 
+removeDebug: $(DESTDIR) generateHtml build
+	@echo "=== Removing DEBUG code from js files ==="
+	cd $(DESTDIR)/$(PRODUCTNAME) && grunt removeDebug
+
 prod: $(DESTDIR) generateHtml build
 	@echo "=== Minifying ==="
 	cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/minify.sh
 	@echo "=== Running python build.py ==="
 	@cd $(DESTDIR)/$(PRODUCTNAME) && python2.7 assets/python/build.py
-
+	@echo "=== Finalizing ==="
 	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/$(PRODUCTNAME)/*
 	@echo "=== Done building ==="
 

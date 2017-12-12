@@ -83,12 +83,12 @@ $(document).ready(function() {
             return;
         }
 
-        // console.log("username:", username);
         var pass = $('#loginPasswordBox').val().trim();
         var str = {"xipassword": pass, "xiusername": username};
-
+/** START DEBUG ONLY **/
         if (gLoginEnabled) {
             isSubmitDisabled = true;
+/** END DEBUG ONLY **/
             $.ajax({
                 "type": "POST",
                 "data": JSON.stringify(str),
@@ -112,16 +112,16 @@ $(document).ready(function() {
                     }
                 },
                 "error": function(error) {
-                    //Auth server probably down or something. Just let them in
-                    console.log(error);
-                    submit();
+                    alert("Your authentication server has not been set up " +
+                          "correctly. Please contact support@xcalar.com or " +
+                          "your Xcalar sales representative.");
                 }
             });
-
+/** START DEBUG ONLY **/
         } else {
             submit();
         }
-
+/** END DEBUG ONLY **/
         function submit() {
             isSubmitDisabled = false;
             xcSessionStorage.setItem("xcalar-username", username);
