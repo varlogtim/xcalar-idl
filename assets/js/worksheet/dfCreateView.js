@@ -13,6 +13,9 @@ window.DFCreateView = (function($, DFCreateView) {
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
+    var srcRefCounts = {}; // counts how many times a table is included as a descedant
+    var srcMap = {}; // map of src tables and their descendants
+    var $curDagWrap;
 
     DFCreateView.setup = function() {
         $dfView = $('#dfCreateView');
@@ -215,7 +218,18 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function getSelectedTables() {
         var tables = [];
-        $dfView.find(".tableList .text").each(function() {
+        $dfView.find(".group .tableList .text").each(function() {
+            var val = $.trim($(this).val());
+            if (val.length) {
+                tables.push(val);
+            }
+        });
+        return tables;
+    }
+
+    function getSelectedSrcTables() {
+        var tables = [];
+        $dfView.find(".sourceTableWrap .tableList .text").each(function() {
             var val = $.trim($(this).val());
             if (val.length) {
                 tables.push(val);
@@ -329,7 +343,7 @@ window.DFCreateView = (function($, DFCreateView) {
             submitForm();
         });
 
-        setupTableList();
+        setupTableList($dfView.find(".group").last());
 
         $dfView.on("click", ".focusTable", function() {
             var tableId = $(this).closest(".group").attr("data-id");
@@ -338,7 +352,7 @@ window.DFCreateView = (function($, DFCreateView) {
             }
         });
 
-        $dfView.on("change", ".tableList .text", function() {
+        $dfView.on("change", ".group .tableList .text", function() {
             var $input = $(this);
             var tableName = $.trim($input.val());
             var tableId = xcHelper.getTableId(tableName);
@@ -368,7 +382,10 @@ window.DFCreateView = (function($, DFCreateView) {
             }
         });
 
-        $dfView.on("blur", ".tableList .text", function() {
+        // need this because mousedown on dataflow table triggers a change,
+        // which can cause a status box but the mouseup causes the status
+        // box to close so we open again with the blur event
+        $dfView.on("blur", ".group .tableList .text", function() {
             var $input = $(this);
             var tableName = $.trim($input.val());
             var tableId = xcHelper.getTableId(tableName);
@@ -379,6 +396,67 @@ window.DFCreateView = (function($, DFCreateView) {
                     StatusBox.show(DFTStr.TableAlreadySelected, $input, true);
                     return;
                 }
+            }
+        });
+
+        $dfView.on("change", ".sourceTableWrap .tableList .text", function() {
+            var $input = $(this);
+            var tableName = $.trim($input.val());
+
+            if ($input.data("prevval")) {
+                var prevTableName = $input.data("prevval");
+                if (srcMap[prevTableName]) {
+                    var $dagTable;
+                    var prevDescendants = srcMap[prevTableName];
+                    for (var i = 0; i < prevDescendants.length; i++) {
+                        srcRefCounts[prevDescendants[i]]--;
+
+                        if (srcRefCounts[prevDescendants[i]] === 0) {
+                            $dagTable = Dag.getTableIconByName($curDagWrap,
+                                                            prevDescendants[i]);
+                            $dagTable.closest(".dagTableWrap")
+                                     .removeClass("isSourceDescendant");
+                            delete srcRefCounts[prevDescendants[i]];
+                        }
+                    }
+
+                    $dagTable = Dag.getTableIconByName($curDagWrap,
+                                                        prevTableName);
+                    $dagTable.closest(".dagTableWrap").removeClass("isSource");
+                    delete srcMap[prevTableName];
+                }
+            }
+
+            if (srcMap[tableName]) {
+                StatusBox.show(DFTStr.TableAlreadySelected, $input, true);
+                return;
+            }
+
+            $input.data("prevval", tableName);
+
+            if (dfTablesCache.indexOf(tableName) > -1) {
+                var descendants = Dag.styleSrcTables($curDagWrap, tableName);
+                for (var i = 0; i < descendants.length; i++) {
+                    if (!srcRefCounts[descendants[i]]) {
+                        srcRefCounts[descendants[i]] = 0;
+                    }
+                    srcRefCounts[descendants[i]]++;
+                }
+                srcMap[tableName] = descendants;
+            }
+        });
+
+        $dfView.on("blur", ".sourceTableWrap .tableList .text", function() {
+            var $input = $(this);
+            var tableName = $.trim($input.val());
+            if (srcMap[tableName]) {
+                $dfView.find(".sourceTableWrap").find(".tableList .text").each(function() {
+                    var text = $(this).val().trim();
+                    if (text === tableName && !$(this).is($input)) {
+                        StatusBox.show(DFTStr.TableAlreadySelected, $input, true);
+                        return false;
+                    }
+                });
             }
         });
 
@@ -433,20 +511,28 @@ window.DFCreateView = (function($, DFCreateView) {
             $(this).removeClass("minimized");
         });
 
-        $dfView.on('click', '.closeGroup', function() {
+        $dfView.on('click', '.group .closeGroup', function() {
             removeGroup($(this).closest('.group'));
         });
 
+        $dfView.on('click', '.sourceTableWrap .closeGroup', function() {
+            removeSrcTable($(this).closest('.tableListSection'));
+        });
+
         // add extra exports
-        $dfView.find(".addExport, .addArgWrap .text").click(function() {
+        $dfView.find(".addDest button, .addDest .text").click(function() {
             addExportGroup();
+        });
+
+         $dfView.find(".addSrc button, .addSrc .text").click(function() {
+            addExportSrc();
         });
     }
 
     function addExportGroup() {
         minimizeGroups();
         $dfView.find('.group').last().after(getExportGroupHtml());
-        setupTableList();
+        setupTableList($dfView.find(".group").last());
 
         scrollToBottom();
         $dfView.find('.group').last().find('.tableList .text').focus();
@@ -454,11 +540,88 @@ window.DFCreateView = (function($, DFCreateView) {
         $dfView.find('.group').last().find('.tableList .text').focus();
     }
 
+    function addExportSrc() {
+        var html = '<div class="tableListSection clearfix">' +
+                    '<div class="subHeading clearfix">' +
+                      '<i class="icon xi-close closeGroup"></i>' +
+                    '</div>' +
+                    '<div class="dropDownList tableList">' +
+                      '<input type="text" class="text arg" spellcheck="false">' +
+                      '<div class="iconWrapper">' +
+                        '<i class="icon xi-arrow-down"></i>' +
+                      '</div>' +
+                      '<div class="list">' +
+                        '<ul></ul>' +
+                        '<div class="scrollArea top">' +
+                          '<i class="arrow icon xi-arrow-up"></i>' +
+                        '</div>' +
+                        '<div class="scrollArea bottom">' +
+                          '<i class="arrow icon xi-arrow-down"></i>' +
+                        '</div>' +
+                      '</div>' +
+                    '</div>' +
+                    '</div>';
+        $dfView.find(".sourceTableWrap").append(html);
+        var $tableList = $dfView.find(".sourceTableWrap").find(".tableList")
+                                                         .last();
+        var tableList = new MenuHelper($tableList, {
+            "onOpen": function() {
+                fillSrcTableLists($tableList);
+            },
+            "onSelect": function($li) {
+                if ($li.hasClass("inUse") && !$li.hasClass("selected")) {
+                    return true; // keep open
+                }
+                tableListSelect($li);
+            }
+        });
+        tableList.setupListeners();
+        formHelper.refreshTabbing();
+        $tableList.find(".text").focus();
+    }
+
     function removeGroup($group) {
         var groupId = $group.attr("data-id");
         $("#xcTable-" + groupId).find(".modalHighlighted")
                                 .removeClass('modalHighlighted');
         $group.remove();
+    }
+
+    function removeSrcTable($tableListSection) {
+        var prevTableName = $tableListSection.find("input").val();
+        $tableListSection.remove();
+
+        if (srcMap[prevTableName]) {
+            var multipleFound = false;
+            $dfView.find(".sourceTableWrap").find(".tableList .text").each(function() {
+                var text = $(this).val().trim();
+                if (text === prevTableName) {
+                    multipleFound = true;
+                    return false;
+                }
+            });
+
+            if (!multipleFound) {
+                var $dagTable;
+                var prevDescendants = srcMap[prevTableName];
+                for (var i = 0; i < prevDescendants.length; i++) {
+                    srcRefCounts[prevDescendants[i]]--;
+
+                    if (srcRefCounts[prevDescendants[i]] === 0) {
+                        $dagTable = Dag.getTableIconByName($curDagWrap,
+                                                        prevDescendants[i]);
+                        $dagTable.closest(".dagTableWrap")
+                                 .removeClass("isSourceDescendant");
+                        delete srcRefCounts[prevDescendants[i]];
+                    }
+                }
+
+                $dagTable = Dag.getTableIconByName($curDagWrap,
+                                                    prevTableName);
+                $dagTable.closest(".dagTableWrap").removeClass("isSource");
+                delete srcMap[prevTableName];
+            }
+        }
     }
 
     function getExportGroupHtml() {
@@ -549,11 +712,11 @@ window.DFCreateView = (function($, DFCreateView) {
         FormHelper.scrollToElement($el, {paddingTop: 30});
     };
 
-    function setupTableList() {
-        var $tableList = $dfView.find(".tableList").last();
+    function setupTableList($section) {
+        var $tableList = $section.find(".tableList").last();
         var tableList = new MenuHelper($tableList, {
             "onOpen": function() {
-                fillTableLists($tableList, null, true);
+                fillTableLists($tableList);
             },
             "onSelect": function($li) {
                 if ($li.hasClass("inUse") && !$li.hasClass("selected")) {
@@ -621,23 +784,47 @@ window.DFCreateView = (function($, DFCreateView) {
         return tableList;
     }
 
-    function fillTableLists($tableDropdown, origTableName, refresh) {
+    function getSrcTableListHtml() {
+        var tableList = "";
+        var selectedTables = getSelectedSrcTables();
+        var classNames = "";
+
+        for (var i = 0; i < dfTablesCache.length; i++) {
+            var tableName = dfTablesCache[i];
+            if (selectedTables.indexOf(tableName) > -1 ||
+                srcRefCounts[tableName]) {
+                classNames = " inUse";
+            } else {
+                classNames = "";
+            }
+            tableList +=
+                    '<li class="tooltipOverflow' + classNames + '"' +
+                    ' data-original-title="' + tableName + '"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-container="body">' +
+                        tableName +
+                    '</li>';
+        }
+        return tableList;
+    }
+
+    function fillTableLists($tableDropdown) {
         var tableLis = getTableListHtml();
         $tableDropdown.find("ul").html(tableLis);
-        var tableName;
-        if (refresh) {
-            tableName = $tableDropdown.find(".text").val();
-            $tableDropdown.find("li").filter(function() {
-                return ($(this).text() === tableName);
-            }).addClass("selected");
-        } else {
-            // select li and fill left table name dropdown
-            tableName = origTableName;
-            $tableDropdown.find(".text").val(tableName);
-            $tableDropdown.find("li").filter(function() {
-                return ($(this).text() === tableName);
-            }).addClass("selected");
-        }
+        tableName = $tableDropdown.find(".text").val();
+        $tableDropdown.find("li").filter(function() {
+            return ($(this).text() === tableName);
+        }).addClass("selected");
+    }
+
+
+    function fillSrcTableLists($tableDropdown) {
+        var tableLis = getSrcTableListHtml();
+        $tableDropdown.find("ul").html(tableLis);
+        tableName = $tableDropdown.find(".text").val();
+        $tableDropdown.find("li").filter(function() {
+            return ($(this).text() === tableName);
+        }).addClass("selected");
     }
 
     function tableListSelect($li) {
@@ -701,10 +888,10 @@ window.DFCreateView = (function($, DFCreateView) {
         var invalidTableFound = false;
         var invalidColFound = false;
         var exportTables = [];
+        var srcTables = [];
 
         if (!validateDFName(dfName)) {
-            deferred.reject();
-            return deferred.promise();
+            return PromiseHelper.reject();
         }
 
         var tableIds = [];
@@ -722,8 +909,7 @@ window.DFCreateView = (function($, DFCreateView) {
         });
 
         if (invalidTableFound) {
-            deferred.reject();
-            return deferred.promise();
+            return PromiseHelper.reject();
         }
 
         $dfView.find(".group").each(function(i) {
@@ -776,8 +962,26 @@ window.DFCreateView = (function($, DFCreateView) {
         });
 
         if (invalidColFound) {
-            deferred.reject();
-            return deferred.promise();
+            return PromiseHelper.reject();
+        }
+
+        var invalidSrc = false;
+        $dfView.find(".sourceTableWrap").find(".tableList .text").each(function(){
+            var text = $(this).text().trim();
+            if (dfTablesCache.indexOf(text) === -1) {
+                invalidSrc = true;
+                FormHelper.scrollToElement($(this));
+                StatusBox.show("This table was not found in the selected dataflow.",
+                    $(this), true);
+                return false;
+            }
+            if (text) {
+                srcTables.push(text);
+            }
+        });
+
+        if (invalidSrc) {
+            return PromiseHelper.reject();
         }
 
         formHelper.disableSubmit();
@@ -786,7 +990,7 @@ window.DFCreateView = (function($, DFCreateView) {
         checkNoDuplicateDFName(dfName)
         .then(function() {
             closeDFView();
-            return DF.addDataflow(dfName, new Dataflow(dfName), exportTables);
+            return DF.addDataflow(dfName, new Dataflow(dfName), exportTables, srcTables);
         })
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.SaveDF);
@@ -834,8 +1038,12 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function resetDFView() {
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
+        $curDagWrap.find(".isSource").removeClass(".isSource");
+        $curDagWrap.find(".isSourceDescendant")
+                   .removeClass("isSourceDescendant");
         $dfView.find(".group").not(":first").remove();
         $dfView.find(".group").removeClass("minimized");
+        $dfView.find(".sourceTableWrap").empty();
         $newNameInput.val("");
         $(document).off('keypress.DFView');
         focusedThNum = null;
@@ -846,6 +1054,8 @@ window.DFCreateView = (function($, DFCreateView) {
         formHelper.hideView();
         exportHelper.clear();
         dfTablesCache = [];
+        srcRefCounts = {};
+        srcMap = {};
     }
 
     /* Unit Test Only */

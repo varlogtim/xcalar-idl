@@ -186,7 +186,8 @@ window.DF = (function($, DF) {
         return (dataflows[dataflowName]);
     };
 
-    DF.addDataflow = function(dataflowName, dataflow, exportTables, options) {
+    DF.addDataflow = function(dataflowName, dataflow, exportTables, srcTables,
+                              options) {
         options = options || {};
         var deferred = jQuery.Deferred();
 
@@ -194,7 +195,7 @@ window.DF = (function($, DF) {
         if (options.isUpload) {
             innerDef = PromiseHelper.resolve();
         } else {
-            innerDef = createRetina(dataflowName, exportTables);
+            innerDef = createRetina(dataflowName, exportTables, srcTables);
         }
 
         innerDef
@@ -378,8 +379,9 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
-    function createRetina(retName, exportTables) {
+    function createRetina(retName, exportTables, srcTables) {
         var tableArray = []; // array of XcalarApiRetinaDstT
+        var srcTableArray = [];
 
         for (var i = 0; i < exportTables.length; i++) {
             var retinaDstTable = new XcalarApiRetinaDstT();
@@ -401,7 +403,13 @@ window.DF = (function($, DF) {
             tableArray.push(retinaDstTable);
         }
 
-        return XcalarMakeRetina(retName, tableArray, []);
+        for (var i = 0; i < srcTables.length; i++) {
+            var retinaSrcTable = new XcalarApiRetinaSrc({source: srcTables[i],
+                                                        dstName: srcTables[i]});
+            srcTableArray.push(retinaSrcTable);
+        }
+
+        return XcalarMakeRetina(retName, tableArray, srcTableArray);
     }
 
     // called after retina is created to update the ids of dag nodes

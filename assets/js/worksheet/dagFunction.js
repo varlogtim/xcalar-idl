@@ -117,6 +117,26 @@ window.DagFunction = (function($, DagFunction) {
             }
 
             return parentNames;
+        },
+
+        getAllDescendantNodes: function() {
+            var node = this;
+            var descendants = [];
+            var seen = {};
+
+            search(node);
+            function search(node) {
+                for (var i = 0; i < node.parents.length; i++) {
+                    if (seen[node.parents[i].value.name]) {
+                        continue;
+                    }
+                    seen[node.parents[i].value.name] = true;
+                    descendants.push(node.parents[i]);
+                    search(node.parents[i]);
+                }
+            }
+
+            return descendants;
         }
     };
 

@@ -70,11 +70,28 @@
             </div>
           </div>
         </div>
-        <div class="addArgWrap addArgWrapSmall">
-          <button class="btn btn-small addArg addExport">
+        <div class="addArgWrap addDest addArgWrapSmall">
+          <button class="btn btn-small">
             <i class="icon xi-plus"></i>
           </button>
           <span class="text"><%= dicts.dataflow.AdditionalTables %></span>
+        </div>
+        <div class="sourceTableSection">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.dataflow.SourceTables %>
+              <span class="optionalText">(<%= dicts.MenuTStr.Optional %>)</span>
+              <div class="hint" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.dataflow.SourceTableHint %>">
+                <i class="icon xi-help fa-12"></i>
+              </div>
+            </div>
+          </div>
+          <div class="sourceTableWrap clearfix"></div>
+          <div class="addArgWrap addSrc addArgWrapSmall">
+            <button class="btn btn-small">
+              <i class="icon xi-plus"></i>
+            </button>
+            <span class="text"><%= dicts.dataflow.AddSource %></span>
+          </div>
         </div>
       </section>
       <!-- Button Section -->

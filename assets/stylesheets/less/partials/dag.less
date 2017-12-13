@@ -541,7 +541,7 @@ html.firefox, html.microsoft {
                 box-shadow: 0px 0px 6px 1px @color-dag-glowing;
             }
         }
-         &.tagDiscovered {
+        &.tagDiscovered {
             .actionTypeWrap, .dagTableIcon, .dataStoreIcon {
                 .transition(all 3s);
                 box-shadow: none;
@@ -554,6 +554,39 @@ html.firefox, html.microsoft {
                 .actionTypeWrap {
                     box-shadow: 0px 0px 8px 2px @color-dag-glowing;
                 }
+            }
+        }
+
+        .disabledStyle {
+            opacity: 0.4;
+        }
+
+        &.isSourceDescendant {
+            .actionType {
+                background-color: @color-white;
+                .actionTypeWrap {
+                    .disabledStyle;
+                }
+            }
+
+            .tableTitle, .tipIcons, .dagTable .icon {
+                .disabledStyle;
+            }
+
+            .dataStoreIcon {
+                background-color: @color-dag-faded;
+            }
+        }
+
+        &.isSource {
+            .actionType {
+                background-color: @color-white;
+                .actionTypeWrap {
+                    .disabledStyle;
+                }
+            }
+            .tipIcons {
+                .disabledStyle;
             }
         }
     }
@@ -930,7 +963,6 @@ html.firefox, html.microsoft {
                 }
             }
         }
-
     }
 }
 

@@ -413,7 +413,6 @@ window.Dag = (function($, Dag) {
 
         DagDraw.recreateDagImage($dagWrap, allDagInfo, nodeIdMap[dagNodeId]);
 
-
         var scrollLeft = $imageWrap[0].scrollWidth - prevScrollRight -
                          $imageWrap.outerWidth();
         $imageWrap.scrollLeft(scrollLeft);
@@ -1105,6 +1104,25 @@ window.Dag = (function($, Dag) {
             node = nodeIdMap[$opIcon.data("id")];
         }
         node.value.comment = newComment;
+    };
+
+    // actually tags the .dagTableWrap so operation and table get styled
+    Dag.styleSrcTables = function($dagWrap, tableName) {
+        var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
+        var nodeId = $dagTable.data("index");
+        var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
+        var descendantNodes = node.getAllDescendantNodes();
+        var $curDagTable;
+        var tableNames = [];
+        for (var i = 0; i < descendantNodes.length; i++) {
+            $curDagTable = Dag.getTableIcon($dagWrap,
+                                            descendantNodes[i].value.dagNodeId);
+            $curDagTable.closest(".dagTableWrap").addClass("isSourceDescendant");
+            tableNames.push(descendantNodes[i].value.name);
+        }
+        $dagTable.closest(".dagTableWrap").addClass("isSource");
+
+        return tableNames;
     };
 
     function prettify(loadInfo) {

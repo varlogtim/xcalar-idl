@@ -89,7 +89,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         .then(function(overwriteUDF) {
             UDF.refreshWithoutClearing(overwriteUDF);
             XcSocket.sendMessage("refreshUDFWithoutClear", overwriteUDF);
-            return (DF.addDataflow(retName, new Dataflow(retName), null, {
+            return (DF.addDataflow(retName, new Dataflow(retName), null, [], {
                 "isUpload": true,
                 "noClick": true
             }));

@@ -367,6 +367,9 @@ module.exports = {
         "uploadInstr": "将以前下载的数据流上传到Xcalar。您的文件的格式应为.tar.gz",
         "val": "值",
         "AdditionalTables": "其他要导出的表",
+        "SourceTableHint": "Specifying source tables allows batch dataflows to use tables from the current workbook instead of reading the data from source",
+        "AddSource": "Add a source table",
+        "SourceTables": "Source Tables"
     },
     "deleteTable": {
         "Active": "激活表",

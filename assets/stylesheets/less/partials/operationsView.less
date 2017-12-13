@@ -142,7 +142,7 @@
                 .flex-display;
                 .flex-wrap(wrap);
                 width: 100%;
-                border-top: 1px solid @color-border-pinkish-grey2;
+
                 background-color: transparent;
                 &:first-child {
                     border-right-width: 0px;
@@ -151,15 +151,12 @@
             li {
                 float: left;
                 border-right: 1px solid @color-border-pinkish-grey2;
+                border-top: 1px solid @color-border-pinkish-grey2;
                 background-color: @color-white;
                 padding-right: 22px;
                 position: relative;
                 .flex(1 1 100px);
                 width: 100px;
-                &:first-child {
-                    border-top: none;
-                }
-
                 .text {
                     width: 100%;
                 }
@@ -1624,6 +1621,10 @@
 
     .subHeading .label {
         .size(@width: 100%);
+        .hint, .icon {
+            display: inline-block;
+            color: @color-font-select-blue;
+        }
     }
 
     .advancedSection {
@@ -1854,6 +1855,40 @@
 
     .addArgWrap {
         padding-top: 10px;
+    }
+}
+
+#dfCreateView {
+    .sourceTableSection {
+        margin-top: 10px;
+        .optionalText {
+            font-weight: 600;
+            color: @color-font-warm-grey-two;
+            text-transform: lowercase;
+        }
+        .hint {
+            position: relative;
+            top: 1px;
+        }
+    }
+    .sourceTableWrap {
+        .tableList {
+            margin-top:  10px;
+            margin-bottom: 10px;
+        }
+
+        .closeGroup {
+            float: right;
+            color: @color-font-warm-grey-two;
+            font-size: 12px;
+            margin-top: 0px;
+            margin-right: 5px;
+            cursor: pointer;
+            opacity: @opacity-unhover;
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
     }
 }
 

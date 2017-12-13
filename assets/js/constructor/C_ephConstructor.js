@@ -1572,8 +1572,9 @@ ExportHelper.prototype = {
                 invalid = true;
                 return false;
             }
+            var origName = $row.find(".origName").val();
 
-            if (takenName.hasOwnProperty(newName)) {
+            if (takenName.hasOwnProperty(newName) && origName !== newName) {
                 $renameSection.closest(".group.minimized").removeClass("minimized");
                 FormHelper.scrollToElement($renameSection);
                 StatusBox.show(ErrTStr.NameInUse, $row);
@@ -1581,7 +1582,6 @@ ExportHelper.prototype = {
                 return false;
             }
 
-            var origName = $row.find(".origName").val();
             renameMap[origName] = newName;
             takenName[newName] = true;
         });

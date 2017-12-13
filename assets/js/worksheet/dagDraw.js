@@ -2263,6 +2263,7 @@ window.DagDraw = (function($, DagDraw) {
     /* Generation of dag elements and canvas lines */
     function createCanvas($dagWrap, full) {
         var dagWidth = $dagWrap.find('.dagImage').width() + 130;
+        dagWidth = Math.max(400, dagWidth);
         var dagHeight = $dagWrap.find('.dagImage').height();
         var className = "";
         if (full) {
