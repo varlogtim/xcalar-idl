@@ -246,37 +246,6 @@
         return width;
     };
 
-    xcHelper.getPreviewSize = function(previewSize, unit) {
-        if (previewSize === "" || previewSize == null) {
-            previewSize = gMaxSampleSize;
-        } else {
-            previewSize = Number(previewSize);
-            switch (unit) {
-                case "KB":
-                    previewSize *= KB;
-                    break;
-                case "MB":
-                    previewSize *= MB;
-                    break;
-                case "GB":
-                    previewSize *= GB;
-                    break;
-                case "TB":
-                    previewSize *= TB;
-                    break;
-                default:
-                    break;
-            }
-
-            if (isNaN(previewSize)) {
-                console.error("error size");
-                previewSize = gMaxSampleSize;
-            }
-        }
-
-        return Math.round(previewSize);
-    };
-
     xcHelper.getFileNamePattern = function(pattern, isRegex) {
         if (pattern == null) {
             return "";

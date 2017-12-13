@@ -171,10 +171,6 @@ window.DSPreview = (function($, DSPreview) {
         setupForm();
     };
 
-    DSPreview.initialize = function() {
-        advanceOption.setMode();
-    };
-
     // restore: boolean, set to true if restoring after an error
     DSPreview.show = function(options, fromFormCard, dsId, restore) {
         xcHelper.enableSubmit($form.find(".confirm"));
@@ -782,10 +778,9 @@ window.DSPreview = (function($, DSPreview) {
         var pattern = advanceArgs.pattern;
         var isRecur = advanceArgs.isRecur;
         var isRegex = advanceArgs.isRegex;
-        var previewSize = advanceArgs.previewSize;
 
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
-        //     header, loadURL, quote, skipRows, isRecur, isRegex, previewSize);
+        //     header, loadURL, quote, skipRows, isRecur, isRegex);
 
         var headers = getColumnHeaders();
         cacheUDF(udfModule, udfFunc);
@@ -821,7 +816,6 @@ window.DSPreview = (function($, DSPreview) {
                 "moduleName": udfModule,
                 "funcName": udfFunc,
                 "isRecur": isRecur,
-                "previewSize": previewSize,
                 "quoteChar": quote,
                 "skipRows": skipRows,
                 "isRegex": isRegex,
@@ -1479,13 +1473,11 @@ window.DSPreview = (function($, DSPreview) {
         var recursive = false;
         var isRegex = false;
         var pattern = null;
-        var previewSize = null;
 
         if (advanceArgs != null) {
             recursive = advanceArgs.isRecur;
             isRegex = advanceArgs.isRegex;
             pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
-            previewSize = advanceArgs.previewSize;
         } else {
             console.error("error case");
         }
@@ -1571,7 +1563,6 @@ window.DSPreview = (function($, DSPreview) {
             if (hasUDF) {
                 args.moduleName = udfModule;
                 args.funcName = udfFunc;
-                args.maxSampleSize = previewSize;
                 args.udfQuery = udfQuery;
                 return loadDataWithUDF(txId, dsName, args);
             } else {

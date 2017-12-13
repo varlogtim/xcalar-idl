@@ -187,23 +187,6 @@ describe("xcHelper Test", function() {
         expect(res).to.equal(24);
     });
 
-    it("xcHelper.getPreviewSize should work", function() {
-        expect(xcHelper.getPreviewSize("")).to.be.equal(gMaxSampleSize);
-        expect(xcHelper.getPreviewSize(null)).to.equal(gMaxSampleSize);
-        expect(xcHelper.getPreviewSize("abc")).to.equal(gMaxSampleSize);
-
-        expect(xcHelper.getPreviewSize("1", "KB"))
-        .to.equal(1 * 1024);
-        expect(xcHelper.getPreviewSize("2", "MB"))
-        .to.equal(2 * 1024 * 1024);
-        expect(xcHelper.getPreviewSize("3", "GB"))
-        .to.equal(3 * 1024 * 1024 * 1024);
-        expect(xcHelper.getPreviewSize("4", "TB"))
-        .to.equal(4 * 1024 * 1024 * 1024 * 1024);
-        expect(xcHelper.getPreviewSize("5", "garbage"))
-        .to.equal(5);
-    });
-
     it("xcHelper.getFileNamePattern should work", function() {
         // case 1
         var res = xcHelper.getFileNamePattern(null);

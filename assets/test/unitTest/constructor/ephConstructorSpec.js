@@ -124,7 +124,6 @@ describe("Ephemeral Constructor Test", function() {
     describe("DSFormAdvanceOption Constructor Test", function() {
         var advanceOption;
         var $section;
-        var $limit;
         var $pattern;
         var test = false;
 
@@ -135,23 +134,6 @@ describe("Ephemeral Constructor Test", function() {
                     '<span class="expand"></span>' +
                 '</div>' +
                 '<ul>' +
-                    '<li class="limit option">' +
-                        '<div class="radioButtonGroup">' +
-                            '<div class="radioButton" ' +
-                            'data-option="default"></div>' +
-                            '<div class="radioButton" data-option="custom">' +
-                                '<input class="size" type="number">' +
-                                '<div class="dropDownList">' +
-                                    '<input class="text unit">' +
-                                    '<div class="list">' +
-                                        '<ul>' +
-                                          '<li>B</li>' +
-                                        '</ul>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</li>' +
                     '<li class="pattern option">' +
                         '<input type="text" class="input">' +
                         '<div class="recursive checkboxSection">' +
@@ -166,7 +148,6 @@ describe("Ephemeral Constructor Test", function() {
                 '</ul>' +
             '</section>';
             $section = $(html);
-            $limit = $section.find(".option.limit");
             $pattern = $section.find(".option.pattern");
         });
 
@@ -187,59 +168,24 @@ describe("Ephemeral Constructor Test", function() {
             $section.find(".listInfo .expand").click();
             expect($section.hasClass("active")).to.be.true;
             expect(test).to.be.true;
-            // dropdown list
-            $limit.find("li").trigger(fakeEvent.mouseup);
-
-            expect($limit.find(".unit").val()).to.equal("B");
 
             // checkbox
             $pattern.find(".recursive.checkboxSection").click();
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.true;
-
-            // radio
-            var $radioButton = $limit.find(".radioButton[data-option='custom']");
-            $radioButton.click();
-            expect($radioButton.hasClass("active")).to.be.true;
-        });
-
-        it("should set mode", function() {
-            var $fakeSection = $("<section></section>");
-            var fakeOpt = new DSFormAdvanceOption($fakeSection, "body");
-            var oldGetMode = XVM.getLicenseMode;
-
-            XVM.getLicenseMode = function() {
-                return XcalarMode.Mod;
-            };
-
-            fakeOpt.setMode();
-            expect($fakeSection.hasClass(XcalarMode.Mod)).to.be.true;
-            XVM.getLicenseMode = oldGetMode;
         });
 
         it("Should reset options", function() {
             advanceOption.reset();
-
-            var defaultVal = gMaxSampleSize;
-            var size = xcHelper.sizeTranslator(defaultVal, true);
-            expect(size[0]).to.be.gt(0);
-            expect(size[1]).to.be.a("string").and.to.have.length(2);
-
-            expect($limit.find(".size").val()).to.equal(size[0] + "");
-            expect($limit.find(".unit").val()).to.equal(size[1]);
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.false;
-
-            $radioButton = $limit.find(".radioButton[data-option='default']");
-            expect($radioButton.hasClass("active")).to.be.true;
         });
 
         it("Should set options", function() {
             advanceOption.set({
                 "pattern": "testPattern",
                 "isRecur": true,
-                "isRegex": true,
-                "previewSize": 123
+                "isRegex": true
             });
 
             expect($pattern.find("input").val()).to.equal("testPattern");
@@ -247,14 +193,6 @@ describe("Ephemeral Constructor Test", function() {
             .to.be.true;
             expect($pattern.find(".regex .checkbox").hasClass("checked"))
             .to.be.true;
-            expect($limit.find(".unit").val()).to.equal("B");
-            expect($limit.find(".size").val()).to.equal("123");
-        });
-
-        it("Should modify preview size", function() {
-            advanceOption.modify({"previewSize": 456});
-            expect($limit.find(".unit").val()).to.equal("B");
-            expect($limit.find(".size").val()).to.equal("456");
         });
 
         it("Should get args", function() {
@@ -263,13 +201,12 @@ describe("Ephemeral Constructor Test", function() {
             advanceOption.set({
                 "pattern": "testPattern",
                 "isRecur": true,
-                "isRegex": true,
-                "previewSize": 123
+                "isRegex": true
             });
 
             var res = advanceOption.getArgs();
             expect(res).to.be.an("object");
-            expect(Object.keys(res).length).to.equal(4);
+            expect(Object.keys(res).length).to.equal(3);
 
             expect(res).to.have.property("pattern")
             .and.to.equal("testPattern");
@@ -279,31 +216,6 @@ describe("Ephemeral Constructor Test", function() {
 
             expect(res).to.have.property("isRegex")
             .and.to.be.true;
-
-            expect(res).to.have.property("previewSize")
-            .and.to.equal(123);
-
-            // case 2
-            var $radioButton = $limit.find(".radioButton[data-option='custom']");
-            advanceOption.reset();
-            res = advanceOption.getArgs();
-            expect(res).to.have.property("pattern")
-            .and.to.be.null;
-
-            $radioButton.click();
-            $limit.find(".unit").val("");
-            $limit.find(".size").val("123");
-            res = advanceOption.getArgs();
-            expect(res).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
-
-            // case 3
-            $limit.find(".unit").val("B");
-            $pattern.find(".input").val("*123");
-            $pattern.find(".regex .checkbox").addClass("checked");
-            res = advanceOption.getArgs();
-            expect(res).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidRegEx);
         });
     });
 

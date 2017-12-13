@@ -471,12 +471,10 @@ window.xcManager = (function(xcManager, $) {
                 setMaxSampleSize(size);
             } catch (error) {
                 console.error("error case", error);
-                setMaxSampleSize(null);
             }
             deferred.resolve();
         })
         .fail(function() {
-            setMaxSampleSize(null);
             deferred.resolve(); // still resolve it
         });
 
@@ -486,25 +484,6 @@ window.xcManager = (function(xcManager, $) {
     function setMaxSampleSize(size) {
         if (size != null) {
             gMaxSampleSize = size;
-        } else {
-            // when set size from backend fails
-            var mode = XVM.getLicenseMode();
-            var maxSize;
-            switch (mode) {
-                case XcalarMode.Mod:
-                case XcalarMode.Demo:
-                    maxSize = "10GB";
-                    break;
-                case XcalarMode.Oper:
-                case XcalarMode.Unlic:
-                    maxSize = "1TB";
-                    break;
-                default:
-                    console.error("error case");
-                    maxSize = "10GB";
-                    break;
-            }
-            gMaxSampleSize = xcHelper.textToBytesTranslator(maxSize);
         }
     }
 

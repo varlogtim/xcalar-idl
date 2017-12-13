@@ -1852,7 +1852,7 @@ describe("Persistent Constructor Test", function() {
             var userPref = new UserPref();
 
             expect(userPref).to.be.an.instanceof(UserPref);
-            expect(Object.keys(userPref).length).to.equal(7);
+            expect(Object.keys(userPref).length).to.equal(8);
             expect(userPref).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(userPref).to.have.property("datasetListView")
@@ -1860,6 +1860,8 @@ describe("Persistent Constructor Test", function() {
             expect(userPref).to.have.property("browserListView")
             .and.to.be.false;
             expect(userPref).to.have.property("keepJoinTables")
+            .and.to.be.false;
+            expect(userPref).to.have.property("keepGBTable")
             .and.to.be.false;
             expect(userPref).to.have.property("sqlCollapsed")
             .and.to.be.false;
@@ -2367,22 +2369,6 @@ describe("Persistent Constructor Test", function() {
                 "error": "test2"
             });
             expect(dsObj.getError()).to.equal("test2");
-        });
-
-        it("Should set preview size", function() {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "isFolder": false
-            });
-            // case 1
-            dsObj.setPreviewSize("invalid num");
-            expect(dsObj.previewSize).not.to.exist;
-            // case 2
-            dsObj.setPreviewSize(123);
-            expect(dsObj.previewSize).to.equal(123);
         });
 
         it("Should preserve order", function() {

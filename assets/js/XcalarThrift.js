@@ -625,7 +625,6 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
         "moduleName": udfModule,
         "funcName": udfFunc,
         "isRecur": isRecur,
-        "maxSampleSize": previewSize,
         "quoteChar": gDefaultQDelim,
         "skipRows": 0,
         "fileNamePattern": pattern,
@@ -650,7 +649,6 @@ XcalarLoad = function(datasetName, options, txId) {
     var moduleName = options.moduleName;
     var funcName = options.funcName;
     var isRecur = options.isRecur;
-    var maxSampleSize = options.maxSampleSize;
     var quoteChar = options.quoteChar;
     var skipRows = options.skipRows;
     var fileNamePattern = options.fileNamePattern;
@@ -773,10 +771,7 @@ XcalarLoad = function(datasetName, options, txId) {
     parseArgs.parserFnName = parserFnName;
     parseArgs.parserArgJson = JSON.stringify(parserArgJson);
 
-    if (!maxSampleSize) {
-        maxSampleSize = gMaxSampleSize;
-    }
-
+    var maxSampleSize = gMaxSampleSize;
     if (maxSampleSize > 0) {
         console.log("Max sample size set to: ", maxSampleSize);
     }

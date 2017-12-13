@@ -652,7 +652,6 @@ window.DSTable = (function($, DSTable) {
         DSPreview.show({
             "path": dsObj.getPath(),
             "format": dsObj.getFormat(),
-            "previewSize": dsObj.previewSize,
             "pattern": dsObj.pattern,
             "isRecur": dsObj.isRecur,
             "isRegex": dsObj.isRegex,

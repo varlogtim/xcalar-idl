@@ -40,36 +40,6 @@ describe("Dataset-Datastore Module Test", function() {
         assert.isFalse($("#datastore-out-view").is(":visible"));
     });
 
-    it("Should check sample size in modeling mode", function() {
-        var oldgMaxSampleSize = gMaxSampleSize;
-        gMaxSampleSize = 100;
-
-        // normal case
-        var error = DataStore.checkSampleSize(50);
-        expect(error).to.be.null;
-
-        // error case
-        error = DataStore.checkSampleSize(200);
-        var res = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
-            "size": xcHelper.sizeTranslator(gMaxSampleSize)
-        });
-        expect(error).to.equal(res);
-
-        gMaxSampleSize = oldgMaxSampleSize;
-    });
-
-    it("Should not check sample size in other mode", function() {
-        var oldFunc = XVM.getLicenseMode;
-        XVM.getLicenseMode = function() {
-            return XcalarMode.Oper;
-        };
-
-        var error = DataStore.checkSampleSize(50);
-        expect(error).to.be.null;
-
-        XVM.getLicenseMode = oldFunc;
-    });
-
     function verifyCurrentNum(testNum) {
         var currentNum = Number($(".numDataStores").eq(0).text());
         expect(currentNum).to.equal(testNum);

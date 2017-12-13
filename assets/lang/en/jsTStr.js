@@ -892,9 +892,7 @@ DFTStr = {
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports',
-    "TableAlreadySelected": "This table is already selected.",
-    "NewComment": "Add a comment",
-    "EditComment": "View / edit comment"
+    "TableAlreadySelected": "This table is already selected."
 };
 
 DSTStr = {
@@ -914,7 +912,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please check the validation of path, pattern, data source size, UDF and try again.',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, UDF and try again.',
     'NoSingleFilePattern': 'Not supported when importing a single file',
     'CancalPoint': 'Cancel import dataset',
     'DSSourceHint': 'Please try another path or use another data target.',

@@ -777,7 +777,7 @@ DSTStr = {
 'NoParse': '无法解析数据集。',
 'NoRecords': '数据集中没有记录。',
 'NoColumns': '未选择列',
-'NoRecrodsHint': '请检查路径，模式，数据源大小，udf的验证，然后重试。',
+'NoRecrodsHint': '请检查路径，模式，UDF的验证，然后重试。',
 'CancalPoint': '取消导入数据集',
 'DSSourceHint': '请尝试另一个路径或使用另一个数据源目标。',
 'FileOversize': '文件夹中的文件太多，无法读取，请直接用url导入',

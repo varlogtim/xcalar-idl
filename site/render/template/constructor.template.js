@@ -1853,7 +1853,6 @@
             moduleName: (string) udf's module
             funcName: (string) udf's func
             isRecur: (boolean) recursive or not
-            previewSize: (integer) ds's previewSize
             quoteChar: (string) ds's quoteChar
             skipRows: (integer) how many rows to skip
             isRegex: (boolean) path is using regEx or not;
@@ -1978,7 +1977,7 @@
             getPointArgs: function() {
                 // loadURL, format, fullName,
                 // fieldDelim, lineDelim, hasHeader,
-                // moduleName, funcName, isRecur, previewSize,
+                // moduleName, funcName, isRecur,
                 // quoteChar, skipRows, pattern
                 var self = this;
                 var pattern = xcHelper.getFileNamePattern(self.pattern,
@@ -1990,7 +1989,6 @@
                     "moduleName": self.moduleName,
                     "funcName": self.funcName,
                     "isRecur": self.isRecur,
-                    "maxSampleSize": self.previewSize,
                     "quoteChar": self.quoteChar,
                     "skipRows": self.skipRows,
                     "fileNamePattern": pattern,
@@ -2048,15 +2046,6 @@
 
             setError: function(error) {
                 this.error = error;
-            },
-
-            setPreviewSize: function(previewSize) {
-                if (this.isFolder || isNaN(previewSize)) {
-                    console.error("error case!");
-                    return;
-                }
-
-                this.previewSize = previewSize;
             },
 
             beFolder: function() {

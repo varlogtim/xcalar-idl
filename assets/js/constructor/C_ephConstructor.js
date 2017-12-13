@@ -149,25 +149,6 @@ DSFormAdvanceOption.prototype = {
             self.__toggleList();
         });
 
-        var $limit = $section.find(".option.limit");
-        new MenuHelper($limit.find(".dropDownList"), {
-            "onSelect": function($li) {
-                var $input = $li.closest(".dropDownList").find(".unit");
-                $input.val($li.text());
-            },
-            "container": container,
-            "bounds": container
-        }).setupListeners();
-
-        xcHelper.optionButtonEvent($limit, function(option) {
-            var $ele = $limit.find(".inputWrap, .dropDownList");
-            if (option === "default") {
-                $ele.addClass("xc-disabled");
-            } else {
-                $ele.removeClass("xc-disabled");
-            }
-        });
-
         var $pattern = $section.find(".option.pattern");
         $pattern.on("click", ".checkboxSection", function() {
             $(this).find(".checkbox").toggleClass("checked");
@@ -188,15 +169,6 @@ DSFormAdvanceOption.prototype = {
         }
     },
 
-    setMode: function() {
-        var $section = this.$section;
-        this.isInteractiveMod = (XVM.getLicenseMode() === XcalarMode.Mod);
-        if (this.isInteractiveMod) {
-            $section.addClass(XcalarMode.Mod);
-            $section.find(".limit li:contains(TB)").hide();
-        }
-    },
-
     reset: function() {
         var $section = this.$section;
         $section.find("input").val("")
@@ -213,7 +185,6 @@ DSFormAdvanceOption.prototype = {
 
         var $section = this.$section;
         var $pattern = $section.find(".option.pattern");
-        var $limit = $section.find(".option.limit");
         var hasSet;
 
         if (options.pattern != null && options.pattern !== "") {
@@ -231,44 +202,8 @@ DSFormAdvanceOption.prototype = {
             $pattern.find(".regex .checkbox").addClass("checked");
         }
 
-        var previewSize = options.previewSize;
-        if (previewSize != null && previewSize > 0) {
-            hasSet = true;
-            $limit.find(".radioButton[data-option='custom']").click();
-        } else if (this.isInteractiveMod) {
-            $limit.find(".radioButton[data-option='custom']").click();
-            previewSize = gMaxSampleSize;
-        } else {
-            $limit.find(".radioButton[data-option='default']").click();
-            previewSize = gMaxSampleSize;
-        }
-
-        this._changePreivewSize(previewSize);
-
         if (hasSet) {
             this._expandSection();
-        }
-    },
-
-    modify: function(options) {
-        options = options || {};
-        var previewSize = options.previewSize;
-
-        if (previewSize !== null && previewSize > 0) {
-            this._changePreivewSize(previewSize);
-        }
-    },
-
-    _changePreivewSize: function(previewSize) {
-        var $limit = this.$section.find(".option.limit");
-        var sizeArr = xcHelper.sizeTranslator(previewSize, true);
-
-        if (!sizeArr) {
-            $limit.find(".unit").val("GB");
-            $limit.find(".size").val(10);
-        } else {
-            $limit.find(".unit").val(sizeArr[1]);
-            $limit.find(".size").val(sizeArr[0]);
         }
     },
 
@@ -281,32 +216,6 @@ DSFormAdvanceOption.prototype = {
 
     getArgs: function() {
         var $section = this.$section;
-        var $limit = $section.find(".option.limit");
-        var $customBtn = $limit.find(".radioButton[data-option='custom']");
-        var previewSize = 0; // default size
-        var size = "";
-        var unit = "";
-
-        if ($customBtn.hasClass("active")) {
-            size = $limit.find(".size").val();
-            var $unit = $limit.find(".unit");
-            unit = $unit.val();
-            // validate preview size
-            if (size !== "" && unit === "") {
-                this._expandSection();
-                StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
-                return null;
-            }
-            previewSize = xcHelper.getPreviewSize(size, unit);
-
-            var error = DataStore.checkSampleSize(previewSize);
-            if (error != null) {
-                this._expandSection();
-                StatusBox.show(error, $unit, false);
-                return null;
-            }
-        }
-
         var $pattern = $section.find(".option.pattern");
         var pattern = $pattern.find(".input").val().trim();
         var isRecur = $pattern.find(".recursive .checkbox").hasClass("checked");
@@ -328,8 +237,7 @@ DSFormAdvanceOption.prototype = {
         return {
             "pattern": pattern,
             "isRecur": isRecur,
-            "isRegex": isRegex,
-            "previewSize": previewSize
+            "isRegex": isRegex
         };
     }
 };

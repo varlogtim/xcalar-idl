@@ -14,19 +14,7 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.initialize = function() {
-        DSPreview.initialize();
         DSUploader.initialize();
-    };
-
-    DataStore.checkSampleSize = function(previewSize) {
-        if (previewSize <= gMaxSampleSize) {
-            return null;
-        } else {
-            var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
-                "size": xcHelper.sizeTranslator(gMaxSampleSize)
-            });
-            return error;
-        }
     };
 
     DataStore.update = function(numDatasets) {

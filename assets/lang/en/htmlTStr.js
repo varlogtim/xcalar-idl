@@ -544,8 +544,7 @@ module.exports = {
         "Target": "Data Target",
         "Targets": "Data Targets",
         "Retry": "Retry",
-        "RetryPoint": "Please try to import data with different parameters (for example, a larger data source size)",
-        "RetryLimit": "Please set the data source size limit and try again.",
+        "RetryPoint": "Please try to import data with different parameters.",
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Locked By"
@@ -608,7 +607,6 @@ module.exports = {
         "Pattern": "Pattern",
         "Recursive": "Recursive",
         "Regex": "Regex",
-        "SizeLimit": "Data Source Size",
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "SkipRowsHint": "Skip the number of rows for each files in the data source",
@@ -618,8 +616,6 @@ module.exports = {
         "CreateTableHint": "Create a dataset and create a table from the dataset",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
-        "EntireFileSize": "Entire file/folder",
-        "CustomizedSize": "Custom size",
         "PARSER": "VISUAL PARSER"
     },
 
