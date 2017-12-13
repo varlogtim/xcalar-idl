@@ -41,6 +41,19 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 deferred.reject(error);
             });
         };
+
+        reader.onloadend = function(event) {
+            var error = event.target.error;
+            if (error != null) {
+                var options = {
+                    side: "left",
+                    detail: error.message || null
+                };
+                StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
+                                false, options);
+                deferred.reject(error);
+            }
+        };
         // XXX this should really be read as data URL
         // But requires that backend changes import retina to not
         // do default base 64 encoding. Instead take it as flag
