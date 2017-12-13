@@ -443,13 +443,6 @@ html.edge {
         width: 100%;
         display: block;
     }
-
-    .rowBookmarked {
-        background-color: @color-bg-softBlue !important;
-        .idSpan {
-            background-color: @color-bg-softBlue !important;
-        }
-    }
 }
 
 .xcTableWrap {
@@ -1458,16 +1451,6 @@ html.edge {
         background-color: @color-white;
     }
 
-    &.emptyTable {
-        // disables bookmarking on empty table
-        td:first-child {
-            cursor: initial;
-        }
-        .idWrap {
-            pointer-events: none;
-        }
-    }
-
     tbody tr {
         td {
             .idWrap {
@@ -1498,9 +1481,7 @@ html.edge {
     }
 
     tbody tr td:first-child {
-        cursor: pointer; // for bookmark
         border-right: 0px;
-        cursor: initial !important; // disabling bookmark
     }
 
     th {

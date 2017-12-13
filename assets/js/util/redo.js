@@ -377,18 +377,6 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.BookmarkRow] = function(options) {
-        focusTableHelper(options);
-        TblManager.bookmarkRow(options.rowNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.RemoveBookmark] = function(options) {
-        focusTableHelper(options);
-        TblManager.unbookmarkRow(options.rowNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
     redoFuncs[SQLOps.HideTable] = function(options) {
         focusTableHelper(options);
         TblManager.hideTable(options.tableId);

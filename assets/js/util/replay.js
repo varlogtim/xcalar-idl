@@ -422,8 +422,6 @@ window.Replay = (function($, Replay) {
                                                "toWidth"];
         argsMap[SQLOps.DragResizeRow] = ["rowNum", "tableId", "fromHeight",
                                          "toHeight"];
-        argsMap[SQLOps.BookmarkRow] = ["rowNum", "tableId"];
-        argsMap[SQLOps.RemoveBookmark] = ["rowNum", "tableId"];
         argsMap[SQLOps.DSRename] = ["dsId", "newName"];
         argsMap[SQLOps.DSToDir] = ["folderId"];
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
@@ -868,18 +866,6 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.DragResizeRow] = function(options) {
         var args = getArgs(options);
         TblAnim.resizeRow.apply(window, args);
-        return PromiseHelper.resolve(null);
-    };
-
-    replayFuncs[SQLOps.BookmarkRow] = function(options) {
-        var args = getArgs(options);
-        TblManager.bookmarkRow.apply(window, args);
-        return PromiseHelper.resolve(null);
-    };
-
-    replayFuncs[SQLOps.RemoveBookmark] = function(options) {
-        var args = getArgs(options);
-        TblManager.unbookmarkRow.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 

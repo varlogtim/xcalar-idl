@@ -763,7 +763,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("Should have 21 attributes", function() {
+        it("Should have 20 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId": "a1",
@@ -771,7 +771,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
-            expect(Object.keys(table).length).to.equal(21);
+            expect(Object.keys(table).length).to.equal(20);
             expect(table).have.property("version").and
             .to.equal(currentVersion);
             expect(table).have.property("tableName").and
@@ -790,8 +790,6 @@ describe("Persistent Constructor Test", function() {
             .to.be.null;
             expect(table).have.property("tableCols").and
             .to.be.null;
-            expect(table).have.property("bookmarks").and
-            .to.be.an("array");
             expect(table).have.property("rowHeights").and
             .to.be.an("object");
             expect(table).have.property("resultSetId").and
@@ -1396,48 +1394,6 @@ describe("Persistent Constructor Test", function() {
             gEnableIndexStyle = cache;
         });
 
-        it("table should add and remove book mark", function() {
-            var table = new TableMeta({
-                "tableName": "test#a1",
-                "tableId": "a1"
-            });
-
-            expect(table.bookmarks).to.be.an("array")
-            .and.to.have.length(0);
-
-            // case 1
-            table.addBookmark(1);
-            expect(table.bookmarks).to.have.length(1);
-            expect(table.bookmarks[0]).to.equal(1);
-
-            // case 2
-            table.addBookmark(1);
-            expect(table.bookmarks).to.have.length(1);
-
-            // case 3
-            try {
-                table.addBookmark(null);
-            } catch (error) {
-                expect(error).not.to.be.null;
-            }
-
-            // unbookmark
-            // case 1
-            table.removeBookmark(2);
-            expect(table.bookmarks).to.have.length(1);
-
-            // case 2
-            table.removeBookmark(1);
-            expect(table.bookmarks).to.have.length(0);
-
-            // case 3
-            try {
-                table.removeBookmark(null);
-            } catch (error) {
-                expect(error).not.to.be.null;
-            }
-        });
-
         it("Should get meta test1", function(done) {
             var oldFunc = XcalarGetTableMeta;
             var table = new TableMeta({
@@ -1883,7 +1839,7 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe.skip("DSObj Constructor Test", function() {
+    describe("DSObj Constructor Test", function() {
         it("Should have 10 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
@@ -1900,7 +1856,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(currentVersion);
         });
 
-        it("Should have 27 attributes for ds", function() {
+        it("Should have 26 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
@@ -1917,7 +1873,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(dsObj).to.be.instanceof(DSObj);
-            expect(Object.keys(dsObj).length).to.equal(27);
+            expect(Object.keys(dsObj).length).to.equal(26);
             expect(dsObj).to.have.property("version")
             .and.to.equal(currentVersion);
         });

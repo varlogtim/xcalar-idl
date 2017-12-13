@@ -296,7 +296,6 @@
             status: (string) enums of TableType
             timeStamp: (date) last change time
             tableCols: (array) ProgCols
-            bookmarks: (array) row bookmark cache
             rowHeights: (obj) row height cache
             currentRowNumber: (integer, not persist) current row number
             resultSetId: (string) result id
@@ -312,6 +311,8 @@
          * new attrs:
             indexTables: (obj) cache column's indexed table
             complement: (string), complement table
+         * removed attrs:
+            bookmarks
         */
         function TableMeta<%= v %>(options) {
             options = options || {};
@@ -327,6 +328,7 @@
                 self.complement = options.complement || "";
 
                 self.backTableMeta = options.backTableMeta || null;
+                delete self.bookmarks;
             }
 
             return self;
@@ -651,7 +653,6 @@
                 var table = this;
 
                 delete table.backTableMeta;
-                delete table.bookmarks;
                 delete table.currentRowNumber;
                 delete table.highlightedCells;
                 delete table.indexTables;
@@ -870,29 +871,6 @@
                 }
 
                 return false;
-            },
-
-            addBookmark: function(rowNum) {
-                xcAssert(Number.isInteger(rowNum));
-
-                if (this.bookmarks.indexOf(rowNum) < 0) {
-                    this.bookmarks.push(rowNum);
-                } else {
-                    // error case
-                    console.error("Duplicate bookmark in", rowNum);
-                }
-            },
-
-            removeBookmark: function(rowNum) {
-                xcAssert(Number.isInteger(rowNum));
-
-                var index = this.bookmarks.indexOf(rowNum);
-                if (index >= 0) {
-                    this.bookmarks.splice(index, 1);
-                } else {
-                    // error case
-                    console.error("No bookmark in", rowNum);
-                }
             },
 
             getColContents: function(colNum) {
@@ -1864,6 +1842,8 @@
                 udfQuery: (object), extra udf args,
                 locked: (boolean), is dataset locked or not
                 targetName: (string), the src of targetName
+            removed attr:
+                previewSize
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1880,6 +1860,7 @@
                 if (options.targetName != null) {
                     self.targetName = options.targetName;
                 }
+                delete self.previewSize;
             }
             return self;
         }

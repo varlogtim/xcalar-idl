@@ -1210,8 +1210,6 @@ window.Log = (function($, Log) {
             case (SQLOps.ResizeTableCols):
             case (SQLOps.DragResizeTableCol):
             case (SQLOps.DragResizeRow):
-            case (SQLOps.BookmarkRow):
-            case (SQLOps.RemoveBookmark):
             case (SQLOps.HideTable):
             case (SQLOps.UnhideTable):
             case (SQLOps.AddWS):

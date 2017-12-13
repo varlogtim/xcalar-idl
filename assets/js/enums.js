@@ -310,8 +310,6 @@ SQLOps = {
     ResizeTableCols: "resizeTableCols",
     DragResizeTableCol: "dragResizeTableCol",
     DragResizeRow: "dragResizeRow",
-    BookmarkRow: "bookmarkRow",
-    RemoveBookmark: "removeBookmark",
     HideTable: "minimizeTable",
     UnhideTable: "unminimizeTable",
     AddWS: "addWorksheet",

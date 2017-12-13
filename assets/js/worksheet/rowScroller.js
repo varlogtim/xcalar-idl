@@ -392,9 +392,6 @@ window.RowScroller = (function($, RowScroller) {
         if (table.resultSetCount > 0) {
             infScrolling(tableId);
         }
-
-        var bookmarks = gTables[tableId].bookmarks;
-        RowScroller.addBookmark(bookmarks, tableId);
     };
 
     RowScroller.update = function() {
@@ -420,37 +417,6 @@ window.RowScroller = (function($, RowScroller) {
         gActiveTableId = null;
         RowScroller.update();
         emptySkew();
-    };
-
-    // for book mark tick
-    RowScroller.addBookmark = function(rowNums, tableId) {
-        if (rowNums != null && !(rowNums instanceof Array)) {
-            rowNums = [rowNums];
-        }
-
-        var totalRows = gTables[tableId].resultSetCount;
-        var bookmark = "";
-
-        rowNums.forEach(function(rowNum) {
-            var leftPos = 100 * (rowNum / totalRows);
-            var title = xcHelper.replaceMsg(ScrollTStr.BookMark, {
-                "row": (rowNum + 1)
-            });
-
-            bookmark += '<div class="bookmark bkmkRow' + rowNum + '"' +
-                       ' style="left:' + leftPos + '%;"' +
-                       ' data-toggle="tooltip"' +
-                       ' data-placement="bottom"' +
-                       ' data-original-title="' + title + '"' +
-                       ' data-container="body"></div>';
-        });
-
-        // $('#rowScroller-' + tableId).append(bookmark);
-    };
-
-    RowScroller.removeBookmark = function(rowNum, tableId) {
-        // var $rowScroller = $('#rowScroller-' + tableId);
-        // $rowScroller.find('.bkmkRow' + rowNum).remove();
     };
 
     RowScroller.resize = function() {
@@ -544,12 +510,6 @@ window.RowScroller = (function($, RowScroller) {
         }
         return null;
     };
-
-    // function parseBookmarkNum(el) {
-    //     var classNames = el.attr('class');
-    //     var index = classNames.indexOf('bkmkRow') + 'bkmkRow'.length;
-    //     return parseInt(classNames.substring(index)) + 1;
-    // }
 
     function positionScrollbar(row, tableId, adjustTableScroller) {
         var canScroll = true;

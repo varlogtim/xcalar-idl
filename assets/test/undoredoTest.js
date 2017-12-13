@@ -563,8 +563,6 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Hide Column",
                         "Pull All Columns",
                         "Resize Row",
-                        "Bookmark Row",
-                        "Remove Bookmark",
                         "Minimize Table",
                         "Maximize Table"];
 

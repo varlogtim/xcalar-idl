@@ -382,22 +382,14 @@ window.RowManager = (function($, RowManager) {
         for (var row = 0; row < numRowsToAdd; row++) {
             var rowNum = row + startIndex;
 
-            tBodyHTML += '<tr class="row' + rowNum + ' tempRow">';
-
-            // add bookmark
-            if (table.bookmarks.indexOf(rowNum) > -1) {
-                tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
-            } else {
-                tBodyHTML += '<td align="center" class="col0">';
-            }
-
-            // Line Marker Column
-            tBodyHTML += '<div class="idWrap">' +
-                            '<span class="idSpan">' +
-                                (rowNum + 1) +
-                            '</span>' +
-                          '</div>' +
-                        '</td>';
+            tBodyHTML += '<tr class="row' + rowNum + ' tempRow">' +
+                            '<td align="center" class="col0">' +
+                                '<div class="idWrap">' +  // Line Marker Column
+                                    '<span class="idSpan">' +
+                                        (rowNum + 1) +
+                                    '</span>' +
+                                '</div>' +
+                            '</td>';
 
 
             // loop through table tr's tds

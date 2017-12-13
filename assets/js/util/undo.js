@@ -696,18 +696,6 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
-    undoFuncs[SQLOps.BookmarkRow] = function(options) {
-        focusTableHelper(options);
-        TblManager.unbookmarkRow(options.rowNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    undoFuncs[SQLOps.RemoveBookmark] = function(options) {
-        focusTableHelper(options);
-        TblManager.bookmarkRow(options.rowNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
     undoFuncs[SQLOps.HideTable] = function(options) {
         focusTableHelper(options);
         TblManager.unHideTable(options.tableId);

@@ -1130,27 +1130,16 @@ window.ColManager = (function($, ColManager) {
         for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
             var tdValue = parseRowJSON(jsonData[row]);
             var rowNum = row + startIndex;
-            var idTitle = "";
 
-            tBodyHTML += '<tr class="row' + rowNum + '">';
-
-            // add bookmark
-            if (table.bookmarks.indexOf(rowNum) > -1) {
-                tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
-                idTitle = TooltipTStr.Bookmarked;
-            } else {
-                tBodyHTML += '<td align="center" class="col0">';
-                idTitle = TooltipTStr.Bookmark;
-            }
-
-            // Line Marker Column
-            tBodyHTML += '<div class="idWrap">' +
-                            '<span class="idSpan">' +
-                                (rowNum + 1) +
-                            '</span>' +
-                            '<div class="rowGrab"></div>' +
-                          '</div>' +
-                        '</td>';
+            tBodyHTML += '<tr class="row' + rowNum + '">' +
+                            '<td align="center" class="col0">' +
+                                '<div class="idWrap">' + // Line Marker Column
+                                    '<span class="idSpan">' +
+                                        (rowNum + 1) +
+                                    '</span>' +
+                                    '<div class="rowGrab"></div>' +
+                                '</div>' +
+                            '</td>';
 
             // loop through table tr's tds
             var nestedTypes;

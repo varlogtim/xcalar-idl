@@ -967,20 +967,6 @@
     "toHeight"]},
     "timestamp":1460602871116},
 
-    {"title":"Bookmark Row",
-    "options":{"operation":"bookmarkRow",
-    "tableId":"dU0",
-    "tableName":"testyelp#dU0",
-    "rowNum":4},
-    "timestamp":1460602874354},
-
-    {"title":"Remove Bookmark",
-    "options":{"operation":"removeBookmark",
-    "tableId":"dU0",
-    "tableName":"testyelp#dU0",
-    "rowNum":4},
-    "timestamp":1460602895194},
-
     {"title":"Minimize Table",
     "options":{"operation":"minimizeTable",
     "tableName":"testyelp#dU0",

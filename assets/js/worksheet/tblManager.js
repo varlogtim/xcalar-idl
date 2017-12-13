@@ -1251,44 +1251,6 @@ window.TblManager = (function($, TblManager) {
         return gMaxEntriesPerPage;
     };
 
-    TblManager.bookmarkRow = function(rowNum, tableId) {
-        var $table = $('#xcTable-' + tableId);
-        var $td = $table.find('.row' + rowNum + ' .col0');
-        var table = gTables[tableId];
-
-        $td.addClass('rowBookmarked');
-        xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmarked);
-        xcTooltip.hideAll();
-        RowScroller.addBookmark(rowNum, tableId);
-        table.addBookmark(rowNum);
-
-        Log.add(SQLTStr.BookmarkRow, {
-            "operation": SQLOps.BookmarkRow,
-            "tableId": tableId,
-            "tableName": table.getName(),
-            "rowNum": rowNum
-        });
-    };
-
-    TblManager.unbookmarkRow = function(rowNum, tableId) {
-        var $table = $('#xcTable-' + tableId);
-        var $td = $table.find('.row' + rowNum + ' .col0');
-        var table = gTables[tableId];
-
-        $td.removeClass('rowBookmarked');
-        xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmark);
-        xcTooltip.hideAll();
-        RowScroller.removeBookmark(rowNum, tableId);
-        table.removeBookmark(rowNum);
-
-        Log.add(SQLTStr.RemoveBookmark, {
-            "operation": SQLOps.RemoveBookmark,
-            "tableId": tableId,
-            "tableName": table.getName(),
-            "rowNum": rowNum
-        });
-    };
-
     /*
      * options:
      *  jsonModal: if it's jsonModal
@@ -2279,22 +2241,6 @@ window.TblManager = (function($, TblManager) {
                 TblAnim.startRowResize($(this), event);
             }
         });
-
-        // bookmark (disabled)
-        // $trs.find('.idSpan').click(function() {
-        //     var tableId = xcHelper.parseTableId($(this).closest('table'));
-        //     var table = gTables[tableId];
-        //     if (table.resultSetCount === 0) {
-        //         // no rows to bookmark
-        //         return;
-        //     }
-        //     var rowNum = xcHelper.parseRowNum($(this).closest('tr'));
-        //     if (table.bookmarks.indexOf(rowNum) < 0) {
-        //         TblManager.bookmarkRow(rowNum, tableId);
-        //     } else {
-        //         TblManager.unbookmarkRow(rowNum, tableId);
-        //     }
-        // });
 
         function showJSONModal() {
             if ($('#mainFrame').hasClass('modalOpen') &&

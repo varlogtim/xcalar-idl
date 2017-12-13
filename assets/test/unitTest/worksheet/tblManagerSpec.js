@@ -737,29 +737,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        // it("TblManager.bookmarkRow should work", function() {
-        //     var table = gTables[tableId];
-        //     var rowNum = 0;
-        //     expect(table.bookmarks.length).to.equal(0);
-        //     TblManager.bookmarkRow(rowNum, tableId);
-        //     expect(table.bookmarks.length).to.equal(1);
-        //     var $table = $("#xcTable-" + tableId);
-        //     var $td = $table.find(".row" + rowNum + " .col0");
-        //     expect($td.hasClass("rowBookmarked"))
-        //     .to.be.true;
-        // });
-
-        // it("TblManager.unbookmarkRow should work", function() {
-        //     var table = gTables[tableId];
-        //     var rowNum = 0;
-        //     TblManager.unbookmarkRow(rowNum, tableId);
-        //     expect(table.bookmarks.length).to.equal(0);
-        //     var $table = $("#xcTable-" + tableId);
-        //     var $td = $table.find(".row" + rowNum + " .col0");
-        //     expect($td.hasClass("rowBookmarked"))
-        //     .to.be.false;
-        // });
-
         describe("Thead Listener Test", function() {
             var $xcTheadWrap;
 
@@ -941,20 +918,6 @@ describe("TableManager Test", function() {
 
                 TblAnim.startRowResize = oldFunc;
             });
-
-            // it("Should click idSpan to book mark", function() {
-            //     var $td = $tbody.find(".row0 .col0");
-            //     var $idSpan = $td.find(".idSpan");
-            //     expect($idSpan.length).to.equal(1);
-            //     // bookmark
-            //     $idSpan.click();
-            //     expect($td.hasClass("rowBookmarked"))
-            //     .to.be.true;
-            //     // unbookmark
-            //     $idSpan.click();
-            //     expect($td.hasClass("rowBookmarked"))
-            //     .to.be.false;
-            // });
 
             it("Should click json elemet to open json modal", function() {
                 var test = null;

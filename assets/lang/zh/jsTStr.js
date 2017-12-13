@@ -82,8 +82,6 @@ TooltipTStr = {
 'SaveQG': '保存图片',
 'NewTabQG': '在新标签页中打开图像',
 'AddDataflow': '创建批量数据流',
-'Bookmark': '点击此处,添加书签',
-'Bookmarked': '已添加书签',
 'CopyLog': '将日志复制到剪贴板上',
 'GenTicket': '生成服务支持券',
 'ColPrefix': '列将添加前缀，以唯一标识表中的列。前缀默认自动生成。',
@@ -357,7 +355,6 @@ NewUserTStr = {
 TipsTStr = {
 'Scrollbar': '滚动数据表',
 'DataType': '数据类型',
-'LineMarker': '单击行号以添加书签',
 'JSONEle': '双击查看，然后单击键名称以选取列',
 'DragGrid': '您可以拖动数据集或文件夹以重新排序',
 'DSTable': '单击表头以从/从数据购物车添加/删除列。单击列标题以进一步修改列。',
@@ -479,9 +476,6 @@ FnBarTStr = {
                     '<funcs></b>',
 'WantContinue': 'Do you want to continue?'
 
-};
-ScrollTStr = {
-'BookMark': '行<row>'
 };
 OpFormTStr = {
 'NewColName': '按列生成的列的新列名称',
@@ -1039,7 +1033,6 @@ ProjectTStr = {
 SQLTStr = {
     "AddNewCol": "Add New Column",
     "AddWS": "Create Worksheet",
-    "BookmarkRow": "Bookmark Row",
     "ChangeFormat": "Change Format",
     "DelCol": "Delete Column",
     "DelWS": "Delete Worksheet",
@@ -1056,7 +1049,6 @@ SQLTStr = {
     "MoveTableToWS": "Move Table To Worksheet",
     "PullCol": "Pull Column",
     "PullCols": "Pull Columns",
-    "RemoveBookmark": "Remove Bookmark",
     "RenameCol": "Rename Column",
     "RenameWS": "Rename Worksheet",
     "ReorderCol": "Change Column Order",
