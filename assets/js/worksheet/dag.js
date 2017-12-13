@@ -124,7 +124,7 @@ window.Dag = (function($, Dag) {
                     if ($prevDag.length) {
                         $prevDag.after(outerDag);
                     } else {
-                        $(".dagArea").append(xcTableWrap); // shouldn't happen
+                        $(".dagArea").append(outerDag); // shouldn't happen
                     }
                 }
             }

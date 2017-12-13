@@ -304,6 +304,8 @@ window.TblManager = (function($, TblManager) {
     // force: boolean, if true will change table meta before async returns
     // removeAfter: boolean, if true will remove table html after freeing result
     //                      set
+    //
+
     TblManager.sendTableToOrphaned = function(tableId, options) {
         var deferred = jQuery.Deferred();
         options = options || {};
@@ -311,9 +313,11 @@ window.TblManager = (function($, TblManager) {
             removeTableDisplay(tableId);
         }
         var table = gTables[tableId];
+        var cleanupResult;
 
         if (options.force) {
-            tableCleanup(tableId, false, options);
+            // returns object with table's ws relativePosition
+            cleanupResult = tableCleanup(tableId, false, options);
         }
 
         table.freeResultset()
@@ -322,9 +326,9 @@ window.TblManager = (function($, TblManager) {
                 removeTableDisplay(tableId);
             }
             if (!options.force) {
-                tableCleanup(tableId, false, options);
+                cleanupResult = tableCleanup(tableId, false, options);
             }
-            deferred.resolve();
+            deferred.resolve(cleanupResult);
         })
         .fail(deferred.reject);
 
@@ -334,12 +338,11 @@ window.TblManager = (function($, TblManager) {
     TblManager.sendTableToTempList = function(tableId) {
         var deferred = jQuery.Deferred();
         var ws = WSManager.getWSFromTable(tableId);
-        var tablePos = WSManager.getTableRelativePosition(tableId);
 
+        // table position after async call
         var sqlOptions = {
             "operation": SQLOps.MakeTemp,
             "worksheetId": ws,
-            "tablePos": tablePos,
             "tableId": tableId,
             "tableName": gTables[tableId].getName(),
             "htmlExclude": ["tableId", "tablePos", "worksheetId"]
@@ -350,7 +353,8 @@ window.TblManager = (function($, TblManager) {
         xcHelper.lockTable(tableId);
 
         TblManager.sendTableToOrphaned(tableId, options)
-        .then(function() {
+        .then(function(ret) {
+            sqlOptions.tablePos = ret.relativePosition;
             Log.add(SQLTStr.MakeTemp, sqlOptions);
             deferred.resolve();
         })
@@ -480,6 +484,8 @@ window.TblManager = (function($, TblManager) {
         }
 
         TableList.removeTable(tableId);
+
+        var relativePosition = WSManager.getTableRelativePosition(tableId);
         WSManager.removeTable(tableId);
 
         if (isUndone) {
@@ -511,6 +517,8 @@ window.TblManager = (function($, TblManager) {
         // disallow dragging if only 1 table in worksheet
         TblFunc.checkTableDraggable();
         TableList.addToOrphanList(table.getName());
+
+        return {relativePosition: relativePosition};
     }
 
     // XXX consider passing in table names instead of tableIds to simplify
