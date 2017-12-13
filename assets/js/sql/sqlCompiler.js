@@ -901,9 +901,11 @@
             // and check if it has renamed columns
             var colNames = [];
             for (var i = 0; i < columns.length; i++) {
-                colNames.push(columns[i].colName);
                 if (columns[i].rename) {
+                    colNames.push(columns[i].rename);
                     node.renamedColIds.push(columns[i].colId);
+                } else {
+                    colNames.push(columns[i].colName);
                 }
             }
 
@@ -1168,9 +1170,11 @@
             // Extract colNames from column structs
             var aggColNames = [];
             for (var i = 0; i < columns.length; i++) {
-                aggColNames.push(columns[i].colName);
                 if (columns[i].rename) {
+                    aggColNames.push(columns[i].rename);
                     node.renamedColIds.push(columns[i].colId);
+                } else {
+                    aggColNames.push(columns[i].colName);
                 }
             }
 
@@ -2114,7 +2118,7 @@
                 colStruct.colId = curColStruct.exprId.id;
                 if (options && options.renamedColIds &&
                     options.renamedColIds.indexOf(colStruct.colId) !== -1) {
-                    colStruct.rename += "_E" + colStruct.colId;
+                    colStruct.rename = colStruct.colName + "_E" + colStruct.colId;
                 }
             }
             columns.push(colStruct);
