@@ -37,6 +37,13 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.clear = function() {
+        UDF.clearEditor();
+        storedUDF = {};
+        $("#udf-fnMenu").find('li[name=blank]')
+                    .siblings().remove();
+    };
+
+    UDF.clearEditor = function() {
         // clear CodeMirror
         if (editor != null) {
             // Wrap in if because KVStore.restore may call UDF.clear()
@@ -44,10 +51,7 @@ window.UDF = (function($, UDF) {
             editor.setValue(udfDefault);
             editor.clearHistory();
         }
-        storedUDF = {};
-        $("#udf-fnMenu").find('li[name=blank]')
-                    .siblings().remove();
-    };
+    }
 
     UDF.getEditor = function() {
         return editor;

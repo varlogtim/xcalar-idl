@@ -66,7 +66,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     case ("sendToUDFEditor"):
                         BottomMenu.openSection(2);
                         var editor = UDF.getEditor();
-                        UDF.clear();
+                        UDF.clearEditor();
                         editor.setValue(s.code);
                         break;
                     default:
