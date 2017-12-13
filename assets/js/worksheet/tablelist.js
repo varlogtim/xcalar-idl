@@ -395,7 +395,7 @@ window.TableList = (function($, TableList) {
 
     // adding or deleting tables from different lists
     TableList.tableBulkAction = function(action, tableType, wsId, destWS,
-        resolveAfterAnim) {
+        resolveAfterAnim, noAnim) {
         var deferred = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
@@ -506,12 +506,12 @@ window.TableList = (function($, TableList) {
                     } else {
                         if (tableType !== TableType.WSHidden) {
                             if (resolveAfterAnim) {
-                                focusOnLastTable(tables)
+                                focusOnLastTable(tables, noAnim)
                                 .then(function() {
                                     deferred.resolve();
                                 });
                             } else {
-                                focusOnLastTable(tables);
+                                focusOnLastTable(tables, noAnim);
                                 deferred.resolve(tables, ws);
                             }
                         } else {
@@ -1837,7 +1837,7 @@ window.TableList = (function($, TableList) {
         xcHelper.centerFocusedColumn(tableId, colNum, animation);
     }
 
-    function focusOnLastTable(tableNames) {
+    function focusOnLastTable(tableNames, noAnim) {
 
         if (!$("#workspaceTab").hasClass("active")) {
             $("#workspaceTab").click();
@@ -1851,7 +1851,7 @@ window.TableList = (function($, TableList) {
             var $lastTable = $('.xcTableWrap:not(.inActive)').last();
             if ($lastTable.length > 0) {
                 var deferred = jQuery.Deferred();
-                xcHelper.centerFocusedTable($lastTable.data("id"), true)
+                xcHelper.centerFocusedTable($lastTable.data("id"), !noAnim)
                 .then(deferred.resolve);
                 return deferred.promise();
             }

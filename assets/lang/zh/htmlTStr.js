@@ -140,7 +140,8 @@ module.exports = {
         "EditOp": "Edit operation",
         "RevealOps": "Reveal operations",
         "HideOps": "Hide operations",
-        "UndoEdit": "Undo edit"
+        "UndoEdit": "Undo edit",
+        "ExitEditMode": "Exit editing mode"
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",

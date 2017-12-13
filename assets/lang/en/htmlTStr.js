@@ -283,7 +283,8 @@ module.exports = {
         "RevealOps": "Reveal operations",
         "HideOps": "Hide operations",
         "UndoEdit": "Revert to original operation",
-        "CommentOp": "Add a comment"
+        "CommentOp": "Add a comment",
+        "ExitEditMode": "Exit editing mode"
     },
 
     "TooltipTStr": {

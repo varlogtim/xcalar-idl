@@ -8,6 +8,7 @@ window.DagEdit = (function($, DagEdit) {
     // index edit as well
     var mapIndex; // stores eval string number during a map edit
     var newNodes = {};
+    var editingTables = {};
 
 
     // XXX temporary
@@ -48,18 +49,20 @@ window.DagEdit = (function($, DagEdit) {
         function toggleMode() {
             $("#container").toggleClass("dfEditState");
             if (!$("#container").hasClass("dfEditState")) {
-                isEditMode = true;
+                isEditMode = false;
                 $(".dagWrap").removeClass("editMode");
                 $(".dagWrap").find(".hasEdit").removeClass("hasEdit");
                 $(".xcTableWrap").removeClass("editingDf notEditing editing");
                 $("#dagPanel").find(".dagTableTip").remove();
+                DagEdit.exitForm();
+
                 xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                                      TooltipTStr.NoUndoActiveForm);
                 StatusMessage.updateLocation(true);
                 TblManager.alignTableEls();
                 MainMenu.closeForms();
             } else {
-                isEditMode = false;
+                isEditMode = true;
                 var tableId = xcHelper.getTableId(node.value.name);
                 $("#xcTableWrap-" + tableId).addClass("editingDf");
                 $(".xcTableWrap:not(#xcTableWrap-" + tableId + ")").addClass("notEditing");
@@ -72,33 +75,66 @@ window.DagEdit = (function($, DagEdit) {
             params = {};
             newNodes = {};
             linkedNodes = {};
+            editingTables = {};
         }
   	};
-
-  	DagEdit.editOp = function(node) {
+    // options:
+    //  evalIndex: integer, which eval str to edit
+  	DagEdit.editOp = function(node, options) {
+        options = options || {};
   		editingNode = node;
+        var api = node.value.api;
         var sourceTableNames = node.getNonIndexSourceNames(true);
 
-        TblManager.findAndFocusTable(sourceTableNames[0])
-        .then(function() {
+        if (options.evalIndex == null && api === XcalarApisT.XcalarApiMap &&
+            node.value.struct.eval.length > 1) {
+            showMapPreForm(node, sourceTableNames);
+            return;
+        }
+        var tableStatuses = [];
+
+        TblManager.findAndFocusTable(sourceTableNames[0], true)
+        .then(function(ret) {
+            if (ret.tableFromInactive) {
+                editingTables[sourceTableNames[0]] = "inactive";
+            } else {
+                editingTables[sourceTableNames[0]] = "active";
+            }
             if (sourceTableNames[1]) {
                 return TblManager.findAndFocusTable(sourceTableNames[1]);
             } else {
                 return PromiseHelper.resolve();
             }
         })
-        .then(function() {
+        .then(function(ret) {
+            if (sourceTableNames[1]) {
+                if (ret.tableFromInactive) {
+                    editingTables[sourceTableNames[1]] = "inactive";
+                } else {
+                    editingTables[sourceTableNames[1]] = "active";
+                }
+            }
             for (var i = 0; i < sourceTableNames.length; i++) {
                 var tableId = xcHelper.getTableId(sourceTableNames[i]);
                 var $dagWrap = $("#dagWrap-" + tableId);
                 $dagWrap.addClass("editing").removeClass("notEditing");
-                $("#xcTableWrap-" + tableId).addClass("editing").removeClass("notEditing");
+                $("#xcTableWrap-" + tableId).addClass("editing")
+                                            .removeClass("notEditing");
 
                 // highlight node
-                Dag.getTableIconByName($(".dagWrap.editMode"), sourceTableNames[i]).addClass("editing");
+                Dag.getTableIconByName($(".dagWrap.editMode"),
+                                       sourceTableNames[i]).addClass("editing");
             }
 
-            showEditForm(node, sourceTableNames);
+            var tableId = xcHelper.getTableId(sourceTableNames[0]);
+            $("#container").addClass("editingForm");
+            TblManager.alignTableEls($("#xcTableWrap-" + tableId));
+
+            // helps with the choppy animation of the operation form
+            setTimeout(function() {
+                showEditForm(node, sourceTableNames, null, null,
+                              options.evalIndex);
+            });
         })
         .fail(function() {
             var firstTableId = xcHelper.getTableId(sourceTableNames[0]);
@@ -136,10 +172,83 @@ window.DagEdit = (function($, DagEdit) {
                                             .removeClass("notEditing");
             }
 
-            showEditForm(node, sourceTableNames, isDroppedTable,
-                         isOtherDroppedTable);
+            if (!isDroppedTable) {
+                var tableId = xcHelper.getTableId(sourceTableNames[0]);
+                $("#container").addClass("editingForm");
+                TblManager.alignTableEls($("#xcTableWrap-" + tableId));
+            }
+
+            // helps with the choppy animation of the operation form
+            setTimeout(function() {
+                showEditForm(node, sourceTableNames, isDroppedTable,
+                             isOtherDroppedTable, options.evalIndex);
+            });
         });
   	};
+
+    DagEdit.exitForm = function() {
+        for (var tableName in editingTables) {
+            var status = editingTables[tableName];
+            if (status === "inactive") {
+                var tableId = xcHelper.getTableId(tableName);
+                TblManager.sendTableToTempList(tableId);
+            }
+        }
+        editingTables = {};
+        $(".dagWrap").removeClass("editing");
+        $(".dagWrap .dagTable").removeClass("editing");
+        $(".xcTableWrap").removeClass("editing");
+        $("#container").removeClass("editingForm");
+        if ($("#container").hasClass("dfEditState")) {
+            TblFunc.focusTable($(".dagWrap.editMode").data("id"));
+        }
+    };
+
+
+    function showMapPreForm(node, sourceTableNames) {
+        var $mapPreForm = $("#mapPreForm");
+        $mapPreForm.addClass("active");
+
+        var $dagWrap = $(".dagWrap.editMode");
+        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
+
+        $(document).on('mousedown.hideMapPreForm', function(event) {
+            if ($(event.target).closest('#mapPreForm').length === 0 &&
+                $(event.target).closest('#dagScrollBarWrap').length === 0) {
+                $mapPreForm.removeClass("active");
+                $(document).off(".hideMapPreForm");
+                $(".dagWrap .dagTable").removeClass("editing");
+            }
+        });
+
+        var mapStruct;
+        if (params[node.value.name]) {
+            mapStruct = params[node.value.name];
+        } else {
+            mapStruct = node.value.struct;
+        }
+
+        var evalHtml = "<div>";
+        mapStruct.eval.forEach(function(evalObj) {
+            evalHtml += '<div class="row">' +
+                            '<div class="evalStr">' + evalObj.evalString + '</div>' +
+                            '<div class="optionSection">' +
+                                '<div class="edit option">' +
+                                    '<span class="text">Edit</span>' +
+                                    '<i class="icon xi-edit"></i>' +
+                                '</div>' +
+                                // '<div class="delete option">' +
+                                //     '<i class="icon xi-trash"></i>' +
+                                // '</div>' +
+                            '</div>' +
+                        '</div>';
+        });
+
+        evalHtml += "</div>";
+        $mapPreForm.find(".content").html(evalHtml);
+
+        positionMapPreForm($dagTable);
+    }
 
     DagEdit.store = function(info) {
         var indexNodes = [];
@@ -211,7 +320,7 @@ window.DagEdit = (function($, DagEdit) {
     };
 
     function showEditForm(node, sourceTableNames, isDroppedTable,
-                          isOtherDroppedTable) {
+                          isOtherDroppedTable, evalIndex) {
         var api = node.value.api;
         var struct = node.value.struct;
         var tableIds = sourceTableNames.map(function(name) {
@@ -219,7 +328,7 @@ window.DagEdit = (function($, DagEdit) {
         });
         var tableId = tableIds[0];
         var prefillInfo;
-        $("#container").addClass("editingForm");
+
         switch(api) {
              case (XcalarApisT.XcalarApiAggregate):
                 var aggStruct;
@@ -245,69 +354,28 @@ window.DagEdit = (function($, DagEdit) {
                 } else {
                     mapStruct = struct;
                 }
-                if (mapStruct.eval.length === 1) {
+                if (evalIndex) {
+                    mapIndex = evalIndex;
+                } else {
                     mapIndex = 0;
-
-                    var evalStr = mapStruct.eval[0].evalString.trim();
-
-                    var opInfo = xcHelper.extractOpAndArgs(evalStr);
-                    var newFields = mapStruct.eval.map(function(item) {
-                        return item.newField;
-                    });
-                    prefillInfo = {
-                        ops: [opInfo.op],
-                        args: [opInfo.args],
-                        newFields: [newFields[0]],
-                        icv: mapStruct.icv,
-                        isDroppedTable: isDroppedTable
-                    };
-
-                    OperationsView.show(tableId, [], "map", {
-                        prefill: prefillInfo
-                    });
-
-                    return;
                 }
 
-                var $mapPreForm = $("#mapPreForm");
-                $mapPreForm.addClass("active");
-                $mapPreForm.data("tableid", tableId);
-                $mapPreForm.data("tablename", sourceTableNames[0]);
-                $mapPreForm.data("isDroppedTable", isDroppedTable);
+                var evalStr = mapStruct.eval[mapIndex].evalString.trim();
 
-
-                var $dagWrap = $(".dagWrap.editMode");
-                var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
-
-                $(document).on('mousedown.hideMapPreForm', function(event) {
-                    if ($(event.target).closest('#mapPreForm').length === 0 &&
-                        $(event.target).closest('#dagScrollBarWrap').length === 0) {
-                        $mapPreForm.removeClass("active");
-                        $(document).off(".hideMapPreForm");
-                        $(".dagWrap .dagTable").removeClass("editing");
-                    }
+                var opInfo = xcHelper.extractOpAndArgs(evalStr);
+                var newFields = mapStruct.eval.map(function(item) {
+                    return item.newField;
                 });
-
-                var evalHtml = "<div>";
-                mapStruct.eval.forEach(function(evalObj) {
-                    evalHtml += '<div class="row">' +
-                                    '<div class="evalStr">' + evalObj.evalString + '</div>' +
-                                    '<div class="optionSection">' +
-                                        '<div class="edit option">' +
-                                            '<span class="text">Edit</span>' +
-                                            '<i class="icon xi-edit"></i>' +
-                                        '</div>' +
-                                        // '<div class="delete option">' +
-                                        //     '<i class="icon xi-trash"></i>' +
-                                        // '</div>' +
-                                    '</div>' +
-                                '</div>';
+                prefillInfo = {
+                    ops: [opInfo.op],
+                    args: [opInfo.args],
+                    newFields: [newFields[mapIndex]],
+                    icv: mapStruct.icv,
+                    isDroppedTable: isDroppedTable
+                };
+                OperationsView.show(tableId, [], "map", {
+                    prefill: prefillInfo
                 });
-
-                evalHtml += "</div>";
-                $mapPreForm.find(".content").html(evalHtml);
-
-                positionMapPreForm($dagTable);
                 break;
             case (XcalarApisT.XcalarApiFilter):
                 var fltStruct;
@@ -457,31 +525,7 @@ window.DagEdit = (function($, DagEdit) {
 
             var index = $(this).index();
             mapIndex = index;
-            var tableId = $mapPreForm.data("tableid");
-            var isDroppedTable = $mapPreForm.data("isDroppedTable");
-            var mapStruct;
-            if (params[editingNode.value.name]) {
-                mapStruct = params[editingNode.value.name];
-            } else {
-                mapStruct = editingNode.value.struct;
-            }
-            var evalStr = mapStruct.eval[index].evalString.trim();
-            var opInfo = xcHelper.extractOpAndArgs(evalStr);
-            var newFields = mapStruct.eval.map(function(item) {
-                return item.newField;
-            });
-
-            prefillInfo = {
-                ops: [opInfo.op],
-                args: [opInfo.args],
-                newFields: [newFields[index]],
-                icv: mapStruct.icv,
-                isDroppedTable: isDroppedTable
-            };
-
-            OperationsView.show(tableId, [], "map", {
-                prefill: prefillInfo
-            });
+            DagEdit.editOp(editingNode, {evalIndex: index});
         });
     };
 

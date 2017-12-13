@@ -753,7 +753,14 @@ DFTStr = {
 'NewParam': '新建参数',
 'EnterNewParam': '请在此处输入新参数',
 'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports',
-  "TableAlreadySelected": "This table is already selected."
+"TableAlreadySelected": "This table is already selected.",
+"NewComment": "Add a comment",
+"EditComment": "View / edit comment",
+"NoCommentDropped": "Cannot add comment to operation if table has been dropped",
+"NoEditDropped": "Cannot edit operation if descendant table has been dropped",
+"NoEditIndex": "Cannot edit index operations",
+"NoEditSupported": "Editing this operation is not supported"
+
 };
 DSTStr = {
 'UnknownUser': '未知用户',

@@ -981,7 +981,7 @@ window.Dag = (function($, Dag) {
         });
 
         $dagWrap.on("click", ".commentIcon", function() {
-            if ($dagWrap.closest("#dfViz").length) {
+            if (!$dagWrap.closest("#dagPanel").length) {
                 return;
             }
             var $opIcon = $(this).closest(".actionType");

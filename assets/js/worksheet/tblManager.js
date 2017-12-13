@@ -399,7 +399,7 @@ window.TblManager = (function($, TblManager) {
 
     // searches for this table in active and temp list and brings it to the
     // active WS if needed and focuses on it
-    TblManager.findAndFocusTable = function(tableName) {
+    TblManager.findAndFocusTable = function(tableName, noAnimate) {
         var deferred = jQuery.Deferred();
 
         var wsId;
@@ -422,7 +422,7 @@ window.TblManager = (function($, TblManager) {
                 var $tableWrap = $('#xcTableWrap-' + tableId);
                 xcHelper.centerFocusedTable($tableWrap, false)
                 .then(function() {
-                    deferred.resolve();
+                    deferred.resolve({tableFromInactive: false});
                 });
                 $tableWrap.mousedown();
                 return deferred.promise();
@@ -442,7 +442,8 @@ window.TblManager = (function($, TblManager) {
             } else {
                 $('#workspaceTab').click();
                 wsId = WSManager.getActiveWS();
-                WSManager.moveInactiveTable(tableId, wsId, tableType, true)
+                WSManager.moveInactiveTable(tableId, wsId, tableType, true,
+                    noAnimate)
                 .then(function() {
                     deferred.resolve({tableFromInactive: true});
                 })
@@ -455,7 +456,7 @@ window.TblManager = (function($, TblManager) {
                     $('#workspaceTab').click();
                     wsId = WSManager.getActiveWS();
                     WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan,
-                                                true)
+                                                true, noAnimate)
                     .then(function() {
                         deferred.resolve({tableFromInactive: true});
                     })

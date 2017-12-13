@@ -646,7 +646,7 @@ window.WSManager = (function($, WSManager) {
 
     // Move inactive table to another worksheet
     WSManager.moveInactiveTable = function(tableId, newWSId, tableType,
-                                            waitForAnim) {
+                                            waitForAnim, noAnim) {
         var deferred = jQuery.Deferred();
         var newWS = worksheetGroup.get(newWSId);
 
@@ -667,7 +667,7 @@ window.WSManager = (function($, WSManager) {
                 wsToSend = newWSId;
             }
             return TableList.tableBulkAction("add", tableType, wsToSend, null,
-                                             waitForAnim);
+                                             waitForAnim, noAnim);
         })
         .then(function() {
             // this sql is modified in findTableListHelper()

@@ -618,7 +618,8 @@ window.DagPanel = (function($, DagPanel) {
             var tableName = $opWrap.data("table");
             var tableId = xcHelper.getTableId(tableName);
 
-            $menu.find(".expandTag, .collapseTag, .undoEdit").addClass("xc-hidden");
+            $menu.find(".expandTag, .collapseTag, .undoEdit, .exitEdit")
+                 .addClass("xc-hidden");
 
             if ($opWrap.hasClass("tagHeader")) {
                 if ($opWrap.hasClass("expanded")) {
@@ -630,14 +631,14 @@ window.DagPanel = (function($, DagPanel) {
             if ($opWrap.hasClass("index")) {
                 $menu.find(".editOp").addClass("unavailable");
                 xcTooltip.add($menu.find(".editOp"), {
-                    title: "Cannot edit index operations"
+                    title: DFTStr.NoEditIndex
                 });
             } else if (!$opWrap.hasClass("groupBy") && !$opWrap.hasClass("map") &&
                 !$opWrap.hasClass("filter") && !$opWrap.hasClass("join")  &&
                 !$opWrap.hasClass("aggregate") && !$opWrap.hasClass("project")) {
                 $menu.find(".editOp").addClass("unavailable");
                 xcTooltip.add($menu.find(".editOp"), {
-                    title: "Editing this operation is not supported"
+                    title: DFTStr.NoEditSupported
                 });
             } else {
                 var hasDroppedParentNoMeta = false;
@@ -647,7 +648,7 @@ window.DagPanel = (function($, DagPanel) {
 
                 if (hasDroppedParentNoMeta) {
                     xcHelper.disableMenuItem($menu.find(".editOp"), {
-                        "title": "Cannot edit operation if descendant table has been dropped"
+                        "title": DFTStr.NoEditDropped
                     });
                 } else {
                     xcTooltip.remove($menu.find(".editOp"));
@@ -669,7 +670,7 @@ window.DagPanel = (function($, DagPanel) {
 
             if ($dagTable.hasClass(DgDagStateTStr[DgDagStateT.DgDagStateDropped])) {
                 xcHelper.disableMenuItem($menu.find(".commentOp"), {
-                    "title": "Cannot add comment to operation if table has been dropped"
+                    "title": DFTStr.NoCommentDropped
                 });
             } else {
                 $menu.find(".commentOp").removeClass("unavailable");
@@ -679,6 +680,10 @@ window.DagPanel = (function($, DagPanel) {
                 } else {
                     $menu.find(".commentOp").text(DFTStr.NewComment);
                 }
+            }
+
+            if (DagEdit.isEditMode()) {
+                $menu.find(".exitEdit").removeClass("xc-hidden");
             }
 
             positionAndShowDagTableDropdown($opIcon, $menu, $(event.target));
@@ -767,7 +772,7 @@ window.DagPanel = (function($, DagPanel) {
                 if (!$dagWrap.hasClass("selected")) {
                     TblFunc.focusTable(tableId);
                 }
-                xcHelper.centerFocusedTable(tableId, true,
+                xcHelper.centerFocusedTable(tableId, false,
                                             {onlyIfOffScreen: true});
                 DagEdit.toggle($dagWrap.data("allDagInfo").tree);
             }
@@ -1164,6 +1169,9 @@ window.DagPanel = (function($, DagPanel) {
                     var allDagInfo = $dagWrap.data("allDagInfo");
                     var node = allDagInfo.nodeIdMap[nodeId];
                     DagEdit.undoEdit(node);
+                    break;
+                case ("exitEdit"):
+                    DagEdit.toggle();
                     break;
                 case ("commentOp"):
                     DFCommentModal.show($menu.data("opIcon"), nodeId);
