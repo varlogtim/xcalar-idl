@@ -201,6 +201,7 @@ CommonTxtTstr = {
     'RevertDefaultVal': 'Revert to default value',
     'rows': 'rows',
     'SAVE': 'SAVE',
+    'Search': 'Search',
     'SelectAll': 'Select All',
     'StartTime': 'Start Time',
     'Table': 'Table',
@@ -637,10 +638,14 @@ JoinTStr = {
 };
 
 UnionTStr = {
-    "ChooseType": "Select the resultant column type",
+    "ChooseType": "Select column type",
     "OneTableToUnion": "Need at least two tables to union.",
     "Cast": "Colunms to union have different types, please select a type for the resultant column.",
-    "AddCol": "Click to add to the union table"
+    "AddCol": "Click to add to the union table",
+    "Table": "Table",
+    "UnionTable": "Union Table",
+    "NewTableName": "New Table Name",
+    "NewColName": "New Column Name"
 };
 
 ExportTStr = {

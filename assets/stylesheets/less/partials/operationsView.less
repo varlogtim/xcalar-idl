@@ -2125,18 +2125,14 @@
                     color: @color-font-gray36;
                 }
             }
-
-            // .divider {
-            //     border-color: @color-border-pinkish-grey2;
-            // }
         }
     }
 }
 
 #unionView {
     @instr-h: 61px;
-    @top-h: 211px;
-    @bottom-h: 121px;
+    @top-h: 195px;
+    @bottom-h: 66px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
     .subHeading {
@@ -2148,11 +2144,6 @@
             .size(@height: 15px);
             .font(@weight: 600, @line-height: 15px);
         }
-    }
-
-    .divider {
-        .size(@width: 100%, @height: 1px);
-        background-color: @color-border-union;
     }
 
     .mainContent {
@@ -2167,43 +2158,45 @@
         .size(@height: @instr-h);
     }
 
+    .searchArea .icon, .down, .addCol, .editCol, .removeCol {
+        .font(@color: @color-bg-unselect-gray);
+    }
+
     .topSection {
         .size(@height: @top-h);
-        padding-top: 15px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid @color-border-union;
+        padding: 15px 10px 15px 0;
 
-        .dedup {
-            .size(@height: 30px);
-            margin-left: 22px;
+        .dedup, .addTableSection {
+            margin-left: 15px;
 
             .header {
+                .size(@width: 50px);
                 float: left;
-                .size(@width: 50px, @height: 26px);
-                .font(@line-height: 26px);
             }
 
-            .modeList {
-                .size(@width: 200px);
+            .dropDownList, button {
+                .size(@width: ~"calc(100% - 50px)", @max-width: 425px);
+            }
+        }
+
+        .dedup {
+            .size(@height: 26px);
+
+            .header {
+                .font(@line-height: 26px);
             }
         }
 
         .divider {
+            .size(@height: 1px);
+            background-color: @color-border-union;
             margin: 15px 0;
         }
 
-        .addTable {
-            .size(@width: 250px);
-            margin-left: 22px;
-        }
-    }
-
-    .bottomSection {
-        .size(@height: @bottom-h);
-        padding-bottom: 19px;
-
-        .newTableNameSection {
-            margin-bottom: 10px;
+        .addTableSection {
+            .header {
+                line-height: 36px;
+            }
         }
     }
 
@@ -2220,10 +2213,19 @@
         }
     }
 
+    .bottomSection {
+        padding: 15px 0;
+        .size(@height: @bottom-h);
+    }
+
+    .newTable {
+        margin-right: 4px !important;
+    }
+
     .tableSection, .resultSection, .candidateSection {
-        .removeTable, .addCol, .down {
-            .font(@size: 8px);
+        .addCol, .down {
             .size(@width: 20px, @height: 100%);
+            .font(@size: 8px);
             position: absolute;
 
             &:before {
@@ -2234,26 +2236,15 @@
         }
 
         .listSection {
-            // overflow-y: auto;
             .flex-display;
+            .size(@width: ~"calc(100% - 5px)");
 
             .lists {
                 .size(@min-width: 140px, @max-width: 50%);
-                .flex(1 1 auto);
+                .flex(1 1 200px);
+                margin-right: -1px;
 
-                &:first-child {
-                    .removeTable {
-                        display: none;
-                    }
-
-                    .inputCol {
-                        .text {
-                            border-right: none;
-                        }
-                    }
-                }
-
-                > div {
+                > div, > input {
                     .size(@height: 26px);
                     line-height: 25px;
                     .position(relative);
@@ -2270,16 +2261,18 @@
                 }
 
                 .text {
-                    padding-left: 20px;
                     background-color: @color-white;
                 }
 
                 .inputCol {
                     .position(relative);
-                    float: none;
 
                     .text, .list {
                         .size(@width: 100%);
+                    }
+
+                    .text.highlight {
+                        color: @color-text-macaroniAndCheese;
                     }
                 }
             }
@@ -2287,20 +2280,48 @@
     }
 
     .tableSection {
-        margin-top: 26px;
+        margin-top: 15px;
         .size(@height: 50px);
+
+        .lists {
+            .size(@height: 76px);
+
+            &.newTable {
+                .topPart, .bottomPart {
+                    padding-left: 15px;
+                }
+            }
+
+            .topPart {
+                border: 1px solid transparent;
+                margin-bottom: 5px;
+                padding-left: 10px;
+
+                .icon {
+                    .position(relative);
+                    float: right;
+
+                    &.focusTable {
+                        .position(@top: 7px);
+                        margin-right: 10px;
+                    }
+
+                    &.removeTable {
+                        .position(@top: 9px);
+                        margin-right: 5px;
+                    }
+                }
+            }
+
+            .bottomPart {
+                .size(@height: 30px);
+            }
+        }
     }
 
     .resultSection {
-        padding: 15px 0 15px 0;
-        border-bottom: 1px solid @color-border-union;
-
         .resultCol {
-            .position(relative);
-
-            &.placeholder {
-                z-index: -1;
-            }
+            margin-bottom: -1px;
 
             &.cast {
                 height: 52px !important;
@@ -2311,53 +2332,48 @@
             }
 
             .resultInput {
-                .size(@width: 284px);
-                padding-left: 20px;
-                padding-right: 50px;
+                padding: 0 15px;
             }
 
             .typeList {
-                .size(@width: 284px);
-                float: none;
                 display: none;
 
                 .text {
                     border: none;
+                    padding-left: 15px;
                 }
 
                 li {
-                    padding-left: 20px;
                     color: @color-bg-select-blue;
                 }
             }
 
-            .resultColAction {
-                .size(@width: 40px);
-                .position(absolute, @top: 0, @left: 244px);
-
-                .icon {
-                    display: inline-block;
-                    float: right;
-                    margin-right: 8px;
-                    .font(@size: 12px, @color: @color-arc-other);
-                    .size(@width: 12px, @height: 26px);
-
-                    &:before {
-                        display: block;
-                        .vertical-align;
-                    }
-                }
+            .removeCol {
+                .position(absolute, @top: 9px, @right: 8px);
             }
         }
 
         .inputCol {
+            &.cast {
+                margin-bottom: 26px;
+            }
+
+            margin-bottom: -1px;
+
             .text {
                 padding-right: 20px;
-                border-top: none;
             }
 
             .down {
                 right: 0;
+            }
+        }
+
+        .searchArea {
+            margin-bottom: -1px;
+
+            .icon {
+                .position(absolute, @top: 7px, @right: 5px);
             }
         }
     }
@@ -2376,25 +2392,19 @@
         }
 
         .lists {
-            margin: 0 2px;
-
-            &:first-child {
-                margin-left: 0;
+            .text {
+                padding-left: 20px;
             }
         }
 
         .inputCol {
-            border-top: 1px solid @color-border-union;
+            border: 1px solid @color-border-union;
+            margin-bottom: -1px;
             cursor: pointer;
-
-            &:first-child {
-                border-top: none;
-            }
         }
     }
 
-    .resultSection, .candidateSection {
-        .size(@width: 100%);
-        .flex(1 1 50px);
+    .confirm {
+        text-transform: uppercase;
     }
 }

@@ -183,6 +183,7 @@ CommonTxtTstr = {
 'Rename': '重命名',
 'SAVE': '保存',
 'StartTime': '起始时间',
+'Search': '搜索',
 'Value': '值',
 'XcWelcome': '开启 Xcalar Design 的奇妙之旅！',
 'NoUndone': '此操作无法撤消',
@@ -540,10 +541,14 @@ JoinTStr = {
 'MismatchDetail': '无法连接类型为<type1>和<type2>的列'
 };
 UnionTStr = {
-"ChooseType": "选择结果列的类型",
+"ChooseType": "选择列的类型",
 "OneTableToUnion": "需要至少两张表才能合并",
-"Cast": "进行合并的列类型不同，请选择结果列的类型。"
-"AddCol": "点击添加列至合并表"
+"Cast": "进行合并的列类型不同，请选择结果列的类型。",
+"AddCol": "点击添加列至合并表",
+"Table": "表",
+"UnionTable": "合并表",
+"NewTableName": "新表名",
+"NewColName": "新列名"
 };
 ExportTStr = {
 'Success': '导出成功',

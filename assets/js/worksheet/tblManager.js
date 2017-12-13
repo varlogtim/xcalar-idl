@@ -2549,13 +2549,13 @@ window.TblManager = (function($, TblManager) {
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .map, .operations, .profile, .corrAgg, " +
                     ".extensions, .changeDataType, .format, .roundToFixed, " +
-                    ".project");
+                    ".project, .unoin");
             $lis.removeClass("unavailable");
             xcTooltip.remove($lis);
             if (colType === ColumnType.object || colType === ColumnType.array) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
                     ".map, .operations, .profile, .corrAgg, .extensions, " +
-                    ".changeDataType, .format, .roundToFixed");
+                    ".changeDataType, .format, .roundToFixed, .union");
                 $lis.addClass("unavailable");
                 if (colType === ColumnType.object) {
                     xcTooltip.add($lis, {
@@ -2569,14 +2569,14 @@ window.TblManager = (function($, TblManager) {
             } else if (isNewCol) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, .extensions, " +
-                    ".changeDataType, .format, .roundToFixed, .project");
+                    ".changeDataType, .format, .roundToFixed, .project, .union");
                 $lis.addClass("unavailable");
                 xcTooltip.add($lis, {
                     title: ErrTStr.InvalidOpNewColumn
                 });
             } else if (colType === ColumnType.mixed) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
-                    ".join, .operations, .profile, .corrAgg,  " +
+                    ".join, .operations, .profile, .corrAgg, " +
                     ".roundToFixed");
                 $lis.addClass("unavailable");
                 xcTooltip.add($lis, {

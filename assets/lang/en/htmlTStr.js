@@ -860,10 +860,9 @@ module.exports = {
 
     "unionView": {
         "header": "UNION",
-        "AddTables": "Add Tables",
-        "TableTitle": "Tables to Union",
-        "ColumnTitle": "Column Names",
-        "TABLES": "TABLES TO UNION",
+        "AddTables": "ADD TABLES",
+        "TableTitle": "Tables",
+        "ColumnTitle": "Columns",
         "Instr": "Select tables you would like to union on and select columns from each table.",
         "CandidateTitle": "Dropped Columns",
         "CandidateHint": "Columns here are dropped and will not be part of the unioned table.",
