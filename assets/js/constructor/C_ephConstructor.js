@@ -1557,8 +1557,10 @@ ExportHelper.prototype = {
         var invalid = false;
 
         // put all names first
+        // use parsed name because takenNames that do not get renamed will be
+        // parsed
         columnNames.forEach(function(colName) {
-            takenName[colName] = true;
+            takenName[xcHelper.parsePrefixColName(colName).name] = true;
         });
 
         var $renameSection = $target.find(".renameSection");

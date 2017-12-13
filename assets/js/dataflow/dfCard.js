@@ -994,10 +994,10 @@ window.DFCard = (function($, DFCard) {
         }
 
         var dagNode = dfObj.retinaNodes[0];
-        var exportInfo = dagNode.input.exportInput;
-        var targetName = exportInfo.targetName;
-        var targetType = exportInfo.targetType;
-        var fileName = parseFileName(exportInfo, paramsArray);
+        var exportStruct = dagNode.input.exportInput;
+        var targetName = exportStruct.targetName;
+        var targetType = exportStruct.targetType;
+        var fileName = parseFileName(exportStruct, paramsArray);
         var advancedOpts = DF.getAdvancedExportOption(retName);
         if (advancedOpts == null) {
             // error case
@@ -1031,7 +1031,7 @@ window.DFCard = (function($, DFCard) {
         .then(function() {
             endStatusCheck(retName, passedCheckBeforeRunDF, true);
             if (advancedOpts.activeSession) {
-                return projectAfterRunDF(advancedOpts.newTableName, exportInfo,
+                return addTableToWS(advancedOpts.newTableName, exportStruct,
                                           txId);
             }
         })
@@ -1417,8 +1417,8 @@ window.DFCard = (function($, DFCard) {
                                         dataflowName + '"]');
     }
 
-    function parseFileName(exportInfo, paramArray) {
-        var fileName = exportInfo.fileName;
+    function parseFileName(exportStruct, paramArray) {
+        var fileName = exportStruct.fileName;
         if (paramArray.length === 0 || fileName.indexOf("<") === -1) {
             return fileName;
         }
@@ -1432,15 +1432,16 @@ window.DFCard = (function($, DFCard) {
         return fileName;
     }
 
-    function projectAfterRunDF(tableName, exportInfo, txId) {
+    function addTableToWS(tableName, exportStruct, txId) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getActiveWS();
         var metaCols = [];
-        if (exportInfo && exportInfo.columns) {
-            metaCols = exportInfo.columns;
+        if (exportStruct && exportStruct.columns) {
+            metaCols = exportStruct.columns;
         }
+
         var colNames = metaCols.map(function(colInfo) {
-            var colName = colInfo.columnName;
+            var colName = colInfo.headerName;
             var parsedInfo = xcHelper.parsePrefixColName(colName);
             var prefix = parsedInfo.prefix;
             if (prefix) {
@@ -1450,21 +1451,11 @@ window.DFCard = (function($, DFCard) {
             return colName;
         });
 
-        var dstTableName;
+        var tableCols = getProgCols(colNames);
 
-        XIApi.project(txId, colNames, tableName)
-        .then(function(newTableName) {
-            dstTableName = newTableName;
-            var tableCols = getProgCols(colNames);
-            return TblManager.refreshTable([dstTableName], tableCols,
-                                           [], worksheet, txId);
-        })
+        TblManager.refreshTable([tableName], tableCols, [], worksheet, txId)
         .then(function() {
-            return XIApi.deleteTable(txId, tableName, true);
-        })
-        .then(function() {
-            Dag.makeInactive(tableName, true);
-            deferred.resolve(dstTableName);
+            deferred.resolve(tableName);
         })
         .fail(deferred.reject);
 
