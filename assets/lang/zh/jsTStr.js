@@ -783,6 +783,7 @@ DSTStr = {
 'FileOversize': '文件夹中的文件太多，无法读取，请直接用url导入',
 'InvalidHDFS': '无效的hdfs路径，有效格式为：hostname / pathtofile',
 'Excel': 'EXCEL',
+'EmptyDirectory': "当前路径为空",
 'Home': 'Home',
 'InvalidUpload': '无效上传',
 'OneFileUpload': '一次只能上传一个文件。',

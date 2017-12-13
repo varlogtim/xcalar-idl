@@ -1153,6 +1153,10 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         // this is faster than $container.html
+
+        if (len === 0) {
+            html += '<div class="hint">' + DSTStr.EmptyDirectory + '</div>';
+        }
         document.getElementById('innerFileBrowserContainer').innerHTML = html;
         refreshEllipsis();
 

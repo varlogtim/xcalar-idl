@@ -919,6 +919,7 @@ DSTStr = {
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
+    'EmptyDirectory': "The current directory is empty.",
     'Home': 'Home',
     'InvalidUpload': 'Invalid Upload',
     'OneFileUpload': 'Only one file can be uploaded at a time.',
