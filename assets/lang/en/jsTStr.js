@@ -117,7 +117,7 @@ TooltipTStr = {
     "SysOperation": "System generated operation",
     "UDFNoMain": "UDF requires a 'main' function",
     "UnexpectedNode": "Dataflow has an unexpected operation",
-    "TempTableNotFound": "Table not found in active dataflows",
+    "TempTableNotFound": "Table cannot be found in any active dataflows",
     "NoUndoActiveForm": "Close active form to undo or redo",
     "NoUndoEditMode": "Exit dataflow editing to undo or redo",
 

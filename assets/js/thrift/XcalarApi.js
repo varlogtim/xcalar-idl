@@ -2343,7 +2343,7 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
         }
     })
     .fail(function(error) {
-        console.log("xcalarDeleteTable() caught exception:", error);
+        console.log("xcalarGetTableRefCount() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 

@@ -599,6 +599,9 @@ window.QueryManager = (function(QueryManager, $) {
                     cli = queries[i].queryStr;
                 } else {
                     cli = xcLog.cli;
+                    if (cli.slice(-1) === ",") {
+                        cli = cli.slice(0, -1);
+                    }
                 }
             } else {
                 name = queries[i].name;

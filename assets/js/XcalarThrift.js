@@ -762,7 +762,7 @@ XcalarLoad = function(datasetName, options, txId) {
                 return PromiseHelper.reject("Error Format");
         }
     }
-    
+
     var sourceArgs = new DataSourceArgsT();
     sourceArgs.targetName = targetName;
     sourceArgs.path = url;
@@ -1397,6 +1397,9 @@ XcalarDeleteTable = function(tableName, txId, isRetry) {
             forceDeleteTable(tableName, txId)
             .then(deferred.resolve)
             .fail(deferred.reject);
+        } else if (thriftError.status === StatusT.StatusDagNodeNotFound) {
+            // if not found, then doesn't exist so it's essentially deleted
+            deferred.resolve();
         } else {
             deferred.reject(thriftError);
         }
