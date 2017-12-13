@@ -188,7 +188,7 @@
             .fail(function(error) {
                 if (!isSqlMode) {
                     Transaction.fail(txId, {
-                        "failMsg": "Execute SQL faild",
+                        "failMsg": "Execute SQL failed",
                         "error": error
                     });
                 }
@@ -330,7 +330,7 @@
                         "pulledColumns": ["test::colA", "test::colB"],
                         "rename": [{
                             "new": "test2",
-                            "old": "test",
+                            "orig": "test",
                             "type": DfFieldTypeT.DfFatptr
                         }]
                     }

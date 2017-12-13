@@ -1404,7 +1404,27 @@
 
         _pushDownJoin: function(node) {
             var self = this;
+            debugger;
             assert(node.children.length === 2); // It's a join. So 2 kids only
+            var deferred = jQuery.Deferred();
+
+            // Some helper functions to make the code easier to read
+            function isSemiOrAntiJoin(n) {
+                return ((n.value.joinType.object ===
+                        "org.apache.spark.sql.catalyst.plans.LeftAnti$") ||
+                        (n.value.joinType.object ===
+                        "org.apache.spark.sql.catalyst.plans.LeftSemi$"));
+            }
+
+            function isSemiJoin(n) {
+                return (n.value.joinType.object ===
+                        "org.apache.spark.sql.catalyst.plans.LeftSemi$");
+            }
+
+            function isAntiJoin(n) {
+                return (n.value.joinType.object ===
+                        "org.apache.spark.sql.catalyst.plans.LeftAnti$");
+            }
 
             // Special case for Anti Semi Joins
             // Check if root node is OR
@@ -1415,8 +1435,7 @@
             // removeNull to true
             // The above assertion and changes causes left anti semi joins to
             // forever be an &= subtree.
-            if (node.value.joinType.object ===
-                "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
+            if (isAntiJoin(node)) {
                 if (node.value.condition[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Or") {
                     var leftSubtree = [node.value.condition[1]];
@@ -1425,7 +1444,8 @@
                     var idx = 1;
                     while (numNodesInLeftTree > 0) {
                         leftSubtree.push(node.value.condition[++idx]);
-                        numNodesInLeftTree += node.value.condition[idx]["num-children"];
+                        numNodesInLeftTree += node.value.
+                                                 condition[idx]["num-children"];
                         numNodesInLeftTree--;
                     }
                     for (var i = idx+1; i < node.value.condition.length; i++) {
@@ -1442,20 +1462,30 @@
                     }
                     // Remove the IsNull node
                     rightSubtree.shift();
-                    // Assert that both subtrees are the same by stringifying
-                    assert(JSON.stringify(leftSubtree) ===
-                           JSON.stringify(rightSubtree));
-                    // All good, now set removeNull to true and over write the
-                    // condition array with the left subtree
-                    node.xcRemoveNull = true;
-                    node.value.condition = leftSubtree;
+                    if (JSON.stringify(leftSubtree) ===
+                        JSON.stringify(rightSubtree)) {
+                        // All good, now set removeNull to true and over write
+                        // the condition array with the left subtree
+                        node.xcRemoveNull = true;
+                        node.value.condition = leftSubtree;
+                    } else {
+                        node.xcRemoveNull = false;
+                    }
                 } else {
                     node.xcRemoveNull = false;
                 }
             }
 
-            var condTree = SQLCompiler.genExpressionTree(undefined,
-                node.value.condition.slice(0));
+            // XXX BUG check whether node.value.condition exists. if it doesn't
+            // it's a condition-free cross join. EDGE CASE
+            // select * from n1 cross join n2
+            var condTree;
+            if (node.value.condition) {
+                condTree = SQLCompiler.genExpressionTree(undefined,
+                           node.value.condition.slice(0));
+            } else {
+                // Edge case: select * from n1 cross join n2
+            }
 
             node.xcCols = [];
 
@@ -1475,23 +1505,29 @@
             var eqSubtrees = [];
             var andSubtrees = [];
             var filterSubtrees = [];
-            var catchAll = false;
-            if (condTree.value.class ===
+            var optimize = true;
+            if (condTree && condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
-            } else if (condTree.value.class ===
+            } else if (condTree && condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                 eqSubtrees.push(condTree);
             } else {
                 // No optimization
                 console.info("catchall join");
-                catchAll = true;
+                optimize = false;
             }
 
-            var leftTableName = node.children[0].newTableName;
-            var rightTableName = node.children[1].newTableName;
+            // This is the MOST important struct in this join algorithm.
+            // This is what each of the join clauses will be mutating.
+            var retStruct = {leftTableName: node.children[0].newTableName,
+                             rightTableName: node.children[1].newTableName,
+                             cli: ""};
 
-            var joinPromise;
+            var sqlObj = self.sqlObj;
+            // Resolving firstDeferred will start the domino fall
+            var firstDeferred = jQuery.Deferred();
+            var promise = firstDeferred.promise();
 
             while (andSubtrees.length > 0) {
                 var andTree = andSubtrees.shift();
@@ -1510,70 +1546,308 @@
             }
 
             var retStruct;
-            if (!catchAll) {
-                retStruct = __getJoinMapArrays(node, eqSubtrees);
+            if (optimize) {
+                var mapStruct = __getJoinMapArrays(node, eqSubtrees);
+                for (var prop in mapStruct) {
+                    retStruct[prop] = mapStruct[prop];
+                }
             }
-            if (catchAll || retStruct.catchAll) {
+            if (!optimize || retStruct.catchAll) {
                 // not a single eq can be untangled. defaulting back to
                 // catchall join
-                joinPromise = __catchAllJoin(self, node, condTree,
-                                             leftTableName,
-                                             rightTableName);
+                optimize = false;
             } else {
                 if (retStruct.filterSubtrees.length > 0) {
                     filterSubtrees = filterSubtrees.concat(
                                                 retStruct.filterSubtrees);
+                    delete retStruct.filterSubtrees; // No need for this anymore
                 }
+            }
 
-                var partialPromise = __handleAndEqJoins(self, retStruct,
-                                                        leftTableName,
-                                                        rightTableName,
-                                                        node);
+            // Start of flow. All branching decisions has been made
+            if (optimize) {
+                var overwriteJoinType;
                 if (filterSubtrees.length > 0) {
-                    joinPromise = partialPromise
-                                  .then(function(ret) {
-                                    return __filterJoinedTable(self.sqlObj,
-                                                               ret,
-                                                               filterSubtrees,
-                                                               node);
-                                  });
-                } else {
-                    joinPromise = partialPromise;
+                    if (isSemiOrAntiJoin(node)) {
+                        overwriteJoinType = JoinOperatorT.InnerJoin;
+                        promise = promise.then(__generateRowNumber.bind(sqlObj,
+                                                                        retStruct,
+                                                                        node));
+                    }
+                }
+
+                promise = promise.then(__handleAndEqJoin.bind(sqlObj,
+                                                              retStruct,
+                                                              node,
+                                                            overwriteJoinType));
+                if (filterSubtrees.length > 0) {
+                    promise = promise.then(__filterJoinedTable.bind(sqlObj,
+                                                                    retStruct,
+                                                                    node,
+                                                               filterSubtrees));
+                    if (isSemiJoin(node)) {
+                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                      retStruct,
+                                                                        node,
+                                                                        true));
+                    }
+                    if (isAntiJoin(node)) {
+                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                      retStruct,
+                                                                        node,
+                                                                        false));
+                        promise = promise.then(__joinBackFilter.bind(sqlObj,
+                                                                     retStruct,
+                                                                     node));
+                    }
+                }
+            } else {
+                if (isSemiOrAntiJoin(node)) {
+                    promise = promise.then(__generateRowNumber.bind(sqlObj,
+                                                                    retStruct,
+                                                                    node));
+                }
+                promise = promise.then(__catchAllJoin.bind(sqlObj, retStruct,
+                                                           node,
+                                                           condTree));
+                if (isSemiJoin(node)) {
+                    promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                  retStruct,
+                                                                    node,
+                                                                    true));
+                }
+                if (isAntiJoin(node)) {
+                    promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                  retStruct,
+                                                                    node,
+                                                                    false));
+                    promise = promise.then(__joinBackFilter.bind(sqlObj,
+                                                                 retStruct,
+                                                                 node));
                 }
             }
 
+            promise.fail(deferred.reject);
 
-            node.usrCols = jQuery.extend(true, [], node.children[0].usrCols);
-            node.xcCols = jQuery.extend(true, [], node.xcCols
+            promise.then(function() {
+                node.usrCols = jQuery.extend(true, [],
+                                             node.children[0].usrCols);
+                node.xcCols = jQuery.extend(true, [], node.xcCols
                                             .concat(node.children[0].xcCols));
-            node.sparkCols = jQuery.extend(true, [], node.children[0].sparkCols);
-            if (node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
-                node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
-                // XXX Think of existence joins and the new column created
-                node.usrCols = node.usrCols
-                    .concat(jQuery.extend(true, [], node.children[1].usrCols));
-                node.xcCols = node.xcCols
-                    .concat(jQuery.extend(true, [], node.children[1].xcCols));
-                node.sparkCols = node.sparkCols
-                    .concat(jQuery.extend(true, [], node.children[1].sparkCols));
-            }
+                node.sparkCols = jQuery.extend(true, [],
+                                               node.children[0].sparkCols);
+                if (node.value.joinType.object !==
+                    "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
+                    node.value.joinType.object !==
+                    "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
+                    // XXX Think of existence joins and the new column created
+                    node.usrCols = node.usrCols
+                        .concat(jQuery.extend(true, [],
+                                              node.children[1].usrCols));
+                    node.xcCols = node.xcCols
+                        .concat(jQuery.extend(true, [],
+                                              node.children[1].xcCols));
+                    node.sparkCols = node.sparkCols
+                        .concat(jQuery.extend(true, [],
+                                              node.children[1].sparkCols));
+                } else {
+                    node.xcCols = node.xcCols
+                        .concat(jQuery.extend(true, [],
+                                              node.children[1].usrCols
+                                              .concat(node.children[1].xcCols)));
+                        // XXX Think about sparkcols
+                }
 
-            assertCheckCollision(node.usrCols);
-            assertCheckCollision(node.xcCols);
-            assertCheckCollision(node.sparkCols);
-            return joinPromise;
+                assertCheckCollision(node.usrCols);
+                assertCheckCollision(node.xcCols);
+                assertCheckCollision(node.sparkCols);
+                deferred.resolve({newTableName: retStruct.newTableName,
+                                  cli: retStruct.cli});
+            });
+
+            // start the domino fall
+            firstDeferred.resolve();
+
+            return deferred.promise();
         }
     };
-    // Helper functions for join
-    function __catchAllJoin(sqlCompiler, node, condTree, leftTableName,
-                            rightTableName) {
 
-        assert((node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftSemi$") &&
-               (node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftAnti$"));
+    // Helper functions for join
+
+    // Deferred Helper functions for join
+    function __generateRowNumber(globalStruct, joinNode) {
+        var deferred = jQuery.Deferred();
+        var self = this; // This is the SqlObject
+
+        // Since the grn call is done prior to the join, both tables must exist
+        assert(globalStruct.leftTableName);
+        assert(globalStruct.rightTableName);
+
+        var leftTableId = xcHelper.getTableId(joinNode.children[0]
+                                                      .newTableName);
+        var rnColName = "XC_LROWNUM_COL_" + leftTableId;
+        joinNode.xcCols.push({colName: rnColName});
+        self.genRowNum(globalStruct.leftTableName, rnColName)
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.leftTableName = ret.newTableName;
+            globalStruct.leftRowNumCol = rnColName;
+            // This will be kept and not deleted
+            globalStruct.leftRowNumTableName = ret.newTableName;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    // The two join functions. Each path will run only one of the 2 functions
+    function __handleAndEqJoin(globalStruct, joinNode, overwriteJoinType) {
+        function handleMaps(mapStrArray, origTableName) {
+            var deferred = jQuery.Deferred();
+            if (mapStrArray.length === 0) {
+                return deferred.resolve({newTableName: origTableName,
+                                         colNames: []});
+            }
+            var newColNames = [];
+            var tableId = xcHelper.getTableId(origTableName);
+            for (var i = 0; i < mapStrArray.length; i++) {
+                var tempCol = "XC_JOIN_COL_" + tableId + "_" + i;
+                newColNames.push(tempCol);
+                // Record temp cols
+                joinNode.xcCols.push({colName: tempCol});
+            }
+            var newTableName = xcHelper.getTableName(origTableName) +
+                               Authentication.getHashId();
+            self.map(mapStrArray, origTableName, newColNames,
+                     newTableName)
+            .then(function(ret) {
+                ret.colNames = newColNames;
+                deferred.resolve(ret);
+            });
+            return deferred.promise();
+        }
+        var self = this;
+        var leftMapArray = globalStruct.leftMapArray;
+        var rightMapArray = globalStruct.rightMapArray;
+        var leftCols = globalStruct.leftCols;
+        var rightCols = globalStruct.rightCols;
+        var cliArray = [];
+        var deferred = jQuery.Deferred();
+        var leftTableName = globalStruct.leftTableName;
+        var rightTableName = globalStruct.rightTableName;
+        PromiseHelper.when(handleMaps(leftMapArray, leftTableName),
+                           handleMaps(rightMapArray, rightTableName))
+        .then(function(retLeft, retRight) {
+            var lTableInfo = {};
+            lTableInfo.tableName = retLeft.newTableName;
+            lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
+                                                     leftCols);
+            lTableInfo.pulledColumns = [];
+            lTableInfo.rename = [];
+            if (joinNode.xcRemoveNull) {
+                // This flag is set for left anti semi join. It means to
+                // removeNulls in the left table
+                lTableInfo.removeNull = true;
+            }
+
+            var rTableInfo = {};
+            rTableInfo.tableName = retRight.newTableName;
+            rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
+                                                     rightCols);
+            rTableInfo.pulledColumns = [];
+            rTableInfo.rename = [];
+
+            var newRenames = __resolveCollision(joinNode.children[0].usrCols
+                                        .concat(joinNode.children[0].xcCols)
+                                        .concat(joinNode.children[0].sparkCols),
+                                        joinNode.children[1].usrCols
+                                        .concat(joinNode.children[1].xcCols)
+                                        .concat(joinNode.children[1].sparkCols),
+                                        lTableInfo.rename,
+                                        rTableInfo.rename
+                                        );
+            joinNode.renamedColIds = newRenames
+                                    .concat(joinNode.children[0].renamedColIds);
+            if (joinNode.value.joinType.object !==
+                "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
+                joinNode.value.joinType.object !==
+                "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
+                joinNode.renamedColIds = joinNode.renamedColIds
+                                    .concat(joinNode.children[1].renamedColIds);
+            }
+
+            if (retLeft.cli) {
+                cliArray.push(retLeft.cli);
+            }
+
+            if (retRight.cli) {
+                cliArray.push(retRight.cli);
+            }
+
+            var joinType;
+            if (overwriteJoinType !== undefined) {
+                joinType = overwriteJoinType;
+            } else {
+                switch (joinNode.value.joinType.object) {
+                    case ("org.apache.spark.sql.catalyst.plans.Inner$"):
+                        joinType = JoinOperatorT.InnerJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
+                        joinType = JoinOperatorT.LeftOuterJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
+                        joinType = JoinOperatorT.RightOuterJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
+                        joinType = JoinOperatorT.FullOuterJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
+                        joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
+                        joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
+                        break;
+                    case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
+                        joinType = JoinCompoundOperatorTStr.CrossJoin;
+                        break;
+                    default:
+                        assert(0);
+                        console.error("Join Type not supported");
+                        break;
+                }
+            }
+
+            return self.join(joinType, lTableInfo, rTableInfo);
+        })
+        .then(function(retJoin) {
+            // Since we have the joined table now, we don't need the original
+            // left and right tables anymore
+            delete globalStruct.leftTableName;
+            delete globalStruct.rightTableName;
+            delete globalStruct.leftMapArray;
+            delete globalStruct.rightMapArray;
+            globalStruct.newTableName = retJoin.newTableName;
+
+            cliArray.push(retJoin.cli);
+            globalStruct.cli += cliArray.join("");
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function __catchAllJoin(globalStruct, joinNode, condTree) {
+        var self = this;
+        var deferred = jQuery.Deferred();
+        // Since this is before the join, both tables must exist
+        assert(globalStruct.leftTableName);
+        assert(globalStruct.rightTableName);
+
+        var leftTableName = globalStruct.leftTableName;
+        var rightTableName = globalStruct.rightTableName;
 
         var lTableInfo = {};
         lTableInfo.tableName = leftTableName;
@@ -1586,29 +1860,170 @@
         rTableInfo.columns = []; // CrossJoin does not need columns
         rTableInfo.pulledColumns = [];
         rTableInfo.rename = [];
-        var newRenames = __resolveCollision(node.children[0].usrCols,
-                                               node.children[1].usrCols,
-                                               lTableInfo.rename,
-                                               rTableInfo.rename)
-                            .concat(__resolveCollision(node.children[0].xcCols,
-                                                       node.children[1].xcCols,
-                                                       lTableInfo.rename,
-                                                       rTableInfo.rename))
-                            .concat(__resolveCollision(node.children[0].sparkCols,
-                                                       node.children[1].sparkCols,
-                                                       lTableInfo.rename,
-                                                       rTableInfo.rename));
-        node.renamedColIds = newRenames
-                             .concat(node.children[0].renamedColIds)
-                             .concat(node.children[1].renamedColIds)
-        var options = {renamedColIds: node.renamedColIds};
-        var acc = {}; // for ScalarSubquery use case
-        var filterEval = genEvalStringRecur(condTree, acc, options);
 
-        return sqlCompiler.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
-                                       rTableInfo, {evalString: filterEval});
+        var newRenames = __resolveCollision(joinNode.children[0].usrCols
+                                        .concat(joinNode.children[0].xcCols)
+                                        .concat(joinNode.children[0].sparkCols),
+                                        joinNode.children[1].usrCols
+                                        .concat(joinNode.children[1].xcCols)
+                                        .concat(joinNode.children[1].sparkCols),
+                                        lTableInfo.rename,
+                                        rTableInfo.rename
+                                        );
+        // var newRenames = __resolveCollision(joinNode.children[0].usrCols,
+        //                                     joinNode.children[1].usrCols,
+        //                                     lTableInfo.rename,
+        //                                     rTableInfo.rename)
+        //                     .concat(__resolveCollision(joinNode.children[0].xcCols,
+        //                                                joinNode.children[1].xcCols,
+        //                                                lTableInfo.rename,
+        //                                                rTableInfo.rename))
+        //                     .concat(__resolveCollision(joinNode.children[0].sparkCols,
+        //                                                joinNode.children[1].sparkCols,
+        //                                                lTableInfo.rename,
+        //                                                rTableInfo.rename));
+        joinNode.renamedColIds = newRenames
+                             .concat(joinNode.children[0].renamedColIds)
+                             .concat(joinNode.children[1].renamedColIds)
+        var options = {renamedColIds: joinNode.renamedColIds};
+        var acc = {}; // for ScalarSubquery use case
+        var filterEval = "";
+        if (condTree) {
+            filterEval = genEvalStringRecur(condTree, acc, options);
+        }
+
+        self.join(JoinOperatorT.CrossJoin, lTableInfo, rTableInfo,
+                  {evalString: filterEval})
+        .then(function(ret) {
+            // Since the join is done now, we don't need leftTableName and
+            // rightTableName anymore
+            delete globalStruct.leftTableName;
+            delete globalStruct.rightTableName;
+            globalStruct.newTableName = ret.newTableName;
+            globalStruct.cli += ret.cli;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
+    function __groupByLeftRowNum(globalStruct, joinNode, incSample) {
+        var self = this;
+        var deferred = jQuery.Deferred();
+        // This is called after the join, so newTableName must exist, and join
+        // would've removed leftTableName and rightTableName
+        assert(!globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName);
+        assert(globalStruct.newTableName);
+        assert(globalStruct.leftRowNumCol);
+
+        var tempCountCol = "XC_COUNT_" +
+                           xcHelper.getTableId(globalStruct.newTableName);
+        // Record groupBy column
+        joinNode.xcCols.push({colName: tempCountCol});
+
+        self.groupBy([globalStruct.leftRowNumCol],
+                     [{operator: "count", aggColName: "1",
+                       newColName: tempCountCol}], globalStruct.newTableName,
+                       {isIncSample: incSample})
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            // Record tempCols created from groupBy
+            for (var i = 0; i < ret.tempCols.length; i++) {
+                joinNode.xcCols.push({colName: ret.tempCols[i]});
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function __joinBackFilter(globalStruct, joinNode) {
+        var self = this;
+        var deferred = jQuery.Deferred();
+        // This is post join, so assert that left and right tables no longer
+        // exist
+        assert(!globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName);
+        assert(globalStruct.leftRowNumTableName);
+        assert(globalStruct.newTableName);
+        assert(globalStruct.leftRowNumCol);
+
+        // For this func to be called, the current table must only have 2 cols
+        // The rowNumCol and the countCol. Both are autogenerated
+        var lTableInfo = {
+            tableName: globalStruct.leftRowNumTableName,
+            columns: [globalStruct.leftRowNumCol],
+            pulledColumns: [],
+            rename: []
+        };
+
+        var newRowNumColName = "XC_ROWNUM_" +
+                               xcHelper.getTableId(globalStruct.newTableName);
+        // Record the renamed column
+        joinNode.xcCols.push({colName: newRowNumColName});
+        var rTableInfo = {
+            tableName: globalStruct.newTableName,
+            columns: [globalStruct.leftRowNumCol],
+            pulledColumns: [],
+            rename:[{new: newRowNumColName,
+                     orig: globalStruct.leftRowNumCol,
+                     type: DfFieldTypeT.DfUnknown}]
+        };
+
+        self.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo)
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            // Now keep only the rows where the newRowNumColName does not exist
+            return self.filter("not(exists(" + newRowNumColName + "))",
+                               globalStruct.newTableName);
+        })
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    function __filterJoinedTable(globalStruct, joinNode, filterSubtrees) {
+        var self = this;
+        var deferred = jQuery.Deferred();
+
+        var joinTablename = globalStruct.newTableName;
+        var filterEvalStrArray = [];
+        var finalEvalStr = "";
+
+        for (var i = 0; i < filterSubtrees.length; i++) {
+            var subtree = filterSubtrees[i];
+            var options = {renamedColIds: joinNode.renamedColIds};
+
+            filterEvalStrArray.push(genEvalStringRecur(subtree, undefined,
+                                                       options));
+        }
+        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
+            finalEvalStr += "and(" + filterEvalStrArray[i] + ",";
+        }
+        finalEvalStr += filterEvalStrArray[filterEvalStrArray.length - 1];
+        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
+            finalEvalStr += ")";
+        }
+
+        self.filter(finalEvalStr, joinTablename)
+        .then(function(ret) {
+            globalStruct.newTableName = ret.newTableName;
+            globalStruct.cli += ret.cli;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    // Immediate Helper functions for join
     function __getJoinMapArrays(node, eqSubtrees) {
         // children[0] === leftTable
         // children[1] === rightTable
@@ -1697,167 +2112,6 @@
         return retStruct;
     }
 
-    function __handleAndEqJoins(sqlCompiler, mapArrayStruct, newLeftTableName,
-                                newRightTableName, node) {
-        function handleMaps(mapStrArray, origTableName) {
-            var deferred = jQuery.Deferred();
-            if (mapStrArray.length === 0) {
-                return deferred.resolve({newTableName: origTableName,
-                                         colNames: []});
-            }
-            var newColNames = [];
-            var tableId = xcHelper.getTableId(origTableName);
-            for (var i = 0; i < mapStrArray.length; i++) {
-                var tempCol = "XC_JOIN_COL_" + tableId + "_" + i;
-                newColNames.push(tempCol);
-                // Record temp cols
-                node.xcCols.push({colName: tempCol});
-            }
-            var newTableName = xcHelper.getTableName(origTableName) +
-                               Authentication.getHashId();
-            self.sqlObj.map(mapStrArray, origTableName, newColNames,
-                newTableName)
-            .then(function(ret) {
-                ret.colNames = newColNames;
-                deferred.resolve(ret);
-            });
-            return deferred.promise();
-        }
-        var self = sqlCompiler;
-        var leftMapArray = mapArrayStruct.leftMapArray;
-        var rightMapArray = mapArrayStruct.rightMapArray;
-        var leftCols = mapArrayStruct.leftCols;
-        var rightCols = mapArrayStruct.rightCols;
-        var cliArray = [];
-        var deferred = jQuery.Deferred();
-        PromiseHelper.when(handleMaps(leftMapArray, newLeftTableName),
-                           handleMaps(rightMapArray, newRightTableName))
-        .then(function(retLeft, retRight) {
-            var lTableInfo = {};
-            lTableInfo.tableName = retLeft.newTableName;
-            lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
-                                                     leftCols);
-            lTableInfo.pulledColumns = [];
-            lTableInfo.rename = [];
-            if (node.xcRemoveNull) {
-                // This flag is set for left anti semi join. It means to
-                // removeNulls in the left table
-                lTableInfo.removeNull = true;
-            }
-
-            var rTableInfo = {};
-            rTableInfo.tableName = retRight.newTableName;
-            rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
-                                                     rightCols);
-            rTableInfo.pulledColumns = [];
-            rTableInfo.rename = [];
-
-            var newRenames = __resolveCollision(node.children[0].usrCols,
-                                               node.children[1].usrCols,
-                                               lTableInfo.rename,
-                                               rTableInfo.rename)
-                            .concat(__resolveCollision(node.children[0].xcCols,
-                                                       node.children[1].xcCols,
-                                                       lTableInfo.rename,
-                                                       rTableInfo.rename))
-                            .concat(__resolveCollision(node.children[0].sparkCols,
-                                                       node.children[1].sparkCols,
-                                                       lTableInfo.rename,
-                                                       rTableInfo.rename));
-            node.renamedColIds = newRenames
-                                 .concat(node.children[0].renamedColIds)
-            if (node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
-                node.value.joinType.object !==
-                "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
-                node.renamedColIds = node.renamedColIds
-                                    .concat(node.children[1].renamedColIds);
-            }
-
-            if (retLeft.cli) {
-                cliArray.push(retLeft.cli);
-            }
-
-            if (retRight.cli) {
-                cliArray.push(retRight.cli);
-            }
-
-            var joinType;
-            switch (node.value.joinType.object) {
-                case ("org.apache.spark.sql.catalyst.plans.Inner$"):
-                    joinType = JoinOperatorT.InnerJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.LeftOuter$"):
-                    joinType = JoinOperatorT.LeftOuterJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.RightOuter$"):
-                    joinType = JoinOperatorT.RightOuterJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.FullOuter$"):
-                    joinType = JoinOperatorT.FullOuterJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
-                    // Turns out that left semi is identical to inner
-                    // except that it only keeps columns in the left table
-                    joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
-                    joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
-                    break;
-                case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
-                    joinType = JoinCompoundOperatorTStr.CrossJoin;
-                    break;
-                default:
-                    assert(0);
-                    console.error("Join Type not supported");
-                    break;
-            }
-
-            return self.sqlObj.join(joinType, lTableInfo, rTableInfo);
-        })
-        .then(function(retJoin) {
-            var overallRetStruct = {};
-            overallRetStruct.newTableName = retJoin.newTableName;
-            cliArray.push(retJoin.cli);
-            overallRetStruct.cli = cliArray.join("");
-            deferred.resolve(overallRetStruct);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function __filterJoinedTable(sqlObj, ret, filterSubtrees, node) {
-        var joinTablename = ret.newTableName;
-        var cliSoFar = ret.cli;
-        var filterEvalStrArray = [];
-        var finalEvalStr = "";
-        var deferred = jQuery.Deferred();
-
-        for (var i = 0; i < filterSubtrees.length; i++) {
-            var subtree = filterSubtrees[i];
-            var options = {renamedColIds: node.renamedColIds};
-
-            filterEvalStrArray.push(genEvalStringRecur(subtree, undefined,
-                                                       options));
-        }
-        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
-            finalEvalStr += "and(" + filterEvalStrArray[i] + ",";
-        }
-        finalEvalStr += filterEvalStrArray[filterEvalStrArray.length - 1];
-        for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
-            finalEvalStr += ")";
-        }
-
-        sqlObj.filter(finalEvalStr, joinTablename)
-        .then(function(ret) {
-            deferred.resolve({newTableName: ret.newTableName,
-                              cli: cliSoFar + ret.cli});
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-    }
-
     function __resolveCollision(leftCols, rightCols, leftRename, rightRename) {
         // There could be three colliding cases:
 
@@ -1909,6 +2163,7 @@
         }
         return newRenames;
     }
+
     function assertCheckCollision(cols) {
         if (cols.length > 0) {
             var set = new Set();
@@ -1930,6 +2185,8 @@
         }
     }
     // End of helper functions for join
+
+
     function getAllCols(node) {
         var rddCols = [];
         for (var i = 0; i < node.usrCols.length; i++) {
