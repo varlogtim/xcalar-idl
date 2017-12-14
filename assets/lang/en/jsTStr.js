@@ -638,7 +638,10 @@ UnionTStr = {
     "Table": "Table",
     "UnionTable": "Union Table",
     "NewTableName": "New Table Name",
-    "NewColName": "New Column Name"
+    "NewColName": "New Column Name",
+    "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click the column name to add the column as part of the union.",
+    "EmptyList": "Empty List",
+    "SelectCol": "Please select columns to union"
 };
 
 ExportTStr = {

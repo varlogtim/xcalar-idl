@@ -1078,7 +1078,8 @@
         .then(function(finalTableName) {
             tempTables.push(curTableName);
             tableInfo.tableName = finalTableName;
-            var rename = xcHelper.getJoinRenameMap(concatColName, concatColName, ColumnType.string);
+            var type = xcHelper.convertColTypeToFeildType(ColumnType.string);
+            var rename = xcHelper.getJoinRenameMap(concatColName, concatColName, type);
             tableInfo.renames.push(rename);
             deferred.resolve();
         })

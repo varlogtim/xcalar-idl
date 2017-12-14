@@ -542,7 +542,10 @@ UnionTStr = {
 "Table": "表",
 "UnionTable": "合并表",
 "NewTableName": "新表名",
-"NewColName": "新列名"
+"NewColName": "新列名",
+"CandidateHint": "此处的列不会出现在合并后的表中。点击列名以添加列至合并表",
+"EmptyList": "无可选项",
+"SelectCol": "请选择用于合并的列"
 };
 ExportTStr = {
 'Success': '导出成功',

@@ -155,7 +155,8 @@ window.UnionView = (function(UnionView, $) {
             });
         }
         tableInfoLists.push(tableInfo);
-        updateList({addTable: true});
+        updateList();
+        autoResizeView({addTable: true});
     }
 
     function selectTable(tableId, tableIndex) {
@@ -168,7 +169,8 @@ window.UnionView = (function(UnionView, $) {
 
     function removeTable(tableIndex) {
         tableInfoLists.splice(tableIndex, 1);
-        updateList({removeTable: true});
+        updateList();
+        autoResizeView({removeTable: true});
     }
 
     function addColumn(colInfo, tableIndex) {
@@ -195,7 +197,7 @@ window.UnionView = (function(UnionView, $) {
         updateList();
     }
 
-    function updateList(options) {
+    function updateList() {
         var $table = $unionView.find(".tableSection .listSection");
         var $result = $unionView.find(".resultSection .listSection");
         var $candidate = $unionView.find(".candidateSection .listSection");
@@ -229,7 +231,9 @@ window.UnionView = (function(UnionView, $) {
                             ' spellcheck="false">' +
                         '</div>';
         var resultHTML = getNewTableColNameList(resultCols);
-        var candidateHTML = '<div class="lists newTable"></div>';
+        var candidateHTML = '<div class="lists newTable">' +
+                                UnionTStr.CandidateHint +
+                            '</div>';
 
         tableInfoLists.forEach(function(tableInfo, index) {
             tableHTML += getTableList(tableInfo, index);
@@ -242,7 +246,6 @@ window.UnionView = (function(UnionView, $) {
         $candidate.html(candidateHTML);
         $unionView.find(".newTableName").val(newTableName);
         setupDrodownList();
-        autoResizeView(options);
     }
 
     function autoResizeView(options) {
@@ -306,6 +309,11 @@ window.UnionView = (function(UnionView, $) {
                                     col.name +
                                 '</li>';
                     });
+                    if (candidateCols.length === 0) {
+                        ul = '<div class="hint">' +
+                                UnionTStr.EmptyList +
+                            '</div>';
+                    }
                     $dropDownList.find("ul").html(ul);
                 },
                 onSelect: function($li) {
@@ -645,11 +653,12 @@ window.UnionView = (function(UnionView, $) {
             return false;
         }
 
-        var columnValids = [];
-        $unionView.find(".columnList").each(function() {
-            columnValids.push({$ele: $(this)});
+        var $columnLists = $unionView.find(".columnList .text");
+        var $notEmptyCol = $columnLists.filter(function() {
+            return ($(this).text() !== "");
         });
-        if (!xcHelper.validate(columnValids)) {
+        if ($notEmptyCol.length === 0) {
+            StatusBox.show(UnionTStr.SelectCol, $unionView.find(".resultSection"));
             return false;
         }
 
@@ -672,16 +681,23 @@ window.UnionView = (function(UnionView, $) {
         // validate types
         var columns = tableInfoLists[0].selectedCols;
         for (var i = 0; i < columns.length; i++) {
-            for (var j = 1; j < tableInfoLists.length; j++) {
-                var $resultCol = $unionView.find('.resultCol[data-index="' + i + '"]');
-                if (columns[i].type !== tableInfoLists[j].selectedCols[i].type &&
-                    !$resultCol.eq(0).hasClass("cast"))
-                {
-                    $resultCol.addClass("cast");
-                    $unionView.find('.columnList[data-index="' + i + '"]')
+            var columnInfo = null;
+            var $resultCol = $unionView.find('.resultCol[data-index="' + i + '"]');
+            for (var j = 0; j < tableInfoLists.length; j++) {
+                if (tableInfoLists[j].selectedCols[i] != null) {
+                    if (columnInfo == null) {
+                        columnInfo = tableInfoLists[j].selectedCols[i];
+                    } else if (columnInfo.type !==
+                              tableInfoLists[j].selectedCols[i].type &&
+                              !$resultCol.hasClass("cast")) {
+
+                        $resultCol.addClass("cast");
+                        $unionView.find('.columnList[data-index="' + i + '"]')
                               .addClass("cast");
-                    StatusBox.show(UnionTStr.Cast, $resultCol.find(".typeList"));
-                    return false;
+                        StatusBox.show(UnionTStr.Cast,
+                                       $resultCol.find(".typeList"));
+                        return false;
+                    }
                 }
             }
         }

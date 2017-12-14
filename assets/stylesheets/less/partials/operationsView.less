@@ -2164,7 +2164,7 @@
 
     .topSection {
         .size(@height: @top-h);
-        padding: 15px 10px 15px 0;
+        padding: 15px 0 15px 0;
 
         .dedup, .addTableSection {
             margin-left: 15px;
@@ -2175,7 +2175,7 @@
             }
 
             .dropDownList, button {
-                .size(@width: ~"calc(100% - 50px)", @max-width: 425px);
+                .size(@width: ~"calc(100% - 65px)", @max-width: 425px);
             }
         }
 
@@ -2202,6 +2202,8 @@
 
     .middleSection {
         .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
+        border-top: 1px solid @color-border-union;
+        padding-top: 10px;
         overflow-x: auto;
         overflow-y: scroll;
         .flex-display;
@@ -2250,16 +2252,6 @@
                     .position(relative);
                 }
 
-                .header {
-                    .size(@height: 49px);
-                    padding-bottom: 23px;
-                    border-bottom: 1px solid @color-border-union;
-
-                    &:first-child {
-                        margin-top: 0;
-                    }
-                }
-
                 .text {
                     background-color: @color-white;
                 }
@@ -2280,8 +2272,9 @@
     }
 
     .tableSection {
-        margin-top: 15px;
         .size(@height: 50px);
+        margin-top: 15px;
+        padding-right: 10px;
 
         .lists {
             .size(@height: 76px);
@@ -2321,7 +2314,7 @@
 
     .resultSection {
         .resultCol {
-            margin-bottom: -1px;
+            border: 1px solid @color-table-hoverBg-gray;
 
             &.cast {
                 height: 52px !important;
@@ -2337,14 +2330,15 @@
 
             .typeList {
                 display: none;
+                border-top: 1px solid @color-table-hoverBg-gray;
 
                 .text {
-                    border: none;
                     padding-left: 15px;
                 }
 
                 li {
                     color: @color-bg-select-blue;
+                    padding-left: 15px;
                 }
             }
 
@@ -2353,15 +2347,30 @@
             }
         }
 
+        .columnList {
+            .hint {
+                text-align: center;
+            }
+        }
+
+        input {
+           border: none;
+
+            &:focus {
+                outline: 1px solid @color-bg-softBlue;
+            }
+        }
+
         .inputCol {
+            border: 1px solid @color-table-hoverBg-gray;
+
             &.cast {
                 margin-bottom: 26px;
             }
 
-            margin-bottom: -1px;
-
             .text {
                 padding-right: 20px;
+                border: none;
             }
 
             .down {
@@ -2370,7 +2379,11 @@
         }
 
         .searchArea {
-            margin-bottom: -1px;
+            border: 1px solid @color-table-hoverBg-gray;
+
+            &.placeholder {
+                border-color: transparent;
+            }
 
             .icon {
                 .position(absolute, @top: 7px, @right: 5px);
@@ -2383,23 +2396,25 @@
 
         .subHeading {
             .text {
-                .size(@width: 120px);
-            }
-
-            .qMark {
-                .position(relative, @top: -1px);
+                .size(@width: 100%);
             }
         }
 
         .lists {
+            .size(@height: 100%);
+
+            &.newTable {
+                padding-left: 10px;
+                opacity: 0.6;
+            }
+
             .text {
                 padding-left: 20px;
             }
         }
 
         .inputCol {
-            border: 1px solid @color-border-union;
-            margin-bottom: -1px;
+            border: 1px solid @color-table-hoverBg-gray;
             cursor: pointer;
         }
     }

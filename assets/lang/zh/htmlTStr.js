@@ -635,7 +635,6 @@ module.exports = {
         "ColumnTitle": "列",
         "Instr": "先选择要合并的表，然后选择要合并的列",
         "CandidateTitle": "待选列",
-        "CandidateHint": "此处的列不会出现在合并后的表中。",
         "AddTable": "添加表",
         "confirm": "合并",
         "Mode": "模式",
