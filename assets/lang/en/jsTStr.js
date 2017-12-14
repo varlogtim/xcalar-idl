@@ -118,6 +118,10 @@ TooltipTStr = {
     "TempTableNotFound": "Table cannot be found in any active dataflows",
     "NoUndoActiveForm": "Close active form to undo or redo",
     "NoUndoEditMode": "Exit dataflow editing to undo or redo",
+    "UnionFocusSelect": "Select a table from dropdown first",
+    "UnionFocus": "Click to focus on table",
+    "UnionDeleteTable": "Remove table from union",
+    "UnionSearch": "Search within this table",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",

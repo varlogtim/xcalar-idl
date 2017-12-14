@@ -105,7 +105,7 @@ window.UnionView = (function(UnionView, $) {
                 var mode = $li.text();
                 $modeList.find(".text").text(mode);
                 $modeList.data("option", $li.attr("name"));
-                $unionView.find(".confirm").text(mode);
+                $unionView.find(".confirm").text(mode.substring(0, mode.indexOf(" (")));
             },
             container: "#unionView",
             bounds: "#unionView"
@@ -361,13 +361,23 @@ window.UnionView = (function(UnionView, $) {
         var isEmpty = (tableId == null);
         var tableName = isEmpty ? "" : gTables[tableId].getName() ;
         var focusTableClass = isEmpty ? " xc-disabled" : "";
+        var tooltip = TooltipTStr.UnionFocus;
+        if (isEmpty) {
+            tooltip = TooltipTStr.UnionFocusSelect;
+        }
         return ('<div class="lists" data-index="' + index + '">' +
                     '<div class="topPart">' +
-                        UnionTStr.Table + (index + 1) +
+                        '<span>' + UnionTStr.Table + " " + (index + 1) +
+                        '</span>' +
                         '<i class="removeTable icon xi-close-no-circle' +
-                        ' xc-action fa-12"></i>' +
+                        ' xc-action fa-12" data-original-title="' +
+                        TooltipTStr.UnionDeleteTable +
+                        '" data-toggle="tooltip"></i>' +
+                        '<div class="tooltipWrapper" data-toggle="tooltip" ' +
+                        'data-original-title="' + tooltip +'">' +
                         '<i class="focusTable icon xi-show xc-action' +
                         ' fa-16' + focusTableClass + '"></i>' +
+                        '</div>' +
                     '</div>' +
                     '<div class="dropDownList unionTableList bottomPart">' +
                         '<input class="text" value="' + tableName + '" ' +
@@ -449,7 +459,10 @@ window.UnionView = (function(UnionView, $) {
         var lists = '<div class="searchArea">' +
                         '<input type="text" spellcheck="false"' +
                         'placeholder="' + CommonTxtTstr.Search + '">' +
-                        '<i class="icon xi-search fa-13"></i>' +
+                        '<i class="icon xi-search fa-13" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-original-title="' + TooltipTStr.UnionSearch +
+                        '"></i>' +
                     '</div>';
 
         resultCols.forEach(function(resultCol, colIndex) {

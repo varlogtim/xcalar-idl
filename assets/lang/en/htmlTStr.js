@@ -859,14 +859,14 @@ module.exports = {
         "header": "UNION",
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
-        "ColumnTitle": "Columns",
+        "ColumnTitle": "Columns In Union Table",
         "Instr": "Select tables you would like to union on and select columns from each table.",
-        "CandidateTitle": "Columns to be Dropped",
+        "CandidateTitle": "To be Dropped",
         "AddTable": "Add Table",
         "confirm": "Union",
         "Mode": "Mode",
-        "Union": "Union",
-        "UnionAll": "Union All"
+        "Union": "Union (Combine and deduplicate)",
+        "UnionAll": "Union All (Combine all rows)"
     },
 
     "jsonModal": {
