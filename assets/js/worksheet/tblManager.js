@@ -2504,7 +2504,7 @@ window.TblManager = (function($, TblManager) {
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .map, .operations, .profile, .corrAgg, " +
                     ".extensions, .changeDataType, .format, .roundToFixed, " +
-                    ".project, .unoin");
+                    ".project, .union");
             $lis.removeClass("unavailable");
             xcTooltip.remove($lis);
             if (colType === ColumnType.object || colType === ColumnType.array) {
