@@ -45,7 +45,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     };
 
     MonitorGraph.start = function() {
-        datasets = [[0], [0], [0]];
+        datasets = [[], [], []];
         setupLabelsPathsAndScales();
 
         setTimeout(function() {
@@ -87,9 +87,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     function startCycle() {
         count = 0;
-        newWidth = xGridWidth + shiftWidth;
+        newWidth = xGridWidth + shiftWidth - 4;
         numXGridMarks = 5;
-        gridRight = shiftWidth;
+        gridRight = shiftWidth - 4;
         $graphWrap = $('#graphWrap');
         svgWrap = svg.select(function() {
             return (this.parentNode);
@@ -121,6 +121,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         if (adjustTime) {
             intTime = Math.max(200, intervalTime - adjustTime);
         }
+
         graphCycle = setTimeout(function() {
             var startTime = Date.now();
             getStatsAndUpdateGraph()
@@ -443,6 +444,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     .attr("height", height)
                     .attr("class", "mainSvg")
                     .append("g");
+
+        // part of the left gray area
+        svg.append("g")
+            .attr("class", "leftBlock")
+            .append("rect")
+            .attr("width", xGridWidth)
+            .attr("height", height);
 
         svg.append("g")
            .attr("class", "x axis")
