@@ -82,7 +82,7 @@ $(document).ready(function() {
         if (username === "") {
             return;
         }
-
+        toggleBtnInProgress($("#loginButton"));
         var pass = $('#loginPasswordBox').val().trim();
         var str = {"xipassword": pass, "xiusername": username};
 /** START DEBUG ONLY **/
@@ -110,16 +110,19 @@ $(document).ready(function() {
                         console.log('return error', data);
                         isSubmitDisabled = false;
                     }
+                    toggleBtnInProgress($("#loginButton"));
                 },
                 "error": function(error) {
                     alert("Your authentication server has not been set up " +
                           "correctly. Please contact support@xcalar.com or " +
                           "your Xcalar sales representative.");
+                    toggleBtnInProgress($("#loginButton"));
                 }
             });
 /** START DEBUG ONLY **/
         } else {
             submit();
+            toggleBtnInProgress($("#loginButton"));
         }
 /** END DEBUG ONLY **/
         function submit() {
@@ -259,6 +262,33 @@ $(document).ready(function() {
             hostname = "https://" + hostname.split("://")[1];
         }
     }
+
+    function toggleBtnInProgress($btn) {
+        var html;
+
+        if ($btn.hasClass("btnInProgress")) {
+            html = $btn.data("oldhtml");
+            $btn.html(html)
+                .removeClass("btnInProgress")
+                .removeData("oldhtml");
+        } else {
+            var text = $btn.text();
+            var oldhtml = $btn.html();
+            html = '<div class="animatedEllipsisWrapper">' +
+                        '<div class="text">' +
+                            text +
+                        '</div>' +
+                        '<div class="animatedEllipsis">' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                        '</div>' +
+                    '</div>';
+            $btn.html(html)
+                .addClass("btnInProgress")
+                .data("oldhtml", oldhtml);
+        }
+    };
 
     $("#insightVersion").html("Version SHA: " +
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());

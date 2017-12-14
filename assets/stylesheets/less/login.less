@@ -413,3 +413,42 @@ input:-webkit-autofill:focus {
     border: 1px solid @color-white;
     .font(@color: @color-white);
 }
+
+#loginButton {
+    .animatedEllipsisWrapper {
+        .size(@width: 120px, @height: 100%);
+        margin-left: 40px;
+    }
+
+    .animatedEllipsisWrapper > div {
+        height: 100%;
+        float: left;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .animatedEllipsis {
+        width: 0px;
+        margin-left: 3px !important;
+        overflow: hidden;
+        animation: ellipsisLarge 2s steps(4, end) infinite;
+        -webkit-animation: ellipsisLarge 2s steps(4, end) infinite;
+        > div {
+            font-weight: 400;
+            margin-left: 0px;
+            display: inline;
+        }
+    }
+
+    @-webkit-keyframes ellipsisLarge {
+        to {
+            width: 17px;
+        }
+    }
+
+    @keyframes ellipsisLarge {
+        to {
+            width: 17px;
+        }
+    }
+}
