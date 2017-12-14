@@ -172,7 +172,7 @@ module.exports = {
         "DelColPlura": "Delete columns",
         "DelTarget": "Delete Target",
         "DelTbl": "Drop table",
-        "DelTblDesc": "Drop table & descendents",
+        "DelTblDesc": "Drop table & descendants",
         "ExamCell": "Examine",
         "ExceedsSize": "Image exceeds size limit",
         "ExclCell": "Exclude this value",

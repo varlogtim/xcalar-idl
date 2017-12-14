@@ -97,7 +97,7 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     yCoors.push(0);
 
-                    // adjust positions of nodes so that descendents will never be to
+                    // adjust positions of nodes so that descendants will never be to
                     // the left or parallel of their ancestors
                     adjustNodePositions(sets[i], storedInfo);
 
@@ -943,7 +943,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     // XXX can optimize this function
-    // adjust positions of nodes so that descendents will never be to the left
+    // adjust positions of nodes so that descendants will never be to the left
     // of their ancestors
     function adjustNodePositions(node, storedInfo) {
         var parents = node.getVisibleParents();

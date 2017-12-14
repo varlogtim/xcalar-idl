@@ -13,8 +13,8 @@ window.DFCreateView = (function($, DFCreateView) {
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
-    var srcRefCounts = {}; // counts how many times a table is included as a descedant
-    var srcMap = {}; // map of src tables and their descendants
+    var srcRefCounts = {}; // counts how many times a table is included as an ancestor
+    var srcMap = {}; // map of src tables and their ancestors
     var $curDagWrap;
 
     DFCreateView.setup = function() {
@@ -407,16 +407,16 @@ window.DFCreateView = (function($, DFCreateView) {
                 var prevTableName = $input.data("prevval");
                 if (srcMap[prevTableName]) {
                     var $dagTable;
-                    var prevDescendants = srcMap[prevTableName];
-                    for (var i = 0; i < prevDescendants.length; i++) {
-                        srcRefCounts[prevDescendants[i]]--;
+                    var prevAncestors = srcMap[prevTableName];
+                    for (var i = 0; i < prevAncestors.length; i++) {
+                        srcRefCounts[prevAncestors[i]]--;
 
-                        if (srcRefCounts[prevDescendants[i]] === 0) {
+                        if (srcRefCounts[prevAncestors[i]] === 0) {
                             $dagTable = Dag.getTableIconByName($curDagWrap,
-                                                            prevDescendants[i]);
+                                                            prevAncestors[i]);
                             $dagTable.closest(".dagTableWrap")
-                                     .removeClass("isSourceDescendant");
-                            delete srcRefCounts[prevDescendants[i]];
+                                     .removeClass("isAncestor");
+                            delete srcRefCounts[prevAncestors[i]];
                         }
                     }
 
@@ -435,14 +435,14 @@ window.DFCreateView = (function($, DFCreateView) {
             $input.data("prevval", tableName);
 
             if (dfTablesCache.indexOf(tableName) > -1) {
-                var descendants = Dag.styleSrcTables($curDagWrap, tableName);
-                for (var i = 0; i < descendants.length; i++) {
-                    if (!srcRefCounts[descendants[i]]) {
-                        srcRefCounts[descendants[i]] = 0;
+                var ancestors = Dag.styleSrcTables($curDagWrap, tableName);
+                for (var i = 0; i < ancestors.length; i++) {
+                    if (!srcRefCounts[ancestors[i]]) {
+                        srcRefCounts[ancestors[i]] = 0;
                     }
-                    srcRefCounts[descendants[i]]++;
+                    srcRefCounts[ancestors[i]]++;
                 }
-                srcMap[tableName] = descendants;
+                srcMap[tableName] = ancestors;
             }
         });
 
@@ -603,16 +603,16 @@ window.DFCreateView = (function($, DFCreateView) {
 
             if (!multipleFound) {
                 var $dagTable;
-                var prevDescendants = srcMap[prevTableName];
-                for (var i = 0; i < prevDescendants.length; i++) {
-                    srcRefCounts[prevDescendants[i]]--;
+                var prevAncestors = srcMap[prevTableName];
+                for (var i = 0; i < prevAncestors.length; i++) {
+                    srcRefCounts[prevAncestors[i]]--;
 
-                    if (srcRefCounts[prevDescendants[i]] === 0) {
+                    if (srcRefCounts[prevAncestors[i]] === 0) {
                         $dagTable = Dag.getTableIconByName($curDagWrap,
-                                                        prevDescendants[i]);
+                                                        prevAncestors[i]);
                         $dagTable.closest(".dagTableWrap")
                                  .removeClass("isSourceDescendant");
-                        delete srcRefCounts[prevDescendants[i]];
+                        delete srcRefCounts[prevAncestors[i]];
                     }
                 }
 
@@ -1038,9 +1038,9 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function resetDFView() {
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
-        $curDagWrap.find(".isSource").removeClass(".isSource");
-        $curDagWrap.find(".isSourceDescendant")
-                   .removeClass("isSourceDescendant");
+        $curDagWrap.find(".isSource").removeClass("isSource");
+        $curDagWrap.find(".isAncestor")
+                   .removeClass("isAncestor");
         $dfView.find(".group").not(":first").remove();
         $dfView.find(".group").removeClass("minimized");
         $dfView.find(".sourceTableWrap").empty();

@@ -52,7 +52,7 @@ window.DagEdit = (function($, DagEdit) {
                 isEditMode = false;
                 $(".dagWrap").removeClass("editMode");
                 $(".dagWrap").find(".hasEdit").removeClass("hasEdit");
-                $(".xcTableWrap").removeClass("editingDf notEditing editing");
+                $(".xcTableWrap").removeClass("editingDf editing");
                 $("#dagPanel").find(".dagTableTip").remove();
                 DagEdit.exitForm();
 
@@ -65,7 +65,6 @@ window.DagEdit = (function($, DagEdit) {
                 isEditMode = true;
                 var tableId = xcHelper.getTableId(node.value.name);
                 $("#xcTableWrap-" + tableId).addClass("editingDf");
-                $(".xcTableWrap:not(#xcTableWrap-" + tableId + ")").addClass("notEditing");
                 StatusMessage.updateLocation(true, "Editing Dataflow");
                 xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                                      TooltipTStr.NoUndoEditMode);
@@ -91,7 +90,8 @@ window.DagEdit = (function($, DagEdit) {
             showMapPreForm(node, sourceTableNames);
             return;
         }
-        var tableStatuses = [];
+
+        styleForEditingForm(node, sourceTableNames);
 
         TblManager.findAndFocusTable(sourceTableNames[0], true)
         .then(function(ret) {
@@ -114,21 +114,13 @@ window.DagEdit = (function($, DagEdit) {
                     editingTables[sourceTableNames[1]] = "active";
                 }
             }
+
+            $("#container").addClass("editingForm");
             for (var i = 0; i < sourceTableNames.length; i++) {
                 var tableId = xcHelper.getTableId(sourceTableNames[i]);
-                var $dagWrap = $("#dagWrap-" + tableId);
-                $dagWrap.addClass("editing").removeClass("notEditing");
-                $("#xcTableWrap-" + tableId).addClass("editing")
-                                            .removeClass("notEditing");
-
-                // highlight node
-                Dag.getTableIconByName($(".dagWrap.editMode"),
-                                       sourceTableNames[i]).addClass("editing");
+                $("#xcTableWrap-" + tableId).addClass("editing");
+                TblManager.alignTableEls($("#xcTableWrap-" + tableId));
             }
-
-            var tableId = xcHelper.getTableId(sourceTableNames[0]);
-            $("#container").addClass("editingForm");
-            TblManager.alignTableEls($("#xcTableWrap-" + tableId));
 
             // helps with the choppy animation of the operation form
             setTimeout(function() {
@@ -164,18 +156,27 @@ window.DagEdit = (function($, DagEdit) {
                     gDroppedTables[secondTableId] = table;
                 }
             }
+            var hasActiveTable = false;
             for (var i = 0; i < sourceTableNames.length; i++) {
                 var tableId = xcHelper.getTableId(sourceTableNames[i]);
-                $("#dagWrap-" + tableId).addClass("editing")
-                                        .removeClass("notEditing");
-                $("#xcTableWrap-" + tableId).addClass("editing")
-                                            .removeClass("notEditing");
+                $("#xcTableWrap-" + tableId).addClass("editing");
+                if (gTables[tableId]) {
+                    hasActiveTable = true;
+                    break;
+                }
             }
 
-            if (!isDroppedTable) {
-                var tableId = xcHelper.getTableId(sourceTableNames[0]);
-                $("#container").addClass("editingForm");
-                TblManager.alignTableEls($("#xcTableWrap-" + tableId));
+            if (!hasActiveTable) {
+                $("#container").addClass("noActiveEditingTable");
+            }
+            $("#container").addClass("editingForm");
+
+            for (var i = 0; i < sourceTableNames.length; i++) {
+                var tableId = xcHelper.getTableId(sourceTableNames[i]);
+                $("#xcTableWrap-" + tableId).addClass("editing");
+                if (!gTables.hasOwnProperty(tableId)) {
+                    TblManager.alignTableEls($("#xcTableWrap-" + tableId));
+                }
             }
 
             // helps with the choppy animation of the operation form
@@ -195,15 +196,14 @@ window.DagEdit = (function($, DagEdit) {
             }
         }
         editingTables = {};
-        $(".dagWrap").removeClass("editing");
         $(".dagWrap .dagTable").removeClass("editing");
+        $(".dagTableWrap").removeClass("isDescendant editingChild");
         $(".xcTableWrap").removeClass("editing");
-        $("#container").removeClass("editingForm");
+        $("#container").removeClass("editingForm noActiveEditingTable");
         if ($("#container").hasClass("dfEditState")) {
             TblFunc.focusTable($(".dagWrap.editMode").data("id"));
         }
     };
-
 
     function showMapPreForm(node, sourceTableNames) {
         var $mapPreForm = $("#mapPreForm");
@@ -299,7 +299,6 @@ window.DagEdit = (function($, DagEdit) {
         Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
                               params[editingNode.value.name]);
 
-        $(".dagWrap").removeClass("editing");
         $(".xcTableWrap").removeClass("editing");
     };
 
@@ -528,6 +527,27 @@ window.DagEdit = (function($, DagEdit) {
             DagEdit.editOp(editingNode, {evalIndex: index});
         });
     };
+
+    function styleForEditingForm(node, sourceTableNames) {
+        var $dagTable;
+
+        for (var i = 0; i < sourceTableNames.length; i++) {
+            var tableId = xcHelper.getTableId(sourceTableNames[i]);
+            var $dagWrap = $("#dagWrap-" + tableId);
+            $dagWrap.addClass("editing");
+            $("#xcTableWrap-" + tableId).addClass("editing");
+            // highlight node
+            $dagTable = Dag.getTableIconByName($(".dagWrap.editMode"),
+                                   sourceTableNames[i]);
+            $dagTable.addClass("editing");
+            Dag.styleDestTables($(".dagWrap.editMode"), sourceTableNames[i]);
+        }
+
+        var nodeName = node.value.name;
+        $dagTable = Dag.getTableIconByName($(".dagWrap.editMode"),
+                                                nodeName);
+        $dagTable.closest(".dagTableWrap").addClass("editingChild");
+    }
 
     function checkIndexNodes(editingNode, info, indexNodes, parentNum) {
         var indexNode;

@@ -1111,17 +1111,34 @@ window.Dag = (function($, Dag) {
         var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
         var nodeId = $dagTable.data("index");
         var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
+        var ancestorNodes = node.getAllAncestorNodes();
+        var $curDagTable;
+        var tableNames = [];
+        for (var i = 0; i < ancestorNodes.length; i++) {
+            $curDagTable = Dag.getTableIcon($dagWrap,
+                                            ancestorNodes[i].value.dagNodeId);
+            $curDagTable.closest(".dagTableWrap").addClass("isAncestor");
+            tableNames.push(ancestorNodes[i].value.name);
+        }
+        $dagTable.closest(".dagTableWrap").addClass("isSource");
+
+        return tableNames;
+    };
+
+
+    Dag.styleDestTables = function($dagWrap, tableName) {
+        var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
+        var nodeId = $dagTable.data("index");
+        var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         var descendantNodes = node.getAllDescendantNodes();
         var $curDagTable;
         var tableNames = [];
         for (var i = 0; i < descendantNodes.length; i++) {
             $curDagTable = Dag.getTableIcon($dagWrap,
                                             descendantNodes[i].value.dagNodeId);
-            $curDagTable.closest(".dagTableWrap").addClass("isSourceDescendant");
-            tableNames.push(descendantNodes[i].value.name);
+            $curDagTable.closest(".dagTableWrap").addClass("isDescendant");
+            tableNames.push(descendantNodes[i].value.name)
         }
-        $dagTable.closest(".dagTableWrap").addClass("isSource");
-
         return tableNames;
     };
 
@@ -1863,7 +1880,7 @@ window.Dag = (function($, Dag) {
     }
 
     // sourceColNames is an array of the names we're searching for lineage
-    // origNode is the last descendent node known to contain the col
+    // origNode is the last descendant node known to contain the col
     function findColumnSource(sourceColNames, $dagWrap, node,
                               curColName, isEmptyCol, prevFound, origNode,
                               storedInfo) {
@@ -1891,7 +1908,7 @@ window.Dag = (function($, Dag) {
                 var foundSameColName = false; // if found column with same
                 // backName as curColName
                 var colCreatedHere = false; // if this is the first place
-                // where descendent column has no value
+                // where descendant column has no value
 
                 // make a copy so we have original for every table iteration
                 var sourceColNamesCopy = xcHelper.deepCopy(sourceColNames);

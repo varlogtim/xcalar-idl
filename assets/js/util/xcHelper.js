@@ -530,7 +530,7 @@
 
     // get unique column name
     // takenNames can be an object of unavailable column names that aren't in
-    // the current table but will be part of a descendent table
+    // the current table but will be part of a descendant table
     xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol,
                                        takenNames, colNumToIgnore) {
         if (colName == null) {

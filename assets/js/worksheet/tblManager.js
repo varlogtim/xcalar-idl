@@ -3189,7 +3189,7 @@ window.TblManager = (function($, TblManager) {
 
     function sendTableToDropped(table) {
         if (table.getType() === TableType.Undone) {
-            // has no descendents so we don't need to keep meta
+            // has no descendants so we don't need to keep meta
             return;
         }
         table.beDropped();

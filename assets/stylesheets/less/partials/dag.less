@@ -561,10 +561,13 @@ html.firefox, html.microsoft {
             opacity: 0.4;
         }
 
-        &.isSourceDescendant {
+        &.isAncestor, &.isDescendant:not(.editingChild) {
             .actionType {
                 background-color: @color-white;
                 .actionTypeWrap {
+                    .disabledStyle;
+                }
+                &:after {
                     .disabledStyle;
                 }
             }
@@ -586,6 +589,12 @@ html.firefox, html.microsoft {
                 }
             }
             .tipIcons {
+                .disabledStyle;
+            }
+        }
+
+        &.editingChild {
+            .tableTitle, .dagTable .icon {
                 .disabledStyle;
             }
         }
@@ -1446,9 +1455,6 @@ html.firefox, html.microsoft {
                 }
 
             }
-            &.editing {
-                display: none;
-            }
         }
 
         .dagTableDropDown {
@@ -1540,8 +1546,15 @@ html.firefox, html.microsoft {
     //     }
     // }
     &.editingForm {
-        .xcTableWrap.editingDf {
-            display: none;
+        &.noActiveEditingTable {
+            .xcTableWrap.editingDf {
+                .xc-disabled
+            }
+        }
+        &:not(.noActiveEditingTable) {
+            .xcTableWrap.editingDf {
+                display: none;
+            }
         }
     }
 

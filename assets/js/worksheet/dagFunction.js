@@ -119,9 +119,9 @@ window.DagFunction = (function($, DagFunction) {
             return parentNames;
         },
 
-        getAllDescendantNodes: function() {
+        getAllAncestorNodes: function() {
             var node = this;
-            var descendants = [];
+            var ancestors = [];
             var seen = {};
 
             search(node);
@@ -131,8 +131,28 @@ window.DagFunction = (function($, DagFunction) {
                         continue;
                     }
                     seen[node.parents[i].value.name] = true;
-                    descendants.push(node.parents[i]);
+                    ancestors.push(node.parents[i]);
                     search(node.parents[i]);
+                }
+            }
+
+            return ancestors;
+        },
+
+        getAllDescendantNodes: function() {
+            var node = this;
+            var descendants = [];
+            var seen = {};
+
+            search(node);
+            function search(node) {
+                for (var i = 0; i < node.children.length; i++) {
+                    if (seen[node.children[i].value.name]) {
+                        continue;
+                    }
+                    seen[node.children[i].value.name] = true;
+                    descendants.push(node.children[i]);
+                    search(node.children[i]);
                 }
             }
 
@@ -389,7 +409,7 @@ window.DagFunction = (function($, DagFunction) {
         return (jQuery.extend(true, newStruct, origInputStruct));
     };
 
-    // oldTableName is a descendent/parent
+    // oldTableName is a descendant/parent
     DagFunction.revertTable = function(tableId, newTableName, oldTableName) {
         var tableType = TableType.Orphan;
         var oldTableId = xcHelper.getTableId(oldTableName);
