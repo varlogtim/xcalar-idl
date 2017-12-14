@@ -1489,7 +1489,7 @@ window.DFParamModal = (function($, DFParamModal){
         var params;
         var dagNodeId = $dfParamModal.data("id");
         var retName = $dfParamModal.data("df");
-        var radioButton = $dfParamModal.find(".radioButton.active");
+        var radioButton = $dfParamModal.find(".advancedOpts .radioButton.active");
         if (radioButton.length === 1 && $(radioButton).data("option") === "import") {
             storeExportToTableNode();
         } else {
