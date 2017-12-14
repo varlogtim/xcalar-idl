@@ -36,9 +36,16 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "gbWithMapStr": "select avg(l_tax), l_tax/2 from lineitem3 group by l_tax/2",
         "joinWithCollision": "select * from region r1, region r2 where r1.r_regionkey = r2.r_regionkey",
         "aliasCollision": "select * from (select r_regionkey as key from region) as t1, (select r_regionkey as key from region) as t2 where t1.key = t2.key",
-        // Doesn't work yet. Returns empty result
+        // Doesn't work yet. Returns empty result. Backend bug. Code review in progress
         "crossJoin": "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
         "dateExpr": "select year(o_orderdate) from orders",
+        "joinSemiCatchall": "select * from region r1 where exists(   select *   from region r2   where r2.r_regionkey > r1.r_regionkey)",
+        "joinAntiCatchall": "select * from region r1 where not exists(   select *   from region r2   where r2.r_regionkey > r1.r_regionkey)",
+        "joinSemiOptimize": "select * from supplier r1 where exists(   select *   from supplier r2   where r2.s_nationkey >= r1.s_nationkey and r2.s_name = r1.s_name)",
+        "joinAntiOptimize": "select * from supplier r1 where not exists(   select *   from supplier r2   where r2.s_nationkey >= r1.s_nationkey and r2.s_name = r1.s_name)", // empty table as result
+        "joinCatchall": "select * from supplier, nation where s_nationkey > n_nationkey",
+        "joinOptimizeFilter": "select * from supplier, nation where s_nationkey = n_nationkey and s_suppkey > n_nationkey",
+        "crossJoinNoFilter": "select * from nation cross join region",
         // "dateExpWithTS": "select year(timestamp(someTimestampCol)) from table",
     };
     var tpchCases = {
