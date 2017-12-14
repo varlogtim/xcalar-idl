@@ -2112,7 +2112,7 @@ window.DagDraw = (function($, DagDraw) {
         filterType = "";
         var filterTypeMap = {
             "gt": "greater than",
-            "ge": "reater than or equal to",
+            "ge": "greater than or equal to",
             "eq": "equal to",
             "lt": "less than",
             "le": "less than or equal to",
@@ -2129,10 +2129,11 @@ window.DagDraw = (function($, DagDraw) {
         } else if (filterTypeMap[abbrFilterType]) {
             var filteredOn = filterStr.slice(parenIndex + 1,
                                              filterStr.indexOf(','));
+            filteredOn = $.trim(filteredOn);
             filterType = filterTypeMap[abbrFilterType];
-            var filterValue = filterStr.slice(filterStr.indexOf(',') + 2,
+            var filterValue = filterStr.slice(filterStr.indexOf(',') + 1,
                                               filterStr.lastIndexOf(')'));
-
+            filterValue = $.trim(filterValue);
             info.opText = filteredOn;
             if (filterType === "regex") {
                 info.tooltip = "Filtered table &quot;" + parentNames[0] +

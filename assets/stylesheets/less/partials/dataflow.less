@@ -355,11 +355,144 @@
                 .dagTableWrap {
                     pointer-events: none;
                 }
+                .timeSection {
+                    display: block;
+                }
             }
 
             &.error, &.invalid {
                 .runNowBtn, .addScheduleToDataflow {
                     .xc-disabled
+                }
+            }
+
+            &.hasRun {
+                .timeSection {
+                    display: block;
+                }
+
+                .dagTable {
+                    &.Created {
+                        .dataStoreIcon {
+                            background-color: @color-bg-select-blue;
+                        }
+                        &.typeTable .icon {
+                            color:  @color-bg-select-blue;
+                        }
+                        .progressInfo {
+                            display: none;
+                        }
+                    }
+                    &.Processing {
+                        &:hover {
+                            .dataStoreIcon {
+                                background-color: @color-bg-gold !important;
+                            }
+                            &.typeTable .icon {
+                                color: @color-bg-gold !important;
+                            }
+                            &[data-advancedOpts="default"] i.icon.xi-data-out {
+                                color: @color-white !important;
+                            }
+                        }
+                        .dataStoreIcon {
+                            background-color: @color-bg-gold !important;
+                        }
+                        &.typeTable .icon {
+                            color: @color-bg-gold !important;
+                        }
+                        &[data-advancedOpts="default"] {
+                            .dagTableIcon {
+                                background: @color-bg-gold;
+                            }
+                            i.icon.xi-data-out {
+                                color: @color-white !important;
+                            }
+                        }
+                        .progressBarWrap {
+                            display: block;
+                        }
+                        .progressBar {
+                            height: 100%;
+                            width: 0%;
+                            background-color: @color-bg-select-blue;
+                        }
+                        .progressInfo {
+                            top: -35px;
+                        }
+                        &.parameterizable {
+                            .progressBarWrap {
+                                top: -9px;
+                            }
+                            &.dataStore {
+                                .progressBarWrap {
+                                    top: -9px;
+                                    left: 3px;
+                                }
+                                .progressInfo {
+                                    top: -44px;
+                                }
+                            }
+                        }
+                    }
+                    &.Cleaned, &.Dropped, &.Ready, &.wasDropped {
+                        &:hover {
+                            .dataStoreIcon {
+                                background-color: @color-bg-fern-green !important;
+                            }
+                            .dagTableIcon ~ .icon {
+                                color: @color-bg-fern-green !important;
+                            }
+                            &[data-advancedOpts="default"] i.icon.xi-data-out {
+                                color: @color-white !important;
+                            }
+                        }
+
+                        .dataStoreIcon {
+                            background-color: @color-bg-fern-green;
+                        }
+                        &.typeTable .icon {
+                            color: @color-bg-fern-green;
+                        }
+                        &[data-advancedOpts="default"] .dagTableIcon {
+                            background: @color-bg-fern-green;
+                        }
+                        &.export .dagTableIcon {
+                            background: @color-bg-fern-green !important;
+                        }
+                    }
+
+                    &.Queued, &.Error {
+                        &:hover {
+                            .dataStoreIcon {
+                                background-color: @color-error-border !important;
+                            }
+                            &.typeTable .icon {
+                                color: @color-error-border !important;
+                            }
+                            &[data-advancedOpts="default"] i.icon.xi-data-out {
+                                color: @color-white !important;
+                            }
+                        }
+                        .dataStoreIcon {
+                            background-color: @color-error-border !important;
+                        }
+                        &.typeTable .icon {
+                            color: @color-error-border !important;
+                        }
+                        &[data-advancedOpts="default"] .dagTableIcon {
+                            background: @color-error-border !important;
+                        }
+                    }
+
+                    &[data-advancedOpts="import"] {
+                        &.export.dagTable {
+
+                            &> .xi-table-2, &:hover > .xi-table-2 {
+                                color: @color-bg-select-blue !important;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -468,124 +601,6 @@
                 .tableTitle {
                     pointer-events: initial;
                     cursor: initial;
-                }
-            }
-            &.Created {
-                .dataStoreIcon {
-                    background-color: @color-bg-select-blue;
-                }
-                &.typeTable .icon {
-                    color:  @color-bg-select-blue;
-                }
-                .progressInfo {
-                    display: none;
-                }
-            }
-            &.Processing {
-                &:hover {
-                    .dataStoreIcon {
-                        background-color: @color-bg-gold !important;
-                    }
-                    &.typeTable .icon {
-                        color: @color-bg-gold !important;
-                    }
-                    &[data-advancedOpts="default"] i.icon.xi-data-out {
-                        color: @color-white !important;
-                    }
-                }
-                .dataStoreIcon {
-                    background-color: @color-bg-gold !important;
-                }
-                &.typeTable .icon {
-                    color: @color-bg-gold !important;
-                }
-                &[data-advancedOpts="default"] {
-                    .dagTableIcon {
-                        background: @color-bg-gold;
-                    }
-                    i.icon.xi-data-out {
-                        color: @color-white !important;
-                    }
-                }
-                .progressBarWrap {
-                    display: block;
-                }
-                .progressBar {
-                    height: 100%;
-                    width: 0%;
-                    background-color: @color-bg-select-blue;
-                }
-                .progressInfo {
-                    top: -35px;
-                }
-                &.parameterizable {
-                    .progressBarWrap {
-                        top: -9px;
-                    }
-                    &.dataStore {
-                        .progressBarWrap {
-                            top: -9px;
-                            left: 3px;
-                        }
-                        .progressInfo {
-                            top: -44px;
-                        }
-                    }
-                }
-            }
-            &.Cleaned, &.Dropped, &.Ready {
-                &:hover {
-                    .dataStoreIcon {
-                        background-color: @color-bg-fern-green !important;
-                    }
-                    .dagTableIcon ~ .icon {
-                        color: @color-bg-fern-green !important;
-                    }
-                    &[data-advancedOpts="default"] i.icon.xi-data-out {
-                        color: @color-white !important;
-                    }
-                }
-
-                .dataStoreIcon {
-                    background-color: @color-bg-fern-green;
-                }
-                &.typeTable .icon {
-                    color: @color-bg-fern-green;
-                }
-                &[data-advancedOpts="default"] .dagTableIcon {
-                    background: @color-bg-fern-green;
-                }
-            }
-
-            &.Queued, &.Error {
-                &:hover {
-                    .dataStoreIcon {
-                        background-color: @color-error-border !important;
-                    }
-                    &.typeTable .icon {
-                        color: @color-error-border !important;
-                    }
-                    &[data-advancedOpts="default"] i.icon.xi-data-out {
-                        color: @color-white !important;
-                    }
-                }
-                .dataStoreIcon {
-                    background-color: @color-error-border;
-                }
-                &.typeTable .icon {
-                    color: @color-error-border;
-                }
-                &[data-advancedOpts="default"] .dagTableIcon {
-                    background: @color-error-border;
-                }
-            }
-
-            &[data-advancedOpts="import"] {
-                &.export.dagTable {
-
-                    &> .xi-table-2, &:hover > .xi-table-2 {
-                        color: @color-bg-select-blue !important;
-                    }
                 }
             }
         }

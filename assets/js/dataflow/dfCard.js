@@ -679,7 +679,7 @@ window.DFCard = (function($, DFCard) {
 
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
         .then(function() {
-            $dagWrap.find(".timeSection").show();
+            $dagWrap.addClass("hasRun");
             updateOverallTime(dataflowName, true);
             deferred.resolve();
         })
@@ -999,6 +999,7 @@ window.DFCard = (function($, DFCard) {
         var targetType = exportStruct.targetType;
         var fileName = parseFileName(exportStruct, paramsArray);
         var advancedOpts = DF.getAdvancedExportOption(retName);
+
         if (advancedOpts == null) {
             // error case
             return PromiseHelper.reject();
@@ -1167,8 +1168,10 @@ window.DFCard = (function($, DFCard) {
     function startStatusCheck(retName) {
         retinasInProgress[retName] = true;
         var $dagWrap = getDagWrap(retName);
-        $dagWrap.addClass("inProgress");
+        $dagWrap.addClass("inProgress hasRun");
         var createdState = DgDagStateTStr[DgDagStateT.DgDagStateCreated];
+        $dagWrap.find(".dagTable." + DgDagStateTStr[DgDagStateT.DgDagStateDropped])
+                .addClass("wasDropped");
         $dagWrap.find('.dagTable').removeClass(dagStateClasses)
                                   .addClass(createdState);
         $dagWrap.data({
@@ -1179,7 +1182,6 @@ window.DFCard = (function($, DFCard) {
             starttime: Date.now()
         });
         statusCheckInterval(retName, true);
-        $dagWrap.find(".timeSection").show();
         $dagWrap.find(".timeSection .label").html(CommonTxtTstr.elapsedTime);
         $dagWrap.find(".overallTime").html("0s");
         overallTimeInterval(retName);
