@@ -200,7 +200,7 @@ window.JoinView = (function($, JoinView) {
                             tableId = getTableIds(0);
                         }
                         if (gTables[tableId]) {
-                            selectAllTableCols(tableId);
+                            selectAllTableCols(gTables[tableId]);
                             needsNextStepUpdate = true;
                         }
                     } else if (joinType.indexOf("Semi") > -1) { // semi -> semi
@@ -212,14 +212,14 @@ window.JoinView = (function($, JoinView) {
                                 needsNextStepUpdate = true;
                             }
                             if (gTables[tableIds[1]]) {
-                                selectAllTableCols(tableIds[1]);
+                                selectAllTableCols(gTables[tableIds[1]]);
                                 needsNextStepUpdate = true;
                             }
                         } else if (prevType.indexOf("Left") === -1 &&
                             joinType.indexOf("Left") > -1) {
                             tableIds = getTableIds();
                             if (gTables[tableIds[0]]) {
-                                selectAllTableCols(tableIds[0]);
+                                selectAllTableCols(gTables[tableIds[0]]);
                                 needsNextStepUpdate = true;
                             }
                             if (gTables[tableIds[1]]) {
@@ -346,7 +346,7 @@ window.JoinView = (function($, JoinView) {
                             selectAllTableCols(table);
                         }
                     } else if (index === 1) {
-                        selectAllTableCols(tableId);
+                        selectAllTableCols(table);
                     }
                 } else {
                     selectAllTableCols(table);
@@ -812,7 +812,7 @@ window.JoinView = (function($, JoinView) {
             $checkbox.addClass('checked');
             $colList.find('li').addClass('checked')
                   .find('.checkbox').addClass('checked');
-            selectAllTableCols(tableId);
+            selectAllTableCols(gTables[tableId]);
         } else {
             $checkbox.removeClass('checked');
             $colList.find('li').removeClass('checked')
@@ -832,17 +832,6 @@ window.JoinView = (function($, JoinView) {
 
         resetRenames();
     }
-
-    // function selectAllTableCols(tableId) {
-    //     var $table = $("#xcTable-" + tableId);
-    //     var allCols = gTables[tableId].getAllCols();
-    //     for (var i = 0; i < allCols.length; i++) {
-    //         var progCol = allCols[i];
-    //         if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
-    //             $table.find(".col" + (i + 1)).addClass("modalHighlighted");
-    //         }
-    //     }
-    // }
 
     function selectAllTableCols(table) {
         var tableId = table.getId();
