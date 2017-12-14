@@ -15,6 +15,7 @@
             return (1 * v1[2] < 1 * v2[2]);
         }
     }
+
     var version = XVM.getVersion();
     if (version && versionCheck(version.split("-")[0], "1.3.0")) {
         // Make sure our patch only applies to certain versions
@@ -27,10 +28,17 @@
         }
     }
     if (version && versionCheck(version.split("-")[0], "1.3.1")) {
-         try {
+        try {
             patchDSPreview();
         } catch (error) {
             console.log("ds preview fails");
+        }
+    }
+    if (version &&  version.split("-")[0] === "1.2.4") {
+        try {
+            patchExportNodeStruct();
+        } catch (error) {
+            console.log("export node struct patch fails");
         }
     }
     function patchMixpanel() {
@@ -125,5 +133,78 @@
 
         // Start observing the target node for configured mutations
         observer.observe(targetNode, config);
+    }
+
+    function patchExportNodeStruct() {
+        window.XcalarListExportTargets = function(typePattern, namePattern) {
+            if ([null, undefined].indexOf(tHandle) !== -1) {
+                return PromiseHelper.resolve(null);
+            }
+            var deferred = jQuery.Deferred();
+            if (insertError(arguments.callee, deferred)) {
+                return deferred.promise();
+            }
+            xcalarListExportTargets(tHandle, typePattern, namePattern)
+            .then(function(ret) {
+                var numTargets = ret.numTargets;
+                var target;
+                for (var i = 0; i < numTargets; i++) {
+                    target = ret.targets[i];
+                    if (target.specificInput) {
+                        if (!target.specificInput.sfInput) {
+                            target.specificInput.sfInput = new ExAddTargetSFInputT();
+                            target.specificInput.sfInput.url = "";
+                        }
+                        if (!target.specificInput.udfInput) {
+                            target.specificInput.udfInput = new ExAddTargetUDFInputT();
+                        }
+                    }
+                }
+                deferred.resolve(ret);
+            })
+            .fail(function(error) {
+                var thriftError = thriftLog("XcalarListExportTargets", error);
+                deferred.reject(thriftError);
+            });
+            return deferred.promise();
+        };
+
+        window.XcalarGetRetina = function(retName) {
+            if (retName === "" || retName == null || [null, undefined].indexOf(tHandle) !== -1) {
+                return PromiseHelper.resolve(null);
+            }
+            var deferred = jQuery.Deferred();
+            if (insertError(arguments.callee, deferred)) {
+                return deferred.promise();
+            }
+            xcalarGetRetina(tHandle, retName)
+            .then(function(ret){
+                var retina = ret.retina;
+                if (retina && retina.retinaDag) {
+                    var node;
+                    for (var i = 0; i < retina.retinaDag.numNodes; i++) {
+                        node = retina.retinaDag.node[i];
+                        if (node.api === XcalarApisT.XcalarApiExport) {
+                            var exportStruct = node.input.exportInput;
+                            if (exportStruct.meta && exportStruct.meta.specificInput) {
+                                if (!exportStruct.meta.specificInput.sfInput) {
+                                    exportStruct.meta.specificInput.sfInput = new ExInitExportSFInputT();
+                                }
+                                if (!exportStruct.meta.specificInput.udfInput) {
+                                    exportStruct.meta.specificInput.udfInput = new ExInitExportUDFInputT();
+                                }
+                            }
+                        }
+                    }
+                }
+                deferred.resolve(ret);
+            })
+            .fail(function(error) {
+                var thriftError = thriftLog("XcalarGetRetina", error);
+                Log.errorLog("Get Retinas", null, null, thriftError);
+                deferred.reject(thriftError);
+            });
+            return deferred.promise();
+        };
     }
 }(jQuery));

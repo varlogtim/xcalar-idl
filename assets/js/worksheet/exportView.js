@@ -467,11 +467,13 @@ window.ExportView = (function($, ExportView) {
         var filePath = "";
         for (var i = 0; i < numTargs; i++) {
             if (exportTargInfo.targets[i].hdr.name === targName) {
-                filePath = exportTargInfo.targets[i].specificInput.sfInput.url;
+                if (exportTargInfo.targets[i].specificInput.sfInput) {
+                    filePath = exportTargInfo.targets[i].specificInput.sfInput.url;
+                }
                 break;
             }
         }
-        if (filePath === "") {
+        if (!filePath) {
             deferred.resolve(false);
         } else {
             XcalarListFiles({
