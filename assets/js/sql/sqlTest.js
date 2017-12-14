@@ -38,43 +38,121 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "aliasCollision": "select * from (select r_regionkey as key from region) as t1, (select r_regionkey as key from region) as t2 where t1.key = t2.key",
         // Doesn't work yet. Returns empty result
         "crossJoin": "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
+        "dateExpr": "select year(o_orderdate) from orders",
+        // "dateExpWithTS": "select year(timestamp(someTimestampCol)) from table",
     };
-
+    var tpchCases = {
+        "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +
+              " sum(l_extendedprice) as sum_base_price, sum(l_extendedprice *" +
+              " (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1" +
+              " - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity)" +
+              " as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount)" +
+              " as avg_disc, count(*) as count_order from lineitem where " +
+              "l_shipdate <= date \"1998-12-01\" - interval \"90\" day group by" +
+              " l_returnflag, l_linestatus order by l_returnflag, l_linestatus",
+        "q2": "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address," +
+              " s_phone, s_comment from part, supplier, partsupp, nation, " +
+              "region where p_partkey = ps_partkey and s_suppkey = ps_suppkey" +
+              " and p_size = 15 and p_type like \"%BRASS\" and s_nationkey = " +
+              "n_nationkey and n_regionkey = r_regionkey and r_name = \"EUROPE\"" +
+              " and ps_supplycost = (select min(ps_supplycost) from partsupp," +
+              " supplier, nation, region where p_partkey = ps_partkey and " +
+              "s_suppkey = ps_suppkey and s_nationkey = n_nationkey and " +
+              "n_regionkey = r_regionkey and r_name = \"EUROPE\" )order by " +
+              "s_acctbal desc, n_name, s_name, p_partkey",
+    }
+    var test;
     SqlTestSuite.runSqlTests = function() {
         var tableNames = {};
-        setUpTpchDatasets(tableNames)
+        test = TestSuite.createTest();
+        setUpTpchDatasets(tableNames, test)
         .then(function() {
-
+            for (var testCase in sqlTestCases) {
+                var testName = testCase;
+                var sqlString = sqlTestCases[testCase];
+                console.log("Test name: " + testName);
+                console.log(sqlString);
+                // TODO: Actually pass these into the panel and trigger the tests
+            }
+            for (var testCase in tpchCases) {
+                var testName = testCase;
+                var sqlString = tpchCases[testCase];
+                console.log("TPCH Test name: " + testName);
+                console.log(sqlString);
+                // TODO: Actually pass these into the panel and trigger the tests
+            }
         });
-        for (var test in sqlTestCases) {
-            var testName = test;
-            var sqlString = sqlTestCases[test];
-            console.log("Test name: " + testName);
-            console.log(sqlString);
-            // TODO: Actually pass these into the panel and trigger the tests
-        }
     };
-
-    function setUpTpchDatasets(tableStruct) {
+    function doAll(test, tableName, randId, dataPath, check) {
+        var deferred = jQuery.Deferred();
+        // Load datasets
+        loadDatasets(test, tableName, randId, dataPath, check)
+        .then(function() {
+            // Create tables
+            $("#dataStoresTab").click();
+            return createTables(test, tableName, randId);
+        })
+        .then(function() {
+            // Remove extra columns
+            var tableId = gActiveTableId;
+            return removeColumns(tableId);
+        })
+        .then(function() {
+            // Cast data types
+        })
+        .then(function() {
+            // Finalize table
+        })
+        .then(function() {
+            // Send schema
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+    function loadDatasets(test, tableName, randId, dataPath, check) {
+        return test.loadDS(tableName + "_" + randId, dataPath, check);
+    }
+    function createTables(test, tableName, randId) {
+        return test.createTable(tableName + "_" + randId);
+    }
+    function removeColumns(tableId) {
+        return ColManager.hideCol([gTables[tableId].getNumCols() - 1], tableId, {noAnimate:true});
+    }
+    function castColumns(tableId) {
+        // XXX TO-DO
+    }
+    function finalizeTables(tableId) {
+        // XXX TO-DO
+    }
+    function sendSchema(tableId) {
+        // XXX TO-DO
+    }
+    function setUpTpchDatasets(tableStruct, test) {
         var deferred = jQuery.Deferred();
         var dataSource = testDataLoc + "/tpch_sf1/";
-        var tableNames = ["customer", "lineitem", "nation", "orders", "part",
-                          "partsupp", "region", "supplier"];
-        var check = ["#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
-                     "#previewTable td:eq(1):contains('')",
+        // var tableNames = ["customer", "lineitem", "nation", "orders", "part",
+        //                   "partsupp", "region", "supplier"];
+        // var check = ["#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')",
+        //              "#previewTable td:eq(1):contains('')"];
+        var tableNames = ["region", "nation"];
+        var checkList = ["#previewTable td:eq(1):contains('')",
                      "#previewTable td:eq(1):contains('')"];
         var randId = Math.floor(Math.random() * 1000);
         var promiseArray = [];
         for (var i = 0; i < tableNames.length; i++) {
             var dataPath = dataSource + tableNames[i] + ".tbl";
-            tableStruct[tableNames[i]] = tableNames[i] + "_" + randId;
-            promiseArray.push(loadDS.bind(window, tableNames[i] + "_" + randId,
-                                          dataPath, check[i]));
+            tableStruct[tableNames[i]] = randId;
+            var tableName = tableNames[i];
+            var check = checkList[i];
+            promiseArray.push(doAll.bind(window, test, tableName, randId,
+                                         dataPath, check));
         }
         PromiseHelper.chain(promiseArray)
         .then(function() {
@@ -83,6 +161,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         .fail(deferred.reject);
         return deferred.promise();
     }
+    return (SqlTestSuite);
 }(jQuery, {}));
 
 
