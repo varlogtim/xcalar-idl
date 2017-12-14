@@ -1804,11 +1804,11 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("UserPref Constructor Test", function() {
-        it("Should have 7 attributes", function() {
+        it("Should have 9 attributes", function() {
             var userPref = new UserPref();
 
             expect(userPref).to.be.an.instanceof(UserPref);
-            expect(Object.keys(userPref).length).to.equal(8);
+            expect(Object.keys(userPref).length).to.equal(9);
             expect(userPref).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(userPref).to.have.property("datasetListView")
@@ -1824,7 +1824,7 @@ describe("Persistent Constructor Test", function() {
             expect(userPref).to.have.property("activeMainTab")
             .and.to.equal("workspaceTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
-
+            expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;
             userPref.update();
         });
 

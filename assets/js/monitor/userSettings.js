@@ -136,7 +136,8 @@ window.UserSettings = (function($, UserSettings) {
             return userPrefs[pref];
         } else {
             for (var i in userPrefs) {
-                if (typeof userPrefs[i] === "object" &&
+                if (userPrefs[i] != null &&
+                    typeof userPrefs[i] === "object" &&
                     userPrefs[i].hasOwnProperty(pref)) {
                     return userPrefs[i][pref];
                 }
@@ -194,6 +195,9 @@ window.UserSettings = (function($, UserSettings) {
         for (var key in userPrefs) {
             if (cachedPrefs[key] == null && userPrefs[key] == null) {
                 continue;
+            } else if (cachedPrefs[key] == null || userPrefs[key] == null) {
+                shouldCommit = true;
+                break;
             } else if (cachedPrefs[key] !== userPrefs[key]) {
                 if (typeof userPrefs[key] === "object") {
                     for (var pref in userPrefs[key]) {

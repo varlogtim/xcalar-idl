@@ -1349,10 +1349,17 @@
             keepGBTable: (boolean) keep original group by table or replace
             activeMainTab: (string) which tab is in active
             general: (obj) holds general settings
+
+            new attr:
+                dsSortKey: (string) ds grid view sort key
         */
         function UserPref<%= v %>(options) {
+            options = options || {};
             var self = _super.call(this, options);
             <%= addVersion %>
+            if (<%= checkFunc %>(options)) {
+                self.dsSortKey = options.dsSortKey;
+            }
             return self;
         }
 
@@ -1368,6 +1375,7 @@
                 this.keepGBTable = $("#operationsView").find(".keepTable")
                                                         .find(".checkbox")
                                                        .hasClass("checked");
+                this.dsSortKey = DS.getSortKey();
                 this.sqlCollapsed = $("#log-TextArea")
                                      .find(".expanded").length === 0 &&
                                      $("#log-TextArea")

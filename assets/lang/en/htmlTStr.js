@@ -55,6 +55,7 @@ module.exports = {
         "New": "New",
         "NEW": "NEW",
         "NEXT": "NEXT",
+        "None": "None",
         "Null": "Null",
         "of": "of",
         "OFF": "OFF",

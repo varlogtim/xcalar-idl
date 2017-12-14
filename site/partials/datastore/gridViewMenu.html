@@ -1,4 +1,4 @@
-<div id="gridViewMenu" class="menu">
+<div id="gridViewMenu" class="menu" data-submenu="gridViewSubMenu">
   <ul>
     <li class="preview dsOpt"><%= dicts.MenuTStr.Preview %></li>
     <li class="open folderOpt"><%= dicts.MenuTStr.Open %></li>
@@ -14,6 +14,28 @@
     <li class="newFolder bgOpt"><%= dicts.MenuTStr.NewFolder %></li>
     <li class="back bgOpt disabled"><%= dicts.MenuTStr.Back %></li>
     <li class="refresh bgOpt"><%= dicts.MenuTStr.Refresh %></li>
+    <li class="sort bgOpt parentMenu" data-submenu="sort">
+      <%= dicts.common.SortBy %>
+    </li>
+  </ul>
+  include "../../util/menuScrollArea.html"
+</div>
+<!-- grid view submenu -->
+<div id="gridViewSubMenu" class="menu subMenu">
+  <ul class="sort">
+    <li name="name">
+      <span class="label"><%= dicts.common.Name %></span>
+      <i class="icon xi-tick fa-12"></i>
+    </li>
+    <li name="type">
+      <span class="label"><%= dicts.common.Type %></span>
+      <i class="icon xi-tick fa-12"></i>
+    </li>
+    <div class="divider"></div>
+    <li name="none">
+      <span class="label"><%= dicts.common.None %></span>
+      <i class="icon xi-tick fa-12"></i>
+    </li>
   </ul>
   include "../../util/menuScrollArea.html"
 </div>

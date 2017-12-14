@@ -17,6 +17,7 @@ window.DS = (function ($, DS) {
     var $backFolderBtn;    //$("#backFolderBtn");
     var $forwardFolderBtn; // $("#forwardFolderBtn")
     var $dsListFocusTrakcer; // $("#dsListFocusTrakcer");
+    var sortKey = null;
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
@@ -38,6 +39,7 @@ window.DS = (function ($, DS) {
 
     // Restore dsObj
     DS.restore = function(oldHomeFolder, atStartUp) {
+        sortKey = UserSettings.getPref("dsSortKey");
         return restoreDS(oldHomeFolder, atStartUp);
     };
 
@@ -107,7 +109,7 @@ window.DS = (function ($, DS) {
             "name": DSTStr.NewFolder,
             "isFolder": true
         });
-
+        sortDS(curDirId);
         UserSettings.logChange();
 
         // forcus on folder's label for renaming
@@ -246,6 +248,7 @@ window.DS = (function ($, DS) {
             "options": options
         };
 
+        sortDS(curDirId);
         return pointToHelper(dsObj, createTable, sql);
     };
 
@@ -266,7 +269,7 @@ window.DS = (function ($, DS) {
                     .data("dsname", newName)
                     .attr("data-dsname", newName)
                     .attr("title", newName);
-
+                sortDS(curDirId);
                 UserSettings.logChange();
                 return true;
             } else {
@@ -380,6 +383,10 @@ window.DS = (function ($, DS) {
             var $labels = $allGrids.find(".label:visible");
             truncateDSName($labels, true);
         }
+    };
+
+    DS.getSortKey = function() {
+        return sortKey;
     };
 
     // Clear dataset/folder in gridView area
@@ -782,20 +789,93 @@ window.DS = (function ($, DS) {
         }
     }
 
-    // function tryRemoveUnlistableDS($grid, dsObj) {
-    //     var dsName = dsObj.getFullName();
-    //     XcalarGetDatasetUsers(dsName)
-    //     .then(function(users) {
-    //         if (users == null || users.length === 0) {
-    //             console.info("remove mark for deletion ds");
-    //             // when no one use it
-    //             delDSHelper($grid, dsObj, {
-    //                 "noAlert": true,
-    //                 "noSql": true
-    //             });
-    //         }
-    //     });
-    // }
+    function setSortKey(key) {
+        if (key === sortKey) {
+            return;
+        }
+        if (key === "none") {
+            sortKey = null;
+        } else {
+            sortKey = key;
+            sortDS();
+        }
+        UserSettings.logChange();
+    }
+
+    function sortDS(dirId) {
+        if (!sortKey) {
+            // already sorted
+            return;
+        }
+
+        if (dirId != null) {
+            // sort only when folder
+            var folderObj = DS.getDSObj(dirId);
+            sortOneFolder(folderObj);
+        } else {
+            // sort all folders
+            var queue = [homeFolder];
+            while (queue.length) {
+                var folder = queue.shift();
+                var childFolders = sortOneFolder(folder);
+                queue = queue.concat(childFolders);
+            }
+        }
+    }
+
+    function sortOneFolder(folderObj) {
+        var childFolders = [];
+        var dsObjMaps = {};
+        var reorderEles = [];
+        var sortIds = [];
+
+        folderObj.eles.forEach(function(dsObj) {
+            var dsId = dsObj.getId();
+            if (dsId === DSObjTerm.OtherUserFolderId) {
+                reorderEles.push(dsObj);
+            } else {
+                dsObjMaps[dsId] = dsObj;
+                sortIds.push(dsId);
+            }
+
+            if (dsObj.beFolder()) {
+                childFolders.push(dsObj);
+            }
+        });
+
+        if (sortKey === "name" || sortKey === "type") {
+            sortIds.sort(function(id1, id2) {
+                var name1 = DS.getDSObj(id1).getName().toLowerCase();
+                var name2 = DS.getDSObj(id2).getName().toLowerCase();
+                return (name1 < name2 ? -1 : (name1 > name2 ? 1 : 0));
+            });
+
+            if (sortKey === "type") {
+                var folderIds = [];
+                var dsIds = [];
+
+                sortIds.forEach(function(id) {
+                    if (DS.getDSObj(id).beFolder()) {
+                        folderIds.push(id);
+                    } else {
+                        dsIds.push(id);
+                    }
+                });
+
+                sortIds = folderIds.concat(dsIds);
+            }
+
+        }
+
+        // reorder the grids and ds meta
+        sortIds.forEach(function(dsId) {
+            var $grid = DS.getGrid(dsId);
+            $gridView.append($grid);
+            reorderEles.push(dsObjMaps[dsId]);
+        });
+        folderObj.eles = reorderEles;
+        return childFolders;
+    }
 
     function destroyDataset(dsName, txId) {
         var deferred = jQuery.Deferred();
@@ -951,7 +1031,7 @@ window.DS = (function ($, DS) {
     // Refresh dataset/folder display in gridView area
     function refreshDS() {
         $gridView.find(".grid-unit").addClass("xc-hidden");
-        $gridView.find('.grid-unit[data-dsParentId="' + curDirId + '"]')
+        $gridView.find('.grid-unit[data-dsparentid="' + curDirId + '"]')
                 .removeClass("xc-hidden");
 
         var dirId = curDirId;
@@ -1130,6 +1210,10 @@ window.DS = (function ($, DS) {
 
         while (cache.length > 0) {
             var obj = cache.shift();
+            if (obj == null) {
+                console.error("error case");
+                continue;
+            }
             if (obj.uneditable) {
                 // skip the restore of uneditable ds,
                 // it will be handled by DS.addOtherUserDS()
@@ -1203,6 +1287,7 @@ window.DS = (function ($, DS) {
         }
 
         // UI update
+        sortDS();
         refreshDS();
         DataStore.update();
         checkUnlistableDS(unlistableDS);
@@ -1524,7 +1609,8 @@ window.DS = (function ($, DS) {
             var $target = $(event.target);
             if (!$target.closest(".uneditable").length &&
                 ($target.closest(".gridIcon").length ||
-                $target.closest(".label").length))
+                $target.closest(".label").length ||
+                $target.closest(".dsCount").length))
             {
                 // this part is for drag and drop
                 return;
@@ -1588,6 +1674,7 @@ window.DS = (function ($, DS) {
     }
 
     function setupMenuActions() {
+        var $subMenu = $("#gridViewSubMenu");
         // bg opeartion
         $gridMenu.on("mouseup", ".newFolder", function(event) {
             if (event.which !== 1) {
@@ -1701,6 +1788,23 @@ window.DS = (function ($, DS) {
                 dsIds.push($(this).data("dsid"));
             });
             unlockDS(dsIds);
+        });
+
+        $gridMenu.on("mouseenter", ".sort", function() {
+            var key = sortKey || "none";
+            var $lis = $subMenu.find(".sort li");
+            $lis.removeClass("select");
+            $lis.filter(function() {
+                return $(this).attr("name") === key;
+            }).addClass("select");
+        });
+
+        $subMenu.on("mouseup", ".sort li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var key = $(this).attr("name");
+            setSortKey(key);
         });
     }
 
@@ -1859,8 +1963,8 @@ window.DS = (function ($, DS) {
             '<div class="folder grid-unit" draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
-                ' data-dsId="' + id + '"' +
-                ' data-dsParentId=' + parentId + '>' +
+                ' data-dsid="' + id + '"' +
+                ' data-dsparentid=' + parentId + '>' +
                 '<div id="' + (id + "leftWarp") + '"' +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
@@ -1898,8 +2002,8 @@ window.DS = (function ($, DS) {
                 ' ondragend="DS.onDragEnd(event)"' +
                 ' data-user="' + dsObj.getUser() + '"' +
                 ' data-dsname="' + name + '"' +
-                ' data-dsId="' + id + '"' +
-                ' data-dsParentId="' + parentId + '"">' +
+                ' data-dsid="' + id + '"' +
+                ' data-dsparentid="' + parentId + '"">' +
                 '<div  id="' + (id + "leftWarp") + '"' +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
@@ -1937,8 +2041,8 @@ window.DS = (function ($, DS) {
             // when it's a folder
             html =
             '<div class="folder grid-unit uneditable"' +
-                ' data-dsId="' + id + '"' +
-                ' data-dsParentId=' + parentId + '>' +
+                ' data-dsid="' + id + '"' +
+                ' data-dsparentid=' + parentId + '>' +
                 '<i class="gridIcon icon xi-folder"></i>' +
                 '<div class="dsCount">0</div>' +
                 '<div title="' + name + '" class="label"' +
@@ -1953,8 +2057,8 @@ window.DS = (function ($, DS) {
             (dsObj.isLocked() ? 'locked' : "") + '" ' +
                 ' data-user="' + dsObj.getUser() + '"' +
                 ' data-dsname="' + name + '"' +
-                ' data-dsId="' + id + '"' +
-                ' data-dsParentId="' + parentId + '"">' +
+                ' data-dsid="' + id + '"' +
+                ' data-dsparentid="' + parentId + '"">' +
                 '<i class="gridIcon icon xi_data"></i>' +
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
@@ -2239,19 +2343,24 @@ window.DS = (function ($, DS) {
         var targetDS = DS.getDSObj(targetId);
 
         if (ds.moveTo(targetDS, -1)) {
-            $grid.attr("data-dsParentId", targetId)
-                .data("dsParentId", targetId);
+            $grid.attr("data-dsparentid", targetId)
+                .data("dsparentid", targetId);
             refreshDS();
+            sortDS(targetId);
             UserSettings.logChange();
         }
     };
 
     // Helper function to insert ds before or after another ds
     DS.insert = function($grid, $sibling, isBefore) {
+        if (sortKey != null) {
+            // cannot change order when has sort key
+            return;
+        }
         var dragDsId = $grid.data("dsid");
         var ds = DS.getDSObj(dragDsId);
 
-        var siblingId = $sibling.attr("data-dsId");
+        var siblingId = $sibling.attr("data-dsid");
         if (dragDsId === siblingId) {
             return;
         }
@@ -2271,15 +2380,14 @@ window.DS = (function ($, DS) {
         }
 
         if (isMoveTo) {
-            $grid.attr("data-dsParentId", parentId)
-                .data("dsParentId", parentId);
+            $grid.attr("data-dsparentid", parentId)
+                .data("dsparentid", parentId);
             if (isBefore) {
                 $sibling.before($grid);
             } else {
                 $sibling.after($grid);
             }
             refreshDS();
-
             UserSettings.logChange();
         }
     };
@@ -2292,9 +2400,10 @@ window.DS = (function ($, DS) {
         var grandPaDs = DS.getDSObj(grandPaId);
 
         if (ds.moveTo(grandPaDs, -1)) {
-            $grid.attr("data-dsParentId", grandPaId)
-                    .data("dsParentId", grandPaId);
+            $grid.attr("data-dsparentid", grandPaId)
+                    .data("dsparentid", grandPaId);
             refreshDS();
+            sortDS(grandPaId);
             UserSettings.logChange();
         }
     };

@@ -299,6 +299,7 @@ module.exports = {
         "NEW": "新建",
         "NEXT": "下一步",
         "Name": "名称",
+        "None": "不排序",
         "Null": "空值",
         "OFF": "关",
         "ON": "开",

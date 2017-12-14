@@ -3001,6 +3001,36 @@ table.datasetTable {
     }
 }
 
+#gridViewSubMenu {
+    z-index: @z-index-gridViewMenu + 1;
+    background-color: @color-bg-menu-light-blue;
+    .size(@width: 80px);
+
+    li {
+        background-color: @color-bg-menu-light-blue;
+        .position(relative);
+
+        &.selected {
+             background-color: @color-bg-light-navy;
+        }
+
+        &.select .icon {
+            display: inline-block;
+        }
+
+        .icon {
+            display: none;
+            float: right;
+            .vertical-align;
+        }
+    }
+
+    .divider {
+        border-color: @color-white;
+        opacity: 0.6;
+    }
+}
+
 #dsTarget-list {
     overflow: auto;
     height: ~"calc(100% - 75px)" !important;
