@@ -1404,7 +1404,6 @@
 
         _pushDownJoin: function(node) {
             var self = this;
-            debugger;
             assert(node.children.length === 2); // It's a join. So 2 kids only
             var deferred = jQuery.Deferred();
 
