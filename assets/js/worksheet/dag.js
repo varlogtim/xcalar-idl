@@ -1,5 +1,5 @@
 window.Dag = (function($, Dag) {
-    var $dagPanel;
+    var $dagPanel = $("#dagPanel");
     var scrollPosition = -1;
     var dagAdded = false;
 
@@ -23,7 +23,10 @@ window.Dag = (function($, Dag) {
         var tableName = table.tableName;
         $dagPanel = $('#dagPanel');
 
-        XcalarGetDag(tableName)
+        DagFunction.retagAndComment(tableId)
+        .then(function() {
+            return XcalarGetDag(tableName);
+        })
         .then(function(dagObj) {
             var oldTableId = xcHelper.getTableId(tableToReplace);
             var isWorkspacePanelVisible = $('#workspacePanel')
@@ -1056,8 +1059,8 @@ window.Dag = (function($, Dag) {
         var dagWrapId = xcHelper.getTableId(dagWrapName);
         var $dagWrap = $("#dagWrap-" + dagWrapId);
         var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
-        var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType")
-                                                        .addClass("hasEdit");
+        var $opIcon = $dagTable.closest(".dagTableWrap").addClass("hasEdit")
+                                                        .find(".actionType");
 
         // var tip = '<div class="dagTableTip">' +
         //             '<div>' + JSON.stringify(param, null, 2) + '</div>' +
@@ -1066,7 +1069,7 @@ window.Dag = (function($, Dag) {
         if (indexNodes && indexNodes.length) {
             for (var i = 0; i < indexNodes.length; i++) {
                 $dagTable = Dag.getTableIcon($dagWrap, indexNodes[i].value.dagNodeId);
-                $dagTable.closest(".dagTableWrap").find(".actionType").addClass("hasEdit");
+                $dagTable.closest(".dagTableWrap").addClass("hasEdit");
             }
         }
     };
@@ -1076,12 +1079,13 @@ window.Dag = (function($, Dag) {
         var dagWrapId = xcHelper.getTableId(dagWrapName);
         var $dagWrap = $("#dagWrap-" + dagWrapId);
         var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
-        var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType").removeClass("hasEdit");
+        var $opIcon = $dagTable.closest(".dagTableWrap").removeClass("hasEdit")
+                                                        .find(".actionType");
         $opIcon.find(".dagTableTip").remove();
         if (indexNodes) {
             for (var i = 0; i < indexNodes.length; i++) {
                 $dagTable = Dag.getTableIcon($dagWrap, indexNodes[i].value.dagNodeId);
-                $dagTable.closest(".dagTableWrap").find(".actionType").removeClass("hasEdit");
+                $dagTable.closest(".dagTableWrap").removeClass("hasEdit");
             }
         }
     };
@@ -1125,17 +1129,18 @@ window.Dag = (function($, Dag) {
     };
 
 
-    Dag.styleDestTables = function($dagWrap, tableName) {
+    Dag.styleDestTables = function($dagWrap, tableName, className) {
         var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
         var nodeId = $dagTable.data("index");
         var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         var descendantNodes = node.getAllDescendantNodes();
         var $curDagTable;
         var tableNames = [];
+        className = className || "isDescendant";
         for (var i = 0; i < descendantNodes.length; i++) {
             $curDagTable = Dag.getTableIcon($dagWrap,
                                             descendantNodes[i].value.dagNodeId);
-            $curDagTable.closest(".dagTableWrap").addClass("isDescendant");
+            $curDagTable.closest(".dagTableWrap").addClass(className);
             tableNames.push(descendantNodes[i].value.name);
         }
         return tableNames;

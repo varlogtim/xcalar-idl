@@ -372,6 +372,10 @@ html.firefox, html.microsoft {
     &.building {
         display: none !important;
     }
+
+    &.rerunning {
+        .xc-disabled;
+    }
     .errorMsg {
         padding: 30px;
         text-align: center;
@@ -558,7 +562,7 @@ html.firefox, html.microsoft {
         }
 
         .disabledStyle {
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
         &.isAncestor, &.isDescendant:not(.editingChild) {
@@ -578,6 +582,26 @@ html.firefox, html.microsoft {
 
             .dataStoreIcon {
                 background-color: @color-dag-faded;
+            }
+        }
+
+        &.isDownstream {
+            .disabledStyle {
+                opacity: 0.6;
+            }
+            // .actionType {
+            //     background-color: @color-white;
+            //     .actionTypeWrap {
+            //         .disabledStyle;
+            //     }
+            //     &:after {
+            //         .disabledStyle;
+            //     }
+            // }
+
+            // .tableTitle, .tipIcons, .dagTable .icon {
+            .tableTitle, .dagTable .icon {
+                .disabledStyle;
             }
         }
 
@@ -1445,26 +1469,32 @@ html.firefox, html.microsoft {
                         .paramMixin;
                         pointer-events: none;
                     }
-                    &.hasEdit {
-                        &:after {
-                            .hasParamMixin;
-                        }
-                    }
-                }
 
-                .actionType {
                     &.index {
                         &:after {
                             content: none;
                         }
-                        &.hasEdit {
-                            &:after {
-                                content: none;
-                            }
-                        }
                     }
                 }
 
+                .dagTableWrap {
+                    &.hasEdit {
+                        .actionType {
+                            &:after {
+                                .hasParamMixin;
+                            }
+                            &.index {
+                                &:after {
+                                    content: none;
+                                }
+                            }
+                        }
+
+                        .tableTitle, .dagTable .icon {
+                            opacity: 0.6;
+                        }
+                    }
+                }
             }
         }
 

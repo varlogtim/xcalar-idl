@@ -1,8 +1,8 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    // var editedLineage = {};
-    // var editInfo;
+    var editedLineage = {};
+    var tablesToTag = {};
     var TreeNode = function(value) {
         this.value = value;
         this.parents = [];
@@ -595,24 +595,45 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    // function searchTreeForName(tree, name) {
-    //     var foundNode;
-    //     search(tree);
-    //     function search(node) {
-    //         if (node.value.name === name) {
-    //             foundNode = node;
-    //             return;
-    //         }
-    //         for (var i = 0; i < node.parents.length; i++) {
-    //             if (!foundNode) {
-    //                 search(node.parents[i]);
-    //             } else {
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //     return foundNode;
-    // }
+    function getNonInvolvedRerunNames(tree, startTreeNodes) {
+        var seen = {};
+        var mapOfNames = {};
+        for (var i = 0; i < startTreeNodes.length; i++) {
+            search(startTreeNodes[i]);
+        }
+
+        return mapOfNames;
+
+        function search(node) {
+            if (seen[node.value.name]) {
+                return;
+            }
+            seen[node.value.name] = true;
+            for (var i = 0; i < node.parents.length; i++) {
+                mapOfNames[node.parents[i].value.name] = node.parents[i].value;
+                search(node.parents[i]);
+            }
+        }
+    }
+
+    function searchTreeForName(tree, name) {
+        var foundNode;
+        search(tree);
+        function search(node) {
+            if (node.value.name === name) {
+                foundNode = node;
+                return;
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                if (!foundNode) {
+                    search(node.parents[i]);
+                } else {
+                    break;
+                }
+            }
+        }
+        return foundNode;
+    }
 
     // if a startNode has a dropped parent, we need to search all of its parents
     // until we find one that is not dropped and add it to the startNodes list
@@ -696,8 +717,7 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
 
-        var treeNodeArray = getOrderedDedupedNodes(allEndPoints,
-                             "TreeNode");
+        var treeNodeArray = getOrderedDedupedNodes(allEndPoints, "TreeNode");
         if (treeNodeArray.length === 0) {
             console.info("Nothing to run!");
             return;
@@ -728,6 +748,9 @@ window.DagFunction = (function($, DagFunction) {
             console.info("No involved xids.");
             return;
         }
+        // returns map of name : value
+        var nonInvolvedNames = getNonInvolvedRerunNames(deepCopyTree, startNodes);
+
         // Step 2. Remove nodes from treeNodeArray that is not in involvedNames
         var treeNodesToRerun = [];
         for (var i = 0; i < treeNodeArray.length; i++) {
@@ -743,13 +766,13 @@ window.DagFunction = (function($, DagFunction) {
 
         // Step 3. From start of treeNodeArray (left side of the graph), start renaming all nodes
         var translation = {};
-        var tagHeaders = {};
+        var tagHeaders = {}; // will store a map {tag#oldId: tag#newId}
         for (var i = 0; i < treeNodesToRerun.length; i++) {
             var destTableStruct = treeNodesToRerun[i].value.struct;
             var destTableValue = treeNodesToRerun[i].value;
 
             if (i > 0) {
-                updateSourceName(destTableStruct, translation, tagHeaders);
+                updateSourceName(destTableStruct, translation);
             }
 
             updateDestinationName(destTableValue, translation, tagHeaders);
@@ -794,24 +817,24 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.lockTable(tableId, txId);
 
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
-        var finalTableId;
+        var finalTableId = xcHelper.getTableId(finalTableName);
+
+        tablesToTag[finalTableId] = {
+            nameToTagsMap: nameToTagsMap,
+            tagHeaders: tagHeaders,
+            commentsToNamesMap: commentsToNamesMap,
+            nonInvolvedNames: nonInvolvedNames
+        };
+
+        $("#dagWrap-" + tableId).addClass("rerunning");
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
             var worksheet = WSManager.getWSFromTable(tableId);
             return TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
-                                    // gTables[tableId].tableCols, null,
                                     worksheet, txId, {noTag: true,
                                         focusOnWorkspace: true});
-        })
-        .then(function() {
-            finalTableId = xcHelper.getTableId(finalTableName);
-
-            return tagNodesAfterEdit(finalTableId, nameToTagsMap, tagHeaders);
-        })
-        .then(function() {
-            return recommentAfterEdit(finalTableId, commentsToNamesMap);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, txId);
@@ -823,11 +846,14 @@ window.DagFunction = (function($, DagFunction) {
         .fail(function(error) {
             xcHelper.unlockTable(tableId, txId);
 
+            delete tablesToTag[finalTableId];
+
             console.error(error);
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.RerunFailed,
                 "error": error
             });
+            $("#dagWrap-" + tableId).removeClass("rerunning");
         });
 
         function updateSourceName(struct, translation) {
@@ -893,6 +919,29 @@ window.DagFunction = (function($, DagFunction) {
         }
     };
 
+    // used for tagging and commenting nodes generated from rerun
+    DagFunction.retagAndComment = function(tableId) {
+        if (!tablesToTag[tableId]) {
+            return PromiseHelper.resolve();
+        }
+        var deferred = jQuery.Deferred();
+
+        var nameToTagsMap = tablesToTag[tableId].nameToTagsMap;
+        var tagHeaders = tablesToTag[tableId].tagHeaders;
+        var commentsToNamesMap = tablesToTag[tableId].commentsToNamesMap;
+        var nonInvolvedNames = tablesToTag[tableId].nonInvolvedNames;
+
+        delete tablesToTag[tableId];
+
+        tagNodesAfterEdit(nameToTagsMap, tagHeaders, nonInvolvedNames)
+        .then(function() {
+            return recommentAfterEdit(commentsToNamesMap);
+        })
+        .always(deferred.resolve);
+
+        return deferred.promise();
+    };
+
     // for new index nodes
     function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
         for (var name in newNodes) {
@@ -936,7 +985,7 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function recommentAfterEdit(tableId, commentsToNamesMap) {
+    function recommentAfterEdit(commentsToNamesMap) {
         var deferred = jQuery.Deferred();
         var promises = [];
 
@@ -946,107 +995,60 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         PromiseHelper.when.apply(null, promises)
-        .then(function() {
-            var $dagWrap = $("#dagWrap-" + tableId);
-            for (var comment in commentsToNamesMap) {
-                var tables = commentsToNamesMap[comment];
-                for (var i = 0; i < tables.length; i++) {
-                    var $dagTable = Dag.getTableIconByName($dagWrap, tables[i]);
-                    var $opIcon = $dagTable.siblings(".actionType");
-                    Dag.updateComment($opIcon, comment);
-                }
-            }
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            // could not persist comments
-            deferred.reject(error);
-        });
+        .always(deferred.resolve);
 
         return deferred.promise();
     }
 
-    function tagNodesAfterEdit(tableId, nameToTagsMap, tagHeaders) {
-        var newTree = $("#dagWrap-" + tableId).data("allDagInfo").tree;
-        var newTagMap = {};
-
-        search(newTree);
-
-        function search(node) {
-            var newTag = "";
-            if (nameToTagsMap[node.value.name]) {
-                newTag = "";
-                var oldTags = nameToTagsMap[node.value.name];
-                for (var i = 0; i < oldTags.length; i++) {
-                    var tag = tagHeaders[oldTags[i]];
-                    if (tag) {
-                        if (newTag) {
-                            newTag += ",";
-                        }
-                        newTag += tag;
+    function tagNodesAfterEdit(nameToTagsMap, tagHeaders, nonInvolvedNames) {
+        //tagHeaders {tag#oldId: tag#newId}
+        // nameToTagsMap {newTableName: [tag#oldId, otherTag#oldId2]}
+        // nonInvolvedNames {oldTableName: valueStruct}
+        var tagMap = {};
+        var newTag;
+        for (var name in nameToTagsMap) {
+            newTag = "";
+            var oldTags = nameToTagsMap[name];
+            for (var i = 0; i < oldTags.length; i++) {
+                var tag = tagHeaders[oldTags[i]];
+                if (tag) {
+                    if (newTag) {
+                        newTag += ",";
                     }
-                }
-                if (newTag) {
-                    if (!newTagMap[newTag]) {
-                        newTagMap[newTag] = [];
-                    }
-                    newTagMap[newTag].push(node.value.name);
-                }
-            } else {
-                newTag = node.value.tag;
-                var hasChange = false;
-                for (var i = 0; i < node.value.tags.length; i++) {
-                    var tag = node.value.tags[i];
-                    if (tagHeaders[tag]) {
-                        newTag += "," + tagHeaders[tag];
-                        hasChange = true;
-                    }
-                }
-                if (hasChange) {
-                    if (!newTagMap[newTag]) {
-                        newTagMap[newTag] = [];
-                    }
-                    newTagMap[newTag].push(node.value.name);
+                    newTag += tag;
                 }
             }
-            for (var i = 0; i < node.parents.length; i++) {
-                search(node.parents[i]);
+            if (newTag) {
+                if (!tagMap[newTag]) {
+                    tagMap[newTag] = [];
+                }
+                tagMap[newTag].push(name);
+            }
+        }
+        for (var name in nonInvolvedNames) {
+            newTag = nonInvolvedNames[name].tag;
+            var hasChange = false;
+            for (var i = 0; i < nonInvolvedNames[name].tags.length; i++) {
+                var tag = nonInvolvedNames[name].tags[i];
+                if (tagHeaders[tag]) {
+                    newTag += "," + tagHeaders[tag];
+                    hasChange = true;
+                }
+            }
+            if (hasChange) {
+                if (!tagMap[newTag]) {
+                    tagMap[newTag] = [];
+                }
+                tagMap[newTag].push(name);
             }
         }
 
-        return retagNodes(newTagMap, tableId);
-    }
-
-    // always resolves
-    function retagNodes(tagMap, tableId) {
         var deferred = jQuery.Deferred();
         var promises = [];
         for (var tag in tagMap) {
             promises.push(XcalarTagDagNodes(tag, tagMap[tag]));
         }
         PromiseHelper.when.apply(null, promises)
-        .then(function() {
-            var $dagWrap = $("#dagWrap-" + tableId);
-            var dagInfo = $dagWrap.data("allDagInfo");
-            var nodeIdMap = dagInfo.nodeIdMap;
-            var $dagTable;
-            var node;
-            var id;
-            for (var tag in tagMap) {
-                var tables = tagMap[tag];
-                for (var i = 0; i < tables.length; i++) {
-                    $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
-                                          tables[i] + "']");
-                    if (!$dagTable.length) {
-                        continue;
-                    }
-                    id = $dagTable.data("index");
-                    node = nodeIdMap[id];
-                    node.value.tag = tag;
-                }
-            }
-            DagDraw.refreshDagImage(tableId, null, []);
-        })
         .always(deferred.resolve);
 
         return deferred.promise();

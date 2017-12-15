@@ -117,7 +117,7 @@ window.DSUploader = (function($, DSUploader) {
                     true, gKVScope.GLOB)
         .then(deferred.resolve)
         .fail(deferred.reject);
-        return deferred.resolve();
+        return deferred.promise();
     }
 
     function setupFileDisplay() {

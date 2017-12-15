@@ -662,7 +662,7 @@ window.DagPanel = (function($, DagPanel) {
                         $menu.find(".editOp").removeClass("unavailable");
                     }
 
-                    if ($opWrap.hasClass("hasEdit")) {
+                    if ($opWrap.closest(".hasEdit").length) {
                         $menu.find(".undoEdit").removeClass("xc-hidden");
                     }
                 }

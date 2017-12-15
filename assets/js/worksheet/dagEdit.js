@@ -7,9 +7,10 @@ window.DagEdit = (function($, DagEdit) {
     // and index are linked, so when  we undo a group by edit, we need to undo the
     // index edit as well
     var mapIndex; // stores eval string number during a map edit
-    var newNodes = {};
-    var editingTables = {};
-
+    var newNodes = {}; // new nodes, typically index, to be inserted into a rerun
+    var editingTables = {}; // map of names of tables currently being edited
+    var descendantRefCounts = {}; // counts how many times a table is included as a descendant
+    var descendantMap = {}; // map of edited tables and their descendant
 
     // XXX temporary
     DagEdit.on = function() {
@@ -56,6 +57,7 @@ window.DagEdit = (function($, DagEdit) {
                 $(".dagWrap").find(".hasEdit").removeClass("hasEdit");
                 $(".xcTableWrap").removeClass("editingDf editing");
                 $("#dagPanel").find(".dagTableTip").remove();
+                $(".dagTableWrap").removeClass(".isDownstream");
                 DagEdit.exitForm();
 
                 xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
@@ -77,6 +79,8 @@ window.DagEdit = (function($, DagEdit) {
             newNodes = {};
             linkedNodes = {};
             editingTables = {};
+            descendantRefCounts = {};
+            descendantMap = {};
         }
     };
     // options:
@@ -302,6 +306,15 @@ window.DagEdit = (function($, DagEdit) {
         Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
                               params[editingNode.value.name]);
 
+        var descendants = Dag.styleDestTables($(".dagWrap.editMode"), editingNode.value.name, "isDownstream");
+        for (var i = 0; i < descendants.length; i++) {
+            if (!descendantRefCounts[descendants[i]]) {
+                descendantRefCounts[descendants[i]] = 0;
+            }
+            descendantRefCounts[descendants[i]]++;
+        }
+        descendantMap[editingNode.value.name] = descendants;
+
         $(".xcTableWrap").removeClass("editing");
     };
 
@@ -317,6 +330,17 @@ window.DagEdit = (function($, DagEdit) {
         }
         delete params[node.value.name];
         delete newNodes[node.value.name];
+        var descendants = descendantMap[node.value.name];
+        for (var i = 0; i < descendants.length; i++) {
+            descendantRefCounts[descendants[i]]--;
+            if (!descendantRefCounts[descendants[i]]) {
+                var $dagTable = Dag.getTableIconByName($(".dagWrap.editMode"),
+                                                        descendants[i]);
+                $dagTable.closest(".dagTableWrap").removeClass("isDownstream");
+                delete descendantRefCounts[descendants[i]];
+            }
+        }
+        delete descendantMap[node.value.name];
 
         Dag.removeEditedOperation(treeNode, node, toDelete);
     };

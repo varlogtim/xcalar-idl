@@ -193,6 +193,9 @@ window.UserSettings = (function($, UserSettings) {
             return false;
         }
         for (var key in userPrefs) {
+            if (!userPrefs.hasOwnProperty(key)) {
+                continue;
+            }
             if (cachedPrefs[key] == null && userPrefs[key] == null) {
                 continue;
             } else if (cachedPrefs[key] == null || userPrefs[key] == null) {
@@ -201,6 +204,9 @@ window.UserSettings = (function($, UserSettings) {
             } else if (cachedPrefs[key] !== userPrefs[key]) {
                 if (typeof userPrefs[key] === "object") {
                     for (var pref in userPrefs[key]) {
+                        if (!userPrefs[key].hasOwnProperty(pref)) {
+                            continue;
+                        }
                         if (cachedPrefs[key][pref] !== userPrefs[key][pref]) {
                             shouldCommit = true;
                             break;
