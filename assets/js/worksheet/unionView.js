@@ -194,6 +194,9 @@ window.UnionView = (function(UnionView, $) {
 
     function selectColumn(colInfo, colIndex, tableIndex) {
         tableInfoLists[tableIndex].selectedCols[colIndex] = colInfo;
+        if (colInfo.used != null) {
+            tableInfoLists[tableIndex].selectedCols[colInfo.used] = null;
+        }
         updateList();
     }
 
@@ -296,25 +299,7 @@ window.UnionView = (function(UnionView, $) {
             var $dropDownList = $(this);
             new MenuHelper($dropDownList, {
                 onOpen: function() {
-                    var index = getListIndex($dropDownList);
-                    var candidateCols = getCandidateCols(tableInfoLists[index]);
-                    var ul = candidateCols.map(function(col) {
-                        return '<li class="type-' + col.type +
-                                ' tooltipOverflow"' +
-                                ' data-type="' + col.type + '"' +
-                                ' data-toggle="tooltip"' +
-                                ' data-title="' + col.name + '"' +
-                                ' data-container="body"' +
-                                ' data-placement="top">' +
-                                    col.name +
-                                '</li>';
-                    });
-                    if (candidateCols.length === 0) {
-                        ul = '<div class="hint">' +
-                                UnionTStr.EmptyList +
-                            '</div>';
-                    }
-                    $dropDownList.find("ul").html(ul);
+                    getCandidateDropdownList($dropDownList);
                 },
                 onSelect: function($li) {
                     var colName = $li.text();
@@ -326,7 +311,8 @@ window.UnionView = (function(UnionView, $) {
                     var colIndex = Number($dropDownList.data("index"));
                     var colInfo = {
                         name: colName,
-                        type: $li.data("type")
+                        type: $li.data("type"),
+                        used: Number($li.data("used"))
                     };
                     selectColumn(colInfo, colIndex, tableIndex);
                     xcTooltip.hideAll();
@@ -546,7 +532,7 @@ window.UnionView = (function(UnionView, $) {
                 '</div>');
     }
 
-    function getCandidateCols(tableInfo) {
+    function getCandidateCols(tableInfo, includeAll) {
         var candidateCols = [];
         var tableId = tableInfo.tableId;
         if (tableId == null) {
@@ -554,25 +540,74 @@ window.UnionView = (function(UnionView, $) {
         }
 
         var selectedColNameMap = {};
-        tableInfo.selectedCols.forEach(function(col) {
+        var $resultInputs = $unionView.find(".resultInput");
+        tableInfo.selectedCols.forEach(function(col, index) {
             if (col != null) {
-                selectedColNameMap[col.name] = true;
+                if (includeAll) {
+                    selectedColNameMap[col.name] = {
+                        name: $resultInputs.eq(index).val(),
+                        index: index
+                    };
+                } else {
+                    selectedColNameMap[col.name] = true;
+                }
             }
         });
-
         
         gTables[tableId].tableCols.forEach(function(progCol) {
             var colName = progCol.getBackColName();
             var colType = progCol.getType();
-            if (!selectedColNameMap[colName] &&
-                validTypes.includes(colType)) {
-                candidateCols.push({
-                    name: colName,
-                    type: colType
-                });
+            if (validTypes.includes(colType)) {
+                if (!selectedColNameMap.hasOwnProperty(colName)) {
+                    candidateCols.push({
+                        name: colName,
+                        type: colType
+                    });
+                } else if (includeAll) {
+                    candidateCols.push({
+                        name: colName,
+                        type: colType,
+                        used: selectedColNameMap[colName]
+                    });
+                }
             }
         });
         return candidateCols;
+    }
+
+    function getCandidateDropdownList($dropDownList) {
+        var index = getListIndex($dropDownList);
+        var candidateCols = getCandidateCols(tableInfoLists[index], true);
+        var ul = candidateCols.map(function(col) {
+            var isUsed = (col.used != null);
+            var extraClass;
+            var title;
+            if (isUsed) {
+                extraClass = "used";
+                title = xcHelper.replaceMsg(UnionTStr.UsedFor, {
+                    col: col.used.name
+                });
+            } else {
+                extraClass = "tooltipOverflow";
+                title = col.name;
+            }
+            return '<li class="type-' + col.type + ' ' + extraClass + '"' +
+                    ' data-type="' + col.type + '"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-title="' + title + '"' +
+                    ' data-container="body"' +
+                    ' data-placement="top"' +
+                    (isUsed ? ' data-used="' + col.used.index + '"' : '') +
+                    '>' +
+                        col.name +
+                    '</li>';
+        });
+        if (candidateCols.length === 0) {
+            ul = '<div class="hint">' +
+                    UnionTStr.EmptyList +
+                '</div>';
+        }
+        $dropDownList.find("ul").html(ul);
     }
 
     function reset() {

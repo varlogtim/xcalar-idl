@@ -546,7 +546,8 @@ UnionTStr = {
 "NewColName": "新列名",
 "CandidateHint": "此处的列不会出现在合并后的表中。点击列名以添加列至合并表",
 "EmptyList": "无可选项",
-"SelectCol": "请选择用于合并的列"
+"SelectCol": "请选择用于合并的列",
+"UsedFor": "用于<col>"
 };
 ExportTStr = {
 'Success': '导出成功',
