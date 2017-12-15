@@ -673,7 +673,13 @@ window.TblManager = (function($, TblManager) {
         if (!$tableHeader.find(".lockIconWrap").length) {
             $tableHeader.find(".tableTitle")
                         .append('<div class="lockIconWrap">' +
-                                '<div class="lockIcon"></div></div>');
+                                '<i class="lockIcon icon xi-lockwithkeyhole" ' +
+                                 'data-toggle="tooltip" ' +
+                                'data-placement="top" ' +
+                                'data-container="body" ' +
+                                'data-original-title="' +
+                                TooltipTStr.UnlockTable + '"' +
+                                '></i></div>');
             TblFunc.moveTableDropdownBoxes();
         }
         TableList.makeTableNoDelete(tableId);
@@ -2027,8 +2033,8 @@ window.TblManager = (function($, TblManager) {
                              'style="top:0px;"></div>');
         var lockIcon = "";
         if (gTables[tableId].isNoDelete()) {
-            lockIcon = '<div class="lockIconWrap"><div class="lockIcon">' +
-                        '</div></div>';
+            lockIcon = '<div class="lockIconWrap"><i class="lockIcon icon xi-lockwithkeyhole">' +
+                        '</i></div>';
         }
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
@@ -2131,6 +2137,12 @@ window.TblManager = (function($, TblManager) {
             event.preventDefault(); // prevent default browser's rightclick menu
         });
 
+        $xcTheadWrap.on("click", ".lockIconWrap", function() {
+            Dag.removeNoDelete(tableId);
+            TblManager.removeTableNoDelete(tableId);
+            xcTooltip.hideAll();
+        });
+
         // trigger open table menu on .tableGrab click
         $xcTheadWrap.on('click', '.tableGrab', function(event) {
             var $target = $(this);
@@ -2146,7 +2158,7 @@ window.TblManager = (function($, TblManager) {
         });
 
         // trigger open table menu on .tableGrab right-click
-        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text', function(event) {
+        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text, .lockIconWrap', function(event) {
             var click = $.Event("click");
             click.rightClick = true;
             click.pageX = event.pageX;

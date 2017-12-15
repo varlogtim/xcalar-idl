@@ -2053,7 +2053,7 @@
                 if (!this.locked) {
                     this.locked = true;
                     var $grid = DS.getGrid(this.getId());
-                    $grid.append('<div class="lockIcon"></div>');
+                    $grid.append('<i class="icon xi-lockwithkeyhole lockIcon"></i>');
                 }
             },
 

@@ -1663,7 +1663,7 @@
             });
             TableList.lockTable(tableId);
         }
-        var lockHTML = '<div class="lockIcon"></div>';
+        var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
         var $dagTables = $('#dagPanel').find('.dagTable[data-id="' + tableId +
                                             '"]');
         $dagTables.addClass("locked");

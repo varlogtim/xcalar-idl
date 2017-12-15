@@ -455,12 +455,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
             var checkbox;
             if (table.isNoDelete()) {
-                checkbox = '<div class="lockIcon" ' +
+                checkbox = '<i class="lockIcon icon xi-lockwithkeyhole" ' +
                             'data-toggle="tooltip" ' +
                             'data-container="#deleteTableModal" ' +
                             'data-placement="top" ' +
                             'data-title="' + TooltipTStr.LockedTable + '" ' +
-                            '></div>';
+                            '></i>';
             } else {
                 checkbox = '<div class="checkboxSection">' +
                                 '<div class="checkbox">' +

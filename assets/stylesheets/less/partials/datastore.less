@@ -2690,9 +2690,18 @@ table.datasetTable {
                 }
 
                 .lockIcon {
-                    .position(absolute, @top: 0px, @right: 7px);
-                    .size(17px, 20px);
-                    .image("../../images/dagIcons/lock-white.png", 50%, 50%);
+                    .position(absolute, @top: 2px, @right: 8px);
+                    font-size: 16px;
+                    z-index: 0;
+
+                    &:after {
+                        content: "";
+                        .position(absolute, @top: 5px, @right: 4px);
+                        .size(12px, 12px);
+                        background-color: @color-bg-dusk-blue;
+                        z-index: -1;
+                        border-radius: 4px;
+                    }
                 }
             }
 

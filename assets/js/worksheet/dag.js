@@ -873,7 +873,7 @@ window.Dag = (function($, Dag) {
                                         tableId + '"]');
         $dagTables.addClass("noDelete");
         if (!$dagTables.hasClass("locked")) {
-            var lockHTML = '<div class="lockIcon"></div>';
+            var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
             $dagTables.append(lockHTML);
         }
     };

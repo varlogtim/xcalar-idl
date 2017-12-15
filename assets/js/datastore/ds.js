@@ -2024,7 +2024,7 @@ window.DS = (function ($, DS) {
                 '<i class="action icon xi-trash delete fa-15"></i>' +
                 '<i class="action icon xi-lock lock fa-15"></i>' +
                 '<i class="action icon xi-unlock unlock fa-15"></i>' +
-                (dsObj.isLocked() ? '<div class="lockIcon"></div>' : "") +
+                (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
             '</div>';
         }
 
@@ -2067,7 +2067,7 @@ window.DS = (function ($, DS) {
                 '<i class="action icon xi-trash delete fa-15"></i>' +
                 '<i class="action icon xi-lock lock fa-15"></i>' +
                 '<i class="action icon xi-unlock unlock fa-15"></i>' +
-                (dsObj.isLocked() ? '<div class="lockIcon"></div>' : "") +
+                (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
             '</div>';
         }
 

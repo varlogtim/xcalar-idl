@@ -858,7 +858,7 @@ window.TableList = (function($, TableList) {
         $listWrap = getListWrap(tableType);
         $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
         if (!$li.find(".lockIcon").length) {
-            $li.append('<div class="lockIcon"></div>');
+            $li.append('<i class="lockIcon icon xi-lockwithkeyhole"></i>');
         }
     };
 
@@ -1234,7 +1234,7 @@ window.TableList = (function($, TableList) {
 
             var lockIcon = "";
             if (table.isNoDelete()) {
-                lockIcon = '<div class="lockIcon"></div>';
+                lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
             }
 
             var html =
@@ -1382,7 +1382,7 @@ window.TableList = (function($, TableList) {
         }
         var lockIcon = "";
         if (gTables[tableId] && gTables[tableId].isNoDelete()) {
-            lockIcon = '<div class="lockIcon"></div>';
+            lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
         }
         html += '<li class="clearfix tableInfo ' + liClass + '" ' +
                 'data-id="' + tableId + '"' +
