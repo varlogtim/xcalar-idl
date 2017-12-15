@@ -837,7 +837,7 @@
 
             return XcalarGroupBy(operators, newColNames, aggColNames,
                                 indexedTable, gbTableName, isIncSample,
-                                icvMode, newKeyFieldName, txId);
+                                icvMode, newKeyFieldName, false, txId);
         })
         .then(function() {
             return getFinalGroupByCols(tableName, finalTableName, groupByCols,
@@ -1739,7 +1739,8 @@
         // called a::b, and there's another immediate called b
         // This is because a::b will becomes b.
         XcalarGroupByWithEvalStrings([newColName], ["count(1)"], rIndexedTable,
-                      newGbTableName, false, false, rIndexedColNames[0], txId)
+                      newGbTableName, false, false, rIndexedColNames[0], false,
+                      txId)
         .then(doJoin)
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
@@ -2122,7 +2123,7 @@
                                                 ["count(1)"],
                                                 indexedTableName,
                                                 gbDistinctTableName, false, false,
-                                                newGroupOnArray[0], txId);
+                                                newGroupOnArray[0], false, txId);
             // XXX [0] argument needs to be fixed once bohan's fix goes in
         })
         .then(function() {
@@ -2156,7 +2157,8 @@
                                                 aggEvalStrFlattened,
                                                 newIndexTable,
                                                 gbTableName, false, false,
-                                                newGroupOnArray[0], txId);
+                                                newGroupOnArray[0],
+                                                false, txId);
         })
         .then(function() {
             distinctGbTableNames.push(gbTableName);

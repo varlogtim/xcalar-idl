@@ -947,26 +947,25 @@ xcalarRenameNode = runEntity.xcalarRenameNode = function(thriftHandle, oldName, 
     return (deferred.promise());
 };
 
-xcalarTagDagNodesWorkItem = runEntity.xcalarTagDagNodesWorkItem = function(tag, numNodes, nodeNames) {
+xcalarTagDagNodesWorkItem = runEntity.xcalarTagDagNodesWorkItem = function(tag, nodes) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.tagDagNodesInput = new XcalarApiTagDagNodesInputT();
     workItem.input.tagDagNodesInput.tag = tag;
-    workItem.input.tagDagNodesInput.numDagNodes = numNodes;
-    workItem.input.tagDagNodesInput.dagNodeNames = nodeNames;
+    workItem.input.tagDagNodesInput.dagNodes = nodes;
 
     workItem.api = XcalarApisT.XcalarApiTagDagNodes;
     return (workItem);
 };
 
-xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, numNodes, nodeNames) {
+xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, nodes) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTagDagNodes(tag = " + tag +
-                    ", nodeNames = " + nodeNames + ")");
+                    ", nodes = " + nodes + ")");
     }
 
-    var workItem = xcalarTagDagNodesWorkItem(tag, numNodes, nodeNames);
+    var workItem = xcalarTagDagNodesWorkItem(tag, nodes);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2078,7 +2077,7 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
 };
 
 xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, evalStrs,
-                               newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
+                               newFieldNames, includeSrcSample, icvMode, newKeyFieldName, groupAll) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
@@ -2094,7 +2093,6 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
                 var eval = new XcalarApiEvalT();
                 eval.evalString = evalStrs[ii];
                 eval.newField = newFieldNames[ii];
-
                 workItem.input.groupByInput.eval.push(eval);
             }
         } else {
@@ -2109,6 +2107,7 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     workItem.input.groupByInput.includeSample = includeSrcSample;
     workItem.input.groupByInput.icv = icvMode;
     workItem.input.groupByInput.newKeyField = newKeyFieldName;
+    workItem.input.groupByInput.groupAll = groupAll;
     return (workItem);
 };
 
@@ -2145,8 +2144,7 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
     return (deferred.promise());
 };
 
-xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStrs,
-                       newFieldNames, includeSrcSample, icvMode, newKeyFieldName) {
+xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStrs, newFieldNames, includeSrcSample, icvMode, newKeyFieldName, groupAll) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
@@ -2158,7 +2156,8 @@ xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, d
 
     var workItem = xcalarGroupByWorkItem(srcTableName, dstTableName,
                                          groupByEvalStrs, newFieldNames,
-                                         includeSrcSample, icvMode, newKeyFieldName);
+                                         includeSrcSample, icvMode,
+                                         newKeyFieldName, groupAll);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2343,7 +2342,7 @@ xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandl
         }
     })
     .fail(function(error) {
-        console.log("xcalarGetTableRefCount() caught exception:", error);
+        console.log("xcalarDeleteTable() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 

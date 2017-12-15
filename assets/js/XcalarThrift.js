@@ -2446,7 +2446,7 @@ XcalarGroupByWithInput = function(txId, inputStruct) {
 
 XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName,
-                       txId) {
+                       groupAll, txId) {
     if (Transaction.checkCanceled(txId)) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
@@ -2471,7 +2471,8 @@ XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
         }
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStrs, newColNames, incSample,
-                                             icvMode, newKeyFieldName);
+                                             icvMode, newKeyFieldName,
+                                             groupAll);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall({
@@ -2480,7 +2481,7 @@ XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
         } else {
             def = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
                                  evalStrs, newColNames, incSample, icvMode,
-                                 newKeyFieldName);
+                                 newKeyFieldName, groupAll);
         }
         query = XcalarGetQuery(workItem);
         Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
@@ -2504,7 +2505,7 @@ XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
 
 XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName,
-                       txId) {
+                       groupAll, txId) {
     var evalStrs = [];
 
     operators = (operators instanceof Array) ? operators : [operators];
@@ -2530,7 +2531,7 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
     }
     return XcalarGroupByWithEvalStrings(newColNames, evalStrs, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName,
-                       txId);
+                       groupAll, txId);
 };
 
 XcalarProject = function(columns, tableName, dstTableName, txId) {
@@ -2978,7 +2979,14 @@ XcalarTagDagNodes = function(tagName, dagNodeNames) {
         dagNodeNames = [dagNodeNames];
     }
 
-    xcalarTagDagNodes(tHandle, tagName, dagNodeNames.length, dagNodeNames)
+    var dagNodes = [];
+    for (var i = 0; i < dagNodeNames.length; i++) {
+        var namedInput = new XcalarApiNamedInputT();
+        namedInput.name = dagNodeNames[i];
+        // XXX can also use nodeId
+        dagNodes.push(namedInput);
+    }
+    xcalarTagDagNodes(tHandle, tagName, dagNodes)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarTagDagNodes", error);

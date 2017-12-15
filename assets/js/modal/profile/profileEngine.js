@@ -95,7 +95,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
             return XcalarGroupBy(operator, newColName, colName,
                                 indexedTableName, groupbyTable,
-                                isIncSample, false, rename, txId);
+                                isIncSample, false, rename, false, txId);
         })
         .then(function() {
             if (profileInfo.groupByInfo.allNull) {
@@ -833,7 +833,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
             return XcalarGroupBy(operator, newColName, statsColName,
                                     indexTable, groupbyTable,
-                                    isIncSample, false, mapCol, txId);
+                                    isIncSample, false, mapCol, false, txId);
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);

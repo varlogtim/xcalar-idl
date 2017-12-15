@@ -1750,17 +1750,38 @@ window.Function.prototype.bind = function() {
     }
 
     function testTagDagNodes(test) {
-        var tableName = "yelp/user-review_count"
-        xcalarTagDagNodes(thriftHandle, "testTag", 1, [tableName])
+        var tableName = "yelp/user-review_count";
+        var table = new XcalarApiNamedInputT();
+        table.name = tableName;
+        xcalarTagDagNodes(thriftHandle, "testTag", [table])
         .then(function() {
-            return xcalarDag(thriftHandle,  tableName);
+            return xcalarDag(thriftHandle, table.name);
+        })
+        .then(function(dagOutput) {
+            var nodeId;
+            for (var ii = 0; ii < dagOutput.numNodes; ii++) {
+                if (dagOutput.node[ii].name.name == table.name) {
+                    test.assert(dagOutput.node[ii].tag == "testTag");
+                    nodeId = dagOutput.node[ii].dagNodeId;
+                }
+            }
+
+            table = new XcalarApiNamedInputT();
+            table.name = "";
+            table.nodeId = nodeId;
+
+            return xcalarTagDagNodes(thriftHandle, "testTag2", [table])
+        })
+        .then(function() {
+            return xcalarDag(thriftHandle, tableName);
         })
         .then(function(dagOutput) {
             for (var ii = 0; ii < dagOutput.numNodes; ii++) {
-                if (dagOutput.node[ii].name.name == tableName) {
-                    test.assert(dagOutput.node[ii].tag == "testTag");
+                if (dagOutput.node[ii].dagNodeId == table.nodeId) {
+                    test.assert(dagOutput.node[ii].tag == "testTag2");
                 }
             }
+
             test.pass();
         })
         .fail(test.fail);

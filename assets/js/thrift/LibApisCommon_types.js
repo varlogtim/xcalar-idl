@@ -4700,6 +4700,7 @@ XcalarApiGroupByInputT = function(args) {
   this.newKeyField = null;
   this.includeSample = null;
   this.icv = null;
+  this.groupAll = null;
   if (args) {
     if (args.source !== undefined && args.source !== null) {
       this.source = args.source;
@@ -4718,6 +4719,9 @@ XcalarApiGroupByInputT = function(args) {
     }
     if (args.icv !== undefined && args.icv !== null) {
       this.icv = args.icv;
+    }
+    if (args.groupAll !== undefined && args.groupAll !== null) {
+      this.groupAll = args.groupAll;
     }
   }
 };
@@ -4791,6 +4795,13 @@ XcalarApiGroupByInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 7:
+      if (ftype == Thrift.Type.BOOL) {
+        this.groupAll = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -4839,6 +4850,11 @@ XcalarApiGroupByInputT.prototype.write = function(output) {
   if (this.icv !== null && this.icv !== undefined) {
     output.writeFieldBegin('icv', Thrift.Type.BOOL, 6);
     output.writeBool(this.icv);
+    output.writeFieldEnd();
+  }
+  if (this.groupAll !== null && this.groupAll !== undefined) {
+    output.writeFieldBegin('groupAll', Thrift.Type.BOOL, 7);
+    output.writeBool(this.groupAll);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -13263,15 +13279,11 @@ XcalarApiGetIpAddrInputT.prototype.write = function(output) {
 };
 
 XcalarApiTagDagNodesInputT = function(args) {
-  this.numDagNodes = null;
-  this.dagNodeNames = null;
+  this.dagNodes = null;
   this.tag = null;
   if (args) {
-    if (args.numDagNodes !== undefined && args.numDagNodes !== null) {
-      this.numDagNodes = args.numDagNodes;
-    }
-    if (args.dagNodeNames !== undefined && args.dagNodeNames !== null) {
-      this.dagNodeNames = Thrift.copyList(args.dagNodeNames, [null]);
+    if (args.dagNodes !== undefined && args.dagNodes !== null) {
+      this.dagNodes = Thrift.copyList(args.dagNodes, [XcalarApiNamedInputT]);
     }
     if (args.tag !== undefined && args.tag !== null) {
       this.tag = args.tag;
@@ -13293,17 +13305,10 @@ XcalarApiTagDagNodesInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.numDagNodes = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
       if (ftype == Thrift.Type.LIST) {
         var _size352 = 0;
         var _rtmp3356;
-        this.dagNodeNames = [];
+        this.dagNodes = [];
         var _etype355 = 0;
         _rtmp3356 = input.readListBegin();
         _etype355 = _rtmp3356.etype;
@@ -13311,15 +13316,16 @@ XcalarApiTagDagNodesInputT.prototype.read = function(input) {
         for (var _i357 = 0; _i357 < _size352; ++_i357)
         {
           var elem358 = null;
-          elem358 = input.readString().value;
-          this.dagNodeNames.push(elem358);
+          elem358 = new XcalarApiNamedInputT();
+          elem358.read(input);
+          this.dagNodes.push(elem358);
         }
         input.readListEnd();
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 2:
       if (ftype == Thrift.Type.STRING) {
         this.tag = input.readString().value;
       } else {
@@ -13337,27 +13343,22 @@ XcalarApiTagDagNodesInputT.prototype.read = function(input) {
 
 XcalarApiTagDagNodesInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiTagDagNodesInputT');
-  if (this.numDagNodes !== null && this.numDagNodes !== undefined) {
-    output.writeFieldBegin('numDagNodes', Thrift.Type.I32, 1);
-    output.writeI32(this.numDagNodes);
-    output.writeFieldEnd();
-  }
-  if (this.dagNodeNames !== null && this.dagNodeNames !== undefined) {
-    output.writeFieldBegin('dagNodeNames', Thrift.Type.LIST, 2);
-    output.writeListBegin(Thrift.Type.STRING, this.dagNodeNames.length);
-    for (var iter359 in this.dagNodeNames)
+  if (this.dagNodes !== null && this.dagNodes !== undefined) {
+    output.writeFieldBegin('dagNodes', Thrift.Type.LIST, 1);
+    output.writeListBegin(Thrift.Type.STRUCT, this.dagNodes.length);
+    for (var iter359 in this.dagNodes)
     {
-      if (this.dagNodeNames.hasOwnProperty(iter359))
+      if (this.dagNodes.hasOwnProperty(iter359))
       {
-        iter359 = this.dagNodeNames[iter359];
-        output.writeString(iter359);
+        iter359 = this.dagNodes[iter359];
+        iter359.write(output);
       }
     }
     output.writeListEnd();
     output.writeFieldEnd();
   }
   if (this.tag !== null && this.tag !== undefined) {
-    output.writeFieldBegin('tag', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('tag', Thrift.Type.STRING, 2);
     output.writeString(this.tag);
     output.writeFieldEnd();
   }
