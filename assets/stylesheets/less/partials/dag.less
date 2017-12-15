@@ -518,6 +518,12 @@ html.firefox, html.microsoft {
         position: absolute;
         z-index: 1; // otherwise canvas lines will be in front
 
+        &.inWS {
+            .tableTitle {
+                color: @color-font-select-blue;
+            }
+        }
+
         &.hidden {
             display: none;
         }

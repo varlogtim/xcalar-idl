@@ -1235,6 +1235,10 @@ window.DagDraw = (function($, DagDraw) {
         if (node.value.display.isHiddenTag) {
             outerClasses += "tagHidden tagged ";
         }
+        if (node.children.length === 0) {
+            outerClasses += " inWS ";
+            tableClasses += " headerTable ";
+        }
 
         var dagOpHtml = getDagOperationHtml(node, dagInfo, storedInfo);
         html += '<div class="dagTableWrap clearfix ' + outerClasses + '" ' +
@@ -1249,9 +1253,7 @@ window.DagDraw = (function($, DagDraw) {
             tooltipTxt = CommonTxtTstr.ClickToOpts;
         }
         tableClasses += dagInfo.state + " ";
-        if (node.children.length === 0) {
-            tableClasses += " headerTable ";
-        }
+
 
         // check for datastes
         if (dagOpHtml === "") {

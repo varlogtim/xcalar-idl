@@ -163,6 +163,8 @@ window.Dag = (function($, Dag) {
             }
             $dagWrap.addClass("building");
 
+            Dag.styleTableInWS(tableId);
+
             deferred.resolve();
         })
         .fail(function(error) {
@@ -175,6 +177,7 @@ window.Dag = (function($, Dag) {
 
     Dag.destruct = function(tableId) {
         $('#dagWrap-' + tableId).remove();
+        Dag.styleTableInWS(tableId, true);
         DagFunction.destruct(tableId);
     };
 
@@ -220,6 +223,16 @@ window.Dag = (function($, Dag) {
                 $(this).attr('title', newText);
             }
         });
+    };
+
+    Dag.styleTableInWS = function(tableId, toRemove) {
+        var $dagTableWraps = $dagPanel.find('.dagTable[data-id="' + tableId + '"]')
+                                      .closest(".dagTableWrap");
+        if (toRemove) {
+            $dagTableWraps.removeClass("inWS");
+        } else {
+            $dagTableWraps.addClass("inWS");
+        }
     };
 
     // nameProvided: boolean, if true, tableId arg is actually a tablename
