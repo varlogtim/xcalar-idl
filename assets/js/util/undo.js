@@ -407,7 +407,6 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.DFRerun] = function(options) {
-        var deferred = jQuery.Deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
 

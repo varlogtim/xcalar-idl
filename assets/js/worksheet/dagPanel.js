@@ -634,7 +634,7 @@ window.DagPanel = (function($, DagPanel) {
                     title: DFTStr.NoEditIndex
                 });
             } else if (!$opWrap.hasClass("groupBy") && !$opWrap.hasClass("map") &&
-                !$opWrap.hasClass("filter") && !$opWrap.hasClass("join")  &&
+                !$opWrap.hasClass("filter") && !$opWrap.hasClass("join") &&
                 !$opWrap.hasClass("aggregate") && !$opWrap.hasClass("project")) {
                 $menu.find(".editOp").addClass("unavailable");
                 xcTooltip.add($menu.find(".editOp"), {
@@ -1150,24 +1150,24 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
 
-            var tableId = $menu.data("tableId");
             var nodeId = $menu.data("nodeId");
             var $dagWrap = $menu.data("opIcon").closest(".dagWrap");
+            var allDagInfo;
+            var node;
 
             switch (action) {
                 case ("editOp"):
+                    allDagInfo = $dagWrap.data("allDagInfo");
+                    node = allDagInfo.nodeIdMap[nodeId];
 
-                    var allDagInfo = $dagWrap.data("allDagInfo");
-
-                    var node = allDagInfo.nodeIdMap[nodeId];
                     if (!$dagWrap.hasClass("editMode")) {
                         $dagWrap.find(".startEdit").click();
                     }
                     DagEdit.editOp(node);
                     break;
                 case ("undoEdit"):
-                    var allDagInfo = $dagWrap.data("allDagInfo");
-                    var node = allDagInfo.nodeIdMap[nodeId];
+                    allDagInfo = $dagWrap.data("allDagInfo");
+                    node = allDagInfo.nodeIdMap[nodeId];
                     DagEdit.undoEdit(node);
                     break;
                 case ("exitEdit"):
@@ -1205,7 +1205,6 @@ window.DagPanel = (function($, DagPanel) {
 
         $menu.on("mouseleave", ".collapseTag", function() {
             var $opIcon = $menu.data("opIcon");
-            var $icon = $opIcon.find(".groupTagIcon");
             var $dagWrap = $opIcon.closest(".dagWrap");
             $dagWrap.find(".tagHighlighted").removeClass("tagHighlighted");
         });

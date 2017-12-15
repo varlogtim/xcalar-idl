@@ -94,8 +94,6 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.Union] = function(options) {
-        var deferred = jQuery.Deferred();
-        var tablesToReplace = [];
         var unionOptions = options.options || {};
         var promises = [];
         if (!unionOptions.keepTables) {

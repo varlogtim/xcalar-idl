@@ -774,8 +774,6 @@
 
         // Split gbArgs into 2 arrays, one array with operators and
         // Another array that's just aliasing
-
-        var aliasArray = [];
         var opArray = [];
         var distinctColArray = [];
 
@@ -1720,6 +1718,8 @@
         var deferred = jQuery.Deferred();
         // TODO: switch left and right and support right semi joins
         var antiJoinTableName;
+        var newColName = xcHelper.randName("XC_GB_COL");
+        var newGbTableName = getNewTableName(rIndexedTable);
 
         function doJoin() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
@@ -1735,8 +1735,6 @@
             }
         }
 
-        var newColName = xcHelper.randName("XC_GB_COL");
-        var newGbTableName = getNewTableName(rIndexedTable);
         // XXX FIXME rIndexedColNames[0] is wrong in the cases where it is
         // called a::b, and there's another immediate called b
         // This is because a::b will becomes b.
@@ -2063,7 +2061,7 @@
         // same column, we only need do that groupby once
         var deferred = jQuery.Deferred();
         var aggCols = {};
-        for (var i = 0;  i < distinctColArray.length; i++) {
+        for (var i = 0; i < distinctColArray.length; i++) {
             var aggCol = distinctColArray[i].aggColName;
             if (aggCol in aggCols) {
                 aggCols[aggCol].push(distinctColArray[i]);

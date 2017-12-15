@@ -884,7 +884,7 @@ window.OperationsView = (function($, OperationsView) {
         var titleName = operatorName;
         var submitText;
         if (options.prefill) {
-            titleName  = "EDIT " + titleName;
+            titleName = "EDIT " + titleName;
             submitText = "SAVE";
         } else {
             submitText = operatorName.toUpperCase();
@@ -990,7 +990,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         if (restore) {
-           if (operatorName === "group by") {
+            if (operatorName === "group by") {
                 $activeOpSection.find(".arg:visible").each(function() {
                     checkHighlightTableCols($(this));
                 });
@@ -1058,7 +1058,7 @@ window.OperationsView = (function($, OperationsView) {
                 }).click();
                 $group = $activeOpSection.find('.group').eq(i);
             } else {
-                if (operatorName ===  "group by" && i > 0) {
+                if (operatorName === "group by" && i > 0) {
                     addGroupbyGroup();
                 }
                 $group = $activeOpSection.find('.group').eq(i);
@@ -2925,7 +2925,7 @@ window.OperationsView = (function($, OperationsView) {
                                 allColTypes.push({});
                                 if (!isEditMode) {
                                     errorText = xcHelper.replaceMsg(
-                                        ErrWRepTStr.InvalidCol, {
+                                    ErrWRepTStr.InvalidCol, {
                                         "name": frontColName
                                     });
                                     $errorInput = $input;
@@ -3227,13 +3227,15 @@ window.OperationsView = (function($, OperationsView) {
         if (isEditMode) {
             DagEdit.store({
                 args: {
-                        "eval": [{"evalString": aggrOp + "(" + aggStr + ")",
-                                  "newField": ""}]
-                    }
+                    "eval": [{
+                        "evalString": aggrOp + "(" + aggStr + ")",
+                        "newField": ""
+                    }]
+                }
             });
             deferred.resolve();
         } else {
-             var startTime = Date.now();
+            var startTime = Date.now();
             xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName,
                                  options)
             .then(deferred.resolve)
@@ -3274,8 +3276,8 @@ window.OperationsView = (function($, OperationsView) {
         if (isEditMode) {
             DagEdit.store({
                 args: {
-                        "eval": [{"evalString": filterString, "newField": ""}]
-                    }
+                    "eval": [{"evalString": filterString, "newField": ""}]
+                }
             });
             deferred.resolve();
         } else {
@@ -3398,16 +3400,16 @@ window.OperationsView = (function($, OperationsView) {
                 evals.push({
                     "evalString": evalStr,
                     "newField": gbArgs[i].newColName
-                    });
+                });
             }
 
             DagEdit.store({
                 args: {
-                        "eval": evals,
-                        "icv": icvMode,
-                        "includeSample": isIncSample,
-                        "newKeyField": ""
-                    },
+                    "eval": evals,
+                    "icv": icvMode,
+                    "includeSample": isIncSample,
+                    "newKeyField": ""
+                },
                 indexFields: groupByCols.slice()
             });
             deferred.resolve();
@@ -3499,9 +3501,9 @@ window.OperationsView = (function($, OperationsView) {
         if (isEditMode) {
             DagEdit.store({
                 args: {
-                        "eval": [{"evalString": mapStr, "newField": newColName}],
-                        "icv": icvMode
-                    }
+                    "eval": [{"evalString": mapStr, "newField": newColName}],
+                    "icv": icvMode
+                }
             });
             deferred.resolve();
         } else {

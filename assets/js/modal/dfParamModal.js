@@ -902,16 +902,16 @@ window.DFParamModal = (function($, DFParamModal){
 
         $dfParamModal.find(".exportSettingTable .settingRow").html(settingText);
 
-        function getExportSettingDefault(name, defaultValue) {
-            return '<div class="templateRow">' +
-                '<div>' +
-                    name + ':' +
-                '</div>' +
-                '<div class="boxed large">' +
-                    xcHelper.escapeHTMLSpecialChar(defaultValue) +
-                '</div>' +
-            '</div>';
-        }
+        // function getExportSettingDefault(name, defaultValue) {
+        //     return '<div class="templateRow">' +
+        //         '<div>' +
+        //             name + ':' +
+        //         '</div>' +
+        //         '<div class="boxed large">' +
+        //             xcHelper.escapeHTMLSpecialChar(defaultValue) +
+        //         '</div>' +
+        //     '</div>';
+        // }
 
         function getExportSettingInput(inputNum, name, className, defaultValue, hasDropDown, dropDownList) {
             var html = '<div class="innerEditableRow ' + className + '">' +

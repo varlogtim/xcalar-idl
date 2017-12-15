@@ -3088,8 +3088,6 @@ XcalarSynthesize = function(srcTableName, dstTableName, columns) {
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
-    var thriftError = thriftLog("XcalarSynthesize", error);
     xcalarApiSynthesize(tHandle, srcTableName, dstTableName, columns)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -3097,7 +3095,7 @@ XcalarSynthesize = function(srcTableName, dstTableName, columns) {
         deferred.reject(thriftError);
     });
     return (deferred.promise());
-}
+};
 
 // XXX TODO THIS NEEDS TO HAVE A Log.add
 // This tableArray is an array of structs.

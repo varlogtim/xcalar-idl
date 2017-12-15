@@ -64,7 +64,7 @@ window.TableList = (function($, TableList) {
 
         // focus on temp table
         $("#orphanedTableListSection").on("click", ".tableListBox .tableName",
-            function() {
+        function() {
             var tableName = $(this).closest('.tableInfo').data("tablename");
             var found = Dag.focusTempTable(tableName);
             if (!found) {

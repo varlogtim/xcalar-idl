@@ -143,7 +143,6 @@ DSFormAdvanceOption.prototype = {
     __addEventListener: function() {
         var self = this;
         var $section = self.$section;
-        var container = self.container;
         // add event listener
         $section.on("click", ".listInfo .expand, .listInfo .text", function() {
             self.__toggleList();

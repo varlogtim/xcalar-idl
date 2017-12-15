@@ -217,80 +217,80 @@
         // The second traverse convert all substring, left, right stuff
         function literalNumberNode(num) {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
-                "num-children" : 0,
-                "value" : "" + num,
-                "dataType" : "integer"
+                "class": "org.apache.spark.sql.catalyst.expressions.Literal",
+                "num-children": 0,
+                "value": "" + num,
+                "dataType": "integer"
             });
         }
         function literalStringNode(s) {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.Literal",
-                "num-children" : 0,
-                "value" : s,
-                "dataType" : "string"
+                "class": "org.apache.spark.sql.catalyst.expressions.Literal",
+                "num-children": 0,
+                "value": s,
+                "dataType": "string"
             });
         }
         function subtractNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.Subtract",
-                "num-children" : 2,
-                "left" : 0,
-                "right" : 1
+                "class": "org.apache.spark.sql.catalyst.expressions.Subtract",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
             });
         }
         function addNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.Add",
-                "num-children" : 2,
-                "left" : 0,
-                "right" : 1
+                "class": "org.apache.spark.sql.catalyst.expressions.Add",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
             });
         }
         function stringReplaceNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions." +
+                "class": "org.apache.spark.sql.catalyst.expressions." +
                           "StringReplace",
-                "num-children" : 3,
-                "left" : 0,
-                "right" : 1
+                "num-children": 3,
+                "left": 0,
+                "right": 1
             });
         }
 
         function ifStrNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.IfStr",
-                "num-children" : 3,
+                "class": "org.apache.spark.sql.catalyst.expressions.IfStr",
+                "num-children": 3,
                 "branches": null,
             });
         }
         function ifNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.If",
-                "num-children" : 3,
+                "class": "org.apache.spark.sql.catalyst.expressions.If",
+                "num-children": 3,
                 "branches": null,
             });
         }
         function orNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.Or",
-                "num-children" : 2,
-                "left" : 0,
-                "right" : 1
+                "class": "org.apache.spark.sql.catalyst.expressions.Or",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
             });
         }
         function eqNode() {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.EqualTo",
-                "num-children" : 2,
-                "left" : 0,
-                "right" : 1
+                "class": "org.apache.spark.sql.catalyst.expressions.EqualTo",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
             });
         }
         function stringToDateNode(origNode) {
             var node = new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.convertDate",
-                "num-children" : 3
+                "class": "org.apache.spark.sql.catalyst.expressions.convertDate",
+                "num-children": 3
             });
             node.children = [origNode,
                              literalStringNode("%Y-%m-%d"),
@@ -300,8 +300,8 @@
         }
         function timestampToDateNode(origNode) {
             var node = new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.convertFromUnixTS",
-                "num-children" : 2
+                "class": "org.apache.spark.sql.catalyst.expressions.convertFromUnixTS",
+                "num-children": 2
             });
             node.children = [origNode, literalStringNode("%Y-%m-%d")];
             origNode.parent = node;
@@ -309,9 +309,9 @@
         }
         function castNode(xcType) {
             return new TreeNode({
-                "class" : "org.apache.spark.sql.catalyst.expressions.XcType."
+                "class": "org.apache.spark.sql.catalyst.expressions.XcType."
                           + xcType,
-                "num-children" : 1
+                "num-children": 1
             });
         }
 
@@ -358,7 +358,7 @@
                 node.children[2].parent = parent;
                 break;
             case ("expressions.Like"):
-                assert(node.children.length == 2);
+                assert(node.children.length === 2);
                 var strNode = node.children[1];
                 var stringRepNode = stringReplaceNode();
 
@@ -676,8 +676,8 @@
     };
     function ProjectNode(columns) {
         return new TreeNode({
-            "class" : "org.apache.spark.sql.catalyst.plans.logical.Project",
-            "num-children" : 1,
+            "class": "org.apache.spark.sql.catalyst.plans.logical.Project",
+            "num-children": 1,
             "projectList": columns
         });
     }
@@ -1321,7 +1321,7 @@
             var firstMapPromise = function() {
                 if (firstMapArray.length > 0) {
                     var srcTableName = newTableName;
-                    newTableName =  xcHelper.getTableName(newTableName) +
+                    newTableName = xcHelper.getTableName(newTableName) +
                                     Authentication.getHashId();
                     return self.sqlObj.map(firstMapArray, srcTableName,
                                            firstMapColNames, newTableName);
@@ -1333,7 +1333,7 @@
             var secondMapPromise = function() {
                 if (secondMapArray.length > 0) {
                     var srcTableName = newTableName;
-                    newTableName =  xcHelper.getTableName(newTableName) +
+                    newTableName = xcHelper.getTableName(newTableName) +
                                     Authentication.getHashId();
                     return self.sqlObj.map(secondMapArray, srcTableName,
                                            secondMapColNames, newTableName);
@@ -1702,6 +1702,8 @@
 
     // The two join functions. Each path will run only one of the 2 functions
     function __handleAndEqJoin(globalStruct, joinNode, overwriteJoinType) {
+        var self = this;
+
         function handleMaps(mapStrArray, origTableName) {
             var deferred = jQuery.Deferred();
             if (mapStrArray.length === 0) {
@@ -1726,7 +1728,6 @@
             });
             return deferred.promise();
         }
-        var self = this;
         var leftMapArray = globalStruct.leftMapArray;
         var rightMapArray = globalStruct.rightMapArray;
         var leftCols = globalStruct.leftCols;
@@ -1883,7 +1884,7 @@
         //                                                rTableInfo.rename));
         joinNode.renamedColIds = newRenames
                              .concat(joinNode.children[0].renamedColIds)
-                             .concat(joinNode.children[1].renamedColIds)
+                             .concat(joinNode.children[1].renamedColIds);
         var options = {renamedColIds: joinNode.renamedColIds};
         var acc = {}; // for ScalarSubquery use case
         var filterEval = "";
@@ -1967,9 +1968,11 @@
             tableName: globalStruct.newTableName,
             columns: [globalStruct.leftRowNumCol],
             pulledColumns: [],
-            rename:[{new: newRowNumColName,
-                     orig: globalStruct.leftRowNumCol,
-                     type: DfFieldTypeT.DfUnknown}]
+            rename: [{
+                new: newRowNumColName,
+                orig: globalStruct.leftRowNumCol,
+                type: DfFieldTypeT.DfUnknown
+            }]
         };
 
         self.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo)

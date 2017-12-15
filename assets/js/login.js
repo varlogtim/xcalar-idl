@@ -112,7 +112,7 @@ $(document).ready(function() {
                     }
                     toggleBtnInProgress($("#loginButton"));
                 },
-                "error": function(error) {
+                "error": function() {
                     alert("Your authentication server has not been set up " +
                           "correctly. Please contact support@xcalar.com or " +
                           "your Xcalar sales representative.");
@@ -288,7 +288,7 @@ $(document).ready(function() {
                 .addClass("btnInProgress")
                 .data("oldhtml", oldhtml);
         }
-    };
+    }
 
     $("#insightVersion").html("Version SHA: " +
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());

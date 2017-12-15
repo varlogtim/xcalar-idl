@@ -3,7 +3,6 @@ window.DFCommentModal = (function(DFCommentModal, $) {
     var modalHelper;
     var $textArea;
     var tableName;
-    var $operationIcon;
     var node;
 
     DFCommentModal.setup = function() {
@@ -20,12 +19,12 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         });
 
         $modal.find(".clear").click(function() {
-        	$textArea.val("").focus();
+            $textArea.val("").focus();
         });
     };
 
     DFCommentModal.show = function($opIcon, nodeId) {
-    	if ($modal.is(":visible")) {
+        if ($modal.is(":visible")) {
             return;
         }
 
@@ -33,15 +32,15 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         $modal.find(".modalHeader .text").text(title);
         var $dagWrap = $opIcon.closest(".dagWrap");
 
-       	node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
+        node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         tableName = node.value.name;
         $operationIcon = $opIcon;
         var curComment = node.value.comment;
 
         if (curComment) {
-        	$modal.addClass("hasComment");
+            $modal.addClass("hasComment");
         } else {
-        	$modal.removeClass("hasComment");
+            $modal.removeClass("hasComment");
         }
         $textArea.val(curComment);
 
@@ -55,63 +54,63 @@ window.DFCommentModal = (function(DFCommentModal, $) {
     }
 
     function reset() {
-    	tableName = null;
+        tableName = null;
         $operationIcon = null;
         node = null;
         $textArea.val("");
     }
 
     function submitForm() {
-    	var newComment = $textArea.val().trim();
-    	var commentLen = newComment.length;
-    	if (commentLen > XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen) {
-    		var errMsg = 'The maximum allowable comment length is ' +
-    					XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen +
-    					' but you provided ' + commentLen + ' characters.';
-    		StatusBox.show(errMsg, $textArea);
-    		return false;
-    	}
+        var newComment = $textArea.val().trim();
+        var commentLen = newComment.length;
+        if (commentLen > XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen) {
+            var errMsg = 'The maximum allowable comment length is ' +
+                        XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen +
+                        ' but you provided ' + commentLen + ' characters.';
+            StatusBox.show(errMsg, $textArea);
+            return false;
+        }
 
-    	var tName = tableName;
-    	var storedNode = node;
-    	closeModal();
+        var tName = tableName;
+        // var storedNode = node;
+        closeModal();
 
-    	XcalarCommentDagNodes(newComment, [tName])
-    	.then(function() {
-    		var $dagPanel = $('#dagPanel');
-			var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
-	            return ($(this).text() === tName);
-	        });
-    		if (newComment) {
-    			// remove comment entirely to fix tooltip html rendering
-		        $dagTableTitles.each(function() {
-		        	var $dagTable = $(this).closest(".dagTable");
-		        	var nodeId = $dagTable.data("index");
-		        	var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
-		        	var $dagWrap = $opIcon.closest(".dagWrap");
-		            var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
+        XcalarCommentDagNodes(newComment, [tName])
+        .then(function() {
+            var $dagPanel = $('#dagPanel');
+            var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
+                return ($(this).text() === tName);
+            });
+            if (newComment) {
+                // remove comment entirely to fix tooltip html rendering
+                $dagTableTitles.each(function() {
+                    var $dagTable = $(this).closest(".dagTable");
+                    var nodeId = $dagTable.data("index");
+                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
+                    var $dagWrap = $opIcon.closest(".dagWrap");
+                    var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
 
-		        	$opIcon.find(".commentIcon").remove();
-    				Dag.updateComment($opIcon, newComment, nodeIdMap[nodeId]);
-		        });
-    		} else {
-    			$dagTableTitles.each(function() {
-    				var $dagTable = $(this).closest(".dagTable");
-		        	var nodeId = $dagTable.data("index");
-		        	var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
-		        	$opIcon.removeClass("hasComment");
-    				$opIcon.find(".commentIcon").remove();
-    				var $dagWrap = $opIcon.closest(".dagWrap");
-		            var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
+                    $opIcon.find(".commentIcon").remove();
+                    Dag.updateComment($opIcon, newComment, nodeIdMap[nodeId]);
+                });
+            } else {
+                $dagTableTitles.each(function() {
+                    var $dagTable = $(this).closest(".dagTable");
+                    var nodeId = $dagTable.data("index");
+                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
+                    $opIcon.removeClass("hasComment");
+                    $opIcon.find(".commentIcon").remove();
+                    var $dagWrap = $opIcon.closest(".dagWrap");
+                    var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
 
-    				nodeIdMap[nodeId].value.comment = newComment;
-    			});
-    		}
-    	})
-    	.fail(function(err) {
-    		console.log(err);
-    		Alert.error("Commenting Failed", err);
-    	});
+                    nodeIdMap[nodeId].value.comment = newComment;
+                });
+            }
+        })
+        .fail(function(err) {
+            console.log(err);
+            Alert.error("Commenting Failed", err);
+        });
     }
 
     /* Unit Test Only */

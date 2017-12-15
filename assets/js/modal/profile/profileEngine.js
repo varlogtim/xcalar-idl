@@ -622,7 +622,7 @@ window.ProfileEngine = (function(ProfileEngine) {
                             try {
                                 var row = jQuery.parseJSON(data[i]);
                                 sum += Number(row[tableKey]);
-                            } catch(e) {
+                            } catch (e) {
                                 console.warn(e);
                                 console.warn("Cannot Parse Struct");
                                 profileInfo.statsInfo[statsKey] = '--';

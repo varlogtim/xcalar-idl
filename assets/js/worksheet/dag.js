@@ -340,8 +340,9 @@ window.Dag = (function($, Dag) {
 
             var scrollLeft = $table.closest(".dagTableWrap").position().left -
                 ($dagWrap.find(".dagImageWrap").width() / 2) + Dag.tableWidth;
-            $dagWrap.find(".dagImageWrap").animate({scrollLeft: scrollLeft},
-                500, function() {
+            $dagWrap.find(".dagImageWrap").animate({
+                scrollLeft: scrollLeft
+            }, 500, function() {
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
             });
@@ -439,7 +440,6 @@ window.Dag = (function($, Dag) {
     Dag.expandAll = function($dagWrap) {
         var allDagInfo = $dagWrap.data('allDagInfo');
         var idMap = allDagInfo.nodeIdMap;
-        var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
         var sets = allDagInfo.sets;
         var groups = allDagInfo.groups;
@@ -524,7 +524,6 @@ window.Dag = (function($, Dag) {
     Dag.collapseAll = function($dagWrap) {
         var allDagInfo = $dagWrap.data('allDagInfo');
         var idMap = allDagInfo.nodeIdMap;
-        var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
         var sets = allDagInfo.sets;
         var groups = allDagInfo.groups;
@@ -1060,9 +1059,9 @@ window.Dag = (function($, Dag) {
         var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType")
                                                         .addClass("hasEdit");
 
-        var tip = '<div class="dagTableTip">' +
-                    '<div>' + JSON.stringify(param, null, 2) + '</div>' +
-                  '</div>';
+        // var tip = '<div class="dagTableTip">' +
+        //             '<div>' + JSON.stringify(param, null, 2) + '</div>' +
+        //           '</div>';
         // $opIcon.append(tip);
         if (indexNodes && indexNodes.length) {
             for (var i = 0; i < indexNodes.length; i++) {
@@ -1137,7 +1136,7 @@ window.Dag = (function($, Dag) {
             $curDagTable = Dag.getTableIcon($dagWrap,
                                             descendantNodes[i].value.dagNodeId);
             $curDagTable.closest(".dagTableWrap").addClass("isDescendant");
-            tableNames.push(descendantNodes[i].value.name)
+            tableNames.push(descendantNodes[i].value.name);
         }
         return tableNames;
     };
@@ -1504,7 +1503,6 @@ window.Dag = (function($, Dag) {
     function collapseGroup(groupInfo, $dagWrap, $expandIcon) {
         groupInfo.collapsed = true;
         var allDagInfo = $dagWrap.data('allDagInfo');
-        var tree = allDagInfo.tree;
         var trees = allDagInfo.trees;
         var group = groupInfo.group;
         var $dagImage = $dagWrap.find('.dagImage');
@@ -2162,7 +2160,6 @@ window.Dag = (function($, Dag) {
         var txId;
         var idx;
         var colIndices = [];
-        var origColName;
         var origColNames = [];
         var scrollChecker = new ScollTableChecker();
         $tableIcon = $dagPanel.find(".dagTable[data-tablename='" +

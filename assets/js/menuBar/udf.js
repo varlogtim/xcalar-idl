@@ -51,7 +51,7 @@ window.UDF = (function($, UDF) {
             editor.setValue(udfDefault);
             editor.clearHistory();
         }
-    }
+    };
 
     UDF.getEditor = function() {
         return editor;

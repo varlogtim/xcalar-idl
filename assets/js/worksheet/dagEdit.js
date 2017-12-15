@@ -1,7 +1,7 @@
 window.DagEdit = (function($, DagEdit) {
     var isEditMode = false;
-  	var params = {};
-  	var editingNode;
+    var params = {};
+    var editingNode;
     var treeNode;
     var linkedNodes = {}; // nodes that depend on each other, example: groupby
     // and index are linked, so when  we undo a group by edit, we need to undo the
@@ -22,16 +22,18 @@ window.DagEdit = (function($, DagEdit) {
 
     // DagEdit.on();
 
-  	DagEdit.getInfo = function() {
-  		return {params: params,
-                newNodes: newNodes};
-  	};
+    DagEdit.getInfo = function() {
+        return {
+            params: params,
+            newNodes: newNodes
+        };
+    };
 
     DagEdit.isEditMode = function() {
         return isEditMode;
     };
 
-  	DagEdit.toggle = function(node, force) {
+    DagEdit.toggle = function(node, force) {
         var edits = DagEdit.getInfo();
         if ((Object.keys(edits.params).length ||
             Object.keys(edits.newNodes).length) && !force) {
@@ -39,7 +41,7 @@ window.DagEdit = (function($, DagEdit) {
                 "title": "Edit in progress",
                 "msg": "Are you sure you want to exit edit mode and abandon all changes?",
                 "onConfirm": function() {
-                   toggleMode();
+                    toggleMode();
                 }
             });
         } else {
@@ -76,12 +78,12 @@ window.DagEdit = (function($, DagEdit) {
             linkedNodes = {};
             editingTables = {};
         }
-  	};
+    };
     // options:
     //  evalIndex: integer, which eval str to edit
-  	DagEdit.editOp = function(node, options) {
+    DagEdit.editOp = function(node, options) {
         options = options || {};
-  		editingNode = node;
+        editingNode = node;
         var api = node.value.api;
         var sourceTableNames = node.getNonIndexSourceNames(true);
 
@@ -185,7 +187,7 @@ window.DagEdit = (function($, DagEdit) {
                              isOtherDroppedTable, options.evalIndex);
             });
         });
-  	};
+    };
 
     DagEdit.exitForm = function() {
         for (var tableName in editingTables) {
@@ -320,7 +322,7 @@ window.DagEdit = (function($, DagEdit) {
     };
 
     function showEditForm(node, sourceTableNames, isDroppedTable,
-                          isOtherDroppedTable, evalIndex) {
+                        isOtherDroppedTable, evalIndex) {
         var api = node.value.api;
         var struct = node.value.struct;
         var tableIds = sourceTableNames.map(function(name) {
@@ -329,8 +331,8 @@ window.DagEdit = (function($, DagEdit) {
         var tableId = tableIds[0];
         var prefillInfo;
 
-        switch(api) {
-             case (XcalarApisT.XcalarApiAggregate):
+        switch (api) {
+            case (XcalarApisT.XcalarApiAggregate):
                 var aggStruct;
                 if (params[editingNode.value.name]) {
                     aggStruct = params[editingNode.value.name];
@@ -457,9 +459,7 @@ window.DagEdit = (function($, DagEdit) {
                 // } else {
                 //     indexedFields = node.value.indexedFields;
                 // }
-
-
-                var prefillInfo = {
+                prefillInfo = {
                     "joinType": joinStruct.joinType,
                     "rightTable": sourceTableNames[1],
                     "dest": xcHelper.getTableName(struct.dest),
@@ -745,7 +745,6 @@ window.DagEdit = (function($, DagEdit) {
           ]
         };
     }
-
 
 	return (DagEdit);
 })(jQuery, {});

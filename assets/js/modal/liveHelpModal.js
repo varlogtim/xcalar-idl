@@ -452,7 +452,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     }
     function sendToSlack() {
         if (socket != null) {
-           socket.emit("userLeft", {"room": thread, "ticketId": ticketId});
+            socket.emit("userLeft", {"room": thread, "ticketId": ticketId});
         }
     }
     /* Unit Test Only */

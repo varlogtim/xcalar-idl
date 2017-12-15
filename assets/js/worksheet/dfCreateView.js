@@ -524,7 +524,7 @@ window.DFCreateView = (function($, DFCreateView) {
             addExportGroup();
         });
 
-         $dfView.find(".addSrc button, .addSrc .text").click(function() {
+        $dfView.find(".addSrc button, .addSrc .text").click(function() {
             addExportSrc();
         });
     }

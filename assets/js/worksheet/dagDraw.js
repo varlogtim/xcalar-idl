@@ -189,7 +189,7 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function styleDroppedTables($dagWrap, tableId) {
+    function styleDroppedTables($dagWrap) {
         $dagWrap.find(".dagTable.Dropped").each(function() {
             var $dagTable = $(this);
             var tId = $dagTable.data("id");
@@ -207,7 +207,7 @@ window.DagDraw = (function($, DagDraw) {
 
     // used for expanding / collapsing tagged group with "node" as header
     DagDraw.recreateDagImage = function($dagWrap, dagInfo, node) {
-        var tree = dagInfo.tree;
+        // var tree = dagInfo.tree;
         var trees = dagInfo.trees;
         var sets = dagInfo.sets;
         var initialY = 0.2;
@@ -1107,13 +1107,13 @@ window.DagDraw = (function($, DagDraw) {
                                             node.value.dagNodeId + '"]');
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var info = getDagNodeInfo(node, key);
-        var operation = info.type;
+        // var operation = info.type;
 
-        if (info.subType === "sort") {
-            operation = "sort";
-        } else if (info.subType === "createTable") {
-            operation = "Create Table";
-        }
+        // if (info.subType === "sort") {
+        //     operation = "sort";
+        // } else if (info.subType === "createTable") {
+        //     operation = "Create Table";
+        // }
 
         var tagIconTip;
         var tagId = xcHelper.getTableId(node.value.tag);
@@ -1425,7 +1425,6 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function positionMultiExportNodes(trees, yCoors, sets, exportsSeen, seen) {
-        var dagImageHtml = "";
         var exportNodes = [];
         for (var i = 1; i < trees.length; i++) {
             if (sets.indexOf(trees[i]) > -1 ||
@@ -1787,7 +1786,6 @@ window.DagDraw = (function($, DagDraw) {
                         info.eval = "sorted " + order + "on " +
                                     xcHelper.listToEnglish(keyNames);
                     } else {
-                        var indexFieldStr = "";
                         info.tooltip = "Indexed by " + xcHelper.listToEnglish(keyNames);
                         info.subType = "index";
                         info.taggedType = "index";

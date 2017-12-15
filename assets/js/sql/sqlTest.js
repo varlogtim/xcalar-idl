@@ -67,7 +67,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
               "s_suppkey = ps_suppkey and s_nationkey = n_nationkey and " +
               "n_regionkey = r_regionkey and r_name = \"EUROPE\" )order by " +
               "s_acctbal desc, n_name, s_name, p_partkey",
-    }
+    };
     var test;
     SqlTestSuite.runSqlTests = function() {
         var tableNames = {};
@@ -124,7 +124,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         return test.createTable(tableName + "_" + randId);
     }
     function removeColumns(tableId) {
-        return ColManager.hideCol([gTables[tableId].getNumCols() - 1], tableId, {noAnimate:true});
+        return ColManager.hideCol([gTables[tableId].getNumCols() - 1], tableId, {noAnimate: true});
     }
     function castColumns(tableId) {
         // XXX TO-DO
@@ -170,16 +170,3 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     }
     return (SqlTestSuite);
 }(jQuery, {}));
-
-
-
-
-
-
-
-
-
-
-
-
-

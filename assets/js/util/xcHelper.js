@@ -362,7 +362,7 @@
             }
             if (isNull) {
                 if (len > 0 || isExist) {
-                    str  = "and(" + str + ", not(isNull(" + colName + "))";
+                    str = "and(" + str + ", not(isNull(" + colName + "))";
                 } else {
                     str = "not(isNull(" + colName + ")";
                 }

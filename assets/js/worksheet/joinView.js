@@ -308,15 +308,16 @@ window.JoinView = (function($, JoinView) {
                 $(this).find('.clause').eq(index).val("");
             });
             var tableId;
+            var tableName;
             if (index === 0) {
-                var tableName = $leftTableDropdown.find('.text').val();
+                tableName = $leftTableDropdown.find('.text').val();
                 tableId = xcHelper.getTableId(tableName);
                 lTable = gTables[tableId];
                 if (!lTable) {
                     lTable = gDroppedTables[tableId];
                 }
             } else {
-                var tableName = $rightTableDropdown.find('.text').val();
+                tableName = $rightTableDropdown.find('.text').val();
                 tableId = xcHelper.getTableId(tableName);
                 rTable = gTables[tableId];
                 if (!rTable) {
@@ -334,7 +335,7 @@ window.JoinView = (function($, JoinView) {
                 deselectAllTableCols(prevId, true);
             }
 
-            var tableId = tableIds[index];
+            tableId = tableIds[index];
             if (gTables[tableId]) {
                 var table = gTables[tableId];
                 TblFunc.focusTable(tableId);
@@ -410,7 +411,7 @@ window.JoinView = (function($, JoinView) {
                     // suggTableId is the right table
                     var isFind = suggestJoinKey(tableId,
                                                 $inputToCheck.val().trim(),
-                                                $inputToFill, suggTableId);
+                                                $inputToFill);
                     if (isFind === JoinKeySuggestion.KeyUnsure) {
                         showErrorTooltip($suggErrorArea, {
                             "title": JoinTStr.UnlikelyJoinKey,
@@ -1387,21 +1388,22 @@ window.JoinView = (function($, JoinView) {
 
     // generates all left and right table columns to keep
     function displayAllColumnsList() {
+        var html;
         $joinView.find(".cols").empty();
         if (isSemiJoin()) {
             if (isLeftSemiJoin()) {
-                var html = getTableColList(lTable);
+                html = getTableColList(lTable);
                 $joinView.find(".cols").eq(0).html(html);
                 $joinView.find(".selectAll").eq(0).addClass("checked");
                 selectAllTableCols(lTable);
             } else {
-                var html = getTableColList(rTable);
+                html = getTableColList(rTable);
                 $joinView.find(".cols").eq(1).html(html);
                 $joinView.find(".selectAll").eq(1).addClass("checked");
                 selectAllTableCols(rTable);
             }
         } else {
-            var html = getTableColList(lTable);
+            html = getTableColList(lTable);
             $joinView.find(".cols").eq(0).html(html);
             $joinView.find(".selectAll").eq(0).addClass("checked");
             selectAllTableCols(lTable);
@@ -1538,9 +1540,6 @@ window.JoinView = (function($, JoinView) {
 
 
     function getClauseCols() {
-        var tableIds = getTableIds();
-        var lTableId = tableIds[0];
-        var rTableId = tableIds[1];
         var lCols = [];
         var rCols = [];
 
@@ -2508,7 +2507,7 @@ window.JoinView = (function($, JoinView) {
         return inputs;
     }
 
-    function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
+    function suggestJoinKey(tableId, val, $inputToFill) {
         var inputs = getJoinKeyInputs(val);
         if (inputs.srcColInfo == null) {
             return JoinKeySuggestion.KeyNotFound;

@@ -1,8 +1,8 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    var editedLineage = {};
-    var editInfo;
+    // var editedLineage = {};
+    // var editInfo;
     var TreeNode = function(value) {
         this.value = value;
         this.parents = [];
@@ -595,24 +595,24 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function searchTreeForName(tree, name) {
-        var foundNode;
-        search(tree);
-        function search(node) {
-            if (node.value.name === name) {
-                foundNode = node;
-                return;
-            }
-            for (var i = 0; i < node.parents.length; i++) {
-                if (!foundNode) {
-                    search(node.parents[i]);
-                } else {
-                    break;
-                }
-            }
-        }
-        return foundNode;
-    }
+    // function searchTreeForName(tree, name) {
+    //     var foundNode;
+    //     search(tree);
+    //     function search(node) {
+    //         if (node.value.name === name) {
+    //             foundNode = node;
+    //             return;
+    //         }
+    //         for (var i = 0; i < node.parents.length; i++) {
+    //             if (!foundNode) {
+    //                 search(node.parents[i]);
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return foundNode;
+    // }
 
     // if a startNode has a dropped parent, we need to search all of its parents
     // until we find one that is not dropped and add it to the startNodes list
@@ -651,7 +651,7 @@ window.DagFunction = (function($, DagFunction) {
             console.log('DagFunction.runProcedureWithParams("yay#ar133",  ' +
                         '{"reviews1#ar132":{"evalStr":"add(stars, 2)"}, ' +
                         '"user#ar122":{"filterStr":"eq(fans, 8)"}})');
-            console.log("schedule1#kU683", {"schedule1#kU682":{"eval": [{"evalString":"eq(schedule1::class_id, 2)","newField":""}]}});
+            console.log("schedule1#kU683", {"schedule1#kU682": {"eval": [{"evalString": "eq(schedule1::class_id, 2)","newField": ""}]}});
         }
 
         var paramNodes = Object.keys(params);
@@ -939,7 +939,6 @@ window.DagFunction = (function($, DagFunction) {
     function recommentAfterEdit(tableId, commentsToNamesMap) {
         var deferred = jQuery.Deferred();
         var promises = [];
-        var commentedTables = [];
 
         for (var comment in commentsToNamesMap) {
             var tables = commentsToNamesMap[comment];
@@ -957,10 +956,14 @@ window.DagFunction = (function($, DagFunction) {
                     Dag.updateComment($opIcon, comment);
                 }
             }
+            deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(error) {
             // could not persist comments
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     function tagNodesAfterEdit(tableId, nameToTagsMap, tagHeaders) {
@@ -1011,7 +1014,7 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        return  retagNodes(newTagMap, tableId);
+        return retagNodes(newTagMap, tableId);
     }
 
     // always resolves
@@ -1062,12 +1065,12 @@ window.DagFunction = (function($, DagFunction) {
         return JSON.stringify(globalArray);
     }
 
-    function populateGlobalArray(workItem) {
-        return (XcalarGetQuery(workItem)
-            .then(function(queryStr) {
-                globalArray.push(queryStr);
-            }));
-    }
+    // function populateGlobalArray(workItem) {
+    //     return (XcalarGetQuery(workItem)
+    //         .then(function(queryStr) {
+    //             globalArray.push(queryStr);
+    //         }));
+    // }
 
     function getOrderedDedupedNodes(endPoints, type) {
         var queue = endPoints.slice();
@@ -1237,7 +1240,7 @@ window.DagFunction = (function($, DagFunction) {
             var evalStr = evalStrs[i].evalString;
             var tables = [];
             try {
-                var func = ColManager.parseFuncString(evalStr, func);
+                var func = ColManager.parseFuncString(evalStr);
                 tables = getAggNamesFromFunc(func);
             } catch (err) {
                 console.error("could not parse eval str", evalStr);
@@ -1277,70 +1280,3 @@ window.DagFunction = (function($, DagFunction) {
 
     return DagFunction;
 }(jQuery, {}));
-
-var testfail = [
-    {
-        "operation": "XcalarApiIndex",
-        "args": {
-            "source": "teachers#kU1214",
-            "dest": "teachers.index#kU1217",
-            "key": [
-                {
-                    "name": "teachers::teacher_id",
-                    "keyFieldName": "teachers::teacher_id",
-                    "type": "DfUnknown"
-                },
-                {
-                    "name": "teachers::teacher_name",
-                    "keyFieldName": "teachers::teacher_name",
-                    "type": "DfUnknown"
-                }
-            ],
-            "prefix": "",
-            "ordering": "Unordered",
-            "dhtName": "",
-            "delaySort": false,
-            "broadcast": false
-        }
-    },
-    {
-        "operation": "XcalarApiIndex",
-        "args": {
-            "source": "teachers-GB#kU1206",
-            "dest": "teachers-GB.index#kU1218",
-            "key": [
-                {
-                    "name": "teacher_id",
-                    "keyFieldName": "teacher_id",
-                    "type": "DfUnknown"
-                },
-                {
-                    "name": "teacher_id_count",
-                    "keyFieldName": "teacher_id_count",
-                    "type": "DfUnknown"
-                }
-            ],
-            "prefix": "",
-            "ordering": "Unordered",
-            "dhtName": "",
-            "delaySort": false,
-            "broadcast": false
-        }
-    },
-    {
-        "operation": "XcalarApiJoin",
-        "args": {
-            "source": [
-                "teachers.index#kU1217",
-                "teachers-GB.index#kU1218"
-            ],
-            "dest": "onj#kU1219",
-            "joinType": "fullOuterJoin",
-            "renameMap": [
-                [],
-                []
-            ],
-            "evalString": ""
-        }
-    }
-]

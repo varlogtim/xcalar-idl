@@ -9,7 +9,7 @@
 
     SQLApi.getCacheTable = function() {
         return indexTableCache;
-    }
+    };
 
     // static function
     // This is order sensitive. When index is no longer index sensitive,
