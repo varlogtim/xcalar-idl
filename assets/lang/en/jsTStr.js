@@ -988,8 +988,8 @@ DSFormTStr = {
     'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
                 'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
-    'NoQuoteWarnMsg': 'You have not selected a quoting character for your ' +
-                      'dataset. Are you sure you want to continue?'
+    'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
+    'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset'
 };
 
 DSParserTStr = {

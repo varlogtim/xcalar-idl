@@ -103,6 +103,22 @@ window.DSForm = (function($, DSForm) {
         var isValid = xcHelper.validate([{
             $ele: $("#dsForm-target").find(".text")
         }]);
+        if (!isValid) {
+            return false;
+        }
+
+        var targetName = getDataTarget();
+        var path = $filePath.val().trim();
+        if (DSTargetManager.isGeneratedTarget(targetName)) {
+            isValid = xcHelper.validate([{
+                $ele: $filePath,
+                error: DSFormTStr.GeneratedTargetHint,
+                check: function() {
+                    return !Number.isInteger(Number(path));
+                }
+            }]);
+        }
+
         return isValid;
     }
 
@@ -119,6 +135,13 @@ window.DSForm = (function($, DSForm) {
 
     function setDataTarget(targetName) {
         $("#dsForm-target input").val(targetName);
+        if (DSTargetManager.isGeneratedTarget(targetName)) {
+            $pathCard.addClass("target-generated");
+            $filePath.attr("placeholder", DSFormTStr.GeneratedTargetHint);
+        } else {
+            $pathCard.removeClass("target-generated");
+            $filePath.removeAttr("placeholder");
+        }
     }
 
     function getFilePath() {

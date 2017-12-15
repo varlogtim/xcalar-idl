@@ -16,6 +16,23 @@ window.DSTargetManager = (function($, DSTargetManager) {
         setupGridMenu();
     };
 
+    DSTargetManager.getTarget = function(targetName) {
+        return targetSet[targetName];
+    };
+
+    DSTargetManager.isGeneratedTarget = function(targetName) {
+        var target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_name === "Generated") {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    DSTargetManager.getTargetType = function(targetType) {
+        return typeSet[targetType];
+    };
+
     DSTargetManager.refreTargets = function(noWaitIcon) {
         var deferred = jQuery.Deferred();
         var updateTargetMenu = function(targets) {

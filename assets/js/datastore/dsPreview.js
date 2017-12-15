@@ -942,8 +942,12 @@ window.DSPreview = (function($, DSPreview) {
         var udfModule = "";
         var udfFunc = "";
         var udfQuery = null; // not used yet
+        var targetName = loadArgs.getTargetName();
 
-        if (format === "raw" &&
+        if (!hasUDF && DSTargetManager.isGeneratedTarget(targetName)) {
+            udfModule = "default";
+            udfFunc = "convertNewLineJsonToArrayJson";
+        } else if (format === "raw" &&
             $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
             udfModule = "default";
             if (loadArgs.useHeader()) {
@@ -1548,6 +1552,13 @@ window.DSPreview = (function($, DSPreview) {
                 toggleFormat("EXCEL");
                 sql.moduleName = udfModule;
                 sql.funcName = udfFunc;
+            } else if (DSTargetManager.isGeneratedTarget(targetName)) {
+                // special case
+                hasUDF = true;
+                udfModule = udfModule || "default";
+                udfFunc = udfFunc || "convertNewLineJsonToArrayJson";
+                sql.moduleName = udfModule;
+                sql.funcName = udfFunc;
             }
 
             if (!noDetect) {
@@ -1682,6 +1693,9 @@ window.DSPreview = (function($, DSPreview) {
     function getURLToPreview(args, curPreviewId) {
         if (!isViewFolder) {
             // single file case
+            return PromiseHelper.resolve(args.path);
+        } else if (DSTargetManager.isGeneratedTarget(args.targetName)) {
+            // target of type Generated is a special case
             return PromiseHelper.resolve(args.path);
         }
 

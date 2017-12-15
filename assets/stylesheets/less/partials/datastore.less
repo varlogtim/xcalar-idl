@@ -689,6 +689,13 @@ table.datasetTable {
 
 /* Path Card */
 #dsForm-path {
+    &.target-generated {
+        .browse {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+    }
+
     .cardMain {
         .size(@min-height: 120px);
         padding-top: 30px;

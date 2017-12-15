@@ -278,7 +278,12 @@ DSFormController.prototype = {
     },
 
     getPath: function() {
-        return this.path;
+        var path = this.path;
+        if (DSTargetManager.isGeneratedTarget(this.targetName) &&
+            path.startsWith("/")) {
+            path = path.slice(1);
+        }
+        return path;
     },
 
     getFormat: function() {

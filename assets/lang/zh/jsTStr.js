@@ -847,7 +847,8 @@ DSFormTStr = {
 'CreateWarnMsg': '创建一个含有很多列的表可能会影响系统性能，您确定要继续吗？',
 'WSColsMsg': '添加含有很多列的表至当前工作簿可能会影响系统性能, 您想创建一个新的工作表吗？',
 'NoQuoteWarn': '没有引用字符',
-'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？'
+'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？',
+'GeneratedTargetHint': '该目标的路径需为数字，代表要生成的行数'
 };
 DSParserTStr = {
 "NotSupport": '不支持解析此数据格式',
