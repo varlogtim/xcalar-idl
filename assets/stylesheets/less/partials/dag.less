@@ -760,11 +760,12 @@ html.firefox, html.microsoft {
 
         }
 
-        .lockIcon {
+        .lockIcon, &.dataStore .lockIcon.icon {
             .position(absolute, @top: 0px, @right: 0px);
             left: auto;
-            font-size: 16px;
+            font-size: 16px !important;
             z-index: 0;
+            color: @color-font-select-blue;
 
             &:after {
                 content: "";
@@ -776,6 +777,8 @@ html.firefox, html.microsoft {
                 border-radius: 3px;
             }
         }
+
+
 
         &.Cleaned, &.Dropped {
             cursor: default;

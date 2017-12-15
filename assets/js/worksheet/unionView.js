@@ -36,10 +36,14 @@ window.UnionView = (function(UnionView, $) {
             // wait for open menu panel animation
             setTimeout(function() {
                 $unionView.find(".addTable").click();
+                if (options.prefill) {
+                    restorePrefill(options.prefill);
+                }
             }, 1);
         } else {
             autoResizeView();
         }
+
 
         isOpen = true;
         formHelper.showView();
@@ -123,6 +127,28 @@ window.UnionView = (function(UnionView, $) {
             var index = getListIndex($input);
             searchColumn(keyword, index);
         });
+    }
+
+    function restorePrefill(options) {
+        debugger;
+        for (var i = 1; i < options.sourceTables.length; i++) {
+            var tId = xcHelper.getTableId(options.sourceTables[i]);
+            if (i === 1) {
+                $unionView.find(".unionTableList").last().find(".text")
+                                                .val(options.sourceTables[i]);
+                selectTable(tId, i);
+            } else {
+                addTable(tId, []);
+            }
+        }
+        // prefillInfo = {
+        //     "dedup": unionStruct.dedup,
+        //     "sourceTables": sourceTableNames,
+        //     "dest": xcHelper.getTableName(struct.dest),
+        //     "srcCols": unionStruct.renameMap,
+        //     "isLeftDroppedTable": isDroppedTable,
+        //     "isRightDroppedTable": isOtherDroppedTable
+        // };
     }
 
     function searchColumn(keyword, index) {
@@ -553,7 +579,8 @@ window.UnionView = (function(UnionView, $) {
                 }
             }
         });
-        
+
+
         gTables[tableId].tableCols.forEach(function(progCol) {
             var colName = progCol.getBackColName();
             var colType = progCol.getType();

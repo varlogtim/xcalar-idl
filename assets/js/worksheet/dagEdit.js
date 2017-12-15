@@ -57,7 +57,7 @@ window.DagEdit = (function($, DagEdit) {
                 $(".dagWrap").find(".hasEdit").removeClass("hasEdit");
                 $(".xcTableWrap").removeClass("editingDf editing");
                 $("#dagPanel").find(".dagTableTip").remove();
-                $(".dagTableWrap").removeClass(".isDownstream");
+                $(".dagTableWrap").removeClass("isDownstream");
                 DagEdit.exitForm();
 
                 xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
@@ -506,7 +506,7 @@ window.DagEdit = (function($, DagEdit) {
                 if (table && table.getAllCols().length > 1) {
                     for (var i = 0; i < struct.columns.length; i++) {
                         var colNum = table.getColNumByBackName(struct.columns[i]);
-                        if (colNum != null) {
+                        if (colNum != null && colNums > -1) {
                             colNums.push(colNum);
                         }
                     }
@@ -517,6 +517,46 @@ window.DagEdit = (function($, DagEdit) {
                         "isDroppedTable": isDroppedTable
                     }
                 });
+                break;
+            case (XcalarApisT.XcalarApiUnion):
+                var unionStruct;
+                if (params[editingNode.value.name]) {
+                    unionStruct = params[editingNode.value.name];
+                } else {
+                    unionStruct = struct;
+                }
+
+                var allTablesColNums = [];
+                for (var i = 0; i < sourceTableNames.length; i++) {
+                    var tId = xcHelper.getTableId(sourceTableNames[i]);
+                    var table;
+                    var tableColNums = [];
+                    if (gTables[tId]) {
+                        table = gTables[tId];
+                    } else {
+                        table = gDroppedTables[tId];
+                    }
+                    if (table && table.getAllCols().length > 1) {
+                        for (var j = 0; j < unionStruct.renameMap[i].length; j++) {
+                            var colNum = table.getColNumByBackName(unionStruct.renameMap[i][j].sourceColumn);
+                            if (colNum != null && colNum > -1) {
+                                tableColNums.push(colNum);
+                            }
+                        }
+                    }
+                    allTablesColNums.push(tableColNums);
+                }
+
+                prefillInfo = {
+                    "dedup": unionStruct.dedup,
+                    "sourceTables": sourceTableNames,
+                    "dest": xcHelper.getTableName(struct.dest), // XXX allow changing
+                    "srcCols": unionStruct.renameMap,
+                    "isLeftDroppedTable": isDroppedTable,
+                    "isRightDroppedTable": isOtherDroppedTable,
+                    "allTablesColNums": allTablesColNums
+                };
+                UnionView.show(tableId, allTablesColNums[0], {prefill: prefillInfo});
                 break;
             default:
                 console.log("invalid op");

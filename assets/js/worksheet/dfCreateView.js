@@ -13,6 +13,7 @@ window.DFCreateView = (function($, DFCreateView) {
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
+    var allDfTablesCache = []; // includes dropped tables
     var srcRefCounts = {}; // counts how many times a table is included as an ancestor
     var srcMap = {}; // map of src tables and their ancestors
     var $curDagWrap;
@@ -71,13 +72,16 @@ window.DFCreateView = (function($, DFCreateView) {
         var nodeIdMap = allDagInfo.nodeIdMap;
         for (var i in nodeIdMap) {
             var node = nodeIdMap[i];
-            if (node.value.state === DgDagStateT.DgDagStateReady &&
-                node.value.numParents && node.value.name.indexOf("#") > -1) {
+            if (node.value.numParents && node.value.name.indexOf("#") > -1) {
                 // exclude datasets
-                dfTablesCache.push(node.value.name);
+                if (node.value.state === DgDagStateT.DgDagStateReady) {
+                    dfTablesCache.push(node.value.name);
+                }
+                allDfTablesCache.push(node.value.name);
             }
         }
         dfTablesCache.sort();
+        allDfTablesCache.sort();
 
         var onlyIfNeeded = true;
         DagPanel.heightForTableReveal(wasMenuOpen, onlyIfNeeded);
@@ -434,7 +438,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
             $input.data("prevval", tableName);
 
-            if (dfTablesCache.indexOf(tableName) > -1) {
+            if (allDfTablesCache.indexOf(tableName) > -1) {
                 var ancestors = Dag.styleSrcTables($curDagWrap, tableName);
                 for (var i = 0; i < ancestors.length; i++) {
                     if (!srcRefCounts[ancestors[i]]) {
@@ -789,8 +793,8 @@ window.DFCreateView = (function($, DFCreateView) {
         var selectedTables = getSelectedSrcTables();
         var classNames = "";
 
-        for (var i = 0; i < dfTablesCache.length; i++) {
-            var tableName = dfTablesCache[i];
+        for (var i = 0; i < allDfTablesCache.length; i++) {
+            var tableName = allDfTablesCache[i];
             if (selectedTables.indexOf(tableName) > -1 ||
                 srcRefCounts[tableName]) {
                 classNames = " inUse";
@@ -967,8 +971,8 @@ window.DFCreateView = (function($, DFCreateView) {
 
         var invalidSrc = false;
         $dfView.find(".sourceTableWrap").find(".tableList .text").each(function(){
-            var text = $(this).text().trim();
-            if (dfTablesCache.indexOf(text) === -1) {
+            var text = $(this).val().trim();
+            if (allDfTablesCache.indexOf(text) === -1) {
                 invalidSrc = true;
                 FormHelper.scrollToElement($(this));
                 StatusBox.show("This table was not found in the selected dataflow.",
@@ -1054,6 +1058,7 @@ window.DFCreateView = (function($, DFCreateView) {
         formHelper.hideView();
         exportHelper.clear();
         dfTablesCache = [];
+        allDfTablesCache = [];
         srcRefCounts = {};
         srcMap = {};
     }

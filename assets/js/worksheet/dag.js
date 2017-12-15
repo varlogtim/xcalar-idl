@@ -1324,7 +1324,7 @@ window.Dag = (function($, Dag) {
         var isLocked;
         var noDelete;
         var needsIcon;
-        var lockHTML = '<div class="lockIcon"></div>';
+        var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
         $dagWrap.find(".dagTable").each(function() {
             $table = $(this);
             tId = $table.data('id');
