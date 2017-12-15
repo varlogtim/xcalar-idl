@@ -2306,12 +2306,12 @@
                     float: right;
 
                     &.focusTable {
-                        .position(@top: 5px);
+                        .position(@top: 4px);
                         margin-right: 10px;
                     }
 
                     &.removeTable {
-                        .position(@top: 7px);
+                        .position(@top: 6px);
                         margin-right: 5px;
                     }
                 }
@@ -2326,7 +2326,6 @@
     .resultSection {
         .resultCol {
             border: 1px solid @color-table-hoverBg-gray;
-
             &.cast {
                 height: 52px !important;
 
@@ -2338,6 +2337,13 @@
             .resultInput {
                 padding-left: 10px;
                 padding-right: 20px;
+
+
+                &:focus {
+                    .size(@width: ~"calc(100% + 4px)");
+                    .position(@left: -2px);
+                    padding-left: 11px;
+                }
             }
 
             .typeList {
@@ -2370,6 +2376,9 @@
 
             &:focus {
                 outline: 1px solid @color-bg-softBlue;
+                border: 1px solid @color-bg-white-five;
+                .size(@width: ~"calc(100% + 2px)", @height: 28px);
+                .position(relative, @top: -2px, @left: -1px);
             }
         }
 
@@ -2392,7 +2401,6 @@
 
         .searchArea {
             border: 1px solid @color-table-hoverBg-gray;
-
             &.placeholder {
                 border-color: transparent;
             }
