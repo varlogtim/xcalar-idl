@@ -308,7 +308,8 @@
     };
 
     xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist,
-         isNull) {
+                                        isNull)
+    {
         var colVals = [];
 
         for (var val in uniqueVals) {
@@ -364,7 +365,7 @@
                 if (len > 0 || isExist) {
                     str = "and(" + str + ", not(isNull(" + colName + "))";
                 } else {
-                    str = "not(isNull(" + colName + ")";
+                    str = "not(isNull(" + colName + "))";
                 }
             }
         } else {

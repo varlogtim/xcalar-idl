@@ -260,6 +260,11 @@ describe("xcHelper Test", function() {
         expect(res).to.be.an("object");
         expect(res.operator).to.be.equal(FltOp.Exclude);
         expect(res.filterString).to.be.equal("and(neq(test, 1), exists(test))");
+        // exclued case 5
+        res = xcHelper.getFilterOptions(FltOp.Exclude, "test", {}, false, true);
+        expect(res).to.be.an("object");
+        expect(res.operator).to.be.equal(FltOp.Exclude);
+        expect(res.filterString).to.be.equal("not(isNull(test))");
     });
 
     it("xcHelper.getUserPrefix should work", function() {
