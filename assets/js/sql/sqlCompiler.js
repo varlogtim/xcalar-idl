@@ -170,11 +170,10 @@
 
     var tablePrefix = "XC_TABLENAME_";
 
-    function assert(st) {
+    function assert(st, message) {
         if (!st) {
-            debugger;
             console.error("ASSERTION FAILURE!");
-            throw "BOOHOO!";
+            throw "Assertion Failure: " + message;
         }
     }
 
@@ -358,7 +357,7 @@
                 node.children[2].parent = parent;
                 break;
             case ("expressions.Like"):
-                assert(node.children.length === 2);
+                assert(node.children.length === 2, SQLTStr.LikeTwoChildren + node.children.length);
                 var strNode = node.children[1];
                 var stringRepNode = stringReplaceNode();
 
@@ -379,7 +378,7 @@
             case ("expressions.CaseWhen"):
                 if (node.value.elseValue && node.children.length % 2 !== 1) {
                     // If there's an elseValue, then num children must be odd
-                    assert(0);
+                    assert(0, SQLTStr.CaseWhenOdd + node.children.length);
                 }
                 // Check whether to use if or ifstr
                 // XXX backend to fix if and ifStr such that `if` is generic
@@ -398,7 +397,8 @@
                     node.value.elseValue && node.value.elseValue[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal") {
                     // XXX Handle case where else value is a complex expr
-                    assert(node.value.elseValue.length === 1);
+                    assert(node.value.elseValue.length === 1,
+                           SQLTStr.CaseWhenElse + node.value.elseValue.length);
                     type = node.value.elseValue[0].dataType;
                 }
                 if (type === "") {
@@ -426,11 +426,13 @@
                 }
 
                 var lastNode = curNode.parent;
-                assert(lastNode.children.length === 3);
+                assert(lastNode.children.length === 3,
+                       SQLTStr.CaseWhenLastNode + lastNode.children.length);
 
                 // has else clause
                 if (node.children.length % 2 === 1) {
-                    lastNode.children[2] =node.children[node.children.length-1];
+                    lastNode.children[2] =
+                                          node.children[node.children.length-1];
                 } else {
                     // no else clause
                     // We need to create our own terminal condition
@@ -444,10 +446,10 @@
                     lastNode.children[2] = litNode;
                 }
                 if (node.parent) {
-                    assert(idx !== undefined);
+                    assert(idx !== undefined, SQLTStr.CaseWhenParent);
                     node.parent.children[idx] = newNode;
                 } else {
-                    assert(idx === undefined);
+                    assert(idx === undefined, SQLTStr.CaseWhenIdx + idx);
                     // This must be the first level call
                     retNode = newNode;
                 }
@@ -458,7 +460,8 @@
 
                 // Note: The first OR node or the ONLY eq node will be the root
                 // of the tree
-                assert(node.children.length >= 2);
+                assert(node.children.length >= 2,
+                       SQLTStr.InChildrenLength + node.children.length);
                 var prevOrNode;
                 var newEqNode;
                 retNode = undefined;
@@ -493,10 +496,10 @@
                 }
 
                 if (node.parent) {
-                    assert(idx !== undefined);
+                    assert(idx !== undefined, SQLTStr.CaseWhenParent);
                     node.parent.children[idx] = retNode;
                 } else {
-                    assert(idx === undefined);
+                    assert(idx === undefined, SQLTStr.CaseWhenIdx + idx);
                     // This must be the first level call
                 }
                 break;
@@ -510,10 +513,15 @@
                 // If extractAggregates is true, then we need to cut the tree
                 // here and construct a different tree
                 if (idx !== undefined && options && options.extractAggregates) {
-                    assert(node.children.length === 1);
+                    assert(node.children.length === 1,
+                         SQLTStr.AggregateExpressionOne + node.children.length);
                     assert(node.children[0].value.class
-                                        .indexOf("expressions.aggregate.") > 0);
-                    assert(node.children[0].children.length === 1);
+                                        .indexOf("expressions.aggregate.") > 0,
+                           SQLTStr.AggregateFirstChildClass +
+                           node.children[0].value.class);
+                    assert(node.children[0].children.length === 1,
+                            SQLTStr.AggregateChildrenLength +
+                            node.children[0].children.length);
                     // We need to cut the tree at this node, and instead of
                     // having a child, remove the child and assign it as an
                     // aggregateTree
@@ -529,7 +537,8 @@
                 // The result of the subquery should be a single value
                 // So an Aggregate node should be the first in the plan
                 assert(node.value.plan[0].class ===
-                       "org.apache.spark.sql.catalyst.plans.logical.Aggregate");
+                       "org.apache.spark.sql.catalyst.plans.logical.Aggregate",
+                       SQLTStr.SubqueryAggregate + node.value.plan[0].class);
                 node.value.plan[0].class =
                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
                 var subqueryTree = SQLCompiler.genTree(undefined,
@@ -549,12 +558,16 @@
                 // "yyyy-[m]m-[d]d *"
                 // "yyyy-[m]m-[d]dT*"
                 // timestamp
-                assert(node.children.length === 1 &&
-                       node.children[0].value.class ===
-                       "org.apache.spark.sql.catalyst.expressions.Cast");
+                assert(node.children.length === 1,
+                       SQLTStr.YMDLength + node.children.length);
+                assert(node.children[0].value.class ===
+                       "org.apache.spark.sql.catalyst.expressions.Cast",
+                       SQLTStr.YMDCast + node.children[0].value.class);
                 var dateCastNode = node.children[0];
-                assert(dateCastNode.value.dataType === "date" &&
-                       dateCastNode.children.length === 1);
+                assert(dateCastNode.value.dataType === "date",
+                       SQLTStr.YMDDataType + dateCastNode.value.dataType);
+                assert(dateCastNode.children.length === 1,
+                       SQLTStr.YMDChildLength);
 
                 // Prepare three children for the node
                 var cutIndex = ["Year", "Month", "DayOfMonth"]
@@ -568,13 +581,16 @@
                 if (childNode.value.class === "org.apache.spark.sql.catalyst." +
                                              "expressions.AttributeReference") {
                     // If the child is a column, it must be of string type
-                    assert(childNode.value.dataType === "string");
+                    assert(childNode.value.dataType === "string",
+                           SQLTStr.YMDString + childNode.value.dataType);
                     dateNode = stringToDateNode(childNode);
                 } else {
                     // Otherwise, it has to be another cast node of str/ts type
                     assert(childNode.value.class ===
-                           "org.apache.spark.sql.catalyst.expressions.Cast" &&
-                           childNode.children.length === 1);
+                           "org.apache.spark.sql.catalyst.expressions.Cast",
+                           SQLTStr.YMDGrandCast + childNode.value.class);
+                    assert(childNode.children.length === 1,
+                           SQLTStr.YMDGrandLength + childNode.children.length);
                     if (childNode.value.dataType === "string") {
                         dateNode = stringToDateNode(childNode.children[0]);
                     } else if (childNode.value.dataType === "timestamp") {
@@ -592,7 +608,8 @@
                         }
                     } else {
                         // Other cases should have been rejected by spark
-                        assert(0);
+                        assert(0,
+                               SQLTStr.YMDIllegal + childNode.value.dataType);
                     }
                 }
                 node.children = [dateNode, cutIndexNode, delimNode];
@@ -871,7 +888,8 @@
             return outDeferred.promise();
         },
         _pushDownIgnore: function(node) {
-            assert(node.children.length === 1);
+            assert(node.children.length === 1,
+                   SQLTStr.IgnoreOneChild + node.children.length);
             return PromiseHelper.resolve({
                 "newTableName": node.children[0].newTableName,
             });
@@ -882,7 +900,8 @@
             // resolved already
             var self = this;
             var deferred = jQuery.Deferred();
-            assert(node.children.length === 1);
+            assert(node.children.length === 1,
+                   SQLTStr.ProjectOneChild + node.children.length);
             var tableName = node.children[0].newTableName;
             // Find columns to project
             var columns = [];
@@ -892,7 +911,8 @@
             genMapArray(node.value.projectList, columns, evalStrArray,
                         aggEvalStrArray, options);
             // I don't think the below is possible with SQL...
-            assert(aggEvalStrArray.length === 0);
+            assert(aggEvalStrArray.length === 0,
+                   SQLTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
 
             // Change node.usrCols & node.renamedColIds
             node.usrCols = columns;
@@ -940,9 +960,12 @@
         _pushDownGlobalLimit: function(node) {
             var self = this;
             var deferred = jQuery.Deferred();
-            assert(node.children.length === 1);
-            assert(node.value.limitExpr.length === 1);
-            assert(node.value.limitExpr[0].dataType === "integer");
+            assert(node.children.length === 1,
+                   SQLTStr.GLChild + node.children.length);
+            assert(node.value.limitExpr.length === 1,
+                   SQLTStr.GLLength + node.value.limitExpr.length);
+            assert(node.value.limitExpr[0].dataType === "integer",
+                   SQLTStr.GLDataType + node.value.limitExpr[0].dataType);
 
             function getPreviousSortOrder(curNode) {
                 if (!curNode) {
@@ -1004,7 +1027,8 @@
         _pushDownFilter: function(node) {
             var self = this;
             var deferred = jQuery.Deferred();
-            assert(node.children.length === 1);
+            assert(node.children.length === 1,
+                   SQLTStr.FilterLength + node.children.length);
             var treeNode = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0), {extractAggregates: true});
 
