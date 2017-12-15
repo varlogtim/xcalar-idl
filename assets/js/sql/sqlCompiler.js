@@ -667,9 +667,10 @@
                         deferred.resolve(JSON.parse(JSON.parse(data.stdout)
                                                         .sqlQuery));
                     } catch (e) {
-                        deferred.reject(e);
-                        console.error(e);
-                        console.error(data.stdout);
+                        deferred.reject(data.stdout);
+                        // console.error(e);
+                        // console.error(data.stdout);
+                        // throw data.stdout;
                     }
                 } else {
                     deferred.reject(data);
@@ -754,6 +755,15 @@
         }
         return newNode;
     };
+
+    function countNumNodes(tree) {
+        var count = 1;
+        for (var i = 0; i < tree.children.length; i++) {
+            count += countNumNodes(tree.children[i]);
+        }
+        return count;
+    }
+
     SQLCompiler.genExpressionTree = function(parent, array, options) {
         return secondTraverse(SQLCompiler.genTree(parent, array), undefined,
                               options);
@@ -774,7 +784,7 @@
         function pushDown(treeNode) {
             var deferred = jQuery.Deferred();
             var retStruct;
-
+            SQLEditor.updateProgress();
             var treeNodeClass = treeNode.value.class.substring(
                 "org.apache.spark.sql.catalyst.plans.logical.".length);
             switch (treeNodeClass) {
@@ -862,6 +872,10 @@
                     pushUpCols(tree);
                     tree = newNode;
                 }
+
+                var numNodes = countNumNodes(tree);
+                SQLEditor.startCompile(numNodes);
+
                 var promiseArray = traverseAndPushDown(self, tree);
                 PromiseHelper.chain(promiseArray)
                 .then(function() {
@@ -877,6 +891,7 @@
                     var queryString = "[" + cliArray.join(",") + "]";
                     // queryString = queryString.replace(/\\/g, "\\");
                     // console.log(queryString);
+                    SQLEditor.startExecution();
                     self.sqlObj.run(queryString, tree.newTableName,tree.usrCols)
                     .then(outDeferred.resolve)
                     .fail(outDeferred.reject);

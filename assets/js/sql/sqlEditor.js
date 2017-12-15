@@ -1,5 +1,6 @@
 window.SQLEditor = (function(SQLEditor, $) {
     var editor;
+    var $sqlButton = $("#sqlExecute");
 
     SQLEditor.setup = function() {
         setupEditor();
@@ -14,6 +15,28 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.getEditor = function() {
         return editor;
+    };
+
+    SQLEditor.startCompile = function(numSteps) {
+        $sqlButton.addClass("btn-disabled");
+        $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
+    };
+
+    SQLEditor.startExecution = function() {
+        $sqlButton.find(".text").html("Executing... ");
+    };
+
+    SQLEditor.updateProgress = function() {
+        var buttonText = $sqlButton.find(".text").html();
+        var numCurSteps = buttonText.substring(13, buttonText.indexOf("/"));
+        var backPart = buttonText.substring(buttonText.indexOf("/"));
+        numCurSteps++;
+        $sqlButton.find(".text").html("Compiling... " + numCurSteps + backPart);
+    };
+
+    SQLEditor.resetProgress = function() {
+        $sqlButton.removeClass("btn-disabled");
+        $sqlButton.find(".text").html("EXECUTE SQL"); // XXX Change to variable
     };
 
     function setupEditor() {
@@ -47,7 +70,39 @@ window.SQLEditor = (function(SQLEditor, $) {
         var sql = editor.getValue();
         sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
-        sqlCom.compile(sql);
+        try {
+            $("#sqlExecute").addClass("btn-disabled");
+            sqlCom.compile(sql)
+            .always(function() {
+                SQLEditor.resetProgress();
+            })
+            .fail(function() {
+                var errorMsg = "";
+                if (arguments.length === 1) {
+                    if (typeof(arguments[0]) === "string") {
+                        errorMsg = arguments[0];
+                        if (errorMsg.indexOf("exceptionMsg") > -1 &&
+                            errorMsg.indexOf("exceptionName") > -1) {
+                            var errorObject = JSON.parse(errorMsg);
+                            errorMsg = errorObject.exceptionName.substring(
+                                       errorObject.exceptionName
+                                                 .lastIndexOf(".") + 1) + "\n" +
+                                       errorObject.exceptionMsg;
+                        }
+                    } else {
+                        errorMsg = JSON.stringify(arguments[0]);
+                    }
+                } else {
+                    errorMsg = JSON.stringify(arguments);
+                }
+                Alert.show({title: "SQL Error",
+                           msg: errorMsg});
+            });
+        } catch(e) {
+            SQLEditor.resetProgress();
+            Alert.show({title: "Compilation Error",
+                        msg: "Error details: " + JSON.stringify(e)});
+        }
     }
 
     return SQLEditor;
