@@ -13,7 +13,6 @@ window.DFCreateView = (function($, DFCreateView) {
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
-    var allDfTablesCache = []; // includes dropped tables
     var srcRefCounts = {}; // counts how many times a table is included as an ancestor
     var srcMap = {}; // map of src tables and their ancestors
     var $curDagWrap;
@@ -77,11 +76,9 @@ window.DFCreateView = (function($, DFCreateView) {
                 if (node.value.state === DgDagStateT.DgDagStateReady) {
                     dfTablesCache.push(node.value.name);
                 }
-                allDfTablesCache.push(node.value.name);
             }
         }
         dfTablesCache.sort();
-        allDfTablesCache.sort();
 
         var onlyIfNeeded = true;
         DagPanel.heightForTableReveal(wasMenuOpen, onlyIfNeeded);
@@ -438,7 +435,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
             $input.data("prevval", tableName);
 
-            if (allDfTablesCache.indexOf(tableName) > -1) {
+            if (dfTablesCache.indexOf(tableName) > -1) {
                 var ancestors = Dag.styleSrcTables($curDagWrap, tableName);
                 for (var i = 0; i < ancestors.length; i++) {
                     if (!srcRefCounts[ancestors[i]]) {
@@ -594,7 +591,6 @@ window.DFCreateView = (function($, DFCreateView) {
     function removeSrcTable($tableListSection) {
         var prevTableName = $tableListSection.find("input").val();
         $tableListSection.remove();
-
         if (srcMap[prevTableName]) {
             var multipleFound = false;
             $dfView.find(".sourceTableWrap").find(".tableList .text").each(function() {
@@ -615,7 +611,7 @@ window.DFCreateView = (function($, DFCreateView) {
                         $dagTable = Dag.getTableIconByName($curDagWrap,
                                                         prevAncestors[i]);
                         $dagTable.closest(".dagTableWrap")
-                                 .removeClass("isSourceDescendant");
+                                 .removeClass("isAncestor");
                         delete srcRefCounts[prevAncestors[i]];
                     }
                 }
@@ -788,16 +784,24 @@ window.DFCreateView = (function($, DFCreateView) {
         return tableList;
     }
 
-    function getSrcTableListHtml() {
+    function getSrcTableListHtml(tName) {
         var tableList = "";
         var selectedTables = getSelectedSrcTables();
         var classNames = "";
 
-        for (var i = 0; i < allDfTablesCache.length; i++) {
-            var tableName = allDfTablesCache[i];
-            if (selectedTables.indexOf(tableName) > -1 ||
-                srcRefCounts[tableName]) {
+        for (var i = 0; i < dfTablesCache.length; i++) {
+            var tableName = dfTablesCache[i];
+            if (selectedTables.indexOf(tableName) > -1) {
                 classNames = " inUse";
+            } else if (srcRefCounts[tableName]) {
+                // if only has one reference and its from the current table
+                // then it's ok to allow on list
+                if (srcRefCounts[tableName] === 1 &&
+                    srcMap[tName] && srcMap[tName].indexOf(tableName) > -1) {
+                    classNames = "";
+                } else {
+                    classNames = " inUse";
+                }
             } else {
                 classNames = "";
             }
@@ -815,7 +819,7 @@ window.DFCreateView = (function($, DFCreateView) {
     function fillTableLists($tableDropdown) {
         var tableLis = getTableListHtml();
         $tableDropdown.find("ul").html(tableLis);
-        tableName = $tableDropdown.find(".text").val();
+        var tableName = $tableDropdown.find(".text").val();
         $tableDropdown.find("li").filter(function() {
             return ($(this).text() === tableName);
         }).addClass("selected");
@@ -823,9 +827,9 @@ window.DFCreateView = (function($, DFCreateView) {
 
 
     function fillSrcTableLists($tableDropdown) {
-        var tableLis = getSrcTableListHtml();
+        var tableName = $tableDropdown.find(".text").val();
+        var tableLis = getSrcTableListHtml(tableName);
         $tableDropdown.find("ul").html(tableLis);
-        tableName = $tableDropdown.find(".text").val();
         $tableDropdown.find("li").filter(function() {
             return ($(this).text() === tableName);
         }).addClass("selected");
@@ -972,7 +976,7 @@ window.DFCreateView = (function($, DFCreateView) {
         var invalidSrc = false;
         $dfView.find(".sourceTableWrap").find(".tableList .text").each(function(){
             var text = $(this).val().trim();
-            if (allDfTablesCache.indexOf(text) === -1) {
+            if (dfTablesCache.indexOf(text) === -1) {
                 invalidSrc = true;
                 FormHelper.scrollToElement($(this));
                 StatusBox.show("This table was not found in the selected dataflow.",
@@ -1058,7 +1062,6 @@ window.DFCreateView = (function($, DFCreateView) {
         formHelper.hideView();
         exportHelper.clear();
         dfTablesCache = [];
-        allDfTablesCache = [];
         srcRefCounts = {};
         srcMap = {};
     }

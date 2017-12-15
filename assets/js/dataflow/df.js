@@ -404,7 +404,7 @@ window.DF = (function($, DF) {
         }
 
         for (var i = 0; i < srcTables.length; i++) {
-            var retinaSrcTable = new XcalarApiRetinaSrc({source: srcTables[i],
+            var retinaSrcTable = new XcalarApiRetinaSrcTableT({source: srcTables[i],
                                                         dstName: srcTables[i]});
             srcTableArray.push(retinaSrcTable);
         }

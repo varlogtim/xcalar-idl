@@ -1051,6 +1051,9 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.getTableIconByName = function($dagWrap, tableName) {
+        if (tableName.indexOf(gDSPrefix) === 0) {
+            tableName = tableName.slice(gDSPrefix.length);
+        }
         return $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]');
     };
 
