@@ -454,6 +454,12 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
         });
 
+        // cross join only
+        $joinView.on('input', ".crossJoinFilter input", function() {
+            updatePreviewText();
+            resetJoinEstimator();
+        });
+
         // clause section
         $joinView.on('focus', '.clause', function() {
             $lastInputFocused = $(this);
@@ -499,6 +505,7 @@ window.JoinView = (function($, JoinView) {
         });
 
         addCastDropDownListener();
+
 
         // ***** actions available in SECOND step
 
@@ -620,7 +627,7 @@ window.JoinView = (function($, JoinView) {
             if (options.prefill.isRightDroppedTable) {
                 rTable = gDroppedTables[rTId];
             } else {
-                rTable = gTables[rTId]
+                rTable = gTables[rTId];
             }
         } else if (!restore) {
             lTable = gTables[tableId];
@@ -688,13 +695,12 @@ window.JoinView = (function($, JoinView) {
             addClause(true, null, null, cols);
         }
 
-
-        // var joinType = options.joinType.toLowerCase().replace(/\s/g, "");
         var joinTextMap = {
             "innerJoin": "Inner Join",
             "leftJoin": "Left Outer Join",
             "rightJoin": "Right Outer Join",
-            "fullOuterJoin": "Full Outer Join"
+            "fullOuterJoin": "Full Outer Join",
+            "crossJoin": "Cross Join"
         };
         var joinType = joinTextMap[options.joinType];
         $joinTypeSelect.find("li").filter(function() {
@@ -702,6 +708,9 @@ window.JoinView = (function($, JoinView) {
         }).trigger(fakeEvent.mouseup);
 
         $joinTableName.val(options.dest);
+
+        $joinView.find(".crossJoinFilter input").val(options.evalString);
+        updatePreviewText();
     }
 
     JoinView.close = function() {
@@ -1085,6 +1094,16 @@ window.JoinView = (function($, JoinView) {
 
     function checkFirstViewValid() {
         if (isCrossJoin()) {
+            var filterEvalString = $joinView.find(".crossJoinFilter input")
+                                            .val().trim();
+            if (filterEvalString.length > 0 &&
+                (filterEvalString.indexOf("(") === -1 ||
+                 filterEvalString.indexOf(")") === -1)) {
+                showErrorTooltip($joinView.find(".crossJoinFilter input"),
+                                 {title: "Filter string must be a valid " +
+                                         "xcalar eval string."});
+                return false;
+            }
             return true;
         }
         var joinKeys = getJoinKeys();
@@ -1311,7 +1330,14 @@ window.JoinView = (function($, JoinView) {
                 maxSum: totalRows,
                 expSum: totalRows
             };
-
+            if ($joinView.find(".crossJoinFilter input").val().trim()
+                                                        .length > 0) {
+                joinEstInfo = {
+                    minSum: 0,
+                    maxSum: totalRows,
+                    expSum: totalRows/2
+                };
+            }
             promise = PromiseHelper.resolve(joinEstInfo);
         } else {
             var cols = getClauseCols();
@@ -1643,9 +1669,8 @@ window.JoinView = (function($, JoinView) {
         $origNames.each(function(index) {
             var origName = $(this).val();
             var newName = $newNames.eq(index).val();
-            var type = isFatptr
-                       ? DfFieldTypeT.DfFatptr
-                       : DfFieldTypeT.DfUnknown;
+            var type = isFatptr ?
+                       DfFieldTypeT.DfFatptr : DfFieldTypeT.DfUnknown;
             renameArray.push({
                 "orig": origName,
                 "new": newName,
@@ -1674,6 +1699,14 @@ window.JoinView = (function($, JoinView) {
             "formOpenTime": formHelper.getOpenTime()
         };
 
+        var fltString = "";
+        if (joinType === "Cross Join") {
+            fltString = $joinView.find(".crossJoinFilter input").val().trim();
+            if (fltString.length > 0) {
+                options.filterEvalString = fltString;
+            }
+        }
+
         JoinView.close();
 
         var origFormOpenTime = formHelper.getOpenTime();
@@ -1682,10 +1715,12 @@ window.JoinView = (function($, JoinView) {
             DagEdit.store({
                 args: {
                     joinType: joinType,
+                    evalString: fltString
                 },
                 indexFields: [lJoinInfo.colNames, rJoinInfo.colNames]
             });
         } else {
+
             xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
             .then(function(finalTableName) {
                 submitJoinKeyData(joinKeyDataToSubmit);
@@ -2364,6 +2399,7 @@ window.JoinView = (function($, JoinView) {
         $joinView.removeClass('nextStep');
         $("#container").removeClass("joinState2");
         $joinTableName.val("");
+        $joinView.find(".crossJoinFilter input").val("");
         resetRenames();
         $joinView.find(".tableListSection .arg").data("val", "");
     }
@@ -2540,6 +2576,13 @@ window.JoinView = (function($, JoinView) {
         var crossJoin = isCrossJoin();
         if (!crossJoin) {
             previewText += '<br/><span class="keyword">ON </span>';
+        } else {
+            var whereClause = $joinView.find(".crossJoinFilter input").val()
+                                                                      .trim();
+            if (whereClause.length > 0) {
+                previewText += '<br/><span class="keyword">WHERE </span>';
+                previewText += whereClause;
+            }
         }
 
         var columnPairs = [];

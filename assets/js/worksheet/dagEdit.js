@@ -291,7 +291,8 @@ window.DagEdit = (function($, DagEdit) {
             params[editingNode.value.name].eval[mapIndex] = info.args.eval[0];
             params[editingNode.value.name].icv = info.args.icv;
         } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
-            params[editingNode.value.name] = {joinType: info.args.joinType};
+            params[editingNode.value.name] = {joinType: info.args.joinType,
+                                              evalString: info.args.evalString};
         } else {
             params[editingNode.value.name] = info.args;
         }
@@ -457,12 +458,14 @@ window.DagEdit = (function($, DagEdit) {
                 //     indexedFields = node.value.indexedFields;
                 // }
 
+
                 var prefillInfo = {
                     "joinType": joinStruct.joinType,
                     "rightTable": sourceTableNames[1],
                     "dest": xcHelper.getTableName(struct.dest),
                     "srcCols": node.value.indexedFields,
-                    "evalStr": struct.evalStr,
+                    "evalStr": joinStruct.evalStr,
+                    "evalString": joinStruct.evalString,
                     "isLeftDroppedTable": isDroppedTable,
                     "isRightDroppedTable": isOtherDroppedTable
                 };
@@ -735,6 +738,7 @@ window.DagEdit = (function($, DagEdit) {
           ],
           "dest": "hre#p7311",
           "joinType": "innerJoin",
+          "evalString": "",
           "renameMap": [
             [],
             []

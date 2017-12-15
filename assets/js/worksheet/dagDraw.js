@@ -1664,6 +1664,9 @@ window.DagDraw = (function($, DagDraw) {
             case ("right"):
                 iconClass = "join-rightouter";
                 break;
+            case ("cross"):
+                iconClass = "join-outer";
+                break;
             default:
                 iconClass = "join-inner";
                 break;
@@ -2012,17 +2015,29 @@ window.DagDraw = (function($, DagDraw) {
 
         info.tooltip = joinText + " Join between table &quot;" +
                        parentNames[0] + "&quot; and table &quot;" +
-                       parentNames[1] + "&quot; where ";
+                       parentNames[1] + "&quot;";
         var invalidColFound = false;
-        for (var i = 0; i < lSrcCols.length; i++) {
-            if (i > 0) {
-                info.tooltip += ", " ;
+
+        if (joinType === "cross") {
+            if (value.evalString) {
+                info.tooltip += "<br>Filter: " + value.evalString;
+            } else {
+                invalidColFound = false;
             }
-            info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
-            if (!lSrcCols[i] || !rSrcCols[i]) {
-                invalidColFound = true;
+        } else {
+            info.tooltip += " where ";
+            for (var i = 0; i < lSrcCols.length; i++) {
+                if (i > 0) {
+                    info.tooltip += ", " ;
+                }
+                info.tooltip += lSrcCols[i] + " = " + rSrcCols[i];
+                if (!lSrcCols[i] || !rSrcCols[i]) {
+                    invalidColFound = true;
+                }
             }
         }
+
+
         if (invalidColFound) {
             info.tooltip = joinText + " Join between table &quot;" +
                        parentNames[0] + "&quot; and table &quot;" +

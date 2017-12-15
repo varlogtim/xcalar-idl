@@ -767,12 +767,14 @@ window.DagFunction = (function($, DagFunction) {
 
         var commentsToNamesMap = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
-            if (treeNodesToRerun[i].value.comment &&
-                !commentsToNamesMap[treeNodesToRerun[i].value.comment]) {
-                commentsToNamesMap[treeNodesToRerun[i].value.comment] = [];
-            }
-            commentsToNamesMap[treeNodesToRerun[i].value.comment].push(
+            var comment = treeNodesToRerun[i].value.comment;
+            if (comment) {
+                if (!commentsToNamesMap[comment]) {
+                    commentsToNamesMap[comment] = [];
+                }
+                commentsToNamesMap[comment].push(
                                         treeNodesToRerun[i].value.struct.dest);
+            }
         }
 
         var sql = {

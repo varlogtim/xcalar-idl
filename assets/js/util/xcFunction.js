@@ -403,6 +403,7 @@ window.xcFunction = (function($, xcFunction) {
     // options:
     //          keepTables: boolean, if true will keep src tables in worksheet
     //          formOpenTime: int, used when undoing
+    //          filterEvalString: string, used only for cross joins
     xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo, newTableName,
                                options)
     {
@@ -501,6 +502,10 @@ window.xcFunction = (function($, xcFunction) {
         var joinOpts = {
             "newTableName": newTableName
         };
+
+        if (options.filterEvalString) {
+            joinOpts.evalString = options.filterEvalString;
+        }
 
         XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
         .then(function(finalTableName, finalTableCols) {
