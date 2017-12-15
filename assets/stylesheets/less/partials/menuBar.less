@@ -175,11 +175,11 @@
         }
         &.jsonModalOpen {
             z-index: @z-index-modal;
-            .ui-resizable-handle {
+            > .ui-resizable-handle {
                 display: none !important;
                 z-index: -1;
             }
-            .ui-resizable-handle.ui-resizable-e {
+            > .ui-resizable-handle.ui-resizable-e {
                 display: none !important;
                 z-index: -1;
             }
@@ -202,7 +202,7 @@
         .minimizedContent {
             display: block;
         }
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             display: none !important;
         }
     }
@@ -211,7 +211,7 @@
         box-shadow: 0px 0px 3px rgba(0,0,0,0.1);
     }
 
-    .ui-resizable-handle {
+    > .ui-resizable-handle {
         z-index: @z-index-topMenu !important; // should sit behind worksheetTabMenu
     }
 
@@ -512,7 +512,7 @@
 
     &.open {
         .position(@left: @width-menuBar);
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             &.ui-resizable-e {
                 display: block !important;
                 right: -12px; // more space for scrollbar area
@@ -538,7 +538,7 @@
             .cursor-move;
         }
 
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             display: block !important;
         }
 
@@ -555,11 +555,11 @@
 
     &.jsonModalOpen {
         z-index: @z-index-modal;
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             display: none !important;
         }
         &.open {
-           .ui-resizable-handle.ui-resizable-e {
+           > .ui-resizable-handle.ui-resizable-e {
                 display: none !important;
                 z-index: -1;
            }
@@ -575,7 +575,7 @@
         }
     }
 
-    .ui-resizable-handle {
+    > .ui-resizable-handle {
         display: none !important;
         z-index: 20 !important;
         &.ui-resizable-e {

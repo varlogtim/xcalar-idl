@@ -151,23 +151,15 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var numNodes;
         var prevIteration = curIteration;
         var promise;
-        var oldData;
 
         if (needsTableUsageCall()) {
-            promise = XcalarGetMemoryUsage(userIdName, userIdUnique);
-            hasTableUsageChange = false;
+            promise = getMemUsage();
         } else {
-            promise = PromiseHelper.resolve(tableUsage);
-            oldData = true;
+            promise = PromiseHelper.resolve();
         }
 
         promise
-        .then(function(userMemory) {
-            if (!oldData) {
-                lastTableUsageTime = Date.now();
-                tableUsage = getTableUsage(userMemory.userMemory.sessionMemory);
-            }
-
+        .then(function() {
             return XcalarApiTop();
         })
         .then(function(apiTopResult) {
@@ -211,11 +203,29 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return deferred.promise();
     }
 
+    // will always resolve
+    function getMemUsage() {
+        hasTableUsageChange = false;
+        var deferred = jQuery.Deferred();
+        XcalarGetMemoryUsage(userIdName, userIdUnique)
+        .then(function(userMemory) {
+            lastTableUsageTime = Date.now();
+            tableUsage = getTableUsage(userMemory.userMemory.sessionMemory);
+            deferred.resolve();
+        })
+        .fail(function() {
+            tableUsage = 0;
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
+
     function needsTableUsageCall() {
         // only update memusage if change detected AND
         // first time, screen is visible, or interval is infrequent
         // AND it's been at least 10 seconds since last call
         return (hasTableUsageChange &&
+                WorkbookManager.getActiveWKBK() != null &&
                 ($("#monitor-system").is(":visible") || freshData ||
                 intervalTime > 19999) &&
                 (Date.now() - lastTableUsageTime > 10000));
