@@ -12,17 +12,6 @@ window.DagEdit = (function($, DagEdit) {
     var descendantRefCounts = {}; // counts how many times a table is included as a descendant
     var descendantMap = {}; // map of edited tables and their descendant
 
-    // XXX temporary
-    DagEdit.on = function() {
-        $("#dagPanel").addClass("on");
-    };
-    // XXX temporary
-    DagEdit.off = function() {
-        $("#dagPanel").removeClass("on");
-    };
-
-    // DagEdit.on();
-
     DagEdit.getInfo = function() {
         return {
             params: params,
@@ -506,7 +495,7 @@ window.DagEdit = (function($, DagEdit) {
                 if (table && table.getAllCols().length > 1) {
                     for (var i = 0; i < struct.columns.length; i++) {
                         var colNum = table.getColNumByBackName(struct.columns[i]);
-                        if (colNum != null && colNums > -1) {
+                        if (colNum != null && colNum > -1) {
                             colNums.push(colNum);
                         }
                     }
