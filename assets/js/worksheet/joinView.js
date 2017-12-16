@@ -613,6 +613,7 @@ window.JoinView = (function($, JoinView) {
             return;
         }
         formHelper.showView();
+        updateFormTitles(options);
 
         isEditMode = options.prefill ? true : false;
         if (options.prefill) {
@@ -2726,6 +2727,19 @@ window.JoinView = (function($, JoinView) {
             }
             $el.find(".newName").val(val);
         });
+    }
+
+    function updateFormTitles(options) {
+        var titleName = "Join";
+        var submitText;
+        if (options.prefill) {
+            titleName = "EDIT " + titleName;
+            submitText = "SAVE";
+        } else {
+            submitText = titleName.toUpperCase();
+        }
+        $joinView.find('header .title').text(titleName);
+        $joinView.find('.confirm').text(submitText);
     }
 
     /* Unit Test Only */

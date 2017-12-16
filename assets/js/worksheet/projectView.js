@@ -34,6 +34,7 @@ window.ProjectView = (function($, ProjectView) {
             return;
         }
         formHelper.showView();
+        updateFormTitles(options);
 
         isEditMode = options.prefill ? true : false;
         if (options.prefill && options.prefill.isDroppedTable) {
@@ -531,6 +532,20 @@ window.ProjectView = (function($, ProjectView) {
                                             .find('.checkbox')
                                             .addClass('checked');
         }
+    }
+
+
+    function updateFormTitles(options) {
+        var titleName = "Project";
+        var submitText;
+        if (options.prefill) {
+            titleName = "EDIT " + titleName;
+            submitText = "SAVE";
+        } else {
+            submitText = titleName.toUpperCase();
+        }
+        $projectView.find('.title').text(titleName);
+        $projectView.find('.confirm').text(submitText);
     }
 
     function submitForm() {

@@ -635,7 +635,8 @@ window.DagPanel = (function($, DagPanel) {
                 });
             } else if (!$opWrap.hasClass("groupBy") && !$opWrap.hasClass("map") &&
                 !$opWrap.hasClass("filter") && !$opWrap.hasClass("join") &&
-                !$opWrap.hasClass("aggregate") && !$opWrap.hasClass("project")) {
+                !$opWrap.hasClass("aggregate") && !$opWrap.hasClass("project") &&
+                !$opWrap.hasClass("union")) {
                 $menu.find(".editOp").addClass("unavailable");
                 xcTooltip.add($menu.find(".editOp"), {
                     title: DFTStr.NoEditSupported
@@ -784,7 +785,7 @@ window.DagPanel = (function($, DagPanel) {
             var tableName = gTables[tableId].getName();
             var edits = DagEdit.getInfo();
 
-            if (!Object.keys(edits.params).length &&
+            if (!Object.keys(edits.structs).length &&
                 !Object.keys(edits.newNodes).length) {
                 Alert.error("No edits", "No edits were detected.");
             } else {
@@ -794,7 +795,7 @@ window.DagPanel = (function($, DagPanel) {
                     "onConfirm": function() {
                         DagEdit.toggle(null, true);
                         TblFunc.focusTable(tableId);
-                        DagFunction.runProcedureWithParams(tableName, edits.params, edits.newNodes);
+                        DagFunction.runProcedureWithParams(tableName, edits.structs, edits.newNodes);
                     }
                 });
             }

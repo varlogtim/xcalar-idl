@@ -514,10 +514,10 @@ window.xcFunction = (function($, xcFunction) {
             var refreshOptions = {};
             if (!options.keepTables) {
                 tablesToReplace = [lTableName, rTableName];
-            } else {
-                focusOnTable = scrollChecker.checkScroll();
-                refreshOptions = {"focusWorkspace": focusOnTable};
             }
+            focusOnTable = scrollChecker.checkScroll();
+            refreshOptions = {"focusWorkspace": focusOnTable};
+
             return TblManager.refreshTable([finalTableName], finalTableCols,
                                         tablesToReplace, worksheet, txId,
                                         refreshOptions);

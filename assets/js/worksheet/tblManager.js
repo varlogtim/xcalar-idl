@@ -410,7 +410,7 @@ window.TblManager = (function($, TblManager) {
         var tableType;
         var tableId = xcHelper.getTableId(tableName);
         if (gTables[tableId]) {
-            if (gTables[tableId].status === TableType.Active) {
+            if (gTables[tableId].IsActive()) {
                 $('#workspaceTab').click();
                 wsId = WSManager.getWSFromTable(tableId);
                 var $wsListItem = $('#worksheetTab-' + wsId);
@@ -442,7 +442,7 @@ window.TblManager = (function($, TblManager) {
 
             //xx currently we won't allow focusing on undone tables
             if (tableType === TableType.Undone) {
-                deferred.reject({tableType: tableType});
+                deferred.reject({tableType: tableType, notFound: true});
             } else {
                 $('#workspaceTab').click();
                 wsId = WSManager.getActiveWS();
@@ -451,7 +451,9 @@ window.TblManager = (function($, TblManager) {
                 .then(function() {
                     deferred.resolve({tableFromInactive: true});
                 })
-                .fail(deferred.reject);
+                .fail(function() {
+                    deferred.reject({notFound: true});
+                });
             }
         } else {
             XcalarGetTables(tableName)
@@ -466,7 +468,7 @@ window.TblManager = (function($, TblManager) {
                     })
                     .fail(deferred.reject);
                 } else {
-                    deferred.reject();
+                    deferred.reject({notFound: true});
                 }
             });
         }
@@ -508,7 +510,7 @@ window.TblManager = (function($, TblManager) {
         if (!options.noFocusWS) {
             var activeWS = WSManager.getActiveWS();
             if (activeWS !== wsId) {
-                WSManager.focusOnWorksheet(wsId);
+                WSManager.focusOnWorksheet(wsId, null, tableId);
             }
         }
 

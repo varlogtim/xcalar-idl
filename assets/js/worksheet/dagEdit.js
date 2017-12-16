@@ -1,6 +1,6 @@
 window.DagEdit = (function($, DagEdit) {
     var isEditMode = false;
-    var params = {};
+    var structs = {}; // structs that are edited
     var editingNode;
     var treeNode;
     var linkedNodes = {}; // nodes that depend on each other, example: groupby
@@ -14,7 +14,7 @@ window.DagEdit = (function($, DagEdit) {
 
     DagEdit.getInfo = function() {
         return {
-            params: params,
+            structs: structs,
             newNodes: newNodes
         };
     };
@@ -25,7 +25,7 @@ window.DagEdit = (function($, DagEdit) {
 
     DagEdit.toggle = function(node, force) {
         var edits = DagEdit.getInfo();
-        if ((Object.keys(edits.params).length ||
+        if ((Object.keys(edits.structs).length ||
             Object.keys(edits.newNodes).length) && !force) {
             Alert.show({
                 "title": "Edit in progress",
@@ -64,7 +64,7 @@ window.DagEdit = (function($, DagEdit) {
                 TblManager.alignTableEls();
             }
             treeNode = node;
-            params = {};
+            structs = {};
             newNodes = {};
             linkedNodes = {};
             editingTables = {};
@@ -79,105 +79,66 @@ window.DagEdit = (function($, DagEdit) {
         editingNode = node;
         var api = node.value.api;
         var sourceTableNames = node.getNonIndexSourceNames(true);
+        var uniqueSrcTableNames = [];
+        sourceTableNames.forEach(function(tName) {
+            if (uniqueSrcTableNames.indexOf(tName) === -1) {
+                uniqueSrcTableNames.push(tName);
+            }
+        });
 
         if (options.evalIndex == null && api === XcalarApisT.XcalarApiMap &&
             node.value.struct.eval.length > 1) {
-            showMapPreForm(node, sourceTableNames);
+            showMapPreForm(node);
             return;
         }
 
-        styleForEditingForm(node, sourceTableNames);
+        styleForEditingForm(node, uniqueSrcTableNames);
 
-        TblManager.findAndFocusTable(sourceTableNames[0], true)
-        .then(function(ret) {
-            if (ret.tableFromInactive) {
-                editingTables[sourceTableNames[0]] = "inactive";
-            } else {
-                editingTables[sourceTableNames[0]] = "active";
-            }
-            if (sourceTableNames[1]) {
-                return TblManager.findAndFocusTable(sourceTableNames[1]);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(function(ret) {
-            if (sourceTableNames[1]) {
-                if (ret.tableFromInactive) {
-                    editingTables[sourceTableNames[1]] = "inactive";
-                } else {
-                    editingTables[sourceTableNames[1]] = "active";
-                }
-            }
+        var promises = [];
+        var results = [];
 
-            $("#container").addClass("editingForm");
-            for (var i = 0; i < sourceTableNames.length; i++) {
-                var tableId = xcHelper.getTableId(sourceTableNames[i]);
-                $("#xcTableWrap-" + tableId).addClass("editing");
-                TblManager.alignTableEls($("#xcTableWrap-" + tableId));
-            }
+        for (var i = 0; i < uniqueSrcTableNames.length; i++) {
+            promises.push(focusEditingTable.bind(this, uniqueSrcTableNames[i], results));
+        }
 
-            // helps with the choppy animation of the operation form
-            setTimeout(function() {
-                showEditForm(node, sourceTableNames, null, null,
-                              options.evalIndex);
-            });
-        })
-        .fail(function() {
-            var firstTableId = xcHelper.getTableId(sourceTableNames[0]);
-            var secondTableId = xcHelper.getTableId(sourceTableNames[1]);
-            var isDroppedTable = !gTables.hasOwnProperty(firstTableId);
-
-            if (isDroppedTable && !gDroppedTables[firstTableId]) {
-                var table = new TableMeta({
-                    "tableId": firstTableId,
-                    "tableName": sourceTableNames[0],
-                    "tableCols": [ColManager.newDATACol()],
-                    "status": TableType.Dropped
-                });
-                gDroppedTables[firstTableId] = table;
-            }
-
-            var isOtherDroppedTable;
-            if (sourceTableNames[1] && !gTables.hasOwnProperty(secondTableId)) {
-                isOtherDroppedTable = true;
-                if (!gDroppedTables[secondTableId]) {
-                    var table = new TableMeta({
-                        "tableId": secondTableId,
-                        "tableName": sourceTableNames[1],
-                        "tableCols": [ColManager.newDATACol()],
-                        "status": TableType.Dropped
-                    });
-                    gDroppedTables[secondTableId] = table;
-                }
-            }
+        PromiseHelper.chain(promises)
+        .then(function() {
             var hasActiveTable = false;
+            var tableId;
+            var isDroppedTable = [];
             for (var i = 0; i < sourceTableNames.length; i++) {
-                var tableId = xcHelper.getTableId(sourceTableNames[i]);
-                $("#xcTableWrap-" + tableId).addClass("editing");
-                if (gTables[tableId]) {
+                tableId = xcHelper.getTableId(sourceTableNames[i]);
+                if (results[sourceTableNames[i]].notFound) {
+                    if (!gDroppedTables[tableId]) {
+                        var table = new TableMeta({
+                            "tableId": tableId,
+                            "tableName": sourceTableNames[i],
+                            "tableCols": [ColManager.newDATACol()],
+                            "status": TableType.Dropped
+                        });
+                        gDroppedTables[tableId] = table;
+                    }
+                    isDroppedTable.push(true);
+                } else {
+                    $("#xcTableWrap-" + tableId).addClass("editing");
                     hasActiveTable = true;
-                    break;
+                    if (results[sourceTableNames[i]].tableFromInactive) {
+                        editingTables[sourceTableNames[i]] = "inactive";
+                    } else {
+                        editingTables[sourceTableNames[i]] = "active";
+                    }
+                    isDroppedTable.push(false);
                 }
             }
-
+            $("#container").addClass("editingForm");
             if (!hasActiveTable) {
                 $("#container").addClass("noActiveEditingTable");
             }
-            $("#container").addClass("editingForm");
-
-            for (var i = 0; i < sourceTableNames.length; i++) {
-                var tableId = xcHelper.getTableId(sourceTableNames[i]);
-                $("#xcTableWrap-" + tableId).addClass("editing");
-                if (!gTables.hasOwnProperty(tableId)) {
-                    TblManager.alignTableEls($("#xcTableWrap-" + tableId));
-                }
-            }
+            TblManager.alignTableEls();
 
             // helps with the choppy animation of the operation form
             setTimeout(function() {
-                showEditForm(node, sourceTableNames, isDroppedTable,
-                             isOtherDroppedTable, options.evalIndex);
+                showEditForm(node, sourceTableNames, isDroppedTable, options.evalIndex);
             });
         });
     };
@@ -200,59 +161,12 @@ window.DagEdit = (function($, DagEdit) {
         }
     };
 
-    function showMapPreForm(node, sourceTableNames) {
-        var $mapPreForm = $("#mapPreForm");
-        $mapPreForm.addClass("active");
-
-        var $dagWrap = $(".dagWrap.editMode");
-        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
-
-        $(document).on('mousedown.hideMapPreForm', function(event) {
-            if ($(event.target).closest('#mapPreForm').length === 0 &&
-                $(event.target).closest('#dagScrollBarWrap').length === 0) {
-                $mapPreForm.removeClass("active");
-                $(document).off(".hideMapPreForm");
-                $(".dagWrap .dagTable").removeClass("editing");
-            }
-        });
-
-        var mapStruct;
-        if (params[node.value.name]) {
-            mapStruct = params[node.value.name];
-        } else {
-            mapStruct = node.value.struct;
-        }
-
-        var evalHtml = "<div>";
-        mapStruct.eval.forEach(function(evalObj) {
-            evalHtml += '<div class="row">' +
-                            '<div class="evalStr">' + evalObj.evalString + '</div>' +
-                            '<div class="optionSection">' +
-                                '<div class="edit option">' +
-                                    '<span class="text">Edit</span>' +
-                                    '<i class="icon xi-edit"></i>' +
-                                '</div>' +
-                                // '<div class="delete option">' +
-                                //     '<i class="icon xi-trash"></i>' +
-                                // '</div>' +
-                            '</div>' +
-                        '</div>';
-        });
-
-        evalHtml += "</div>";
-        $mapPreForm.find(".content").html(evalHtml);
-
-        positionMapPreForm($dagTable);
-    }
-
     DagEdit.store = function(info) {
         var indexNodes = [];
 
         if (editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
-            checkIndexNodes(editingNode, info, indexNodes, 0);
-        }
-
-        if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
+            checkIndexNodes(editingNode, info.indexFields, indexNodes, 0);
+        } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
             var joinType = info.args.joinType;
             // XXX move this somewhere else
             var joinLookUp = {
@@ -267,8 +181,8 @@ window.DagEdit = (function($, DagEdit) {
             info.args.joinType = joinType;
 
             if (joinType !== "crossJoin") {
-                checkIndexNodes(editingNode, info, indexNodes, 0);
-                checkIndexNodes(editingNode, info, indexNodes, 1);
+                checkIndexNodes(editingNode, info.indexFields[0], indexNodes, 0);
+                checkIndexNodes(editingNode, info.indexFields[1], indexNodes, 1);
             }
         }
 
@@ -278,22 +192,25 @@ window.DagEdit = (function($, DagEdit) {
 
         // for map we update 1 eval str at a time
         if (editingNode.value.api === XcalarApisT.XcalarApiMap) {
-            if (!params[editingNode.value.name]) {
-                params[editingNode.value.name] = {
+            if (!structs[editingNode.value.name]) {
+                structs[editingNode.value.name] = {
                     eval: xcHelper.deepCopy(editingNode.value.struct.eval)
                 };
             }
-            params[editingNode.value.name].eval[mapIndex] = info.args.eval[0];
-            params[editingNode.value.name].icv = info.args.icv;
+            structs[editingNode.value.name].eval[mapIndex] = info.args.eval[0];
+            structs[editingNode.value.name].icv = info.args.icv;
         } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
-            params[editingNode.value.name] = {joinType: info.args.joinType,
-                                              evalString: info.args.evalString};
+            structs[editingNode.value.name] = {
+                joinType: info.args.joinType,
+                evalString: info.args.evalString};
+        } else if (editingNode.value.api === XcalarApisT.XcalarApiUnion) {
+            structs[editingNode.value.name] = {renameMap: info.args.renameMap};
         } else {
-            params[editingNode.value.name] = info.args;
+            structs[editingNode.value.name] = info.args;
         }
 
         Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
-                              params[editingNode.value.name]);
+                              structs[editingNode.value.name]);
 
         var descendants = Dag.styleDestTables($(".dagWrap.editMode"), editingNode.value.name, "isDownstream");
         for (var i = 0; i < descendants.length; i++) {
@@ -313,11 +230,11 @@ window.DagEdit = (function($, DagEdit) {
         if (lNodes) {
             for (var i = 0; i < lNodes.length; i++) {
                 toDelete.push(lNodes[i]);
-                delete params[lNodes[i].value.name];
+                delete structs[lNodes[i].value.name];
             }
             delete linkedNodes[node.value.name];
         }
-        delete params[node.value.name];
+        delete structs[node.value.name];
         delete newNodes[node.value.name];
         var descendants = descendantMap[node.value.name];
         for (var i = 0; i < descendants.length; i++) {
@@ -333,225 +250,6 @@ window.DagEdit = (function($, DagEdit) {
 
         Dag.removeEditedOperation(treeNode, node, toDelete);
     };
-
-    function showEditForm(node, sourceTableNames, isDroppedTable,
-                        isOtherDroppedTable, evalIndex) {
-        var api = node.value.api;
-        var struct = node.value.struct;
-        var tableIds = sourceTableNames.map(function(name) {
-            return xcHelper.getTableId(name);
-        });
-        var tableId = tableIds[0];
-        var prefillInfo;
-
-        switch (api) {
-            case (XcalarApisT.XcalarApiAggregate):
-                var aggStruct;
-                if (params[editingNode.value.name]) {
-                    aggStruct = params[editingNode.value.name];
-                } else {
-                    aggStruct = struct;
-                }
-                var evalStr = aggStruct.eval[0].evalString.trim();
-                var opInfo = xcHelper.extractOpAndArgs(evalStr);
-                OperationsView.show(tableId, [], "aggregate", {
-                    prefill: {
-                        ops: [opInfo.op],
-                        args: [opInfo.args],
-                        isDroppedTable: isDroppedTable
-                    }
-                });
-                break;
-            case (XcalarApisT.XcalarApiMap):
-                var mapStruct;
-                if (params[editingNode.value.name]) {
-                    mapStruct = params[editingNode.value.name];
-                } else {
-                    mapStruct = struct;
-                }
-                if (evalIndex) {
-                    mapIndex = evalIndex;
-                } else {
-                    mapIndex = 0;
-                }
-
-                var evalStr = mapStruct.eval[mapIndex].evalString.trim();
-
-                var opInfo = xcHelper.extractOpAndArgs(evalStr);
-                var newFields = mapStruct.eval.map(function(item) {
-                    return item.newField;
-                });
-                prefillInfo = {
-                    ops: [opInfo.op],
-                    args: [opInfo.args],
-                    newFields: [newFields[mapIndex]],
-                    icv: mapStruct.icv,
-                    isDroppedTable: isDroppedTable
-                };
-                OperationsView.show(tableId, [], "map", {
-                    prefill: prefillInfo
-                });
-                break;
-            case (XcalarApisT.XcalarApiFilter):
-                var fltStruct;
-                if (params[editingNode.value.name]) {
-                    fltStruct = params[editingNode.value.name];
-                } else {
-                    fltStruct = struct;
-                }
-                var evalStr = fltStruct.eval[0].evalString.trim();
-                var opInfo = xcHelper.extractOpAndArgs(evalStr);
-                OperationsView.show(tableId, [], "filter", {
-                    prefill: {
-                        ops: [opInfo.op],
-                        args: [opInfo.args],
-                        isDroppedTable: isDroppedTable
-                    }
-                });
-                break;
-            case (XcalarApisT.XcalarApiGroupBy):
-                var gbStruct;
-                if (params[editingNode.value.name]) {
-                    gbStruct = params[editingNode.value.name];
-                } else {
-                    gbStruct = struct;
-                }
-                var ops =[];
-                var args = [];
-                gbStruct.eval.forEach(function(evalObj) {
-                    var evalStr = evalObj.evalString.trim();
-                    var opInfo = xcHelper.extractOpAndArgs(evalStr);
-                    ops.push(opInfo.op);
-                    args.push(opInfo.args);
-                });
-
-                var newFields = gbStruct.eval.map(function(item) {
-                    return item.newField;
-                });
-                var indexedFields;
-                if (linkedNodes[editingNode.value.name]) {
-                    var indexNode = linkedNodes[editingNode.value.name][0];
-                    var indexName = indexNode.value.name;
-                    indexedFields = params[indexName].key.map(function(key) {
-                        return key.name;
-                    });
-                } else {
-                    indexedFields = node.value.indexedFields;
-                }
-
-                prefillInfo = {
-                    "ops": ops,
-                    "args": args,
-                    "newFields": newFields,
-                    "dest": xcHelper.getTableName(struct.dest),
-                    "indexedFields": indexedFields,
-                    "icv": gbStruct.icv,
-                    "includeSample": gbStruct.includeSample,
-                    "isDroppedTable": isDroppedTable
-                };
-
-                OperationsView.show(tableId, [], "group by", {
-                    prefill: prefillInfo
-                });
-                break;
-            case (XcalarApisT.XcalarApiJoin):
-                var joinStruct;
-                if (params[editingNode.value.name]) {
-                    joinStruct = params[editingNode.value.name];
-                } else {
-                    joinStruct = struct;
-                }
-
-                // var indexedFields;
-                // if (linkedNodes[editingNode.value.name]) {
-                //     var indexNode = linkedNodes[editingNode.value.name][0];
-                //     var indexName = indexNode.value.name;
-                //     indexedFields = params[indexName].key.map(function(key) {
-                //         return key.name;
-                //     });
-                // } else {
-                //     indexedFields = node.value.indexedFields;
-                // }
-                prefillInfo = {
-                    "joinType": joinStruct.joinType,
-                    "rightTable": sourceTableNames[1],
-                    "dest": xcHelper.getTableName(struct.dest),
-                    "srcCols": node.value.indexedFields,
-                    "evalStr": joinStruct.evalStr,
-                    "evalString": joinStruct.evalString,
-                    "isLeftDroppedTable": isDroppedTable,
-                    "isRightDroppedTable": isOtherDroppedTable
-                };
-                JoinView.show(tableId, [], {prefill: prefillInfo});
-                break;
-            case (XcalarApisT.XcalarApiProject):
-                var colNums = [];
-                var table;
-                if (gTables[tableId]) {
-                    table = gTables[tableId];
-                } else {
-                    table = gDroppedTables[tableId];
-                }
-                if (table && table.getAllCols().length > 1) {
-                    for (var i = 0; i < struct.columns.length; i++) {
-                        var colNum = table.getColNumByBackName(struct.columns[i]);
-                        if (colNum != null && colNum > -1) {
-                            colNums.push(colNum);
-                        }
-                    }
-                }
-
-                ProjectView.show(tableId, colNums, {
-                    prefill: {
-                        "isDroppedTable": isDroppedTable
-                    }
-                });
-                break;
-            case (XcalarApisT.XcalarApiUnion):
-                var unionStruct;
-                if (params[editingNode.value.name]) {
-                    unionStruct = params[editingNode.value.name];
-                } else {
-                    unionStruct = struct;
-                }
-
-                var allTablesColNums = [];
-                for (var i = 0; i < sourceTableNames.length; i++) {
-                    var tId = xcHelper.getTableId(sourceTableNames[i]);
-                    var table;
-                    var tableColNums = [];
-                    if (gTables[tId]) {
-                        table = gTables[tId];
-                    } else {
-                        table = gDroppedTables[tId];
-                    }
-                    if (table && table.getAllCols().length > 1) {
-                        for (var j = 0; j < unionStruct.renameMap[i].length; j++) {
-                            var colNum = table.getColNumByBackName(unionStruct.renameMap[i][j].sourceColumn);
-                            if (colNum != null && colNum > -1) {
-                                tableColNums.push(colNum);
-                            }
-                        }
-                    }
-                    allTablesColNums.push(tableColNums);
-                }
-
-                prefillInfo = {
-                    "dedup": unionStruct.dedup,
-                    "sourceTables": sourceTableNames,
-                    "dest": xcHelper.getTableName(struct.dest), // XXX allow changing
-                    "srcCols": unionStruct.renameMap,
-                    "isLeftDroppedTable": isDroppedTable,
-                    "isRightDroppedTable": isOtherDroppedTable,
-                    "allTablesColNums": allTablesColNums
-                };
-                UnionView.show(tableId, allTablesColNums[0], {prefill: prefillInfo});
-                break;
-            default:
-                console.log("invalid op");
-                break;
-        }
-    }
 
     DagEdit.setupMapPreForm = function() {
         var $mapPreForm = $("#mapPreForm");
@@ -584,6 +282,192 @@ window.DagEdit = (function($, DagEdit) {
         });
     };
 
+    function showEditForm(node, sourceTableNames, isDroppedTable, evalIndex) {
+        var api = node.value.api;
+        var origStruct = node.value.struct;
+        var struct = structs[node.value.name] || origStruct;
+        var tableIds = sourceTableNames.map(function(name) {
+            return xcHelper.getTableId(name);
+        });
+        var tableId = tableIds[0];
+        var prefillInfo;
+
+        switch (api) {
+            case (XcalarApisT.XcalarApiAggregate):
+                var evalStr = struct.eval[0].evalString.trim();
+                var opInfo = xcHelper.extractOpAndArgs(evalStr);
+                OperationsView.show(tableId, [], "aggregate", {
+                    prefill: {
+                        ops: [opInfo.op],
+                        args: [opInfo.args],
+                        isDroppedTable: isDroppedTable[0]
+                    }
+                });
+                break;
+            case (XcalarApisT.XcalarApiMap):
+                if (evalIndex) {
+                    mapIndex = evalIndex;
+                } else {
+                    mapIndex = 0;
+                }
+
+                var evalStr = struct.eval[mapIndex].evalString.trim();
+
+                var opInfo = xcHelper.extractOpAndArgs(evalStr);
+                var newFields = struct.eval.map(function(item) {
+                    return item.newField;
+                });
+                prefillInfo = {
+                    ops: [opInfo.op],
+                    args: [opInfo.args],
+                    newFields: [newFields[mapIndex]],
+                    icv: struct.icv,
+                    isDroppedTable: isDroppedTable[0]
+                };
+                OperationsView.show(tableId, [], "map", {
+                    prefill: prefillInfo
+                });
+                break;
+            case (XcalarApisT.XcalarApiFilter):
+                var evalStr = struct.eval[0].evalString.trim();
+                var opInfo = xcHelper.extractOpAndArgs(evalStr);
+                OperationsView.show(tableId, [], "filter", {
+                    prefill: {
+                        ops: [opInfo.op],
+                        args: [opInfo.args],
+                        isDroppedTable: isDroppedTable[0]
+                    }
+                });
+                break;
+            case (XcalarApisT.XcalarApiGroupBy):
+                var ops = [];
+                var args = [];
+                struct.eval.forEach(function(evalObj) {
+                    var evalStr = evalObj.evalString.trim();
+                    var opInfo = xcHelper.extractOpAndArgs(evalStr);
+                    ops.push(opInfo.op);
+                    args.push(opInfo.args);
+                });
+
+                var newFields = struct.eval.map(function(item) {
+                    return item.newField;
+                });
+                var indexedFields;
+                if (linkedNodes[editingNode.value.name]) {
+                    var indexNode = linkedNodes[editingNode.value.name][0];
+                    var indexName = indexNode.value.name;
+                    indexedFields = structs[indexName].key.map(function(key) {
+                        return key.name;
+                    });
+                } else {
+                    indexedFields = node.value.indexedFields;
+                }
+
+                prefillInfo = {
+                    "ops": ops,
+                    "args": args,
+                    "newFields": newFields,
+                    "dest": xcHelper.getTableName(origStruct.dest),
+                    "indexedFields": indexedFields,
+                    "icv": struct.icv,
+                    "includeSample": struct.includeSample,
+                    "isDroppedTable": isDroppedTable[0]
+                };
+
+                OperationsView.show(tableId, [], "group by", {
+                    prefill: prefillInfo
+                });
+                break;
+            case (XcalarApisT.XcalarApiJoin):
+                prefillInfo = {
+                    "joinType": struct.joinType,
+                    "rightTable": sourceTableNames[1],
+                    "dest": xcHelper.getTableName(origStruct.dest),
+                    "srcCols": node.value.indexedFields,
+                    "evalStr": struct.evalStr,
+                    "evalString": struct.evalString,
+                    "isLeftDroppedTable": isDroppedTable[0],
+                    "isRightDroppedTable": isDroppedTable[1]
+                };
+                JoinView.show(tableId, [], {prefill: prefillInfo});
+                break;
+            case (XcalarApisT.XcalarApiUnion):
+                var tableCols = [];
+                for (var i = 0; i < sourceTableNames.length; i++) {
+                    var cols = [];
+
+                    for (var j = 0; j < struct.renameMap[i].length; j++) {
+                        var colName = struct.renameMap[i][j].sourceColumn;
+                        var rename = struct.renameMap[i][j].destColumn;
+                        var type = translateType(struct.renameMap[i][j].columnType);
+                        cols.push({
+                            name: colName,
+                            rename: rename,
+                            type: type
+                        });
+                    }
+                    tableCols.push(cols);
+                }
+
+                prefillInfo = {
+                    "dedup": struct.dedup,
+                    "sourceTables": sourceTableNames,
+                    "dest": xcHelper.getTableName(origStruct.dest), // XXX allow changing
+                    "srcCols": struct.renameMap,
+                    "isDroppedTable": isDroppedTable,
+                    "tableCols": tableCols
+                };
+                UnionView.show(tableId, [], {prefill: prefillInfo});
+                break;
+            case (XcalarApisT.XcalarApiProject):
+                var colNums = [];
+                var table = gTables[tableId] || gDroppedTables[tableId];
+                if (table && table.getAllCols().length > 1) {
+                    for (var i = 0; i < struct.columns.length; i++) {
+                        var colNum = table.getColNumByBackName(struct.columns[i]);
+                        if (colNum != null && colNum > -1) {
+                            colNums.push(colNum);
+                        }
+                    }
+                }
+
+                ProjectView.show(tableId, colNums, {
+                    prefill: {
+                        "isDroppedTable": isDroppedTable[0]
+                    }
+                });
+                break;
+            default:
+                console.log("invalid op");
+                break;
+        }
+    }
+
+    function translateType(dfType) {
+        switch (dfType) {
+            case DfFieldTypeTStr[DfFieldTypeT.DfUnknown]:
+                return ColumnType.unknown;
+            case DfFieldTypeTStr[DfFieldTypeT.DfString]:
+                return ColumnType.string;
+            case DfFieldTypeTStr[DfFieldTypeT.DfInt32]:
+            case DfFieldTypeTStr[DfFieldTypeT.DfInt64]:
+            case DfFieldTypeTStr[DfFieldTypeT.DfUInt32]:
+            case DfFieldTypeTStr[DfFieldTypeT.DfUInt64]:
+                return ColumnType.integer;
+            case DfFieldTypeTStr[DfFieldTypeT.DfFloat32]:
+            case DfFieldTypeTStr[DfFieldTypeT.DfFloat64]:
+                return ColumnType.float;
+            case DfFieldTypeTStr[DfFieldTypeT.DfBoolean]:
+                return ColumnType.boolean;
+            case DfFieldTypeTStr[DfFieldTypeT.DfMixed]:
+                return ColumnType.mixed;
+            case DfFieldTypeTStr[DfFieldTypeT.DfFatptr]:
+                return null;
+            default:
+                return null;
+        }
+    }
+
     function styleForEditingForm(node, sourceTableNames) {
         var $dagTable;
 
@@ -605,22 +489,24 @@ window.DagEdit = (function($, DagEdit) {
         $dagTable.closest(".dagTableWrap").addClass("editingChild");
     }
 
-    function checkIndexNodes(editingNode, info, indexNodes, parentNum) {
+    function checkIndexNodes(editingNode, indexFields, indexNodes, parentNum) {
         var indexNode;
-        var indexFields;
-        if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
-            indexFields = info.indexFields[parentNum];
-        } else {
-            indexFields = info.indexFields;
-        }
-
         var keys = indexFields.map(function(name) {
+            var newName = xcHelper.parsePrefixColName(name).name;
+            if (parentNum > 0) { // for joins
+                newName += Math.floor(Math.random() * 1000);
+            }
             // XXX use correct key type
-            return {"name": name,
-                "keyFieldName": name,
+            return {
+                "name": name,
+                "keyFieldName": newName,
                 "type": DfFieldTypeTStr[DfFieldTypeT.DfUnknown]
             };
         });
+
+        // if index operation already exists, we'll modify it, otherwise
+        // we'll create a new one
+
         if (editingNode.parents[parentNum].value.api ===
             XcalarApisT.XcalarApiIndex) {
             indexNode = editingNode.parents[parentNum];
@@ -643,7 +529,7 @@ window.DagEdit = (function($, DagEdit) {
             }
 
             if (needsNewIndex) {
-                params[indexNode.value.name] = {"key": keys};
+                structs[indexNode.value.name] = {"key": keys};
                 indexNodes.push(indexNode);
             }
         } else {
@@ -658,6 +544,51 @@ window.DagEdit = (function($, DagEdit) {
                 src: editingNode.parents[parentNum].value.name
             });
         }
+    }
+
+    function showMapPreForm(node) {
+        var $mapPreForm = $("#mapPreForm");
+        $mapPreForm.addClass("active");
+
+        var $dagWrap = $(".dagWrap.editMode");
+        var $dagTable = Dag.getTableIcon($dagWrap, node.value.dagNodeId);
+
+        $(document).on('mousedown.hideMapPreForm', function(event) {
+            if ($(event.target).closest('#mapPreForm').length === 0 &&
+                $(event.target).closest('#dagScrollBarWrap').length === 0) {
+                $mapPreForm.removeClass("active");
+                $(document).off(".hideMapPreForm");
+                $(".dagWrap .dagTable").removeClass("editing");
+            }
+        });
+
+        var mapStruct;
+        if (structs[node.value.name]) {
+            mapStruct = structs[node.value.name];
+        } else {
+            mapStruct = node.value.struct;
+        }
+
+        var evalHtml = "<div>";
+        mapStruct.eval.forEach(function(evalObj) {
+            evalHtml += '<div class="row">' +
+                            '<div class="evalStr">' + evalObj.evalString + '</div>' +
+                            '<div class="optionSection">' +
+                                '<div class="edit option">' +
+                                    '<span class="text">Edit</span>' +
+                                    '<i class="icon xi-edit"></i>' +
+                                '</div>' +
+                                // '<div class="delete option">' +
+                                //     '<i class="icon xi-trash"></i>' +
+                                // '</div>' +
+                            '</div>' +
+                        '</div>';
+        });
+
+        evalHtml += "</div>";
+        $mapPreForm.find(".content").html(evalHtml);
+
+        positionMapPreForm($dagTable);
     }
 
     function positionMapPreForm($dagTable) {
@@ -699,105 +630,31 @@ window.DagEdit = (function($, DagEdit) {
         }
     }
 
+    // will always resolve
+    function focusEditingTable(tableName, results) {
+        var deferred = jQuery.Deferred();
+
+        TblManager.findAndFocusTable(tableName, true)
+        .then(function(ret) {
+            results[tableName] = ret;
+            deferred.resolve();
+        })
+        .fail(function() {
+            results[tableName] = {notFound: true};
+            deferred.resolve();
+        })
+        .always(function() {
+            var tableId = xcHelper.getTableId(tableName);
+            $("#xcTableWrap-" + tableId).addClass("editing");
+        });
+
+        return deferred.promise();
+    }
+
     if (window.unitTestMode) {
         DagEdit.__testOnly__ = {};
         // DagEdit.__testOnly__.parseEvalStr = parseEvalStr;
     }
 
-    function structs() {
-        var load = {
-          "url": "file:///netstore/datasets/indexJoin/students/students.json",
-          "fileNamePattern": "",
-          "udf": "",
-          "dest": ".XcalarDS.rudy.95711.students",
-          "size": 0,
-          "format": "json",
-          "recordDelim": "\n",
-          "fieldDelim": "",
-          "quoteDelim": "\"",
-          "linesToSkip": 0,
-          "crlf": true,
-          "header": false,
-          "recursive": false
-        };
-
-        var index =  {
-          "source": ".XcalarDS.rudy.95711.students",
-          "dest": "students#p7302",
-          "key": [
-            {
-              "name": "xcalarRecordNum",
-              "type": "\u0000"
-            }
-          ],
-          "prefix": "students",
-          "ordering": "Unordered",
-          "dhtName": "",
-          "delaySort": false
-        };
-
-        var filter = {
-          "source": "students#p7302",
-          "dest": "students#p7303",
-          "eval": [
-            {
-              "evalString": "eq(students::student_id, 1)",
-              "newField": ""
-            }
-          ]
-        };
-
-        var aggregate = {
-          "source": "students#p7304",
-          "dest": "b",
-          "eval": [
-            {
-              "evalString": "avg(students::student_id)",
-              "newField": ""
-            }
-          ]
-        };
-
-        var map =  {
-          "source": "students#p7304",
-          "dest": "students#p7307",
-          "eval": [
-            {
-              "evalString": "add(students::student_id, ^b)",
-              "newField": "student_id_add1"
-            }
-          ],
-          "icv": false
-        };
-
-        var groupby = {
-          "source": "students.index#p7310",
-          "dest": "g#p7308",
-          "eval": [
-            {
-              "evalString": "count(students::student_name)",
-              "newField": "student_name_count"
-            }
-          ],
-          "newKeyField": "",
-          "includeSample": true,
-          "icv": false
-        };
-
-        var join = {
-          "source": [
-            "students.index#p7312",
-            "students.index#p7313"
-          ],
-          "dest": "hre#p7311",
-          "joinType": "innerJoin",
-          "evalString": "",
-          "renameMap": [
-            [],
-            []
-          ]
-        };
-    }
-
-	return (DagEdit);
+    return (DagEdit);
 })(jQuery, {});

@@ -5,6 +5,7 @@ window.UnionView = (function(UnionView, $) {
     // constant
     var validTypes = ["string", "integer", "float", "boolean"];
     var tableInfoLists = [];
+    var editingInfo = {};
 
     UnionView.setup = function() {
         $unionView = $("#unionView");
@@ -32,12 +33,17 @@ window.UnionView = (function(UnionView, $) {
         }
         if (!restore) {
             reset();
-            addTable(tableId, colNums);
+            var hiddenCols;
+            if (options.prefill) {
+                hiddenCols = options.prefill.tableCols[0];
+            }
+            addTable(tableId, colNums, hiddenCols);
             // wait for open menu panel animation
             setTimeout(function() {
-                $unionView.find(".addTable").click();
                 if (options.prefill) {
                     restorePrefill(options.prefill);
+                } else {
+                    $unionView.find(".addTable").click();
                 }
             }, 1);
         } else {
@@ -48,6 +54,7 @@ window.UnionView = (function(UnionView, $) {
         isOpen = true;
         formHelper.showView();
         formHelper.setup();
+        updateFormTitles(options);
     };
 
     UnionView.close = function() {
@@ -61,6 +68,7 @@ window.UnionView = (function(UnionView, $) {
         StatusBox.forceHide(); // hides any error boxes;
         xcTooltip.hideAll();
         autoResizeView({reset: true});
+        editingInfo = {};
     };
 
     function addEvents() {
@@ -130,17 +138,16 @@ window.UnionView = (function(UnionView, $) {
     }
 
     function restorePrefill(options) {
-        debugger;
+        editingInfo = options;
         for (var i = 1; i < options.sourceTables.length; i++) {
             var tId = xcHelper.getTableId(options.sourceTables[i]);
-            if (i === 1) {
-                $unionView.find(".unionTableList").last().find(".text")
-                                                .val(options.sourceTables[i]);
-                selectTable(tId, i);
-            } else {
-                addTable(tId, []);
-            }
+            addTable(tId, null, options.tableCols[i]);
         }
+        var $resultInputs = $unionView.find(".resultInput");
+        for (var i = 0; i < options.tableCols[0].length; i++) {
+           $resultInputs.eq(i).val(options.tableCols[0][i].rename);
+        }
+        $unionView.find(".newTableName").val(options.dest);
         // prefillInfo = {
         //     "dedup": unionStruct.dedup,
         //     "sourceTables": sourceTableNames,
@@ -163,7 +170,7 @@ window.UnionView = (function(UnionView, $) {
         }).addClass("highlight");
     }
 
-    function addTable(tableId, colNums) {
+    function addTable(tableId, colNums, colInfos) {
         colNums = colNums || [];
         var tableInfo = {
             tableId: tableId,
@@ -171,14 +178,24 @@ window.UnionView = (function(UnionView, $) {
         };
 
         if (tableId != null) {
-            var table = gTables[tableId];
-            tableInfo.selectedCols = colNums.map(function(colNum) {
-                var progCol = table.getCol(colNum);
-                return {
-                    name: progCol.getBackColName(),
-                    type: progCol.getType()
-                };
-            });
+            var table = gTables[tableId] || gDroppedTables[tableId];
+            if (colInfos) {
+                tableInfo.selectedCols = colInfos.map(function(colInfo) {
+                    return {
+                        name: colInfo.name,
+                        type: colInfo.type
+                    };
+                });
+            } else {
+                tableInfo.selectedCols = colNums.map(function(colNum) {
+                    var progCol = table.getCol(colNum);
+                    return {
+                        name: progCol.getBackColName(),
+                        type: progCol.getType()
+                    };
+                });
+            }
+
         }
         tableInfoLists.push(tableInfo);
         updateList();
@@ -267,7 +284,11 @@ window.UnionView = (function(UnionView, $) {
         tableInfoLists.forEach(function(tableInfo, index) {
             tableHTML += getTableList(tableInfo, index);
             resultHTML += getResultList(tableInfo, resultCols, index);
-            candidateHTML += getCandidateList(tableInfo, index);
+            var hiddenCols;
+            if (editingInfo.tableCols) {
+                hiddenCols = editingInfo.tableCols[index];
+            }
+            candidateHTML += getCandidateList(tableInfo, index, hiddenCols);
         });
 
         $table.html(tableHTML);
@@ -370,8 +391,9 @@ window.UnionView = (function(UnionView, $) {
 
     function getTableList(tableInfo, index) {
         var tableId = tableInfo.tableId;
+        var table = gTables[tableId] || gDroppedTables[tableId];
         var isEmpty = (tableId == null);
-        var tableName = isEmpty ? "" : gTables[tableId].getName() ;
+        var tableName = isEmpty ? "" : table.getName();
         var focusTableClass = isEmpty ? " xc-disabled" : "";
         var tooltip = TooltipTStr.UnionFocus;
         if (isEmpty) {
@@ -528,12 +550,12 @@ window.UnionView = (function(UnionView, $) {
                 '</div>');
     }
 
-    function getCandidateList(tableInfo, index) {
+    function getCandidateList(tableInfo, index, hiddenCols) {
         var tableId = tableInfo.tableId;
         var lists = "";
 
         if (tableId != null) {
-            var candidateCols = getCandidateCols(tableInfo);
+            var candidateCols = getCandidateCols(tableInfo, false, hiddenCols);
             lists = candidateCols.map(function(col) {
                 var colType = col.type;
                 var colName = col.name;
@@ -558,7 +580,7 @@ window.UnionView = (function(UnionView, $) {
                 '</div>');
     }
 
-    function getCandidateCols(tableInfo, includeAll) {
+    function getCandidateCols(tableInfo, includeAll, hiddenCols) {
         var candidateCols = [];
         var tableId = tableInfo.tableId;
         if (tableId == null) {
@@ -580,8 +602,10 @@ window.UnionView = (function(UnionView, $) {
             }
         });
 
+        var table = gTables[tableId] || gDroppedTables[tableId];
+        var used = {};
 
-        gTables[tableId].tableCols.forEach(function(progCol) {
+        table.tableCols.forEach(function(progCol) {
             var colName = progCol.getBackColName();
             var colType = progCol.getType();
             if (validTypes.includes(colType)) {
@@ -590,21 +614,51 @@ window.UnionView = (function(UnionView, $) {
                         name: colName,
                         type: colType
                     });
+                    used[colName] = true;
                 } else if (includeAll) {
                     candidateCols.push({
                         name: colName,
                         type: colType,
                         used: selectedColNameMap[colName]
                     });
+                    used[colName] = true;
                 }
             }
         });
+        if (hiddenCols) {
+            hiddenCols.forEach(function(col) {
+                var colName = col.name;
+                var colType = col.type;
+                if (used[colName]) {
+                    return;
+                }
+
+                if (validTypes.includes(colType)) {
+                    if (!selectedColNameMap.hasOwnProperty(colName)) {
+                        candidateCols.push({
+                            name: colName,
+                            type: colType
+                        });
+                    } else if (includeAll) {
+                        candidateCols.push({
+                            name: colName,
+                            type: colType,
+                            used: selectedColNameMap[colName]
+                        });
+                    }
+                }
+            });
+        }
         return candidateCols;
     }
 
     function getCandidateDropdownList($dropDownList) {
         var index = getListIndex($dropDownList);
-        var candidateCols = getCandidateCols(tableInfoLists[index], true);
+        var editCols;
+        if (editingInfo.tableCols) {
+            editCols = editingInfo.tableCols[index];
+        }
+        var candidateCols = getCandidateCols(tableInfoLists[index], true, editCols);
         var ul = candidateCols.map(function(col) {
             var isUsed = (col.used != null);
             var extraClass;
@@ -644,6 +698,7 @@ window.UnionView = (function(UnionView, $) {
         $unionView.find(".searchArea input").val("");
         $unionView.find(".highlight").removeClass("highlight");
         tableInfoLists = [];
+        editingInfo = {};
     }
 
     function submitForm() {
@@ -667,7 +722,8 @@ window.UnionView = (function(UnionView, $) {
             if (tableId == null) {
                 return;
             }
-            var tableName = gTables[tableId].getName();
+            var table = gTables[tableId] || gDroppedTables[tableId];
+            var tableName = table.getName();
             var columns = tableInfo.selectedCols.map(function(col, index) {
                 var cast = false;
                 var name = null;
@@ -696,7 +752,32 @@ window.UnionView = (function(UnionView, $) {
             "formOpenTime": formHelper.getOpenTime()
         };
 
-        xcFunction.union(tableInfos, dedup, newTableName, options);
+        if (DagEdit.isEditMode()) {
+            var renameMaps = [];
+            for (var i = 0; i < tableInfos.length; i++) {
+                var renameMap = [];
+                for (var j = 0; j < tableInfos[i].columns.length; j++) {
+                    var type = xcHelper.convertColTypeToFeildType(tableInfos[i]
+                                                            .columns[j].type);
+                    type = DfFieldTypeTStr[type];
+                    renameMap.push({
+                       "sourceColumn": tableInfos[i].columns[j].name,
+                       "destColumn": tableInfos[i].columns[j].rename,
+                       "columnType": type
+                    });
+                }
+                renameMaps.push(renameMap);
+            }
+            DagEdit.store({
+                args: {
+                    renameMap: renameMaps
+                }
+            });
+        } else {
+            xcFunction.union(tableInfos, dedup, newTableName, options);
+        }
+
+
         UnionView.close();
     }
 
@@ -745,11 +826,11 @@ window.UnionView = (function(UnionView, $) {
             return false;
         }
 
-        var tyepValids = [];
+        var typeValids = [];
         $unionView.find(".resultCol.cast .typeList .text").each(function() {
-            tyepValids.push({$ele: $(this)});
+            typeValids.push({$ele: $(this)});
         });
-        if (!xcHelper.validate(tyepValids)) {
+        if (!xcHelper.validate(typeValids)) {
             return false;
         }
 
@@ -765,12 +846,19 @@ window.UnionView = (function(UnionView, $) {
                     } else if (columnInfo.type !==
                               tableInfoLists[j].selectedCols[i].type &&
                               !$resultCol.hasClass("cast")) {
+                        if (DagEdit.isEditMode()) {
+                            // not allowed to cast when editing
+                            StatusBox.show(UnionTStr.TypeMismatch,
+                                           $unionView.find('.inputCol[data-index="' +
+                                                            i + '"]').eq(0));
+                        } else {
+                             $resultCol.addClass("cast");
+                            $unionView.find('.columnList[data-index="' + i + '"]')
+                                  .addClass("cast");
+                            StatusBox.show(UnionTStr.Cast,
+                                           $resultCol.find(".typeList"));
+                        }
 
-                        $resultCol.addClass("cast");
-                        $unionView.find('.columnList[data-index="' + i + '"]')
-                              .addClass("cast");
-                        StatusBox.show(UnionTStr.Cast,
-                                       $resultCol.find(".typeList"));
                         return false;
                     }
                 }
@@ -778,6 +866,19 @@ window.UnionView = (function(UnionView, $) {
         }
 
         return isValid;
+    }
+
+    function updateFormTitles(options) {
+        var titleName = "Union";
+        var submitText;
+        if (options.prefill) {
+            titleName = "EDIT " + titleName;
+            submitText = "SAVE";
+        } else {
+            submitText = titleName.toUpperCase() + " ALL";
+        }
+        $unionView.find('.title').text(titleName);
+        $unionView.find('.confirm').text(submitText);
     }
 
     return UnionView;

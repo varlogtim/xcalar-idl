@@ -834,7 +834,7 @@ window.DagFunction = (function($, DagFunction) {
             return TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
                                     worksheet, txId, {noTag: true,
-                                        focusOnWorkspace: true});
+                                        focusWorkspace: true});
         })
         .then(function() {
             xcHelper.unlockTable(tableId, txId);

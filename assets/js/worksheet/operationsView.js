@@ -1066,7 +1066,7 @@ window.OperationsView = (function($, OperationsView) {
             }
 
             var params = options.prefill.args[i];
-            var $args = $group.find(".arg:visible:not(.gbOnArg)"); // handle checkboxes ex. contains
+            var $args = $group.find(".arg:visible:not(.gbOnArg)");
             for (var j = 0; j < params.length; j++) {
                 if ($args.eq(j).length) {
                     var arg = params[j];

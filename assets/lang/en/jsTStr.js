@@ -667,7 +667,7 @@ JoinTStr = {
 UnionTStr = {
     "ChooseType": "Select column type",
     "OneTableToUnion": "Need at least two tables to union.",
-    "Cast": "Colunms to union have different types, please select a type for the resultant column.",
+    "Cast": "Columns to union have different types, please select a type for the resultant column.",
     "AddCol": "Click to add to the union table",
     "Table": "Table",
     "UnionTable": "Union Table",
@@ -676,6 +676,7 @@ UnionTStr = {
     "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click the column name to add the column as part of the union.",
     "EmptyList": "Empty List",
     "SelectCol": "Please select columns to union",
+    "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
     "UsedFor": "Used for <col>"
 };
 
