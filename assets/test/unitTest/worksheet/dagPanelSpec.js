@@ -256,7 +256,7 @@ describe("Dag Panel Test", function() {
                 newColName: newColName
             }];
 
-            return xcFunction.groupBy(tId, gbArgs, groupByCols, {});
+            return xcFunction.groupBy(tId, gbArgs, groupByCols, {"isKeepOriginal": true});
         })
         .then(function(ret) {
             groupTableName = ret;
@@ -459,6 +459,7 @@ describe("Dag Panel Test", function() {
             largeTable.$dagWrap.find(".dagImage").width(parentWidth + 10);
             expect($scrollBarWrap.is(":visible")).to.be.false;
             DagPanel.adjustScrollBarPositionAndSize();
+
             expect($scrollBarWrap.is(":visible")).to.be.true;
             largeTable.$dagWrap.find(".dagImage").width(cacheWidth);
         });
@@ -559,7 +560,7 @@ describe("Dag Panel Test", function() {
             expect($menu.is(":visible")).to.be.false;
             smallTable.$dagWrap.find(".dagTable").first().click();
             expect($menu.is(":visible")).to.be.true;
-            expect($menu.find("li:visible").length).to.equal(6);
+            expect($menu.find("li:visible").length).to.equal(7);
             expect($menu.find("li.unavailable:visible").length).to.equal(1);
             expect($menu.find("li.generateIcv").hasClass("unavailable")).to.be.true;
             expect($menu.find("li.addTable").is(":visible")).to.be.false;
@@ -2288,11 +2289,12 @@ describe("Dag Panel Test", function() {
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
             expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("214px");
             //expand
-            $joinDagWrap.find(".tagHeader").eq(0).click();
+
+            $joinDagWrap.find(".tagHeader .groupTagIcon").eq(0).click();
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.false;
             expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("642px");
             // collapse
-            $joinDagWrap.find(".tagHeader").eq(0).click();
+            $joinDagWrap.find(".tagHeader .groupTagIcon").eq(0).click();
             expect($joinDagWrap.find(".dagTableWrap").eq(1).hasClass("tagHidden")).to.be.true;
             expect($joinDagWrap.find(".dagTableWrap").eq(3).css("right")).to.be.equal("214px");
         });

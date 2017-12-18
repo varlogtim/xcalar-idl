@@ -377,6 +377,15 @@ window.ExportView = (function($, ExportView) {
                     "type": backColumnNames.type
                 });
             }
+
+            xcHelper.validate([{
+                "$ele": $exportView.find(".columnsToExport"),
+                "error": errorText,
+                "check": function() {
+                    return (true);
+                }
+            }]);
+
             isValid = false;
         }
 

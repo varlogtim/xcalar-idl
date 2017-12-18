@@ -212,6 +212,14 @@ describe("Aggregates Test", function() {
         });
 
         it("deleting nonexistant agg should fail", function(done) {
+            var cachedDelete = XIApi.deleteTable;
+            XIApi.deleteTable = function() {
+                return PromiseHelper.reject({error: "Error: Could not find dag node",
+                    status: 291});
+
+            };
+
+
             Aggregates.deleteAggs("nonexistant")
             .then(function() {
                 expect("success").to.equal("failed");
@@ -220,6 +228,7 @@ describe("Aggregates Test", function() {
             .fail(function() {
                 UnitTest.hasAlertWithText("Error: Could not find dag node. " +
                                             "No aggregates were deleted.");
+                XIApi.deleteTable = cachedDelete;
                 setTimeout(function() {
                     done(); // some delay when closing alert
                 }, 1);

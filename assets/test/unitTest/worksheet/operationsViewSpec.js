@@ -616,17 +616,18 @@ describe('OperationsView Test', function() {
 
             it('should have 13 checkboxes for inc sample', function() {
                 $operationsView.find('.advancedTitle').click();
-                expect($operationsView.find('.advancedSection .checkbox:visible')).to.have.lengthOf(3);
+                expect($operationsView.find('.advancedSection .checkbox:visible')).to.have.lengthOf(4);
             });
 
             it('new table name should not be visible if join selected', function() {
-                var $keepCheckbox = $operationsView.find('.groupby .keepTable .checkbox');
-                $keepCheckbox.click();
-                expect($keepCheckbox.filter('.checked').length).to.equal(1);
+                var $joinBackCheckbox = $operationsView.find('.groupby .joinBack .checkbox');
+
+                $joinBackCheckbox.click();
+                expect($joinBackCheckbox.filter('.checked').length).to.equal(1);
                 expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(0);
 
-                $keepCheckbox.click();
-                expect($keepCheckbox.filter('.checked').length).to.equal(0);
+                $joinBackCheckbox.click();
+                expect($joinBackCheckbox.filter('.checked').length).to.equal(0);
                 expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
 
                 var $incSampleBox = $operationsView.find('.groupby .incSample .checkbox');

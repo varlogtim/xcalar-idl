@@ -55,8 +55,8 @@ describe('JsonModal Test', function() {
 
         it('json text should be correct', function() {
             expect($jsonModal.find('.jObject').length).to.equal(2);
-            expect($jsonModal.find('.jObject:visible').length).to.equal(1);
-            var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
+            expect($jsonModal.find('.jObject:visible').length).to.equal(2);
+            var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').last().text().replace(/[\s\n]/g, "") + "}");
             expect(Object.keys(jsonObj).length).to.equal(12);
         });
     });
@@ -126,24 +126,24 @@ describe('JsonModal Test', function() {
 
     describe('test sort btn', function() {
         it('sorting should work', function() {
-            expect($jsonModal.find('.mainKey').length).to.equal(12);
+            expect($jsonModal.find('.mainKey').length).to.equal(13);
 
             expect($jsonModal.find('.sort').length).to.equal(1);
             expect($jsonModal.find('.sort.desc').length).to.equal(0);
             $jsonModal.find('.sort').click();
             expect($jsonModal.find('.sort.desc').length).to.equal(1);
-            expect($jsonModal.find('.mainKey:eq(0) .jKey').text()).to.equal('average_stars');
-            expect($jsonModal.find('.mainKey:eq(11) .jKey').text()).to.equal('yelping_since');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(0) .jKey').text()).to.equal('average_stars');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(11) .jKey').text()).to.equal('yelping_since');
 
             $jsonModal.find('.sort').click();
             expect($jsonModal.find('.sort.desc').length).to.equal(0);
-            expect($jsonModal.find('.mainKey:eq(11) .jKey').text()).to.equal('average_stars');
-            expect($jsonModal.find('.mainKey:eq(0) .jKey').text()).to.equal('yelping_since');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(11) .jKey').text()).to.equal('average_stars');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(0) .jKey').text()).to.equal('yelping_since');
 
             $jsonModal.find('.sort').click();
             expect($jsonModal.find('.sort.desc').length).to.equal(1);
-            expect($jsonModal.find('.mainKey:eq(0) .jKey').text()).to.equal('average_stars');
-            expect($jsonModal.find('.mainKey:eq(11) .jKey').text()).to.equal('yelping_since');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(0) .jKey').text()).to.equal('average_stars');
+            expect($jsonModal.find('.prefixedType .mainKey:eq(11) .jKey').text()).to.equal('yelping_since');
         });
     });
 
@@ -319,8 +319,8 @@ describe('JsonModal Test', function() {
             expect(matched1Text).to.equal(matched2Text);
 
             // check partial matches
-            expect($jsonModal.find('.partial').eq(0).children().length).to.equal(8);
-            expect($jsonModal.find('.partial').eq(1).children().length).to.equal(8);
+            expect($jsonModal.find('.partial').eq(0).children().length).to.equal(9);
+            expect($jsonModal.find('.partial').eq(1).children().length).to.equal(9);
             expect($jsonModal.find('.partial').eq(0).children().eq(0).data('key'))
             .to.equal($jsonModal.find('.partial').eq(1).children().eq(0).data('key'));
             var partialKeyText1 = $jsonModal.find('.partial').eq(0).children().children('.jKey').text();
@@ -355,7 +355,7 @@ describe('JsonModal Test', function() {
 
 
             // check partial matches
-            expect($jsonModal.find('.partial').eq(2).children().length).to.equal(9);
+            expect($jsonModal.find('.partial').eq(2).children().length).to.equal(10);
 
             expect($jsonModal.find('.partial').eq(1).children().eq(0).data('key'))
             .to.equal($jsonModal.find('.partial').eq(2).children().eq(0).data('key'));
@@ -393,8 +393,8 @@ describe('JsonModal Test', function() {
             expect(matched1Text).to.equal(matched2Text);
 
             // check partial matches
-            expect($jsonModal.find('.partial').eq(0).children().length).to.equal(9);
-            expect($jsonModal.find('.partial').eq(1).children().length).to.equal(9);
+            expect($jsonModal.find('.partial').eq(0).children().length).to.equal(10);
+            expect($jsonModal.find('.partial').eq(1).children().length).to.equal(10);
             expect($jsonModal.find('.partial').eq(0).children().eq(0).data('key'))
             .to.equal($jsonModal.find('.partial').eq(1).children().eq(0).data('key'));
             var partialKeyText1 = $jsonModal.find('.partial').eq(0).children().children('.jKey').text();
@@ -460,22 +460,22 @@ describe('JsonModal Test', function() {
 
             expect($jsonWrap.hasClass('projectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("13/13 fields selected to project");
 
              // deselect prefixed fields
             $jsonWrap.find('.prefixGroupTitle .checkbox').click();
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("1/13 fields selected to project");
 
             // select prefixed fields
             $jsonWrap.find('.prefixGroupTitle .checkbox').click();
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("13/13 fields selected to project");
 
             // select mode
             $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('projectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/13 fields selected to project");
             expect($jsonWrap.find('.projectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
 
@@ -485,7 +485,7 @@ describe('JsonModal Test', function() {
             projectCalled = false;
             xcFunction.project = function(colNames, tId) {
                 colNames.sort();
-                expect(colNames.length).to.equal(12);
+                expect(colNames.length).to.equal(13);
                 expect(colNames[0]).to.equal(prefix + "::" + "average_stars");
                 expect(tId).to.equal(tableId);
                 projectCalled = true;
@@ -522,23 +522,23 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
             expect($jsonWrap.find(".pulled").length).to.equal(14);
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/8 fields selected to pull");
         });
 
         it('selecting a field should work', function() {
             $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/8 fields selected to pull");
         });
 
         it('select and deselect all should work', function() {
             $jsonWrap.find('.selectAll').click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("7/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("8/8 fields selected to pull");
 
             $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("6/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("7/8 fields selected to pull");
 
             $jsonWrap.find('.clearAll').click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/8 fields selected to pull");
         });
 
         it('clicking on json key element should select key', function() {
@@ -553,13 +553,13 @@ describe('JsonModal Test', function() {
 
         it('back to select mode', function() {
             $jsonWrap.find('.jInfo:not(".pulled")').find('.jKey').eq(0).click();
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/8 fields selected to pull");
 
             $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/7 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/8 fields selected to pull");
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
 
@@ -640,36 +640,36 @@ describe('JsonModal Test', function() {
         });
 
         it('tabbing should work', function() {
-            expect($jsonModal.find('.tab').length).to.equal(2);
+            expect($jsonModal.find('.tab').length).to.equal(3);
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
-            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.false;
+            expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.false;
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.true;
             expect($jsonModal.find('.prefix').is(":visible")).to.be.true;
 
-            selectTab($jsonModal.find('.tab').eq(1));
+            selectTab($jsonModal.find('.tab').eq(2));
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.false;
-            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.true;
+            expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.true;
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.false;
             expect($jsonModal.find('.prefix').is(":visible")).to.be.false;
-            expect($jsonModal.find('.mainKey').length).to.equal(12);
+            expect($jsonModal.find('.mainKey').length).to.equal(13);
             expect($jsonModal.find('.mainKey:visible').length).to.equal(12);
 
             selectTab($jsonModal.find('.tab').eq(0));
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
-            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.false;
+            expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.false;
             expect($jsonModal.find('.prefixGroupTitle').is(":visible")).to.be.true;
             expect($jsonModal.find('.prefix').is(":visible")).to.be.true;
-            expect($jsonModal.find('.mainKey').length).to.equal(12);
-            expect($jsonModal.find('.mainKey:visible').length).to.equal(12);
+            expect($jsonModal.find('.mainKey').length).to.equal(13);
+            expect($jsonModal.find('.mainKey:visible').length).to.equal(13);
 
             // test mousedown
-            $jsonModal.find('.tab').eq(1).trigger(fakeEvent.mousedown);
+            $jsonModal.find('.tab').eq(2).trigger(fakeEvent.mousedown);
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.false;
-            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.true;
+            expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.true;
 
             $jsonModal.find('.tab').eq(0).trigger(fakeEvent.mousedown);
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
-            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.false;
+            expect($jsonModal.find('.tab').eq(2).hasClass('active')).to.be.false;
         });
     });
 

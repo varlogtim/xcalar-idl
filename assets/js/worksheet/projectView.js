@@ -631,5 +631,13 @@ window.ProjectView = (function($, ProjectView) {
         }
     }
 
+
+      /* Unit Test Only */
+    if (window.unitTestMode) {
+        ProjectView.__testOnly__ = {};
+        ProjectView.__testOnly__.submitForm = submitForm;
+    }
+    /* End Of Unit Test Only */
+
     return (ProjectView);
 }(jQuery, {}));

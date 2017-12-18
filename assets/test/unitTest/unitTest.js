@@ -55,7 +55,9 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.setup = function() {
 
         $(document).ready(function() {
-            mocha.run();
+            mocha.run(function(a, b) {
+                alert("Test Exited");
+            });
             test = TestSuite.createTest();
             console.log("Setup code coverage!!!");
         });
@@ -299,7 +301,11 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.hasStatusBoxWithError = function(error) {
         var $statusBox = $("#statusBox");
         assert.isTrue($statusBox.is(":visible"));
-        expect($statusBox.find(".message").text()).to.equal(error);
+        var text = $statusBox.find(".message").text();
+        if (text != error) {
+            console.error(text, error);
+        }
+        expect(text).to.equal(error);
         StatusBox.forceHide();
     };
 

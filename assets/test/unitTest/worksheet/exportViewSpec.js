@@ -501,8 +501,9 @@ describe('ExportView Test', function() {
                 expect('passed').to.equal('should not pass');
             })
             .fail(function() {
-                UnitTest.hasStatusBoxWithError('Column "badColumn" does not exist.');
                 expect(fnCalled).to.be.true;
+                UnitTest.hasStatusBoxWithError('Column "badColumn" does not exist.');
+
             })
             .always(function() {
                 xcHelper.convertFrontColNamesToBack = cachedFn;

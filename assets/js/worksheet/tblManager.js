@@ -410,7 +410,7 @@ window.TblManager = (function($, TblManager) {
         var tableType;
         var tableId = xcHelper.getTableId(tableName);
         if (gTables[tableId]) {
-            if (gTables[tableId].IsActive()) {
+            if (gTables[tableId].isActive()) {
                 $('#workspaceTab').click();
                 wsId = WSManager.getWSFromTable(tableId);
                 var $wsListItem = $('#worksheetTab-' + wsId);
