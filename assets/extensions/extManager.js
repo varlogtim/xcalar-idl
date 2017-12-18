@@ -501,11 +501,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "noNotification": options.noNotification,
                     "noSql": options.noSql
                 });
-
                 return DagFunction.tagNodes(txId, finalTableId);
             })
             .then(function(ret) {
-                if (ret && ret.tagName) {
+                if (finalTableId && ret && ret.tagName) {
                     DagDraw.refreshDagImage(finalTableId, ret.tagName,
                                             ret.tables);
                 }

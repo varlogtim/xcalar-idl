@@ -272,6 +272,9 @@ window.DagDraw = (function($, DagDraw) {
     // used to replace dagImage with tagged version
     DagDraw.refreshDagImage = function(tableId, tagName, tables) {
         var $dagWrap = $("#dagWrap-" + tableId);
+        if (!$dagWrap.length) {
+            return;
+        }
         var dagInfo = $dagWrap.data("allDagInfo");
         var nodeIdMap = dagInfo.nodeIdMap;
         var $dagTable;
