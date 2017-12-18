@@ -1,3 +1,23 @@
+ html.safari {
+    #fileBrowserPath {
+        display: block;
+
+        > div, > input {
+            float: left;
+        }
+
+        .targetName {
+            .size(@max-width: 135px);
+            line-height: 28px;
+            .textOverflowOneLine;
+        }
+
+        .text {
+            .size(@width: ~"calc(100% - 165px)");
+        }
+    }
+}
+
  // DataStore CSS
 #datastorePanel {
     .position(relative, @top: 0);
