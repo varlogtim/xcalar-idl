@@ -2171,6 +2171,10 @@
 
     function cascadingJoins(distinctGbTablenames, origGbTable, joinCols,
                             tempTableArray, tempCols, txId) {
+        if (distinctGbTablenames.length === 0) {
+            return PromiseHelper.resolve(origGbTable);
+        }
+
         var promiseArray = [];
         var deferred = jQuery.Deferred();
         tempTableArray.push(origGbTable);
