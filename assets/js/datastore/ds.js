@@ -2459,6 +2459,7 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.resetDropTarget = resetDropTarget;
         DS.__testOnly__.lockDS = lockDS;
         DS.__testOnly__.unlockDS = unlockDS;
+        DS.__testOnly__.setSortKey = setSortKey;
     }
     /* End Of Unit Test Only */
 

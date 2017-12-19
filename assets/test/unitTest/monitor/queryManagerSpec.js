@@ -356,7 +356,12 @@ describe('QueryManager Test', function() {
                 return "fakeTable#fakeId";
             };
 
-            gTables["fakeId"] = {status: TableType.Undone};
+            gTables["fakeId"] = new TableMeta({
+                tableId: "fakeId",
+                tableName: "test#fakeId",
+                status: TableType.Undone
+            });
+
             $("#monitor-inspect").click();
 
             UnitTest.hasAlertWithTitle("table not found");

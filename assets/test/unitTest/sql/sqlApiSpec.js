@@ -115,7 +115,7 @@ describe("SQL-SQlApi Test", function() {
                 });
             };
 
-            sqlApi._getQueryTableCols("testTable", ["test"])
+            sqlApi._getQueryTableCols("testTable", [{colName: "test"}])
             .then(function(res) {
                 expect(res).to.be.an("array");
                 expect(res.length).to.equal(2);

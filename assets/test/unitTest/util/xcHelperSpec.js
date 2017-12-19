@@ -2356,19 +2356,35 @@ describe("xcHelper Test", function() {
             };
             gTables["fakeId"] = table;
 
-            var keys = ["col", "prefix::a", "prefix::col", "prefix::test"];
+            var keys = [{
+                name: "col",
+                ordering: 0
+            }, {
+                name: "prefix::a",
+                ordering: 0,
+            }, {
+                name: "prefix::col",
+                ordering: 0,
+            }, {
+                name: "prefix::test",
+                ordering: 0
+            }];
+            
             var expectedArray = [{
                 name: "col",
                 type: DfFieldTypeT.DfString,
-                keyFieldName: "col"
+                keyFieldName: "col",
+                ordering: 0
             }, {
                 name: "prefix::a",
                 type: DfFieldTypeT.DfUnknown,
-                keyFieldName: "a"
+                keyFieldName: "a",
+                ordering: 0
             }, {
                 name: "prefix::col",
                 type: DfFieldTypeT.DfUnknown,
-                keyFieldName: "prefix--col"
+                keyFieldName: "prefix--col",
+                ordering: 0
             }];
 
             xcHelper.getKeyInfos(keys, "test#fakeId")
@@ -2407,11 +2423,12 @@ describe("xcHelper Test", function() {
                 });
             };
 
-            xcHelper.getKeyInfos(["col"], "test#fakeId")
+            xcHelper.getKeyInfos([{name: "col", ordering: 3}], "test#fakeId")
             .then(function(res) {
                 expect(res.length).to.equal(1);
                 expect(res[0].type).to.equal(DfFieldTypeT.DfString);
                 expect(res[0].keyFieldName).to.equal("col");
+                expect(res[0].ordering).to.equal(3);
                 done();
             })
             .fail(function() {
@@ -2428,11 +2445,12 @@ describe("xcHelper Test", function() {
                 return PromiseHelper.reject();
             };
 
-            xcHelper.getKeyInfos(["col"], "test#fakeId")
+            xcHelper.getKeyInfos([{name: "col", ordering: 5}], "test#fakeId")
             .then(function(res) {
                 expect(res.length).to.equal(1);
                 expect(res[0].type).to.equal(DfFieldTypeT.DfUnknown);
                 expect(res[0].keyFieldName).to.equal("");
+                expect(res[0].ordering).to.equal(5);
                 done();
             })
             .fail(function() {

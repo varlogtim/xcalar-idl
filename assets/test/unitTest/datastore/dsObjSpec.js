@@ -1023,6 +1023,7 @@ describe("Dataset-DSObj Test", function() {
         before(function() {
             $ds = DS.getGrid(testDS.getId());
             $folder = DS.getGrid(testFolder.getId());
+            DS.__testOnly__.setSortKey("none");
         });
 
         it("Baisc Drag getter and setter should work", function() {
@@ -1059,10 +1060,10 @@ describe("Dataset-DSObj Test", function() {
 
         it("Should drop to folder", function() {
             DS.dropToFolder($ds, $folder);
-            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).to.equal($folder.data("dsid"));
 
             DS.dropToParent($ds);
-            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).not.to.equal($folder.data("dsid"));
         });
 
         it("DS.onDragStart should work", function() {
@@ -1111,10 +1112,10 @@ describe("Dataset-DSObj Test", function() {
         it("Should on drop to the folder", function() {
             var e = jQuery.Event("drop");
             DS.onDrop(e);
-            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).to.equal($folder.data("dsid"));
 
             DS.dropToParent($ds);
-            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).not.to.equal($folder.data("dsid"));
         });
 
         it("should end the drop event", function() {
@@ -1265,7 +1266,7 @@ describe("Dataset-DSObj Test", function() {
 
         it("Should not delete folder with ds", function() {
             DS.dropToFolder($ds, $folder);
-            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).to.equal($folder.data("dsid"));
 
             DS.remove($folder);
             // see alert
@@ -1281,7 +1282,7 @@ describe("Dataset-DSObj Test", function() {
             var dsId = testFolder.getId();
             // drop back to parent
             DS.dropToParent($ds);
-            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
+            expect($ds.data("dsparentid")).not.to.equal($folder.data("dsid"));
 
             DS.remove($folder);
             // not alert

@@ -387,12 +387,12 @@ describe("Profile-Profile Engins Test", function() {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
-                                        "sortCol");
+                                        ["sortCol"]);
         };
 
         var oldSortAsc = XIApi.sortAscending;
         XIApi.sortAscending = function() {
-            return PromiseHelper.resolve("sort table");
+            return PromiseHelper.resolve("sort table", ["sortCol"]);
         };
 
         var profileInfo = new ProfileInfo({

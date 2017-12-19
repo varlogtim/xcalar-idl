@@ -147,7 +147,7 @@ describe("Workbook Preview Test", function() {
         it("should view dag", function() {
             $workbookPreview.find(".listSection .view").eq(0).click();
             expect($workbookPreview.hasClass("dagMode")).to.be.true;
-            expect($workbookPreview.find(".dagWrap").text())
+            expect($workbookPreview.find(".dagWrap").eq(0).text())
             .to.equal(DFTStr.DFDrawError);
         });
 
