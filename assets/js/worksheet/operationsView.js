@@ -811,6 +811,16 @@ window.OperationsView = (function($, OperationsView) {
                 currentCol = table.getCol(colNum);
                 colName = currentCol.getFrontColName(true);
                 isNewCol = currentCol.isNewCol;
+            } else if (isEditMode) {
+                if (options.prefill.args[0] &&
+                    options.prefill.args[0][0] &&
+                    options.prefill.args[0][0].indexOf("(") === -1) {
+                    colName = options.prefill.args[0][0];
+                } else {
+                    colName = "";
+                }
+
+                isNewCol = false;
             }
         }
         updateFormTitles(options);
@@ -1894,7 +1904,7 @@ window.OperationsView = (function($, OperationsView) {
         var tempName = xcHelper.parsePrefixColName(colName).name;
         var autoGenColName;
         var $rows = $activeOpSection.find('.row');
-        if (colName === "") {
+        if (colName === "" && !isEditMode) {
             tempName = "mapped";
         }
         if (isNewCol && colName !== "") {
@@ -1908,6 +1918,9 @@ window.OperationsView = (function($, OperationsView) {
             }
             autoGenColName = xcHelper.stripColName(autoGenColName);
             autoGenColName = getAutoGenColName(autoGenColName);
+        }
+        if (isEditMode && !colName) {
+            autoGenColName = "";
         }
 
         $rows.eq(numArgs).addClass('colNameRow')

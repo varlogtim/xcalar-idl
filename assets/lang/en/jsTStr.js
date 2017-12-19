@@ -123,6 +123,7 @@ TooltipTStr = {
     "UnionDeleteTable": "Remove table from union",
     "UnionSearch": "Search within this table",
     "UnlockTable": "Click to unlock table",
+    "MapNoDelete": "Cannot remove. Map must have at least 1 operation.",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",

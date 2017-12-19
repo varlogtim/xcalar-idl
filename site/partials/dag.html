@@ -137,7 +137,7 @@
         <%= dicts.MenuTStr.ShowSchema %>
       </li>
       <li class="exitEdit">
-        Exit Dataflow Editing
+        <%= dicts.MenuTStr.ExitDFEdit %>
       </li>
     </ul>
 
@@ -159,9 +159,17 @@
     </div>
   </div>
   <div class="subHeader">
-    <div class="text">Select an operation to edit</div>
+    <div class="text">
+      <i class="icon xi-info-circle"></i>
+      <%= dicts.dataflow.SelectOpEdit %>
+    </div>
   </div>
   <div class="content">
+    <div class="opRows"></div>
+    <div class="addOp">
+      <span class="text"><%= dicts.MenuTStr.AddOperation %></span>
+      <i class="icon xi-plus xc-action"></i>
+    </div>
   </div>
 </div>
 

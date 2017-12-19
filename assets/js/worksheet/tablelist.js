@@ -160,14 +160,14 @@ window.TableList = (function($, TableList) {
         });
 
         // overflow tooltip
-        $tableListSections.on("mouseenter", ".tableName", function(){
+        $tableListSections.on("mouseenter", ".tableName", function() {
             if (!$(this).closest("." + TableType.Undone).length) {
                 xcTooltip.auto(this);
             }
         });
 
         // overflow tooltip
-        $tableListSections.on("mouseenter", ".constName", function(){
+        $tableListSections.on("mouseenter", ".constName", function() {
             xcTooltip.auto(this);
         });
 

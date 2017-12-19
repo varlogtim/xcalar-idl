@@ -1400,9 +1400,31 @@ html.firefox, html.microsoft {
 }
 
 #mapPreForm {
+    color: @color-font-darkGray;
+    font-size: 12px;
+
+    &.single {
+        .option.delete {
+            .icon {
+                .xc-disabled;
+            }
+        }
+    }
+
     .subHeader {
-        > div {
+        height: 24px;
+        line-height: 24px;
+        .text {
             width: 100%;
+            color: @color-font-darkGray;
+            font-weight: 600;
+            line-height: 24px;
+        }
+        .icon {
+            font-size: 12px;
+            float: left;
+            color: @color-font-select-blue;
+            line-height: 24px;
         }
     }
 
@@ -1413,28 +1435,60 @@ html.firefox, html.microsoft {
     .row {
         .flex-display;
         .justify-content(space-between);
-        padding: 5px 10px;
+        padding: 5px 7px 5px 10px;
         font-size: 12px;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: @color-table-oddSelectedCell-blue;
+        }
+
+        .evalStr {
+            .flex(1 1 auto);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .xi-edit, .xi-trash {
+            font-size: 12px;
+            color: @color-font-greyish-brown;
+        }
+        .xi-trash {
+            font-size: 14px;
+            position: relative;
+            top: 1px;
+        }
+
+        .text {
+            display: none;
+        }
+    }
+
+    .optionSection {
+        white-space: nowrap;
+        min-width: 46px;
+        .option {
+            float: right;
+            padding: 0px 3px;
+        }
+    }
+
+    .addOp {
+        color: @color-font-select-blue;
+        padding: 5px 7px 5px 10px;
         cursor: pointer;
 
         &:hover {
             background-color: @color-table-oddSelectedCell-blue;
         }
 
-        .xi-edit {
+        .icon {
             font-size: 12px;
-            color: @color-font-greyish-brown;
-            // display: none; // XXX temporary
+            float: right;
+            padding: 0px 4px;
+            line-height: 17px;
         }
-
-        .text {
-            display: none;
-        }
-
-    }
-
-    .optionSection {
-        padding: 0px 5px;
     }
 }
 

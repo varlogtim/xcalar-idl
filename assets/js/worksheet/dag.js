@@ -1075,8 +1075,10 @@ window.Dag = (function($, Dag) {
         var dagWrapId = xcHelper.getTableId(dagWrapName);
         var $dagWrap = $("#dagWrap-" + dagWrapId);
         var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
-        var $opIcon = $dagTable.closest(".dagTableWrap").addClass("hasEdit")
-                                                        .find(".actionType");
+        var $tableWrap = $dagTable.closest(".dagTableWrap");
+        var alreadyHasEdit = $tableWrap.hasClass("hasEdit");
+        $tableWrap.addClass("hasEdit");
+        var $opIcon = $tableWrap.addClass("hasEdit").find(".actionType");
 
         // var tip = '<div class="dagTableTip">' +
         //             '<div>' + JSON.stringify(param, null, 2) + '</div>' +
@@ -1088,6 +1090,7 @@ window.Dag = (function($, Dag) {
                 $dagTable.closest(".dagTableWrap").addClass("hasEdit");
             }
         }
+        return alreadyHasEdit;
     };
 
     Dag.removeEditedOperation = function(treeNode, editingNode, indexNodes) {

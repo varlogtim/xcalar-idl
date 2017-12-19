@@ -86,8 +86,7 @@ window.DagEdit = (function($, DagEdit) {
             }
         });
 
-        if (options.evalIndex == null && api === XcalarApisT.XcalarApiMap &&
-            node.value.struct.eval.length > 1) {
+        if (api === XcalarApisT.XcalarApiMap && options.evalIndex == null) {
             showMapPreForm(node);
             return;
         }
@@ -209,10 +208,17 @@ window.DagEdit = (function($, DagEdit) {
             structs[editingNode.value.name] = info.args;
         }
 
-        Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
+        $(".xcTableWrap").removeClass("editing");
+
+        var alreadyHasEdit = Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
                               structs[editingNode.value.name]);
 
-        var descendants = Dag.styleDestTables($(".dagWrap.editMode"), editingNode.value.name, "isDownstream");
+        if (alreadyHasEdit) {
+            return;
+        }
+
+        var descendants = Dag.styleDestTables($(".dagWrap.editMode"),
+                                    editingNode.value.name, "isDownstream");
         for (var i = 0; i < descendants.length; i++) {
             if (!descendantRefCounts[descendants[i]]) {
                 descendantRefCounts[descendants[i]] = 0;
@@ -220,8 +226,6 @@ window.DagEdit = (function($, DagEdit) {
             descendantRefCounts[descendants[i]]++;
         }
         descendantMap[editingNode.value.name] = descendants;
-
-        $(".xcTableWrap").removeClass("editing");
     };
 
     DagEdit.undoEdit = function(node) {
@@ -272,13 +276,65 @@ window.DagEdit = (function($, DagEdit) {
             containment: "document"
         });
 
-        $mapPreForm.on("click", ".row", function() {
+        $mapPreForm.on("click", ".row", function(event) {
+            if ($(event.target).closest(".delete").length) {
+                return;
+            }
             $mapPreForm.removeClass("active");
             $(document).off(".hideMapPreForm");
 
             var index = $(this).index();
             mapIndex = index;
             DagEdit.editOp(editingNode, {evalIndex: index});
+        });
+
+        $mapPreForm.on("click", ".delete", function() {
+            var index = $(this).closest(".row").index();
+            var struct;
+            if (!structs[editingNode.value.name]) {
+                structs[editingNode.value.name] = {
+                    eval: xcHelper.deepCopy(editingNode.value.struct.eval)
+                };
+                structs[editingNode.value.name].icv = editingNode.value.struct.icv;
+            }
+            structs[editingNode.value.name].eval.splice(index, 1);
+            $(this).closest(".row").remove();
+
+            var alreadyHasEdit = Dag.updateEditedOperation(treeNode, editingNode, [],
+                              structs[editingNode.value.name]);
+
+            if (structs[editingNode.value.name].eval.length === 1) {
+                $mapPreForm.addClass("single");
+                xcTooltip.add($mapPreForm.find(".delete"),
+                             {title: TooltipTStr.MapNoDelete});
+            }
+
+            if (alreadyHasEdit) {
+                return;
+            }
+
+            var descendants = Dag.styleDestTables($(".dagWrap.editMode"),
+                                        editingNode.value.name, "isDownstream");
+            for (var i = 0; i < descendants.length; i++) {
+                if (!descendantRefCounts[descendants[i]]) {
+                    descendantRefCounts[descendants[i]] = 0;
+                }
+                descendantRefCounts[descendants[i]]++;
+            }
+            descendantMap[editingNode.value.name] = descendants;
+        });
+
+        $mapPreForm.on("click", ".addOp", function() {
+            $mapPreForm.removeClass("active");
+            $(document).off(".hideMapPreForm");
+
+            var index = $mapPreForm.find(".row").length;
+            mapIndex = index;
+            DagEdit.editOp(editingNode, {evalIndex: index});
+        });
+
+        $mapPreForm.on("mouseenter", ".evalStr", function() {
+            xcTooltip.auto(this);
         });
     };
 
@@ -311,9 +367,16 @@ window.DagEdit = (function($, DagEdit) {
                     mapIndex = 0;
                 }
 
-                var evalStr = struct.eval[mapIndex].evalString.trim();
+                var opInfo;
+                if (struct.eval[mapIndex]) {
+                    var evalStr = struct.eval[mapIndex].evalString.trim();
+                    opInfo = xcHelper.extractOpAndArgs(evalStr);
+                } else {
+                    // adding a new operation
+                    opInfo = {op: "", args: []};
+                }
 
-                var opInfo = xcHelper.extractOpAndArgs(evalStr);
+
                 var newFields = struct.eval.map(function(item) {
                     return item.newField;
                 });
@@ -562,31 +625,45 @@ window.DagEdit = (function($, DagEdit) {
             }
         });
 
-        var mapStruct;
-        if (structs[node.value.name]) {
-            mapStruct = structs[node.value.name];
-        } else {
-            mapStruct = node.value.struct;
-        }
+        var mapStruct = structs[node.value.name] || node.value.struct;
 
-        var evalHtml = "<div>";
+        var evalHtml = "";
         mapStruct.eval.forEach(function(evalObj) {
             evalHtml += '<div class="row">' +
-                            '<div class="evalStr">' + evalObj.evalString + '</div>' +
+                            '<div class="evalStr" ' +
+                                'data-toggle="tooltip" data-container="body" ' +
+                                'data-placement="top" data-tipclasses="highZindex" ' +
+                                'data-original-title="' +
+                                xcHelper.escapeDblQuoteForHTML(evalObj.evalString) + '">' +
+                                evalObj.evalString +
+                            '</div>' +
                             '<div class="optionSection">' +
-                                '<div class="edit option">' +
+                                '<div class="delete option xc-action">' +
+                                    '<i class="icon xi-trash"></i>' +
+                                '</div>' +
+                                '<div class="edit option xc-action">' +
                                     '<span class="text">Edit</span>' +
                                     '<i class="icon xi-edit"></i>' +
                                 '</div>' +
-                                // '<div class="delete option">' +
+                                // '<div class="restore option xc-action">' +
                                 //     '<i class="icon xi-trash"></i>' +
                                 // '</div>' +
                             '</div>' +
                         '</div>';
+
         });
 
         evalHtml += "</div>";
-        $mapPreForm.find(".content").html(evalHtml);
+        $mapPreForm.find(".opRows").html(evalHtml);
+
+        if (mapStruct.eval.length === 1) {
+            $mapPreForm.addClass("single");
+            xcTooltip.add($mapPreForm.find(".delete"),
+                         {title: TooltipTStr.MapNoDelete});
+            $mapPreForm.find(".delete").attr("data-tipclasses", "highZindex");
+        } else {
+            $mapPreForm.removeClass("single");
+        }
 
         positionMapPreForm($dagTable);
     }
@@ -596,16 +673,16 @@ window.DagEdit = (function($, DagEdit) {
         var topMargin = -3;
         var top = $dagTable[0].getBoundingClientRect().top + topMargin;
         var left = $dagTable[0].getBoundingClientRect().left - 140;
-        var defaultWidth = 300;
-        var defaultHeight = 200;
+        var maxWidth = 500;
+        var maxHeight = 400;
 
         $mapPreForm.css("width", "auto");
-        var width = Math.min(defaultWidth, $mapPreForm.outerWidth());
+        var width = Math.min(maxWidth, $mapPreForm.outerWidth()) + 4;
         width = Math.max(230, width);
         $mapPreForm.width(width);
 
         $mapPreForm.css("height", "auto");
-        var height = Math.min(defaultHeight, $mapPreForm.outerHeight());
+        var height = Math.min(maxHeight, $mapPreForm.outerHeight());
         height = Math.max(200, height);
         $mapPreForm.height(height);
 

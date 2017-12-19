@@ -141,7 +141,8 @@ module.exports = {
         "RevealOps": "Reveal operations",
         "HideOps": "Hide operations",
         "UndoEdit": "Undo edit",
-        "ExitEditMode": "Exit editing mode"
+        "ExitEditMode": "Exit editing mode",
+        "AddOperation": "Add an operation"
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",
@@ -371,7 +372,8 @@ module.exports = {
         "AdditionalTables": "其他要导出的表",
         "SourceTableHint": "Specifying source tables allows batch dataflows to use tables from the current workbook instead of reading the data from source",
         "AddSource": "Add a source table",
-        "SourceTables": "Source Tables"
+        "SourceTables": "Source Tables",
+        "SelectOpEdit": "Select an operation to edit"
     },
     "deleteTable": {
         "Active": "激活表",

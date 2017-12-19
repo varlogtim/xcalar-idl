@@ -830,9 +830,11 @@ window.DagFunction = (function($, DagFunction) {
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
+            return setRerunColumns(finalTableName, gTables[tableId]);
+        })
+        .then(function(cols) {
             var worksheet = WSManager.getWSFromTable(tableId);
-            return TblManager.refreshTable([finalTableName],
-                                    gTables[tableId].tableCols, [tableName],
+            return TblManager.refreshTable([finalTableName], cols, [tableName],
                                     worksheet, txId, {noTag: true,
                                         focusWorkspace: true});
         })
@@ -1278,6 +1280,88 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         return (names);
+    }
+
+    // remove immediates that are not present in the new table, add new immediates
+    // immediates that are present in before and after will change user string
+    // to pull instead of map
+    function setRerunColumns(finalTableName, table) {
+        var deferred = jQuery.Deferred();
+        var progCols = table.tableCols;
+
+        XcalarGetTableMeta(finalTableName)
+        .then(function(tableMeta) {
+            var newCols = [];
+
+            var values = tableMeta.valueAttrs;
+            var immediates = {};
+            var prefixes = {};
+            var isDATAColLast = false;
+            for (var i = 0; i < values.length; i++) {
+                if (values[i].type === DfFieldTypeT.DfFatptr) {
+                    prefixes[values[i].name] = true;
+                } else {
+                    immediates[values[i].name] = {used: false};
+                }
+            }
+
+            for (var i = 0; i < progCols.length; i++) {
+                if (progCols[i].prefix) {
+                    if (prefixes[progCols[i].prefix]) {
+                        newCols.push(ColManager.newCol(progCols[i]));
+                    }
+                } else {
+                    if (progCols[i].isDATACol()) {
+                        newCols.push(ColManager.newCol(progCols[i]));
+                        if (i === progCols.length - 1) {
+                            isDATAColLast = true;
+                        }
+                    } else if (immediates[progCols[i].name]) {
+                        var newProgCol = ColManager.newCol(progCols[i]);
+                        newProgCol.userStr =  '"' + progCols[i].name + '" = pull(' + progCols[i].name + ')';
+                        newCols.push(newProgCol);
+                        immediates[progCols[i].name].used = true;
+                    }
+                }
+            }
+
+            if (table.backTableMeta) {
+                var prevValues = table.backTableMeta.valueAttrs;
+                for (var i = 0; i < prevValues.length; i++) {
+                    if (prevValues[i].type !== DfFieldTypeT.DfFatptr) {
+                        if (immediates[prevValues[i].name]) {
+                            immediates[prevValues[i].name].used  = true;
+                        }
+                    }
+                }
+            }
+
+            for (var name in immediates) {
+                var immediate = immediates[name];
+                if (!immediate.used) {
+                    var newProgCol = ColManager.newCol({
+                        "backName": name,
+                        "name": name,
+                        "isNewCol": false,
+                        "sizedTo": "header",
+                        "width": xcHelper.getDefaultColWidth(name),
+                        "userStr": '"' + name + '" = pull(' + name + ')'
+                    });
+                    if (isDATAColLast) {
+                        newCols.splice(newCols.length - 1, 0, newProgCol);
+                    } else {
+                        newCols.push(ColManager.newCol(newProgCol));
+                    }
+                }
+            }
+
+            deferred.resolve(newCols);
+        })
+        .fail(function() {
+            // just use original columns
+            deferred.resolve(progCols);
+        });
+        return deferred.promise();
     }
 
     return DagFunction;

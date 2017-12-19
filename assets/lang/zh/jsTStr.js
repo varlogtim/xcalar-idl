@@ -135,7 +135,8 @@ TooltipTStr = {
 'LowMemInDS': '警告！集群内存不足。请删除无用的数据集。',
 'LowMemByOthers': '集群中的其他用户已经超过分配给表的最佳内存。请联系管理员。',
 'SavedOn': '最近保存时间',
-"UnlockTable": "Click to unlock table"
+"UnlockTable": "Click to unlock table",
+"MapNoDelete": "Cannot remove. Map must have at least 1 operation.",
 };
 CommonTxtTstr = {
 'ArrayVal': '数组值',
