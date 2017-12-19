@@ -5,6 +5,11 @@ describe('DFCreateView Test', function() {
     var tableId;
     var $table;
     var testDfName;
+    var prevTableName;
+    var prevTableId;
+    var tableName2;
+    var tableId2;
+    var $dagWrap;
 
     before(function(done) {
         testDfName = xcHelper.randName("unitTestDF");
@@ -16,11 +21,32 @@ describe('DFCreateView Test', function() {
             tableName = tName;
             $dfView = $('#dfCreateView');
             tableId = xcHelper.getTableId(tableName);
-            $table = $("#xcTable-" + tableId);
-            DFCreateView.show($("#dagWrap-" + tableId));
-            setTimeout(function() {
-                done();
-            }, 400);
+            prevTableId = tableId;
+            prevTableName = tableName;
+
+            ColManager.changeType([{colNum: 1, type: "float"}], tableId)
+            .then(function(tId) {
+                tableId = tId;
+                tableName = gTables[tableId].getName();
+                $table = $("#xcTable-" + tableId);
+
+                tableName2 = "fakeTable#zz999";
+                tableId2 = "zz999";
+                var table = new TableMeta({
+                    "tableId": tableId2,
+                    "tableName": tableName2,
+                    "status": TableType.Active,
+                    "tableCols": []
+                });
+                gTables[tableId2] = table;
+
+                $dagWrap = $("#dagWrap-" + tableId);
+
+                DFCreateView.show($("#dagWrap-" + tableId));
+                setTimeout(function() {
+                    done();
+                }, 400);
+            });
         });
     });
 
@@ -40,6 +66,74 @@ describe('DFCreateView Test', function() {
             $('#xcTheadWrap-' + tableId).find('.dropdownBox').click();
             expect($("#tableMenu").find('.exitDataflow').is(":visible")).to.be.true;
             $('.menu').hide();
+        });
+    });
+
+    describe("table list actions", function() {
+        it("table list should work", function() {
+            var $tableListWrap = $dfView.find(".group").find(".tableList").last();
+            $tableListWrap.find(".iconWrapper").click();
+            expect($tableListWrap.find("li:visible").length).to.be.gt(2);
+            expect($tableListWrap.find(".sectionLabel").length).to.equal(2);
+            $tableListWrap.find("li").filter(function() {
+                return $(this).text() === tableName2;
+            }).trigger(fakeEvent.mouseup);
+
+            var numCols = $dfView.find('.cols li').length;
+            expect(numCols).to.equal(0);
+
+            $tableListWrap.find(".iconWrapper").click();
+            $tableListWrap.find("li").filter(function() {
+                return $(this).text() === tableName;
+            }).trigger(fakeEvent.mouseup);
+
+            numCols = $dfView.find('.cols li').length;
+            expect(numCols).to.equal(6);
+        });
+
+        it("dagTable picker should work", function() {
+            var $tableInput = $dfView.find(".tableList .text");
+            $dfView.find(".tableList .text").focus();
+            $dagWrap.find(".dagTable").eq(1).trigger(fakeEvent.mousedown);
+            expect($tableInput.val()).to.equal(prevTableName);
+
+            $dagWrap.find(".dagTable").eq(0).trigger(fakeEvent.mousedown);
+            expect($tableInput.val()).to.equal(tableName);
+        });
+
+        it("invalid name should produce no columns", function() {
+            $dfView.find(".tableList .text").val("nothing").trigger("change");
+            expect($dfView.find(".exportColumnsSection").hasClass("empty")).to.be.true;
+            $dfView.find(".tableList .text").val(tableName).focus().trigger("blur");
+            $dfView.find(".tableList .text").val(tableName).trigger("change");
+            expect($dfView.find(".exportColumnsSection").hasClass("empty")).to.be.false;
+        });
+
+        it("focus should work", function() {
+            var cache = xcHelper.centerFocusedTable;
+            var fnCalled = false;
+            xcHelper.centerFocusedTable = function() {
+                fnCalled = true;
+            };
+
+            $dfView.find(".focusTable").eq(0).click();
+            xcHelper.centerFocusedTable = cache;
+        });
+
+        it("add export dest should work", function() {
+            expect($dfView.find(".group").length).to.equal(1);
+            $dfView.find(".addDest button").click();
+            expect($dfView.find(".group").length).to.equal(2);
+            expect($dfView.find(".group").first().hasClass("minimized")).to.be.true;
+        });
+
+        it("remove export dest should work", function() {
+            expect($dfView.find(".group").length).to.equal(2);
+            $dfView.find(".group .closeGroup").last().click();
+            expect($dfView.find(".group").length).to.equal(1);
+            expect($dfView.find(".group").first().hasClass("minimized")).to.be.true;
+            $dfView.find(".group").first().trigger("mouseup");
+            expect($dfView.find(".group").first().hasClass("minimized")).to.be.false;
         });
     });
 
@@ -168,10 +262,62 @@ describe('DFCreateView Test', function() {
         function getHighlightedColText() {
             var text = "";
             $table.find('th.modalHighlighted').each(function() {
-                text += $(this).text() + gPrefixSign + $(this).find('input').val();
+                var prefix;
+                if ($(this).text().indexOf("Derived") > -1) {
+                    prefix = "";
+                } else {
+                    prefix = $(this).text() + gPrefixSign;
+                }
+                text += prefix + $(this).find('input').val();
             });
             return text;
         }
+    });
+
+    describe("source table", function() {
+        it("adding src input should work", function() {
+            expect($dfView.find(".sourceTableWrap .tableList").length).to.equal(0);
+            $dfView.find(".addSrc button").click();
+            expect($dfView.find(".sourceTableWrap .tableList").length).to.equal(1);
+        });
+
+        it("src input change should work", function() {
+            var $input = $dfView.find(".sourceTableWrap input");
+            $input.val(tableName).trigger("change");
+            $input.val(prevTableName).trigger("change");
+            $input.val(prevTableName).focus().trigger("blur");
+            expect($dagWrap.find(".dagTableWrap").eq(1).hasClass("isSource")).to.be.true;
+            expect($dagWrap.find(".dagTableWrap").eq(1).hasClass("isAncestor")).to.be.false;
+            expect($dagWrap.find(".dagTableWrap").eq(2).hasClass("isSource")).to.be.false;
+            expect($dagWrap.find(".dagTableWrap").eq(2).hasClass("isAncestor")).to.be.true;
+        });
+
+        it("src input list should work", function() {
+            $dfView.find(".sourceTableWrap .iconWrapper").click();
+            var $li = $dfView.find(".tableList").last().find("li").filter(function() {
+                return $(this).text() === prevTableName;
+            });
+            expect($li.hasClass("inUse")).to.be.true;
+            $li.trigger(fakeEvent.mouseup);
+        });
+
+        it("removing src input should work", function() {
+            $dfView.find(".addSrc button").click();
+            expect($dfView.find(".sourceTableWrap .tableList").length).to.equal(2);
+            $dfView.find(".sourceTableWrap .closeGroup").eq(0).click();
+            expect($dfView.find(".sourceTableWrap .tableList").length).to.equal(1);
+        });
+    });
+
+    describe("DFCreateView.udpateTables", function() {
+        it ("should refresh column list", function() {
+            var $cols = $dfView.find(".cols li");
+            expect($cols.length).to.equal(6);
+            $cols.remove();
+            expect($dfView.find(".cols li").length).to.equal(0);
+            DFCreateView.updateTables(tableId, true);
+            expect($dfView.find(".cols li").length).to.equal(6);
+        });
     });
 
     describe('validating dataflow name', function() {
@@ -236,6 +382,19 @@ describe('DFCreateView Test', function() {
                 expect($(".tooltip.error").text().indexOf(TooltipTStr.ChooseColToExport)).to.be.gt(-1);
             })
             .always(function() {
+                done();
+            });
+        });
+
+        it("empty src table should error", function(done) {
+            DFCreateView.__testOnly__.selectAll(tableId);
+            submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError("This table was not found in the selected dataflow.");
+                $dfView.find(".sourceTableWrap .closeGroup").eq(0).click();
                 done();
             });
         });
@@ -324,6 +483,7 @@ describe('DFCreateView Test', function() {
     });
 
     after(function(done) {
+        gTables[tableId2];
         $("#maximizeDag").click();
         setTimeout(function() {
             $("#closeDag").click();

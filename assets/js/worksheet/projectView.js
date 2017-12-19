@@ -24,7 +24,7 @@ window.ProjectView = (function($, ProjectView) {
 
         addFormEvents();
     };
-
+    // colnums start at [1]
     ProjectView.show = function(tId, colNums, options) {
         if (formHelper.isOpen()) {
             return;
@@ -636,6 +636,7 @@ window.ProjectView = (function($, ProjectView) {
     if (window.unitTestMode) {
         ProjectView.__testOnly__ = {};
         ProjectView.__testOnly__.submitForm = submitForm;
+        ProjectView.__testOnly__.getFormHelper = function(){return formHelper};
     }
     /* End Of Unit Test Only */
 

@@ -18,30 +18,36 @@ describe('ProjectView Test', function() {
             tableName = tName;
             $projectForm = $('#projectView');
             tableId = xcHelper.getTableId(tableName);
-            $table = $("#xcTable-" + tableId);
 
-            // add a second table for table list testing
-            tableName2 = "fakeTable#zz999";
-            tableId2 = "zz999";
-            var table = new TableMeta({
-                "tableId": tableId2,
-                "tableName": tableName2,
-                "status": TableType.Active,
-                "tableCols": []
-            });
-            gTables[tableId2] = table;
+            // generate an immediate from average_stars, four to boolean
+            ColManager.changeType([{colNum: 1, type: "float"}, {colNum: 4, type: "boolean"}], tableId)
+            .then(function(newTId) {
+                tableId = newTId;
+                tableName = gTables[tableId].getName();
 
-            WSManager.getTableList = function() {
-                var tableList =
-                        '<li data-id="' + tableId + '">' + tableName + '</li>' +
-                        '<li data-id="' + tableId2 + '">' + tableName2 + '</li>';
-                return tableList;
-            };
+                $table = $("#xcTable-" + tableId);
 
-            xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
+                // add a second table for table list testing
+                tableName2 = "fakeTable#zz999";
+                tableId2 = "zz999";
+                var table = new TableMeta({
+                    "tableId": tableId2,
+                    "tableName": tableName2,
+                    "status": TableType.Active,
+                    "tableCols": []
+                });
+                gTables[tableId2] = table;
 
-            ProjectView.show(tableId)
-            .then(function() {
+                WSManager.getTableList = function() {
+                    var tableList =
+                            '<li data-id="' + tableId + '">' + tableName + '</li>' +
+                            '<li data-id="' + tableId2 + '">' + tableName2 + '</li>';
+                    return tableList;
+                };
+
+                xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
+
+                ProjectView.show(tableId, [1]);
                 setTimeout(function() {
                     done();
                 }, 500);
@@ -53,11 +59,10 @@ describe('ProjectView Test', function() {
         it('inputs should be prefilled', function() {
             expect($projectForm.find('.tableList .text:visible')).to.have.lengthOf(1);
             expect($projectForm.find('.tableList .text').text()).to.equal(tableName);
-            expect($projectForm.find('.columnsToExport li')).to.have.lengthOf(6);
+            expect($projectForm.find('.columnsToExport li')).to.have.lengthOf(12);
         });
 
         it('exit option on table menu should be available', function() {
-            expect($('.xcTableWrap.projectMode').length).to.be.gte(1);
             expect($('#xcTheadWrap-' + tableId).find('.dropdownBox').is(":visible")).to.be.true;
             $('#xcTheadWrap-' + tableId).find('.dropdownBox').click();
             expect($("#tableMenu").find('.exitProject').is(":visible")).to.be.true;
@@ -110,17 +115,27 @@ describe('ProjectView Test', function() {
             $nextLi.trigger(fakeEvent.mouseup);
             expect($text.text()).to.equal(tableName2);
 
-            $selectedLi.trigger(fakeEvent.mouseup);
-            expect($text.text()).to.equal(tableName);
+
         });
 
-        it('tablelist menu select should update columns', function() {
+        it('tablelist menu select should select 0 columns', function() {
             var $tableList = $projectForm.find('.tableList');
+            var $ul = $tableList.find('ul');
+            var $text = $tableList.find('.text');
             var numCols = $projectForm.find('.cols li').length;
-            expect(numCols).to.be.gt(4);
-            expect($projectForm.find('.cols li.checked').length).to.equal(numCols);
+
+            expect(numCols).to.equal(0);
+            expect($projectForm.find('.cols li.checked').length).to.equal(0);
+
+            var $selectedLi = $ul.find('li').filter(function() {
+                return $(this).text() === tableName;
+            });
+            $selectedLi.trigger(fakeEvent.mouseup);
+            expect($text.text()).to.equal(tableName);
+
+            expect($projectForm.find('.cols li.checked').length).to.equal(0);
             $projectForm.find('.cols li').eq(0).click();
-            expect($projectForm.find('.cols li.checked').length).to.equal(numCols - 1);
+            expect($projectForm.find('.cols li.checked').length).to.equal(1);
 
             // select new new table then back to prev table
             $tableList.trigger(fakeEvent.click);
@@ -132,12 +147,17 @@ describe('ProjectView Test', function() {
             }).trigger(fakeEvent.mouseup);
 
             expect($tableList.find('.text').text()).to.equal(tableName);
-            expect($projectForm.find('.cols li.checked').length).to.equal(numCols);
+            expect($projectForm.find('.cols li.checked').length).to.equal(0);
         });
 
         it('column picker should work', function() {
             var numCols = $projectForm.find('.cols li').length;
             expect(numCols).to.be.gt(4);
+
+            expect($projectForm.find('.cols li.checked').length).to.equal(0);
+
+            $projectForm.find(".selectAllWrap .checkbox").trigger(fakeEvent.click);
+
             expect($projectForm.find('.cols li.checked').length).to.equal(numCols);
 
             $projectForm.find('.cols li').eq(0).click();
@@ -146,17 +166,17 @@ describe('ProjectView Test', function() {
             $projectForm.find('.cols li').eq(0).click();
             expect($projectForm.find('.cols li.checked').length).to.equal(numCols);
 
-            var $th = $("#xcTable-" + tableId).find('th.col1');
-            expect($th.hasClass('modalHighlighted')).to.be.true;
+            var $th = $("#xcTable-" + tableId).find('th.col1 .header');
+            expect($th.closest('.modalHighlighted').length).to.equal(1);
 
             $th.click(); // deselect
 
-            expect($th.hasClass('modalHighlighted')).to.be.false;
+            expect($th.closest('.modalHighlighted').length).to.equal(0);
             expect($projectForm.find('.cols li').eq(0).hasClass('checked')).to.be.false;
 
             $th.click(); // select
 
-            expect($th.hasClass('modalHighlighted')).to.be.true;
+            expect($th.closest('.modalHighlighted').length).to.equal(1);
             expect($projectForm.find('.cols li').eq(0).hasClass('checked')).to.be.true;
         });
 
@@ -176,19 +196,18 @@ describe('ProjectView Test', function() {
             expect($projectForm.find(".cols li").eq(0).find(".checked").length).to.equal(1);
             $projectForm.find(".cols li").eq(0).click();
             expect($projectForm.find(".cols li").eq(0).find(".checked").length).to.equal(0);
+            expect($projectForm.find(".cols li").eq(1).find(".checked").length).to.equal(1);
 
             var event = {"type": "click", "which": 1, "shiftKey": true};
             expect($projectForm.find(".cols li").eq(1).find(".checked").length).to.equal(1);
-            expect($projectForm.find(".cols li").eq(2).find(".checked").length).to.equal(1);
-            $projectForm.find(".cols li").eq(2).trigger(event);
+            $projectForm.find(".cols li").eq(1).trigger(event);
+            expect($projectForm.find(".cols li").eq(0).find(".checked").length).to.equal(0);
             expect($projectForm.find(".cols li").eq(1).find(".checked").length).to.equal(0);
-            expect($projectForm.find(".cols li").eq(2).find(".checked").length).to.equal(0);
 
             $projectForm.find(".cols li").eq(0).click();
-            $projectForm.find(".cols li").eq(2).trigger(event);
+            $projectForm.find(".cols li").eq(1).trigger(event);
             expect($projectForm.find(".cols li").eq(0).find(".checked").length).to.equal(1);
             expect($projectForm.find(".cols li").eq(1).find(".checked").length).to.equal(1);
-            expect($projectForm.find(".cols li").eq(2).find(".checked").length).to.equal(1);
         });
 
         it("shift click should work on table columns", function() {
@@ -225,10 +244,21 @@ describe('ProjectView Test', function() {
             $target = $table.find(".header").eq(1);
             $target.click();
             expect($target.closest(".modalHighlighted").length).to.equal(0);
-            $table.find("th").eq(0).click();
+            $table.find("th .header").eq(0).click();
             expect($table.find(".header").eq(1).closest(".modalHighlighted").length).to.equal(1);
         });
 
+    });
+
+    describe("ProjectView.updateColumns", function() {
+        it("colum refresh should work", function() {
+            var $cols = $projectForm.find('.columnsToExport li.checked');
+            expect($cols.is($projectForm.find('.columnsToExport li.checked'))).to.be.true;
+            expect($projectForm.find('.columnsToExport li.checked')).to.have.lengthOf(12);
+            ProjectView.updateColumns();
+            expect($projectForm.find('.columnsToExport li.checked')).to.have.lengthOf(12);
+            expect($cols.is($projectForm.find('.columnsToExport li.checked'))).to.be.false;
+        });
     });
 
     describe('test submit errors', function() {
@@ -244,10 +274,9 @@ describe('ProjectView Test', function() {
         it("invalid backnames should produce error", function(done) {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
             var fnCalled = false;
-            xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
+            xcHelper.convertFrontColNamesToBack = function(colNames, tId) {
+                expect(colNames.length).to.equal(12);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'notFound', name: 'badColumn'};
@@ -271,10 +300,9 @@ describe('ProjectView Test', function() {
         it("invalid backnames should produce error", function(done) {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
             var fnCalled = false;
-            xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
+            xcHelper.convertFrontColNamesToBack = function(colNames, tId) {
+                expect(colNames.length).to.equal(12);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'tableNotFound'};
@@ -293,93 +321,21 @@ describe('ProjectView Test', function() {
                 done();
             });
         });
+    });
 
-        // bad type
-        it("invalid backnames should produce error", function(done) {
-            var cachedFn = xcHelper.convertFrontColNamesToBack;
-            var fnCalled = false;
-            xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
-                expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
+    describe("restore columns", function() {
+        it("restore columns should work", function(done) {
+            $projectForm.find(".close").click();
+            expect($("#xcTable-" + tableId).find('th.modalHighlighted').length).to.equal(0);
+            var formHelper = ProjectView.__testOnly__.getFormHelper();
+            formHelper.getOpenTime = function() {return 2;};
 
-                fnCalled = true;
-                return {
-                    invalid: true,
-                    reason: 'type',
-                    name: 'badColumn',
-                    type: 'array'
-                };
-            };
+            ProjectView.show(tableId, null, {restoreTime: 2});
 
-            ProjectView.__testOnly__.submitForm()
-            .then(function() {
-                expect('passed').to.equal('should not pass');
-            })
-            .fail(function() {
-                UnitTest.hasStatusBoxWithError('Column "badColumn" has an invalid type: array');
-                expect(fnCalled).to.be.true;
-            })
-            .always(function() {
-                xcHelper.convertFrontColNamesToBack = cachedFn;
+            setTimeout(function() {
+                expect($("#xcTable-" + tableId).find('th.modalHighlighted').length).to.equal(12);
                 done();
-            });
-        });
-
-        it("invalid project name", function(done) {
-            $("#projectName").val("bl*ah");
-
-            ProjectView.__testOnly__.submitForm()
-            .then(function() {
-                expect('passed').to.equal('should not pass');
-            })
-            .fail(function() {
-                UnitTest.hasStatusBoxWithError('Please input a valid name with no special characters.');
-            })
-            .always(function() {
-                done();
-            });
-        });
-
-        it("invalid project name", function(done) {
-            var name = "";
-            for (var i = 0; i < XcalarApisConstantsT.XcalarApiMaxTableNameLen + 2; i++) {
-                name += "a";
-            }
-            $("#projectName").val(name);
-
-            ProjectView.__testOnly__.submitForm()
-            .then(function() {
-                expect('passed').to.equal('should not pass');
-            })
-            .fail(function() {
-                UnitTest.hasStatusBoxWithError('Please use fewer than 255 characters.');
-            })
-            .always(function() {
-                done();
-            });
-        });
-
-        it('appending to non-existant file should return error', function(done) {
-            $projectForm.find('.splitType .radioButton:eq(0)').click();
-            $projectForm.find('.headerType .radioButton:eq(0)').click();
-            $projectForm.find('.createRule .radioButton:eq(2)').click();
-            var uniqueName = "projectUnitTest" + Date.now() + Math.floor(Math.random() * 100000);
-            $projectForm.find("#projectName").val(uniqueName);
-
-            ProjectView.__testOnly__.submitForm()
-            .then(function() {
-                expect('passed').to.equal('should not pass');
-            })
-            .fail(function() {
-                expect($('#alertModal:visible').length).to.equal(1);
-                var expectedText = StatusTStr[StatusT.StatusExportSFFileDoesntExist];
-                expect($('#alertContent').text().indexOf(expectedText)).to.be.gt(-1);
-                Alert.forceClose();
-            })
-            .always(function() {
-                done();
-            });
+            }, 400);
         });
     });
 

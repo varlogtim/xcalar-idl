@@ -584,6 +584,39 @@ describe("TableManager Test", function() {
         });
     });
 
+    describe("TblManager.restoreTableMeta Test", function() {
+        it("should clean up tables exceeding size limit", function() {
+            var cache = gDroppedTables;
+            gDroppedTables = {};
+            var tableName = "fakeTable#zz999";
+            var tableId = "zz999";
+            var table = new TableMeta({
+                "tableId": tableId,
+                "tableName": tableName,
+                "status": TableType.Dropped,
+                "tableCols": [1, 2]
+            });
+            gDroppedTables[tableId] = table;
+
+            var tableName2 = "fakeTable#zz9992";
+            var tableId2 = "zz9992";
+            var table2 = new TableMeta({
+                "tableId": tableId2,
+                "tableName": tableName2,
+                "status": TableType.Dropped,
+                "tableCols": [1,2]
+            });
+            gDroppedTables[tableId2] = table2;
+            table2.excessSize = "x".repeat(1 * MB);
+
+            expect(Object.keys(gDroppedTables).length).to.equal(2);
+            TblManager.restoreTableMeta(gDroppedTables);
+            expect(Object.keys(gDroppedTables).length).to.equal(1);
+
+            gDroppedTables = cache;
+        });
+    });
+
     describe("Table Related Api Test", function() {
         var dsName, tableName, tableId;
 
