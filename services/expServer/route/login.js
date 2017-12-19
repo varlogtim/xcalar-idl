@@ -573,7 +573,7 @@ function ldapGroupRetrieve(ldapConn, groupType, loginId) {
                 "(memberOf:1.2.840.113556.1.4.1941:=" + ldapConn.adUserGroup + "))";
         } else if (groupType === 'admin') {
             searchFilter = "(&(objectCategory=Person)" + sAMAFilter +
-                "(memberOf:1.2.840.113556.1.4.1941:=" + ldapConn.adUserGroup + "))";
+                "(memberOf:1.2.840.113556.1.4.1941:=" + ldapConn.adAdminGroup + "))";
         } else {
             deferred.reject("Unknown group retrieve type: " + groupType);
         }
