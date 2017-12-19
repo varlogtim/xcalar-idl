@@ -255,8 +255,8 @@ window.DSCart = (function($, DSCart) {
         XcalarIndexFromDataset(dsName, "xcalarRecordNum", startTableName, prefix, txId)
         .then(function() {
             if (sortByLineNum) {
-                return XcalarIndexFromTable(startTableName, "lineNumber", endTableName,
-                                        XcalarOrderingT.XcalarOrderingAscending, txId);
+                var indexCol = prefix + "::lineNumber";
+                return XIApi.sortAscending(txId, indexCol, startTableName, endTableName);
             } else {
                 return PromiseHelper.resolve();
             }
