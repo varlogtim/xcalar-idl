@@ -1008,8 +1008,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  loadOutput.dataset.name,
                                  "yelp/user-review_count",
-                                 [new XcalarApiKeyT({name:"review_count", type:"DfInt64", keyFieldName:""})],
-                                 XcalarOrderingT.XcalarOrderingUnordered,
+                                 [new XcalarApiKeyT({name:"review_count", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})],
                                  "yelp_user"));
 
     }
@@ -1018,8 +1017,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     loadOutput.dataset.name,
                     "yelp/user-votes.funny",
-                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:""})],
-                    XcalarOrderingT.XcalarOrderingUnordered,
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})],
                     "yelp_user")
         .done(function(indexOutput) {
             printResult(indexOutput);
@@ -1033,8 +1031,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     loadOutput.dataset.name,
                     "yelp/user-user_id",
-                    [new XcalarApiKeyT({name:"user_id", type:"DfString", keyFieldName:""})],
-                    XcalarOrderingT.XcalarOrderingUnordered,
+                    [new XcalarApiKeyT({name:"user_id", type:"DfString", keyFieldName:"", ordering:"Unordered"})],
                     "yelp_user")
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
@@ -1050,8 +1047,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     loadOutput.dataset.name,
                     tableName,
-                    [new XcalarApiKeyT({name:"user_id", type:"DfString", keyFieldName:""})],
-                    XcalarOrderingT.XcalarOrderingUnordered,
+                    [new XcalarApiKeyT({name:"user_id", type:"DfString", keyFieldName:"", ordering:"Unordered"})],
                     "prefix")
         .then(function() {
             return xcalarMakeResultSetFromTable(thriftHandle, tableName);
@@ -1085,8 +1081,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-name",
-                                 [new XcalarApiKeyT({name:"yelp_user::name", type:"DfString", keyFieldName:""})],
-                                 XcalarOrderingT.XcalarOrderingUnordered));
+                                 [new XcalarApiKeyT({name:"yelp_user::name", type:"DfString", keyFieldName:"", ordering:"Unordered"})]));
     }
 
     function testRenameNode(test) {
@@ -1119,7 +1114,6 @@ window.Function.prototype.bind = function() {
         workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
         workItem.input.indexInput.keyName = "keyName";
         workItem.input.indexInput.dhtName = "";
-        workItem.input.indexInput.ordering = XcalarOrderingT.XcalarOrderingUnordered;
 
         console.log(xcalarApiGetQuery(thriftHandle, workItem));
         test.pass();
@@ -1155,8 +1149,7 @@ window.Function.prototype.bind = function() {
          test.trivial(xcalarIndex(thriftHandle,
                                   loadOutput.dataset.name,
                                   "yelp/user-garbage",
-                                  [new XcalarApiKeyT({name:"garbage", type:"DfUnknown", keyFieldName:""})],
-                                  XcalarOrderingT.XcalarOrderingUnordered,
+                                  [new XcalarApiKeyT({name:"garbage", type:"DfUnknown", keyFieldName:"", ordering:"Unordered"})],
                                   "yelp_user"));
     }
 
@@ -1164,8 +1157,7 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarIndex(thriftHandle,
                                  origStrTable,
                                  "yelp/user-yelping_since",
-                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", keyFieldName:""})],
-                                 XcalarOrderingT.XcalarOrderingUnordered));
+                                 [new XcalarApiKeyT({name:"yelp_user::yelping_since", type:"Df string", keyFieldName:"", ordering:"Unordered"})]));
     }
 
     function testGetTableRefCount(test) {
@@ -1537,31 +1529,31 @@ window.Function.prototype.bind = function() {
     }
 
     function testJoin(test) {
-        var leftRenameMap = [];
-        var map = new XcalarApiRenameMapT();
+        var leftColumn = [];
+        var map = new XcalarApiColumnT();
         map.sourceColumn = "yelp_user";
         map.destColumn = "leftDataset";
         map.columnType = "DfFatptr";
-        leftRenameMap.push(map);
+        leftColumn.push(map);
 
-        var map = new XcalarApiRenameMapT();
+        var map = new XcalarApiColumnT();
         map.sourceColumn = "yelp_user-votes.funny";
         map.destColumn = "leftKey";
         map.columnType = "DfInt64";
-        leftRenameMap.push(map);
+        leftColumn.push(map);
 
-        var rightRenameMap = [];
-        var map2 = new XcalarApiRenameMapT();
+        var rightColumn = [];
+        var map2 = new XcalarApiColumnT();
         map2.sourceColumn = "yelp_user";
         map2.destColumn = "rightDataset";
         map2.columnType = "DfFatptr";
-        rightRenameMap.push(map2);
+        rightColumn.push(map2);
 
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
                    JoinOperatorT.InnerJoin,
-                   leftRenameMap, rightRenameMap)
+                   leftColumn, rightColumn)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -1573,31 +1565,31 @@ window.Function.prototype.bind = function() {
     }
 
     function testCrossJoin(test) {
-        var leftRenameMap = [];
-        var map = new XcalarApiRenameMapT();
+        var leftColumn = [];
+        var map = new XcalarApiColumnT();
         map.sourceColumn = "yelp_user";
         map.destColumn = "leftDataset";
         map.columnType = "DfFatptr";
-        leftRenameMap.push(map);
+        leftColumn.push(map);
 
-        var map = new XcalarApiRenameMapT();
+        var map = new XcalarApiColumnT();
         map.sourceColumn = "yelp_user-votes.funny";
         map.destColumn = "leftKey";
         map.columnType = "DfInt64";
-        leftRenameMap.push(map);
+        leftColumn.push(map);
 
-        var rightRenameMap = [];
-        var map2 = new XcalarApiRenameMapT();
+        var rightColumn = [];
+        var map2 = new XcalarApiColumnT();
         map2.sourceColumn = "yelp_user";
         map2.destColumn = "rightDataset";
         map2.columnType = "DfFatptr";
-        rightRenameMap.push(map2);
+        rightColumn.push(map2);
 
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
                    JoinOperatorT.InnerJoin,
-                   leftRenameMap, rightRenameMap,
+                   leftColumn, rightColumn,
                    "neq(leftKey, yelp_user-votes.funny)")
         .then(function(result) {
             printResult(result);
@@ -1610,24 +1602,24 @@ window.Function.prototype.bind = function() {
     }
 
     function testUnion(test) {
-        var renameMaps = [];
+        var columns = [];
         var tables = [];
         for (var i = 0; i < 3; i++) {
-            var renameMap = [];
+            var column = [];
 
-            var map = new XcalarApiRenameMapT();
+            var map = new XcalarApiColumnT();
             map.sourceColumn = "yelp_user";
             map.destColumn = "rightDataset";
             map.columnType = "DfFatptr";
-            renameMap.push(map);
+            column.push(map);
 
             tables.push("yelp/user-dummyjoin");
-            renameMaps.push(renameMap);
+            columns.push(column);
         }
 
         xcalarUnion(thriftHandle, tables,
                     "unionTest",
-                    renameMaps, false)
+                    columns, false)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -1838,8 +1830,7 @@ window.Function.prototype.bind = function() {
             return xcalarIndex(thriftHandle,
                                ret.tableName,
                                "yelp/voted.cool-times-funny-sortedby-most_reviewed",
-                               [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:""})],
-                               XcalarOrderingT.XcalarOrderingDescending)
+                               [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"", ordering:"Descending"})])
         })
         .then(function(ret) {
             test.assert(ret.tableName === "yelp/voted.cool-times-funny-sortedby-most_reviewed");
@@ -2091,8 +2082,7 @@ window.Function.prototype.bind = function() {
         xcalarIndex(thriftHandle,
                     yelpReviewsDataset,
                     "yelp/reviews-votes.funny",
-                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:""})],
-                    XcalarOrderingT.XcalarOrderingAscending,
+                    [new XcalarApiKeyT({name:"votes.funny", type:"DfInt64", keyFieldName:"", ordering:"Ascending"})],
                     "yelp_user")
         .then(exportAndCancel)
         .fail(function(reason) {
@@ -3112,8 +3102,7 @@ window.Function.prototype.bind = function() {
             xcalarIndex(thriftHandle,
                         yelpUserDataset,
                         "yelp/user-average_stars",
-                        [new XcalarApiKeyT({name:"average_stars", type:"DfFloat64", keyFieldName:""})],
-                        XcalarOrderingT.XcalarOrderingInvalid,
+                        [new XcalarApiKeyT({name:"average_stars", type:"DfFloat64", keyFieldName:"", ordering:"Invalid"})],
                         "yelp_user",
                         dhtName)
             .done(indexDatasetSuccessFn)

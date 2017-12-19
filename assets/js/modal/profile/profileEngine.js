@@ -423,9 +423,11 @@ window.ProfileEngine = (function(ProfileEngine) {
 
     function sortGroupby(txId, sortCol, srcTable, finalTable) {
         var deferred = jQuery.Deferred();
-        var order = XcalarOrderingT.XcalarOrderingAscending;
-
-        XcalarIndexFromTable(srcTable, sortCol, finalTable, order, txId)
+        var keyInfo = {
+            name: sortCol,
+            ordering: XcalarOrderingT.XcalarOrderingAscending
+        };
+        XcalarIndexFromTable(srcTable, keyInfo, finalTable, txId)
         .then(function() {
             return aggInGroupby(txId, statsColName, finalTable);
         })
@@ -691,8 +693,11 @@ window.ProfileEngine = (function(ProfileEngine) {
         } else {
             colName = (bucketNum === 0) ? statsColName : bucketColName;
         }
-
-        XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, txId)
+        var keyInfo = {
+            name: colName,
+            ordering: xcOrder
+        };
+        XcalarIndexFromTable(tableName, keyInfo, newTableName, txId)
         .then(function() {
             tableInfo[tableKey] = newTableName;
             deferred.resolve();
@@ -820,9 +825,11 @@ window.ProfileEngine = (function(ProfileEngine) {
         XIApi.map(txId, mapString, tableName, mapCol, mapTable)
         .then(function() {
             indexTable = getNewName(mapTable, ".index", true);
-            var order = XcalarOrderingT.XcalarOrderingUnordered;
-            return XcalarIndexFromTable(mapTable, mapCol, indexTable,
-                                        order, txId);
+            var keyInfo = {
+                name: mapCol,
+                ordering: XcalarOrderingT.XcalarOrderingUnordered
+            };
+            return XcalarIndexFromTable(mapTable, keyInfo, indexTable, txId);
         })
         .then(function() {
             var operator = AggrOp.Sum;
@@ -837,9 +844,11 @@ window.ProfileEngine = (function(ProfileEngine) {
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
-            var order = XcalarOrderingT.XcalarOrderingAscending;
-            return XcalarIndexFromTable(groupbyTable, mapCol, finalTable,
-                                        order, txId);
+            var keyInfo = {
+                name: mapCol,
+                ordering: XcalarOrderingT.XcalarOrderingAscending
+            };
+            return XcalarIndexFromTable(groupbyTable, keyInfo, finalTable, txId);
         })
         .then(function() {
             return aggInGroupby(txId, bucketColName, finalTable);

@@ -3684,23 +3684,26 @@
         getColMetaHelper(tableName)
         .then(function (colMeta, hasTableMeta) {
             var res = keys.map(function(key) {
+                var name = key.name;
+                var ordering = key.ordering;
                 var type = null;
                 var keyFieldName = null;
-                var parsedName = xcHelper.parsePrefixColName(key);
+                var parsedName = xcHelper.parsePrefixColName(name);
 
                 if (hasTableMeta) {
                     if (parsedName.prefix !== "") {
                         keyFieldName = getNewKeyFeildName(parsedName, colMeta);
                     } else {
-                        keyFieldName = key;
-                        type = colMeta[key];
+                        keyFieldName = name;
+                        type = colMeta[name];
                     }
                 }
                 // if no tableMeta, let backend handle it
                 return {
-                    name: key,
+                    name: name,
                     type: type || DfFieldTypeT.DfUnknown,
-                    keyFieldName: keyFieldName || ""
+                    keyFieldName: keyFieldName || "",
+                    ordering: ordering
                 };
             });
 

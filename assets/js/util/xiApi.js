@@ -329,8 +329,12 @@
                     curTableName = xcHelper.getTableName(fromTableName) +
                                    Authentication.getHashId();
                     // XXX Check for already sorted
-                    XcalarIndexFromTable(fromTableName, colName, curTableName,
-                                         order, txId)
+                    var keyInfo = {
+                        name: colName,
+                        ordering: order
+                    };
+                    XcalarIndexFromTable(fromTableName, keyInfo,
+                                         curTableName, txId)
                     .then(function() {
                         var tableId = Authentication.getHashId();
                         fromTableName = curTableName;
@@ -491,10 +495,12 @@
             if (!isValidTableName(newTableName)) {
                 newTableName = getNewTableName(tableName);
             }
-            return XcalarIndexFromTable(concatTableName, concatColName,
-                                        newTableName,
-                                        XcalarOrderingT.XcalarOrderingAscending,
-                                        txId);
+            var keyInfo = {
+                name: concatColName,
+                ordering: XcalarOrderingT.XcalarOrderingAscending
+            };
+            return XcalarIndexFromTable(concatTableName, keyInfo,
+                                        newTableName, txId);
         })
         .then(function() {
             deferred.resolve({newTableName: newTableName,
@@ -529,8 +535,11 @@
                 newTableName = getNewTableName(tableName);
             }
 
-            return XcalarIndexFromTable(tableName, colName, newTableName,
-                                        order, txId);
+            var keyInfo = {
+                name: colName,
+                ordering: order
+            };
+            return XcalarIndexFromTable(tableName, keyInfo, newTableName, txId);
         })
         .then(function(res) {
             deferred.resolve(newTableName, res.newKeys);
@@ -934,12 +943,12 @@
             tempTables = tempTables.concat(resTempTables);
 
             var tableNames = [];
-            var renameMap = [];
+            var colInfos = [];
             resTableInfos.forEach(function(tableInfo) {
                 tableNames.push(tableInfo.tableName);
-                renameMap.push(tableInfo.renames);
+                colInfos.push(tableInfo.renames);
             });
-            return XcalarUnion(tableNames, newTableName, renameMap, dedup, txId);
+            return XcalarUnion(tableNames, newTableName, colInfos, dedup, txId);
         })
         .then(function() {
             var finalTableCols = tableInfos[0].columns.map(function(col) {
@@ -1039,7 +1048,7 @@
             var len = args.length;
             var val;
             for (var i = 0; i < len - 1; i++) {
-                var val = 'ifStr(exists(' + args[i] + '), ' +
+                val = 'ifStr(exists(' + args[i] + '), ' +
                             args[i] + ', "XC_FNF")';
                 mapStr += 'concat(string(' + val + '), concat(".Xc.", ';
             }
@@ -1663,9 +1672,14 @@
 
                             var indexTable = getNewTableName(tableName,
                                                           ".indexParent", true);
-                            XcalarIndexFromTable(unsorted, tableKeys, indexTable,
-                                        XcalarOrderingT.XcalarOrderingUnordered,
-                                        txId)
+                            var keyInfos = tableKeys.map(function(key) {
+                                return {
+                                    name: key,
+                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                                };
+                            });
+                            XcalarIndexFromTable(unsorted, keyInfos,
+                                                 indexTable, txId)
                             .then(function() {
                                 if (isSameKey(tableKeys, colsToIndex)) {
                                     // when the parent has right index
@@ -1804,9 +1818,13 @@
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
                 var newTableName = getNewTableName(tableName, ".index");
-                XcalarIndexFromTable(unsortedTable, colNames, newTableName,
-                                     XcalarOrderingT.XcalarOrderingUnordered,
-                                     txId)
+                var keyInfos = colNames.map(function(colName) {
+                    return {
+                        name: colName,
+                        ordering: XcalarOrderingT.XcalarOrderingUnordered
+                    };
+                });
+                XcalarIndexFromTable(unsortedTable, keyInfos, newTableName, txId)
                 .then(function() {
                     if (!isApiCall) {
                         tempTables.push(newTableName);
@@ -2133,10 +2151,14 @@
             } else {
                 newIndexTable = getNewTableName(origTableName, "index");
                 tempTableArray.push(newIndexTable);
-                return XcalarIndexFromTable(gbDistinctTableName, groupOnCols,
-                                            newIndexTable,
-                                        XcalarOrderingT.XcalarOrderingUnordered,
-                                            txId);
+                var keyInfos = groupOnCols.map(function(colName) {
+                    return {
+                        name: colName,
+                        ordering: XcalarOrderingT.XcalarOrderingUnordered
+                    };
+                });
+                return XcalarIndexFromTable(gbDistinctTableName, keyInfos,
+                                            newIndexTable, txId);
             }
         })
         .then(function() {

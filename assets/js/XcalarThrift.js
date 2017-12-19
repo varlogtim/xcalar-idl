@@ -242,13 +242,24 @@ function parseDS(dsName) {
     return (gDSPrefix + dsName);
 }
 
-function renameInfoMap(renameInfo) {
-    var map = new XcalarApiRenameMapT();
-    map.sourceColumn = renameInfo.orig;
-    map.destColumn = renameInfo.new;
-    map.columnType = DfFieldTypeTStr[renameInfo.type];
+
+function indexKeyMap(keyInfo) {
+    return new XcalarApiKeyT({
+        name: keyInfo.name,
+        type: DfFieldTypeTStr[keyInfo.type],
+        keyFieldName: keyInfo.keyFieldName,
+        ordering: XcalarOrderingTStr[keyInfo.ordering]
+    });
+}
+
+function colInfoMap(colInfo) {
+    var map = new XcalarApiColumnT();
+    map.sourceColumn = colInfo.orig;
+    map.destColumn = colInfo.new;
+    map.columnType = DfFieldTypeTStr[colInfo.type];
     return map;
 }
+
 // Should check if the function returns a promise
 // but that would require an extra function call
 if (!has_require) {
@@ -329,26 +340,25 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
         return PromiseHelper.resolve(tableName, otherTableName);
     }
 
-    var deferred = jQuery.Deferred();
-    var deferred1 = XcalarGetDag(tableName);
-    // var parentChildMap;
-    var node;
+    var getUnostedTableHelper = function(table) {
+        var deferred = jQuery.Deferred();
+        var srcTableName = table;
 
-    if (!otherTableName) {
-        var srcTableName = tableName;
-        deferred1
+        XcalarGetDag(table)
         .then(function(nodeArray) {
             // Check if the last one is a sort. If it is, then use the unsorted
             // one
             // If it isn't then just return the original
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if (indexInput.ordering ===
+                var primeKey = indexInput.key[0];
+                // no matter it's sorted or multi sorted, first key must be sorted
+                if (primeKey.ordering ===
                     XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                    indexInput.ordering ===
+                    primeKey.ordering ===
                     XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     // Find parent and return parent's name
-                    node = DagFunction.construct(nodeArray.node).tree;
+                    var node = DagFunction.construct(nodeArray.node).tree;
                     srcTableName = node.getSourceNames()[0];
                     var hasReadyState = checkIfTableHasReadyState(node
                                                                   .parents[0]);
@@ -356,18 +366,18 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
                     if (!hasReadyState) {
                         var newId = Authentication.getHashId().split("#")[1];
                         srcTableName = tableName.split("#")[0] + "#" + newId;
-                        var key = indexInput.key.map(function(keyAttr) {
-                            return keyAttr.name;
+                        var keys = indexInput.key.map(function(keyAttr) {
+                            return {
+                                name: keyAttr.name,
+                                ordering: XcalarOrderingT.XcalarOrderingUnordered
+                            };
                         });
-                        var order = XcalarOrderingT.XcalarOrderingUnordered;
-                        return (XcalarIndexFromTable(tableName, key,
-                                                    srcTableName, order,
-                                                    null, true));
+                        return XcalarIndexFromTable(tableName, keys,
+                                                    srcTableName, null, true);
                     } else {
                         return PromiseHelper.resolve(null);
                     }
-                    console.log("Using unsorted table instead: " +
-                                srcTableName);
+                    console.log("Using unsorted table instead:", srcTableName);
                 }
             }
             return PromiseHelper.resolve(null);
@@ -376,86 +386,17 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
             deferred.resolve(srcTableName);
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    if (!otherTableName) {
+        return getUnostedTableHelper(tableName);
     } else {
-        var deferred2 = XcalarGetDag(otherTableName);
-        var unsortedName1;
-        var unsortedName2;
-        PromiseHelper.when(deferred1, deferred2)
-        .then(function(na1, na2) {
-            unsortedName1 = tableName;
-            unsortedName2 = otherTableName;
-            var t1hasReadyState = true;
-            var t2hasReadyState = true;
-            var indexInput1;
-            var indexInput2;
-            // var parentChildMap;
-
-            if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
-                indexInput1 = na1.node[0].input.indexInput;
-                if (indexInput1.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                    indexInput1.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                    // Find parent and return parent's name
-                    node = DagFunction.construct(na1.node).tree;
-                    unsortedName1 = node.getSourceNames()[0];
-                    t1hasReadyState = checkIfTableHasReadyState(node
-                                                                .parents[0]);
-                    console.log("Using unsorted table instead: " +
-                                srcTableName);
-                }
-            }
-            if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
-                indexInput2 = na2.node[0].input.indexInput;
-                if (indexInput2.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                    indexInput2.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                    // Find parent and return parent's name
-                    node = DagFunction.construct(na2.node).tree;
-                    unsortedName2 = node.getSourceNames()[0];
-                    t2hasReadyState = checkIfTableHasReadyState(node
-                                                                .parents[0]);
-                    console.log("Using unsorted table instead: " +
-                                srcTableName);
-                }
-            }
-            var promise1;
-            var promise2;
-            var order = XcalarOrderingT.XcalarOrderingUnordered;
-            var newId;
-            var key;
-
-            if (!t1hasReadyState) {
-                newId = Authentication.getHashId().split("#")[1];
-                unsortedName1 = tableName.split("#")[0] + "#" + newId;
-                key = indexInput1.keyName;
-                promise1 = XcalarIndexFromTable(tableName, key, unsortedName1,
-                                                order, null, true);
-            } else {
-                promise1 = PromiseHelper.resolve(null);
-            }
-
-            if (!t2hasReadyState) {
-                newId = Authentication.getHashId().split("#")[1];
-                unsortedName2 = otherTableName.split("#")[0] + "#" + newId;
-                key = indexInput2.keyName;
-
-                promise2 = XcalarIndexFromTable(otherTableName, key,
-                                                unsortedName2, order, null,
-                                                true);
-            } else {
-                promise2 = PromiseHelper.resolve(null);
-            }
-
-            return (PromiseHelper.when(promise1, promise2));
-        })
-        .then(function() {
-            deferred.resolve(unsortedName1, unsortedName2);
-        })
-        .fail(deferred.reject);
+        var def1 = getUnostedTableHelper(tableName);
+        var def2 = getUnostedTableHelper(otherTableName);
+        return PromiseHelper.when(def1, def2);
     }
-    return (deferred.promise());
 };
 
 function checkIfTableHasReadyState(node) {
@@ -1236,20 +1177,21 @@ XcalarIndexFromDataset = function(datasetName, key, tableName, prefix, txId) {
     datasetName = parseDS(datasetName);
     var dhtName = ""; // XXX TODO fill in later
 
-    var ordering = XcalarOrderingT.XcalarOrderingUnordered;
-    var keyArray = [new XcalarApiKeyT({
+    var keyInfo = indexKeyMap({
         name: key,
-        type: DfFieldTypeTStr[DfFieldTypeT.DfUnknown],
-        keyFieldName: ""
-    })];
+        type: DfFieldTypeT.DfUnknown,
+        keyFieldName: "",
+        ordering: XcalarOrderingT.XcalarOrderingUnordered
+    });
+    var keyArray = [keyInfo];
     var workItem = xcalarIndexWorkItem(datasetName, tableName, keyArray,
-                                        ordering, prefix, dhtName);
+                                        prefix, dhtName);
     var def;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
         def = xcalarIndex(tHandle, datasetName, tableName, keyArray,
-                            ordering, prefix, dhtName);
+                          prefix, dhtName);
     }
 
     var query = XcalarGetQuery(workItem);
@@ -1272,9 +1214,9 @@ XcalarIndexFromDataset = function(datasetName, key, tableName, prefix, txId) {
     return (deferred.promise());
 };
 
-// Key can be an array or just one column
-XcalarIndexFromTable = function(srcTablename, keys, dstTableName, ordering,
-                                txId, unsorted) {
+// keys example:
+// [{name: "review_count", ordering: XcalarOrderingT.XcalarOrderingAscending}]
+XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1293,7 +1235,7 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, ordering,
     var query;
     var newKeys = [];
 
-    if (typeof(keys) === "string") {
+    if (!(keys instanceof Array)) {
         keys = [keys];
     }
 
@@ -1307,23 +1249,15 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, ordering,
         return xcHelper.getKeyInfos(keys, unsortedTablename);
     })
     .then(function(keyInfos) {
-        var keyArray = keyInfos.map(function(keyInfo) {
-            newKeys.push(keyInfo.keyFieldName);
-            return new XcalarApiKeyT({
-                name: keyInfo.name,
-                type: DfFieldTypeTStr[keyInfo.type],
-                keyFieldName: keyInfo.keyFieldName
-            });
-        });
+        var keyArray = keyInfos.map(indexKeyMap);
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
-                                           dstTableName, keyArray, ordering,
-                                            "", "");
+                                           dstTableName, keyArray, "", "");
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
             def = xcalarIndex(tHandle, unsortedSrcTablename, dstTableName,
-                              keyArray, ordering, "", "");
+                              keyArray, "", "");
         }
         query = XcalarGetQuery(workItem);
         if (!unsorted) {
@@ -2335,10 +2269,13 @@ XcalarAggregate = function(evalStr, dstAggName, srcTablename, txId) {
 };
 
 
-/** options contain
-    evalString: filter string for cross joins
+/**
+    leftColInfos/rightColInfos:
+        example: [{orig: "sourcCol", new: "destCol", type: DfFieldTypeT.DfFloat64}]
+    options contain
+        evalString: filter string for cross joins
 */
-XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename,
+XcalarJoin = function(left, right, dst, joinType, leftColInfos, rightColInfos,
                       options, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2363,27 +2300,27 @@ XcalarJoin = function(left, right, dst, joinType, leftRename, rightRename,
                             .promise());
         }
 
-        var leftRenameMap = [];
-        var rightRenameMap = [];
+        var leftColumns = [];
+        var rightColumns = [];
 
-        if (leftRename) {
-            leftRenameMap = leftRename.map(renameInfoMap);
+        if (leftColInfos) {
+            leftColumns = leftColInfos.map(colInfoMap);
         }
 
-        if (rightRename) {
-            rightRenameMap = rightRename.map(renameInfoMap);
+        if (rightColInfos) {
+            rightColumns = rightColInfos.map(colInfoMap);
         }
 
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
-                                          joinType, leftRenameMap,
-                                          rightRenameMap, evalString, coll);
+                                          joinType, leftColumns,
+                                          rightColumns, evalString, coll);
 
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
             def = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
-                             joinType, leftRenameMap, rightRenameMap,
+                             joinType, leftColumns, rightColumns,
                              evalString, coll);
         }
         query = XcalarGetQuery(workItem);
@@ -2578,14 +2515,14 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
 };
 
 // rename map is an arry of array
-XcalarUnion = function(tableNames, newTableName, renameMap, dedup, txId) {
+XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
     tableNames = (tableNames instanceof Array) ? tableNames : [tableNames];
-    renameMap = (renameMap instanceof Array) ? renameMap : [renameMap];
+    colInfos = (colInfos instanceof Array) ? colInfos : [colInfos];
     dedup = dedup || false;
 
     var query;
@@ -2615,15 +2552,15 @@ XcalarUnion = function(tableNames, newTableName, renameMap, dedup, txId) {
             return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
 
-        renameMap = renameMap.map(function(renameListForOneTable) {
-            return renameListForOneTable.map(renameInfoMap);
+        var columns = colInfos.map(function(renameListForOneTable) {
+            return renameListForOneTable.map(colInfoMap);
         });
-        var workItem = xcalarUnionWorkItem(sources, newTableName, renameMap, dedup);
+        var workItem = xcalarUnionWorkItem(sources, newTableName, columns, dedup);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarUnion(tHandle, sources, newTableName, renameMap, dedup);
+            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup);
         }
         query = XcalarGetQuery(workItem); // XXX test
         Transaction.startSubQuery(txId, 'union', newTableName, query);

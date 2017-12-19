@@ -697,7 +697,6 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgs, par
 xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
                                                                     dest,
                                                                     keys,
-                                                                    ordering,
                                                                     prefix,
                                                                     dhtName) {
     var workItem = new WorkItem();
@@ -716,7 +715,6 @@ xcalarIndexWorkItem = runEntity.xcalarIndexTableWorkItem = function(source,
 
     workItem.input.indexInput.dhtName = dhtName;
     workItem.input.indexInput.prefix = prefix;
-    workItem.input.indexInput.ordering = XcalarOrderingTStr[ordering];
     workItem.input.indexInput.delaySort = false;
     workItem.input.indexInput.broadcast = false;
     return (workItem);
@@ -726,7 +724,6 @@ xcalarIndex = runEntity.xcalarIndexTable = function(thriftHandle,
                                                     source,
                                                     dest,
                                                     keys,
-                                                    ordering,
                                                     prefix,
                                                     dhtName) {
     var deferred = jQuery.Deferred();
@@ -735,11 +732,10 @@ xcalarIndex = runEntity.xcalarIndexTable = function(thriftHandle,
         console.log("xcalarIndex(source = " +  source +
                    ", keys = " + keys + ", dest = " +
                     dest + ", prefix = " + prefix +
-                    ", dhtName = " + dhtName +
-                    ", ordering = " + ordering + ")");
+                    ", dhtName = " + dhtName + ")");
     }
 
-    var workItem = xcalarIndexWorkItem(source, dest, keys, ordering,
+    var workItem = xcalarIndexWorkItem(source, dest, keys,
                                        prefix, dhtName);
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -1831,7 +1827,7 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
 };
 
 xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, rightTableName, joinTableName,
-                            joinType, leftRenameMap, rightRenameMap,
+                            joinType, leftColumns, rightColumns,
                             evalString, collisionCheck) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1853,22 +1849,22 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     workItem.input.joinInput.dest = joinTableName;
     workItem.input.joinInput.evalString = evalString;
     workItem.input.joinInput.joinType = JoinOperatorTStr[joinType];
-    workItem.input.joinInput.renameMap = [];
-    workItem.input.joinInput.renameMap[0] = [];
-    workItem.input.joinInput.renameMap[1] = [];
-    if (leftRenameMap) {
-        workItem.input.joinInput.renameMap[0] = leftRenameMap;
+    workItem.input.joinInput.columns = [];
+    workItem.input.joinInput.columns[0] = [];
+    workItem.input.joinInput.columns[1] = [];
+    if (leftColumns) {
+        workItem.input.joinInput.columns[0] = leftColumns;
     }
 
-    if (rightRenameMap) {
-        workItem.input.joinInput.renameMap[1] = rightRenameMap;
+    if (rightColumns) {
+        workItem.input.joinInput.columns[1] = rightColumns;
     }
 
     return (workItem);
 };
 
 xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
-                    joinType, leftRenameMap, rightRenameMap, evalString, collisionCheck) {
+                    joinType, leftColumns, rightColumns, evalString, collisionCheck) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -1876,8 +1872,8 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
                     ", rightTableName = " + rightTableName +
                     ", joinTableName = " + joinTableName +
                     ", joinType = " + JoinOperatorTStr[joinType] +
-                    ", leftRenameMap = [" + leftRenameMap + "]" +
-                    ", rightRenameMap = [" + rightRenameMap + "]" +
+                    ", leftColumns = [" + leftColumns + "]" +
+                    ", rightColumns = [" + rightColumns + "]" +
                     ", collisionCheck = " + collisionCheck +
                     ", evalString = " + evalString +
                     ")");
@@ -1885,7 +1881,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
 
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
-                                      leftRenameMap, rightRenameMap,
+                                      leftColumns, rightColumns,
                                       evalString, collisionCheck);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1913,7 +1909,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
 
 xcalarUnionWorkItem = runEntity.xcalarUnionWorkItem = function(sources,
                                                                dest,
-                                                               renameMap,
+                                                               columns,
                                                                dedup) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1929,25 +1925,25 @@ xcalarUnionWorkItem = runEntity.xcalarUnionWorkItem = function(sources,
 
     workItem.input.unionInput.dest = dest;
     workItem.input.unionInput.dedup = dedup;
-    workItem.input.unionInput.renameMap = renameMap;
+    workItem.input.unionInput.columns = columns;
 
     return (workItem);
 };
 
 xcalarUnion = runEntity.xcalarUnion = function(thriftHandle, sources,
                                                dest,
-                                               renameMap,
+                                               columns,
                                                dedup) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarUnion(sources = " + sources +
                     " dest = " + dest +
-                    " renameMap = " + renameMap +
+                    " columns = " + columns +
                     " dedup = " + dedup + ")");
     }
 
-    var workItem = xcalarUnionWorkItem(sources, dest, renameMap, dedup);
+    var workItem = xcalarUnionWorkItem(sources, dest, columns, dedup);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var unionOutput = result.output.outputResult.unionOutput;
@@ -3059,6 +3055,10 @@ xcalarUpdateRetinaWorkItem = runEntity.xcalarUpdateRetinaWorkItem = function(ret
     switch (paramType) {
     case XcalarApisT.XcalarApiBulkLoad:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad =
+            paramValue;
+        break;
+    case XcalarApisT.XcalarApiSynthesize:
+        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramSynthesize =
             paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
