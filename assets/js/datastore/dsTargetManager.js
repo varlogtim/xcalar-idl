@@ -29,6 +29,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     };
 
+    DSTargetManager.isPreSharedTarget = function(targetName) {
+        var target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_name === "Symmetric Pre-sharded Filesystem") {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     DSTargetManager.getTargetType = function(targetType) {
         return typeSet[targetType];
     };

@@ -664,6 +664,22 @@ window.FileBrowser = (function($, FileBrowser) {
         historyPathCache[targetName] = path;
     }
 
+    function dedupFiles(targetName, files) {
+        if (DSTargetManager.isPreSharedTarget(targetName)) {
+            var dedupFiles = [];
+            var nameSet = {};
+            files.forEach(function(file) {
+                if (!nameSet.hasOwnProperty(file.name)) {
+                    nameSet[file.name] = true;
+                    dedupFiles.push(file);
+                }
+            });
+            return dedupFiles;
+        } else {
+            return files;
+        }
+    }
+
     function listFiles(path) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
@@ -680,7 +696,7 @@ window.FileBrowser = (function($, FileBrowser) {
             if (curBrowserId === fileBrowserId) {
                 cleanContainer();
                 clearSearch();
-                allFiles = listFilesOutput.files;
+                allFiles = dedupFiles(targetName, listFilesOutput.files);
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
             } else {
