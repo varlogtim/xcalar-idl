@@ -2979,8 +2979,12 @@ ExtCategorySet.prototype = {
 
     XcStorage.prototype = {
         setItem: function(key, value) {
-            var encodedVal = this._encode(value);
-            this.storage.setItem(key, encodedVal);
+            try {
+                var encodedVal = this._encode(value);
+                this.storage.setItem(key, encodedVal);
+            } catch (error) {
+                console.error(error);
+            }
         },
 
         getItem: function(key) {
