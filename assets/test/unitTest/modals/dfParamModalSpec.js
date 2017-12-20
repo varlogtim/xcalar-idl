@@ -46,7 +46,7 @@ describe("DFParamModal Test", function() {
                 tableName: nTName
             }];
 
-            return DF.addDataflow(testDfName, new Dataflow(testDfName), exportTables);
+            return DF.addDataflow(testDfName, new Dataflow(testDfName), exportTables, []);
         })
         .then(function() {
             $("#dataflowTab .mainTab").click();

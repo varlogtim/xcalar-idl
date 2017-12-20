@@ -281,8 +281,8 @@ describe("SQL-SQlApi Test", function() {
         });
 
         it("sort should work for multisort case", function(done) {
-            var oldMultiSort = XIApi.multiSort;
-            XIApi.multiSort = function() {
+            var oldMultiSort = XIApi.sort;
+            XIApi.sort = function() {
                 return PromiseHelper.resolve({
                     newTableName: "testTable",
                     sortColName: "testName"
@@ -302,7 +302,7 @@ describe("SQL-SQlApi Test", function() {
                 done("fail");
             })
             .always(function() {
-                XIApi.multiSort = oldMultiSort;
+                XIApi.sort = oldMultiSort;
             });
         });
 
