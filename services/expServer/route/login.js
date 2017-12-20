@@ -607,7 +607,7 @@ function ldapGroupRetrieve(ldapConn, groupType, loginId) {
 
             search.on('end', function() {
                 xcConsole.log('Success: Search process finished!');
-                deferred.resolve('Group search process succeeds for ' + groupType, loginId);
+                deferred.resolve('Group search process succeeds for ' + groupType);
             });
         });
     }
@@ -691,22 +691,24 @@ function ldapLogin(credArray) {
     var deferred = jQuery.Deferred();
     // Ldap configuration
     var ldapConn = {};
+    var currLoginId;
 
     setupLdapConfigs(false)
     .then(function() {
-        return setLdapConnection(credArray, ldapConn, ldapConfig, globalLoginId);
-    })
-    .then(function() {
-        return ldapAuthentication(ldapConn, globalLoginId);
-    })
-    .then(function() {
-        return ldapGroupRetrieve(ldapConn, 'user', globalLoginId);
-    })
-    .then(function() {
-        return ldapGroupRetrieve(ldapConn, 'admin', globalLoginId);
-    })
-    .then(function(message, currLoginId) {
+        currLoginId = globalLoginId;
         increaseLoginId();
+        return setLdapConnection(credArray, ldapConn, ldapConfig, currLoginId);
+    })
+    .then(function() {
+        return ldapAuthentication(ldapConn, currLoginId);
+    })
+    .then(function() {
+        return ldapGroupRetrieve(ldapConn, 'user', currLoginId);
+    })
+    .then(function() {
+        return ldapGroupRetrieve(ldapConn, 'admin', currLoginId);
+    })
+    .then(function(message) {
         return prepareResponse(currLoginId, ldapConn.activeDir);
     })
     .then(function(message) {
