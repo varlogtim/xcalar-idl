@@ -700,6 +700,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                                 getParameterInputHTML(1, "large allowEmpty") +
                             '</div>';
+            clearExportSettingTable();
         } else if (type === "export") {
 
             var path = options.defaultPath || "";
@@ -822,6 +823,7 @@ window.DFParamModal = (function($, DFParamModal){
                     // index, sort, map etc to be added in later
                     defaultText += '<div class="static">by</div>';
                 }
+                clearExportSettingTable();
             }
         }
 
@@ -902,17 +904,6 @@ window.DFParamModal = (function($, DFParamModal){
 
         $dfParamModal.find(".exportSettingTable .settingRow").html(settingText);
 
-        // function getExportSettingDefault(name, defaultValue) {
-        //     return '<div class="templateRow">' +
-        //         '<div>' +
-        //             name + ':' +
-        //         '</div>' +
-        //         '<div class="boxed large">' +
-        //             xcHelper.escapeHTMLSpecialChar(defaultValue) +
-        //         '</div>' +
-        //     '</div>';
-        // }
-
         function getExportSettingInput(inputNum, name, className, defaultValue, hasDropDown, dropDownList) {
             var html = '<div class="innerEditableRow ' + className + '">' +
                         '<div class="static">' +
@@ -989,6 +980,10 @@ window.DFParamModal = (function($, DFParamModal){
             html += "</div>";
             return html;
         }
+    }
+
+    function clearExportSettingTable() {
+        $dfParamModal.find(".exportSettingTable .settingRow").html("");
     }
 
     function getDefaultExportSetting(options) {
@@ -2140,6 +2135,9 @@ window.DFParamModal = (function($, DFParamModal){
         DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
         DFParamModal.__testOnly__.suggest = suggest;
         DFParamModal.__testOnly__.checkInputForParam = checkInputForParam;
+        DFParamModal.__testOnly__.saveExportOptions = saveExportOptions;
+        DFParamModal.__testOnly__.getExportOptions = getExportOptions;
+        DFParamModal.__testOnly__.strToSpecialChar = strToSpecialChar;
         DFParamModal.__testOnly__.setDragElems = function(a, b) {
             crt = a;
             cover = b;

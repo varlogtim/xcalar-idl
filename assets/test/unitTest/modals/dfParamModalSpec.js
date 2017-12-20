@@ -168,12 +168,57 @@ describe("DFParamModal Test", function() {
         });
 
         it("inputs should be correct", function() {
-            expect($modal.find(".template .boxed").length).to.equal(2);
-            expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + "Target:Default");
-            var $inputs = $modal.find("input");
-            expect($inputs.length).to.equal(6);
-            expect($inputs.eq(1).val()).to.equal("export-" + tableName);
-            expect($inputs.eq(2).val()).to.equal("Default");
+            expect($modal.find(".template .boxed").length).to.equal(10);
+            expect($modal.find(".template .boxed").eq(0).text()).to.equal("export-" + tableName);
+            expect($modal.find(".template .boxed").eq(1).text()).to.equal("Default");
+            expect($modal.find(".template .boxed").eq(2).text()).to.equal("createOnly");
+            expect($modal.find(".template .boxed").eq(3).text()).to.equal("\\n");
+            expect($modal.find(".template .boxed").eq(4).text()).to.equal("\\t");
+            expect($modal.find(".template .boxed").eq(5).text()).to.equal("\"");
+            expect($modal.find(".template .boxed").eq(6).text()).to.equal("every");
+            expect($modal.find(".template .boxed").eq(7).text()).to.equal("true");
+            expect($modal.find(".template .boxed").eq(8).text()).to.equal("none");
+        });
+
+        it("str to special char should work", function() {
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\\t")).to.equal("\t");
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\"")).to.equal('"');
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\'")).to.equal("'");
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\\n")).to.equal("\n");
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\\t")).to.equal("\t");
+            expect(DFParamModal.__testOnly__.strToSpecialChar("\\r")).to.equal("\r");
+            expect(DFParamModal.__testOnly__.strToSpecialChar("a")).to.equal("a");
+        });
+
+        it("get export options should work", function() {
+            var prefix = ".exportSettingTable .innerEditableRow";
+            var inputSuffix = ' input';
+            var buttonSuffix = ' .radioButton.active';
+            var createRule = $modal.find(prefix + ".createRule" + buttonSuffix)
+                             .data("option");
+            var recordDelim = $modal
+                              .find(prefix + ".recordDelim" + inputSuffix).val();
+            var fieldDelim = $modal
+                             .find(prefix + ".fieldDelim" + inputSuffix).val();
+            var quoteDelim = $modal
+                             .find(prefix + ".quoteDelim" + inputSuffix).val();
+            var headerType = $modal.find(prefix + ".headerType" + buttonSuffix)
+                             .data("option");
+            var sorted = $modal.find(prefix + ".sorted" + buttonSuffix)
+                         .data("option");
+            var splitRule = $modal.find(prefix + ".splitRule" + buttonSuffix)
+                            .data("option");
+            var maxSize = $modal
+                          .find(prefix + ".maxSize" + inputSuffix).val();
+            var exportOptions = DFParamModal.__testOnly__.getExportOptions();
+            expect(exportOptions.createRule).to.equal(createRule);
+            expect(exportOptions.fieldDelim).to
+            .equal(DFParamModal.__testOnly__.strToSpecialChar(fieldDelim));
+            expect(exportOptions.recordDelim).to
+            .equal(DFParamModal.__testOnly__.strToSpecialChar(recordDelim));
+            expect(exportOptions.headerType).to.equal(headerType);
+            expect(exportOptions.sorted).to.equal(sorted === "true");
+            expect(exportOptions.splitRule).to.equal(splitRule);
         });
 
         describe("export submit with invalid file name", function() {
@@ -434,6 +479,58 @@ describe("DFParamModal Test", function() {
                     done();
                 }, 400);
             }, 400);
+        });
+
+        it("save Export Options should work", function(done) {
+            var original = XcalarUpdateRetinaExport;
+            XcalarUpdateRetinaExport = function(retName, dagNodeId,
+                target, specInput, createRule, sorted) {
+                return PromiseHelper.resolve(retName, dagNodeId, target,
+                    specInput, createRule, sorted);
+            }
+            var retName = "retName1";
+            var dagNodeId = "1234";
+            var options = {};
+            options.targetType = ExTargetTypeT.ExTargetSFType;
+            options.targetName = "Default";
+            options.fileName = "file1.txt";
+            options.fieldDelim = "a";
+            options.recordDelim = "b";
+            options.quoteDelim = "c";
+            options.splitRule = "none";
+            options.headerType = "every";
+            options.createRule = "createOnly";
+            DFParamModal.__testOnly__.saveExportOptions(retName, dagNodeId, options)
+            .then(function(retName, dagNodeId, target, specInput, createRule, sorted) {
+                expect(retName).to.equal("retName1");
+                expect(dagNodeId).to.equal("1234");
+                expect(target.type).to.equal(ExTargetTypeT.ExTargetSFType);
+                expect(target.name).to.equal("Default");
+                expect(specInput.sfInput.fileName).to.equal("file1.txt");
+                expect(specInput.sfInput.format).to.equal(DfFormatTypeT.DfFormatCsv);
+                expect(specInput.sfInput.splitRule.type).to.equal(ExSFFileSplitTypeT.ExSFFileSplitNone);
+                expect(specInput.sfInput.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderEveryFile);
+
+                options.targetType = ExTargetTypeT.ExTargetUDFType;
+                options.headerType = "separate";
+                options.createRule = "createOrAppend";
+                return DFParamModal.__testOnly__.saveExportOptions(retName, dagNodeId, options);
+            })
+            .then(function(retName, dagNodeId, target, specInput, createRule, sorted) {
+                expect(retName).to.equal("retName1");
+                expect(dagNodeId).to.equal("1234");
+                expect(target.type).to.equal(ExTargetTypeT.ExTargetUDFType);
+                expect(target.name).to.equal("Default");
+                expect(specInput.udfInput.fileName).to.equal("file1.txt");
+                expect(specInput.udfInput.format).to.equal(DfFormatTypeT.DfFormatCsv);
+                expect(specInput.udfInput.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderSeparateFile);
+                XcalarUpdateRetinaExport = original;
+                done();
+            })
+            .fail(function() {
+                XcalarUpdateRetinaExport = original;
+                done("fail");
+            });
         });
     });
 
