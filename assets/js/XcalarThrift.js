@@ -1249,7 +1249,10 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
         return xcHelper.getKeyInfos(keys, unsortedTablename);
     })
     .then(function(keyInfos) {
-        var keyArray = keyInfos.map(indexKeyMap);
+        var keyArray = keyInfos.map(function(keyInfo) {
+            newKeys.push(keyInfo.keyFieldName);
+            return indexKeyMap(keyInfo);
+        });
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
                                            dstTableName, keyArray, "", "");
         var def;
