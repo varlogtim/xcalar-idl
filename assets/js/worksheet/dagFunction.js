@@ -955,7 +955,6 @@ window.DagFunction = (function($, DagFunction) {
                 struct.delaySort = false;
                 struct.dhtName = "";
                 struct.key = indexNode.keys;
-                struct.ordering = "Unordered";
                 struct.prefix = ""; // XXX check what to use here
                 struct.source = indexNode.src;
                 struct.dest = xcHelper.getTableName(indexNode.src) + ".index" +

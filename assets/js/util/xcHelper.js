@@ -687,6 +687,22 @@
         });
     };
 
+    xcHelper.getTableKeyInfoFromMeta = function(tableMeta) {
+        var keys = [];
+        tableMeta.keyAttr.forEach(function(keyAttr) {
+            var valueArrayIndex = keyAttr.valueArrayIndex;
+            if (valueArrayIndex < 0) {
+                return [];
+            }
+
+            keys.push({
+                name: keyAttr.name,
+                ordering: keyAttr.ordering
+            });
+        });
+        return keys;
+    };
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);

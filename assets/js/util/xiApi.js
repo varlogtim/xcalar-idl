@@ -177,10 +177,10 @@
         var table = gTables[tableId];
 
         if (table != null) {
-            var keyNames = table.getKeyName();
+            var keys = table.getKeys();
             var order = table.getOrdering();
-            if (keyNames != null && XcalarOrderingTStr.hasOwnProperty(order)) {
-                return PromiseHelper.resolve(order, keyNames);
+            if (keys != null && XcalarOrderingTStr.hasOwnProperty(order)) {
+                return PromiseHelper.resolve(order, keys);
             }
         }
 
@@ -192,7 +192,7 @@
 
         XcalarGetTableMeta(tableName)
         .then(function(tableMeta) {
-            var keys = xcHelper.getTableKeyFromMeta(tableMeta);
+            var keys = xcHelper.getTableKeyInfoFromMeta(tableMeta);
             deferred.resolve(tableMeta.ordering, keys);
         })
         .fail(deferred.reject);
@@ -291,255 +291,53 @@
         return checkTableIndex(colToIndex, tableName, txId, true);
     };
 
-    XIApi.multiSort = function(txId, sortColsAndOrder, tableName, newTableName)
+    XIApi.sort = function(txId, sortColsAndOrder, tableName, newTableName)
     {
-        var tableId = xcHelper.getTableId(tableName);
-        for (var i = 0; i < sortColsAndOrder.length; i++) {
-            if (!sortColsAndOrder[i].type) {
-                var progCol = gTables[tableId].
-                              tableCols[sortColsAndOrder[i].colNum-1];
-                sortColsAndOrder[i].name = progCol.backName;
-                sortColsAndOrder[i].type = progCol.type;
-                if (progCol.type === "number") {
-                    sortColsAndOrder[i].type = "float";
-                }
-            }
-        }
-
         if (txId == null || sortColsAndOrder == null || tableName == null ||
-            !(sortColsAndOrder instanceof Array) ||
-            (sortColsAndOrder.length < 2)) {
+            !(sortColsAndOrder instanceof Array)) {
             return PromiseHelper.reject("Invalid args in multisort");
         }
 
-        var fromTableName = tableName;
-        var curTableName = tableName;
-        var modifiedCols = [];
-
-        function modifyColumn(colName, colType, order, index) {
-            var deferred = jQuery.Deferred();
-            var maxIntAggVarName;
-
-            if (colType === "string") {
-                if (order === XcalarOrderingT.XcalarOrderingAscending) {
-                    modifiedCols[index] = colName;
-                    deferred.resolve(curTableName);
-                } else {
-                    fromTableName = curTableName;
-                    curTableName = xcHelper.getTableName(fromTableName) +
-                                   Authentication.getHashId();
-                    // XXX Check for already sorted
-                    var keyInfo = {
-                        name: colName,
-                        ordering: order
-                    };
-                    XcalarIndexFromTable(fromTableName, keyInfo,
-                                         curTableName, txId)
-                    .then(function() {
-                        var tableId = Authentication.getHashId();
-                        fromTableName = curTableName;
-                        curTableName = xcHelper.getTableName(fromTableName) +
-                                       tableId;
-                        colName = "XC_SORT_CONCAT_RT_COL_" +
-                                  xcHelper.getTableId(fromTableName) + "_" +
-                                  index;
-                        return XcalarGenRowNum(fromTableName, curTableName,
-                                               colName, txId);
-                    })
-                    .then(function() {
-                        var tableId = xcHelper.getTableId(curTableName);
-                        maxIntAggVarName = "XC_SORT_COL_" + tableId + "_" +
-                                           index + "_maxInteger";
-                        return XcalarAggregate("maxInteger(" + colName + ")",
-                                                 maxIntAggVarName,
-                                                 curTableName, txId);
-                    })
-                    .then(function() {
-                        fromTableName = curTableName;
-                        curTableName = xcHelper.getTableName(fromTableName) +
-                                       Authentication.getHashId();
-                        var mapStr =
-                                'concat(repeat("0",int(sub(len(string(^' +
-                                maxIntAggVarName + ')), len(string(' + colName +
-                                '))))),string(' + colName + '))';
-                        colName = "XC_SORT_COL_" +
-                                  xcHelper.getTableId(fromTableName) + "_" +
-                                  index;
-                        return XcalarMap(colName, mapStr, fromTableName,
-                                         curTableName, txId);
-                    })
-                    .then(function() {
-                        modifiedCols[index] = colName;
-                        deferred.resolve(curTableName);
-                    })
-                    .fail(deferred.reject);
-                }
-            } else if (colType === "boolean") {
-                fromTableName = curTableName;
-                curTableName = xcHelper.getTableName(fromTableName) +
-                               Authentication.getHashId();
-
-                var mapStr = "string(int(";
-                if (order === XcalarOrderingTStr.Ascending) {
-                    mapStr += colName;
-                } else {
-                    mapStr += "add(1, mult(-1," + colName + "))";
-                }
-                mapStr += "))";
-
-                colName = "XC_SORT_COL_" + xcHelper.getTableId(fromTableName) +
-                          "_" + index;
-                XcalarMap(colName, mapStr, fromTableName, curTableName, txId)
-                .then(function() {
-                    modifiedCols[index] = colName;
-                    deferred.resolve(curTableName);
-                })
-                .fail(deferred.reject);
-            } else {
-                // for numbers, add a constant to make everything non-negative
-                // and zero-pad according to largest number to sort.
-
-                var tableId = xcHelper.getTableId(fromTableName);
-                var maxAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
-                                    "_max";
-                var minAggVarName = "XC_SORT_COL_" + tableId + "_" + index +
-                                    "_min";
-
-                var maxPromise = XcalarAggregate("max(" + colName + ")",
-                                                 maxAggVarName,
-                                                 fromTableName, txId);
-                var minPromise = XcalarAggregate("min(" + colName + ")",
-                                                 minAggVarName,
-                                                 fromTableName, txId);
-                maxAggVarName = "^" + maxAggVarName;
-                minAggVarName = "^" + minAggVarName;
-                var inside;
-                var actualString;
-                if (order === XcalarOrderingT.XcalarOrderingAscending) {
-                    inside = "sub(" + maxAggVarName + "," + minAggVarName + ")";
-                    actualString = colName;
-                } else {
-                    inside = "sub(mult(-1," + minAggVarName + "),mult(-1," +
-                             maxAggVarName + "))";
-                    actualString = "add(mult(-1," + colName + ")," +
-                                   maxAggVarName + ")";
-                }
-                var maxPadding = 'repeat("0", len(cut(string(' + inside +
-                              '),1,".")))';
-
-                var curNumDigits = 'len(cut(string(' + actualString +
-                                   '),1,"."))';
-
-                var mapStr = 'concat(substring(' + maxPadding + ',' +
-                             curNumDigits + ',0),string(' + actualString +
-                             '))';
-
-                colName = "XC_SORT_COL_" + tableId + "_" + index;
-                fromTableName = curTableName;
-                curTableName = xcHelper.getTableName(curTableName) +
-                               Authentication.getHashId();
-                PromiseHelper.when(maxPromise, minPromise)
-                .then(function() {
-                    return XcalarMap(colName, mapStr, fromTableName,
-                                     curTableName, txId);
-                })
-                .then(function() {
-                    modifiedCols[index] = colName;
-                    deferred.resolve(curTableName);
-                })
-                .fail(deferred.reject);
-            }
-            return deferred.promise();
-        }
-
-        var self = this;
         var deferred = jQuery.Deferred();
-
-        var promises = [];
+        var tableId = xcHelper.getTableId(tableName);
         for (var i = 0; i < sortColsAndOrder.length; i++) {
-            promises.push(
-                function(colName, colType, order, index) {
-                    return modifyColumn(colName, colType, order, index);
-                }.bind(self, sortColsAndOrder[i].name, sortColsAndOrder[i].type,
-                       sortColsAndOrder[i].order, i));
+            if (!sortColsAndOrder[i].type) {
+                var table = gTables[tableId];
+                if (table && table.tableCols[sortColsAndOrder[i].colNum]) {
+                    var progCol = gTables[tableId].
+                              tableCols[sortColsAndOrder[i].colNum - 1];
+                    sortColsAndOrder[i].name = progCol.backName;
+                    sortColsAndOrder[i].type = progCol.type;
+                    if (progCol.type === "number") {
+                        sortColsAndOrder[i].type = "float";
+                    }
+                }
+
+            }
         }
 
-        var concatTableName;
-        var concatColName;
-        PromiseHelper.chain(promises)
-        .then(function(finalTableName) {
-            // We are done normalizing every column.
-            // ModifiedCols[i] contains the normalized column name for column i
-            var concatMapStr = "";
-            var lastIndex = modifiedCols.length - 1;
-
-            // tab - low ascii value
-            var colDelimeter = '\t\txc\t';
-
-            for (var i = 0; i < lastIndex; i++) {
-                var currName = modifiedCols[i];
-                concatMapStr += "concat(" + currName + ", " + 'concat("' +
-                                colDelimeter + '", ';
-            }
-            var endStr = ")".repeat(2*lastIndex);
-            concatMapStr += modifiedCols[lastIndex] + endStr;
-
-            concatTableName = getNewTableName(finalTableName);
-
-            concatColName = "XC_SORT_CONCAT_" +
-                            xcHelper.getTableId(finalTableName);
-            return XcalarMap(concatColName, concatMapStr, finalTableName,
-                             concatTableName, txId);
-        })
-        .then(function() {
-            if (!isValidTableName(newTableName)) {
-                newTableName = getNewTableName(tableName);
-            }
-            var keyInfo = {
-                name: concatColName,
-                ordering: XcalarOrderingT.XcalarOrderingAscending
-            };
-            return XcalarIndexFromTable(concatTableName, keyInfo,
-                                        newTableName, txId);
-        })
-        .then(function() {
-            deferred.resolve({newTableName: newTableName,
-                              sortColName: concatColName});
-        })
-        .fail(deferred.reject)
-        .always(function() {
-            return XcalarDeleteConstants("XC_SORT_COL_" + tableId + "_*", txId);
-        });
-
-        return deferred.promise();
-    };
-
-    XIApi.sort = function(txId, order, colName, tableName, newTableName) {
-        if (txId == null || order == null || colName == null ||
-            tableName == null || !(order in XcalarOrderingTStr))
-        {
-            return PromiseHelper.reject("Invalid args in sort");
-        }
-
-        var deferred = jQuery.Deferred();
         // Check for case where table is already sorted
         XIApi.checkOrder(tableName, txId)
         .then(function(sortOrder, sortKeys) {
-            if (order === sortOrder &&
-                sortKeys.length === 1 &&
-                colName === sortKeys[0]) {
-                return PromiseHelper.reject(null, true);
+            if (sortKeys.length === sortColsAndOrder.length) {
+                var diffFound = false;
+                for (var i = 0; i < sortKeys.length; i++) {
+                    if (sortKeys[i].name !== sortColsAndOrder[i].name ||
+                        sortKeys[i].ordering !==
+                        XcalarOrderingTStr[sortColsAndOrder[0].ordering]) {
+                        diffFound = true;
+                        break;
+                    }
+                }
+                if (!diffFound) {
+                    return PromiseHelper.reject(null, true);
+                }
             }
-
             if (!isValidTableName(newTableName)) {
                 newTableName = getNewTableName(tableName);
             }
 
-            var keyInfo = {
-                name: colName,
-                ordering: order
-            };
-            return XcalarIndexFromTable(tableName, keyInfo, newTableName, txId);
+            return XcalarIndexFromTable(tableName, sortColsAndOrder, newTableName, txId);
         })
         .then(function(res) {
             deferred.resolve(newTableName, res.newKeys);
@@ -551,14 +349,20 @@
 
     XIApi.sortAscending = function(txId, colName, tableName, newTableName) {
         // a quick function to sort ascending
-        var order = XcalarOrderingT.XcalarOrderingAscending;
-        return XIApi.sort(txId, order, colName, tableName, newTableName);
+        var colInfo = [{
+            name: colName,
+            ordering: XcalarOrderingT.XcalarOrderingAscending
+        }];
+        return XIApi.sort(txId, colInfo, tableName, newTableName);
     };
 
     XIApi.sortDescending = function(txId, colName, tableName, newTableName) {
         // a quick function to sort descending
-        var order = XcalarOrderingT.XcalarOrderingDescending;
-        return XIApi.sort(txId, order, colName, tableName, newTableName);
+        var colInfo = [{
+            name: colName,
+            ordering: XcalarOrderingT.XcalarOrderingDescending
+        }];
+        return XIApi.sort(txId, colInfo, tableName, newTableName);
     };
 
     XIApi.map = function(txId, mapStrs, tableName, newColNames, newTableName,
@@ -884,7 +688,7 @@
                rename: rename
                type: column's type
                cast: need a cast to the type or not
-     
+
         sample:
                 var tableInfos = [{
                     tableName: "test#ab123",
@@ -1650,8 +1454,14 @@
                 // this is sorted table, should index a unsorted one
                 XIApi.checkOrder(unsorted, txId)
                 .then(function(parentOrder, parentKeys) {
-                    if (!isSameKey(parentKeys, colsToIndex)) {
-                        if (!isSameKey(parentKeys, tableKeys)) {
+                    var parentKeyNames = parentKeys.map(function(key) {
+                        return key.name;
+                    })
+                    if (!isSameKey(parentKeyNames, colsToIndex)) {
+                        var tableKeyNames = tableKeys.map(function(key) {
+                            return key.name;
+                        });
+                        if (!isSameKey(parentKeyNames, tableKeyNames)) {
                             // if current is sorted, the parent should also
                             // index on the tableKey to remove "KNF"
                             // var fltTable = getNewTableName(tableName,
@@ -1672,7 +1482,7 @@
 
                             var indexTable = getNewTableName(tableName,
                                                           ".indexParent", true);
-                            var keyInfos = tableKeys.map(function(key) {
+                            var keyInfos = tableKeyNames.map(function(key) {
                                 return {
                                     name: key,
                                     ordering: XcalarOrderingT.XcalarOrderingUnordered
@@ -1681,7 +1491,7 @@
                             XcalarIndexFromTable(unsorted, keyInfos,
                                                  indexTable, txId)
                             .then(function() {
-                                if (isSameKey(tableKeys, colsToIndex)) {
+                                if (isSameKey(tableKeyNames, colsToIndex)) {
                                     // when the parent has right index
                                     shouldIndex = false;
                                 } else {
@@ -1710,7 +1520,10 @@
                 .fail(deferred.reject);
             } else {
                 // this is the unsorted table
-                if (!isSameKey(tableKeys, colsToIndex)) {
+                var tableKeyNames = tableKeys.map(function(key) {
+                    return key.name;
+                });
+                if (!isSameKey(tableKeyNames, colsToIndex)) {
                     shouldIndex = true;
                 } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
                           order === XcalarOrderingT.XcalarOrderingInvalid) {
@@ -2055,9 +1868,9 @@
             var deferred = jQuery.Deferred();
             getTableKeys(finalTableName)
             .then(function(keys) {
-                keys.forEach(function(keyName, index) {
-                    newProgCols.push(ColManager.newPullCol(keyName));
-                    renamedGroupByCols[index] = keyName;
+                keys.forEach(function(key, index) {
+                    newProgCols.push(ColManager.newPullCol(key.name));
+                    renamedGroupByCols[index] = key.name;
                 });
                 newProgCols.push(dataCol);
                 deferred.resolve(newProgCols);

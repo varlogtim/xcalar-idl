@@ -22,7 +22,7 @@ describe('TableMenu Test', function() {
             tableName = tName;
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
-            var colInfo = [{colNum: 1, order: XcalarOrderingT.XcalarOrderingAscending}];
+            var colInfo = [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}];
             xcFunction.sort(tableId, colInfo)
             .then(function(tName) {
                 tableName = tName;
@@ -1347,7 +1347,7 @@ describe('TableMenu Test', function() {
                 xcFunction.sort = function(tId, colInfo) {
                     expect(colInfo[0].colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
-                    expect(colInfo[0].order).to.equal(XcalarOrderingT.XcalarOrderingAscending);
+                    expect(colInfo[0].ordering).to.equal(XcalarOrderingT.XcalarOrderingAscending);
                     called = true;
                 };
 
@@ -1368,7 +1368,7 @@ describe('TableMenu Test', function() {
                 xcFunction.sort = function(tId, colInfo) {
                     expect(colInfo[0].colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
-                    expect(colInfo[0].order).to.equal(XcalarOrderingT.XcalarOrderingDescending);
+                    expect(colInfo[0].ordering).to.equal(XcalarOrderingT.XcalarOrderingDescending);
                     called = true;
                 };
 

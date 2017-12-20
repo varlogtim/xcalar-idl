@@ -842,8 +842,12 @@ window.TblManager = (function($, TblManager) {
         var colName = progCol.getFrontColName();
         var width = progCol.getWidth();
         var columnClass = options.columnClass || "";
-        var keys = table.getKeyName();
-        var indexed = keys.includes(progCol.getBackColName());
+        var keys = table.getKeys();
+        var backName = progCol.getBackColName();
+        var indexed = keys.find(function(k) {
+            return k.name === backName;
+        });
+
         var sortIcon = '<i class="sortIcon"></i>'; // placeholder
 
         if (progCol.hasMinimized()) {
@@ -857,11 +861,11 @@ window.TblManager = (function($, TblManager) {
                 columnClass += " noIndexStyle";
             }
 
-            var order = table.getOrdering();
-            if (order === XcalarOrderingT.XcalarOrderingAscending) {
+            var order = indexed.ordering;
+            if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<i class="sortIcon icon ' +
                             'xi-arrowtail-up fa-12"></i>';
-            } else if (order === XcalarOrderingT.XcalarOrderingDescending) {
+            } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<i class="sortIcon icon ' +
                             'xi-arrowtail-down fa-12"></i>';
             }
@@ -2436,10 +2440,16 @@ window.TblManager = (function($, TblManager) {
 
             if ($th.hasClass('indexedColumn')) {
                 options.classes += " type-indexed";
-                var order = table.getOrdering();
-                if (order === XcalarOrderingT.XcalarOrderingAscending) {
+                var keys = table.getKeys();
+                var backName = progCol.getBackColName();
+                var index = keys.find(function(k) {
+                    return k.name === backName;
+                });
+
+                var order = index.ordering;
+                if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                     options.classes += " sortedAsc";
-                } else if (order === XcalarOrderingT.XcalarOrderingDescending) {
+                } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     options.classes += " sortedDesc";
                 }
             }

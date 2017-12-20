@@ -1767,6 +1767,16 @@ window.DagDraw = (function($, DagDraw) {
                     var keyNames = value.key.map(function(key) {
                         return key.name;
                     });
+                    var isSorted = false;
+                    for (var i = 0; i < value.key.length; i++) {
+                        if (value.key[i].ordering ===
+                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
+                            value.key[i].ordering ===
+                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
+                            isSorted = true;
+                            break;
+                        }
+                    }
                     if (!node.parents[0] || node.parents[0].value.api ===
                         XcalarApisT.XcalarApiBulkLoad) {
                         info.tooltip = "Created Table";
@@ -1775,17 +1785,15 @@ window.DagDraw = (function($, DagDraw) {
                         info.opText = "";
                         info.eval = "indexed on " + xcHelper.listToEnglish(keyNames);
                         info.text = "Create Table";
-                    } else if (value.ordering ===
-                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                        value.ordering ===
-                            XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
+                    } else if (isSorted) {
                         info.taggedType = "sort";
                         info.subType = SQLOps.Sort;
-                        info.order = value.ordering.toLowerCase();
+                        info.order = value.key[0].ordering.toLowerCase();
                         var order = "(" + info.order + ") ";
-                        info.tooltip = "Sorted " + order + "on " +
-                                      xcHelper.listToEnglish(keyNames);
-
+                        var keyNameStrs = value.key.map(function(key) {
+                            return key.ordering.toLowerCase() + " on " + key.name;
+                        });
+                        info.tooltip = "Sorted " + xcHelper.listToEnglish(keyNameStrs);
                         info.text = "Sort";
                         info.opText = keyNames.join(", ");
                         info.eval = "sorted " + order + "on " +

@@ -240,7 +240,7 @@ window.xcFunction = (function($, xcFunction) {
 
             keys.push(progCol.getFrontColName(true));
             colNums.push(colInfo[i].colNum);
-            orders.push(colInfo[i].order);
+            orders.push(colInfo[i].ordering);
         }
 
         // XXX fix this
@@ -286,14 +286,9 @@ window.xcFunction = (function($, xcFunction) {
         var finalTableCols;
 
         typeCastHelper()
-        .then(function(tableToSort, colToSort, newTableCols) {
+        .then(function(tableToSort, newColInfo, newTableCols) {
             finalTableCols = newTableCols;
-            if (colInfo.length === 1) {
-                return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
-            } else {
-                //return XIApi.sort(txId, colInfo[0].order, colToSort, tableToSort);
-                return XIApi.multiSort(txId, colInfo, tableName);
-            }
+            return XIApi.sort(txId, newColInfo, tableToSort);
         })
         .then(function(sortTableName) {
             if (typeof(sortTableName) !== "string") {
@@ -349,46 +344,68 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
 
         function typeCastHelper() {
-            var typeToCast = colInfo[0].typeToCast;
-            var progCol = table.getCol(colNums[0]);
-            var backColName = progCol.getBackColName();
-            if (colInfo.length > 1) {
-                return PromiseHelper.resolve(tableName, colInfo, tableCols);
+            var typesToCast = [];
+            var mapStrs = [];
+            var mapColNames = [];
+            var newColInfos = [];
+            var newTableCols = tableCols;
+            for (var i = 0; i < colInfo.length; i++) {
+                var typeToCast = colInfo[i].typeToCast;
+                var progCol = table.getCol(colNums[i]);
+                var backColName = progCol.getBackColName();
+
+                var parsedName = xcHelper.parsePrefixColName(backColName);
+                if (parsedName.prefix !== "") {
+                    // if it's a prefix, need to cast to immeidate first
+                    // as sort will create an immeidate and go back to sort table's
+                    // parent table need to have the same column
+                    typeToCast = typeToCast || progCol.getType();
+                }
+                if (typeToCast !== null) {
+                    var mapString = xcHelper.castStrHelper(backColName, typeToCast);
+                    mapStrs.push(mapString);
+                    var mapColName = xcHelper.stripColName(parsedName.name);
+                    mapColName = xcHelper.getUniqColName(tableId, mapColName);
+                    mapColNames.push(mapColName);
+                    typesToCast.push(typeToCast);
+                    var mapOptions = {
+                        "replaceColumn": true,
+                        "resize": true,
+                        "type": typeToCast
+                    };
+
+                    newColInfos.push({
+                        name: mapColName,
+                        ordering: colInfo[i].ordering,
+                        type: typeToCast
+                    });
+                    newTableCols = xcHelper.mapColGenerate(colNums[i], mapColName,
+                                        mapString, newTableCols, mapOptions);
+                } else {
+                    newColInfos.push({
+                        name: backColName,
+                        colNum: colNums[i],
+                        ordering: colInfo[i].ordering,
+                        type: null
+                    });
+                }
+
             }
-
-            var parasedName = xcHelper.parsePrefixColName(backColName);
-            if (parasedName.prefix !== "") {
-                // if it's a prefix, need to cast to immeidate first
-                // as sort will create an immeidate and go back to sort table's
-                // parent table need to have the same column
-                typeToCast = typeToCast || progCol.getType();
+            if (!mapStrs.length) {
+                return PromiseHelper.resolve(tableName, newColInfos, tableCols);
             }
-
-            if (typeToCast == null) {
-                return PromiseHelper.resolve(tableName, backColName, tableCols);
-            }
-
-            sql.typeToCast = typeToCast;
-
             var innerDeferred = jQuery.Deferred();
-            var mapString = xcHelper.castStrHelper(backColName, typeToCast);
-            var mapColName = xcHelper.stripColName(parasedName.name);
+            sql.typeToCast = typesToCast;
 
-            mapColName = xcHelper.getUniqColName(tableId, mapColName);
-
-            XIApi.map(txId, mapString, tableName, mapColName)
+            XIApi.map(txId, mapStrs, tableName, mapColNames)
             .then(function(mapTableName) {
-                var mapOptions = {
-                    "replaceColumn": true,
-                    "resize": true
-                };
-                var mapTablCols = xcHelper.mapColGenerate(colNums[0], mapColName,
-                                        mapString, tableCols, mapOptions);
-                innerDeferred.resolve(mapTableName, mapColName, mapTablCols);
+                TblManager.setOrphanTableMeta(mapTableName, newTableCols);
+                innerDeferred.resolve(mapTableName, newColInfos, newTableCols);
             })
             .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
+
         }
     };
 

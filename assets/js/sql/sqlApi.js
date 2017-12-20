@@ -260,16 +260,7 @@
             var self = this;
             var txId = self._start();
 
-            var def;
-            if (sortColsAndOrder.length === 1) {
-                def = XIApi.sort(txId, sortColsAndOrder[0].order,
-                                 sortColsAndOrder[0].name, tableName,
-                                 newTableName);
-            } else {
-                def = XIApi.multiSort(txId, sortColsAndOrder, tableName,
-                                      newTableName);
-            }
-            def
+            XIApi.sort(txId, sortColsAndOrder, tableName, newTableName)
             .then(function(ret) {
                 var cli = self._end(txId);
                 cli = cli.replace(/\\t/g, "\\\\t");
@@ -278,7 +269,7 @@
                         "newTableName": ret,
                         "cli": cli,
                         "sortColName": sortColsAndOrder[0].name,
-                        "order": sortColsAndOrder[0].order
+                        "order": sortColsAndOrder[0].ordering
                     });
                 } else {
                     deferred.resolve({
@@ -367,7 +358,7 @@
                rename: rename
                type: column's type
                cast: need a cast to the type or not
-     
+
         sample:
                 var tableInfos = [{
                     tableName: "test#ab123",

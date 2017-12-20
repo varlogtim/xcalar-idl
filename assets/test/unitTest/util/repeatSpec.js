@@ -47,7 +47,7 @@ describe("Repeat Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            xcFunction.sort(tableId, [{colNum: 4, order: XcalarOrderingT.XcalarOrderingDescending}])
+            xcFunction.sort(tableId, [{colNum: 4, ordering: XcalarOrderingT.XcalarOrderingDescending}])
             .then(function() {
                 indexCalled = false;
                 TblManager.highlightColumn($table.find("th.col4"));

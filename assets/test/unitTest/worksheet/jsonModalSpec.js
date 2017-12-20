@@ -16,7 +16,7 @@ describe('JsonModal Test', function() {
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
             tableId = xcHelper.getTableId(tableName);
-            var colInfo = [{colNum: 10, order: XcalarOrderingT.XcalarOrderingAscending}];
+            var colInfo = [{colNum: 10, ordering: XcalarOrderingT.XcalarOrderingAscending}];
             xcFunction.sort(tableId, colInfo)
             .then(function(tName) {
                 tableName = tName;

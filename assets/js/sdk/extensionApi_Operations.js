@@ -98,8 +98,11 @@ window.XcSDK.Extension.prototype = (function() {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
-
-            XIApi.sort(txId, order, colName, tableName, newTableName)
+            var colInfo = [{
+                name: colName,
+                ordering: order
+            }];
+            XIApi.sort(txId, colInfo, tableName, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);

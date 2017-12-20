@@ -17,7 +17,7 @@ describe('Sort View Test', function() {
             tableName = resTable;
             oldTableName = tableName;
             tableId = xcHelper.getTableId(tableName);
-            xcFunction.sort(tableId, [{colNum: 1, order: XcalarOrderingT.XcalarOrderingAscending}])
+            xcFunction.sort(tableId, [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}])
             .then(function(resTable2) {
                 tableName = resTable2;
                 tableId = xcHelper.getTableId(tableName);

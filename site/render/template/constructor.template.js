@@ -68,6 +68,7 @@
                         var table = persistTables[tableId];
                         delete table.currentRowNumber;
                         delete table.keyName;
+                        delete table.keys;
                         delete table.resultSetMax;
                         delete table.numPages;
                         delete table.ordering;
@@ -404,6 +405,7 @@
                     self.backTableMeta = tableMeta;
                     self.ordering = tableMeta.ordering;
                     self.keyName = xcHelper.getTableKeyFromMeta(tableMeta);
+                    self.keys = xcHelper.getTableKeyInfoFromMeta(tableMeta);
                     self._setSkewness();
                     // update immediates
                     var valueAttrs = [];
@@ -575,6 +577,10 @@
                 return this.keyName;
             },
 
+            getKeys: function() {
+                return this.keys;
+            },
+
             getOrdering: function() {
                 return this.ordering;
             },
@@ -658,6 +664,7 @@
                 delete table.indexTables;
                 delete table.isLocked;
                 delete table.keyName;
+                delete table.keys;
                 delete table.noDelete;
                 delete table.numPages;
                 delete table.ordering;

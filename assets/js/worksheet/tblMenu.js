@@ -1064,7 +1064,7 @@ window.TblMenu = (function(TblMenu, $) {
         for (var i = 0; i < colNums.length; i++) {
             colInfo.push({
                 colNum: colNums[i],
-                order: order,
+                ordering: order,
                 typeToCast: null
             });
         }

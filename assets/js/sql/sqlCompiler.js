@@ -988,7 +988,7 @@
                 }
                 if (curNode.value.class ===
                     "org.apache.spark.sql.catalyst.plans.logical.Sort") {
-                    return {order: curNode.order, name: curNode.sortColName};
+                    return {ordering: curNode.ordering, name: curNode.sortColName};
                 } else {
                     if (curNode.children.length > 1) {
                         // Sort order doesn't make sense if > 1 children
@@ -1020,7 +1020,7 @@
 
                 var sortObj = getPreviousSortOrder(node);
                 if (sortObj && limit > 1) {
-                    self.sqlObj.sort([{order: sortObj.order,
+                    self.sqlObj.sort([{ordering: sortObj.ordering,
                                        name: sortObj.name}],
                                      newTableName)
                     .then(function(ret2) {
@@ -1131,12 +1131,12 @@
 
                     sortColsAndOrder.push({name: colName,
                                            type: type,
-                                           order: order});
+                                           ordering: order});
                 }
                 return sortColsAndOrder;
             }
             var options = {renamedColIds: node.renamedColIds};
-            var sortColsAndOrder = genSortStruct(node.value.order, options);
+            var sortColsAndOrder = genSortStruct(node.value.ordering, options);
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.sort(sortColsAndOrder, tableName);

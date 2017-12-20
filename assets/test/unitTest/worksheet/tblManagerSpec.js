@@ -138,6 +138,7 @@ describe("TableManager Test", function() {
             expect($th.hasClass("userHidden")).to.be.true;
             // case 2 index column
             table.keyName = "test";
+            table.keys = [{name: "test", ordering: "Ascending"}];
             th = TblManager.getColHeadHTML(1, tableId);
             $th = $(th);
             expect($th.hasClass("indexedColumn")).to.be.true;

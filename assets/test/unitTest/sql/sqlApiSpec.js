@@ -263,7 +263,7 @@ describe("SQL-SQlApi Test", function() {
                 return PromiseHelper.resolve("testTable");
             };
 
-            sqlApi.sort([{name: "testName", order: "testOrder"}])
+            sqlApi.sort([{name: "testName", ordering: "testOrder"}])
             .then(function(res) {
                 expect(res).to.an("object");
                 expect(res.newTableName).to.equal("testTable");

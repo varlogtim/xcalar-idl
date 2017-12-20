@@ -563,7 +563,8 @@ window.DagEdit = (function($, DagEdit) {
             return {
                 "name": name,
                 "keyFieldName": newName,
-                "type": DfFieldTypeTStr[DfFieldTypeT.DfUnknown]
+                "type": DfFieldTypeTStr[DfFieldTypeT.DfUnknown],
+                "ordering": XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingUnordered]
             };
         });
 

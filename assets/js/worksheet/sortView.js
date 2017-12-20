@@ -185,7 +185,7 @@ window.SortView = (function($, SortView) {
 
             colInfos.push({
                 "colNum": colNum,
-                "order": newOrder,
+                "ordering": newOrder,
                 "typeToCast": null
             });
         }
@@ -340,7 +340,8 @@ window.SortView = (function($, SortView) {
     function setColumnCache(tableId) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
-        var tableKeys = table.getKeyName();
+        var tableKeyNames = table.getKeyName();
+        var tableKeys = table.getKeys();
         var tableOrder = table.backTableMeta.ordering;
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
@@ -351,7 +352,8 @@ window.SortView = (function($, SortView) {
             }
 
             var colName = progCol.getFrontColName(true);
-            var isSorted = tableKeys.includes(progCol.getBackColName());
+            var backName = progCol.getBackColName();
+            var isSorted = tableKeyNames.includes(backName);
             var type = progCol.getType();
             var colNum = i + 1;
 
@@ -360,10 +362,13 @@ window.SortView = (function($, SortView) {
             // cache colTypes
             colTypes[colNum] = type;
             if (isSorted) {
-                if (tableOrder === XcalarOrderingT.XcalarOrderingAscending) {
+                var key = tableKeys.find(function(k) {
+                    return k.name === backName;
+                });
+                if (key.ordering === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                     colOrders[colNum] = XcalarOrderingTStr[XcalarOrderingT
                                                      .XcalarOrderingAscending];
-                } else if (tableOrder === XcalarOrderingT.XcalarOrderingDescending) {
+                } else if (key.ordering === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                     colOrders[colNum] = XcalarOrderingTStr[XcalarOrderingT
                                                      .XcalarOrderingDescending];
                 } else {
