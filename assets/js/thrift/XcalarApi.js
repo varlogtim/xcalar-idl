@@ -2458,14 +2458,10 @@ xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(s
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.synthesizeInput = new XcalarApiSynthesizeInputT();
-    workItem.input.synthesizeInput.source = new XcalarApiNamedInputT();
-    workItem.input.synthesizeInput.dstTable = new XcalarApiTableInputT();
+    workItem.input.synthesizeInput.source = srcTableName;
+    workItem.input.synthesizeInput.dest = dstTableName;
 
     workItem.api = XcalarApisT.XcalarApiSynthesize;
-    workItem.input.synthesizeInput.source.name = srcTableName;
-    workItem.input.synthesizeInput.source.isTable = true;
-    workItem.input.synthesizeInput.dstTable.tableName = dstTableName;
-    workItem.input.synthesizeInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     if (columns) {
         workItem.input.synthesizeInput.numColumns = columns.length;
     } else {
@@ -4247,6 +4243,9 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         break;
     case XcalarApisT.XcalarApiRenameNode:
         json["args"] = workItem.input.renameNodeInput;
+        break;
+    case XcalarApisT.XcalarApiSynthesize:
+        json["args"] = workItem.input.synthesizeInput;
         break;
     default:
         break;

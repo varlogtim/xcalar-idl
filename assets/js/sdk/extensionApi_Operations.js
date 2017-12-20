@@ -75,9 +75,9 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.index(txId, colToIndex, tableName)
-            .then(function(dstTable, hasIndexed) {
+            .then(function(dstTable, indexArgs) {
                 self._addMeta(tableName, dstTable);
-                deferred.resolve(dstTable, hasIndexed);
+                deferred.resolve(dstTable, indexArgs);
             })
             .fail(deferred.reject);
 

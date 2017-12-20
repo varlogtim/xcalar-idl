@@ -2519,6 +2519,10 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
 
 // rename map is an arry of array
 XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
     var deferred = jQuery.Deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -3024,25 +3028,54 @@ XcalarListFiles = function(args) {
     // }
 };
 
-XcalarSynthesize = function(srcTableName, dstTableName, columns) {
-    if ([null, undefined].indexOf(tHandle) !== -1 ||
-        retName === "" || retName == null ||
-        tableArray == null || tableArray.length <= 0)
-    {
+XcalarSynthesize = function(srcTableName, dstTableName, columns, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
+    var query;
+
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    xcalarApiSynthesize(tHandle, srcTableName, dstTableName, columns)
-    .then(deferred.resolve)
+
+    getUnsortedTableName(srcTableName, null, txId)
+    .then(function(unsortedSrcTablename) {
+        if (Transaction.checkCanceled(txId)) {
+            return deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise();
+        }
+
+        var columnArray = columns.map(colInfoMap);
+        var workItem = xcalarApiSynthesizeWorkItem(unsortedSrcTablename,
+                                                    dstTableName,
+                                                    columnArray);
+        var def;
+        if (Transaction.isSimulate(txId)) {
+            def = fakeApiCall();
+        } else {
+            def = xcalarApiSynthesize(tHandle, unsortedSrcTablename,
+                                        dstTableName, columnArray);
+        }
+        query = XcalarGetQuery(workItem);
+        Transaction.startSubQuery(txId, "synthesize", dstTableName, query);
+
+        return def;
+    })
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, query, dstTableName, ret.timeElapsed);
+            deferred.resolve(ret);
+        }
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSynthesize", error);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+
+    return deferred.promise();
 };
 
 // XXX TODO THIS NEEDS TO HAVE A Log.add

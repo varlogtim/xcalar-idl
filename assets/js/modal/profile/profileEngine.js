@@ -57,13 +57,13 @@ window.ProfileEngine = (function(ProfileEngine) {
         });
 
         XIApi.index(txId, colName, tableName)
-        .then(function(indexedTableName, hasIndexed, temTables, isCachedTable) {
+        .then(function(indexedTableName, indexArgs) {
             var innerDeferred = jQuery.Deferred();
-            if (indexedTableName !== tableName && !isCachedTable) {
+            if (indexedTableName !== tableName && !indexArgs.isCache) {
                 tableToDelete = indexedTableName;
             }
 
-            if (hasIndexed) {
+            if (indexArgs.hasIndexed) {
                 XIApi.getNumRows(indexedTableName)
                 .then(function(val) {
                     // the table.resultSetCount should eqaul to the

@@ -6,9 +6,11 @@ describe("SQL-SQlApi Test", function() {
         });
 
         it("SQLApi.cacheIndexTable should work", function() {
-            SQLApi.cacheIndexTable("testTable", "testCol", "test");
+            SQLApi.cacheIndexTable("testTable", "testCol", "test", "testKeys");
             var res = SQLApi.getIndexTable("testTable", "testCol");
-            expect(res).to.be.equal("test");
+            expect(res).to.be.an("object");
+            expect(res.tableName).to.be.equal("test");
+            expect(res.keys).to.be.equal("testKeys");
         });
 
         it("SQLApi.deleteIndexTable should work", function() {
@@ -18,7 +20,7 @@ describe("SQL-SQlApi Test", function() {
         });
 
         it("SQLApi.clear should work", function() {
-            SQLApi.cacheIndexTable("testTable", "testCol", "test");
+            SQLApi.cacheIndexTable("testTable", "testCol", "test", "testKeys");
             SQLApi.clear();
 
             var res = SQLApi.getIndexTable("testTable", "testCol");

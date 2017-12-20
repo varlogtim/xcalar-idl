@@ -283,12 +283,23 @@
         return deferred.promise();
     };
 
+    /*
+        resolve: 1. indexTable: (string)
+                 2. indexArgs: (object) see checckTableIndex
+     */
     XIApi.index = function(txId, colToIndex, tableName) {
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
         }
+        var deferred = jQuery.Deferred();
         colToIndex = (colToIndex instanceof Array) ? colToIndex : [colToIndex];
-        return checkTableIndex(colToIndex, tableName, txId, true);
+        checkTableIndex(colToIndex, tableName, txId, true)
+        .then(function(res) {
+            deferred.resolve(res.indexTable, res);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     XIApi.sort = function(txId, sortColsAndOrder, tableName, newTableName)
@@ -500,8 +511,12 @@
             rIndexColNames = res.rColNames;
             return joinIndexCheck(res, lTableInfo.removeNulls, txId);
         })
-        .then(function(lIndexedTable, rIndexedTable, tempTablesInIndex) {
+        .then(function(lRes, rRes, tempTablesInIndex) {
+            var lIndexedTable = lRes.tableName;
+            var rIndexedTable = rRes.tableName;
+            resolveJoinIndexColRename(lRename, rRename, lRes, rRes);
             tempTables = tempTables.concat(tempTablesInIndex);
+
             if (!isValidTableName(newTableName)) {
                 var leftPart = lTableName.split("#")[0];
                 var rightPart = rTableName.split("#")[0];
@@ -782,7 +797,11 @@
                 casts.push(colInfo.cast ? colInfo.type : null);
             });
 
-            castMap(txId, tableName, colNames, casts, {handleNull: true})
+            var options = {
+                castPrefix: true,
+                handleNull: true
+            };
+            castMap(txId, tableName, colNames, casts, options)
             .then(function(res) {
                 if (res.newTable) {
                     tempTables.push(res.tableName);
@@ -819,9 +838,11 @@
         var deferred = jQuery.Deferred();
         var tempTables = [];
         var promises = [];
+        var indexColName = xcHelper.randName("XC_UNION_INDEX");
         for (var i = 0, len = tableInfos.length; i < len; i++) {
             var tableInfo = tableInfos[i];
-            promises.push(unionAllIndexHelper(txId, tableInfo, tempTables));
+            promises.push(unionAllIndexHelper(txId, tableInfo,
+                                              tempTables, indexColName));
         }
 
 
@@ -834,7 +855,7 @@
         return deferred.promise();
     }
 
-    function unionAllIndexHelper(txId, tableInfo, tempTables) {
+    function unionAllIndexHelper(txId, tableInfo, tempTables, indexColName) {
         // step 1: change all columns to type string(null will become FNF)
         // step 2: concat all columns
         // step 3: index on the concat column
@@ -869,7 +890,8 @@
             colNames.push(colName);
             // this will change all null to FNF
             mapStrs.push("string(" + colName + ")");
-            newColNames.push(colName + suffix);
+            var newColName = xcHelper.parsePrefixColName(colName).name + suffix;
+            newColNames.push(newColName);
         });
 
         XIApi.map(txId, mapStrs, curTableName, newColNames)
@@ -890,7 +912,7 @@
             tempTables.push(curTableName);
             tableInfo.tableName = finalTableName;
             var type = xcHelper.convertColTypeToFeildType(ColumnType.string);
-            var rename = xcHelper.getJoinRenameMap(concatColName, concatColName, type);
+            var rename = xcHelper.getJoinRenameMap(concatColName, indexColName, type);
             tableInfo.renames.push(rename);
             deferred.resolve();
         })
@@ -1285,6 +1307,12 @@
         return deferred.promise();
     }
 
+    /*
+      options:
+        overWrite: (boolean)overWrite old column name or not
+        handleNull: (boolean) handle null case or not
+        castPrefix: (boolean) cast prefix field or not
+     */
     function getCastInfo(tableName, colNames, casts, options) {
         options = options || {};
         var tableId = xcHelper.getTableId(tableName);
@@ -1295,6 +1323,7 @@
 
         var overWrite = options.overWrite || false;
         var handleNull = options.handleNull || false;
+        var castPrefix = options.castPrefix || false;
 
         colNames.forEach(function(name) {
             nameMap[name] = true;
@@ -1306,10 +1335,10 @@
             var colName = colNames[index];
             var parsedCol = xcHelper.parsePrefixColName(colName);
             var name = xcHelper.stripColName(parsedCol.name);
-            var newType;
+            var newType = null;
             var newField = colName;
 
-            if (!typeToCast && parsedCol.prefix) {
+            if (!typeToCast && castPrefix && parsedCol.prefix) {
                 // when it's a fatptr and no typeToCast specified
                 try {
                     newType = gTables[tableId].getColByBackName(colName).getType();
@@ -1327,7 +1356,7 @@
                     newField = parsedCol.prefix + "--" + name;
                     newField = xcHelper.getUniqColName(tableId, newField);
                 }
-            } else {
+            } else if (typeToCast != null) {
                 newType = typeToCast;
                 newField = name;
             }
@@ -1386,23 +1415,37 @@
         var lIndexedTable;
         var rIndexedTable;
         var tempTables;
+        var lNewKeys;
+        var rNewKeys;
         PromiseHelper.when(deferred1, deferred2)
         .then(function(res1, res2) {
-            lIndexedTable = res1[0];
-            rIndexedTable = res2[0];
-            tempTables = res1[2].concat(res2[2]);
+            lIndexedTable = res1.indexTable;
+            rIndexedTable = res2.indexTable;
+            lNewKeys = res1.indexKeys;
+            rNewKeys = res2.indexKeys;
+            tempTables = res1.tempTables.concat(res2.tempTables);
 
             if (removeNulls) {
                 var newTableName = getNewTableName(tableName, ".noNulls");
                 tempTables.push(newTableName);
-                return XcalarFilter("exists(" + lColNames[0] + ")", res1[0],
+                return XcalarFilter("exists(" + lColNames[0] + ")", lIndexedTable,
                                     newTableName, txId);
             } else {
                 return PromiseHelper.resolve();
             }
         })
         .then(function() {
-            deferred.resolve(lIndexedTable, rIndexedTable, tempTables);
+            var lInfo = {
+                tableName: lIndexedTable,
+                oldKeys: lColNames,
+                newKeys: lNewKeys
+            };
+            var rInfo = {
+                tableName: rIndexedTable,
+                oldKeys: rColNames,
+                newKeys: rNewKeys
+            };
+            deferred.resolve(lInfo, rInfo, tempTables);
         })
         .fail(function() {
             var error = xcHelper.getPromiseWhenError(arguments);
@@ -1412,14 +1455,47 @@
         return deferred.promise();
     }
 
+    function resolveJoinIndexColRename(lRename, rRename, lInfo, rInfo) {
+        var getNewKeySet = function(keys) {
+            var res = {};
+            keys.forEach(function(key) {
+                res[key] = true;
+            });
+            return res;
+        };
+
+        var resolveDupName = function(keyInfo, rename, otherKeySet, suffix) {
+            var oldKeys = keyInfo.oldKeys;
+            var newKeys = keyInfo.newKeys;
+
+            oldKeys.forEach(function(oldKey, index) {
+                var newKey = newKeys[index];
+                if (oldKey !== newKey && otherKeySet.hasOwnProperty(newKey)) {
+                    // when it's fatptr convert to immediate
+                    var oldName = newKey;
+                    var newName = newKey + suffix;
+                    rename.push(xcHelper.getJoinRenameMap(oldName, newName));
+                }
+            });
+        };
+
+        var lSuffix = xcHelper.randName("_l_index");
+        var rSuffix = xcHelper.randName("_r_index");
+        var lKeySet = getNewKeySet(lInfo.newKeys);
+        var rKeySet = getNewKeySet(rInfo.newKeys);
+
+        resolveDupName(lInfo, lRename, rKeySet, lSuffix);
+        resolveDupName(rInfo, rRename, lKeySet, rSuffix);
+    }
+
     function selfJoinIndex(colNames, tableName, txId) {
         var deferred1 = jQuery.Deferred();
         var deferred2 = jQuery.Deferred();
 
         checkTableIndex(colNames, tableName, txId)
-        .then(function() {
-            deferred1.resolve.apply(this, arguments);
-            deferred2.resolve.apply(this, arguments);
+        .then(function(res) {
+            deferred1.resolve(res);
+            deferred2.resolve(res);
         })
         .fail(function() {
             deferred1.reject.apply(this, arguments);
@@ -1456,7 +1532,7 @@
                 .then(function(parentOrder, parentKeys) {
                     var parentKeyNames = parentKeys.map(function(key) {
                         return key.name;
-                    })
+                    });
                     if (!isSameKey(parentKeyNames, colsToIndex)) {
                         var tableKeyNames = tableKeys.map(function(key) {
                             return key.name;
@@ -1584,18 +1660,33 @@
         return deferred.promise();
     }
 
-    // check if table has correct index
+    /* check if table has correct index
+        resolve: {
+            indexTable: (string) table to idnex
+            indexKeys: (string) keys indexed on
+            tempTables: (array) list of temp tables
+            hasIndexed: (boolean) has indexed or not
+            isCache: (boolean) is cache or not
+        }
+     */
     function checkTableIndex(colNames, tableName, txId, isApiCall) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
         var table = null;
-        var indexTable;
+        var indexCache;
 
         if (Transaction.isSimulate(txId)) {
-            indexTable = SQLApi.getIndexTable(tableName, colNames);
-            if (indexTable != null) {
-                return PromiseHelper.resolve(indexTable, true, [], true);
+            indexCache = SQLApi.getIndexTable(tableName, colNames);
+            if (indexCache != null) {
+                deferred.resolve({
+                    indexTable: indexCache.tableName,
+                    indexKeys: indexCache.keys,
+                    tempTables: [],
+                    hasIndexed: true,
+                    isCache: true
+                });
+                return deferred.promise();
             }
         } else if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
@@ -1603,19 +1694,26 @@
         } else {
             table = gTables[tableId];
             tableCols = table.tableCols;
-            indexTable = table.getIndexTable(colNames);
-            if (indexTable != null) {
+            indexCache = table.getIndexTable(colNames);
+            if (indexCache != null) {
                 // XXX Note: here the assume is if index table has meta,
                 // it should exists
                 // more reliable might be use XcalarGetTables to check, but it's
                 // async
-                var indexTableId = xcHelper.getTableId(indexTable);
+                var indexTableId = xcHelper.getTableId(indexCache.tableName);
                 if (gTables.hasOwnProperty(indexTableId)) {
-                    console.log("has cached of index table", indexTable);
-                    QueryManager.addIndexTable(txId, indexTable);
-                    return PromiseHelper.resolve(indexTable, true, [], true);
+                    console.log("has cached of index table", indexCache.tableName);
+                    QueryManager.addIndexTable(txId, indexCache.tableName);
+                    deferred.resolve({
+                        indexTable: indexCache.tableName,
+                        indexKeys: indexCache.keys,
+                        tempTables: [],
+                        hasIndexed: true,
+                        isCache: true
+                    });
+                    return deferred.promise();
                 } else {
-                    console.log("cached index table", indexTable, "not exists");
+                    console.log("cached index table", indexCache.tableName, "not exists");
                     table.removeIndexTable(colNames);
                 }
             }
@@ -1638,28 +1736,45 @@
                     };
                 });
                 XcalarIndexFromTable(unsortedTable, keyInfos, newTableName, txId)
-                .then(function() {
+                .then(function(res) {
+                    var newKeys = res.newKeys;
                     if (!isApiCall) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
                     if (Transaction.isSimulate(txId)) {
-                        SQLApi.cacheIndexTable(tableName, colNames, newTableName);
+                        SQLApi.cacheIndexTable(tableName, colNames,
+                                               newTableName, newKeys);
                     } else if (table != null) {
-                        table.setIndexTable(colNames, newTableName);
+                        table.setIndexTable(colNames, newTableName, newKeys);
                     }
-                    deferred.resolve(newTableName, shouldIndex, tempTables);
+                    deferred.resolve({
+                        indexTable: newTableName,
+                        indexKeys: newKeys,
+                        tempTables: tempTables,
+                        hasIndexed: shouldIndex
+                    });
                 })
                 .fail(function(error) {
                     if (error.code === StatusT.StatusAlreadyIndexed) {
-                        deferred.resolve(unsortedTable, false, tempTables);
+                        deferred.resolve({
+                            indexTable: unsortedTable,
+                            indexKeys: colNames,
+                            tempTables: tempTables,
+                            hasIndexed: false
+                        });
                     } else {
                         deferred.reject(error);
                     }
                 });
             } else {
                 console.log(tableName, "indexed correctly!");
-                deferred.resolve(unsortedTable, shouldIndex, tempTables);
+                deferred.resolve({
+                    indexTable: unsortedTable,
+                    indexKeys: colNames,
+                    tempTables: tempTables,
+                    hasIndexed: shouldIndex
+                });
             }
         })
         .fail(deferred.reject);
@@ -1776,9 +1891,9 @@
             groupByFields = res.colNames;
             return checkTableIndex(groupByFields, res.tableName, txId);
         })
-        .then(function(indexedTable, shouldIndex, temIndexTables) {
-            tempTables = tempTables.concat(temIndexTables);
-            deferred.resolve(indexedTable, groupByFields, tempTables);
+        .then(function(res) {
+            tempTables = tempTables.concat(res.tempTables);
+            deferred.resolve(res.indexTable, groupByFields, tempTables);
         })
         .fail(deferred.reject);
 
@@ -1974,7 +2089,7 @@
                                             newIndexTable, txId);
             }
         })
-        .then(function() {
+        .then(function(res) {
             var aggEvalStrFlattened = [];
             var newColNames = [];
             for (var i = 0; i < aggEvalStrArray.length; i++) {
@@ -1985,7 +2100,8 @@
             // This is to optimize the join later so that it doesn't have to
             // re-index
             if (Transaction.isSimulate(txId)) {
-                SQLApi.cacheIndexTable(gbTableName, groupOnCols, newIndexTable);
+                SQLApi.cacheIndexTable(gbTableName, groupOnCols,
+                                        newIndexTable, res.newKeys);
             }
             // TODO add the same cacheIndexTable for interactive
             return XcalarGroupByWithEvalStrings(newColNames,

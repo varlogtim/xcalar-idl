@@ -370,8 +370,11 @@
                 return this.indexTables[colName];
             },
 
-            setIndexTable: function(colName, indexTable) {
-                this.indexTables[colName] = indexTable;
+            setIndexTable: function(colName, indexTable, indexKeys) {
+                this.indexTables[colName] = {
+                    tableName: indexTable,
+                    keys: indexKeys
+                };
             },
 
             removeIndexTable: function(colName) {

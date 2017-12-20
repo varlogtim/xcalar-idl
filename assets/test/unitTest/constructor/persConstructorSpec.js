@@ -1640,8 +1640,11 @@ describe("Persistent Constructor Test", function() {
 
             expect(table.getIndexTable("testCol")).to.be.undefined;
 
-            table.setIndexTable("testCol", "testTable");
-            expect(table.getIndexTable("testCol")).to.equal("testTable");
+            table.setIndexTable("testCol", "testTable", "testKeys");
+            var res = table.getIndexTable("testCol");
+            expect(res).to.be.an("object");
+            expect(res.tableName).to.equal("testTable");
+            expect(res.keys).to.equal("testKeys");
 
             table.removeIndexTable("testCol");
             expect(table.getIndexTable("testCol")).to.be.undefined;
