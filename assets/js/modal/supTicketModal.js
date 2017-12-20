@@ -553,8 +553,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     function submitBundle(ticketId) {
         var deferred = jQuery.Deferred();
-
-        $("#monitor-genSub").addClass("xc-disabled");
+        $("#userMenu").find(".supTicket").addClass("xc-disabled");
 
         // xcalarSupportGenerate has an alert on success
         XcalarSupportGenerate(false, ticketId)
@@ -574,7 +573,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             deferred.reject(err);
         })
         .always(function() {
-            $("#monitor-genSub").removeClass("xc-disabled");
+            $("#userMenu").find(".supTicket").removeClass("xc-disabled");
         });
 
         return deferred.promise();

@@ -11,10 +11,6 @@ describe("Monitor Panel Test", function() {
         $("#systemButton").click();
     });
 
-    describe.skip("toggling units and pct", function() {
-
-    });
-
     describe("monitor tabs", function() {
         it("settings button should work", function() {
             $("#settingsButton").click();
@@ -81,6 +77,44 @@ describe("Monitor Panel Test", function() {
 
             DeleteTableModal.show = cache;
         });
+    });
+
+    describe("tab switching", function() {
+        it("tab switching should work", function() {
+            if (!$("#monitorTab").hasClass("active")) {
+                $("#monitorTab .mainTab").click();
+            }
+            // open up panel
+            if (!$("#mainMenu").hasClass("open")) {
+                $("#monitorTab .mainTab").click();
+            }
+            if (!$("#monitorMenu .menuSection.settings").is(":visible")) {
+                $("#settingsButton").click();
+            }
+            expect($("#monitor-settings").is(":visible")).to.be.true;
+            expect($("#monitor-queries").is(":visible")).to.be.false;
+
+            $("#queriesButton").click();
+
+            expect($("#monitor-settings").is(":visible")).to.be.false;
+            expect($("#monitor-queries").is(":visible")).to.be.true;
+        });
+    });
+
+    describe("MonitorPanel.inActive function", function() {
+        it("inActive should work", function() {
+            var cache = MonitorGraph.clear;
+            var called = false;
+            MonitorGraph.clear = function() {
+                called = true;
+            };
+
+            MonitorPanel.inActive();
+            expect(called).to.be.true;
+            expect(MonitorPanel.isGraphActive()).to.be.false;
+
+            MonitorGraph.clear = cache;
+        }) ;
     });
 
     after(function() {

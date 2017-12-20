@@ -182,6 +182,43 @@ describe("Monitor Graph Test", function() {
         });
     });
 
+    describe("MonitorGraph.clear function", function() {
+        it("clear should work", function() {
+            expect($("#memYAxis").text().length).to.be.gt(0);
+            expect($("#graph svg").length).to.be.gt(0);
+            MonitorGraph.clear();
+            expect($("#memYAxis").text().length).to.equal(0);
+            expect($("#graph svg").length).to.equal(0);
+        });
+    });
+
+    describe("MonitorGraph interval slider", function() {
+        it("slider should work", function() {
+            var $bar = $("#monitorIntervalSlider").find(".ui-resizable-e").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX + 300, pageY: pageY });
+
+            expect($("#monitorIntervalSlider").find("value").val()).to.equal(60);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 500, pageY: pageY});
+
+            expect($("#monitorIntervalSlider").find("value").val()).to.equal(1);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
+        });
+    });
+
     after(function() {
         $mainTabCache.click();
     });

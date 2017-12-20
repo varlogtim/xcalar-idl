@@ -1,6 +1,5 @@
 // sets up monitor panel and system menubar
 window.MonitorPanel = (function($, MonitorPanel) {
-    var isGenSub = false;
     var graphIsActive = false;
     var $monitorPanel;
 
@@ -121,15 +120,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
     function populateNodeInformation() {
         $("#phyNode").text(hostname);
         // Insert information here regarding virtual nodes next time
-    }
-
-    function genSubHelper() {
-        if (isGenSub) {
-            // it's generating
-            return;
-        }
-        SupTicketModal.show();
-        isGenSub = false;
     }
 
     return (MonitorPanel);

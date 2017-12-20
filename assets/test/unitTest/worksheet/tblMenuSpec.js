@@ -81,6 +81,24 @@ describe('TableMenu Test', function() {
                 TblManager.unHideTable = cachedFunc;
             });
 
+
+            it('unhideTable', function() {
+                var cachedFunc = TblManager.sendTableToTempList;
+                var called = false;
+                TblManager.sendTableToTempList = function(tId) {
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $tableMenu.find('.makeTempTable').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableMenu.find('.makeTempTable').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                TblManager.sendTableToTempList = cachedFunc;
+            });
+
             it('deleteTable', function() {
                 var cachedFunc = TblManager.deleteTables;
                 var called = false;
@@ -129,6 +147,81 @@ describe('TableMenu Test', function() {
                 }
                 ExportView.show = cachedFunc;
             });
+
+            it('jupyterFullTable', function() {
+                var cachedFunc = JupyterPanel.publishTable;
+                var called = false;
+                JupyterPanel.publishTable = function(tName) {
+                    expect(tName).to.equal(tableName);
+                    called = true;
+                };
+
+                $tableSubMenu.find('.jupyterFullTable').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                var isUnavailable = false;
+                if ($tableSubMenu.find(".jupyterFullTable").hasClass("unavailable")) {
+                    isUnavailable = true;
+                    // temporarily remove unavailable class for testing
+                    $tableMenu.find(".jupyterFullTable").removeClass("unavailable");
+                }
+
+                $tableSubMenu.find('.jupyterFullTable').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                if (isUnavailable) {
+                    $tableSubMenu.find(".jupyterFullTable").addClass("unavailable");
+                }
+                JupyterPanel.publishTable = cachedFunc;
+            });
+
+            it('jupyterSampleTable', function() {
+                var cachedFunc = JupyterPanel.publishTable;
+                var called = false;
+                JupyterPanel.publishTable = function(tName, numRows) {
+                    expect(tName).to.equal(tableName);
+                    expect(numRows).to.equal('5');
+                    called = true;
+                };
+
+                $tableSubMenu.find('.jupyterSampleTable input').trigger({"type": "keypress", "which": 20});
+                expect(called).to.be.false;
+
+
+                $tableSubMenu.find('.jupyterSampleTable input').trigger(fakeEvent.enter);
+                expect(called).to.be.false;
+
+                StatusBox.forceHide();
+
+                $tableSubMenu.find('.jupyterSampleTable input').val(5);
+                $tableSubMenu.find('.jupyterSampleTable input').trigger(fakeEvent.enter);
+                expect(called).to.be.true;
+
+                $tableWrap.find('.tableTitle .dropdownBox').click();
+                JupyterPanel.publishTable = cachedFunc;
+            });
+
+            it("copyTableName", function() {
+                var cachedFunc = document.execCommand;
+                var called = false;
+                document.execCommand = function(action) {
+                    expect(action).to.equal("copy");
+                    var $hiddenInput = $("body").find("input").last();
+                    var val = $hiddenInput.val();
+                    expect(val).to.equal(tableName);
+                    expect($hiddenInput.range().length).to.equal(tableName.length);
+                    called = true;
+                };
+
+                $tableMenu.find('.copyTableName').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableMenu.find('.copyTableName').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                document.execCommand = cachedFunc;
+            });
+
 
             it("copyColNames", function() {
                 var cachedFunc = document.execCommand;
@@ -469,6 +562,69 @@ describe('TableMenu Test', function() {
 
                     DFCreateView.close = cachedFunc;
                 });
+                it('union', function() {
+                    var cachedFunc = UnionView.close;
+                    var called = false;
+                    UnionView.close = function() {
+                        called = true;
+                    };
+
+                    $tableMenu.find('.exitOp.exitUnion').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $tableMenu.find('.exitOp.exitUnion').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    UnionView.close = cachedFunc;
+                });
+
+                it('sort', function() {
+                    var cachedFunc = SortView.close;
+                    var called = false;
+                    SortView.close = function() {
+                        called = true;
+                    };
+
+                    $tableMenu.find('.exitOp.exitSort').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $tableMenu.find('.exitOp.exitSort').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    SortView.close = cachedFunc;
+                });
+
+                it('project', function() {
+                    var cachedFunc = ProjectView.close;
+                    var called = false;
+                    ProjectView.close = function() {
+                        called = true;
+                    };
+
+                    $tableMenu.find('.exitOp.exitProject').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $tableMenu.find('.exitOp.exitProject').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    ProjectView.close = cachedFunc;
+                });
+
+                it('dfEdit', function() {
+                    var cachedFunc = DagEdit.toggle;
+                    var called = false;
+                    DagEdit.toggle = function() {
+                        called = true;
+                    };
+
+                    $tableMenu.find('.exitOp.exitDFEdit').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $tableMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    DagEdit.toggle = cachedFunc;
+                });
             });
         });
 
@@ -756,6 +912,63 @@ describe('TableMenu Test', function() {
                 ColManager.maximizeCols = cachedFunc;
             });
 
+            it('sortView', function() {
+                var cachedFunc = SortView.show;
+                var called = false;
+                SortView.show = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(12);
+                    expect(colNums.length).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colSubMenu.find('.sortView').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.sortView').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                SortView.show = cachedFunc;
+            });
+
+            it('unionView', function() {
+                var cachedFunc = UnionView.show;
+                var called = false;
+                UnionView.show = function(tId, colNums) {
+                    expect(colNums[0]).to.equal(12);
+                    expect(colNums.length).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.union').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.union').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                UnionView.show = cachedFunc;
+            });
+
+            it('projectView', function() {
+                var cachedFunc = ProjectView.show;
+                var called = false;
+                ProjectView.show = function(tId, colNums) {
+                    expect(colNums[0]).to.equal(12);
+                    expect(colNums.length).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.project').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.project').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ProjectView.show = cachedFunc;
+            });
+
             it('join', function() {
                 var cachedFunc = JoinView.show;
                 var called = false;
@@ -1022,6 +1235,70 @@ describe('TableMenu Test', function() {
                     expect(called).to.be.true;
 
                     DFCreateView.close = cachedFunc;
+                });
+
+                it('union', function() {
+                    var cachedFunc = UnionView.close;
+                    var called = false;
+                    UnionView.close = function() {
+                        called = true;
+                    };
+
+                    $colMenu.find('.exitOp.exitUnion').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $colMenu.find('.exitOp.exitUnion').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    UnionView.close = cachedFunc;
+                });
+
+                it('sort', function() {
+                    var cachedFunc = SortView.close;
+                    var called = false;
+                    SortView.close = function() {
+                        called = true;
+                    };
+
+                    $colMenu.find('.exitOp.exitSort').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $colMenu.find('.exitOp.exitSort').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    SortView.close = cachedFunc;
+                });
+
+                it('project', function() {
+                    var cachedFunc = ProjectView.close;
+                    var called = false;
+                    ProjectView.close = function() {
+                        called = true;
+                    };
+
+                    $colMenu.find('.exitOp.exitProject').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $colMenu.find('.exitOp.exitProject').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    ProjectView.close = cachedFunc;
+                });
+
+                it('dfEdit', function() {
+                    var cachedFunc = DagEdit.toggle;
+                    var called = false;
+                    DagEdit.toggle = function() {
+                        called = true;
+                    };
+
+                    $colMenu.find('.exitOp.exitDFEdit').trigger(rightMouseup);
+                    expect(called).to.be.false;
+
+                    $colMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+
+                    DagEdit.toggle = cachedFunc;
                 });
             });
         });
@@ -1710,6 +1987,40 @@ describe('TableMenu Test', function() {
             expect(called).to.be.true;
 
             document.execCommand = cachedFn;
+        });
+    });
+
+    describe("hot keys", function() {
+        before(function() {
+            $table.find('th.col12 .dropdownBox').click();
+        });
+        it("hot keys should work", function() {
+            // j = 74, join
+
+            var cachedFunc = JoinView.show;
+            var called = false;
+            JoinView.show = function(tId, colNums) {
+                called = true;
+            };
+
+            $(document).trigger({"type": "keydown", "which": 74});
+
+            $colMenu.find('.join').eq(0).trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            JoinView.show = cachedFunc;
+        });
+
+        it("toggling keys should work", function() {
+            $table.find('th.col12 .dropdownBox').click();
+
+            expect($colMenu.find(".join .underline").length).to.equal(0);
+            $(document).trigger({"type": "keydown", "which": keyCode.Alt});
+            expect($colMenu.find(".join .underline").length).to.equal(1);
+            expect($colMenu.find(".join .underline").text()).to.equal("J");
+
+            $(document).trigger({"type": "keydown", "which": keyCode.Alt});
+            expect($colMenu.find(".join .underline").length).to.equal(0);
         });
     });
 

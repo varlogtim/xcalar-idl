@@ -38,6 +38,9 @@ describe("MonitorConfig Test", function() {
         });
 
         it("submitParamName should work", function() {
+            $configCard.find('.paramName[data-value="TestMode"]')
+                       .closest(".formRow").find(".removeRow").click();
+
             var $paramName = $configCard.find('.paramName').last();
             var $curVal = $paramName.closest(".formRow").find(".curVal");
             expect($paramName.closest(".formRow").hasClass("nameIsSet")).to.be.false;
@@ -55,6 +58,8 @@ describe("MonitorConfig Test", function() {
             var $existingParam = $configCard.find('.paramName').eq(0);
             $paramName.val($existingParam.val()).trigger(fakeEvent.enter);
             UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamExists);
+
+
 
             $paramName.val("TestMode").trigger(fakeEvent.enter);
             expect($paramName.val()).to.equal("TestMode");
@@ -127,5 +132,6 @@ describe("MonitorConfig Test", function() {
 
     after(function() {
         $("#monitor-setup").removeClass(".active");
+        StatusBox.forceHide();
     });
 });
