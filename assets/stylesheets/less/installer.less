@@ -1,4 +1,4 @@
-@import "partials/mixins/common.less";
+ @import "partials/mixins/common.less";
 @import "partials/icon.less";
 @import "partials/basic.less";
 @div-width: 650px;
@@ -618,6 +618,7 @@ input:-webkit-autofill:focus {
             display: none;
         }
         &.ldapSection {
+            overflow: visible;
             .flex-direction(column);
             #ldapDep {
                 display: inline;
@@ -638,7 +639,7 @@ input:-webkit-autofill:focus {
             input {
                 margin-left: 160px;
                 font-size: 14px;
-                width: 400px;
+                width: 435px;
             }
             .bar {
                 width: 85%;
@@ -651,6 +652,12 @@ input:-webkit-autofill:focus {
                 margin-bottom: 10px;
             }
             margin-top: 20px;
+            .label {
+                padding-left: 10px;
+            }
+            .ADOnly {
+                display: none;
+            }
         }
 
         &.nfsSection, &.upgradeLicenseSection, &.preConfigSection, &.copyDataSection {

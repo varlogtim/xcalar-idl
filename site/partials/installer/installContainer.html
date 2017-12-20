@@ -290,14 +290,14 @@
           </div>
           <div class="ldapParams customerLdapOptions hidden">
             <div class="radioButtonGroup" id="ADChoice">
-              <div class="radioButton active" data-option="true">
+              <div class="radioButton" data-option="true">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
                 <div class="label">Active Directory (AD)</div>
               </div>
-              <div class="radioButton" data-option="false">
+              <div class="radioButton active" data-option="false">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
@@ -307,44 +307,44 @@
             </div>
             <div class="fieldWrap">
               <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[ADServer.company.com]">
                 <div class="bar">LDAP URI</div>
               </div>
               <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[mail=%username%,ou=People,dc=company,dc=com]">
                 <div class="bar">User DN</div>
               </div>
               <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[(memberof=cn=users,ou=Groups,dc=company,dc=com)]">
                 <div class="bar">Search Filter</div>
               </div>
               <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[/etc/pki/tls/cert.pem]">
                 <div class="bar">Server Key File</div>
               </div>
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Xce User]">
+              <div class="inputWrap ADOnly">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory User Group Name]">
                 <div class="bar">AD User Group</div>
               </div>
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Xce Admin]">
+              <div class="inputWrap ADOnly">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory Admin Group Name]">
                 <div class="bar">AD Admin Group</div>
               </div>
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[]">
+              <div class="inputWrap ADOnly">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory Domain Name]">
                 <div class="bar">AD Domain</div>
               </div>
             </div>
             <div>
-              <div class="checkboxLine">
+              <div class="checkboxLine ADOnly">
                 <div class="checkbox adSubGroupTree">
                   <i class="icon xi-ckbox-empty"></i>
                   <i class="icon xi-ckbox-selected"></i>
                 </div>
-              </div>
-              <div class="label">
-                <div class="name">
-                  Enable Group Subtree Search
+                <div class="label">
+                  <div class="name">
+                    Enable Group Subtree Search
+                  </div>
                 </div>
               </div>
             </div>
@@ -737,7 +737,7 @@
           <span>Unknown Error!</span>
         </div>
         <div class="section buttonSection">
-          <input class="btn next" type="button" id="upgradeButton" value="DISCOVER">
+          <input class="btn next" type="button" value="DISCOVER">
           <input class="btn back" type="button" value="BACK">
           <input class="btn clear" type="button" value="CLEAR">
         </div>

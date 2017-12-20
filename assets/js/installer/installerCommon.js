@@ -707,7 +707,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     function radioAction($radioButtonGroup, $activeRadio, $form) {
-        $radioButtonGroup.find(".radioButton").removeClass("active");
+        $radioButtonGroup.find("> .radioButton").removeClass("active");
         $activeRadio.addClass("active");
         var radioGroup = $radioButtonGroup.attr("id");
         var radioOption = $activeRadio.data("option");
@@ -805,26 +805,28 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     case (true):
                         // AD
                         inputs = $form.find(".fieldWrap .inputWrap input");
-                        inputs.eq(0).attr("placeholder",
-                                            "[ldap://pdc1.int.xcalar.com:389]");
-                        inputs.eq(1).attr("placeholder",
-                                          "[cn=users,dc=int,dc=xcalar,dc=net]");
-                        inputs.eq(2).attr("placeholder",
+                        inputs.eq(4).attr("placeholder",
+                                            "[ADServer.company.com]");
+                        inputs.eq(5).attr("placeholder",
+                                          "[dc=company,dc=com]");
+                        inputs.eq(6).attr("placeholder",
                        "[(&(objectclass=user)(userPrincipalName=%username%))]");
-                        inputs.eq(3).attr("placeholder",
-                                        "[/etc/ssl/certs/ca-certificates.crt]");
+                        inputs.eq(7).attr("placeholder",
+                                        "[/etc/pki/tls/cert.pem]");
+                        $form.find(".ADOnly").show();
                         break;
                     case (false):
                         // LDAP
                         inputs = $form.find(".fieldWrap .inputWrap input");
-                        inputs.eq(0).attr("placeholder",
-                                         "[ldap://openldap1-1.xcalar.net:389]");
-                        inputs.eq(1).attr("placeholder",
-                         "[mail=%username%,ou=People,dc=int,dc=xcalar,dc=com]");
-                        inputs.eq(2).attr("placeholder",
-                  "[(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)]");
-                        inputs.eq(3).attr("placeholder",
-                                        "[/etc/ssl/certs/ca-certificates.crt]");
+                        inputs.eq(4).attr("placeholder",
+                                         "[ADServer.company.com]");
+                        inputs.eq(5).attr("placeholder",
+                         "[mail=%username%,ou=People,dc=company,dc=com]");
+                        inputs.eq(6).attr("placeholder",
+                  "[(memberof=cn=users,ou=Groups,dc=company,dc=com)]");
+                        inputs.eq(7).attr("placeholder",
+                                        "[/etc/pki/tls/cert.pem]");
+                        $form.find(".ADOnly").hide();
                         break;
                 }
                 break;
