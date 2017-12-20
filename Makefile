@@ -56,7 +56,7 @@ build: $(DESTDIR) generateHtml
 	@rm -f $(DESTDIR)/$(PRODUCTNAME)/services/expServer/awsWriteConfig.json
 	@echo "=== Generating version files ==="
 	@echo "var gGitVersion = '"`git log --pretty=oneline --abbrev-commit -1 | cut -d' ' -f1`"';" >> $(PRODUCTNAME)/assets/js/constructor/A_constructorVersion.js
-	@cd $(DESTDIR)/$(PRODUCTNAME)/assets/python && python2.7 genHelpAnchors.py
+	@cd $(DESTDIR)/$(PRODUCTNAME)/assets/python && python3.6 genHelpAnchors.py
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/autoGenFiles.sh
 
 removeDebug: $(DESTDIR) generateHtml build
@@ -67,14 +67,14 @@ prod: $(DESTDIR) generateHtml build
 	@echo "=== Minifying ==="
 	cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/minify.sh
 	@echo "=== Running python build.py ==="
-	@cd $(DESTDIR)/$(PRODUCTNAME) && python2.7 assets/python/build.py
+	@cd $(DESTDIR)/$(PRODUCTNAME) && python3.6 assets/python/build.py
 	@echo "=== Finalizing ==="
 	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/$(PRODUCTNAME)/*
 	@echo "=== Done building ==="
 
 debug: $(DESTDIR) generateHtml build
 	@echo "=== Running python debug build.py ==="
-	@cd $(DESTDIR)/$(PRODUCTNAME) && python2.7 assets/python/build.py debug
+	@cd $(DESTDIR)/$(PRODUCTNAME) && python3.6 assets/python/build.py debug
 
 	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/$(PRODUCTNAME)/*
 	@echo "=== Done building ==="

@@ -13,11 +13,11 @@ def catFilesTogether():
             subFolder = jsRoot + f
             if f == "thrift" or f == "unused" or f == "worker":
                 continue
-            print "Squashing all js files in: "+subFolder
+            print("Squashing all js files in: "+subFolder)
             outFile = open(jsRoot+"/"+f+".js", "w")
             fileList = []
             if subFolder in sortSubfolder:
-                print "Sorting: " + subFolder
+                print("Sorting: " + subFolder)
                 fileList = sorted([y for x in os.walk(subFolder) for y in glob(os.path.join(x[0], "*.js"))])
             else:
                 fileList = [y for x in os.walk(subFolder) for y in glob(os.path.join(x[0], "*.js"))]
@@ -43,7 +43,7 @@ def replacePathsInHtml():
             filesToReplace.append(htmlCandidate)
 
     for f in filesToReplace:
-        print "Replacing includes in: " + f
+        print("Replacing includes in: " + f)
         original = open(f, "r")
         fh, abs_path = tempfile.mkstemp()
         newFile = open(abs_path, "w")
@@ -72,12 +72,12 @@ def replacePathsInHtml():
         shutil.move(abs_path, f)
 
 def genSearchInsight(searchLocation):
-    print "Generating SearchInsight.htm from " + searchLocation
+    print("Generating SearchInsight.htm from " + searchLocation)
     newFile = searchLocation.split(".")[0]+"Insight.htm"
     insertions = "site/partials/mcf.html"
-    code = open(searchLocation, "rb").read()
-    insert = open(insertions, "rb").read()
-    fout = open(newFile, "wb")
+    code = open(searchLocation, "r").read()
+    insert = open(insertions, "r").read()
+    fout = open(newFile, "w")
 
     # Read the file and write it out line by line until we see the style tag
     # That's where we insert our stuff
@@ -96,7 +96,7 @@ def genSearchInsight(searchLocation):
 
 
 if __name__ == "__main__":
-    print sys.argv
+    print(sys.argv)
     if len(sys.argv) < 2 or not sys.argv[1] == "debug":
         catFilesTogether()
         replacePathsInHtml()

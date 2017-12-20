@@ -1,13 +1,13 @@
 import sys
 
 def addQuotes(fname, startLine, endLine):
-    print fname
+    print(fname)
     startLine -= 1
     endLine -= 1
     fin = open(fname);
     f = fin.read()
     lines = f.split("\n")
-    for i in xrange(startLine, endLine+1):
+    for i in range(startLine, endLine+1):
         line = lines[i]
         firstNonSpace = len(line) - len(line.lstrip())
         newLine = line[0:firstNonSpace]+"'"
@@ -24,7 +24,7 @@ def addQuotes(fname, startLine, endLine):
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print "Usage: addQuotes.py filename startLineNo(inc) endLineNo(inc)"
+        print("Usage: addQuotes.py filename startLineNo(inc) endLineNo(inc)")
     else:
         addQuotes(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
 
