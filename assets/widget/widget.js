@@ -78,7 +78,7 @@ var Widget = (function() {
             case (4) :
                 info = "Set options for " +
                         gParameters[gSelectedParameterIndices[stepFourCurr - 1]]
-                        .parameterName +
+                        .paramName +
                         ". (" + stepFourCurr + "/" + stepFourTotal + ")";
                 break;
             case (5) :
@@ -122,8 +122,8 @@ var Widget = (function() {
                     html += 
                         "<div class='check'>" + 
                             "<span>" + 
-                                gParameters[i].parameterName + ":" + 
-                                gParameters[i].parameterValue +
+                                gParameters[i].paramName + ":" +
+                                gParameters[i].paramValue +
                             "</span>" + 
                         "</div>";
                 }
@@ -153,7 +153,7 @@ var Widget = (function() {
                             "<div class='icon'>2</div>" +
                             "<div class='label'>Parameter:</div>" + 
                             "<div class='value'>" + 
-                                gParameters[gFirstSelectedParam].parameterName +
+                                gParameters[gFirstSelectedParam].paramName +
                             "</div>" + 
                         "</div>" +
                         "<div id='instruction'>" + 
@@ -237,9 +237,9 @@ var Widget = (function() {
                         var parameterList = [];
                         // for (var i = 0; i<stepFourTotal; i++) {
                             var paramSub = new XcalarApiParameterT({
-                                parameterName: gParameters[gFirstSelectedParam]
-                                               .parameterName,
-                                parameterValue: gOptionsForParam
+                                paramName: gParameters[gFirstSelectedParam]
+                                               .paramName,
+                                paramValue: gOptionsForParam
                                                 [gFirstSelectedParam]
                                                 [gSelectedRadio].value
                             });
@@ -317,7 +317,7 @@ var Widget = (function() {
                                     "Display As" +
                                 "</span>" + 
                            "</div>";
-                var defaultValue = gParameters[stepFourCurr - 1].parameterValue;
+                var defaultValue = gParameters[stepFourCurr - 1].paramValue;
                 for (var i = 0; i < numOptions; i ++) {
                     html += "<div class='optionField'>" + 
                                 "<span>" + (i + 1) + "</span>" + 
@@ -359,12 +359,12 @@ var Widget = (function() {
                 status);
             gParameters = [
                 {
-                    parameterName: "Name",
-                    parameterValue: "Levi Lu"
+                    paramName: "Name",
+                    paramValue: "Levi Lu"
                 },
                 {
-                    parameterName: "Some long name",
-                    parameterValue: "asdasdasdasds"
+                    paramName: "Some long name",
+                    paramValue: "asdasdasdasds"
                 }
             ];
             // XXX: Add preprogrammed params

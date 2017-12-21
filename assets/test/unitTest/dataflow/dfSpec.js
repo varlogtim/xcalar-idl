@@ -139,10 +139,10 @@ describe("DF Test", function() {
 
             var paramsArray = DFParamModal.__testOnly__.getSubstitutions("test", true);
             expect(paramsArray.length).to.equal(2);
-            expect(paramsArray[0].parameterName).to.equal("a");
-            expect(paramsArray[0].parameterValue).to.equal("b");
-            expect(paramsArray[1].parameterName).to.equal("N");
-            expect(paramsArray[1].parameterValue).to.equal(0);
+            expect(paramsArray[0].paramName).to.equal("a");
+            expect(paramsArray[0].paramValue).to.equal("b");
+            expect(paramsArray[1].paramName).to.equal("N");
+            expect(paramsArray[1].paramValue).to.equal(0);
 
             DF.getDataflow = cache1;
         });

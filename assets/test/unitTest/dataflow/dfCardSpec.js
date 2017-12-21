@@ -671,7 +671,7 @@ describe("DFCard Test", function() {
         });
 
         it("parseFileName should work", function() {
-            var paramArray = [{parameterName: "test", parameterValue: "val"}];
+            var paramArray = [{paramName: "test", paramValue: "val"}];
             var exportInfo = {meta: {target: {type: ExTargetTypeT.ExTargetUDFType},
                                     specificInput: {udfInput: {fileName: "<test>.csv"}}}};
             var res = DFCard.__testOnly__.parseFileName(exportInfo, paramArray);

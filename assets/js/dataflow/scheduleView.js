@@ -941,24 +941,24 @@ window.Scheduler = (function(Scheduler, $) {
         if (paramArray != null) {
             for (var i = 0; i < paramArray.length; i++) {
                 var currParam = paramArray[i];
-                if (systemParams.hasOwnProperty(currParam.parameterName)) {
+                if (systemParams.hasOwnProperty(currParam.paramName)) {
                     systemParameterStr = systemParameterStr +
                                          (hasSys ? "</div>":"") +
                                          '<div class="paramRow">' +
-                                         "<span>" + currParam.parameterName +
+                                         "<span>" + currParam.paramName +
                                          "</span>" +
                                          "<span>: </span>" +
-                                         "<span>" + currParam.parameterValue +
+                                         "<span>" + currParam.paramValue +
                                          "</span>";
                     hasSys = true;
                 } else {
                     customizedParameterStr = customizedParameterStr +
                                             (hasCus ? "</div>":"")+
                                             '<div class="paramRow">' +
-                                            "<span>" + currParam.parameterName +
+                                            "<span>" + currParam.paramName +
                                             "</span>" +
                                             "<span>: </span>" +
-                                            "<span>" + currParam.parameterValue +
+                                            "<span>" + currParam.paramValue +
                                             "</span>";
                     hasCus = true;
                 }

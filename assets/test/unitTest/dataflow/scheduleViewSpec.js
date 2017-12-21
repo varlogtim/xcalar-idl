@@ -468,11 +468,11 @@ function timeRelatedFunctionTest() {
 
     it("Should get parameter string", function() {
         var param1 = {};
-        param1.parameterName = "name1";
-        param1.parameterValue = "value1";
+        param1.paramName = "name1";
+        param1.paramValue = "value1";
         var param2 = {};
-        param2.parameterName = "name2";
-        param2.parameterValue = "value2";
+        param2.paramName = "name2";
+        param2.paramValue = "value2";
         var paramArray = [param1, param2];
 
         var res = Scheduler.__testOnly__.getParameterStr(paramArray);

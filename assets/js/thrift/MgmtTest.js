@@ -639,7 +639,7 @@ window.Function.prototype.bind = function() {
     function testListTargetTypes(test) {
         var typeId = "shared";
         var typeName = "Shared Storage Mount";
-        var parameterName = "mountpoint";
+        var paramName = "mountpoint";
         // Add target
         xcalarTargetTypeList(thriftHandle)
         .then(function(targetTypeList) {

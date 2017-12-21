@@ -3189,7 +3189,7 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
                     ", newTableName = " + newTableName + ")");
         for (var ii = 0; ii < parameters.length; ii++) {
             parameter = parameters[ii];
-            console.log(parameter.parameterName + " = " + parameter.parameterValue);
+            console.log(parameter.paramName + " = " + parameter.paramValue);
         }
     }
     var workItem = xcalarExecuteRetinaWorkItem(retinaName, parameters,

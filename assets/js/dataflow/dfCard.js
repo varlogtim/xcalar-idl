@@ -988,8 +988,8 @@ window.DFCard = (function($, DFCard) {
 
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
-            p.parameterName = param;
-            p.parameterValue = parameters[param];
+            p.paramName = param;
+            p.paramValue = parameters[param];
             paramsArray.push(p);
         }
 
@@ -1426,9 +1426,9 @@ window.DFCard = (function($, DFCard) {
         }
 
         for (var i = 0; i < paramArray.length; i++) {
-            var name = xcHelper.escapeRegExp(paramArray[i].parameterName);
+            var name = xcHelper.escapeRegExp(paramArray[i].paramName);
             var re = new RegExp("<" + name + ">", "g");
-            fileName = fileName.replace(re, paramArray[i].parameterValue);
+            fileName = fileName.replace(re, paramArray[i].paramValue);
         }
 
         return fileName;

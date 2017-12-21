@@ -436,15 +436,15 @@ window.DF = (function($, DF) {
         for (var name in paramMap) {
             var p = new XcalarApiParameterT();
             if (paramMapInUsed[name]) {
-                p.parameterName = name;
-                p.parameterValue = paramMap[name];
+                p.paramName = name;
+                p.paramValue = paramMap[name];
                 paramsArray.push(p);
             }
         }
         if (forceAddN && !paramMap.hasOwnProperty("N")) {
             p = new XcalarApiParameterT();
-            p.parameterName = "N";
-            p.parameterValue = 0;
+            p.paramName = "N";
+            p.paramValue = 0;
             paramsArray.push(p);
         }
         return paramsArray;

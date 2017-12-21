@@ -3235,10 +3235,10 @@ XcalarUpdateRetinaExport = function(retName, dagNodeId, target, specInput,
 };
 
 // XXX TODO Log.add
-// param has 2 string values: param.parameterName, param.parameterValue
+// param has 2 string values: param.paramName, param.paramValue
 // params is an array of param.
 // For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
-// then, params = [{"parameterName":"opera", "parameterValue":"lt"},
+// then, params = [{"paramName":"opera", "paramValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
 XcalarExecuteRetina = function(retName, params, options, txId) {
     if (retName === "" || retName == null ||
