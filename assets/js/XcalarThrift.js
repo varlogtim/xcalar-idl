@@ -4272,16 +4272,14 @@ XcalarListWorkbooks = function(pattern) {
     return (deferred.promise());
 };
 
-XcalarSaveWorkbooks = function(pattern) {
+XcalarSaveWorkbooks = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
-    xcalarApiSessionPersist(tHandle, pattern)
-    .then(function(output) {
-        deferred.resolve(output);
-    })
+    xcalarApiSessionPersist(tHandle, workbookName)
+    .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSaveWorkbooks", error);
         Log.errorLog("Save Workbooks", null, null, thriftError);

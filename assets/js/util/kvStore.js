@@ -218,7 +218,7 @@ window.KVStore = (function($, KVStore) {
             return WorkbookManager.commit();
         })
         .then(function() {
-            return XcalarSaveWorkbooks("*");
+            return XcalarSaveWorkbooks();
         })
         .then(function() {
             KVStore.logSave(true);
