@@ -38,10 +38,6 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     };
 
-    DSTargetManager.getTargetType = function(targetType) {
-        return typeSet[targetType];
-    };
-
     DSTargetManager.refreTargets = function(noWaitIcon) {
         var deferred = jQuery.Deferred();
         var updateTargetMenu = function(targets) {

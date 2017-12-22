@@ -28,22 +28,6 @@ window.DataStore = (function($, DataStore) {
         }
     };
 
-    // DataStore.clear = function() {
-    //     var deferred = jQuery.Deferred();
-
-    //     DS.clear();
-    //     DSTable.clear();
-    //     DSCart.clear();
-    //     DSForm.clear();
-    //     DataStore.update(0);
-
-    //     DSPreview.clear()
-    //     .then(deferred.resolve)
-    //     .then(deferred.reject);
-
-    //     return deferred.promise();
-    // };
-
     function setupViews() {
         // main menu
         $("#dataStoresTab").find(".subTab").click(function() {
