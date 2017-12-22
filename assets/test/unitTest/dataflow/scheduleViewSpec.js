@@ -677,58 +677,75 @@ function viewRelatedFunctionTest() {
             var fakeRetInfo = {
                 "retina": {
                     "retinaDag": {
-                        "numNodes": 2,
-                        "node": [{
-                            "name": {"name": "test2"},
-                            "dagNodeId": "104398",
-                            "api": 33,
-                            "numParent": 1,
-                            "input": {
-                                "exportInput": {
-                                    "meta": {
-                                        "specificInput": {
-                                            "sfInput": {
-                                                "fileName": "fileName"
+                        "numNodes": 3,
+                        "node": [
+                            {
+                                "api": 33,
+                                "comment": "",
+                                "dagNodeId": "428",
+                                "input": {
+                                    "exportInput": {
+                                        "dest": ".XcalarLRQExport.test2",
+                                        "source": "test2"
+                                    }
+                                },
+                                "name": {name: "export-test2.csv"},
+                                "numNodes": 1,
+                                "numParent": 1
+                            },
+                            {
+                                "api": 3,
+                                "comment": "",
+                                "dagNodeId": "427",
+                                "input": {
+                                    "indexInput": {
+                                        "dest": "test2",
+                                        "source": "test1",
+                                        "key": [{
+                                            "keyFieldName": "test2-xcalarRecordNum",
+                                            "name": "xcalarRecordNum",
+                                            "ordering": "Unordered",
+                                            "type": "DfInt64"
+                                        }]
+                                    }
+                                },
+                                "name": {name: "test2"},
+                                "numNodes": 1,
+                                "numParent": 1
+                            },
+                            {
+                                "api": 2,
+                                "comment": "",
+                                "dagNodeId": "426",
+                                "input": {
+                                    "loadInput": {
+                                        "dagNodeId": "418",
+                                        "dest": "test1",
+                                        "loadArgs": {
+                                            "sourceArgs": {
+                                                "fileNamePattern": "",
+                                                "path": "/netstore/datasets/unittest/test_yelp.json",
+                                                "recursive": false,
+                                                "targetName": "Default Shared Root"
+                                            },
+                                            "parseArgs": {
+                                                "parserArgJson": "{}",
+                                                "parserFnName": "default:parseJson"
                                             }
-                                        },
-                                        "columns": [],
-                                        "target": {
-                                            "name": "Default",
-                                            "type": 1
                                         }
                                     }
                                 },
-                                "mapInput": {},
-                                "groupByInput": {}
+                                "name": {name: "test1"},
+                                "numNodes": 1,
+                                "numParent": 0
                             }
-                        }, {
-                            "name": {"name": "test"},
-                            "dagNodeId": "104399",
-                            "api": 2,
-                            "input": {
-                                "loadInput": {
-                                    "dataset": {
-                                        "url": "test",
-                                        "formatType": 0,
-                                        "name": "test"
-                                    },
-                                    "loadArgs": {
-                                        "fileNamePattern": "",
-                                        "udfLoadArgs": {
-                                            "fullyQualifiedFnName": ""
-                                        }
-                                    }
-                                },
-                                "mapInput": {},
-                                "groupByInput": {}
-                            }
-                        }],
+                        ],
                     },
                     "retinaDesc": {
                         "retinaName": dfName
                     }
                 }
-            };
+            }
             return PromiseHelper.resolve(fakeRetInfo);
         };
 
@@ -736,7 +753,7 @@ function viewRelatedFunctionTest() {
             return PromiseHelper.resolve();
         };
 
-        DF.addDataflow(dfName, new Dataflow(dfName), null, {
+        DF.addDataflow(dfName, new Dataflow(dfName), null, [], {
             "isUpload": true,
             "noClick": true
         })
@@ -796,16 +813,14 @@ function viewRelatedFunctionTest() {
         var dfObj = DF.getDataflow("df1");
         dfObj.retinaNodes[0].api = XcalarApisT.XcalarApiExport;
         dfObj.retinaNodes[0].input = {
-            "exportInput": {meta: {
-                specificInput: {
-                    sfInput: {
-                        fileName: "fakeFileName"
-                    }
-                }
-            }}
+            "exportInput": {
+                fileName: "fakeFileName",
+                targetName: "Default"
+            }
         };
         $("#modScheduleForm-save").click();
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
+        $("#alertModal .confirm").click();
     });
 
     it("should show schedule result if scheulde is loading", function(done) {
