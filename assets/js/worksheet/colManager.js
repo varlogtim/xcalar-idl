@@ -809,7 +809,8 @@ window.ColManager = (function($, ColManager) {
     // options:
     // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
     // as a duplicate
-    // stripColPrefix: if true, will strip $ from colname
+    // stripColPrefix: if true, will strip $ from colname,
+    // ignoreNewCol: if true, will not error if matches a new empty column
     ColManager.checkColName = function($colInput, tableId, colNum, options) {
         var columnName = $colInput.val().trim();
         var error;
@@ -861,7 +862,8 @@ window.ColManager = (function($, ColManager) {
 
     // options:
     // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
-    // as a duplicate
+    // as a duplicate,
+    // ignoreNewCol: if true, will not error if matches a new empty colum,n
     ColManager.checkDuplicateName = function(tableId, colNum, colName, options)
     {
         options = options || {};
@@ -870,7 +872,6 @@ window.ColManager = (function($, ColManager) {
             table = gDroppedTables[tableId];
         }
         var numCols = table.getNumCols();
-        var exists = false;
         for (var curColNum = 1; curColNum <= numCols; curColNum++) {
             if (colNum != null && colNum === curColNum) {
                 continue;
@@ -883,11 +884,14 @@ window.ColManager = (function($, ColManager) {
                 (!progCol.isDATACol() &&
                  progCol.getBackColName() === colName))
             {
-                exists = true;
-                break;
+                if (options.ignoreNewCol && progCol.isEmptyCol()) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         }
-        return exists;
+        return false;
     };
 
     ColManager.minimizeCols = function(colNums, tableId) {

@@ -1101,6 +1101,7 @@ window.Dag = (function($, Dag) {
         var $opIcon = $dagTable.closest(".dagTableWrap").removeClass("hasEdit")
                                                         .find(".actionType");
         $opIcon.find(".dagTableTip").remove();
+        $dagTable.closest(".dagTableWrap").removeClass("aggError hasError");
         if (indexNodes) {
             for (var i = 0; i < indexNodes.length; i++) {
                 $dagTable = Dag.getTableIcon($dagWrap, indexNodes[i].value.dagNodeId);
@@ -1147,7 +1148,6 @@ window.Dag = (function($, Dag) {
         return tableNames;
     };
 
-
     Dag.styleDestTables = function($dagWrap, tableName, className) {
         var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
         var nodeId = $dagTable.data("index");
@@ -1163,6 +1163,10 @@ window.Dag = (function($, Dag) {
             tableNames.push(descendantNodes[i].value.name);
         }
         return tableNames;
+    };
+
+    Dag.getNodeById = function($dagWrap, dagNodeId) {
+        return $dagWrap.data("allDagInfo").nodeIdMap[dagNodeId];
     };
 
     function prettify(loadInfo) {

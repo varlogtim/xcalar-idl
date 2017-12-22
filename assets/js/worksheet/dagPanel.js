@@ -766,7 +766,7 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.on('click', '.editBtn', function() {
             var $dagWrap = $(this).closest('.dagWrap');
             if ($dagWrap.hasClass("editMode")) {
-                DagEdit.toggle();
+                DagEdit.off();
             } else {
                 $dagWrap.addClass("editMode");
                 var tableId = $dagWrap.data("id");
@@ -775,7 +775,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 xcHelper.centerFocusedTable(tableId, false,
                                             {onlyIfOffScreen: true});
-                DagEdit.toggle($dagWrap.data("allDagInfo").tree);
+                DagEdit.on($dagWrap.data("allDagInfo").tree);
             }
         });
 
@@ -793,7 +793,7 @@ window.DagPanel = (function($, DagPanel) {
                     "title": "Run edited dataflow",
                     "msg": "Are you sure you want to run this edited dataflow?",
                     "onConfirm": function() {
-                        DagEdit.toggle(null, true);
+                        DagEdit.off(null, true);
                         TblFunc.focusTable(tableId);
                         DagFunction.runProcedureWithParams(tableName, edits.structs, edits.newNodes);
                     }
@@ -1117,7 +1117,7 @@ window.DagPanel = (function($, DagPanel) {
             if (event.which !== 1) {
                 return;
             }
-            DagEdit.toggle();
+            DagEdit.off();
         });
 
         $menu.find(".generateIcv").mouseup(function(event) {
@@ -1172,7 +1172,7 @@ window.DagPanel = (function($, DagPanel) {
                     DagEdit.undoEdit(node);
                     break;
                 case ("exitEdit"):
-                    DagEdit.toggle();
+                    DagEdit.off();
                     break;
                 case ("commentOp"):
                     DFCommentModal.show($menu.data("opIcon"), nodeId);

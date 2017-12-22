@@ -208,6 +208,7 @@ window.DagFunction = (function($, DagFunction) {
         var alreadySeen = {};
         var tree = constructTree(valArray[0], valArray, alreadySeen, null,
                                  allEndPoints);
+
         if (!tree) {
             console.info("No creatable tree");
             return;
@@ -245,6 +246,53 @@ window.DagFunction = (function($, DagFunction) {
         return lineageStruct;
     };
 
+    DagFunction.getAggsFromEvalStrs = function(evalStrs) {
+        var allTables = [];
+        // var tablesMap = {};
+        if (!evalStrs) {
+            return allTables;
+        }
+        for (var i = 0; i < evalStrs.length; i++) {
+            var evalStr = evalStrs[i].evalString;
+            var tables = [];
+            try {
+                var func = ColManager.parseFuncString(evalStr);
+                tables = getAggNamesFromFunc(func);
+            } catch (err) {
+                console.error("could not parse eval str", evalStr);
+            }
+            for (var j = 0; j < tables.length; j++) {
+                if (allTables.indexOf(tables[j]) === -1) {
+                    allTables.push(tables[j]);
+                }
+            }
+        }
+        return allTables;
+    };
+
+    function getAggNamesFromFunc(func) {
+        var names = [];
+
+        getNames(func.args);
+
+        function getNames(args) {
+            for (var i = 0; i < args.length; i++) {
+                if (typeof args[i] === "string") {
+                    if (args[i][0] !== "\"" &&
+                        args[i][args.length - 1] !== "\"" &&
+                        names.indexOf(args[i]) === -1 &&
+                        args[i][0] === gAggVarPrefix &&
+                        args[i].length > 1) {
+                        names.push(args[i].slice(1));
+                    }
+                } else if (typeof args[i] === "object") {
+                    getNames(args[i].args);
+                }
+            }
+        }
+
+        return (names);
+    }
     // only being used for group by
     function setIndexedFields(sets) {
         var seen = {};
@@ -664,6 +712,20 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
+    function modifyAggParents(node) {
+        if (node.api === XcalarApisT.XcalarApiMap) {
+            var aggSources = DagFunction.getAggsFromEvalStrs(node.struct.eval);
+            for (var i = 0; i < aggSources.length; i++) {
+                if (node.aggSources.indexOf(aggSources[i]) === -1) {
+                    aggSources.splice(i, 1);
+                    i--;
+                }
+            }
+            node.numParents = aggSources.length + 1;
+            node.aggSources = aggSources;
+        }
+    }
+
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
     DagFunction.runProcedureWithParams = function(tableName, params, newNodes, doNotRun) {
         // XXX need to handle old struct format
@@ -696,6 +758,7 @@ window.DagFunction = (function($, DagFunction) {
             // ^ Just the above is not enough due to prototype methods in
             // the thrift structs
             valueArray[i].struct = struct;
+            modifyAggParents(valueArray[i]);
         }
 
         if (!modifyValueArrayWithParameters(valueArray, params)) {
@@ -726,7 +789,10 @@ window.DagFunction = (function($, DagFunction) {
         // start node (s)
         var startNodes = [];
         for (var i = 0; i < paramNodes.length; i++) {
-            startNodes.push(findTreeNodeInNodeArray(paramNodes[i], treeNodeArray));
+            var newTreeNode = findTreeNodeInNodeArray(paramNodes[i], treeNodeArray);
+            if (newTreeNode) {
+                startNodes.push(newTreeNode);
+            }
         }
 
         for (var i = 0; i < newNodesArray.length; i++) {
@@ -767,15 +833,27 @@ window.DagFunction = (function($, DagFunction) {
         // Step 3. From start of treeNodeArray (left side of the graph), start renaming all nodes
         var translation = {};
         var tagHeaders = {}; // will store a map {tag#oldId: tag#newId}
+        var aggRenames = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var destTableStruct = treeNodesToRerun[i].value.struct;
             var destTableValue = treeNodesToRerun[i].value;
 
             if (i > 0) {
-                updateSourceName(destTableStruct, translation);
+                updateSourceName(destTableValue, translation);
             }
 
-            updateDestinationName(destTableValue, translation, tagHeaders);
+            updateDestinationName(destTableValue, translation, tagHeaders, aggRenames);
+        }
+
+        for (var i = 0; i < treeNodesToRerun.length; i++) {
+            var value = treeNodesToRerun[i].value;
+            if (value.api === XcalarApisT.XcalarApiMap) {
+                for (var j = 0; j < value.struct.eval.length; j++) {
+                    var func = ColManager.parseFuncString(value.struct.eval[j].evalString);
+                    replaceFuncStr(func, aggRenames);
+                    var newEval = xcHelper.stringifyFunc(func);
+                    value.struct.eval[j].evalString = newEval;
+                }
+            }
         }
 
         var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length - 1].value;
@@ -858,7 +936,8 @@ window.DagFunction = (function($, DagFunction) {
             $("#dagWrap-" + tableId).removeClass("rerunning");
         });
 
-        function updateSourceName(struct, translation) {
+        function updateSourceName(value, translation) {
+            var struct = value.struct;
             if ("source" in struct) {
                 if (typeof struct.source === "string") {
                     if (translation[struct.source]) {
@@ -874,7 +953,7 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        function updateDestinationName(value, translation, tagHeaders) {
+        function updateDestinationName(value, translation, tagHeaders, aggRenames) {
             if (value.struct.dest in translation) {
                 value.struct.dest = translation[value.struct.dest];
             } else {
@@ -889,7 +968,12 @@ window.DagFunction = (function($, DagFunction) {
                     }
                 }
 
-                translation[value.struct.dest] = newTableName;
+                if (value.api === XcalarApisT.XcalarApiAggregate) {
+                    aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
+                } else {
+                    translation[value.struct.dest] = newTableName;
+                }
+
                 value.struct.dest = newTableName;
             }
         }
@@ -1145,7 +1229,14 @@ window.DagFunction = (function($, DagFunction) {
             if (node.numParents > 1) {
                 var parsedParents = [];
                 if (node.struct.eval) {
-                    parsedParents = parseAggFromEvalStr(node.struct.eval);
+                    if (node.aggSources) {
+                        parsedParents = node.aggSources;
+                    } else {
+                        parsedParents = DagFunction.getAggsFromEvalStrs(node.struct.eval);
+                        if (parsedParents.length) {
+                            node.aggSources = parsedParents;
+                        }
+                    }
                 } else {
                     console.error("unexpected struct, could not find srsc tables");
                     console.error(node.struct);
@@ -1233,54 +1324,6 @@ window.DagFunction = (function($, DagFunction) {
         return sets;
     }
 
-    function parseAggFromEvalStr(evalStrs) {
-        var allTables = [];
-        // var tablesMap = {};
-        if (!evalStrs) {
-            return allTables;
-        }
-        for (var i = 0; i < evalStrs.length; i++) {
-            var evalStr = evalStrs[i].evalString;
-            var tables = [];
-            try {
-                var func = ColManager.parseFuncString(evalStr);
-                tables = getAggNamesFromFunc(func);
-            } catch (err) {
-                console.error("could not parse eval str", evalStr);
-            }
-            for (var j = 0; j < tables.length; j++) {
-                if (allTables.indexOf(tables[j]) === -1) {
-                    allTables.push(tables[j]);
-                }
-            }
-        }
-        return allTables;
-    }
-
-    function getAggNamesFromFunc(func) {
-        var names = [];
-
-        getNames(func.args);
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1 &&
-                        args[i][0] === gAggVarPrefix &&
-                        args[i].length > 1) {
-                        names.push(args[i].slice(1));
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
-        }
-
-        return (names);
-    }
-
     // remove immediates that are not present in the new table, add new immediates
     // immediates that are present in before and after will change user string
     // to pull instead of map
@@ -1361,6 +1404,19 @@ window.DagFunction = (function($, DagFunction) {
             deferred.resolve(progCols);
         });
         return deferred.promise();
+    }
+
+    function replaceFuncStr(func, aggRenames) {
+        for (var i = 0; i < func.args.length; i++) {
+            var arg = func.args[i];
+            if (typeof arg === "object") {
+                replaceFuncStr(arg, aggRenames);
+            } else {
+                if (aggRenames[arg]) {
+                    func.args[i] = aggRenames[arg];
+                }
+            }
+        }
     }
 
     return DagFunction;

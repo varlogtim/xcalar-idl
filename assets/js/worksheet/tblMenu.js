@@ -209,7 +209,7 @@ window.TblMenu = (function(TblMenu, $) {
                     ProjectView.close();
                     break;
                 case ("dfEdit"):
-                    DagEdit.toggle();
+                    DagEdit.off();
                     break;
                 default:
                     break;
@@ -1034,7 +1034,7 @@ window.TblMenu = (function(TblMenu, $) {
                     ProjectView.close();
                     break;
                 case ("dfEdit"):
-                    DagEdit.toggle();
+                    DagEdit.off();
                     break;
                 default:
                     break;

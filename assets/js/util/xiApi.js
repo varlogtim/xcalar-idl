@@ -726,6 +726,10 @@
             return PromiseHelper.reject("Invalid args in union");
         }
 
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(tableInfos[0].tableName);
+        }
+
         var colLen = tableInfos[0].columns.length;
         for (var i = 0; i < colLen; i++) {
             for (var j = 0; j < tableInfos.length; j++) {

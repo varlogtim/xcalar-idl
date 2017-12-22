@@ -2601,6 +2601,7 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             if ($("#container").hasClass('columnPicker') ||
+                DagEdit.isEditMode() ||
                 ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
                 // not focus when in modal unless bypassModa is true
                 return;

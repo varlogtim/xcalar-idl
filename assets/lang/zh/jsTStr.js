@@ -998,6 +998,7 @@ OpModalTStr = {
 'EmptyStringHint': '选择允许空字符串',
 'ColNameDesc': '新的结果列名称',
 'AggNameDesc': '新的聚合名称（可选）',
+'AggNameReq': 'New Resultant Aggregate Name (required)',
 'IncSample': '包括其余列的样本',
 'IncSampleDesc': '如果选中，将包括所有列的样本',
 'KeepInTable': '与原始表关连',

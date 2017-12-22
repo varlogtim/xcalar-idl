@@ -1199,6 +1199,7 @@ OpModalTStr = {
     'EmptyStringHint': 'Select to allow empty strings',
     'ColNameDesc': 'New Resultant Column Name',
     'AggNameDesc': 'New Resultant Aggregate Name (optional)',
+    'AggNameReq': 'New Resultant Aggregate Name (required)',
     'IncSample': 'Include a sample of the rest of the fields',
     'IncSampleDesc': 'If checked, a sample of all fields will be included',
     'KeepInTable': 'Join table back to original',

@@ -17,6 +17,14 @@ window.Aggregates = (function(Aggregates, $) {
         return (aggs);
     };
 
+    Aggregates.getAllAggs = function() {
+        return $.extend({}, tempAggs, aggs);
+    };
+
+    Aggregates.getTempAggs = function() {
+        return tempAggs;
+    };
+
     // returns aggs that the user named, and not any unnamed aggs
     Aggregates.getNamedAggs = function() {
         var namedAggs = {};

@@ -483,6 +483,10 @@ html.firefox, html.microsoft {
             .justify-content(space-between);
         }
 
+        &.error {
+            color: @color-error-border;
+        }
+
         &:after, &:before {
             top: 100%;
             left: 50%;
@@ -1522,6 +1526,10 @@ html.firefox, html.microsoft {
                     border: 3px solid @color-bg-fern-green;
                 }
 
+                .hasErrorMixin {
+                    border: 3px solid @color-error-border;
+                }
+
                 .actionType {
                     &:after {
                         top: -2px;
@@ -1555,6 +1563,18 @@ html.firefox, html.microsoft {
 
                         .tableTitle, .dagTable .icon {
                             opacity: 0.6;
+                        }
+                    }
+                    &.hasError {
+                        .actionType {
+                            &:after {
+                                .hasErrorMixin;
+                            }
+                            &.index {
+                                &:after {
+                                    content: none;
+                                }
+                            }
                         }
                     }
                 }
@@ -1675,6 +1695,14 @@ html.firefox, html.microsoft {
         opacity: 0.2;
         pointer-events: none;
         display: none;
+    }
+
+    .xcTableWrap {
+        .tableTitle {
+            .labelWrap .text {
+                pointer-events: none;
+            }
+        }
     }
 
     #undoRedoArea {

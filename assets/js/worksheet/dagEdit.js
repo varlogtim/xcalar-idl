@@ -11,6 +11,22 @@ window.DagEdit = (function($, DagEdit) {
     var editingTables = {}; // map of names of tables currently being edited
     var descendantRefCounts = {}; // counts how many times a table is included as a descendant
     var descendantMap = {}; // map of edited tables and their descendant
+    var aggregates = {};
+
+    var EditInfo = function() {
+        this.editingNode = null;
+        this.treeNode = null;
+        this.structs = {}; // structs that are edited
+        this.linkedNodes = {};// nodes that depend on each other, example: groupby
+        // and index are linked, so when  we undo a group by edit, we need to undo the
+        // index edit as well
+        this.newNodes = {};
+        this.editingTables = {}; // map of names of tables currently being edited
+        this.descendantRefCounts = {}; // counts how many times a table is included as a descendant
+        this.descendantMap = {}; // map of edited tables and their descendant
+        this.aggregates = {};
+        this.mapIndex = null;
+    };
 
     DagEdit.getInfo = function() {
         return {
@@ -19,11 +35,48 @@ window.DagEdit = (function($, DagEdit) {
         };
     };
 
+    // for each of the aggs in the new eval strings,
+    // check parents of the map node, if none of those parents have a dest name that equal the new agg
+    // check if parentName is in struct
+
+    function findNodeByName(name) {
+        var foundNode;
+
+        search(treeNode);
+
+        return foundNode;
+
+        function search(node) {
+            if (foundNode) {
+                return;
+            }
+            if (node.value.name === name) {
+                foundNode = node;
+                return;
+            }
+            for (var i = 0; i < node.parents.length; i++) {
+                search(node.parents[i]);
+            }
+        }
+    }
+
     DagEdit.isEditMode = function() {
         return isEditMode;
     };
 
-    DagEdit.toggle = function(node, force) {
+    DagEdit.on = function(node) {
+        $("#container").addClass("dfEditState");
+        isEditMode = true;
+        var tableId = xcHelper.getTableId(node.value.name);
+        $("#xcTableWrap-" + tableId).addClass("editingDf");
+        StatusMessage.updateLocation(true, "Editing Dataflow");
+        xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
+                             TooltipTStr.NoUndoEditMode);
+        TblManager.alignTableEls();
+        refreshInfo(node);
+    };
+
+    DagEdit.off = function(node, force) {
         var edits = DagEdit.getInfo();
         if ((Object.keys(edits.structs).length ||
             Object.keys(edits.newNodes).length) && !force) {
@@ -31,47 +84,45 @@ window.DagEdit = (function($, DagEdit) {
                 "title": "Edit in progress",
                 "msg": "Are you sure you want to exit edit mode and abandon all changes?",
                 "onConfirm": function() {
-                    toggleMode();
+                    turnOff();
                 }
             });
         } else {
-            toggleMode();
+            turnOff();
         }
 
-        function toggleMode() {
-            $("#container").toggleClass("dfEditState");
-            if (!$("#container").hasClass("dfEditState")) {
-                isEditMode = false;
-                $(".dagWrap").removeClass("editMode");
-                $(".dagWrap").find(".hasEdit").removeClass("hasEdit");
-                $(".xcTableWrap").removeClass("editingDf editing");
-                $("#dagPanel").find(".dagTableTip").remove();
-                $(".dagTableWrap").removeClass("isDownstream");
-                DagEdit.exitForm();
+        function turnOff() {
+            $("#container").removeClass("dfEditState");
+            isEditMode = false;
+            var $dagPanel = $("#dagPanel");
+            $dagPanel.find(".dagWrap").removeClass("editMode");
+            $dagPanel.find(".dagWrap").find(".hasEdit").removeClass("hasEdit");
+            $(".xcTableWrap").removeClass("editingDf editing");
+            $dagPanel.find(".dagTableTip").remove();
+            $dagPanel.find(".dagTableWrap").removeClass("isDownstream aggError hasError");
+            DagEdit.exitForm();
 
-                xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
-                                     TooltipTStr.NoUndoActiveForm);
-                StatusMessage.updateLocation(true);
-                TblManager.alignTableEls();
-                MainMenu.closeForms();
-            } else {
-                isEditMode = true;
-                var tableId = xcHelper.getTableId(node.value.name);
-                $("#xcTableWrap-" + tableId).addClass("editingDf");
-                StatusMessage.updateLocation(true, "Editing Dataflow");
-                xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
-                                     TooltipTStr.NoUndoEditMode);
-                TblManager.alignTableEls();
-            }
-            treeNode = node;
-            structs = {};
-            newNodes = {};
-            linkedNodes = {};
-            editingTables = {};
-            descendantRefCounts = {};
-            descendantMap = {};
+            xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
+                                 TooltipTStr.NoUndoActiveForm);
+            StatusMessage.updateLocation(true);
+            TblManager.alignTableEls();
+            MainMenu.closeForms();
+
+            refreshInfo(node);
         }
     };
+
+    function refreshInfo(node) {
+        treeNode = node;
+        structs = {};
+        newNodes = {};
+        aggregates = {};
+        linkedNodes = {};
+        editingTables = {};
+        descendantRefCounts = {};
+        descendantMap = {};
+    }
+
     // options:
     //  evalIndex: integer, which eval str to edit
     DagEdit.editOp = function(node, options) {
@@ -79,6 +130,9 @@ window.DagEdit = (function($, DagEdit) {
         editingNode = node;
         var api = node.value.api;
         var sourceTableNames = node.getNonIndexSourceNames(true);
+        sourceTableNames = sourceTableNames.filter(function(name) {
+            return name.indexOf("#") > -1; // exclude aggregates
+        });
         var uniqueSrcTableNames = [];
         sourceTableNames.forEach(function(tName) {
             if (uniqueSrcTableNames.indexOf(tName) === -1) {
@@ -198,12 +252,17 @@ window.DagEdit = (function($, DagEdit) {
             }
             structs[editingNode.value.name].eval[mapIndex] = info.args.eval[0];
             structs[editingNode.value.name].icv = info.args.icv;
+            checkMapForAgg(editingNode);
         } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
             structs[editingNode.value.name] = {
                 joinType: info.args.joinType,
                 evalString: info.args.evalString};
         } else if (editingNode.value.api === XcalarApisT.XcalarApiUnion) {
             structs[editingNode.value.name] = {renameMap: info.args.renameMap};
+        } else if (editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
+            structs[editingNode.value.name] = info.args;
+            aggregates[editingNode.value.name] = info.args;
+            checkAggForMap();
         } else {
             structs[editingNode.value.name] = info.args;
         }
@@ -240,6 +299,7 @@ window.DagEdit = (function($, DagEdit) {
         }
         delete structs[node.value.name];
         delete newNodes[node.value.name];
+        delete aggregates[node.value.name];
         var descendants = descendantMap[node.value.name];
         for (var i = 0; i < descendants.length; i++) {
             descendantRefCounts[descendants[i]]--;
@@ -643,7 +703,7 @@ window.DagEdit = (function($, DagEdit) {
                                     '<i class="icon xi-trash"></i>' +
                                 '</div>' +
                                 '<div class="edit option xc-action">' +
-                                    '<span class="text">Edit</span>' +
+                                    // '<span class="text">Edit</span>' +
                                     '<i class="icon xi-edit"></i>' +
                                 '</div>' +
                                 // '<div class="restore option xc-action">' +
@@ -727,6 +787,78 @@ window.DagEdit = (function($, DagEdit) {
         });
 
         return deferred.promise();
+    }
+
+    // after editing a map, checks to see if it's referencing any aggs that
+    // don't exist
+    function checkMapForAgg(node) {
+        var struct = structs[node.value.name];
+        var aggs = DagFunction.getAggsFromEvalStrs(struct.eval);
+
+        var parentNames = node.parents.map(function(parent) {
+            return parent.value.name;
+        });
+
+        var unknownAggs = [];
+        var wsAggs = Aggregates.getAllAggs();
+        for (var i = 0; i < aggs.length; i++) {
+            var found = false;
+            if (parentNames.indexOf(aggs[i]) === -1) {
+                // check if exists in edited struct
+                for (var j = 0; j < parentNames.length; j++) {
+                    if (aggregates[parentNames[j]] && aggregates[parentNames[j]].dest) {
+                        var dest = structs[parentNames[j]].dest;
+                        if (dest === aggs[i]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                found = true;
+            }
+
+            if (!found && !wsAggs[aggs[i]]) {
+                for (var aggNames in aggregates) {
+                    if (aggregates[aggNames].dest) {
+                        var dest = aggregates[aggNames].dest;
+                        if (dest === aggs[i]) {
+                            found = true;
+                        }
+                    }
+                }
+                if (!found) {
+                    unknownAggs.push(aggs[i]);
+                }
+            }
+        }
+
+        var $dagTable = Dag.getTableIcon($(".dagWrap.editMode"), node.value.dagNodeId);
+        var $dagTableWrap = $dagTable.closest(".dagTableWrap");
+        if (unknownAggs.length) {
+            $dagTableWrap.addClass("aggError hasError");
+
+            var tip = '<div class="dagTableTip error">' +
+                        '<div>Aggregate(s) not found: ' + xcHelper.listToEnglish(unknownAggs) + '</div>' +
+                      '</div>';
+            $dagTableWrap.find(".actionType").find(".dagTableTip").remove();
+            $dagTableWrap.find(".actionType").append(tip);
+        } else {
+            $dagTableWrap.removeClass("aggError hasError");
+            $dagTableWrap.find(".dagTableTip").remove();
+        }
+    }
+
+    // after editing an agg, checks to see if any error maps that were referencing
+    // non-existant aggs are no longer erroring
+    function checkAggForMap() {
+        var $dagTableWraps = $(".dagWrap.editMode").find(".aggError");
+        var $dagWrap = $(".dagWrap.editMode");
+        $dagTableWraps.each(function() {
+            var nodeId = $(this).find(".dagTable").data("index");
+            var mapNode = Dag.getNodeById($dagWrap, nodeId);
+            checkMapForAgg(mapNode);
+        });
     }
 
     if (window.unitTestMode) {

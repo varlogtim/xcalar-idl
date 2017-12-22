@@ -1415,6 +1415,7 @@ window.TableList = (function($, TableList) {
         var allConsts = [];
         var aggConst;
         var backConstsMap = {};
+
         XcalarGetConstants('*')
         .then(function(backConsts) {
             var promises = [];
@@ -1424,12 +1425,17 @@ window.TableList = (function($, TableList) {
                 if (!frontConsts[aggConst.name]) {
                     if (firstTime) {
                         aggConst.backColName = null;
+                        var aggName = aggConst.name;
+                        if (aggName[0] !== gAggVarPrefix) {
+                            aggName = gAggVarPrefix + aggName;
+                        }
                         aggConst.dagName = aggConst.name;
-                        aggConst.aggName = aggConst.name;
+                        aggConst.aggName = aggName;
                         aggConst.op = null;
                         aggConst.tableId = null;
                         aggConst.value = null;
                         backConstsList.push(aggConst);
+                        Aggregates.addAgg(aggConst, true);
                     } else {
                         promises.push(XcalarGetDag(aggConst.name));
                     }
@@ -1451,6 +1457,7 @@ window.TableList = (function($, TableList) {
             var rets = arguments;
             var node;
             if (!firstTime && rets[0] != null) {
+                var tempAggs = Aggregates.getTempAggs();
                 for (var i = 0; i < rets.length; i++) {
                     node = rets[i].node[0];
                     aggConst = backConstsMap[node.name.name];
@@ -1462,6 +1469,9 @@ window.TableList = (function($, TableList) {
                     aggConst.value = null;
                     aggConst.backOnly = true;
                     backConstsList.push(aggConst);
+                    if (!tempAggs[node.name.name]) {
+                        Aggregates.addAgg(aggConst, true);
+                    }
                 }
             }
 

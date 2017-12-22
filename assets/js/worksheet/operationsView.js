@@ -816,11 +816,11 @@ window.OperationsView = (function($, OperationsView) {
                     options.prefill.args[0][0] &&
                     options.prefill.args[0][0].indexOf("(") === -1) {
                     colName = options.prefill.args[0][0];
+                    isNewCol = true;
                 } else {
                     colName = "";
+                    isNewCol = false;
                 }
-
-                isNewCol = false;
             }
         }
         updateFormTitles(options);
@@ -1085,7 +1085,11 @@ window.OperationsView = (function($, OperationsView) {
                             arg !== "true" && arg !== "false" &&
                             arg !== "t" && arg !== "f") {
                             // it's a column
-                            arg = gColPrefix + arg;
+
+                            if (arg[0] !== gAggVarPrefix) {
+                                // do not prepend colprefix if has aggprefix
+                                arg = gColPrefix + arg;
+                            }
                         }
                     } else {
                         var quote = arg[0];
@@ -1907,7 +1911,7 @@ window.OperationsView = (function($, OperationsView) {
         if (colName === "" && !isEditMode) {
             tempName = "mapped";
         }
-        if (isNewCol && colName !== "") {
+        if (isNewCol && colName !== "" && currentCol) {
             autoGenColName = currentCol.getFrontColName();
             autoGenColName = xcHelper.stripColName(autoGenColName);
         } else {
@@ -1992,7 +1996,12 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function aggArgumentsSetup(numArgs, operObj, $rows) {
-        var description = OpModalTStr.AggNameDesc;
+        var description;
+        if (isEditMode) {
+            description = OpModalTStr.AggNameReq;
+        } else {
+            description = OpModalTStr.AggNameDesc;
+        }
 
         $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList')
@@ -2728,7 +2737,8 @@ window.OperationsView = (function($, OperationsView) {
                     isPassing = true; // input name matches new column name
                     // which is ok
                 } else {
-                    var checkOpts = {stripColPrefix: true};
+                    var checkOpts = {stripColPrefix: true,
+                                     ignoreNewCol: isEditMode};
                     isPassing = !ColManager.checkColName($nameInput, tableId,
                                                         null, checkOpts);
                 }
@@ -2778,7 +2788,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
                 break;
             case ('aggregate'):
-                if (args[1].length > 1) {
+                if (args[1].length > 1 || isEditMode) {
                     checkAggregateNameValidity()
                     .then(function(isPassing) {
                         if (!isPassing) {
@@ -3198,6 +3208,9 @@ window.OperationsView = (function($, OperationsView) {
     // }
 
     function aggregateCheck(args) {
+        if (isEditMode) {
+            return true;
+        }
         if (!hasFuncFormat(args[0])) {
             var aggColNum = getColNum(args[0]);
             if (aggColNum < 1) {
@@ -3217,7 +3230,9 @@ window.OperationsView = (function($, OperationsView) {
         var aggColNum;
         var tableCol;
         var aggStr;
-        if (!hasFuncFormat(args[0])) {
+        if (isEditMode) {
+            aggStr = args[0];
+        } else if (!hasFuncFormat(args[0])) {
             aggColNum = getColNum(args[0]);
             tableCol = table.getCol(aggColNum);
             aggStr = tableCol.getBackColName();
@@ -3243,7 +3258,8 @@ window.OperationsView = (function($, OperationsView) {
                     "eval": [{
                         "evalString": aggrOp + "(" + aggStr + ")",
                         "newField": ""
-                    }]
+                    }],
+                    "dest": aggName.slice(gAggVarPrefix.length)
                 }
             });
             deferred.resolve();
@@ -3787,7 +3803,7 @@ window.OperationsView = (function($, OperationsView) {
             errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
                 "aggPrefix": gAggVarPrefix
             });
-            invalid = false;
+            invalid = true;
         } else if (!xcHelper.isValidTableName(val.substring(1))) {
             // test the value after gAggVarPrefix
             errorTitle = ErrTStr.InvalidAggName;

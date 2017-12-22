@@ -611,9 +611,9 @@ describe('TableMenu Test', function() {
                 });
 
                 it('dfEdit', function() {
-                    var cachedFunc = DagEdit.toggle;
+                    var cachedFunc = DagEdit.off;
                     var called = false;
-                    DagEdit.toggle = function() {
+                    DagEdit.off = function() {
                         called = true;
                     };
 
@@ -623,7 +623,7 @@ describe('TableMenu Test', function() {
                     $tableMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
                     expect(called).to.be.true;
 
-                    DagEdit.toggle = cachedFunc;
+                    DagEdit.off = cachedFunc;
                 });
             });
         });
@@ -1286,9 +1286,9 @@ describe('TableMenu Test', function() {
                 });
 
                 it('dfEdit', function() {
-                    var cachedFunc = DagEdit.toggle;
+                    var cachedFunc = DagEdit.off;
                     var called = false;
-                    DagEdit.toggle = function() {
+                    DagEdit.off = function() {
                         called = true;
                     };
 
@@ -1298,7 +1298,7 @@ describe('TableMenu Test', function() {
                     $colMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
                     expect(called).to.be.true;
 
-                    DagEdit.toggle = cachedFunc;
+                    DagEdit.off = cachedFunc;
                 });
             });
         });

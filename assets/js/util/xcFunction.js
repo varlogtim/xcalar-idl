@@ -160,7 +160,7 @@ window.xcFunction = (function($, xcFunction) {
 
         xcHelper.lockTable(tableId, txId);
 
-        // backend doesn't take gAggVarPrefix so we will add it back alter
+        // backend doesn't take gAggVarPrefix so we will add it back later
         var hasPrefix = false;
         if (hasAggName) {
             aggName = aggName.slice(1);
@@ -414,8 +414,8 @@ window.xcFunction = (function($, xcFunction) {
             // colNums: array of column numbers to join on,
             // casts: array of cast types ["string", "boolean", null] etc
             // pulledColumns: columns to pulled out (front col name)
-            // tableName: table's name
-            // reaname: array of rename object, can be null or empty array
+            // tableId: table's hash id
+            // rename: array of rename object, can be null or empty array
 
     // options:
     //          keepTables: boolean, if true will keep src tables in worksheet
@@ -561,6 +561,17 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
+    // tableInfos: { "tableName": "unitTestFakeYelp117-GB#zj21",
+                    // "columns": [
+                    //   {
+                    //     "name": "mapped_count",
+                    //     "rename": "mapped_count",
+                    //     "type": "integer",
+                    //     "cast": false
+                    //   }
+                    // ]
+                    // }
+
     xcFunction.union = function(tableInfos, dedup, newTableName, options) {
         var deferred = jQuery.Deferred();
 
@@ -569,6 +580,7 @@ window.xcFunction = (function($, xcFunction) {
         var steps = 1;
         var tableIds = [];
         var tableNames = [];
+        options = options || {};
 
         if (newTableName != null) {
             newTableName += Authentication.getHashId();
@@ -616,19 +628,18 @@ window.xcFunction = (function($, xcFunction) {
 
             focusOnTable = scrollChecker.checkScroll();
             var tableOptions = {"focusWorkspace": focusOnTable};
-            return TblManager.refreshTable([finalTableName], finalTableCols,
-                                            null, curWS, txId,
-                                            tableOptions);
-        })
-        .then(function() {
+            var tablesToReplace;
             if (!options.keepTables) {
-                var promises = tableIds.map(function(tableId) {
-                    return TblManager.sendTableToOrphaned(tableId, {
-                        "remove": true
-                    });
+                tablesToReplace = tableIds.map(function(tableId) {
+                    return gTables[tableId].getName();
                 });
-                return PromiseHelper.when.apply(this, promises);
+            } else {
+                tablesToReplace = [];
             }
+
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                                            tablesToReplace, curWS, txId,
+                                            tableOptions);
         })
         .then(function() {
             tableIds.forEach(function(tableId) {
@@ -658,7 +669,7 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
-    // gbArgs is array of {operator:str, aggCol:str, newColName:str,
+    // gbArgs is array of {operator:str, aggColName:str, newColName:str,
     //                     cast:null or str} objects
     // options:  isIncSample: boolean, isJoin: boolean, icvMode: boolean,
     //           isKeepOriginal: boolean
