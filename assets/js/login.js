@@ -116,6 +116,7 @@ $(document).ready(function() {
                     alert("Your authentication server has not been set up " +
                           "correctly. Please contact support@xcalar.com or " +
                           "your Xcalar sales representative.");
+                    isSubmitDisabled = false;
                     toggleBtnInProgress($("#loginButton"));
                 }
             });
@@ -132,7 +133,6 @@ $(document).ready(function() {
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }
-
     });
 
     $("#signupButton").click(function() {
