@@ -496,7 +496,6 @@ window.Function.prototype.bind = function() {
                                 ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
                                 ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                                 ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
-                             test.assert(getConfigParamsOutput.parameter[ii].visible === true);
                              test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueNew);
                              found = "true";
                              break;
@@ -520,7 +519,6 @@ window.Function.prototype.bind = function() {
                                         ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
                                         ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                                         ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
-                                    test.assert(getConfigParamsOutput.parameter[ii].visible === false);
                                     test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueOld);
                                     test.pass();
                                 }
@@ -679,7 +677,7 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
-            test.assert(result.numBytes == 17694720);
+            test.assert(result.numBytes == 17432576);
             test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
@@ -2524,6 +2522,27 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    // Witness to bug 10624 -- list files in a non-existent directory should
+    // return error in the Txn log.
+    function testTxnLog(test) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = "/NotThere";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        xcalarListFiles(thriftHandle, sourceArgs)
+        .done(function(listFilesOutput) {
+            printResult(listFilesOutput);
+            test.fail("Unexpected success listing non-existent files");
+        })
+        .fail(function(listFilesOutput) {
+            printResult(listFilesOutput);
+
+            test.assert(listFilesOutput.log != "");
+            test.pass();
+        });
+    }
+
     // Witness to bug 2020
     function testApiMapStringToString(test) {
         var evalString = "string(yelp_user::user_id)";
@@ -2848,6 +2867,10 @@ window.Function.prototype.bind = function() {
             .always(function() {
                 // Start in brand new sesion...
                 xcalarApiSessionNew(thriftHandle, session1, false, "")
+                .then(function() {
+                    // ..activate it since a new session is inactive on birth
+                    return xcalarApiSessionSwitch(thriftHandle, session1, undefined, false);
+                })
                 .then(function() {
                     // ... and add a key.
                     return xcalarKeyAddOrReplace(thriftHandle,
@@ -3203,7 +3226,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionPersist(test) {
-        xcalarApiSessionPersist(thriftHandle, "*")
+        xcalarApiSessionPersist(thriftHandle, session2)
         .done(function(sessionListOutput) {
             printResult(sessionListOutput);
             test.pass();
@@ -3787,6 +3810,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testTarget, "test target operations", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListTargetTypes, "test target types", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testTxnLog, "Test Txn logging", defaultTimeout, TestCaseEnabled, "10624");
 
     addTestCase(testApisWithNoArgs, "call Xcalar APIs without args", defaultTimeout, TestCaseEnabled, "");
 

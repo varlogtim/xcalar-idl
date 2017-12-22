@@ -608,7 +608,10 @@ StatusT = {
   'StatusJsonQueryParseError' : 599,
   'StatusXemNotConfigured' : 600,
   'StatusNoDatasetMemory' : 601,
-  'StatusTableEmpty' : 602
+  'StatusTableEmpty' : 602,
+  'StatusUsrAddInProg' : 603,
+  'StatusSessionNotActive' : 604,
+  'StatusUsrSessLoadFailed' : 605
 };
 StatusTStr = {
   0 : 'Success',
@@ -1213,7 +1216,10 @@ StatusTStr = {
   599 : 'Error parsing JSON query',
   600 : 'Required XEM configuration parameters not present',
   601 : 'Out of dataset memory',
-  602 : 'Table is empty'
+  602 : 'Table is empty',
+  603 : 'User info inaccessible since user initialization still in progress',
+  604 : 'Target session was not active',
+  605 : 'User failed to read sessions'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1818,5 +1824,8 @@ StatusTFromStr = {
   'Error parsing JSON query' : 599,
   'Required XEM configuration parameters not present' : 600,
   'Out of dataset memory' : 601,
-  'Table is empty' : 602
+  'Table is empty' : 602,
+  'User info inaccessible since user initialization still in progress' : 603,
+  'Target session was not active' : 604,
+  'User failed to read sessions' : 605
 };
