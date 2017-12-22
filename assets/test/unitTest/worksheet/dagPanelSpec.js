@@ -1421,7 +1421,7 @@ describe("Dag Panel Test", function() {
                 expect(prevTableId).to.equal(largeTable.ancestorIds[0]);
                 $prevDagIcon.click();
                 expect($menu.find("li.addTable").is(":visible")).to.be.true;
-                WSManager.moveInactiveTable(prevTableId,
+                WSManager.moveTemporaryTable(prevTableId,
                                             WSManager.getActiveWS(),
                                             TableType.Orphan)
                 .then(function() {

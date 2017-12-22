@@ -1077,11 +1077,11 @@ window.Replay = (function($, Replay) {
     };
 
     // when adding inactive/orphaned table from dag
-    replayFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+    replayFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
         var tableId = getTableId(options.tableId);
         var wsIndex = options.newWorksheetIndex;
         var wsId = WSManager.getWSByIndex(wsIndex);
-        return WSManager.moveInactiveTable(tableId, wsId,
+        return WSManager.moveTemporaryTable(tableId, wsId,
                                             options.tableType);
     };
 

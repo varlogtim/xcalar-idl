@@ -1,7 +1,7 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    var editedLineage = {};
+    // var editedLineage = {};
     var tablesToTag = {};
     var TreeNode = function(value) {
         this.value = value;
@@ -451,7 +451,7 @@ window.DagFunction = (function($, DagFunction) {
         var wsId = WSManager.getActiveWS();
         var tableType = TableType.Orphan;
 
-        WSManager.moveInactiveTable(tableId, wsId, tableType)
+        WSManager.moveTemporaryTable(tableId, wsId, tableType)
         .then(function() {
             DFCreateView.updateTables(tableId);
             deferred.resolve();
@@ -616,24 +616,24 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function searchTreeForName(tree, name) {
-        var foundNode;
-        search(tree);
-        function search(node) {
-            if (node.value.name === name) {
-                foundNode = node;
-                return;
-            }
-            for (var i = 0; i < node.parents.length; i++) {
-                if (!foundNode) {
-                    search(node.parents[i]);
-                } else {
-                    break;
-                }
-            }
-        }
-        return foundNode;
-    }
+    // function searchTreeForName(tree, name) {
+    //     var foundNode;
+    //     search(tree);
+    //     function search(node) {
+    //         if (node.value.name === name) {
+    //             foundNode = node;
+    //             return;
+    //         }
+    //         for (var i = 0; i < node.parents.length; i++) {
+    //             if (!foundNode) {
+    //                 search(node.parents[i]);
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return foundNode;
+    // }
 
     // if a startNode has a dropped parent, we need to search all of its parents
     // until we find one that is not dropped and add it to the startNodes list
@@ -1317,7 +1317,7 @@ window.DagFunction = (function($, DagFunction) {
                         }
                     } else if (immediates[progCols[i].name]) {
                         var newProgCol = ColManager.newCol(progCols[i]);
-                        newProgCol.userStr =  '"' + progCols[i].name + '" = pull(' + progCols[i].name + ')';
+                        newProgCol.userStr = '"' + progCols[i].name + '" = pull(' + progCols[i].name + ')';
                         newCols.push(newProgCol);
                         immediates[progCols[i].name].used = true;
                     }
@@ -1329,7 +1329,7 @@ window.DagFunction = (function($, DagFunction) {
                 for (var i = 0; i < prevValues.length; i++) {
                     if (prevValues[i].type !== DfFieldTypeT.DfFatptr) {
                         if (immediates[prevValues[i].name]) {
-                            immediates[prevValues[i].name].used  = true;
+                            immediates[prevValues[i].name].used = true;
                         }
                     }
                 }

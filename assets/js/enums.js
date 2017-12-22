@@ -321,7 +321,7 @@ SQLOps = {
     UnHideWS: "unhideWorksheet",
     MakeTemp: "sendTableToTemporary",
     MoveTableToWS: "moveTableToWorkSheet",
-    MoveInactiveTableToWS: "moveInactiveTableToWorksheet",
+    MoveTemporaryTableToWS: "moveTemporaryTableToWorksheet",
     RevertTable: "revertTable",
     CreateFolder: "createFolder",
     DSRename: "dsRename",

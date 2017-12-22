@@ -251,9 +251,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         var tableListText =
                         $('#activeTablesList').find('.tableListBox').text() +
-                        $('#activeTablesList').find('.columnList').text() +
-                        $('#inactiveTablesList').find('.tableListBox').text() +
-                        $('#inactiveTablesList').find('.columnList').text();
+                        $('#activeTablesList').find('.columnList').text();
         tableListText = tableListText.split("").sort().join("");
         // not checking for table list order, just for content
 
@@ -386,9 +384,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             var tableListText =
                         $('#activeTablesList').find('.tableListBox').text() +
-                        $('#activeTablesList').find('.columnList').text() +
-                        $('#inactiveTablesList').find('.tableListBox').text() +
-                        $('#inactiveTablesList').find('.columnList').text();
+                        $('#activeTablesList').find('.columnList').text();
             tableListText = tableListText.split("").sort().join(""); // sort;
             var info = {
                 tables: activeTables,
@@ -574,7 +570,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Revert Table",
                         "Send Tables to Worksheet",
                         "Filter",
-                        "Move Inactive Table To Worksheet",
+                        "Move Temporary Table To Worksheet",
                         "Create Worksheet",
                         "Create Worksheet",
                         "Delete Worksheet",

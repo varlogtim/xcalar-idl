@@ -744,7 +744,7 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve();
     };
 
-    undoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+    undoFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
         var deferred = jQuery.Deferred();
         var tableId = options.tableId;
         var tableType = options.tableType;
@@ -805,7 +805,7 @@ window.Undo = (function($, Undo) {
             makeWorksheetHelper();
 
             tables.forEach(function(tableId) {
-                promises.push(WSManager.moveInactiveTable.bind(this,
+                promises.push(WSManager.moveTemporaryTable.bind(this,
                     tableId, wsId, TableType.Orphan));
             });
 
@@ -815,7 +815,7 @@ window.Undo = (function($, Undo) {
         } else if (delType === DelWSType.Temp) {
             makeWorksheetHelper();
             tables.forEach(function(tableId) {
-                promises.push(WSManager.moveInactiveTable.bind(this,
+                promises.push(WSManager.moveTemporaryTable.bind(this,
                     tableId, wsId, TableType.Orphan));
             });
             promises.push(TableList.refreshOrphanList.bind(this));

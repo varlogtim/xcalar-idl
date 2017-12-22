@@ -286,7 +286,7 @@ window.Repeat = (function($, Repeat) {
         return PromiseHelper.resolve(null);
     };
 
-    // repeatFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+    // repeatFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
     // };
 
     repeatFuncs[SQLOps.HideWS] = function() {

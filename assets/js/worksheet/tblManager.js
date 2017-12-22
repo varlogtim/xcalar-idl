@@ -446,7 +446,7 @@ window.TblManager = (function($, TblManager) {
             } else {
                 $('#workspaceTab').click();
                 wsId = WSManager.getActiveWS();
-                WSManager.moveInactiveTable(tableId, wsId, tableType, true,
+                WSManager.moveTemporaryTable(tableId, wsId, tableType, true,
                     noAnimate)
                 .then(function() {
                     deferred.resolve({tableFromInactive: true});
@@ -461,7 +461,7 @@ window.TblManager = (function($, TblManager) {
                 if (ret.numNodes > 0) {
                     $('#workspaceTab').click();
                     wsId = WSManager.getActiveWS();
-                    WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan,
+                    WSManager.moveTemporaryTable(tableId, wsId, TableType.Orphan,
                                                 true, noAnimate)
                     .then(function() {
                         deferred.resolve({tableFromInactive: true});

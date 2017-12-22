@@ -149,8 +149,8 @@
     "cli":"filter schedule15551#yz3 \"eq(teacher_id,2)\"  \"schedule15551#yz4\";",
     "timestamp":1460668487093},
 
-    {"title":"Move Inactive Table To Worksheet",
-    "options":{"operation":"moveInactiveTableToWorksheet",
+    {"title":"Move Temporary Table To Worksheet",
+    "options":{"operation":"moveTemporaryTableToWorksheet",
     "tableId":"yz3",
     "tableType":"orphaned",
     "newWorksheetId":"h8",

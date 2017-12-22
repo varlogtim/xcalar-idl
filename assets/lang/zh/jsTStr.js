@@ -1060,7 +1060,7 @@ SQLTStr = {
     "MaximizeTable": "Maximize Table",
     "MinimizeCols": "Minimize Columns",
     "MinimizeTable": "Minimize Table",
-    "MoveInactiveTableToWS": "Move Inactive Table To Worksheet",
+    "MoveTemporaryTableToWS": "Move Temporary Table To Worksheet",
     "MoveTableToWS": "Move Table To Worksheet",
     "PullCol": "Pull Column",
     "PullCols": "Pull Columns",

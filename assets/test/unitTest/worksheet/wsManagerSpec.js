@@ -650,13 +650,13 @@ describe("Worksheet Test", function() {
             expect(WSManager.getActiveWS()).to.equal(worksheetId2);
         });
 
-        it("WSManager.moveInactiveTable should handle fail case", function(done) {
+        it("WSManager.moveTemporaryTable should handle fail case", function(done) {
             var oldFunc = TableList.refreshOrphanList;
             TableList.refreshOrphanList = function() {
                 return PromiseHelper.reject("test error");
             };
 
-            WSManager.moveInactiveTable(tableId1, worksheetId1, TableType.Orphan)
+            WSManager.moveTemporaryTable(tableId1, worksheetId1, TableType.Orphan)
             .then(function() {
                 done("fail");
             })
@@ -670,8 +670,8 @@ describe("Worksheet Test", function() {
             });
         });
 
-        it("WSManager.moveInactiveTable should handle invalid type", function(done) {
-            WSManager.moveInactiveTable(tableId1, worksheetId1, "invalid type")
+        it("WSManager.moveTemporaryTable should handle invalid type", function(done) {
+            WSManager.moveTemporaryTable(tableId1, worksheetId1, "invalid type")
             .then(function() {
                 done("fail");
             })

@@ -417,12 +417,12 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
+    redoFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
         var tableId = options.tableId;
         var tableType = options.tableType;
         var newWSId = options.newWorksheetId;
 
-        return WSManager.moveInactiveTable(tableId, newWSId, tableType);
+        return WSManager.moveTemporaryTable(tableId, newWSId, tableType);
     };
 
     redoFuncs[SQLOps.HideWS] = function(options) {

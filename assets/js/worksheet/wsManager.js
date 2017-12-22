@@ -644,15 +644,15 @@ window.WSManager = (function($, WSManager) {
         toggleTableSrc(tableId, srcTables, destTables);
     };
 
-    // Move inactive table to another worksheet
-    WSManager.moveInactiveTable = function(tableId, newWSId, tableType,
+    // Move temporary table to another worksheet
+    WSManager.moveTemporaryTable = function(tableId, newWSId, tableType,
                                             waitForAnim, noAnim) {
         var deferred = jQuery.Deferred();
         var newWS = worksheetGroup.get(newWSId);
 
         // this sql will be modified in findTableListHelper()
         var sql = {
-            "operation": SQLOps.MoveInactiveTableToWS,
+            "operation": SQLOps.MoveTemporaryTableToWS,
             "tableId": tableId,
             "tableType": tableType,
             "newWorksheetId": newWSId,
@@ -671,7 +671,7 @@ window.WSManager = (function($, WSManager) {
         })
         .then(function() {
             // this sql is modified in findTableListHelper()
-            Log.add(SQLTStr.MoveInactiveTableToWS, sql);
+            Log.add(SQLTStr.MoveTemporaryTableToWS, sql);
             deferred.resolve();
         })
         .fail(function(error) {

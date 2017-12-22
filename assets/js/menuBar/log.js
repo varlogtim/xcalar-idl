@@ -1219,7 +1219,7 @@ window.Log = (function($, Log) {
             case (SQLOps.HideWS):
             case (SQLOps.UnHideWS):
             case (SQLOps.MoveTableToWS):
-            case (SQLOps.MoveInactiveTableToWS):
+            case (SQLOps.MoveTemporaryTableToWS):
             case (SQLOps.RevertTable):
             // case (SQLOps.CreateFolder):
             // case (SQLOps.DSRename):
