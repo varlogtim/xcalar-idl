@@ -463,22 +463,19 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     "ldapConfigEnabled": true
                 };
                 if (res.ldap.activeDir) {
-                    for (i = 4; i < 7; i += 1) {
-                        if ($.trim($params.find("input").eq(i).val()).length === 0) {
-                            allPopulated = false;
-                        }
-                    }
-
-                    if (!allPopulated) {
-                        return deferred.reject("Blank arguments",
-                                               "Please populate all fields").promise();
-                    }
-
                     res.ldap.adUserGroup = getVal($params.find("input").eq(4));
                     res.ldap.adAdminGroup = getVal($params.find("input").eq(5));
                     res.ldap.adDomain = getVal($params.find("input").eq(6));
                     res.ldap.adSubGroupTree = $form.find(".checkbox.adSubGroupTree")
                         .hasClass("checked");
+
+                    var propArray = [ 'adUserGroup', 'adAdminGroup',
+                                      'adDomain', 'adSubGroupTree' ];
+                    for (var ii = 0; ii < propArray.length; ii++) {
+                        if (res.ldap[propArray[ii]].length === 0) {
+                            delete res.ldap[propArray[ii]];
+                        }
+                    }
                 }
                 deferred.resolve(res);
             }
