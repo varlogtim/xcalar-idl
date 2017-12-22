@@ -66,7 +66,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
                 $("#loginConfigADUserGroup").val(ldapConfig.adUserGroup);
                 $("#loginConfigADAdminGroup").val(ldapConfig.adAdminGroup);
                 $("#loginConfigADDomain").val(ldapConfig.adDomain);
-                if (loginConfig.adSubGroupTree) {
+                if (ldapConfig.adSubGroupTree) {
                     $("#loginConfigEnableADGroupChain").addClass("checked");
                 }
             } else {
@@ -93,6 +93,11 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
 
         xcHelper.optionButtonEvent($("#ldapChoice"), function(option) {
             ldapChoice = option;
+            if (option === "ad") {
+                $modal.find(".adOnly").show();
+            } else {
+                $modal.find(".adOnly").hide();
+            }
         });
     }
 
