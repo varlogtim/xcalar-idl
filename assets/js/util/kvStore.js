@@ -218,7 +218,9 @@ window.KVStore = (function($, KVStore) {
             return WorkbookManager.commit();
         })
         .then(function() {
-            return XcalarSaveWorkbooks();
+            var wkbkId = WorkbookManager.getActiveWKBK();
+            var wkbkName = WorkbookManager.getWorkbook(wkbkId).name
+            return XcalarSaveWorkbooks(wkbkName);
         })
         .then(function() {
             KVStore.logSave(true);
