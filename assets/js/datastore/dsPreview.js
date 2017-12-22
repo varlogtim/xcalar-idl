@@ -1091,13 +1091,13 @@ window.DSPreview = (function($, DSPreview) {
         var $pattern = $section.find(".pattern");
         var $input = $pattern.find("input");
         if (isPreviewSingleFile()) {
-            $pattern.children(":not(.refreshPreview)").addClass("unavailable");
+            $pattern.children().addClass("unavailable");
             $input.prop("disabled", true);
             xcTooltip.add($input, {
                 "title": DSTStr.NoSingleFilePattern
             });
         } else {
-            $pattern.children(":not(.refreshPreview)").removeClass("unavailable");
+            $pattern.children().removeClass("unavailable");
             $input.prop("disabled", false);
             xcTooltip.remove($input);
         }
@@ -2779,6 +2779,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             // step 4: detect header
+            lineDelim = loadArgs.getLineDelim(); // get the update linDelim
             detectArgs.hasHeader = detectHeader(rawData, lineDelim,
                                                 detectArgs.fieldDelim);
         } else if (detectArgs.format === formatMap.EXCEL) {
