@@ -61,7 +61,7 @@ build: $(DESTDIR) generateHtml
 
 removeDebug: $(DESTDIR) generateHtml build
 	@echo "=== Removing DEBUG code from js files ==="
-	cd $(DESTDIR)/$(PRODUCTNAME) && grunt removeDebug
+	cd $(DESTDIR)/$(PRODUCTNAME) && grunt --gruntfile gruntMake.js removeDebug
 
 prod: $(DESTDIR) generateHtml build
 	@echo "=== Minifying ==="
@@ -104,7 +104,7 @@ node_modules/.bin/grunt: node_modules/.bin
 generateHtml: node_modules/.bin/grunt
 	@echo "=== Generating html ==="
 	@mkdir -p assets/htmlFiles/walk
-	grunt render$(product)
+	grunt --gruntfile gruntMake.js render$(product)
 
 
 thriftSync: build $(XLRDIR)/buildOut/src/bin/thrift/js/XcalarApiService.js
