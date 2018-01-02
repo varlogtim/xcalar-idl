@@ -768,13 +768,6 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagWrap.hasClass("editMode")) {
                 DagEdit.off();
             } else {
-                $dagWrap.addClass("editMode");
-                var tableId = $dagWrap.data("id");
-                if (!$dagWrap.hasClass("selected")) {
-                    TblFunc.focusTable(tableId);
-                }
-                xcHelper.centerFocusedTable(tableId, false,
-                                            {onlyIfOffScreen: true});
                 DagEdit.on($dagWrap.data("allDagInfo").tree);
             }
         });
@@ -793,7 +786,7 @@ window.DagPanel = (function($, DagPanel) {
                     "title": "Run edited dataflow",
                     "msg": "Are you sure you want to run this edited dataflow?",
                     "onConfirm": function() {
-                        DagEdit.off(null, true);
+                        DagEdit.off(null, true, true);
                         TblFunc.focusTable(tableId);
                         DagFunction.runProcedureWithParams(tableName, edits.structs, edits.newNodes);
                     }

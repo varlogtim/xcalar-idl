@@ -21,7 +21,6 @@ describe('OperationsView Test', function() {
     });
 
     describe('functions without opening operations view', function() {
-
         describe('function hasFuncFormat', function() {
             var func;
             before(function() {
@@ -2561,6 +2560,68 @@ describe('OperationsView Test', function() {
             setTimeout(function() {
                 done();
             }, 500);
+        });
+    });
+
+    describe("editing dataflow", function() {
+        describe("editing map", function() {
+            var colName;
+            var $functionsMenu;
+            var $filterInput;
+            var $mapSection;
+            before(function() {
+                colName = prefix + gPrefixSign + "average_stars";
+                $functionsMenu = $operationsView.find('.map .functionsMenu');
+                $filterInput = $('#mapFilter');
+                $mapSection = $("#operationsView .map");
+            });
+
+            it("should show map form", function(done) {
+                var prefillInfo = {
+                    ops: ["concat"],
+                    args: [[colName, "\"blah\""]],
+                    newFields: ["newField"],
+                    icv: true,
+                    isDroppedTable: false
+                };
+
+                expect($mapSection.is(":visible")).to.be.false;
+
+                OperationsView.show(tableId, [], "map", {prefill: prefillInfo})
+                .then(function() {
+                    expect($mapSection.is(":visible")).to.be.true;
+                    expect($filterInput.val()).to.equal("concat");
+                    expect($functionsMenu.find("li.active").text()).to.equal("concat");
+                    expect($mapSection.find(".arg").length).to.equal(3);
+                    expect($mapSection.find(".arg").eq(0).val()).to.equal(gColPrefix + colName);
+                    expect($mapSection.find(".arg").eq(1).val()).to.equal("blah");
+                    expect($mapSection.find(".arg").eq(2).val()).to.equal("newField");
+                    done();
+                });
+            });
+
+            it("should save without errors", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                    expect(info.args.icv).to.be.true;
+                    expect(info.args.eval.length).to.equal(1);
+                    expect(info.args.eval[0].evalString).to.equal("concat(" + colName + ", \"blah\")");
+                    expect(info.args.eval[0].newField).to.equal("newField");
+                };
+                $operationsView.find(".submit").click();
+                expect(called).to.be.true;
+                DagEdit.store = cachedFn;
+            });
+
+            after(function(done) {
+                OperationsView.close();
+                // allow time for operations view to close
+                setTimeout(function() {
+                    done();
+                }, 500);
+            })
         });
     });
 

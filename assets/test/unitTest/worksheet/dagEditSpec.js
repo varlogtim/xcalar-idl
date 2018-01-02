@@ -8,6 +8,7 @@ describe("DagEdit Test", function() {
     var aggName;
     var $dagWrap;
     var nodeIdMap;
+    var firstMapName;
 
     before(function(done) {
         console.clear();
@@ -33,6 +34,7 @@ describe("DagEdit Test", function() {
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
+                firstMapName = tableName;
                 return xcFunction.aggregate(1, tableId, "count", "mapped", aggName);
             })
             .then(function() {
@@ -252,6 +254,10 @@ describe("DagEdit Test", function() {
                 return called;
             })
             .then(function() {
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
                 expect($("#xcTableWrap-" + tId).length).to.equal(0);
                 OperationsView.show = cachedFn;
                 done();
@@ -277,13 +283,125 @@ describe("DagEdit Test", function() {
             expect(keys.length).to.equal(1);
             expect(editInfo.structs[keys[0]].eval.length).to.equal(2);
             expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal('add(1,2)');
+
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "Split Column";
+            }).closest(".actionType").data("id");
+            var node = nodeIdMap[nodeId];
+            DagEdit.undoEdit(node);
+
+            var edits = DagEdit.getInfo();
+
+            expect(edits.structs).to.be.empty;
         });
     });
+
+    describe("DagEdit on group by operation", function() {
+        it("operation view should show", function(done) {
+            nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "Group by";
+            }).closest(".actionType").data("id");
+            var node = nodeIdMap[nodeId];
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return $("#operationsView .groupby").is(":visible");
+            })
+            .then(function() {
+                // DagEdit.undoEdit(node);
+                // var edits = DagEdit.getInfo();
+                // expect(edits.structs).to.be.empty;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+
+        });
+    });
+
+
+    describe("run procedure function test", function() {
+        it("run procedure should work", function() {
+            var cachedFn = XcalarQueryWithCheck;
+            XcalarQueryWithCheck = function(queryName, queryString) {
+                var query = JSON.parse(queryString);
+                expect(query.length).to.equal(11);
+                expect(query[0].args.eval[0].evalString).to.equal("add(4,5)");
+                var id = xcHelper.getTableId(query[0].args.dest);
+                expect(parseInt(id.slice(2))).to.equal(count);
+                id = xcHelper.getTableId(query[10].args.dest);
+                expect(parseInt(id.slice(2))).to.equal(count + 10);
+
+                return PromiseHelper.reject();
+            };
+
+
+            var edits = DagEdit.getInfo();
+
+            expect(edits.structs).to.be.empty;
+            // make edit to first map operation
+            var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
+            var nodeId = $dagTable.data("index");
+
+            // use find node by name to get the node or just create struct without it
+            edits.structs[firstMapName] = {
+                eval: [{evalString:"add(4,5)", "newField": "mapped"}]
+            };
+
+            var count = Authentication.getInfo().idCount;
+            DagFunction.runProcedureWithParams(tableName, edits.structs, {});
+            UnitTest.hasAlertWithTitle("Rerunning Dataflow Failed");
+
+            XcalarQueryWithCheck = cachedFn;
+        });
+    });
+
+    describe("checkIndexNodes function", function() {
+        it("should add new node", function() {
+            $dagWrap.find(".editBtn:visible").click();
+            expect($dagWrap.hasClass("editMode")).to.be.true;
+
+            var nodeId = $dagWrap.find(".actionType").eq(0).data("id");
+            var node = nodeIdMap[nodeId];
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.editingNode).to.be.null;
+            expect(editInfo.newNodes).to.be.empty;
+
+            editInfo.editingNode = node;
+
+            var fn = DagEdit.__testOnly__.checkIndexNodes;
+            var indexFields = ["test"];
+            var indexNodes = [];
+
+            fn(indexFields, indexNodes, 0);
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.newNodes[tableName]).to.not.be.empty;
+            expect(editInfo.newNodes[tableName].length).to.equal(1);
+            expect(editInfo.newNodes[tableName][0].keys.length).to.equal(1);
+            expect(editInfo.newNodes[tableName][0].keys[0].name).to.equal("test");
+            expect(editInfo.newNodes[tableName][0].keys[0].keyFieldName).to.equal("test");
+            expect(editInfo.newNodes[tableName][0].keys[0].ordering).to.equal("Unordered");
+            expect(editInfo.newNodes[tableName][0].keys[0].type).to.equal("DfUnknown");
+            expect(editInfo.newNodes[tableName][0].src).to.equal(node.parents[0].value.name);
+
+            editInfo.descendantMap[tableName] = [];
+            DagEdit.undoEdit(node);
+            expect(editInfo.newNodes[tableName]).to.be.empty;
+            expect(indexNodes.length).to.equal(0);
+        });
+    });
+
 
     after(function() {
         DagEdit.off(null, true);
     });
-
 
     after(function(done) {
         UnitTest.removeOrphanTable()

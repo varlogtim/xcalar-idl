@@ -203,14 +203,14 @@ describe("Monitor Graph Test", function() {
             $bar.trigger({ type: "mousemove", which: 1, pageX: pageX + 300, pageY: pageY});
             $bar.trigger({ type: "mouseup", which: 1, pageX: pageX + 300, pageY: pageY });
 
-            expect($("#monitorIntervalSlider").find("value").val()).to.equal(60);
+            expect($("#monitorIntervalSlider").find(".value").val()).to.equal("60");
 
             $bar.trigger("mouseover");
             $bar.trigger({ type: "mousedown", which: 1, pageX: pageX + 300, pageY: pageY});
             $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 500, pageY: pageY});
             $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 500, pageY: pageY});
 
-            expect($("#monitorIntervalSlider").find("value").val()).to.equal(1);
+            expect($("#monitorIntervalSlider").find(".value").val()).to.equal("1");
 
             $bar.trigger("mouseover");
             $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 500, pageY: pageY});

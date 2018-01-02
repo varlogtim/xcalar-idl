@@ -713,7 +713,8 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     function modifyAggParents(node) {
-        if (node.api === XcalarApisT.XcalarApiMap) {
+        if (node.api === XcalarApisT.XcalarApiMap ||
+            node.api === XcalarApisT.XcalarApiFilter) {
             var aggSources = DagFunction.getAggsFromEvalStrs(node.struct.eval);
             for (var i = 0; i < aggSources.length; i++) {
                 if (node.aggSources.indexOf(aggSources[i]) === -1) {
@@ -846,7 +847,8 @@ window.DagFunction = (function($, DagFunction) {
 
         for (var i = 0; i < treeNodesToRerun.length; i++) {
             var value = treeNodesToRerun[i].value;
-            if (value.api === XcalarApisT.XcalarApiMap) {
+            if (value.api === XcalarApisT.XcalarApiMap ||
+                value.api === XcalarApisT.XcalarApiFilter) {
                 for (var j = 0; j < value.struct.eval.length; j++) {
                     var func = ColManager.parseFuncString(value.struct.eval[j].evalString);
                     replaceFuncStr(func, aggRenames);
@@ -905,9 +907,12 @@ window.DagFunction = (function($, DagFunction) {
         };
 
         $("#dagWrap-" + tableId).addClass("rerunning");
+        var queryPassed = false;
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
+            queryPassed = true;
+            DagEdit.clearEdit();
             return setRerunColumns(finalTableName, gTables[tableId]);
         })
         .then(function(cols) {
@@ -928,10 +933,42 @@ window.DagFunction = (function($, DagFunction) {
 
             delete tablesToTag[finalTableId];
 
-            console.error(error);
+            var noAlert;
+            if (!queryPassed && DagEdit.checkCanRestore(tableId)) {
+                noAlert = true;
+                var msg;
+                if (typeof error === "object") {
+                    // if it's an try/catch error, code will also goes here
+                    msg = error.error || AlertTStr.ErrorMsg;
+                } else {
+                    msg = error;
+                }
+                if (msg === undefined) {
+                    msg = "Error: " + StatusMessageTStr.RerunFailed;
+                }
+
+               msg = "Would you like to try editing this dataflow?<br/>" + msg;
+
+                Alert.error(StatusMessageTStr.RerunFailed, msg, {
+                    buttons: [{
+                        name: "EDIT",
+                        func: function() {
+                            DagEdit.restore(tableId);
+                        }
+                    }],
+                    onCancel: function() {
+                        DagEdit.off(null, true);
+                    },
+                    "msgTemplate": msg
+                });
+            } else {
+                noAlert = false;
+                DagEdit.off(null, true);
+            }
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.RerunFailed,
-                "error": error
+                "error": error,
+                "noAlert": noAlert
             });
             $("#dagWrap-" + tableId).removeClass("rerunning");
         });

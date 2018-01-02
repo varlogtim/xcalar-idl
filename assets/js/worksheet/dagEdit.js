@@ -1,22 +1,10 @@
 window.DagEdit = (function($, DagEdit) {
     var isEditMode = false;
-    var structs = {}; // structs that are edited
-    var editingNode;
-    var treeNode;
-    var linkedNodes = {}; // nodes that depend on each other, example: groupby
-    // and index are linked, so when  we undo a group by edit, we need to undo the
-    // index edit as well
-    var mapIndex; // stores eval string number during a map edit
-    var newNodes = {}; // new nodes, typically index, to be inserted into a rerun
-    var editingTables = {}; // map of names of tables currently being edited
-    var descendantRefCounts = {}; // counts how many times a table is included as a descendant
-    var descendantMap = {}; // map of edited tables and their descendant
-    var aggregates = {};
 
-    var EditInfo = function() {
+    var EditInfo = function(node) {
         this.editingNode = null;
-        this.treeNode = null;
-        this.structs = {}; // structs that are edited
+        this.treeNode = node;
+        this.structs = {}; // structs that are edited, this is the main part
         this.linkedNodes = {};// nodes that depend on each other, example: groupby
         // and index are linked, so when  we undo a group by edit, we need to undo the
         // index edit as well
@@ -28,55 +16,40 @@ window.DagEdit = (function($, DagEdit) {
         this.mapIndex = null;
     };
 
+    var curEdit = new EditInfo();
+    var lastEdit = null;
+
     DagEdit.getInfo = function() {
-        return {
-            structs: structs,
-            newNodes: newNodes
-        };
+        return curEdit;
     };
-
-    // for each of the aggs in the new eval strings,
-    // check parents of the map node, if none of those parents have a dest name that equal the new agg
-    // check if parentName is in struct
-
-    function findNodeByName(name) {
-        var foundNode;
-
-        search(treeNode);
-
-        return foundNode;
-
-        function search(node) {
-            if (foundNode) {
-                return;
-            }
-            if (node.value.name === name) {
-                foundNode = node;
-                return;
-            }
-            for (var i = 0; i < node.parents.length; i++) {
-                search(node.parents[i]);
-            }
-        }
-    }
 
     DagEdit.isEditMode = function() {
         return isEditMode;
     };
 
-    DagEdit.on = function(node) {
+    DagEdit.on = function(node, restore) {
         $("#container").addClass("dfEditState");
         isEditMode = true;
         var tableId = xcHelper.getTableId(node.value.name);
         $("#xcTableWrap-" + tableId).addClass("editingDf");
+        var $dagWrap = $("#dagWrap-" + tableId);
+        $dagWrap.addClass("editMode");
+        var tableId = $dagWrap.data("id");
+        if (!$dagWrap.hasClass("selected")) {
+            TblFunc.focusTable(tableId);
+        }
+        xcHelper.centerFocusedTable(tableId, false,
+                                    {onlyIfOffScreen: true});
         StatusMessage.updateLocation(true, "Editing Dataflow");
         xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                              TooltipTStr.NoUndoEditMode);
         TblManager.alignTableEls();
-        refreshInfo(node);
+        if (!restore) {
+            curEdit = new EditInfo(node);
+        }
     };
 
-    DagEdit.off = function(node, force) {
+    DagEdit.off = function(node, force, store) {
         var edits = DagEdit.getInfo();
         if ((Object.keys(edits.structs).length ||
             Object.keys(edits.newNodes).length) && !force) {
@@ -84,22 +57,28 @@ window.DagEdit = (function($, DagEdit) {
                 "title": "Edit in progress",
                 "msg": "Are you sure you want to exit edit mode and abandon all changes?",
                 "onConfirm": function() {
-                    turnOff();
+                    turnOff(store);
                 }
             });
         } else {
-            turnOff();
+            turnOff(store);
         }
 
-        function turnOff() {
+        function turnOff(toStore) {
             $("#container").removeClass("dfEditState");
             isEditMode = false;
             var $dagPanel = $("#dagPanel");
-            $dagPanel.find(".dagWrap").removeClass("editMode");
-            $dagPanel.find(".dagWrap").find(".hasEdit").removeClass("hasEdit");
+            var $dagWrap = $dagPanel.find(".dagWrap.editMode");
+
+            if (!toStore) {
+                $dagPanel.find(".hasEdit").removeClass("hasEdit");
+                $dagPanel.find(".dagTableTip").remove();
+                $dagPanel.find(".dagTableWrap").removeClass("isDownstream aggError hasError");
+            }
+
+            $dagWrap.removeClass("editMode");
             $(".xcTableWrap").removeClass("editingDf editing");
-            $dagPanel.find(".dagTableTip").remove();
-            $dagPanel.find(".dagTableWrap").removeClass("isDownstream aggError hasError");
+
             DagEdit.exitForm();
 
             xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
@@ -108,26 +87,44 @@ window.DagEdit = (function($, DagEdit) {
             TblManager.alignTableEls();
             MainMenu.closeForms();
 
-            refreshInfo(node);
+            if (toStore) {
+                lastEdit = curEdit;
+            } else {
+                lastEdit = null;
+            }
+            curEdit = new EditInfo();
         }
     };
 
-    function refreshInfo(node) {
-        treeNode = node;
-        structs = {};
-        newNodes = {};
-        aggregates = {};
-        linkedNodes = {};
-        editingTables = {};
-        descendantRefCounts = {};
-        descendantMap = {};
-    }
+    DagEdit.clearEdit = function() {
+        lastEdit = null;
+    };
+
+    DagEdit.checkCanRestore = function(tableId) {
+        if (!lastEdit || isEditMode) {
+            return false;
+        }
+        var treeNode = lastEdit.treeNode;
+        if (treeNode.value.name !== gTables[tableId].getName()) {
+            return false;
+        }
+        return true;
+    };
+
+    DagEdit.restore = function(tableId) {
+        curEdit = lastEdit;
+        var treeNode = lastEdit.treeNode;
+        if (treeNode.value.name !== gTables[tableId].getName()) {
+            return false;
+        }
+        DagEdit.on(treeNode, true);
+    };
 
     // options:
     //  evalIndex: integer, which eval str to edit
     DagEdit.editOp = function(node, options) {
         options = options || {};
-        editingNode = node;
+        curEdit.editingNode = node;
         var api = node.value.api;
         var sourceTableNames = node.getNonIndexSourceNames(true);
         sourceTableNames = sourceTableNames.filter(function(name) {
@@ -176,9 +173,9 @@ window.DagEdit = (function($, DagEdit) {
                     $("#xcTableWrap-" + tableId).addClass("editing");
                     hasActiveTable = true;
                     if (results[sourceTableNames[i]].tableFromInactive) {
-                        editingTables[sourceTableNames[i]] = "inactive";
+                        curEdit.editingTables[sourceTableNames[i]] = "inactive";
                     } else {
-                        editingTables[sourceTableNames[i]] = "active";
+                        curEdit.editingTables[sourceTableNames[i]] = "active";
                     }
                     isDroppedTable.push(false);
                 }
@@ -197,14 +194,14 @@ window.DagEdit = (function($, DagEdit) {
     };
 
     DagEdit.exitForm = function() {
-        for (var tableName in editingTables) {
-            var status = editingTables[tableName];
+        for (var tableName in curEdit.editingTables) {
+            var status = curEdit.editingTables[tableName];
             if (status === "inactive") {
                 var tableId = xcHelper.getTableId(tableName);
                 TblManager.sendTableToTempList(tableId);
             }
         }
-        editingTables = {};
+        curEdit.editingTables = {};
         $(".dagWrap .dagTable").removeClass("editing");
         $(".dagTableWrap").removeClass("isDescendant editingChild");
         $(".xcTableWrap").removeClass("editing");
@@ -217,9 +214,9 @@ window.DagEdit = (function($, DagEdit) {
     DagEdit.store = function(info) {
         var indexNodes = [];
 
-        if (editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
-            checkIndexNodes(editingNode, info.indexFields, indexNodes, 0);
-        } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
+        if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
+            checkIndexNodes(info.indexFields, indexNodes, 0);
+        } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiJoin) {
             var joinType = info.args.joinType;
             // XXX move this somewhere else
             var joinLookUp = {
@@ -234,85 +231,88 @@ window.DagEdit = (function($, DagEdit) {
             info.args.joinType = joinType;
 
             if (joinType !== "crossJoin") {
-                checkIndexNodes(editingNode, info.indexFields[0], indexNodes, 0);
-                checkIndexNodes(editingNode, info.indexFields[1], indexNodes, 1);
+                checkIndexNodes(info.indexFields[0], indexNodes, 0);
+                checkIndexNodes(info.indexFields[1], indexNodes, 1);
             }
         }
 
         if (indexNodes.length) {
-            linkedNodes[editingNode.value.name] = indexNodes;
+            curEdit.linkedNodes[curEdit.editingNode.value.name] = indexNodes;
         }
 
         // for map we update 1 eval str at a time
-        if (editingNode.value.api === XcalarApisT.XcalarApiMap) {
-            if (!structs[editingNode.value.name]) {
-                structs[editingNode.value.name] = {
-                    eval: xcHelper.deepCopy(editingNode.value.struct.eval)
+        if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiMap) {
+            if (!curEdit.structs[curEdit.editingNode.value.name]) {
+                curEdit.structs[curEdit.editingNode.value.name] = {
+                    eval: xcHelper.deepCopy(curEdit.editingNode.value.struct.eval)
                 };
             }
-            structs[editingNode.value.name].eval[mapIndex] = info.args.eval[0];
-            structs[editingNode.value.name].icv = info.args.icv;
-            checkMapForAgg(editingNode);
-        } else if (editingNode.value.api === XcalarApisT.XcalarApiJoin) {
-            structs[editingNode.value.name] = {
+            curEdit.structs[curEdit.editingNode.value.name].eval[curEdit.mapIndex] = info.args.eval[0];
+            curEdit.structs[curEdit.editingNode.value.name].icv = info.args.icv;
+            checkOpForAgg(curEdit.editingNode);
+        } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiJoin) {
+            curEdit.structs[curEdit.editingNode.value.name] = {
                 joinType: info.args.joinType,
                 evalString: info.args.evalString};
-        } else if (editingNode.value.api === XcalarApisT.XcalarApiUnion) {
-            structs[editingNode.value.name] = {renameMap: info.args.renameMap};
-        } else if (editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
-            structs[editingNode.value.name] = info.args;
-            aggregates[editingNode.value.name] = info.args;
+        } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiUnion) {
+           curEdit.structs[curEdit.editingNode.value.name] = {renameMap: info.args.renameMap};
+        } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
+            curEdit.structs[curEdit.editingNode.value.name] = info.args;
+            curEdit.aggregates[curEdit.editingNode.value.name] = info.args;
             checkAggForMap();
         } else {
-            structs[editingNode.value.name] = info.args;
+            curEdit.structs[curEdit.editingNode.value.name] = info.args;
+            if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiFilter) {
+                checkOpForAgg(curEdit.editingNode);
+            }
         }
 
         $(".xcTableWrap").removeClass("editing");
 
-        var alreadyHasEdit = Dag.updateEditedOperation(treeNode, editingNode, indexNodes,
-                              structs[editingNode.value.name]);
+        var alreadyHasEdit = Dag.updateEditedOperation(curEdit.treeNode, curEdit.editingNode, indexNodes,
+                              curEdit.structs[curEdit.editingNode.value.name]);
 
         if (alreadyHasEdit) {
             return;
         }
 
         var descendants = Dag.styleDestTables($(".dagWrap.editMode"),
-                                    editingNode.value.name, "isDownstream");
+                                    curEdit.editingNode.value.name, "isDownstream");
         for (var i = 0; i < descendants.length; i++) {
-            if (!descendantRefCounts[descendants[i]]) {
-                descendantRefCounts[descendants[i]] = 0;
+            if (!curEdit.descendantRefCounts[descendants[i]]) {
+                curEdit.descendantRefCounts[descendants[i]] = 0;
             }
-            descendantRefCounts[descendants[i]]++;
+            curEdit.descendantRefCounts[descendants[i]]++;
         }
-        descendantMap[editingNode.value.name] = descendants;
+        curEdit.descendantMap[curEdit.editingNode.value.name] = descendants;
     };
 
     DagEdit.undoEdit = function(node) {
-        var lNodes = linkedNodes[node.value.name];
+        var linkedNodes = curEdit.linkedNodes[node.value.name];
         var toDelete = [];
-        if (lNodes) {
-            for (var i = 0; i < lNodes.length; i++) {
-                toDelete.push(lNodes[i]);
-                delete structs[lNodes[i].value.name];
+        if (linkedNodes) {
+            for (var i = 0; i < linkedNodes.length; i++) {
+                toDelete.push(linkedNodes[i]);
+                delete curEdit.structs[linkedNodes[i].value.name];
             }
-            delete linkedNodes[node.value.name];
+            delete curEdit.linkedNodes[node.value.name];
         }
-        delete structs[node.value.name];
-        delete newNodes[node.value.name];
-        delete aggregates[node.value.name];
-        var descendants = descendantMap[node.value.name];
+        delete curEdit.structs[node.value.name];
+        delete curEdit.newNodes[node.value.name];
+        delete curEdit.aggregates[node.value.name];
+        var descendants = curEdit.descendantMap[node.value.name];
         for (var i = 0; i < descendants.length; i++) {
-            descendantRefCounts[descendants[i]]--;
-            if (!descendantRefCounts[descendants[i]]) {
+            curEdit.descendantRefCounts[descendants[i]]--;
+            if (!curEdit.descendantRefCounts[descendants[i]]) {
                 var $dagTable = Dag.getTableIconByName($(".dagWrap.editMode"),
                                                         descendants[i]);
                 $dagTable.closest(".dagTableWrap").removeClass("isDownstream");
-                delete descendantRefCounts[descendants[i]];
+                delete curEdit.descendantRefCounts[descendants[i]];
             }
         }
-        delete descendantMap[node.value.name];
+        delete curEdit.descendantMap[node.value.name];
 
-        Dag.removeEditedOperation(treeNode, node, toDelete);
+        Dag.removeEditedOperation(curEdit.treeNode, node, toDelete);
     };
 
     DagEdit.setupMapPreForm = function() {
@@ -344,26 +344,26 @@ window.DagEdit = (function($, DagEdit) {
             $(document).off(".hideMapPreForm");
 
             var index = $(this).index();
-            mapIndex = index;
-            DagEdit.editOp(editingNode, {evalIndex: index});
+            curEdit.mapIndex = index;
+            DagEdit.editOp(curEdit.editingNode, {evalIndex: index});
         });
 
         $mapPreForm.on("click", ".delete", function() {
             var index = $(this).closest(".row").index();
             var struct;
-            if (!structs[editingNode.value.name]) {
-                structs[editingNode.value.name] = {
-                    eval: xcHelper.deepCopy(editingNode.value.struct.eval)
+            if (!curEdit.structs[curEdit.editingNode.value.name]) {
+                curEdit.structs[curEdit.editingNode.value.name] = {
+                    eval: xcHelper.deepCopy(curEdit.editingNode.value.struct.eval)
                 };
-                structs[editingNode.value.name].icv = editingNode.value.struct.icv;
+                curEdit.structs[curEdit.editingNode.value.name].icv = curEdit.editingNode.value.struct.icv;
             }
-            structs[editingNode.value.name].eval.splice(index, 1);
+            curEdit.structs[curEdit.editingNode.value.name].eval.splice(index, 1);
             $(this).closest(".row").remove();
 
-            var alreadyHasEdit = Dag.updateEditedOperation(treeNode, editingNode, [],
-                              structs[editingNode.value.name]);
+            var alreadyHasEdit = Dag.updateEditedOperation(curEdit.treeNode, curEdit.editingNode, [],
+                              curEdit.structs[curEdit.editingNode.value.name]);
 
-            if (structs[editingNode.value.name].eval.length === 1) {
+            if (curEdit.structs[curEdit.editingNode.value.name].eval.length === 1) {
                 $mapPreForm.addClass("single");
                 xcTooltip.add($mapPreForm.find(".delete"),
                              {title: TooltipTStr.MapNoDelete});
@@ -374,14 +374,14 @@ window.DagEdit = (function($, DagEdit) {
             }
 
             var descendants = Dag.styleDestTables($(".dagWrap.editMode"),
-                                        editingNode.value.name, "isDownstream");
+                                        curEdit.editingNode.value.name, "isDownstream");
             for (var i = 0; i < descendants.length; i++) {
-                if (!descendantRefCounts[descendants[i]]) {
-                    descendantRefCounts[descendants[i]] = 0;
+                if (!curEdit.descendantRefCounts[descendants[i]]) {
+                    curEdit.descendantRefCounts[descendants[i]] = 0;
                 }
-                descendantRefCounts[descendants[i]]++;
+                curEdit.descendantRefCounts[descendants[i]]++;
             }
-            descendantMap[editingNode.value.name] = descendants;
+            curEdit.descendantMap[curEdit.editingNode.value.name] = descendants;
         });
 
         $mapPreForm.on("click", ".addOp", function() {
@@ -389,8 +389,8 @@ window.DagEdit = (function($, DagEdit) {
             $(document).off(".hideMapPreForm");
 
             var index = $mapPreForm.find(".row").length;
-            mapIndex = index;
-            DagEdit.editOp(editingNode, {evalIndex: index});
+            curEdit.mapIndex = index;
+            DagEdit.editOp(curEdit.editingNode, {evalIndex: index});
         });
 
         $mapPreForm.on("mouseenter", ".evalStr", function() {
@@ -401,7 +401,7 @@ window.DagEdit = (function($, DagEdit) {
     function showEditForm(node, sourceTableNames, isDroppedTable, evalIndex) {
         var api = node.value.api;
         var origStruct = node.value.struct;
-        var struct = structs[node.value.name] || origStruct;
+        var struct = curEdit.structs[node.value.name] || origStruct;
         var tableIds = sourceTableNames.map(function(name) {
             return xcHelper.getTableId(name);
         });
@@ -422,20 +422,19 @@ window.DagEdit = (function($, DagEdit) {
                 break;
             case (XcalarApisT.XcalarApiMap):
                 if (evalIndex) {
-                    mapIndex = evalIndex;
+                    curEdit.mapIndex = evalIndex;
                 } else {
-                    mapIndex = 0;
+                    curEdit.mapIndex = 0;
                 }
 
                 var opInfo;
-                if (struct.eval[mapIndex]) {
-                    var evalStr = struct.eval[mapIndex].evalString.trim();
+                if (struct.eval[curEdit.mapIndex]) {
+                    var evalStr = struct.eval[curEdit.mapIndex].evalString.trim();
                     opInfo = xcHelper.extractOpAndArgs(evalStr);
                 } else {
                     // adding a new operation
                     opInfo = {op: "", args: []};
                 }
-
 
                 var newFields = struct.eval.map(function(item) {
                     return item.newField;
@@ -443,7 +442,7 @@ window.DagEdit = (function($, DagEdit) {
                 prefillInfo = {
                     ops: [opInfo.op],
                     args: [opInfo.args],
-                    newFields: [newFields[mapIndex]],
+                    newFields: [newFields[curEdit.mapIndex]],
                     icv: struct.icv,
                     isDroppedTable: isDroppedTable[0]
                 };
@@ -476,10 +475,10 @@ window.DagEdit = (function($, DagEdit) {
                     return item.newField;
                 });
                 var indexedFields;
-                if (linkedNodes[editingNode.value.name]) {
-                    var indexNode = linkedNodes[editingNode.value.name][0];
+                if (curEdit.linkedNodes[curEdit.editingNode.value.name]) {
+                    var indexNode = curEdit.linkedNodes[curEdit.editingNode.value.name][0];
                     var indexName = indexNode.value.name;
-                    indexedFields = structs[indexName].key.map(function(key) {
+                    indexedFields = curEdit.structs[indexName].key.map(function(key) {
                         return key.name;
                     });
                 } else {
@@ -612,7 +611,7 @@ window.DagEdit = (function($, DagEdit) {
         $dagTable.closest(".dagTableWrap").addClass("editingChild");
     }
 
-    function checkIndexNodes(editingNode, indexFields, indexNodes, parentNum) {
+    function checkIndexNodes(indexFields, indexNodes, parentNum) {
         var indexNode;
         var keys = indexFields.map(function(name) {
             var newName = xcHelper.parsePrefixColName(name).name;
@@ -631,9 +630,9 @@ window.DagEdit = (function($, DagEdit) {
         // if index operation already exists, we'll modify it, otherwise
         // we'll create a new one
 
-        if (editingNode.parents[parentNum].value.api ===
+        if (curEdit.editingNode.parents[parentNum].value.api ===
             XcalarApisT.XcalarApiIndex) {
-            indexNode = editingNode.parents[parentNum];
+            indexNode = curEdit.editingNode.parents[parentNum];
 
             var needsNewIndex = false;
             if (indexNode.value.struct.key.length !== keys.length) {
@@ -653,19 +652,19 @@ window.DagEdit = (function($, DagEdit) {
             }
 
             if (needsNewIndex) {
-                structs[indexNode.value.name] = {"key": keys};
+                curEdit.structs[indexNode.value.name] = {"key": keys};
                 indexNodes.push(indexNode);
             }
         } else {
              // need to insert an index operation here if table is not
             // indexed correctly
-            if (!newNodes[editingNode.value.name]) {
-                newNodes[editingNode.value.name] = [];
+            if (!curEdit.newNodes[curEdit.editingNode.value.name]) {
+                curEdit.newNodes[curEdit.editingNode.value.name] = [];
             }
             // consider tags
-            newNodes[editingNode.value.name].push({
+            curEdit.newNodes[curEdit.editingNode.value.name].push({
                 keys: keys,
-                src: editingNode.parents[parentNum].value.name
+                src: curEdit.editingNode.parents[parentNum].value.name
             });
         }
     }
@@ -686,7 +685,7 @@ window.DagEdit = (function($, DagEdit) {
             }
         });
 
-        var mapStruct = structs[node.value.name] || node.value.struct;
+        var mapStruct = curEdit.structs[node.value.name] || node.value.struct;
 
         var evalHtml = "";
         mapStruct.eval.forEach(function(evalObj) {
@@ -789,10 +788,10 @@ window.DagEdit = (function($, DagEdit) {
         return deferred.promise();
     }
 
-    // after editing a map, checks to see if it's referencing any aggs that
+    // after editing a map or filter, checks to see if it's referencing any aggs that
     // don't exist
-    function checkMapForAgg(node) {
-        var struct = structs[node.value.name];
+    function checkOpForAgg(node) {
+        var struct = curEdit.structs[node.value.name];
         var aggs = DagFunction.getAggsFromEvalStrs(struct.eval);
 
         var parentNames = node.parents.map(function(parent) {
@@ -806,8 +805,8 @@ window.DagEdit = (function($, DagEdit) {
             if (parentNames.indexOf(aggs[i]) === -1) {
                 // check if exists in edited struct
                 for (var j = 0; j < parentNames.length; j++) {
-                    if (aggregates[parentNames[j]] && aggregates[parentNames[j]].dest) {
-                        var dest = structs[parentNames[j]].dest;
+                    if (curEdit.aggregates[parentNames[j]] && curEdit.aggregates[parentNames[j]].dest) {
+                        var dest = curEdit.structs[parentNames[j]].dest;
                         if (dest === aggs[i]) {
                             found = true;
                             break;
@@ -819,9 +818,9 @@ window.DagEdit = (function($, DagEdit) {
             }
 
             if (!found && !wsAggs[aggs[i]]) {
-                for (var aggNames in aggregates) {
-                    if (aggregates[aggNames].dest) {
-                        var dest = aggregates[aggNames].dest;
+                for (var aggNames in curEdit.aggregates) {
+                    if (curEdit.aggregates[aggNames].dest) {
+                        var dest = curEdit.aggregates[aggNames].dest;
                         if (dest === aggs[i]) {
                             found = true;
                         }
@@ -857,13 +856,13 @@ window.DagEdit = (function($, DagEdit) {
         $dagTableWraps.each(function() {
             var nodeId = $(this).find(".dagTable").data("index");
             var mapNode = Dag.getNodeById($dagWrap, nodeId);
-            checkMapForAgg(mapNode);
+            checkOpForAgg(mapNode);
         });
     }
 
     if (window.unitTestMode) {
         DagEdit.__testOnly__ = {};
-        // DagEdit.__testOnly__.parseEvalStr = parseEvalStr;
+        DagEdit.__testOnly__.checkIndexNodes = checkIndexNodes;
     }
 
     return (DagEdit);
