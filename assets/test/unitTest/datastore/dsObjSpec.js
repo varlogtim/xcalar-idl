@@ -676,12 +676,14 @@ describe("Dataset-DSObj Test", function() {
         var $gridMenu;
         var $ds;
         var $folder;
+        var $subMenu;
 
         before(function() {
             $wrap = $("#dsListSection .gridViewWrapper");
             $gridMenu = $("#gridViewMenu");
             $ds = DS.getGrid(testDS.getId());
             $folder = DS.getGrid(testFolder.getId());
+            $subMenu = $("#gridViewSubMenu");
 
             if (!$("#datastoreMenu").hasClass("active")) {
                 $("#inButton").click();
@@ -719,6 +721,18 @@ describe("Dataset-DSObj Test", function() {
             assert.isTrue($gridMenu.is(":visible"));
             expect($gridMenu.hasClass("bgOpts")).to.be.false;
             expect($gridMenu.hasClass("dsOpts")).to.be.true;
+        });
+
+        it("should open with multiple grid unit selected", function() {
+            $ds.addClass("selected");
+            $folder.addClass("selected");
+            var e = jQuery.Event("contextmenu", {
+                "target": $folder.get(0)
+            });
+            $wrap.trigger(e);
+            expect($gridMenu.hasClass("multiOpts")).to.be.true;
+            $ds.removeClass("selected");
+            $folder.removeClass("selected");
         });
 
         it("Should open menu with the right class", function() {
@@ -961,6 +975,88 @@ describe("Dataset-DSObj Test", function() {
             expect(test).to.be.true;
 
             XcalarLockDataset = oldFunc;
+        });
+
+        it("should click to multi unlock ds", function() {
+            $ds.addClass("selected");
+            var oldFunc = XcalarUnlockDataset;
+            var test = false;
+            XcalarUnlockDataset = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            var $li = $gridMenu.find(".multiUnlock");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+
+            var e = jQuery.Event("contextmenu", {
+                "target": $ds.get(0)
+            });
+            $wrap.trigger(e);
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            XcalarUnlockDataset = oldFunc;
+            $ds.removeClass("selected");
+        });
+
+        it("should click to multi lock ds", function() {
+            $ds.addClass("selected");
+            var oldFunc = XcalarLockDataset;
+            var test = false;
+            XcalarLockDataset = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            var $li = $gridMenu.find(".multiLock");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+
+            var e = jQuery.Event("contextmenu", {
+                "target": $ds.get(0)
+            });
+            $wrap.trigger(e);
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            XcalarLockDataset = oldFunc;
+            $ds.removeClass("selected");
+        });
+
+        it("should click to sort ds by name", function() {
+            DS.__testOnly__.setSortKey("none");
+            var $li = $subMenu.find('.sort li[name="name"]');
+            // simple mouse up not work
+            $li.mouseup();
+            var sortKey = DS.__testOnly__.getSortKey();
+            expect(sortKey).to.equal(null);
+
+            $li.trigger(fakeEvent.mouseup);
+            sortKey = DS.__testOnly__.getSortKey();
+            expect(sortKey).to.equal("name");
+            // trigger again has no side effect
+            $li.trigger(fakeEvent.mouseup);
+            sortKey = DS.__testOnly__.getSortKey();
+            expect(sortKey).to.equal("name");
+
+            $gridMenu.find(".sort").mouseenter();
+            expect($li.hasClass("select")).to.be.true;
+        });
+
+        it("should click to sort ds by type", function() {
+            var $li = $subMenu.find('.sort li[name="type"]');
+            $li.trigger(fakeEvent.mouseup);
+            var sortKey = DS.__testOnly__.getSortKey();
+            expect(sortKey).to.equal("type");
+        });
+
+        it("should click to disable sort", function() {
+            var $li = $subMenu.find('.sort li[name="none"]');
+            $li.trigger(fakeEvent.mouseup);
+            var sortKey = DS.__testOnly__.getSortKey();
+            expect(sortKey).to.equal(null);
         });
     });
 

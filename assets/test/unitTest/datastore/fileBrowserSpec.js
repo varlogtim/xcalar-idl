@@ -14,7 +14,7 @@ describe("Dataset-File Browser Test", function() {
         UnitTest.onMinMode();
     });
 
-    describe('Basic function test', function() {
+    describe("Basic function test", function() {
         var $testGrid;
         var testFiles;
         var testHtml;
@@ -52,7 +52,7 @@ describe("Dataset-File Browser Test", function() {
             ];
         });
 
-        it('should get current target', function() {
+        it("should get current target", function() {
             var $section = $pathSection.find(".targetName");
             var oldVal = $section.text();
             $section.text("testTarget");
@@ -61,7 +61,7 @@ describe("Dataset-File Browser Test", function() {
             $section.text(oldVal);
         });
 
-        it('should set current target', function() {
+        it("should set current target", function() {
             var $section = $pathSection.find(".targetName");
             var oldVal = $section.text();
             FileBrowser.__testOnly__.setTarget("testTarget2");
@@ -70,7 +70,7 @@ describe("Dataset-File Browser Test", function() {
             $section.text(oldVal);
         });
 
-        it('Should get current path', function() {
+        it("should get current path", function() {
             $pathLists.prepend('<li id="fileBrowserTestLi">test</li>');
             var res = FileBrowser.__testOnly__.getCurrentPath();
             expect(res).to.equal("test");
@@ -88,12 +88,12 @@ describe("Dataset-File Browser Test", function() {
             expect(res).to.equal("testPath"); // default value
         });
 
-        it('Should get grid\'s name', function() {
+        it("should get grid's name", function() {
             var res = FileBrowser.__testOnly__.getGridUnitName($testGrid);
             expect(res).to.equal("test");
         });
 
-        it('Should focus on grid', function() {
+        it("should focus on grid", function() {
             var $container = $("#fileBrowserContainer");
             $container.append($testGrid);
             FileBrowser.__testOnly__.focusOn(null);
@@ -103,7 +103,7 @@ describe("Dataset-File Browser Test", function() {
             expect($testGrid.hasClass("active")).to.be.true;
         });
 
-        it('Should append path', function() {
+        it("should append path", function() {
             var testPath =  "/test";
             FileBrowser.__testOnly__.appendPath(testPath);
             var $li = $pathLists.find("li:first-of-type");
@@ -114,7 +114,7 @@ describe("Dataset-File Browser Test", function() {
             $pathText.val("");
         });
 
-        it('Should filter files', function() {
+        it("should filter files", function() {
             var regEx = new RegExp("json");
             var res = FileBrowser.__testOnly__.filterFiles(testFiles, regEx);
             // have test2.jsons
@@ -122,7 +122,7 @@ describe("Dataset-File Browser Test", function() {
             expect(res[0].name).to.equal("test2.json");
         });
 
-        it('Should sort files', function() {
+        it("should sort files", function() {
             var sortFiles = FileBrowser.__testOnly__.sortFiles;
             var res;
 
@@ -152,7 +152,7 @@ describe("Dataset-File Browser Test", function() {
             expect(res[2].name).to.equal("test2.json");
         });
 
-        it('Should handle redirect error', function(done) {
+        it("should handle redirect error", function(done) {
             FileBrowser.__testOnly__.redirectHandler("testPath")
             .then(function() {
                 var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {

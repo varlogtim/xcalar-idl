@@ -95,7 +95,7 @@ describe("Profile-Profile Engins Test", function() {
 
         var cacheIndex = XIApi.index;
         XIApi.index = function() {
-            return PromiseHelper.resolve("testTable2#ti2", true);
+            return PromiseHelper.resolve("testTable2#ti2", {hasIndexed: true});
         };
 
         ProfileEngine.genProfile(profileInfo, table)
@@ -387,12 +387,12 @@ describe("Profile-Profile Engins Test", function() {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
-                                        ["sortCol"]);
+                                        [{name: "sortCol"}]);
         };
 
         var oldSortAsc = XIApi.sortAscending;
         XIApi.sortAscending = function() {
-            return PromiseHelper.resolve("sort table", ["sortCol"]);
+            return PromiseHelper.resolve("sort table", [{name: "sortCol"}]);
         };
 
         var profileInfo = new ProfileInfo({

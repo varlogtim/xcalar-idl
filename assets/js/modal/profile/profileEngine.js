@@ -536,10 +536,15 @@ window.ProfileEngine = (function(ProfileEngine) {
         function getStats(tableOrder, tableKeys) {
             if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
                 tableKeys.length !== 1 ||
-                tableKeys[0].name !== profileInfo.statsInfo.key) {
+                tableKeys[0].name !== profileInfo.statsInfo.key &&
+                tableKeys[0].name !== profileInfo.colName) {
                 // when table is unsorted
                 profileInfo.statsInfo.unsorted = true;
                 return PromiseHelper.resolve();
+            } else if (tableKeys.length === 1 &&
+                    profileInfo.statsInfo.key == null &&
+                    tableKeys[0].name === profileInfo.colName) {
+                profileInfo.statsInfo.key = profileInfo.colName;
             }
 
             var innerDeferred = jQuery.Deferred();
@@ -614,7 +619,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             var rowPosition = rowNum - 1;
             XcalarFetchData(tableResultsetId, rowPosition, rowsToFetch, endRow)
             .then(function(data) {
-                var tableKey = tableKeys[0];
+                var tableKey = tableKeys[0].name;
 
                 var numRows = data.length;
                 if (numRows === rowsToFetch) {

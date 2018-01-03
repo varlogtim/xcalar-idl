@@ -829,8 +829,8 @@ ModalHelper.prototype = {
         var options = self.options;
 
         // full screen and exit full screen buttons
-        var $fullScreenBtn = $modal.find('.fullScreen');
-        var $exitFullScreenBtn = $modal.find('.exitFullScreen');
+        var $fullScreenBtn = $modal.find(".fullScreen");
+        var $exitFullScreenBtn = $modal.find(".exitFullScreen");
         if ($fullScreenBtn.length) {
             $fullScreenBtn.click(function() {
                 if (options.beforeResize) {
@@ -1028,11 +1028,6 @@ ModalHelper.prototype = {
             "minHeight": minHeight,
             "minWidth": minWidth
         });
-    },
-
-    checkBtnFocus: function() {
-        // check if any button is on focus
-        return (this.$modal.find(".btn:focus").length > 0);
     },
 
     // This function prevents the user from clicking the submit button multiple
@@ -3222,7 +3217,7 @@ var XcSubQuery = (function() {
                 })
                 .fail(function(error) {
                     console.error(error, self.dstTable, self.name);
-                    deferred.reject();
+                    deferred.reject(error);
                 });
             }
 

@@ -2460,6 +2460,9 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.lockDS = lockDS;
         DS.__testOnly__.unlockDS = unlockDS;
         DS.__testOnly__.setSortKey = setSortKey;
+        DS.__testOnly__.getSortKey = function() {
+            return sortKey;
+        };
     }
     /* End Of Unit Test Only */
 

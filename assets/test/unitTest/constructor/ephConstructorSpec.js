@@ -151,10 +151,10 @@ describe("Ephemeral Constructor Test", function() {
             $pattern = $section.find(".option.pattern");
         });
 
-        it("Should be a valid constructor", function() {
+        it("should be a valid constructor", function() {
             advanceOption = new DSFormAdvanceOption($section, {
-                "container": "body",
-                "onOpenList": function() { test = true; }
+                container: "body",
+                onOpenList: function() { test = true; }
             });
             expect(advanceOption).to.be.an("object");
             expect(Object.keys(advanceOption).length).to.equal(2);
@@ -163,7 +163,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(advanceOption).to.have.property("options");
         });
 
-        it("Should have valid event", function() {
+        it("should have valid event", function() {
             // expand
             $section.find(".listInfo .expand").click();
             expect($section.hasClass("active")).to.be.true;
@@ -175,17 +175,17 @@ describe("Ephemeral Constructor Test", function() {
             .to.be.true;
         });
 
-        it("Should reset options", function() {
+        it("should reset options", function() {
             advanceOption.reset();
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.false;
         });
 
-        it("Should set options", function() {
+        it("should set options", function() {
             advanceOption.set({
-                "pattern": "testPattern",
-                "isRecur": true,
-                "isRegex": true
+                pattern: "testPattern",
+                isRecur: true,
+                isRegex: true
             });
 
             expect($pattern.find("input").val()).to.equal("testPattern");
@@ -195,13 +195,23 @@ describe("Ephemeral Constructor Test", function() {
             .to.be.true;
         });
 
-        it("Should get args", function() {
+        it("should show error in invalid pattern", function() {
             advanceOption.reset();
-
             advanceOption.set({
-                "pattern": "testPattern",
-                "isRecur": true,
-                "isRegex": true
+                pattern: "***",
+                isRegex: true
+            });
+            var res = advanceOption.getArgs();
+            expect(res).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidRegEx);
+        });
+
+        it("should get args", function() {
+            advanceOption.reset();
+            advanceOption.set({
+                pattern: "testPattern",
+                isRecur: true,
+                isRegex: true
             });
 
             var res = advanceOption.getArgs();
@@ -471,6 +481,8 @@ describe("Ephemeral Constructor Test", function() {
     describe("ModalHelper Constructor Test", function() {
         var $fakeModal;
         var modalHelper;
+        var test = {};
+
         before(function() {
             UnitTest.onMinMode();
             var html =
@@ -490,30 +502,48 @@ describe("Ephemeral Constructor Test", function() {
                     '<input id="fakeInput" class="focusable" style="width:34px;">' +
                     '<button id="fakeButton" class="btn focusable">hehe</button>' +
                 '</section>' +
+                '<section class="modalBottom">' +
+                    '<button class="confirm">Confirm</button>' +
+                    '<button class="cancel">Confirm</button>' +
+                '</section>' +
             '</div>';
             $fakeModal = $(html);
             $("#container").append($fakeModal);
         });
 
-        it("ModalHelper should be constructor", function (){
-            modalHelper = new ModalHelper($fakeModal, {});
+        beforeEach(function() {
+            test = {};
+        });
+
+        it("ModalHelper should be constructor", function() {
+            modalHelper = new ModalHelper($fakeModal, {
+                beforeResize: function() { test.beforeResize = true; },
+                resizeCallback: function() { test.resizeCallback = true },
+                afterResize: function() { test.afterResize = true }
+            });
             $fakeModal.modalHelper = modalHelper;
 
             $fakeModal.on("click", ".close", function() {modalHelper.clear();});
             expect(modalHelper.id).to.equal("fakeModalInst");
         });
+
         it("ModalHelper setup should work", function(done) {
             modalHelper.setup();
             timeoutPromise()
             .then(function() {
                 expect($fakeModal.is(":visible")).to.be.true;
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
+
         it("ModalHelper clear should work", function() {
             modalHelper.clear();
             expect($fakeModal.is(":visible")).to.be.false;
         });
+
         it("ModalHelper toggleBG should work", function(done) {
             var $modalBackground = $("#modalBackground");
             modalHelper.setup();
@@ -533,8 +563,12 @@ describe("Ephemeral Constructor Test", function() {
             .then(function() {
                 expect($modalBackground.hasClass("light")).to.be.true;
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
+
         it("ModalHelper waitingBG should work", function() {
             modalHelper.addWaitingBG();
             expect($("#modalWaitingBG").length).above(0);
@@ -543,6 +577,7 @@ describe("Ephemeral Constructor Test", function() {
             expect($("#modalWaitingBG").length).to.equal(0);
             expect($("#modalWaitingBG .waitingIcon").is(":visible")).to.be.false;
         });
+
         // TODO: unskip when below issue resolved
         it("ModalHelper tabbing should work", function(done) {
             expect($fakeModal.find(":focus").length).to.equal(0);
@@ -556,6 +591,7 @@ describe("Ephemeral Constructor Test", function() {
                 done();
             },200);
         });
+
         it("ModalHelper esc should exit", function(done) {
             var escEvent = jQuery.Event("keydown");
             escEvent.which = keyCode.Escape;
@@ -565,9 +601,46 @@ describe("Ephemeral Constructor Test", function() {
                 done();
             },200);
         });
+
+        it("ModalHelper should enter full screen", function() {
+            var width = $fakeModal.width();
+            $fakeModal.find(".fullScreen").click();
+            expect(test.beforeResize).to.be.true;
+        });
+
+        it("ModalHelper should exit full screen", function() {
+            var width = $fakeModal.width();
+            $fakeModal.find(".exitFullScreen").click();
+            expect(test.beforeResize).to.be.true;
+        });
+
+        it("__resizeCallback should work", function() {
+            modalHelper.__resizeCallback();
+            expect(test.resizeCallback).to.be.true;
+            expect(test.afterResize).to.be.true;
+        });
+
+        it("disableSubmit sould work", function() {
+            modalHelper.disableSubmit();
+            expect($fakeModal.find(".confirm").prop("disabled")).to.be.true;
+        });
+
+        it("enableSubmit sould work", function() {
+            modalHelper.enableSubmit();
+            expect($fakeModal.find(".confirm").prop("disabled")).to.be.false;
+        });
+
+        it("should resize to default", function() {
+            var defaultWidth = modalHelper.defaultWidth;
+            $fakeModal.width(defaultWidth + 50);
+            modalHelper.setup({sizeToDefault: true});
+            expect($fakeModal.width()).to.equal(defaultWidth);
+        });
+
         after(function() {
+            modalHelper.clear();
             // Why is the following line not done in clear?
-            $("#mainFrame").removeClass('modalOpen');
+            $("#mainFrame").removeClass("modalOpen");
             $("#fakeModalInst").remove();
             UnitTest.offMinMode();
         });
@@ -644,6 +717,17 @@ describe("Ephemeral Constructor Test", function() {
             expect(exportHelper).to.be.an("object");
             expect(Object.keys(exportHelper).length).to.equal(1);
             expect(exportHelper.$view).to.equal($view);
+        });
+
+        it("should cleanr rename", function() {
+            var $group = $('<div>' +
+                            '<div class="renameSection">' +
+                                '<div class="renamePart">name</div>' +
+                            '</div>' +
+                           '</div>');
+            exportHelper.clearRename($group);
+            expect($group.find(".renameSection").hasClass("xc-hidden")).to.be.true;
+            expect($group.find(".renamePart").text()).to.be.empty;
         });
 
         it("Should get export columns", function() {
@@ -762,18 +846,30 @@ describe("Ephemeral Constructor Test", function() {
         var tableId;
         var $table;
         var formHelper;
+        var $fakeView;
 
         before(function(done) {
             var testDSObj = testDatasets.fakeYelp;
+            UnitTest.onMinMode();
             UnitTest.addAll(testDSObj, "unitTestFakeYelp")
             .always(function(ds, tName) {
                 testDs = ds;
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
                 $table = $("#xcTable-" + tableId);
-
                 done();
             });
+
+            var html = '<section id="fakeView" class="opView xc-hidden">' +
+                            '<header>' +
+                                '<i class="close"></i>' +
+                            '</header>' +
+                            '<div class="mainContent">' +
+                                '<button class="confirm">Confirm</button>' +
+                            '</div>' +
+                        '</section>';
+            $fakeView = $(html);
+            $("#container").append($fakeView);
         });
 
         it("formHelper columnPicker should work", function() {
@@ -819,7 +915,76 @@ describe("Ephemeral Constructor Test", function() {
             expect($colHead.attr("data-original-title")).to.be.undefined;
         });
 
+        it("FormHelper should be constructor", function() {
+            formHelper = new FormHelper($fakeView);
+            expect(formHelper).to.be.instanceof(FormHelper);
+            expect(Object.keys(formHelper).length).to.equal(7);
+            expect(formHelper.$form).to.equal($fakeView);
+            expect(formHelper.options).to.be.an("object");
+            expect(formHelper.id).to.equal("fakeView");
+            expect(formHelper.state).to.be.null;
+            expect(formHelper.mainMenuState).to.be.null;
+            expect(formHelper.openTime).to.be.null;
+            expect(formHelper.isFormOpen).to.be.false;
+        });
+
+        it("setup should work", function() {
+            formHelper.setup();
+            expect(formHelper.state).to.equal("columnPicker");
+        });
+
+        it("getOpenTime should work", function() {
+            expect(formHelper.getOpenTime()).to.equal(formHelper.openTime);
+        });
+
+        it("isOpen should work", function() {
+            expect(formHelper.isOpen()).to.be.false;
+        });
+
+        it("listHighlight should work", function() {
+            var oldFunc = xcHelper.listHighlight;
+            xcHelper.listHighlight = function() {
+                return "test";
+            };
+            expect(formHelper.listHighlight()).to.equal("test");
+            xcHelper.listHighlight = oldFunc;
+        });
+
+        it("checkBtnFocus should work", function() {
+            expect(formHelper.checkBtnFocus()).to.be.false;
+        });
+
+        it("disableSubmit sould work", function() {
+            formHelper.disableSubmit();
+            expect($fakeView.find(".confirm").prop("disabled")).to.be.true;
+        });
+
+        it("enableSubmit sould work", function() {
+            formHelper.enableSubmit();
+            expect($fakeView.find(".confirm").prop("disabled")).to.be.false;
+        });
+
+        it("formHelper waitingBG should work", function() {
+            formHelper.addWaitingBG();
+            expect($("#formWaitingBG").length).above(0);
+            formHelper.removeWaitingBG();
+            expect($("#formWaitingBG").length).to.equal(0);
+        });
+
+        it("showView sould work", function() {
+            formHelper.showView();
+            expect($fakeView.hasClass("xc-hidden")).to.be.false;
+        });
+
+        it("hideView sould work", function() {
+            formHelper.hideView();
+            expect($fakeView.hasClass("xc-hidden")).to.be.true;
+        });
+
         after(function(done) {
+            formHelper.clear();
+            $fakeView.remove();
+            UnitTest.offMinMode();
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {
                 done();
@@ -1590,8 +1755,10 @@ describe("Ephemeral Constructor Test", function() {
     });
 
     describe("XcSubQuery Constructor Test", function() {
+        var xcSubQuery;
+
         it("should have 10 attributes", function() {
-            var xcSubQuery = new XcSubQuery({
+            xcSubQuery = new XcSubQuery({
                 "name": "test",
                 "time": 123,
                 "query": "testQuery",
@@ -1620,7 +1787,117 @@ describe("Ephemeral Constructor Test", function() {
             .and.to.equal("testQueryName");
             expect(xcSubQuery).to.have.property("exportFileName")
             .and.to.equal("testExport");
+            expect(xcSubQuery).to.have.property("state")
+            .and.to.equal(QueryStateT.qrNotStarted);
         });
+
+        it("should get name", function() {
+            expect(xcSubQuery.getName()).to.equal("test");
+        });
+
+        it("should get id", function() {
+            expect(xcSubQuery.getId()).to.equal(1);
+        });
+
+        it("should get time", function() {
+            expect(xcSubQuery.getTime()).to.equal(123);
+        });
+
+        it("should get query", function() {
+            expect(xcSubQuery.getQuery()).to.equal("testQuery");
+        });
+
+        it("should get state", function() {
+            expect(xcSubQuery.getState()).to.equal(QueryStateT.qrNotStarted);
+        });
+
+        it("should setState", function() {
+            xcSubQuery.setState(QueryStateT.qrFinished);
+            expect(xcSubQuery.getState()).to.equal(QueryStateT.qrFinished);
+        });
+
+        it("should get state string", function() {
+            expect(xcSubQuery.getStateString())
+            .to.equal(QueryStateTStr[QueryStateT.qrFinished]);
+        });
+
+        it("should check", function(done) {
+            var oldFunc = XcalarGetOpStats;
+            XcalarGetOpStats = function() {
+                return PromiseHelper.resolve({
+                    opDetails: {
+                        numWorkCompleted: 1,
+                        numWorkTotal: 1
+                    }
+                });
+            };
+
+            xcSubQuery.check()
+            .then(function(res) {
+                expect(res).to.equal(100);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetOpStats = oldFunc;
+            });
+        });
+
+        it("should check and handle error result", function(done) {
+            var oldFunc = XcalarGetOpStats;
+            XcalarGetOpStats = function() {
+                return PromiseHelper.resolve({
+                    opDetails: {}
+                });
+            };
+
+            xcSubQuery.check()
+            .then(function(res) {
+                expect(res).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetOpStats = oldFunc;
+            });
+        });
+
+        it("check should handle error case", function(done) {
+            var oldFunc = XcalarGetOpStats;
+            XcalarGetOpStats = function() {
+                return PromiseHelper.reject("testError");
+            };
+
+            xcSubQuery.check()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("testError");
+                done();
+            })
+            .always(function() {
+                XcalarGetOpStats = oldFunc;
+            });
+        });
+
+        it("check should handle no drop case", function(done) {
+            xcSubQuery.name = "drop";
+
+            xcSubQuery.check()
+            .then(function(res) {
+                expect(res).to.equal(50);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
     });
 
     describe("ScollTableChecker Constructor Test", function() {
