@@ -12,14 +12,16 @@ describe("LiveHelp Modal Test", function() {
     var oldFetchLicenseInfo;
     before(function(){
         UnitTest.onMinMode();
-        oldSendReqToSocket = LiveHelpModal.__testOnly__.getSendReqToSocket;
-        oldSendEmail = LiveHelpModal.__testOnly__.getSendEmail;
-        oldSendMsgToSocket = LiveHelpModal.__testOnly__.getSendMsgToSocket;
+        oldSendReqToSocket = LiveHelpModal.__testOnly__.sendReqToSocket;
+        oldSendEmail = LiveHelpModal.__testOnly__.sendEmail;
+        oldSendMsgToSocket = LiveHelpModal.__testOnly__.sendMsgToSocket;
+        oldCloseSocket = LiveHelpModal.__testOnly__.closeSocket;
         oldFetchLicenseInfo = SupTicketModal.fetchLicenseInfo;
         oldSubmitTicket = SupTicketModal.submitTicket;
         LiveHelpModal.__testOnly__.setSendReqToSocket(function() {});
         LiveHelpModal.__testOnly__.setSendEmail(function() {});
         LiveHelpModal.__testOnly__.setSendMsgToSocket(function() {});
+        LiveHelpModal.__testOnly__.setCloseSocket(function() {});
         SupTicketModal.fetchLicenseInfo = function() {
             return jQuery.Deferred().resolve({"key":"test","expiration":"test"})
                    .promise();
@@ -149,6 +151,7 @@ describe("LiveHelp Modal Test", function() {
         LiveHelpModal.__testOnly__.setSendReqToSocket(oldSendReqToSocket);
         LiveHelpModal.__testOnly__.setSendEmail(oldSendEmail);
         LiveHelpModal.__testOnly__.setSendMsgToSocket(oldSendMsgToSocket);
+        LiveHelpModal.__testOnly__.setCloseSocket(oldCloseSocket);
         SupTicketModal.submitTicket = oldSubmitTicket;
         SupTicketModal.fetchLicenseInfo = oldFetchLicenseInfo;
     });

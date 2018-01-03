@@ -413,7 +413,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     }
     LiveHelpModal.userLeft = function() {
         if (!$modal.find(".reqConn").is(":visible")) {
-            sendToSlack();
+            closeSocket();
             autoSendEmail();
             updateTicket();
         }
@@ -450,7 +450,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             });
         }
     }
-    function sendToSlack() {
+    function closeSocket() {
         if (socket != null) {
             socket.emit("userLeft", {"room": thread, "ticketId": ticketId});
         }
@@ -460,17 +460,21 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         LiveHelpModal.__testOnly__ = {};
         LiveHelpModal.__testOnly__.connected = connected;
         LiveHelpModal.__testOnly__.submitTicket = submitTicket;
-        LiveHelpModal.__testOnly__.getSendEmail = sendEmail;
+        LiveHelpModal.__testOnly__.sendEmail = sendEmail;
         LiveHelpModal.__testOnly__.setSendEmail = function(func) {
             sendEmail = func;
         };
-        LiveHelpModal.__testOnly__.getSendReqToSocket = sendReqToSocket;
+        LiveHelpModal.__testOnly__.sendReqToSocket = sendReqToSocket;
         LiveHelpModal.__testOnly__.setSendReqToSocket = function(func) {
             sendReqToSocket = func;
         };
-        LiveHelpModal.__testOnly__.getSendMsgToSocket = sendMsgToSocket;
+        LiveHelpModal.__testOnly__.sendMsgToSocket = sendMsgToSocket;
         LiveHelpModal.__testOnly__.setSendMsgToSocket = function(func) {
             sendMsgToSocket = func;
+        };
+        LiveHelpModal.__testOnly__.closeSocket = closeSocket;
+        LiveHelpModal.__testOnly__.setCloseSocket = function(func) {
+            closeSocket = func;
         };
     }
     /* End Of Unit Test Only */
