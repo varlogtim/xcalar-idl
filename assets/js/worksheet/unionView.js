@@ -28,7 +28,9 @@ window.UnionView = (function(UnionView, $) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
-            autoResizeView();
+            if (!$unionView.hasClass("xc-hidden")) {
+                autoResizeView();
+            }
             return;
         }
         if (!restore) {
@@ -145,7 +147,7 @@ window.UnionView = (function(UnionView, $) {
         }
         var $resultInputs = $unionView.find(".resultInput");
         for (var i = 0; i < options.tableCols[0].length; i++) {
-           $resultInputs.eq(i).val(options.tableCols[0][i].rename);
+            $resultInputs.eq(i).val(options.tableCols[0][i].rename);
         }
         $unionView.find(".newTableName").val(options.dest);
         // prefillInfo = {
@@ -375,7 +377,9 @@ window.UnionView = (function(UnionView, $) {
                 onSelect: function($li) {
                     var type = $li.text();
                     $dropDownList.find(".text").val($li.text());
-                    $dropDownList.closest(".resultCol").attr("data-type", type);
+                    $dropDownList.closest(".resultCol")
+                                 .attr("data-type", type)
+                                 .data("type", type);
                     xcTooltip.hideAll();
                 },
                 container: "#unionView .middleSection",
@@ -761,9 +765,9 @@ window.UnionView = (function(UnionView, $) {
                                                             .columns[j].type);
                     type = DfFieldTypeTStr[type];
                     renameMap.push({
-                       "sourceColumn": tableInfos[i].columns[j].name,
-                       "destColumn": tableInfos[i].columns[j].rename,
-                       "columnType": type
+                        "sourceColumn": tableInfos[i].columns[j].name,
+                        "destColumn": tableInfos[i].columns[j].rename,
+                        "columnType": type
                     });
                 }
                 renameMaps.push(renameMap);
@@ -852,7 +856,7 @@ window.UnionView = (function(UnionView, $) {
                                            $unionView.find('.inputCol[data-index="' +
                                                             i + '"]').eq(0));
                         } else {
-                             $resultCol.addClass("cast");
+                            $resultCol.addClass("cast");
                             $unionView.find('.columnList[data-index="' + i + '"]')
                                   .addClass("cast");
                             StatusBox.show(UnionTStr.Cast,
