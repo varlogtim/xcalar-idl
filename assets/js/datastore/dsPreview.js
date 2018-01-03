@@ -2113,6 +2113,9 @@ window.DSPreview = (function($, DSPreview) {
         // line delimiter
         var lineDelim = loadArgs.getLineDelim();
         var data = lineSplitHelper(rawData, lineDelim);
+        if (data == null) {
+            return;
+        }
 
         data = data.map(function(d) {
             return d.split("");
@@ -2571,6 +2574,11 @@ window.DSPreview = (function($, DSPreview) {
 
         if (rowsToSkip == null || isNaN(rowsToSkip)) {
             rowsToSkip = getSkipRows();
+        }
+
+        if (rowsToSkip >= res.length) {
+            errorHandler(DSTStr.SkipRowsError);
+            return null;
         }
 
         res = res.slice(rowsToSkip);
