@@ -1039,12 +1039,8 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function closeDFView() {
-        resetDFView();
-        $("#mainFrame").removeClass("dfCreateMode");
         isOpen = false;
-    }
-
-    function resetDFView() {
+        $("#mainFrame").removeClass("dfCreateMode");
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
         $curDagWrap.find(".isSource").removeClass("isSource");
         $curDagWrap.find(".isAncestor")
@@ -1070,7 +1066,7 @@ window.DFCreateView = (function($, DFCreateView) {
     if (window.unitTestMode) {
         DFCreateView.__testOnly__ = {};
         DFCreateView.__testOnly__.submitForm = submitForm;
-        DFCreateView.__testOnly__.resetDFView = resetDFView;
+        DFCreateView.__testOnly__.closeDFView = closeDFView;
         DFCreateView.__testOnly__.validateDFName = validateDFName;
         DFCreateView.__testOnly__.selectAll = selectAll;
         DFCreateView.__testOnly__.deselectAll = deselectAll;

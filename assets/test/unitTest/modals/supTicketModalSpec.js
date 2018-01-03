@@ -19,6 +19,10 @@ describe("SupTicketModal Test", function() {
         it("should toggle dropdown list", function(){
             var $dropdown = $modal.find(".issueList");
             var $input = $dropdown.find(".text");
+            var cacheFn = SupTicketModal.restore;
+            SupTicketModal.restore = function() {
+                return PromiseHelper.resolve();
+            };
             $($dropdown.find("li").get().reverse()).each(function() {
                 var $li = $(this);
                 $li.trigger(fakeEvent.mouseup);
@@ -30,6 +34,7 @@ describe("SupTicketModal Test", function() {
             $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
             expect($ticketIdSection.hasClass("closed")).to.be.true;
             $ticketIdSection.removeClass("closed");
+            SupTicketModal.restore = cacheFn;
         });
 
         it("should toggle check box", function() {

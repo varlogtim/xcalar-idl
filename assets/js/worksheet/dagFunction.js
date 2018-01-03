@@ -1,7 +1,6 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    // var editedLineage = {};
     var tablesToTag = {};
     var TreeNode = function(value) {
         this.value = value;

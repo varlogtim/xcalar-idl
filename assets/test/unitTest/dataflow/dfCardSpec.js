@@ -77,7 +77,8 @@ describe("DFCard Test", function() {
 
         DF.getDataflow = function() {
             return {paramMap: {someParam: "someVal"},
-                    parameters: ["someVal"]
+                    parameters: ["someVal"],
+                    paramMapInUsed: {}
                     };
         };
 
@@ -672,8 +673,7 @@ describe("DFCard Test", function() {
 
         it("parseFileName should work", function() {
             var paramArray = [{paramName: "test", paramValue: "val"}];
-            var exportInfo = {meta: {target: {type: ExTargetTypeT.ExTargetUDFType},
-                                    specificInput: {udfInput: {fileName: "<test>.csv"}}}};
+            var exportInfo = {fileName: "<test>.csv"};
             var res = DFCard.__testOnly__.parseFileName(exportInfo, paramArray);
             expect(res).to.equal("val.csv");
         });
@@ -688,17 +688,7 @@ describe("DFCard Test", function() {
                     dagNodeId: "a",
                     input: {
                         exportInput: {
-                            meta: {
-                                target: {
-                                    name: "",
-                                    type: ""
-                                },
-                                specificInput: {
-                                    sfInput: {
-                                        fileName: "<b>"
-                                    }
-                                }
-                            }
+                            fileName: "<b>"
                         }
                     },
                     api: XcalarApisT.XcalarApiExport,
@@ -733,17 +723,7 @@ describe("DFCard Test", function() {
                     dagNodeId: "a",
                     input: {
                         exportInput: {
-                            meta: {
-                                target: {
-                                    name: "",
-                                    type: ""
-                                },
-                                specificInput: {
-                                    sfInput: {
-                                        fileName: "<b>"
-                                    }
-                                }
-                            }
+                            fileName: "<b>"
                         }
                     },
                     api: XcalarApisT.XcalarApiFilter,

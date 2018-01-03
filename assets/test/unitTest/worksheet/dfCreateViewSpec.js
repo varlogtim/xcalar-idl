@@ -467,15 +467,15 @@ describe('DFCreateView Test', function() {
         });
     });
 
-    describe('resetDFView', function() {
-        it('resetDFView should work', function() {
+    describe('closeDFView', function() {
+        it('closeDFView should work', function() {
             DFCreateView.__testOnly__.selectAll(tableId);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
             expect($table.find('.modalHighlighted').length).to.be.gt(0);
             $('#newDFNameInput').val('test');
             expect($dfView.find('#newDFNameInput').val()).to.equal("test");
 
-            DFCreateView.__testOnly__.resetDFView();
+            DFCreateView.__testOnly__.closeDFView();
 
             expect($table.find('.modalHighlighted').length).to.equal(0);
             expect($dfView.find('#newDFNameInput').val()).to.equal("");
@@ -483,7 +483,7 @@ describe('DFCreateView Test', function() {
     });
 
     after(function(done) {
-        gTables[tableId2];
+        delete gTables[tableId2];
         $("#maximizeDag").click();
         setTimeout(function() {
             $("#closeDag").click();
