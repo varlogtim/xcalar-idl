@@ -1,4 +1,5 @@
- @import "partials/mixins/common.less";
+@import "partials/mixins/common.less";
+@import "partials/mixins/flex.less";
 @import "partials/icon.less";
 @import "partials/basic.less";
 @div-width: 650px;
@@ -13,6 +14,8 @@ html, body {
     font: 13px @font-base;
     font-weight: 600;
     .box-sizing;
+    .flex-display(flex);
+    .flex-direction(column);
 }
 
 table, tr, td, th, input, textarea, header, p, div {
@@ -677,8 +680,8 @@ input:-webkit-autofill:focus {
                 height: 30px;
                 line-height: 30px;
                 width: 100%;
-                display: flex;
-                justify-content: flex-start;
+                .flex-display(flex);
+                .justify-content(@justify: flex-start);
             }
             .label {
                 margin-left: 20px;
