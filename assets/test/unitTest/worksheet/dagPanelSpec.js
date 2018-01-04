@@ -185,8 +185,7 @@ describe("Dag Panel Test", function() {
         .then(function(ret) {
             aggTableName = ret;
             aggTableId = xcHelper.getTableId(aggTableName);
-            $dagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
-                                                                      dWrap) {
+            $dagWrap = $dagPanel.find(".dagWrap").filter(function(idx, dWrap) {
                 var dTableName = $(dWrap).find(".dagTable").first()
                                         .data("tablename");
                 return (dTableName === aggTableName);
@@ -208,8 +207,7 @@ describe("Dag Panel Test", function() {
             tableNameA = ret;
             tableIdA = xcHelper.getTableId(tableNameA);
 
-            $dagWrapA = $dagPanel.find(".dagWrap").filter(function(idx,
-                                                                      dWrap) {
+            $dagWrapA = $dagPanel.find(".dagWrap").filter(function(idx, dWrap) {
                 var dTableName = $(dWrap).find(".dagTable").first()
                                         .data("tablename");
                 return (dTableName === tableNameA);
@@ -268,7 +266,6 @@ describe("Dag Panel Test", function() {
                 return (dTableName === groupTableName);
             });
             $("#alertModal").find(".close").click();
-
 
             aggTable.prefix = prefix;
             aggTable.tableName = aggTableName;
@@ -547,6 +544,187 @@ describe("Dag Panel Test", function() {
             expect(cachedFnTriggered).to.be.true;
             DFCreateView.show = cachedFn;
         });
+
+        it("runBtn should work", function() {
+            var cachedFn = DagFunction.runProcedureWithParams;
+            var cachedFnTriggered = false;
+            DagFunction.runProcedureWithParams = function(tableName, structs, newNodes) {
+                expect(structs.a).to.equal("a");
+                cachedFnTriggered = true;
+            };
+            var cachedFn2 = DagEdit.off;
+            var cachedFn3 = TblFunc.focusTable;
+            DagEdit.off = function(){};
+            TblFunc.focusTable = function(){};
+
+            expect(cachedFnTriggered).to.be.false;
+            $dagPanel.find(".runBtn").eq(0).click();
+            UnitTest.hasAlertWithTitle("No edits");
+            expect(cachedFnTriggered).to.be.false;
+
+            var cachedFn4 = DagEdit.getInfo;
+            DagEdit.getInfo = function() {
+                return {structs: {a: "a"}};
+            };
+
+            $dagPanel.find(".runBtn").eq(0).click();
+            UnitTest.hasAlertWithTitle("Run edited dataflow", {confirm: true});
+            expect(cachedFnTriggered).to.be.true;
+
+            DagFunction.runProcedureWithParams = cachedFn;
+            DagEdit.off = cachedFn2;
+            TblFunc.focusTable = cachedFn3;
+            DagEdit.getInfo = cachedFn4;
+        });
+    });
+
+    describe("dag operation menu", function() {
+        var $menu;
+        before(function() {
+            $menu = $dagPanel.find(".dagOperationDropDown");
+        });
+
+        // test right-most table
+        it("menu should open", function() {
+            expect($menu.is(":visible")).to.be.false;
+            smallTable.$dagWrap.find(".actionTypeWrap").first().click();
+            expect($menu.is(":visible")).to.be.true;
+            expect($menu.find("li:visible").length).to.equal(2);
+            expect($menu.find("li.unavailable:visible").length).to.equal(0);
+            expect($menu.find("li.editOp").is(":visible")).to.be.true;
+            expect($menu.find("li.commentOp").is(":visible")).to.be.true;
+        });
+
+        it("menu on index table should be correct", function() {
+            smallTable.$dagWrap.find(".actionTypeWrap").eq(1).click();
+            expect($menu.find("li:visible").length).to.equal(2);
+            expect($menu.find("li.unavailable:visible").length).to.equal(1);
+            expect($menu.find("li.editOp").hasClass("unavailable")).to.be.true;
+
+            smallTable.$dagWrap.find(".actionTypeWrap").first().click();
+        });
+
+        describe("operation menu actions", function() {
+            describe("rightmost table", function() {
+                it("editOp li should work", function() {
+                    var cachedFn = DagEdit.editOp;
+                    var cachedFnTriggered = false;
+                    DagEdit.editOp = function(node) {
+                        expect(node.value.name).to.equal(smallTable.tableName);
+                        cachedFnTriggered = true;
+                    };
+
+                    var cachedFn2 = DagEdit.on;
+                    DagEdit.on = function(){};
+
+                    expect(cachedFnTriggered).to.be.false;
+                    $menu.find(".editOp").trigger(fakeEvent.mouseup);
+                    expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find(".editOp").trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
+                    DagEdit.editOp = cachedFn;
+                    DagEdit.on = cachedFn2;
+                });
+
+                it("undoEdit li should work", function() {
+                    var cachedFn = DagEdit.undoEdit;
+                    var cachedFnTriggered = false;
+                    DagEdit.undoEdit = function(node) {
+                        expect(node.value.name).to.equal(smallTable.tableName);
+                        cachedFnTriggered = true;
+                    };
+                    expect(cachedFnTriggered).to.be.false;
+                    $menu.find(".undoEdit").trigger(fakeEvent.mouseup);
+                    expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find(".undoEdit").trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
+                    DagEdit.undoEdit = cachedFn;
+                });
+
+                it("exitEdit li should work", function() {
+                    var cachedFn = DagEdit.off;
+                    var cachedFnTriggered = false;
+                    DagEdit.off = function() {
+                        cachedFnTriggered = true;
+                    };
+                    expect(cachedFnTriggered).to.be.false;
+                    $menu.find(".exitEdit").trigger(fakeEvent.mouseup);
+                    expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find(".exitEdit").trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
+                    DagEdit.off = cachedFn;
+                });
+
+                it("commentOp li should work", function() {
+                    var cachedFn = DFCommentModal.show;
+                    var cachedFnTriggered = false;
+                    DFCommentModal.show = function($icon, nodeId) {
+                        expect($icon.data("table")).to.equal(smallTable.tableName);
+                        cachedFnTriggered = true;
+                    };
+                    expect(cachedFnTriggered).to.be.false;
+                    $menu.find(".commentOp").trigger(fakeEvent.mouseup);
+                    expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find(".commentOp").trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
+                    DFCommentModal.show = cachedFn;
+                });
+
+                it("collapseTag li should work", function() {
+                    var cachedFn = Dag.toggleTaggedGroup;
+                    var cachedFnTriggered = false;
+                    Dag.toggleTaggedGroup = function($dagWrap, $icon) {
+                        expect($icon.data("table")).to.equal(smallTable.tableName);
+                        cachedFnTriggered = true;
+                    };
+                    expect(cachedFnTriggered).to.be.false;
+                    $menu.find(".collapseTag").trigger(fakeEvent.mouseup);
+                    expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find(".collapseTag").trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
+                    Dag.toggleTaggedGroup = cachedFn;
+                });
+            });
+
+            after(function() {
+                // close menu
+                $(document).mousedown().click();
+            });
+        });
+
+        describe("li hovering", function() {
+            it("collapseTag mouseover should work", function() {
+                groupTable.$dagWrap.find(".actionTypeWrap").first().click();
+                // the reveal li is visible, the collapse is hidden
+                expect($menu.find("li:visible").length).to.equal(3);
+
+                expect(groupTable.$dagWrap.find(".tagHighlighted").length).to.equal(0);
+                $menu.find(".collapseTag").trigger(fakeEvent.mouseenter);
+                expect(groupTable.$dagWrap.find(".tagHighlighted").length).to.equal(1);
+
+                $menu.find(".collapseTag").trigger(fakeEvent.mouseleave);
+                expect(groupTable.$dagWrap.find(".tagHighlighted").length).to.equal(0);
+            });
+            after(function() {
+                // close menu
+                $(document).mousedown().click();
+            });
+        })
     });
 
     describe("dag table menu", function() {
@@ -795,7 +973,6 @@ describe("Dag Panel Test", function() {
             after(function() {
                 // close menu
                 $(document).mousedown().click();
-                console.log("after");
             });
         });
     });
@@ -1777,6 +1954,25 @@ describe("Dag Panel Test", function() {
             DS.getDSObj = cachedDS;
             XcalarGetDatasetMeta = cachedGetMeta;
             datasets[tableName].loadInfo = cachedLoadInfo;
+        });
+
+        it("Dag.focusTempTable", function() {
+            expect($("#dagPanel").find(".tempFocused").length).to.equal(0);
+            TblFunc.focusTable(groupTable.tableId);
+            expect(groupTable.$dagWrap.hasClass("selected")).to.be.true;
+            expect(aggTable.$dagWrap.hasClass("selected")).to.be.false;
+            expect($("#dagPanel .dagArea").scrollTop()).to.be.gt(50);
+
+            var targetTableName = aggTable.ancestorNames[1];
+
+            Dag.focusTempTable(targetTableName);
+            expect(groupTable.$dagWrap.hasClass("selected")).to.be.false;
+            expect(aggTable.$dagWrap.hasClass("selected")).to.be.true;
+            expect($("#dagPanel").find(".tempFocused").length).to.equal(1);
+
+            var $focusedTable = $("#dagPanel").find(".tempFocused");
+            expect($focusedTable.data("tablename")).to.equal(targetTableName);
+            expect($("#dagPanel .dagArea").scrollTop()).to.be.lt(50);
         });
 
         it("findColumnSource should work", function() {

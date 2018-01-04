@@ -23,10 +23,7 @@ window.Dag = (function($, Dag) {
         var tableName = table.tableName;
         $dagPanel = $('#dagPanel');
 
-        DagFunction.retagAndComment(tableId)
-        .then(function() {
-            return XcalarGetDag(tableName);
-        })
+        XcalarGetDag(tableName)
         .then(function(dagObj) {
             var oldTableId = xcHelper.getTableId(tableToReplace);
             var isWorkspacePanelVisible = $('#workspacePanel')
@@ -356,8 +353,7 @@ window.Dag = (function($, Dag) {
 
             var scrollLeft = $table.closest(".dagTableWrap").position().left -
                 ($dagWrap.find(".dagImageWrap").width() / 2) + Dag.tableWidth;
-            $dagWrap.find(".dagImageWrap").animate({
-                scrollLeft: scrollLeft
+            $dagWrap.find(".dagImageWrap").animate({scrollLeft: scrollLeft
             }, 500, function() {
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
@@ -2504,12 +2500,7 @@ window.Dag = (function($, Dag) {
     function verticallyFocusDagWrap($dagWrap) {
         var scrollTop = $dagPanel.find('.dagArea').scrollTop();
         var dagTop = $dagWrap.position().top;
-
-        if (dagTop - 95 + $dagPanel.scrollTop() === 0) {
-            $dagPanel.scrollTop(0);
-        } else {
-            $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
-        }
+        $dagPanel.find('.dagArea').scrollTop(scrollTop + dagTop - 16);
     }
 
 

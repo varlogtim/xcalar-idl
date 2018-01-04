@@ -621,7 +621,6 @@ window.ProjectView = (function($, ProjectView) {
 
         if (isEditMode) {
             DagEdit.store({
-                tableId: tableId,
                 args: {columns: backColumnNames}
             });
         } else {

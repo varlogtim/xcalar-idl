@@ -1,7 +1,6 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    var tablesToTag = {};
     var TreeNode = function(value) {
         this.value = value;
         this.parents = [];
@@ -898,21 +897,21 @@ window.DagFunction = (function($, DagFunction) {
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
         var finalTableId = xcHelper.getTableId(finalTableName);
 
-        tablesToTag[finalTableId] = {
-            nameToTagsMap: nameToTagsMap,
-            tagHeaders: tagHeaders,
-            commentsToNamesMap: commentsToNamesMap,
-            nonInvolvedNames: nonInvolvedNames
-        };
-
         $("#dagWrap-" + tableId).addClass("rerunning");
         var queryPassed = false;
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
             queryPassed = true;
+            return tagNodesAfterEdit(nameToTagsMap, tagHeaders,
+                                     nonInvolvedNames);
+        })
+        .then(function() {
+            return recommentAfterEdit(commentsToNamesMap);
+        })
+        .then(function() {
             DagEdit.clearEdit();
-            return setRerunColumns(finalTableName, gTables[tableId]);
+            return setColumnsAfterEdit(finalTableName, gTables[tableId]);
         })
         .then(function(cols) {
             var worksheet = WSManager.getWSFromTable(tableId);
@@ -929,8 +928,6 @@ window.DagFunction = (function($, DagFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId, txId);
-
-            delete tablesToTag[finalTableId];
 
             var noAlert;
             if (!queryPassed && DagEdit.checkCanRestore(tableId)) {
@@ -1039,29 +1036,6 @@ window.DagFunction = (function($, DagFunction) {
             }
             return (true);
         }
-    };
-
-    // used for tagging and commenting nodes generated from rerun
-    DagFunction.retagAndComment = function(tableId) {
-        if (!tablesToTag[tableId]) {
-            return PromiseHelper.resolve();
-        }
-        var deferred = jQuery.Deferred();
-
-        var nameToTagsMap = tablesToTag[tableId].nameToTagsMap;
-        var tagHeaders = tablesToTag[tableId].tagHeaders;
-        var commentsToNamesMap = tablesToTag[tableId].commentsToNamesMap;
-        var nonInvolvedNames = tablesToTag[tableId].nonInvolvedNames;
-
-        delete tablesToTag[tableId];
-
-        tagNodesAfterEdit(nameToTagsMap, tagHeaders, nonInvolvedNames)
-        .then(function() {
-            return recommentAfterEdit(commentsToNamesMap);
-        })
-        .always(deferred.resolve);
-
-        return deferred.promise();
     };
 
     // for new index nodes
@@ -1363,7 +1337,7 @@ window.DagFunction = (function($, DagFunction) {
     // remove immediates that are not present in the new table, add new immediates
     // immediates that are present in before and after will change user string
     // to pull instead of map
-    function setRerunColumns(finalTableName, table) {
+    function setColumnsAfterEdit(finalTableName, table) {
         var deferred = jQuery.Deferred();
         var progCols = table.tableCols;
 

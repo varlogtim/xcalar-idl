@@ -806,6 +806,7 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
+    // returns true if error found
     // options:
     // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
     // as a duplicate

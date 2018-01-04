@@ -639,6 +639,16 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
             });
 
+            it("keep table checkbox should work", function() {
+                var $joinBackCheckbox = $operationsView.find('.groupby .joinBack .checkbox');
+                $joinBackCheckbox.click();
+                expect($joinBackCheckbox.filter('.checked').length).to.equal(1);
+
+                $operationsView.find(".groupby .keepTable .checkbox").click();
+                expect($joinBackCheckbox.filter('.checked').length).to.equal(0);
+                $operationsView.find(".groupby .keepTable .checkbox").click();
+            });
+
             it("keydown down direction on arg field should highlight list", function() {
                 var $arg = $operationsView.find(".arg").eq(0);
                 var $list = $operationsView.find(".arg").eq(0).siblings(".list").find("ul");
@@ -2600,7 +2610,27 @@ describe('OperationsView Test', function() {
                 });
             });
 
-            it("should save without errors", function() {
+            // failing at newColNameCheck to prevent actually submitting
+            // but if it reaches here it would have submitted
+            it("should submit even with unknown column", function() {
+                var called = false;
+                var cachedFn = ColManager.checkColName;
+                ColManager.checkColName = function($input, tId, colNum, options) {
+                    expect(options.ignoreNewCol).to.be.true;
+                    called = true;
+                    return true;
+                }
+
+                $mapSection.find(".arg").eq(0).val(gColPrefix + "nonExistantCol");
+                expect($mapSection.find(".arg").eq(0).val()).to.equal(gColPrefix + "nonExistantCol");
+
+                $operationsView.find(".submit").click();
+                expect(called).to.be.true;
+                $mapSection.find(".arg").eq(0).val(gColPrefix + colName);
+                ColManager.checkColName = cachedFn;
+            });
+
+            it("should save without errors even with column of wrong type", function() {
                 var called = false;
                 var cachedFn = DagEdit.store;
                 DagEdit.store = function(info) {
@@ -2621,7 +2651,247 @@ describe('OperationsView Test', function() {
                 setTimeout(function() {
                     done();
                 }, 500);
+            });
+        });
+
+        describe("editing group by", function() {
+            var colName1;
+            var colName2;
+            var $functionInputs;
+            var $groupbySection;
+
+            before(function() {
+                colName1 = prefix + gPrefixSign + "average_stars";
+                colName2 = prefix + gPrefixSign + "compliments";
+
+                $groupbySection = $("#operationsView .groupby");
+            });
+
+            it("should show groupby form", function(done) {
+                var prefillInfo = {
+                    "ops": ["count", "avg"],
+                    "args": [[colName1], [colName2]],
+                    "newFields": ["newField1", "newField2"],
+                    "dest": "destTableName",
+                    "indexedFields": [colName2, colName1],
+                    "icv": true,
+                    "includeSample": true,
+                    "isDroppedTable": false
+                };
+
+                expect($groupbySection.is(":visible")).to.be.false;
+
+                OperationsView.show(tableId, [], "group by", {prefill: prefillInfo})
+                .then(function() {
+                    $functionInputs = $operationsView.find('.groupby .functionsInput');
+
+                    expect($groupbySection.is(":visible")).to.be.true;
+                    expect($functionInputs.length).to.equal(2);
+                    expect($functionInputs.eq(0).val()).to.equal("count");
+                    expect($functionInputs.eq(1).val()).to.equal("avg");
+                    expect($groupbySection.find(".arg").length).to.equal(6);
+                    expect($groupbySection.find(".arg").eq(0).val()).to.equal(gColPrefix + colName2);
+                    expect($groupbySection.find(".arg").eq(1).val()).to.equal(gColPrefix + colName1);
+                    expect($groupbySection.find(".arg").eq(2).val()).to.equal(gColPrefix + colName1);
+                    expect($groupbySection.find(".arg").eq(3).val()).to.equal("newField1");
+                    expect($groupbySection.find(".arg").eq(4).val()).to.equal(gColPrefix + colName2);
+                    expect($groupbySection.find(".arg").eq(5).val()).to.equal("newField2");
+
+                    done();
+                });
+            });
+
+            it("should save without errors", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                    expect(info.args.icv).to.be.true;
+                    expect(info.args.includeSample).to.be.true;
+                    expect(info.args.newKeyField).to.equal("");
+
+                    expect(info.args.eval.length).to.equal(2);
+                    expect(info.args.eval[0].evalString).to.equal("count(" + colName1 + ")");
+                    expect(info.args.eval[0].newField).to.equal("newField1");
+                    expect(info.args.eval[1].evalString).to.equal("avg(" + colName2 + ")");
+                    expect(info.args.eval[1].newField).to.equal("newField2");
+
+                    expect(info.indexFields.length).to.equal(2);
+                    expect(info.indexFields[0]).to.equal(colName2);
+                    expect(info.indexFields[1]).to.equal(colName1);
+                };
+                $operationsView.find(".submit").click();
+                expect(called).to.be.true;
+                DagEdit.store = cachedFn;
+            });
+
+            after(function(done) {
+                OperationsView.close();
+                // allow time for operations view to close
+                setTimeout(function() {
+                    done();
+                }, 500);
+            });
+        });
+
+        describe("editing filter", function() {
+            var colName;
+            var $functionInput;
+            var $filterSection;
+
+            before(function() {
+                colName = prefix + gPrefixSign + "average_stars";
+                $filterSection = $("#operationsView .filter");
+            });
+
+            it("should show filter form", function(done) {
+                var prefillInfo = {
+                    ops: ["eq"],
+                    args: [[colName, "\"blah\""]],
+                    isDroppedTable: false
+                };
+
+                expect($filterSection.is(":visible")).to.be.false;
+
+                OperationsView.show(tableId, [], "filter", {prefill: prefillInfo})
+                .then(function() {
+                    $functionInput = $operationsView.find('.filter .functionsInput');
+
+                    expect($filterSection.is(":visible")).to.be.true;
+                    expect($functionInput.val()).to.equal("eq");
+                    expect($filterSection.find(".arg").length).to.equal(2);
+                    expect($filterSection.find(".arg").eq(0).val()).to.equal(gColPrefix + colName);
+                    expect($filterSection.find(".arg").eq(1).val()).to.equal("blah");
+                    done();
+                });
+            });
+
+            it("should save without errors", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                    expect(info.args.eval.length).to.equal(1);
+                    expect(info.args.eval[0].evalString).to.equal("eq(" + colName + ", \"blah\")");
+                    expect(info.args.eval[0].newField).to.equal("");
+                };
+                $operationsView.find(".submit").click();
+                expect(called).to.be.true;
+                DagEdit.store = cachedFn;
+            });
+
+            after(function(done) {
+                OperationsView.close();
+                // allow time for operations view to close
+                setTimeout(function() {
+                    done();
+                }, 500);
             })
+        });
+
+        describe("editing aggregate", function() {
+            var colName;
+            var $functionInput;
+            var $aggSection;
+
+            before(function() {
+                colName = prefix + gPrefixSign + "average_stars";
+                $aggSection = $("#operationsView .aggregate");
+            });
+
+            it("should show agg form", function(done) {
+                var prefillInfo = {
+                    ops: ["avg"],
+                    args: [[colName]],
+                    isDroppedTable: false
+                };
+
+                expect($aggSection.is(":visible")).to.be.false;
+
+                OperationsView.show(tableId, [], "aggregate", {prefill: prefillInfo})
+                .then(function() {
+                    $functionInput = $operationsView.find('.aggregate .functionsInput');
+
+                    expect($aggSection.is(":visible")).to.be.true;
+                    expect($functionInput.val()).to.equal("avg");
+                    expect($aggSection.find(".arg").length).to.equal(2);
+                    expect($aggSection.find(".arg").eq(0).val()).to.equal(gColPrefix + colName);
+                    expect($aggSection.find(".arg").eq(1).val()).to.equal("");
+                    done();
+                });
+            });
+
+            it("should fail submit if no agg name provided", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                };
+                $operationsView.find(".submit").click();
+                expect(called).to.be.false;
+                expect($(".tooltip").last().text()).to.equal("Aggregate name must be prefixed with ^");
+                DagEdit.store = cachedFn;
+            });
+
+            it("should save without errors", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                    expect(info.args.eval.length).to.equal(1);
+                    expect(info.args.eval[0].evalString).to.equal("avg(" + colName + ")");
+                    expect(info.args.eval[0].newField).to.equal("");
+                    expect(info.args.dest).to.equal("test");
+                };
+
+                var cachedFn2 = XcalarGetConstants;
+                XcalarGetConstants = function() {
+                    return PromiseHelper.reject();
+                };
+
+                $aggSection.find(".arg").eq(1).val("^test");
+                $operationsView.find(".submit").click();
+                expect(called).to.be.true;
+                DagEdit.store = cachedFn;
+                XcalarGetConstants = cachedFn2;
+            });
+
+            after(function(done) {
+                OperationsView.close();
+                // allow time for operations view to close
+                setTimeout(function() {
+                    done();
+                }, 500);
+            })
+        });
+
+        describe("using droppedTable", function() {
+            it("dropped table should show error message", function(done) {
+                OperationsView.show(tableId, [1], "map")
+                .then(function() {
+                    var tableCache = gTables[tableId];
+                    delete gTables[tableId];
+                    $operationsView.find(".submit").click();
+                    UnitTest.hasStatusBoxWithError(ErrTStr.TableNotExists);
+                    gTables[tableId] = tableCache;
+                    done();
+                });
+            });
+
+            it("inactive table should show error message", function() {
+                gTables[tableId].status = "orphaned";
+                $operationsView.find(".submit").click();
+                UnitTest.hasStatusBoxWithError(TblTStr.NotActive);
+                gTables[tableId].status = "active";
+            });
+
+            after(function(done) {
+                OperationsView.close();
+                // allow time for operations view to close
+                setTimeout(function() {
+                    done();
+                }, 500);
+            });
         });
     });
 

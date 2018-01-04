@@ -457,7 +457,13 @@ AlertTStr = {
 "EmailFunc": "您可以点击左上角的发送按钮，将消息记录的备份发至您的邮箱",
 "NoSupport": "抱歉，我们的技术人员可能有些忙碌",
 "SubmitTicket": "您是否需要创建一份技术支持请求? ",
-"WaitTicket": "请您稍等片刻，我们正在为您创建技术支持请求..."
+"WaitTicket": "请您稍等片刻，我们正在为您创建技术支持请求...",
+"NoEdits": "No edits",
+"NoEditsDetected": "No edits were detected",
+"RunEdit": "Run edited dataflow",
+"RunEditConfirm": "Are you sure you want to run this edited dataflow?",
+"EditInProgress": "Edit in progress",
+"EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?"
 };
 ErrorMessageTStr = {
 'title': '错误',
@@ -767,7 +773,8 @@ DFTStr = {
 "NoCommentDropped": "Cannot add comment to operation if table has been dropped",
 "NoEditDropped": "Cannot edit operation if descendant table has been dropped",
 "NoEditIndex": "Cannot edit index operations",
-"NoEditSupported": "Editing this operation is not supported"
+"NoEditSupported": "Editing this operation is not supported",
+"ExpandToEdit": "Expand to edit operation"
 
 };
 DSTStr = {

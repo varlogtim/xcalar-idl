@@ -54,8 +54,8 @@ window.DagEdit = (function($, DagEdit) {
         if ((Object.keys(edits.structs).length ||
             Object.keys(edits.newNodes).length) && !force) {
             Alert.show({
-                "title": "Edit in progress",
-                "msg": "Are you sure you want to exit edit mode and abandon all changes?",
+                "title": AlertTStr.EditInProgress,
+                "msg": AlertTStr.EditExitWarning,
                 "onConfirm": function() {
                     turnOff(store);
                 }
@@ -255,7 +255,7 @@ window.DagEdit = (function($, DagEdit) {
                 joinType: info.args.joinType,
                 evalString: info.args.evalString};
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiUnion) {
-           curEdit.structs[curEdit.editingNode.value.name] = {renameMap: info.args.renameMap};
+           curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
             curEdit.structs[curEdit.editingNode.value.name] = info.args;
             curEdit.aggregates[curEdit.editingNode.value.name] = info.args;
@@ -506,7 +506,6 @@ window.DagEdit = (function($, DagEdit) {
                     "rightTable": sourceTableNames[1],
                     "dest": xcHelper.getTableName(origStruct.dest),
                     "srcCols": node.value.indexedFields,
-                    "evalStr": struct.evalStr,
                     "evalString": struct.evalString,
                     "isLeftDroppedTable": isDroppedTable[0],
                     "isRightDroppedTable": isDroppedTable[1]
@@ -518,10 +517,10 @@ window.DagEdit = (function($, DagEdit) {
                 for (var i = 0; i < sourceTableNames.length; i++) {
                     var cols = [];
 
-                    for (var j = 0; j < struct.renameMap[i].length; j++) {
-                        var colName = struct.renameMap[i][j].sourceColumn;
-                        var rename = struct.renameMap[i][j].destColumn;
-                        var type = translateType(struct.renameMap[i][j].columnType);
+                    for (var j = 0; j < struct.columns[i].length; j++) {
+                        var colName = struct.columns[i][j].sourceColumn;
+                        var rename = struct.columns[i][j].destColumn;
+                        var type = translateType(struct.columns[i][j].columnType);
                         cols.push({
                             name: colName,
                             rename: rename,
@@ -535,7 +534,7 @@ window.DagEdit = (function($, DagEdit) {
                     "dedup": struct.dedup,
                     "sourceTables": sourceTableNames,
                     "dest": xcHelper.getTableName(origStruct.dest), // XXX allow changing
-                    "srcCols": struct.renameMap,
+                    "srcCols": struct.columns,
                     "isDroppedTable": isDroppedTable,
                     "tableCols": tableCols
                 };

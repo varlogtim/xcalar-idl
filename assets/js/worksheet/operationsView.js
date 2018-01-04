@@ -1,4 +1,6 @@
 window.OperationsView = (function($, OperationsView) {
+    // handles map, filter, group by, and aggregate forms
+
     var $operationsView; // $('#operationsView');
     var $categoryList; // for map $operationsView.find('.categoryMenu');
     var $functionsList; // for map $operationsView.find('.functionsMenu');
@@ -2552,7 +2554,7 @@ window.OperationsView = (function($, OperationsView) {
         var isPassing = true;
 
         if (!gTables[tableId] && !isEditMode) {
-            statusBoxShowHelper('Table no longer exists.',
+            statusBoxShowHelper(ErrTStr.TableNotExists,
                             $activeOpSection.find('.tableList'));
             return deferred.reject().promise();
         }
@@ -2705,10 +2707,7 @@ window.OperationsView = (function($, OperationsView) {
                     promise = map(funcLower, args, colTypeInfos);
                     break;
                 default:
-                    showErrorMessage(0);
-                    isPassing = false;
-                    promise = PromiseHelper.reject();
-                    break;
+                    return PromiseHelper.reject();
             }
 
             promise
@@ -3834,7 +3833,9 @@ window.OperationsView = (function($, OperationsView) {
                     deferred.resolve(true);
                 }
             })
-            .fail(deferred.reject);
+            .fail(function() {
+                deferred.resolve(true);
+            });
         }
         return deferred.promise();
     }

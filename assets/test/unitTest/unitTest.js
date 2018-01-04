@@ -127,9 +127,9 @@ window.UnitTest = (function(UnitTest, $) {
         // });
     };
 
-    UnitTest.testFinish = function(checkFunc) {
+    UnitTest.testFinish = function(checkFunc, interval) {
         var deferred = jQuery.Deferred();
-        var checkTime = 200;
+        var checkTime = interval || 200;
         var outCnt = 80;
         var timeCnt = 0;
 

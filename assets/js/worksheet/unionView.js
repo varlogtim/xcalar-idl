@@ -156,14 +156,6 @@ window.UnionView = (function(UnionView, $) {
             $resultInputs.eq(i).val(options.tableCols[0][i].rename);
         }
         $unionView.find(".newTableName").val(options.dest);
-        // prefillInfo = {
-        //     "dedup": unionStruct.dedup,
-        //     "sourceTables": sourceTableNames,
-        //     "dest": xcHelper.getTableName(struct.dest),
-        //     "srcCols": unionStruct.renameMap,
-        //     "isLeftDroppedTable": isDroppedTable,
-        //     "isRightDroppedTable": isOtherDroppedTable
-        // };
     }
 
     function searchColumn(keyword, index) {
@@ -763,24 +755,24 @@ window.UnionView = (function(UnionView, $) {
         };
 
         if (DagEdit.isEditMode()) {
-            var renameMaps = [];
+            var columns = [];
             for (var i = 0; i < tableInfos.length; i++) {
-                var renameMap = [];
+                var columnSet = [];
                 for (var j = 0; j < tableInfos[i].columns.length; j++) {
                     var type = xcHelper.convertColTypeToFeildType(tableInfos[i]
                                                             .columns[j].type);
                     type = DfFieldTypeTStr[type];
-                    renameMap.push({
+                    columnSet.push({
                         "sourceColumn": tableInfos[i].columns[j].name,
                         "destColumn": tableInfos[i].columns[j].rename,
                         "columnType": type
                     });
                 }
-                renameMaps.push(renameMap);
+                columns.push(columnSet);
             }
             DagEdit.store({
                 args: {
-                    renameMap: renameMaps
+                    columns: columns
                 }
             });
         } else {

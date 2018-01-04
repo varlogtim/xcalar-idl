@@ -939,11 +939,89 @@ describe("JoinView Test", function() {
                 expect(gTables[tableId].resultSetCount).to.equal(14878);
                 Log.undo()
                 .always(function() {
-                    done();
+                    JoinView.close();
+                    setTimeout(function() {
+                        done();
+                    }, 500);
                 });
             })
             .fail(function() {
                 done("fail");
+            });
+        });
+    });
+
+    describe("editing dataflow", function() {
+        var colName;
+        before(function() {
+            colName = prefix + gPrefixSign + "average_stars";
+        });
+
+        describe("join form prefill", function() {
+            it("should show join form", function() {
+                expect($("#joinView").is(":visible")).to.be.false;
+                prefillInfo = {
+                    "joinType": "fullOuterJoin",
+                    "rightTable": tableName2,
+                    "dest": "destTableName",
+                    "srcCols": {left: [colName], right: [colName]},
+                    "evalString": "",
+                    "isLeftDroppedTable": false,
+                    "isRightDroppedTable": false
+                };
+                JoinView.show(tableId, [], {prefill: prefillInfo});
+                expect($("#joinView").is(":visible")).to.be.true;
+
+            });
+
+            it("join type should be selected", function() {
+                expect($("#joinType .text").text()).to.equal("Full Outer Join");
+            });
+
+            it("left table name should be selected", function() {
+                expect($("#joinLeftTableList .text").val()).to.equal(tableName);
+                expect($joinForm.find(".tableListSection.left .iconWrap")
+                    .css("pointer-events")).to.not.equal("none");
+            });
+
+            it("right table name should be selected", function() {
+                expect($("#joinRightTableList .text").val()).to.equal(tableName2);
+                expect($joinForm.find(".tableListSection.right .iconWrap")
+                    .css("pointer-events")).to.equal("none");
+            });
+
+            it("should only have one clause row", function() {
+                expect($joinForm.find(".joinClause")).to.have.lengthOf(1);
+                expect($joinForm.find(".leftClause").val()).to.equal(colName);
+                expect($joinForm.find(".leftClause").prop("disabled")).to.be.false;
+                expect($joinForm.find(".rightClause").val()).to.equal(colName);
+                expect($joinForm.find(".rightClause").prop("disabled")).to.be.false;
+            });
+
+            it("next button should be clickable", function() {
+                expect($joinForm.find(".next:visible").length).to.equal(1);
+                expect($joinForm.find(".next").css("pointer-events")).to.not.equal("none");
+            });
+        });
+
+        describe("submit", function() {
+            it("should save", function() {
+                var called = false;
+                var cachedFn = DagEdit.store;
+                DagEdit.store = function(info) {
+                    called = true;
+                    expect(info.args.evalString).to.equal("");
+                    expect(info.args.joinType).to.equal("Full Outer Join");
+                    expect(info.indexFields.length).to.equal(2);
+                    expect(info.indexFields[0].length).to.equal(1);
+                    expect(info.indexFields[1].length).to.equal(1);
+                    expect(info.indexFields[0][0]).to.equal(colName);
+                    expect(info.indexFields[1][0]).to.equal(colName);
+                };
+                $joinForm.find(".next").click();
+                $joinForm.find(".confirm").click();
+                expect(called).to.be.true;
+                DagEdit.store = cachedFn;
             });
         });
     });

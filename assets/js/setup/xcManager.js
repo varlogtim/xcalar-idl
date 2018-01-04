@@ -35,6 +35,7 @@ window.xcManager = (function(xcManager, $) {
         xcSuggest.setup();
         documentReadyGeneralFunction();
         XcSocket.init();
+
         try {
             // In case mixpanel is not loaded
             xcMixpanel.setup();

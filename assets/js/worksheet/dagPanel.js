@@ -657,7 +657,7 @@ window.DagPanel = (function($, DagPanel) {
                     if ($opWrap.hasClass("collapsed")) {
                         $menu.find(".editOp").addClass("unavailable");
                         xcTooltip.add($menu.find(".editOp"), {
-                            title: "Expand to edit operation"
+                            title: DFTStr.ExpandToEdit
                         });
                     } else {
                         $menu.find(".editOp").removeClass("unavailable");
@@ -780,11 +780,11 @@ window.DagPanel = (function($, DagPanel) {
 
             if (!Object.keys(edits.structs).length &&
                 !Object.keys(edits.newNodes).length) {
-                Alert.error("No edits", "No edits were detected.");
+                Alert.error(AlertTStr.NoEdits, AlertTStr.NoEditsDetected);
             } else {
                 Alert.show({
-                    "title": "Run edited dataflow",
-                    "msg": "Are you sure you want to run this edited dataflow?",
+                    "title": AlertTStr.RunEdit,
+                    "msg": AlertTStr.RunEditConfirm,
                     "onConfirm": function() {
                         DagEdit.off(null, true, true);
                         TblFunc.focusTable(tableId);

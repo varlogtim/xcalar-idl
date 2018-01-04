@@ -552,7 +552,13 @@ AlertTStr = {
                  "copy of all messages to your email address.",
     "NoSupport": "Oops..We couldn't find an available agent for you.",
     "SubmitTicket": "Do you want to create a support ticket? ",
-    "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you."
+    "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you.",
+    "NoEdits": "No edits",
+    "NoEditsDetected": "No edits were detected",
+    "RunEdit": "Run edited dataflow",
+    "RunEditConfirm": "Are you sure you want to run this edited dataflow?",
+    "EditInProgress": "Edit in progress",
+    "EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?"
 };
 
 ErrorMessageTStr = {
@@ -932,7 +938,8 @@ DFTStr = {
     "NoCommentDropped": "Cannot add comment to operation if table has been dropped",
     "NoEditDropped": "Cannot edit operation if descendant table has been dropped",
     "NoEditIndex": "Cannot edit index operations",
-    "NoEditSupported": "Editing this operation is not supported"
+    "NoEditSupported": "Editing this operation is not supported",
+    "ExpandToEdit": "Expand to edit operation"
 };
 
 DSTStr = {

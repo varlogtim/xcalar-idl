@@ -123,6 +123,7 @@ describe("DagEdit Test", function() {
             expect($dagWrap.hasClass("editMode")).to.be.true;
             expect($("#container").hasClass("dfEditState")).to.be.true;
             expect($table.hasClass("editingDf")).to.be.true;
+            expect(DagEdit.isEditMode()).to.be.true;
         });
 
         it("should toggle off", function() {
@@ -136,6 +137,19 @@ describe("DagEdit Test", function() {
             expect($dagWrap.hasClass("editMode")).to.be.false;
             expect($("#container").hasClass("dfEditState")).to.be.false;
             expect($table.hasClass("editingDf")).to.be.false;
+            expect(DagEdit.isEditMode()).to.be.false;
+        });
+
+        it("should show warning if edit in progress", function() {
+            var cachedFn = DagEdit.getInfo;
+            DagEdit.getInfo = function() {
+                return {structs: {a: "a"}};
+            };
+
+            DagEdit.off();
+            UnitTest.hasAlertWithTitle("Edit in progress", {confirm: true});
+
+            DagEdit.getInfo = cachedFn;
         });
     });
 
@@ -154,6 +168,7 @@ describe("DagEdit Test", function() {
             var called = false;
             TblManager.findAndFocusTable = function() {
                 called = true;
+                return PromiseHelper.resolve({tableFromInactive: true});
             };
 
             expect($("#mapPreForm").is(":visible")).to.be.false;
@@ -173,6 +188,25 @@ describe("DagEdit Test", function() {
             expect($("#mapPreForm").is(":visible")).to.be.true;
             $(document).trigger(fakeEvent.mousedown);
             expect($("#mapPreForm").is(":visible")).to.be.false;
+
+
+            var cachedFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "Split Column";
+            }).closest(".actionType").data("id");
+            var node = nodeIdMap[nodeId];
+
+            DagEdit.editOp(node);
+            expect($("#mapPreForm").is(":visible")).to.be.true;
+
+            $("#mapPreForm").find(".close").click();
+            expect($("#mapPreForm").is(":visible")).to.be.false;
+
+            TblManager.findAndFocusTable = cachedFn;
         });
 
         it("clicking on row should prompt edit", function() {
@@ -224,6 +258,20 @@ describe("DagEdit Test", function() {
             DagEdit.editOp = cachedFn;
         });
 
+        it("click on  addOp should trigger editing", function() {
+            var cachedFn = DagEdit.editOp;
+            var called = false;
+            DagEdit.editOp = function(node, options) {
+                expect(options.evalIndex).to.equal(1);
+                called = true;
+            };
+
+            expect($("#mapPreForm").find(".addOp").length).to.equal(1);
+            $("#mapPreForm").find(".addOp").click();
+
+            DagEdit.editOp = cachedFn;
+        });
+
         after(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
@@ -234,31 +282,37 @@ describe("DagEdit Test", function() {
     });
 
     describe("DagEdit on split column operation", function() {
-        it("operations view should show", function(done) {
+        var node;
+        var cachedFocusFn;
+        before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
             }).closest(".actionType").data("id");
-            var node = nodeIdMap[nodeId];
+            node = nodeIdMap[nodeId];
 
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("operations view should show", function(done) {
             var cachedFn = OperationsView.show;
             var called = false;
             OperationsView.show = function() {
                 called = true;
             };
 
-            var tId = xcHelper.getTableId(node.value.name);
-            expect($("#xcTableWrap-" + tId).length).to.equal(0);
             DagEdit.editOp(node, {evalIndex: 0});
 
             UnitTest.testFinish(function() {
                 return called;
-            })
+            }, 10)
             .then(function() {
                 var editInfo = DagEdit.getInfo();
                 var keys = Object.keys(editInfo.editingTables);
                 expect(keys.length).to.equal(1);
                 expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
-                expect($("#xcTableWrap-" + tId).length).to.equal(0);
                 OperationsView.show = cachedFn;
                 done();
             })
@@ -284,34 +338,68 @@ describe("DagEdit Test", function() {
             expect(editInfo.structs[keys[0]].eval.length).to.equal(2);
             expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal('add(1,2)');
 
-            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
-                return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
-            var node = nodeIdMap[nodeId];
             DagEdit.undoEdit(node);
+            DagEdit.exitForm();
 
-            var edits = DagEdit.getInfo();
+            var editInfo = DagEdit.getInfo();
 
-            expect(edits.structs).to.be.empty;
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
         });
     });
 
     describe("DagEdit on group by operation", function() {
-        it("operation view should show", function(done) {
-            nodeId = $dagWrap.find(".typeTitle").filter(function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Group by";
             }).closest(".actionType").data("id");
-            var node = nodeIdMap[nodeId];
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("operation view should show", function(done) {
+            var cachedFn = OperationsView.show;
+            var called = false;
+            OperationsView.show = function(tId, colNums, op, options) {
+                // skip a parent because of index operation
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].parents[0].value.name));
+                expect(colNums.length).to.equal(0);
+                expect(op).to.equal("group by");
+                expect(options.prefill.args.length).to.equal(1);
+                expect(options.prefill.args[0].length).to.equal(1);
+                expect(options.prefill.args[0][0]).to.equal("mapped");
+                expect(options.prefill.dest).to.equal(node.value.name.split("#")[0]);
+                expect(options.prefill.indexedFields.length).to.equal(1);
+                expect(options.prefill.indexedFields[0]).to.equal(mapColName);
+                expect(options.prefill.newFields.length).to.equal(1);
+                expect(options.prefill.newFields[0]).to.equal("mapped_count");
+                expect(options.prefill.ops.length).to.equal(1);
+                expect(options.prefill.ops[0]).to.equal("count");
+                expect(options.prefill.isDroppedTable).to.be.false;
+                called = true;
+            };
 
             DagEdit.editOp(node);
 
             UnitTest.testFinish(function() {
-                return $("#operationsView .groupby").is(":visible");
-            })
+                return called;
+            }, 10)
             .then(function() {
-                // DagEdit.undoEdit(node);
-                // var edits = DagEdit.getInfo();
-                // expect(edits.structs).to.be.empty;
+                OperationsView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
                 done();
             })
             .fail(function() {
@@ -320,10 +408,481 @@ describe("DagEdit Test", function() {
         });
 
         it("store should work", function() {
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    "eval": [{"evalString": "count(" + mapColName + ")", "newField": "mapped_count"}],
+                    "icv": true
+                },
+                indexFields: [mapColName]
+            });
 
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            expect(keys.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal("count(" + mapColName + ")");
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
         });
     });
 
+    describe("DagEdit on filter operation", function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "filter";
+            }).closest(".actionType").data("id");
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({notFound: true});
+            };
+        });
+
+        it("operation view should show", function(done) {
+            var cachedFn = OperationsView.show;
+            var called = false;
+            OperationsView.show = function(tId, colNums, op, options) {
+                // skip a parent because of index operation
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].value.name));
+                expect(colNums.length).to.equal(0);
+                expect(op).to.equal("filter");
+
+                expect(options.prefill.args.length).to.equal(1);
+                expect(options.prefill.args[0].length).to.equal(2);
+                expect(options.prefill.args[0][0]).to.equal(prefix + gPrefixSign + "average_stars");
+                expect(options.prefill.args[0][1]).to.equal("3");
+
+                expect(options.prefill.ops.length).to.equal(1);
+                expect(options.prefill.ops[0]).to.equal("eq");
+                expect(options.prefill.isDroppedTable).to.be.true;
+                called = true;
+
+                // gets added to gdroppedtables
+                expect(gDroppedTables[tId]).to.not.be.empty;
+                delete gDroppedTables[tId];
+            };
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return called;
+            }, 10)
+            .then(function() {
+                OperationsView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+            var called = false;
+            var cachedFn = DagFunction.getAggsFromEvalStrs;
+            DagFunction.getAggsFromEvalStrs = function() {
+                called = true;
+                return ["fakeAgg"];
+            };
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    "eval": [{"evalString": "eq(" + prefix + gPrefixSign + "average_stars, 3)"}]
+                },
+            });
+
+            expect(called).to.be.true;
+            expect($("#dagPanel").find(".aggError").length).to.equal(1);
+            expect($("#dagPanel").find(".dagTableTip.error").length).to.equal(1);
+            $("#dagPanel").find(".aggError").removeClass("aggError hasError");
+            $("#dagPanel").find(".dagTableTip.error").remove();
+
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            expect(keys.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal("eq(" + prefix + gPrefixSign + "average_stars, 3)");
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+            DagFunction.getAggsFromEvalStrs = cachedFn;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
+        });
+    });
+
+    describe("DagEdit on aggregate operation", function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "aggregate";
+            }).closest(".actionType").data("id");
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("operation view should show", function(done) {
+            var cachedFn = OperationsView.show;
+            var called = false;
+            OperationsView.show = function(tId, colNums, op, options) {
+                // skip a parent because of index operation
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].value.name));
+                expect(colNums.length).to.equal(0);
+                expect(op).to.equal("aggregate");
+
+                expect(options.prefill.args.length).to.equal(1);
+                expect(options.prefill.args[0].length).to.equal(1);
+                expect(options.prefill.args[0][0]).to.equal(mapColName);
+
+                expect(options.prefill.ops.length).to.equal(1);
+                expect(options.prefill.ops[0]).to.equal("count");
+                expect(options.prefill.isDroppedTable).to.be.false;
+                called = true;
+            };
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return called;
+            }, 10)
+            .then(function() {
+                OperationsView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    "eval": [{"evalString": "count(" + mapColName+ ")"}]
+                },
+            });
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            expect(keys.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal("count(" + mapColName + ")");
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
+        });
+    });
+
+    describe("DagEdit on join operation", function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "Join";
+            }).closest(".actionType").data("id");
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("join view should show", function(done) {
+            var cachedFn = JoinView.show;
+            var called = false;
+            JoinView.show = function(tId, colNums, options) {
+                // skip a parent because of index operation
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].parents[0].value.name));
+                expect(colNums.length).to.equal(0);
+
+                expect(options.prefill.dest).to.equal("test");
+                expect(options.prefill.evalString).to.equal("");
+                expect(options.prefill.joinType).to.equal("innerJoin");
+
+                expect(options.prefill.isLeftDroppedTable).to.be.false;
+                expect(options.prefill.isRightDroppedTable).to.be.false;
+                expect(options.prefill.srcCols.left.length).to.equal(1);
+                expect(options.prefill.srcCols.right.length).to.equal(1);
+                expect(options.prefill.srcCols.left[0]).to.equal(mapColName);
+                expect(options.prefill.srcCols.right[0]).to.equal(mapColName);
+
+                expect(options.prefill.rightTable).to.equal(node.parents[1].parents[0].value.name);
+
+                called = true;
+            };
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return called;
+            }, 10)
+            .then(function() {
+                JoinView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    joinType: "Inner Join",
+                    evalString: ""
+                },
+                indexFields: [[mapColName], [mapColName]]
+            });
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            // 2 structs, 1 index, 1 join
+            expect(keys.length).to.equal(2);
+
+            expect(editInfo.structs[keys[0]].key.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].key[0].name).to.equal(mapColName);
+            expect(editInfo.structs[keys[0]].key[0].ordering).to.equal("Unordered");
+            expect(editInfo.structs[keys[0]].key[0].type).to.equal("DfUnknown");
+
+            expect(editInfo.structs[keys[1]].joinType).to.equal("innerJoin");
+            expect(editInfo.structs[keys[1]].evalString).to.equal("");
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
+        });
+    });
+
+    describe("DagEdit on union operation", function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "union";
+            }).closest(".actionType").data("id");
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("union view should show", function(done) {
+            var cachedFn = UnionView.show;
+            var called = false;
+            UnionView.show = function(tId, colNums, options) {
+                // skip a parent because of index operation
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].value.name));
+                expect(colNums.length).to.equal(0);
+
+                expect(options.prefill.dest).to.equal(node.value.name.split("#")[0]);
+                expect(options.prefill.dedup).to.be.false;
+
+                expect(options.prefill.isDroppedTable[0]).to.be.false;
+                expect(options.prefill.isDroppedTable[1]).to.be.false;
+                expect(options.prefill.sourceTables[0]).to.equal(node.parents[0].value.name);
+                expect(options.prefill.sourceTables[1]).to.equal(node.parents[0].value.name);
+                expect(options.prefill.tableCols.length).to.equal(2);
+                expect(options.prefill.tableCols[0].length).to.equal(1);
+                expect(options.prefill.tableCols[1].length).to.equal(1);
+                expect(options.prefill.tableCols[0][0].name).to.equal(mapColName);
+                expect(options.prefill.tableCols[0][0].rename).to.equal(mapColName);
+                expect(options.prefill.tableCols[0][0].type).to.equal("float");
+                expect(options.prefill.tableCols[1][0].name).to.equal(mapColName);
+                expect(options.prefill.tableCols[1][0].rename).to.equal(mapColName);
+                expect(options.prefill.tableCols[1][0].type).to.equal("float");
+
+                called = true;
+            };
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return called;
+            }, 10)
+            .then(function() {
+                UnionView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    columns: [[mapColName], [mapColName]]
+                }
+            });
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            // 2 structs, 1 index, 1 join
+            expect(keys.length).to.equal(1);
+
+            expect(editInfo.structs[keys[0]].columns.length).to.equal(2);
+            expect(editInfo.structs[keys[0]].columns[0][0]).to.equal(mapColName);
+            expect(editInfo.structs[keys[0]].columns[1][0]).to.equal(mapColName);
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
+        });
+    });
+
+    describe("DagEdit on project operation", function() {
+        var node;
+        var cachedFocusFn;
+        before(function() {
+            var nodeId = $dagWrap.find(".typeTitle").filter(function() {
+                return $(this).text() === "project";
+            }).closest(".actionType").data("id");
+            node = nodeIdMap[nodeId];
+
+            var cachedFocusFn = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function() {
+                return PromiseHelper.resolve({tableFromInactive: true});
+            };
+        });
+
+        it("project view should show", function(done) {
+            var cachedFn = ProjectView.show;
+            var called = false;
+            ProjectView.show = function(tId, colNums, options) {
+                expect(tId).to.equal(xcHelper.getTableId(node.parents[0].value.name));
+                expect(colNums.length).to.equal(2);
+                expect(colNums[0]).to.equal(1);
+                expect(colNums[1]).to.equal(4);
+                expect(options.prefill.isDroppedTable).to.be.false;
+
+                called = true;
+            };
+
+            DagEdit.editOp(node);
+
+            UnitTest.testFinish(function() {
+                return called;
+            }, 10)
+            .then(function() {
+                ProjectView.show = cachedFn;
+                var editInfo = DagEdit.getInfo();
+                var keys = Object.keys(editInfo.editingTables);
+                expect(keys.length).to.equal(1);
+                expect(editInfo.editingTables[keys[0]]).to.equal("inactive");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("store should work", function() {
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            DagEdit.store({
+                args: {
+                    columns: [mapColName]
+                }
+            });
+
+            editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.not.be.empty;
+            var keys = Object.keys(editInfo.structs);
+            // 2 structs, 1 index, 1 join
+            expect(keys.length).to.equal(1);
+
+            expect(editInfo.structs[keys[0]].columns.length).to.equal(1);
+            expect(editInfo.structs[keys[0]].columns[0]).to.equal(mapColName);
+
+            DagEdit.undoEdit(node);
+            DagEdit.exitForm();
+
+            var editInfo = DagEdit.getInfo();
+            expect(editInfo.structs).to.be.empty;
+            expect(editInfo.editingTables).to.be.empty;
+        });
+
+        after(function() {
+            TblManager.findAndFocusTable = cachedFocusFn;
+        });
+    });
 
     describe("run procedure function test", function() {
         it("run procedure should work", function() {
@@ -398,6 +957,34 @@ describe("DagEdit Test", function() {
         });
     });
 
+    describe("restoring after failure", function() {
+        before(function() {
+            DagEdit.off(null, true, true);
+        });
+
+        it("restore should work", function() {
+            var called = false;
+            var cachedFn = DagEdit.on;
+            DagEdit.on = function() {
+               called = true;
+            };
+
+            DagEdit.restore(xcHelper.getTableId(firstMapName));
+            expect(called).to.be.false;
+
+            DagEdit.restore(tableId);
+            expect(called).to.be.true;
+
+            DagEdit.on = cachedFn;
+        });
+
+        it("checkCanRestore should work", function() {
+            expect(DagEdit.checkCanRestore(xcHelper.getTableId(firstMapName))).to.be.false;
+            expect(DagEdit.checkCanRestore(tableId)).to.be.true;
+            DagEdit.clearEdit();
+            expect(DagEdit.checkCanRestore(tableId)).to.be.false;
+        });
+    });
 
     after(function() {
         DagEdit.off(null, true);
