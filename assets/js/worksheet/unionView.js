@@ -20,6 +20,12 @@ window.UnionView = (function(UnionView, $) {
         addEvents();
     };
 
+    /*
+     * options:
+     *     restore: boolean, it's a restore case or not
+     *     restoreTime: number, restoredTime
+     *     prefill: object, prefill info
+     */
     UnionView.show = function(tableId, colNums, options) {
         options = options || {};
         var restoreTime = options.restoreTime;
