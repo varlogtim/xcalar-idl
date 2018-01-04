@@ -1394,14 +1394,23 @@
         // XXX remove this when Eric's change to keep FNFs goes in
         removeNulls = false;
 
+        // for cross joins where no col names should be provided
         if (lColNames.length === 0) {
             if (rColNames.length !== 0) {
                 return PromiseHelper.reject("Both lColNames and rColNames " +
                                             "must be empty for outer joins");
             }
-            return PromiseHelper.resolve(joinInfo.lTableName,
-                                         joinInfo.rTableName,
-                                         txId);
+            var lInfo = {
+                tableName: lTableName,
+                oldKeys: [],
+                newKeys: []
+            };
+            var rInfo = {
+                tableName: rTableName,
+                oldKeys: [],
+                newKeys: []
+            };
+            return PromiseHelper.resolve(lInfo, rInfo, []);
         }
 
         if (lTableName === rTableName &&
