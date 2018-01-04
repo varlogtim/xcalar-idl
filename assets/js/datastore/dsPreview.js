@@ -2576,7 +2576,7 @@ window.DSPreview = (function($, DSPreview) {
             rowsToSkip = getSkipRows();
         }
 
-        if (rowsToSkip >= res.length) {
+        if (rowsToSkip > 0 && rowsToSkip >= res.length) {
             errorHandler(DSTStr.SkipRowsError);
             return null;
         }
