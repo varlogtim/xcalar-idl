@@ -5,6 +5,7 @@
     xcHelper.reload = function() {
         // override heartbeat check function so that it cannot run during reload
         XcSupport.heartbeatCheck = function() {};
+        xcManager.removeUnloadPrompt(true);
         location.reload();
     };
 

@@ -274,7 +274,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
         })
         .then(function() {
-            xcManager.removeUnloadPrompt(true);
             activeWKBKId = wkbkId;
             return switchWorkbookAnimation();
         })
@@ -490,7 +489,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return removeActiveWKBKKey();
         })
         .then(function() {
-            xcManager.removeUnloadPrompt(true);
             xcHelper.reload();
             deferred.resolve();
         })
