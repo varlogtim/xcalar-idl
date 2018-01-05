@@ -213,7 +213,8 @@ CommonTxtTstr = {
     'Upgrading': 'Upgrading',
     'Uploading': 'Uploading',
     'Value': 'Value',
-    'XcalarMemUsage': 'Xcalar Memory Usage',
+    'HighXcalarMemUsage': 'Highest Xcalar Memory Usage',
+    'XcalarMemUsage': 'Average Xcalar Memory Usage',
     'XcWelcome': 'Have fun with Xcalar Design!',
     'YES': 'YES'
 };

@@ -267,17 +267,20 @@ window.XcSupport = (function(XcSupport, $) {
             $memoryAlert.removeClass("red").removeClass("yellow");
         }
 
+        var highPercent = Math.round(highestMemUsage * 100) + "%";
         var percent = Math.round(avgMemUsage * 100) + "%";
+        var highestUsageText = "<br>" + CommonTxtTstr.HighXcalarMemUsage +
+                                ": " + highPercent;
         var usageText = "<br>" + CommonTxtTstr.XcalarMemUsage + ": " + percent;
         if (shouldAlert) {
             // we want user to drop table first and only when no tables
             // let them drop ds
             if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
             {
-                text = TooltipTStr.LowMemInDS + usageText;
+                text = TooltipTStr.LowMemInDS + highestUsageText + usageText;
                 $memoryAlert.removeClass("tableAlert");
             } else {
-                text = TooltipTStr.LowMemInTable + usageText;
+                text = TooltipTStr.LowMemInTable + highestUsageText + usageText;
                 $memoryAlert.addClass("tableAlert");
             }
         } else {
