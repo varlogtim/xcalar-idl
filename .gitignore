@@ -10,7 +10,7 @@
 *.DS_Store
 /prod/*
 /xcalar-insight/*
-/xcalar-design/*
+/xcalar-gui/*
 /node_modules/*
 /services/**/node_modules/*
 assets/js/api/**/node_modules/*

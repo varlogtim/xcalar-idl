@@ -52,7 +52,8 @@ function genExecString(hostnameLocation,
                        installationDirectory,
                        ldapOption,
                        serDes,
-                       preConfig) {
+                       preConfig,
+                       supportBundles) {
     var execString = " -h " + hostnameLocation;
     execString += " -l " + username;
     if (hasPrivHosts) {
@@ -113,6 +114,9 @@ function genExecString(hostnameLocation,
     }
     if (installationDirectory) {
         execString += " --install-dir " + installationDirectory;
+    }
+    if (supportBundles) {
+        execString += " --support-bundles";
     }
 
     return execString;
@@ -398,7 +402,8 @@ function installUpgradeUtil(credArray, execCommand, script) {
                                      credArray.installationDirectory,
                                      credArray.ldap,
                                      credArray.serializationDirectory,
-                                     credArray.preConfig);
+                                     credArray.preConfig,
+                                     credArray.supportBundles);
         execString += cliArguments;
         initStepArray();
         var out;
@@ -498,7 +503,8 @@ function discoverUtil(credArray, execCommand, script) {
                                      credArray.installationDirectory,
                                      credArray.ldap,
                                      credArray.serializationDirectory,
-                                     credArray.preConfig);
+                                     credArray.preConfig,
+                                     credArray.supportBundles);
         execString += cliArguments;
         initStepArray();
         var out;

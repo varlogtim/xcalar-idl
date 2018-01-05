@@ -40,7 +40,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "adAdminGroup: "m",       // only when xcalarInstall is false and activeDir is true
                 "adDomain": "n",          // only when xcalarInstall is false and activeDir is true
                 "adSubGroupTree": "o"     // only when xcalarInstall is false and activeDir is true
-            }
+            },
+            "supportBundles":false
         }
 
     discoverResult
@@ -73,7 +74,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         "credentials": {},
         "installationDirectory": null,
         "serializationDirectory": null,
-        "ldap": {}
+        "ldap": {},
+        "supportBundles": false
     };
     var installStatus = {
         "Error": -1,
@@ -352,6 +354,16 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         return deferred.promise();
     };
 
+    InstallerCommon.validateSupportBundles = function($form) {
+        var deferred = jQuery.Deferred();
+        var res = {};
+        res.supportBundles = $form.find(".checkbox.supportBundles")
+            .hasClass("checked");
+        deferred.resolve(res);
+
+        return deferred.promise();
+    };
+
     InstallerCommon.validateCredentials = function($form) {
         var deferred = jQuery.Deferred();
         var res = {};
@@ -446,9 +458,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (!$form.find("#ADChoice .active").length) {
                 deferred.reject("AD or OpenLDAP",
                                       "Please select AD or OpenLDAP").promise();
-            } else if (!$form.find("#TLSChoice .active").length) {
-                deferred.reject("TLS",
-                                  "Please select whether to use TLS").promise();
             } else {
                 res.ldap = {
                     "xcalarInstall": false,
@@ -458,8 +467,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     "serverKeyFile": getVal($params.find("input").eq(3)),
                     "activeDir": $form.find("#ADChoice .radioButton.active")
                                        .data("option"),
-                    "useTLS": $form.find("#TLSChoice .radioButton.active")
-                                   .data("option"),
+                    "useTLS": $form.find(".checkbox.TLSChoice")
+                        .hasClass("checked"),
                     "ldapConfigEnabled": true
                 };
                 if (res.ldap.activeDir) {
@@ -498,6 +507,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         .then(function(res) {
             jQuery.extend(result, res);
             return InstallerCommon.validateCredentials($form);
+        })
+        .then(function(res) {
+            jQuery.extend(result, res);
+            return InstallerCommon.validateSupportBundles($form);
         })
         .then(function(res) {
             jQuery.extend(result, res);
@@ -794,8 +807,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                         break;
                 }
                 break;
-            case ("TLSChoice"):
-                break;
             case ("ADChoice"):
                 var inputs;
                 switch (radioOption) {
@@ -803,7 +814,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                         // AD
                         inputs = $form.find(".fieldWrap .inputWrap input");
                         inputs.eq(4).attr("placeholder",
-                                            "[ADServer.company.com]");
+                                            "[ldap://adserver.company.com:3268]");
                         inputs.eq(5).attr("placeholder",
                                           "[dc=company,dc=com]");
                         inputs.eq(6).attr("placeholder",
@@ -816,7 +827,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                         // LDAP
                         inputs = $form.find(".fieldWrap .inputWrap input");
                         inputs.eq(4).attr("placeholder",
-                                         "[ADServer.company.com]");
+                                         "[ldap://ldapserver.company.com:389]");
                         inputs.eq(5).attr("placeholder",
                          "[mail=%username%,ou=People,dc=company,dc=com]");
                         inputs.eq(6).attr("placeholder",

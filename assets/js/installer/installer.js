@@ -20,6 +20,17 @@ window.Installer = (function(Installer, $) {
             return false;
         });
 
+        $forms.find(".checkbox.TLSChoice").click(function() {
+            // If option is the same as before, ignore and return
+            $(this).toggleClass("checked");
+            return false;
+        });
+
+        $forms.find(".checkbox.supportBundles").click(function() {
+            // If option is the same as before, ignore and return
+            $(this).toggleClass("checked");
+            return false;
+        });
 
         $("#hostForm .btn.servers").on("click", function() {
             var $form = $(this).closest("form");
@@ -91,6 +102,7 @@ window.Installer = (function(Installer, $) {
         $form.find(".credentialSection").removeClass("hidden");
         $form.find(".installationDirectorySection").removeClass("hidden");
         $form.find(".serializationDirectorySection").removeClass("hidden");
+        $form.find(".supportBundleSection").removeClass("hidden");
         $form.find(".title").removeClass("hidden");
         $("#installButton").removeClass("hidden");
         $("#serversButton").addClass("hidden");

@@ -1215,7 +1215,6 @@ describe("InstallerCommon Common Test", function() {
         $params.find("input").eq(3).val("p3");
         
         $form.find("#ADChoice .radioButton[data-option=true]").click();
-        $form.find("#TLSChoice .radioButton[data-option=false]").click();
         InstallerCommon.validateLdap($form)
         .always(function(data) {
             expect(data.ldap.xcalarInstall).to.equal(false);

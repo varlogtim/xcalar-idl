@@ -308,7 +308,7 @@
             </div>
             <div class="fieldWrap">
               <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[ADServer.company.com]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[ldap://ldapserver.company.com:389]">
                 <div class="bar">LDAP URI</div>
               </div>
               <div class="inputWrap">
@@ -324,15 +324,15 @@
                 <div class="bar">Server Key File</div>
               </div>
               <div class="inputWrap ADOnly">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory User Group Name]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Directory User Group Name]">
                 <div class="bar">AD User Group</div>
               </div>
               <div class="inputWrap ADOnly">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory Admin Group Name]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Directory Admin Group Name]">
                 <div class="bar">AD Admin Group</div>
               </div>
               <div class="inputWrap ADOnly">
-                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Diretory Domain Name]">
+                <input class="input" name="useless" type="text" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="[Active Directory Domain Name]">
                 <div class="bar">AD Domain</div>
               </div>
             </div>
@@ -352,20 +352,17 @@
             <div class="hint">
               <span>Transportation Layer Security (TLS)</span>
             </div>
-            <div class="radioButtonGroup" id="TLSChoice">
-              <div class="radioButton useTLS active" data-option="true">
-                <div class="radio">
-                  <i class="icon xi-radio-selected"></i>
-                  <i class="icon xi-radio-empty"></i>
+            <div>
+              <div class="checkboxLine">
+                <div class="checkbox TLSChoice">
+                  <i class="icon xi-ckbox-empty"></i>
+                  <i class="icon xi-ckbox-selected"></i>
                 </div>
-                <div class="label">Use TLS</div>
-              </div>
-              <div class="radioButton useTLS" data-option="false">
-                <div class="radio">
-                  <i class="icon xi-radio-selected"></i>
-                  <i class="icon xi-radio-empty"></i>
+                <div class="label">
+                  <div class="name">
+                    Enable LDAP TLS
+                  </div>
                 </div>
-                <div class="label">Do not use TLS</div>
               </div>
             </div>
           </div>
@@ -457,6 +454,35 @@
               <span>STEP 5D</span>
             <% } else { %>
               <span>STEP 4C</span>
+            <% } %>
+            <span>Support Bundle Generation</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Cause the cluster to automatically send support bundles to Xcalar every day</span>
+          </div>
+        </div>
+        <div class="section supportBundleSection hidden">
+          <div class="checkboxLine">
+            <div class="inputWrap">
+              <div class="checkbox supportBundles">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+              <div class="label">
+                <div class="name">
+                  Enable daily support bundles
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="title hidden">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 5E</span>
+            <% } else { %>
+              <span>STEP 4D</span>
             <% } %>
             <span>Credentials</span>
           </div>
