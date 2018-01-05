@@ -810,15 +810,10 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function documentReadyGeneralFunction() {
-        var backspaceIsPressed = false;
-
         $(document).keydown(function(event){
             var isPreventEvent;
 
             switch (event.which) {
-                case keyCode.Backspace:
-                    backspaceIsPressed = true;
-                    break;
                 case keyCode.PageUp:
                     isPreventEvent = tableScroll("pageUpdown", true);
                     break;
@@ -852,12 +847,6 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $(document).keyup(function(event) {
-            if (event.which === keyCode.Backspace) {
-                backspaceIsPressed = false;
-            }
-        });
-
         $("#autoSaveBtn").click(function() {
             $(this).blur();
 
@@ -875,13 +864,8 @@ window.xcManager = (function(xcManager, $) {
             markUserUnload();
             if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
-            } else if (backspaceIsPressed) {
-                // when no commit change but may caused by backSapce
-                backspaceIsPressed = false; // reset
-                return CommonTxtTstr.LeaveWarn;
             } else {
-                // when no change, no need to warn
-                return;
+                return CommonTxtTstr.LeaveWarn;
             }
         };
         window.onunload = function() {
