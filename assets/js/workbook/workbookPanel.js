@@ -445,6 +445,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         $workbookBox.find(".modifiedTime").text(modified);
         $workbookBox.find(".description").text(description);
         $workbookBox.find(".workbookName").text(name);
+        if (description.trim().length > 0) {
+            xcTooltip.add($workbookBox.find(".description"), {title: description});
+        } else {
+            xcTooltip.remove($workbookBox.find(".description"));
+        }
 
         var $subHeading = $workbookBox.find(".subHeading");
         xcTooltip.changeText($subHeading, name);
@@ -879,6 +884,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
 
         $newWorkbookCard.after(html);
+        // Add tooltips to all descriptions
+        var $descriptions = $workbookSection.find(".workbookBox .description");
+        for (var i = 0; i < $descriptions.length; i++) {
+            xcTooltip.add($descriptions.eq(i),
+                          {title: $descriptions.eq(i).text()});
+        }
     }
 
     function sortObj(objs, key, isNum) {
