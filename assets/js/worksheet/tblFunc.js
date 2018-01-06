@@ -450,7 +450,12 @@ window.TblFunc = (function(TblFunc, $) {
         var windowWidth;
         var $rightTable;
         var moveScrollBar = !noScrollBar;
-        var $allTables = $('.xcTableWrap:not(".inActive")');
+        var $allTables;
+        if (DagEdit.isEditMode()) {
+            $allTables = $(".xcTableWrap:visible");
+        } else {
+            $allTables = $('.xcTableWrap:not(".inActive")');
+        }
         if ((isBrowserMicrosoft || isBrowserSafari) && !moveScrollBar) {
             return;
         }
