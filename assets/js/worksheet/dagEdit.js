@@ -349,6 +349,9 @@ window.DagEdit = (function($, DagEdit) {
         });
 
         $mapPreForm.on("click", ".delete", function() {
+            if ($mapPreForm.hasClass("single")) {
+                return;
+            }
             var index = $(this).closest(".row").index();
             var struct;
             if (!curEdit.structs[curEdit.editingNode.value.name]) {
@@ -367,6 +370,7 @@ window.DagEdit = (function($, DagEdit) {
                 $mapPreForm.addClass("single");
                 xcTooltip.add($mapPreForm.find(".delete"),
                              {title: TooltipTStr.MapNoDelete});
+                $mapPreForm.find(".delete").attr("data-tipclasses", "highZindex");
             }
 
             if (alreadyHasEdit) {
