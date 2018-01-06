@@ -22,7 +22,9 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     };
 
     function addEvents() {
-        $workbookPreview.on("click", ".listSection .view, .listSection .name", function() {
+        // Temporary until delete tables is ready
+        $workbookPreview.on("click", ".listSection .grid-unit", function() {
+        // $workbookPreview.on("click", ".listSection .view, .listSection .name", function() {
             var tableName = getTableNameFromEle(this);
             var workbookName = WorkbookManager.getWorkbook(curWorkbookId).getName();
             showDag(tableName, workbookName);
