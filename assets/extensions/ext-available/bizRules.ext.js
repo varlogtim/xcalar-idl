@@ -257,7 +257,8 @@ window.UExtBizRules = (function(UExtBizRules) {
                                  " uploaded successfully.",
                             isAlert: true});
                 deferred.resolve();
-            });
+            })
+            .fail(deferred.reject);
 
             return deferred.promise();
         };

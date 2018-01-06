@@ -780,29 +780,26 @@ window.UDF = (function($, UDF) {
             return null;
         }
 
-        var splits = error.error.split(",");
-        if (splits.length < 3) {
+        try {
+            var splits = error.error.match(/^.*: '(.*)' at line (.*) column (.*)/);
+            if (splits.length < 3) {
+                console.error("cannot parse error", error);
+                return null;
+            }
+            var reason = splits[1].trim();
+            var line = Number(splits[2].trim());
+            if (!Number.isInteger(line)) {
+                console.error("cannot parse error", error);
+                return null;
+            }
+            return {
+                "reason": reason,
+                "line": line
+            };
+        } catch (error) {
             console.error("cannot parse error", error);
             return null;
         }
-
-        var reasonPart = splits[0].split("(");
-        if (reasonPart.length < 2) {
-            console.error("cannot parse error", error);
-            return null;
-        }
-
-        var reason = reasonPart[1].trim();
-        var line = Number(splits[2].trim());
-        if (!Number.isInteger(line)) {
-            console.error("cannot parse error", error);
-            return null;
-        }
-
-        return {
-            "reason": reason,
-            "line": line
-        };
     }
 
     function updateHints(error) {

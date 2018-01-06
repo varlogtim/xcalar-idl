@@ -305,7 +305,7 @@ def permut(n, r):
     r = int(r)
     #eliminates the multiplication required for (n-r)! as the same term is
     #divided
-    return str(reduce(long.__mul__, range(n - r + 1, n + 1), 1L))
+    return str(reduce(int.__mul__, range(n - r + 1, n + 1), 1))
 
 #direct combination - nCr
 def combin(n, r):
@@ -314,7 +314,7 @@ def combin(n, r):
     r = min(r, n - r) # to get least number of multiplications in reduce
     #eliminates the need to calculate 3 factorials by removing common terms
     #in n! and (n - r)!
-    return str(reduce(long.__mul__, range(n - r + 1, n + 1), 1L) / math.factorial(r))
+    return str(reduce(int.__mul__, range(n - r + 1, n + 1), 1) / math.factorial(r))
 
 #mathematical definition of combination to check result
 # def comb_checker(n_, r_):
