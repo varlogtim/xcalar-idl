@@ -84,8 +84,9 @@
       </div>
     </div>
     <div class="formRow customTicketRow">
-      <span class="label">Or enter an existing ticket ID: </span>
+      <span class="label"><%= dicts.supportTicket.ExistingTicketId %>: </span>
       <input type="text" class="xc-input" spellcheck="false">
+      <i class="icon xi-unknown qMark" data-toggle="tooltip" data-container="body" data-delay="1" data-placement="top" title="<%= dicts.TooltipTStr.CustomTicketId %>"></i>
     </div>
   </section>
   <section class="modalSubMain commentSection">
@@ -125,7 +126,7 @@
   <!-- Button Section -->
   <section class="modalBottom">
     <button type="button" class="btn confirm"><%= dicts.supportTicket.GenTicketBtn %></button>
-    <button type="button" class="btn download">DOWNLOAD</button>
+    <button type="button" class="btn download"><%= dicts.common.DOWNLOAD %></button>
     <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
     <button type="button" class="btn close"><%= dicts.common.CLOSE %></button>
   </section>

@@ -172,7 +172,8 @@ module.exports = {
         "Severity1": "Xcalar集群在产品部署环境中无法使用, 无响应或关键功能无法使用(开发者系统部署不适用)。" ,
         "Severity2": "Xcalar集群正常工作,但性能或功能严重受损，没有可用解决方案。",
         "Severity3": "常规信息咨询或者有针对严重性1和严重性2的情况有可用解决方案的问题",
-        "Severity4": "Feature request"
+        "Severity4": "Feature request",
+        "CustomTicketId": "The organization associated with the ticket ID must match your organization."
     },
     "UDF": {
         "ADD": "添加UDF",
@@ -283,6 +284,7 @@ module.exports = {
         "Descrip": "描述",
         "Details": "细节",
         "DontShow": "不再显示",
+        "DOWNLOAD": "DOWNLOAD",
         "Existing": "存在",
         "Exit": "退出",
         "File": "文件",
@@ -950,6 +952,7 @@ module.exports = {
         "GeneratingBundle": "Generating bundle",
         "BundleComplete": "Ticket download completed.",
         "DownloadZendesk": "Please upload your ticket to Zendesk.",
+        "ExistingTicketId": "Or enter an existing ticket ID"
     },
     "tutor": {
         "datastoreTut1": {

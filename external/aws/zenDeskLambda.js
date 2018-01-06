@@ -99,11 +99,9 @@ function organizationCheck(contents, ctx, contentsObj) {
                 organizationCheckPartTwo(contents, ctx, contentsObj, orgId);
             } else {
                 if (jstruct.error) {
-                    console.log("fetching fails");
-                    ctx.done(null, {error: "Fetching organization failed."});
-                } else {
-                    ctx.done(null, {error: "Ticket could not be found."});
+                    console.log("fetching fails", jstruct.error);
                 }
+                ctx.done(null, {error: "Ticket could not be found."});
             }
         } catch (error) {
             console.log("fetching ticket error", error);

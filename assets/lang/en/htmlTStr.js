@@ -37,6 +37,7 @@ module.exports = {
         "Details": "Details",
         "DS": "Dataset",
         "DontShow": "Don't show again",
+        "DOWNLOAD": "DOWNLOAD",
         "Existing": "Existing",
         "Exit": "Exit",
         "File": "File",
@@ -317,7 +318,8 @@ module.exports = {
         "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
         "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
         "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
-        "Severity4": "Feature request"
+        "Severity4": "Feature request",
+        "CustomTicketId": "The organization associated with the ticket ID must match your organization."
     },
 
     "workspaceBar": {
@@ -530,6 +532,7 @@ module.exports = {
         "GeneratingBundle": "Generating bundle",
         "BundleComplete": "Ticket download completed.",
         "DownloadZendesk": "Please upload your ticket to Zendesk.",
+        "ExistingTicketId": "Or enter an existing ticket ID"
     },
 
     "query": {

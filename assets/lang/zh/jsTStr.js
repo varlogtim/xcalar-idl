@@ -687,6 +687,9 @@ MonitorTStr = {
 "Severity4": "Feature request",
 "Subject": "Subject",
 "ClosedTicket": "Ticket is closed and cannot be updated.",
+"TicketErr1": "Your organization could not be verified.",
+"TicketErr2": "Ticket could not be updated because your organization does not match the organization associated with this ticket ID.",
+
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',
@@ -699,7 +702,8 @@ MonitorTStr = {
 "AdditionalInfo": "附加(新)信息",
 "NoTickets": "找不到支持票",
 "SelectExistingTicket": "选择已有的支持票",
-"CharLimitErr": "Character limit of <limit> exceeded."
+"CharLimitErr": "Character limit of <limit> exceeded.",
+"TicketErr3": "Ticket <id> could not be found."
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

@@ -842,6 +842,11 @@ MonitorTStr = {
     "Severity4": "Feature request",
     "Subject": "Subject",
     "ClosedTicket": "Ticket is closed and cannot be updated.",
+    "TicketErr1": "Your organization could not be verified.",
+    "TicketErr2": "Ticket could not be updated because your organization does not match the organization associated with this ticket ID.",
+
+
+
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
@@ -856,7 +861,8 @@ MonitorTStr = {
     "AdditionalInfo": "Additional (New) Information",
     "NoTickets": "No tickets found",
     "SelectExistingTicket": "Select an existing ticket",
-    "CharLimitErr": "Character limit of <limit> exceeded."
+    "CharLimitErr": "Character limit of <limit> exceeded.",
+    "TicketErr3": "Ticket <id> could not be found."
 };
 
 SchedTStr = {

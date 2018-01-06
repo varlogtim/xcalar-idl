@@ -425,11 +425,17 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
             SupTicketModal.fetchLicenseInfo()
             .then(function(licenseObj) {
-                return SupTicketModal.submitTicket(ticketObj, licenseObj);
+                if (needsOrgCheck && (!licenseObj || !licenseObj.organization)) {
+                    ticketIDError(genBundle, bundleSendAttempted, ticketObj, {noOrg: true});
+                    errHandled = true;
+                    return PromiseHelper.reject();
+                } else {
+                    return SupTicketModal.submitTicket(ticketObj, licenseObj);
+                }
             })
             .then(function(ret) {
                 if (ret.logs.indexOf("error") > -1) {
-                    ticketError(genBundle, bundleSendAttempted, ret.logs);
+                    ticketError(genBundle, bundleSendAttempted, ret.logs, ticketObj);
                     errHandled = true;
                     return PromiseHelper.reject();
                 }
@@ -483,7 +489,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             })
             .fail(function() {
                 if (!errHandled) {
-                    ticketError(genBundle, bundleSendAttempted);
+                    ticketError(genBundle, bundleSendAttempted, null, ticketObj);
                 }
                 deferred.reject();
             })
@@ -496,7 +502,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return deferred.promise();
     }
 
-    function ticketError(genBundle, bundleSendAttempted, logs) {
+    function ticketError(genBundle, bundleSendAttempted, logs, ticketObj) {
         var detail = "";
         if (logs) {
             try {
@@ -513,6 +519,14 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
         }
 
+        if (detail.indexOf("User does not belong") > -1) {
+            ticketIDError(genBundle, bundleSendAttempted, ticketObj, {orgMisMatch: true});
+            return;
+        } else if (detail.indexOf("Ticket could not be found") > -1) {
+            ticketIDError(genBundle, bundleSendAttempted, ticketObj, {ticketNotFound: true});
+            return;
+        }
+
         $modal.addClass('downloadMode');
         var msg = "Ticket failed, try downloading and uploading to " +
                   "ZenDesk.";
@@ -523,6 +537,28 @@ window.SupTicketModal = (function($, SupTicketModal) {
             });
         } else {
             Alert.error('Submit Ticket Failed', msg + " " + detail);
+        }
+        if (genBundle && !bundleSendAttempted) {
+            submitBundle(0);
+        }
+    }
+
+    function ticketIDError(genBundle, bundleSendAttempted, ticketObj, errorType) {
+        var msg;
+        if (errorType.noOrg) {
+            msg = MonitorTStr.TicketErr1;
+        } else if (errorType.orgMisMatch) {
+            msg = MonitorTStr.TicketErr2;
+        } else if (errorType.ticketNotFound) {
+            msg = xcHelper.replaceMsg(MonitorTStr.TicketErr3, {id: ticketObj.ticketId});
+        }
+
+        if ($modal.is(":visible")) {
+            StatusBox.show(msg, $modal.find('.customTicketRow'), false, {
+                highZindex: $modal.hasClass('locked')
+            });
+        } else {
+            Alert.error('Submit Ticket Failed', msg);
         }
         if (genBundle && !bundleSendAttempted) {
             submitBundle(0);
