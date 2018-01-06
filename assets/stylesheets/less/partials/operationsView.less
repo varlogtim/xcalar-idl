@@ -157,6 +157,9 @@
                 position: relative;
                 .flex(1 1 100px);
                 width: 100px;
+                margin-top: -1px; // fixes double thickness of the bottom of a
+                                // cell's border when next to the top border
+                                // of another cell
                 .text {
                     width: 100%;
                 }
