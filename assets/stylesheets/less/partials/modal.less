@@ -3192,33 +3192,6 @@ html.microsoft {
                         color: @color-font-select-blue;
                     }
                 }
-
-                &.innerEditableRow.createRule, &.innerEditableRow.headerType, &.innerEditableRow.splitRule {
-                    .radioButtonGroup {
-                        display: flex;
-                        flex-direction: column;
-                        line-height: 40px;
-                        margin-bottom: 5px;
-                    }
-                }
-                &.innerEditableRow.sorted {
-                    .radioButtonGroup {
-                        display: flex;
-                        flex-direction: row;
-                        align-items: center;
-                        flex-wrap: wrap;
-                        margin-bottom: 5px;
-
-                        .radioButton {
-                            width: 122px;
-                            min-width: 122px;
-                            max-width: 122px;
-                        }
-                    }
-                }
-                .radioButtonGroup {
-                    width: 100%;
-                }
             }
         }
         .advancedOpts {
@@ -3301,7 +3274,7 @@ html.microsoft {
             border: 1px solid @color-border-white-five;
             padding: 0px 4px 0px 6px;
             line-height: 30px;
-
+            display: flex;
             &.small {
                 .flex(1 0 120px);
                 .size(@width: 120px);
@@ -3319,9 +3292,9 @@ html.microsoft {
                 .size(@min-width: 500px);
                 .flex(1 1 500px);
             }
-
             .boxed {
                 border: none;
+                .size(@height: 28px);
             }
         }
     }
@@ -3446,7 +3419,7 @@ html.microsoft {
             box-shadow: none;
 
             .iconWrap {
-                .position(absolute, @top: 0px, @right: 0px);
+                .position(absolute, @top: -1px, @right: 0px);
                 .size(30px, 30px);
                 background-color: @color-bg-select-blue;
                 line-height: 15px;
@@ -3672,6 +3645,7 @@ html.microsoft {
         .advancedOpts {
             display: block;
             margin-top: 35px;
+            margin-right: 15px;
         }
         .editableParamQuery, .advancedOpts {
             width: 49%;
@@ -3688,34 +3662,32 @@ html.microsoft {
                 .xc-disabled;
             }
             .exportSettingButton, .target, .createRule, .fieldDelim, .quoteDelim, .recordDelim,
-            .format, .headerType, .sorted, .splitRule {
+            .format, .headerType, .sorted, .splitRule, .templateRow.exportSetting {
                 display: none;
             }
             .defaultParam {
                 display: none;
             }
         }
-        .innerEditableRow.quoteDelim {
-            margin-bottom: 5px;
-        }
         .radioButton {
             &.unavailable {
                 pointer-events: none;
             }
         }
+        .templateRow {
+            .boxed {
+                margin-right: 15px !important;
+            }
+        }
         .exportSetting {
             display: block;
-            &.templateRow {
+            &.templateRow, &.innerEditableRow {
                 width: 50%;
                 float: left;
                 position: relative;
                 .boxed {
                     width: ~"calc(100% - 110px)";
-                }
-                &:nth-child(2n) {
-                    .boxed {
-                        margin-right: 15px;
-                    }
+                    margin-right: 15px;
                 }
             }
         }
@@ -3757,6 +3729,9 @@ html.microsoft {
                     display: none;
                 }
             }
+        }
+        .exportParamQuery {
+            width: 100%;
         }
     }
 }

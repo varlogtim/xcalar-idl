@@ -17,11 +17,15 @@
     <div class="text"><%= dicts.dfParam.instr %></div>
   </div>
   <div class="modalTopMain">
-    <div class="templateSection clearfix retinaSection collapsed">
-      <div class="heading"><%= dicts.dfParam.query %>:</div>
-       <div class="templateTable">
+    <div class="templateSection clearfix retinaSection">
+      <div class="heading">
+        <%= dicts.dfParam.query %>:
+      </div>
+      <div class="templateTable">
         <div class="template flexContainer"></div>
       </div>
+    </div>
+    <div class="exportSettingParamSection clearfix retinaSection collapsed">
     </div>
     <div class="border"></div>
     <div class="parameterList retinaSection">
@@ -36,12 +40,16 @@
       </div>
     </div>
     <div class="border"></div>
-    <div class="editableParamQuery retinaSection collapsed">
+    <div class="editableParamQuery retinaSection">
       <div class="heading"><%= dicts.dfParam.editParam %>:</div>
       <div class="editableTable">
         <div class="editableRow flexContainer">
         </div>
       </div>
+    </div>
+    <div class="advancedOpts">
+    </div>
+    <div class="editableParamQuery exportParamQuery retinaSection collapsed">
       <div class="heading exportSettingButton">
         <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="" data-original-title="Toggle advanced options"></i>
         <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="" data-original-title="Toggle advanced options"></i>
@@ -51,8 +59,6 @@
         <div class="settingRow flexContainer">
         </div>
       </div>
-    </div>
-    <div class="advancedOpts">
     </div>
     <!-- defaultListSection -->
     <div class="defaultListSection retinaParameter">

@@ -898,7 +898,7 @@ DFTStr = {
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",
     "ExportTo": "Export As",
-    "ExportToTable": "Export As Table",
+    "ExportToTable": "Export Table Name",
     "FindTable": "The final table <table> is in the active worksheet",
     "HeavySkew": "Heavy skew",
     "Import": "Export as a Xcalar table",
