@@ -1093,13 +1093,9 @@ window.DSPreview = (function($, DSPreview) {
         if (isPreviewSingleFile()) {
             $pattern.children().addClass("unavailable");
             $input.prop("disabled", true);
-            xcTooltip.add($input, {
-                "title": DSTStr.NoSingleFilePattern
-            });
         } else {
             $pattern.children().removeClass("unavailable");
             $input.prop("disabled", false);
-            xcTooltip.remove($input);
         }
     }
 

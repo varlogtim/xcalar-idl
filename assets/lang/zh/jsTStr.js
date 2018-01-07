@@ -837,7 +837,6 @@ DSTStr = {
 'PointErr': '无法导入数据集',
 'OffsetErr': 'offset大于数据集大小',
 'DelUploadMsg': '您确定要删除<filename>吗？',
-'NoSingleFilePattern': '不支持单个文件',
 'DelMultipleDS': '您确定要删除选中的数据集、文件夹吗?',
 'FailDelFolder': '删除文件夹\"<folder>\"失败: 非空文件夹',
 'FailDelDS': '删除数据集\"<ds>\"失败: <error>',

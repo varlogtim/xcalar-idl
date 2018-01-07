@@ -102,7 +102,7 @@ describe("Union View Test", function() {
 
     it("should add column", function() {
         var $candidateList = $unionView.find('.candidateSection .lists[data-index="0"]');
-        
+
         expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
         expect($candidateList.find(".inputCol").length).to.equal(1);

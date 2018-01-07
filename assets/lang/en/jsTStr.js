@@ -967,7 +967,6 @@ DSTStr = {
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please check the validation of path, pattern, UDF and try again.',
-    'NoSingleFilePattern': 'Not supported when importing a single file',
     'CancalPoint': 'Cancel import dataset',
     'DSSourceHint': 'Please try another path or use another data target.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
