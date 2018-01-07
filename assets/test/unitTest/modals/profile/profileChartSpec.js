@@ -75,6 +75,10 @@ describe("Profile-Profile Chart Test", function() {
             // case 8
             res = formatNumber(1, false, 2);
             expect(res).to.equal("1.00");
+
+            // case 9
+            res = formatNumber("FNF", null, null, true);
+            expect(res).to.equal("FNF");
         });
 
         it("_getLabel should work", function() {

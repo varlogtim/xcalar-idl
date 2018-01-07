@@ -17,8 +17,14 @@ describe("Profile-Profile Engins Test", function() {
     var oldMakeResultSet;
     var oldFetch;
     var oldMap;
+    var oldFilter;
 
     before(function() {
+        oldFilter = XIApi.filter;
+        XIApi.filter = function() {
+            return PromiseHelper.resolve("testtable#test");
+        };
+
         oldIndex = XIApi.index;
         XIApi.index = function() {
             return PromiseHelper.resolve();
@@ -464,5 +470,6 @@ describe("Profile-Profile Engins Test", function() {
         XcalarMakeResultSetFromTable = oldMakeResultSet;
         XcalarFetchData = oldFetch;
         XIApi.map = oldMap;
+        XIApi.filter = oldFilter;
     });
 });

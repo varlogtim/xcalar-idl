@@ -889,7 +889,7 @@ window.Profile = (function($, Profile, d3) {
             "type": "nullVal"
         };
         var colName = curStatsCol.groupByInfo.buckets[bucketNum].colName;
-        nullData[colName] = "null";
+        nullData[colName] = "FNF";
 
         if (bucketNum === 0) {
             nullData[statsColName] = nullCount;

@@ -72,11 +72,12 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             var xName = this.getXName();
             var decimalNum = options.decimal;
 
+            var isFNF = (d.type === "nullVal");
             var isLogScale = (bucketSize < 0);
             var lowerBound = this.getLowerBound(d[xName]);
-            var name = this._formatNumber(lowerBound, isLogScale, decimalNum);
+            var name = this._formatNumber(lowerBound, isLogScale, decimalNum, isFNF);
 
-            if (!noBucket && sorted && d.type !== "nullVal") {
+            if (!noBucket && sorted && !isFNF) {
                 var upperBound = this.getUpperBound(d[xName]);
                 upperBound = this._formatNumber(upperBound, isLogScale, decimalNum);
                 name = name + "-" + upperBound;
@@ -105,13 +106,14 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             var title;
             var isLogScale = (bucketSize < 0);
             var lowerBound = this.getLowerBound(d[xName]);
+            var isFNF = (d.type === "nullVal");
 
             if (d.section === "other") {
                 title = "Value: Other<br>";
-            } else if (noBucket || d.type === "nullVal") {
+            } else if (noBucket || isFNF) {
                 // xName is the backColName, may differenet with frontColName
                 title = "Value: " +
-                        this._formatNumber(lowerBound, isLogScale, decimalNum) +
+                        this._formatNumber(lowerBound, isLogScale, decimalNum, isFNF) +
                         "<br>";
             } else {
                 var upperBound = this.getUpperBound(d[xName]);
@@ -158,10 +160,12 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
             return (num > 0) ? absNum : -absNum;
         },
 
-        _formatNumber: function(num, isLogScale, decimal) {
+        _formatNumber: function(num, isLogScale, decimal, isFNF) {
             if (num == null) {
                 console.warn("cannot format empty or null value");
                 return "";
+            } else if (isFNF) {
+                return "FNF";
             } else if (typeof(num) === "string") {
                 return "\"" + num + "\"";
             } else if (typeof(num) === "boolean") {
@@ -449,7 +453,12 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
                 // xAxis
                 newbars.append("text")
-                    .attr("class", "tick")
+                    .attr("class", function(d, i) {
+                        if (i === 0 && d.type === "nullVal") {
+                            return "tick nullVal";
+                        }
+                        return "tick";
+                    })
                     .attr("width", xWidth)
                     .attr("x", getTickX)
                     .attr("y", tickHeight)
@@ -802,10 +811,14 @@ window.ProfileChart = (function(ProfileChart, $, d3) {
 
                 var g = chart.append("g").classed("pieLabel", true);
                 var labelPos;
-
                 g.append("text")
                     .style("font-size", fontSize + "px")
-                    .attr("class", "tick")
+                    .attr("class", function() {
+                        if (data.data && data.data.type === "nullVal") {
+                            return "tick nullVal";
+                        }
+                        return "tick";
+                    })
                     .attr("transform", function() {
                         var pos = self._getLabelPosition(data, radius,
                                                          fontSize, 1.7);

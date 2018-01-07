@@ -37,7 +37,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var colName = profileInfo.colName;
         var rename = xcHelper.stripColName(colName);
         rename = xcHelper.parsePrefixColName(rename).name;
-        var tableToDelete;
+        var tablesToDelete = {};
 
         profileInfo.groupByInfo.isComplete = "running";
 
@@ -56,28 +56,29 @@ window.ProfileEngine = (function(ProfileEngine) {
             "steps": -1
         });
 
-        XIApi.index(txId, colName, tableName)
+        // filter out fnf
+        var fltStr = "exists(" + colName + ")";
+        XIApi.filter(txId, fltStr, tableName)
+        .then(function(tableAfterFilter) {
+            tablesToDelete[tableAfterFilter] = true;
+            return XIApi.index(txId, colName, tableAfterFilter);
+        })
         .then(function(indexedTableName, indexArgs) {
             var innerDeferred = jQuery.Deferred();
-            if (indexedTableName !== tableName && !indexArgs.isCache) {
-                tableToDelete = indexedTableName;
+            if (!indexArgs.isCache) {
+                tablesToDelete[indexedTableName] = true;
             }
 
-            if (indexArgs.hasIndexed) {
-                XIApi.getNumRows(indexedTableName)
-                .then(function(val) {
-                    // the table.resultSetCount should eqaul to the
-                    // totalCount after right index, if not, a way to resolve
-                    // is to get resulSetCount from the right src table
-                    var nullCount = table.resultSetCount - val;
-                    var allNull = (val === 0);
-                    innerDeferred.resolve(indexedTableName, nullCount, allNull);
-                })
-                .fail(innerDeferred.reject);
-            } else {
-                innerDeferred.resolve(indexedTableName, 0);
-            }
-
+            XIApi.getNumRows(indexedTableName)
+            .then(function(val) {
+                // the table.resultSetCount should eqaul to the
+                // totalCount after right index, if not, a way to resolve
+                // is to get resulSetCount from the right src table
+                var nullCount = table.resultSetCount - val;
+                var allNull = (val === 0);
+                innerDeferred.resolve(indexedTableName, nullCount, allNull);
+            })
+            .fail(innerDeferred.reject);
             return innerDeferred.promise();
         })
         .then(function(indexedTableName, nullCount, allNull) {
@@ -117,9 +118,9 @@ window.ProfileEngine = (function(ProfileEngine) {
             });
 
             profileInfo.groupByInfo.isComplete = true;
-            if (tableToDelete != null) {
-                // delete the indexed table if exist
-                return XIApi.deleteTable(txId, tableToDelete, true);
+            for (var tableToDelete in tablesToDelete) {
+                // delete temp tables
+                XIApi.deleteTable(txId, tableToDelete, true);
             }
         })
         .then(function() {

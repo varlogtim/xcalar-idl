@@ -1552,7 +1552,7 @@
                         });
                         if (!isSameKey(parentKeyNames, tableKeyNames)) {
                             // if current is sorted, the parent should also
-                            // index on the tableKey to remove "KNF"
+                            // index on the tableKey to remove "FNF"
                             // var fltTable = getNewTableName(tableName,
                             //                               ".fltParent", true);
 
