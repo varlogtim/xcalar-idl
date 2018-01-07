@@ -2224,6 +2224,7 @@
         .flex-direction(column);
         .header {
             padding-left: 15px;
+            padding-bottom: 10px;
         }
         &:last-child {
             padding-bottom: 0;
@@ -2424,6 +2425,11 @@
             border: 1px solid @color-table-hoverBg-gray;
             &.placeholder {
                 border-color: transparent;
+                &::after {
+                    content: "New Column Name";
+                    padding-left: 10px;
+                    color: @color-font-darkGray;
+                }
             }
 
             .icon {

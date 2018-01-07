@@ -287,7 +287,7 @@ module.exports = {
         "UndoEdit": "Revert to original operation",
         "CommentOp": "Add a comment",
         "ExitEditMode": "Exit editing mode",
-        "AddOperation": "Additional operation"
+        "AddOperation": "Add new operation"
     },
 
     "TooltipTStr": {
@@ -610,7 +610,7 @@ module.exports = {
         "Header": "Promote First Row As Header",
         "Format": "Format",
         "UDF": "Parse Data With UDF",
-        "Pattern": "Pattern",
+        "Pattern": "File Name Pattern",
         "Recursive": "Recursive",
         "Regex": "Regex",
         "Quoting": "Quoting Character",
@@ -618,8 +618,8 @@ module.exports = {
         "SkipRowsHint": "Skip the number of rows for each files in the data source",
         "CREATEDS": "CREATE DATASET",
         "CREATETABLE": "CREATE TABLE",
-        "applyUDF": "apply UDF",
-        "applyPattern": "apply pattern",
+        "applyUDF": "Click to apply UDF",
+        "applyPattern": "Refresh Files",
         "CreateTableHint": "Create a dataset and create a table from the dataset",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
@@ -871,7 +871,7 @@ module.exports = {
         "ColumnTitle": "Columns In Union Table",
         "Instr": "Select tables you would like to union on and select columns from each table.",
         "CandidateTitle": "To be Dropped",
-        "AddTable": "Add Table",
+        "AddTable": "Add Table To Union",
         "confirm": "Union",
         "Mode": "Mode",
         "Union": "Union (Combine and deduplicate)",

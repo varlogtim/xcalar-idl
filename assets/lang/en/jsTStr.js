@@ -683,6 +683,7 @@ UnionTStr = {
     "NewColName": "New Column Name",
     "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click the column name to add the column as part of the union.",
     "EmptyList": "Empty List",
+    "SearchCol": "Find column name",
     "SelectCol": "Please select columns to union",
     "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
     "UsedFor": "Used for <col>"

@@ -494,7 +494,7 @@ window.UnionView = (function(UnionView, $) {
         var selectedColLen = selectedCols.length;
         var lists = '<div class="searchArea">' +
                         '<input type="text" spellcheck="false"' +
-                        'placeholder="' + CommonTxtTstr.Search + '">' +
+                        'placeholder="' + UnionTStr.SearchCol + '">' +
                         '<i class="icon xi-search fa-13" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' + TooltipTStr.UnionSearch +
