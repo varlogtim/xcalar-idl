@@ -1074,6 +1074,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     return (InstallerCommon);
 }({}, jQuery));
 
+window.onbeforeunload = function (e) {
+  return true;
+};
+
 $(document).ready(function() {
     Installer.setup();
     Upgrader.setup();
