@@ -23,7 +23,6 @@ require("jsdom").env("", function(err, window) {
 });
 
 var defaultHostsFile = "/etc/xcalar/default.cfg";
-
 var defaultXcalarctl = process.env.XLRDIR ?
     process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
 var defaultHttpPort = process.env.XCE_HTTP_PORT ?
@@ -39,7 +38,7 @@ var defaultStatusCommand = defaultXcalarctl + " status";
 var logPath = "/var/log/Xcalar.log";
 var installationLogPath;
 if (process.env.TMPDIR) {
-    installationLogPath = process.env.TMPDIR + "/cluster-install.log";
+    installationLogPath = process.env.TMPDIR + "/xcalar-install-expserver.log";
 }
 
 var bufferSize = 1024 * 1024;

@@ -171,15 +171,15 @@ function createStatusArray(credArray) {
     }
     var retMsg;
     if (curStep.curStepStatus === installStatus.Error) {
-        support.masterExecuteAction("GET", "/installationLogs/slave",
+        support.slaveExecuteAction("GET", "/installationLogs/slave",
                                     {isHTTP: "true"})
         .always(function(message) {
             retMsg = {
                 "status": httpStatus.OK,
                 "curStepStatus": curStep.curStepStatus,
                 "retVal": ackArray,
-                "errorLog": errorLog,
-                "installationLogs": message.logs
+                "errorLog": errorLog, // the error message by script running
+                "installationLogs": message.logs // all installation logs
             };
             deferred.reject(retMsg);
         });
@@ -648,13 +648,13 @@ router.post("/xdp/installation/cancel", function(req, res) {
     res.send({"status": httpStatus.OK});
 });
 
-router.get("/installationLogs/slave", function(req, res) {
-    xcConsole.log("Fetching Installation Logs as Slave");
-    support.slaveExecuteAction("GET", "/installationLogs/slave")
-    .always(function(message) {
-        res.status(message.status).send(message);
-    });
-});
+// router.get("/installationLogs/slave", function(req, res) {
+//     xcConsole.log("Fetching Installation Logs as Slave");
+//     support.slaveExecuteAction("GET", "/installationLogs/slave")
+//     .always(function(message) {
+//         res.status(message.status).send(message);
+//     });
+// });
 
 // Below part is only for Unit Test
 function fakeGenExecString() {

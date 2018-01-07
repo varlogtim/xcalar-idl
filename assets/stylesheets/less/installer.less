@@ -81,6 +81,8 @@ form {
         .size(@width: @div-width, @height: 60px);
         margin: 10px auto 18px auto;
         padding-top: 10px;
+        display: flex;
+        align-items: center;
 
         .icon, .text {
             display: inline-block;
@@ -89,7 +91,6 @@ form {
 
         .icon {
             font-size: 20px;
-            .vertical-align;
             color: @color-bg-select-blue;
         }
 
@@ -174,7 +175,7 @@ form {
             .vertical-align;
 
             .icon {
-                font-size: 16px;
+                font-size: 17px;
                 color: @color-font-pinkish-grey2;
                 vertical-align: top;
                 line-height: 16px;
@@ -264,6 +265,13 @@ input:-webkit-autofill:focus {
                 min-height: 20px;
                 width: ~"calc(100% - 90px)";
             }
+        }
+        &.csHelp {
+            margin-left: 5px;
+            margin-top: 0px;
+            height: 28px;
+            display: flex;
+            align-items: center;
         }
     }
 
@@ -673,7 +681,15 @@ input:-webkit-autofill:focus {
                 }
             }
         }
-
+        &.nfsSection, &.ldapSection, &.credentialSection, &.preConfigSection {
+            .radioButton {
+                .label {
+                    .flex-display(flex);
+                    .align-items(center);
+                    .size(@height: 28px);
+                }
+            }
+        }
         &.discoverSection {
             height: 70px;
             .discoverWrapper {
@@ -1077,17 +1093,26 @@ input:-webkit-autofill:focus {
         .instruction .install {
             display: block !important;
         }
+        .instruction .default {
+            display: none;
+        }
     }
 
     &.upgrade {
         .instruction .upgrade {
             display: block !important;
         }
+        .instruction .default {
+            display: none;
+        }
     }
 
     &.uninstall {
         .instruction .uninstall {
             display: block !important;
+        }
+        .instruction .default {
+            display: none;
         }
     }
 }

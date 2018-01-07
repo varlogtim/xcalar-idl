@@ -179,6 +179,7 @@ window.Installer = (function(Installer, $) {
         prepareStart();
         InstallerCommon.startOperation(startApi)
         .then(function() {
+            scrollToStatus();
             return InstallerCommon.getStatus($form, statusApi);
         })
         .then(function() {
@@ -213,6 +214,10 @@ window.Installer = (function(Installer, $) {
             $form.find(".section:not(.buttonSection) input").prop("disabled", false);
             $form.find("#numServers").prop("disabled", false);
             InstallerCommon.handleFail($form, prevString, doingLower);
+        }
+
+        function scrollToStatus() {
+            $("#bottomSection").animate({ scrollTop: 0}, 1000);
         }
     }
     return (Installer);
