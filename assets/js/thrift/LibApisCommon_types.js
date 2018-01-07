@@ -4225,7 +4225,7 @@ XcalarApiRetinaSrcTableT = function(args) {
   this.dstName = null;
   if (args) {
     if (args.source !== undefined && args.source !== null) {
-      this.source = new XcalarApiNamedInputT(args.source);
+      this.source = args.source;
     }
     if (args.dstName !== undefined && args.dstName !== null) {
       this.dstName = args.dstName;
@@ -4247,9 +4247,8 @@ XcalarApiRetinaSrcTableT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.source = new XcalarApiNamedInputT();
-        this.source.read(input);
+      if (ftype == Thrift.Type.STRING) {
+        this.source = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -4273,8 +4272,8 @@ XcalarApiRetinaSrcTableT.prototype.read = function(input) {
 XcalarApiRetinaSrcTableT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiRetinaSrcTableT');
   if (this.source !== null && this.source !== undefined) {
-    output.writeFieldBegin('source', Thrift.Type.STRUCT, 1);
-    this.source.write(output);
+    output.writeFieldBegin('source', Thrift.Type.STRING, 1);
+    output.writeString(this.source);
     output.writeFieldEnd();
   }
   if (this.dstName !== null && this.dstName !== undefined) {

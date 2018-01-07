@@ -1286,12 +1286,7 @@ Thrift.Protocol.prototype = {
 
     /** Deserializes the end of a list. */
     readListEnd: function() {
-        var pos = this.rpos.pop() - 2;
-        var st = this.rstack;
-        st.pop();
-        if (st instanceof Array && st.length > pos && st[pos].length > 0) {
-            st.push(st[pos].shift());
-        }
+        this.readFieldEnd();
     },
 
     /**
