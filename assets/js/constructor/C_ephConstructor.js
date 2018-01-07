@@ -2059,6 +2059,26 @@ FormHelper.prototype = {
 
     isOpen: function() {
         return this.isFormOpen;
+    },
+
+    focusOnColumn: function(tableId, colNum) {
+        if (tableId == null || colNum == null) {
+            // error case
+            return;
+        }
+
+        var ws = WSManager.getWSFromTable(tableId);
+        if (ws !== WSManager.getActiveWS()) {
+            WSManager.focusOnWorksheet(ws, true);
+        }
+
+        xcHelper.centerFocusedColumn(tableId, colNum, true);
+
+        var $th = $("#xcTable-" + tableId).find("th.col" + colNum);
+        xcTooltip.transient($th, {
+            "title": TooltipTStr.FocusColumn,
+            "container": "#container",
+        }, 1000);
     }
 };
 /* End of FormHelper */

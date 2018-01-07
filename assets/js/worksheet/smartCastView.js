@@ -47,7 +47,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
         $castView.on("click", ".colName", function() {
             var colNum = $(this).closest(".row").data("col");
-            scrollToColumn(colNum);
+            formHelper.focusOnColumn(curTableId, colNum);
         });
 
         var $castMenu = $("#castMenu");
@@ -294,26 +294,6 @@ window.SmartCastView = (function($, SmartCastView) {
         return xcSuggest.suggestType(datas, type);
     }
 
-    function scrollToColumn(colNum) {
-        if (colNum == null) {
-            // error case
-            return;
-        }
-
-        var ws = WSManager.getWSFromTable(curTableId);
-        if (ws !== WSManager.getActiveWS()) {
-            WSManager.focusOnWorksheet(ws, true);
-        }
-
-        xcHelper.centerFocusedColumn(curTableId, colNum, true);
-
-        var $th = $("#xcTable-" + curTableId).find("th.col" + colNum);
-        xcTooltip.transient($th, {
-            "title": TooltipTStr.FocusColumn,
-            "container": "#container",
-        }, 1000);
-    }
-
     function initialSugget(tableId) {
         var tableCols = gTables[tableId].tableCols;
 
@@ -356,11 +336,9 @@ window.SmartCastView = (function($, SmartCastView) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         SmartCastView.__testOnly__ = {};
-
         SmartCastView.__testOnly__.selectCol = selectCol;
         SmartCastView.__testOnly__.deSelectCol = deSelectCol;
         SmartCastView.__testOnly__.changeColType = changeColType;
-        SmartCastView.__testOnly__.scrollToColumn = scrollToColumn;
         SmartCastView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */

@@ -104,8 +104,8 @@ window.UnionView = (function(UnionView, $) {
             removeTable(index);
         });
 
-        $unionView.on("click", ".candidateSection .inputCol", function() {
-            var $col = $(this);
+        $unionView.on("click", ".candidateSection .addCol", function() {
+            var $col = $(this).closest(".inputCol");
             var colName = $col.find(".text").text();
             var colType = $col.data("type");
             var index = getListIndex($col);
@@ -143,6 +143,12 @@ window.UnionView = (function(UnionView, $) {
             var index = getListIndex($input);
             searchColumn(keyword, index);
         });
+
+        $unionView.on("click", ".focusCol", function() {
+            var $div = $(this);
+            var tableIndex = getListIndex($div);
+            focusOnColumn($div.text(), tableIndex);
+        });
     }
 
     function restorePrefill(options) {
@@ -168,6 +174,14 @@ window.UnionView = (function(UnionView, $) {
         $inputs.filter(function() {
             return $(this).text().includes(keyword);
         }).addClass("highlight");
+    }
+
+    function focusOnColumn(colName, tableIndex) {
+        var tableId = tableInfoLists[tableIndex].tableId;
+        if (colName != null) {
+            var colNum = gTables[tableId].getColNumByBackName(colName);
+            formHelper.focusOnColumn(tableId, colNum);
+        }
     }
 
     function addTable(tableId, colNums, colInfos) {
@@ -364,6 +378,7 @@ window.UnionView = (function(UnionView, $) {
                     selectColumn(colInfo, colIndex, tableIndex);
                     xcTooltip.hideAll();
                 },
+                onlyClickIcon: true,
                 container: "#unionView .middleSection",
                 bounds: "#unionView .middleSection"
             }).setupListeners();
@@ -512,7 +527,7 @@ window.UnionView = (function(UnionView, $) {
             var innerHTML = "";
             if (selectedCols[colIndex] != null) {
                 var inputColName = selectedCols[colIndex].name;
-                innerHTML = '<div class="text textOverflowOneLine' +
+                innerHTML = '<div class="text focusCol textOverflowOneLine' +
                             ' tooltipOverflow"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
@@ -520,11 +535,15 @@ window.UnionView = (function(UnionView, $) {
                             ' data-title="' + inputColName + '">' +
                                 inputColName +
                             '</div>' +
-                            '<i class="down icon xi-arrow-down xc-action"></i>';
+                            '<div class="iconWrapper down xc-action">' +
+                                '<i class="icon xi-arrow-down"></i>' +
+                            '</div>';
             } else {
                 innerHTML = '<div class="text"></div>';
                 if (tableId != null) {
-                    innerHTML += '<i class="down icon xi-arrow-down xc-action"></i>';
+                    innerHTML += '<div class="iconWrapper down xc-action">' +
+                                    '<i class="icon xi-arrow-down"></i>' +
+                                '</div>';
                 }
             }
 
@@ -562,12 +581,12 @@ window.UnionView = (function(UnionView, $) {
                 var colType = col.type;
                 var colName = col.name;
                 return '<div class="inputCol" data-type="' + colType + '">' +
-                            '<i class="addCol icon xi-plus"' +
+                            '<i class="addCol icon xi-plus xc-action"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
                             ' data-title="' + UnionTStr.AddCol + '"' +
                             '></i>' +
-                            '<div class="text textOverflowOneLine tooltipOverflow"' +
+                            '<div class="text focusCol textOverflowOneLine tooltipOverflow"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
                             ' data-title="' + colName + '">' +

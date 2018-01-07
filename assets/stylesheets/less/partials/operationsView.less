@@ -2172,7 +2172,7 @@
         .size(@height: @instr-h);
     }
 
-    .searchArea .icon, .down, .addCol, .editCol, .removeCol {
+    .searchArea .icon, .down .icon, .addCol, .editCol, .removeCol {
         .font(@color: @color-bg-unselect-gray);
     }
 
@@ -2338,7 +2338,7 @@
         .resultCol {
             border: 1px solid @color-table-hoverBg-gray;
             &.cast {
-                height: 52px !important;
+                height: 55px !important;
 
                 .typeList {
                     display: block;
@@ -2360,6 +2360,7 @@
             .typeList {
                 display: none;
                 border-top: 1px solid @color-table-hoverBg-gray;
+                margin-bottom: 3px;
 
                 .text {
                     padding-left: 15px;
@@ -2379,6 +2380,10 @@
         .columnList {
             .hint {
                 text-align: center;
+            }
+
+            .iconWrapper {
+                background-color: transparent;
             }
 
             ul {
@@ -2408,7 +2413,7 @@
             border: 1px solid @color-table-hoverBg-gray;
 
             &.cast {
-                margin-bottom: 26px;
+                margin-bottom: 29px;
             }
 
             .text {
@@ -2462,7 +2467,6 @@
 
         .inputCol {
             border: 1px solid @color-table-hoverBg-gray;
-            cursor: pointer;
         }
     }
 

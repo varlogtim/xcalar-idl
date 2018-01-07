@@ -981,6 +981,16 @@ describe("Ephemeral Constructor Test", function() {
             expect($fakeView.hasClass("xc-hidden")).to.be.true;
         });
 
+        it("focus to column should work", function() {
+            var $th = $table.find("th.col1");
+            xcTooltip.hideAll();
+            formHelper.focusOnColumn(null);
+            expect($th.attr("aria-describedby")).not.to.exist;
+            formHelper.focusOnColumn(tableId, 1);
+            expect($th.attr("aria-describedby")).to.exist;
+            xcTooltip.hideAll();
+        });
+
         after(function(done) {
             formHelper.clear();
             $fakeView.remove();

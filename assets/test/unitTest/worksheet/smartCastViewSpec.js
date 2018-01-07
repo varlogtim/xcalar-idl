@@ -1,4 +1,4 @@
-describe('Smart Cast View Test', function() {
+describe("Smart Cast View Test", function() {
     var $castView;
     var $castTable;
     var $table;
@@ -37,16 +37,6 @@ describe('Smart Cast View Test', function() {
             expect($castTable.find(".row").length).to.equal(1);
             expect($castTable.find(".initialType").length).to.equal(1);
             expect($(".modalHighlighted").length > 0).to.be.true;
-        });
-
-        it("Should scroll to column", function() {
-            var $th = $table.find("th.col1");
-            xcTooltip.hideAll();
-            SmartCastView.__testOnly__.scrollToColumn(null);
-            expect($th.attr("aria-describedby")).not.to.exist;
-            SmartCastView.__testOnly__.scrollToColumn(1);
-            expect($th.attr("aria-describedby")).to.exist;
-            xcTooltip.hideAll();
         });
 
         it("Should change column type", function() {

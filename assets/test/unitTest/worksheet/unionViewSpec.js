@@ -106,7 +106,7 @@ describe("Union View Test", function() {
         expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
         expect($candidateList.find(".inputCol").length).to.equal(1);
-        $candidateList.find(".inputCol").click();
+        $candidateList.find(".addCol").click();
         expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(2);
         expect($unionView.find('.candidateSection .lists[data-index="0"] .inputCol').length)
@@ -123,7 +123,7 @@ describe("Union View Test", function() {
 
     it("should select column", function() {
         var $dropdown = $unionView.find(".columnList").eq(1);
-        $dropdown.click();
+        $dropdown.find(".iconWrapper").click();
         expect($dropdown.find(".list").hasClass("openList")).to.be.true;
 
         var $li = $dropdown.find("li").filter(function() {
@@ -133,6 +133,20 @@ describe("Union View Test", function() {
         $li.trigger(fakeEvent.mouseup);
         expect($unionView.find(".columnList").eq(1).find(".text").text())
         .to.equal("col3");
+    });
+
+    it("should focus on column", function() {
+        var oldFunc = FormHelper.prototype.focusOnColumn;
+        var testTableId, testColNum;
+        FormHelper.prototype.focusOnColumn = function(tableId, colNum) {
+            testTableId = tableId;
+            testColNum = colNum
+        };
+        var $dropdown = $unionView.find(".columnList").eq(0);
+        $dropdown.find(".text").click();
+        expect(testTableId).to.equal("test1");
+        expect(testColNum).to.equal(1);
+        FormHelper.prototype.focusOnColumn = oldFunc;
     });
 
     it("should validate and show empty new table error", function() {
@@ -220,6 +234,7 @@ describe("Union View Test", function() {
     after(function() {
         delete gTables["test1"];
         delete gTables["test2"];
+        UnionView.close();
         UnitTest.offMinMode();
     });
 });
