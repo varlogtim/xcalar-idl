@@ -19,7 +19,7 @@ window.Help = (function($, Help) {
 
         $("#helpSubmit").click(function() {
             $("#helpResults").find(".noResults").hide();
-            $searchInput.trigger({"type": "keyup", "keyCode": keyCode.Enter});
+            $searchInput.trigger({type: "keyup", which: keyCode.Enter});
         });
 
         $("#helpSearchArea").submit(function() {

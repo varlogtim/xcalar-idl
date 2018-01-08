@@ -225,7 +225,8 @@ module.exports = {
     },
     "skewInfoModal": {
         "Title": "表数据分布",
-        "instr": "图标显示了表数据在集群节点中的分布情况。分布偏差可能会影响集群的性能. 详细信息请点击"
+        "instr": "图标显示了表数据在集群节点中的分布情况。分布偏差可能会影响集群的性能. 详细信息请参考",
+        "link": "链接"
     },
     "bottomMenu": {
         "Find": "查找",
@@ -808,7 +809,8 @@ module.exports = {
     },
     "paths": {
         "helpUserDocs": "assets/help/user/Content/Home.htm",
-        "tableau": "assets/htmlFiles/tableau.html"
+        "tableau": "assets/htmlFiles/tableau.html",
+        "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew"
     },
     "previewFile": {
         "ListOf": "路径",

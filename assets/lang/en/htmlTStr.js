@@ -102,7 +102,8 @@ module.exports = {
 
     "paths": {
         "tableau": "assets/htmlFiles/tableau.html",
-        "helpUserDocs": "assets/help/user/Content/Home.htm"
+        "helpUserDocs": "assets/help/user/Content/Home.htm",
+        "skewDoc": "assets/help/user/Content/D_Reference/C_WorksheetWindow.htm#Skew"
     },
 
     "time": {
@@ -706,7 +707,8 @@ module.exports = {
 
     "skewInfoModal": {
         "Title": "Table Data Distribution in Cluster",
-        "instr": "This graph shows the distribution of the table’s data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please visit"
+        "instr": "This graph shows the distribution of the table’s data across all nodes in the cluster. Skew in the data may impact the performance of the cluster. To find out more about data skew, please reference",
+        "link": "the link"
     },
 
     "dataflow": {
