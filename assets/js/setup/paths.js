@@ -12,6 +12,7 @@ var paths = {
     dfIcons: 'assets/images/dfgIcons/',
     dagBackground: 'assets/images/dagIcons/dag-background.png',
     dbDiamond: 'assets/images/dfgIcons/dbDiamond.png',
+    tDiamond: 'assets/images/dfgIcons/tDiamond.png',
     dTable: 'assets/images/dfgIcons/dTable2.png',
     eTable: 'assets/images/dfgIcons/eTable2.png',
     dTableGray: 'assets/images/dfgIcons/dTable2Gray.png',

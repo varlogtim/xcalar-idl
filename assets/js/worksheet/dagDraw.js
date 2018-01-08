@@ -318,6 +318,7 @@ window.DagDraw = (function($, DagDraw) {
             var tableGrayImage = new Image();
             var tableICVImage = new Image();
             var dbImage = new Image();
+            var tdImage = new Image();
             var expandImage = new Image();
             var eTableImage = new Image();
             tableImage.src = paths.dTable;
@@ -325,6 +326,7 @@ window.DagDraw = (function($, DagDraw) {
             tableGrayImage.src = paths.dTableGray;
             tableICVImage.src = paths.dTableICV;
             dbImage.src = paths.dbDiamond;
+            tdImage.src = paths.tDiamond;
             expandImage.src = paths.expandIcon;
 
             PromiseHelper.when.apply(window, [loadImage(tableImage),
@@ -343,7 +345,7 @@ window.DagDraw = (function($, DagDraw) {
                         drawDagTableToCanvas($dagTable, ctx, top, left,
                                              tableImage, tableGrayImage,
                                              tableICVImage,
-                                             dbImage, eTableImage);
+                                             dbImage, eTableImage, tdImage);
                     }
                 });
 
@@ -496,7 +498,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
-                                  tICVImage, dImage, eImage) {
+                                  tICVImage, dImage, eImage, tdImage) {
         left += 35;
         top += 50;
         var iconLeft = left;
@@ -505,8 +507,14 @@ window.DagDraw = (function($, DagDraw) {
         var tableImage;
         var x;
 
-        if ($dagTable.hasClass('dataStore')) {
-            tableImage = dImage;
+        if ($dagTable.hasClass('rootNode')) {
+            if ($dagTable.hasClass("retina") ||
+                $dagTable.hasClass("synthesize")) {
+                tableImage = tdImage;
+            } else {
+                tableImage = dImage;
+            }
+
             iconLeft -= 6;
             iconTop -= 4;
             maxWidth = 120;
@@ -1125,16 +1133,27 @@ window.DagDraw = (function($, DagDraw) {
         var numInGroup = tagGroup.length + 1; // include self + 1
         if (node.value.display.tagCollapsed) {
             $operation.removeClass("expanded").addClass("collapsed");
-            tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
-                            {number: numInGroup,
+            if (numInGroup === 2) {
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTablesSingle,
+                            {op: tagName[0].toUpperCase() + tagName.slice(1)});
+            } else {
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
+                            {number: numInGroup - 1,
                              op: tagName[0].toUpperCase() + tagName.slice(1)
                             });
+            }
+
         } else {
-            $operation.removeClass("collapsed").addClass("expanded");
-            tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
-                            {number: numInGroup,
+            if (numInGroup === 2) {
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTablesSingle,
+                            {op: tagName[0].toUpperCase() + tagName.slice(1)});
+            } else {
+                tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
+                            {number: numInGroup - 1,
                              op: tagName[0].toUpperCase() + tagName.slice(1)
                             });
+            }
+            $operation.removeClass("collapsed").addClass("expanded");
         }
 
         $operation.data("type", info.type);
@@ -1258,7 +1277,7 @@ window.DagDraw = (function($, DagDraw) {
         tableClasses += dagInfo.state + " ";
 
 
-        // check for datastes
+        // check for datasets
         if (dagOpHtml === "") {
             var pattern = "";
             var tId = node.value.dagNodeId;
@@ -1271,6 +1290,7 @@ window.DagDraw = (function($, DagDraw) {
             if (node.value.api === XcalarApisT.XcalarApiExecuteRetina) {
                 tableClasses += "retina ";
                 tId = xcHelper.getTableId(tableName);
+                tableClasses += "dataStore ";
             } else if (node.value.api === XcalarApisT.XcalarApiBulkLoad) {
                 dsText = "Dataset ";
                 icon = 'xi_data';
@@ -1278,12 +1298,17 @@ window.DagDraw = (function($, DagDraw) {
                 dagInfo.dagNodeId = node.value.dagNodeId;
                 // pattern = dagInfo.loadInfo.fileNamePattern;
                 pattern = dagInfo.loadInfo.loadArgs.sourceArgs.fileNamePattern;
+                tableClasses += "dataStore ";
+            }  else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
+                tId = xcHelper.getTableId(tableName);
+                tableClasses += "synthesize ";
             } else {
+                tableClasses += "dataStore ";
                 console.error("unexpected node", "api: " + node.value.api);
                 tableClasses += "unexpectedNode ";
                 tId = xcHelper.getTableId(tableName);
             }
-            tableClasses += "dataStore ";
+            tableClasses += "rootNode ";
             iconClasses += "dataStoreIcon ";
             dataAttrs += 'data-table="' + originalTableName + '" ' +
                         'data-type="dataStore" ' +
@@ -1371,16 +1396,28 @@ window.DagDraw = (function($, DagDraw) {
             var numInGroup = tagGroup.length + 1; // include self + 1
             if (node.value.display.tagCollapsed) {
                 classes += " collapsed ";
-                tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
-                            {number: numInGroup,
-                             op: tagName[0].toUpperCase() + tagName.slice(1)
-                            });
+                if (numInGroup === 2) {
+                    tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTablesSingle,
+                                {op: tagName[0].toUpperCase() + tagName.slice(1)
+                                });
+                } else {
+                    tagIconTip = xcHelper.replaceMsg(TooltipTStr.ShowGroupTables,
+                                {number: numInGroup - 1,
+                                 op: tagName[0].toUpperCase() + tagName.slice(1)
+                                });
+                }
             } else {
                 classes += " expanded ";
-                tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
-                            {number: numInGroup,
-                             op: tagName[0].toUpperCase() + tagName.slice(1)
-                            });
+                if (numInGroup === 2) {
+                    tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTablesSingle,
+                                {op: tagName[0].toUpperCase() + tagName.slice(1)
+                                });
+                } else {
+                    tagIconTip = xcHelper.replaceMsg(TooltipTStr.HideGroupTables,
+                                {number: numInGroup - 1,
+                                 op: tagName[0].toUpperCase() + tagName.slice(1)
+                                });
+                }
             }
             dataAttr += " data-tag='" + node.value.tags[0] + "' ";
             groupTagIcon += '<div class="groupTagIcon" data-tagid="' + tagId +
@@ -1589,6 +1626,9 @@ window.DagDraw = (function($, DagDraw) {
                 break;
             case ("export"):
                 iconClass = "pull-all-field";
+                break;
+            case ("synthesize"):
+                iconClass = "tables-columnsicon";
                 break;
             case (SQLOps.Ext):
                 iconClass = "menu-extension";

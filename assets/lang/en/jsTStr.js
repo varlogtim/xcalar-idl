@@ -138,8 +138,10 @@ TooltipTStr = {
     'UndoTableTip': "Table <name> is in an undo state and cannot be directly " +
                                 "added to a worksheet.",
     'CollapsedTables': '<number> tables are collapsed',
-    'ShowGroupTables': 'Click to reveal the <number> operations involved in the <op> operation',
-    'HideGroupTables': 'Click to hide the <number> operations involved in the <op> operation',
+    'ShowGroupTablesSingle': 'Click to reveal the other operation involved in the <op> operation',
+    'ShowGroupTables': 'Click to reveal the <number> other operations involved in the <op> operation',
+    'HideGroupTablesSingle': 'Click to hide the other operation involved in the <op> operation',
+    'HideGroupTables': 'Click to hide the <number> other operations involved in the <op> operation',
     'DroppedTable': 'Table \'<tablename>\' has been dropped',
     'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
     'NoExport': 'Cannot export column of type <type>',

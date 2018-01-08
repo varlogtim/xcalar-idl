@@ -358,7 +358,7 @@ html.firefox, html.microsoft {
     }
 
     &.locked {
-        .addDataFlow {
+        .addDataFlow, .editBtn {
             .btn-disabled;
         }
     }
@@ -715,7 +715,7 @@ html.firefox, html.microsoft {
                 }
             }
 
-            &.dataStore .icon {
+            &.rootNode .icon {
                 color: @color-bg-select-blue;
             }
             &.Cleaned, &.Dropped {
@@ -770,7 +770,7 @@ html.firefox, html.microsoft {
 
         }
 
-        .lockIcon, &.dataStore .lockIcon.icon {
+        .lockIcon, &.rootNode .lockIcon.icon {
             .position(absolute, @top: 0px, @right: 0px);
             left: auto;
             font-size: 16px !important;
@@ -809,7 +809,7 @@ html.firefox, html.microsoft {
             }
         }
 
-        &.dataStore {
+        &.rootNode {
             background: none;
             left: 4px;
             .tableTitle {

@@ -190,6 +190,18 @@ window.DagFunction = (function($, DagFunction) {
             var dagNodeId = nodes[i].dagNodeId;
             var name = nodes[i].name.name;
             var numParents = nodes[i].numParent;
+            if (nodes[i].api === XcalarApisT.XcalarApiExecuteRetina &&
+                i === nodes.length - 1) {
+                numParents = 0; // last execute retina should not have a parent
+                // even though the node may say numParent = 1
+            }
+            if (nodes[i].api === XcalarApisT.XcalarApiSynthesize) {
+                // sometimes the synthesize node will point to itself for it's
+                // source
+                if (nodes[i + 1]) {
+                    inputStruct.source = nodes[i + 1].name.name;
+                }
+            }
             var tag = nodes[i].tag;
             var comment = nodes[i].comment;
             var state = nodes[i].state;
@@ -199,6 +211,7 @@ window.DagFunction = (function($, DagFunction) {
             if (nodes[i].api === XcalarApisT.XcalarApiExport && i !== 0) {
                 startPoints.push(treeNode);
             }
+
         }
         var allEndPoints = [];
         var lineageStruct = {};
@@ -1269,8 +1282,14 @@ window.DagFunction = (function($, DagFunction) {
                 }
             } else {
                 parentNode = findTreeValueInValArray(parentName, valArray);
-                parentTree = constructTree(parentNode, valArray, alreadySeen,
-                                            treeNode, endPoints);
+                if (parentNode) {
+                    parentTree = constructTree(parentNode, valArray,
+                                              alreadySeen, treeNode, endPoints);
+                } else {
+                    node.numParents--;
+                    continue;
+                }
+
             }
             parents.push(parentTree);
         }

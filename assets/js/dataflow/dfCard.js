@@ -691,13 +691,13 @@ window.DFCard = (function($, DFCard) {
     }
 
     function enableDagTooltips() {
-        var $tooltipTables = $dfCard.find('.dagTableIcon');
+        var $tooltipTables = $dfCard.find('.dagTableIcon, .dataStoreIcon');
         xcTooltip.disable($tooltipTables);
         var selector;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             selector = '.export .dagTableIcon';
         } else {
-            selector = '.dataStoreIcon, ' +
+            selector = '.dataStore .dataStoreIcon, ' +
                         '.export .dagTableIcon, ' +
                         '.actionType.filter .actionTypeWrap';
         }
