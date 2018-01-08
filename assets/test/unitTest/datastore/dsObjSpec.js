@@ -1046,10 +1046,11 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should click to sort ds by type", function() {
-            var $li = $subMenu.find('.sort li[name="type"]');
-            $li.trigger(fakeEvent.mouseup);
+            var $option = $('#dsListSection .sortOption[data-key="type"]');
+            $option.click();
             var sortKey = DS.__testOnly__.getSortKey();
             expect(sortKey).to.equal("type");
+            expect($option.hasClass("key")).to.be.true;
         });
 
         it("should click to disable sort", function() {

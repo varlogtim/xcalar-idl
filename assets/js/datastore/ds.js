@@ -39,7 +39,7 @@ window.DS = (function ($, DS) {
 
     // Restore dsObj
     DS.restore = function(oldHomeFolder, atStartUp) {
-        sortKey = UserSettings.getPref("dsSortKey");
+        restoreSortKey();
         return restoreDS(oldHomeFolder, atStartUp);
     };
 
@@ -789,6 +789,20 @@ window.DS = (function ($, DS) {
         }
     }
 
+    function restoreSortKey() {
+        sortKey = UserSettings.getPref("dsSortKey");
+        highlighSortKey(sortKey);
+    }
+
+    function highlighSortKey(key) {
+        key = key || "none";
+        var $sortOptions = $("#dsListSection .sortSection .sortOption");
+        $sortOptions.removeClass("key");
+        $sortOptions.filter(function() {
+            return $(this).data("key") === key;
+        }).addClass("key");
+    }
+
     function setSortKey(key) {
         if (key === sortKey) {
             return;
@@ -799,6 +813,7 @@ window.DS = (function ($, DS) {
             sortKey = key;
             sortDS();
         }
+        highlighSortKey(sortKey);
         UserSettings.logChange();
     }
 
@@ -1399,6 +1414,11 @@ window.DS = (function ($, DS) {
         $("#dsListSection .pathSection").on("click", ".path", function() {
             var dir = $(this).data("dir");
             goToDirHelper(dir);
+        });
+
+        $("#dsListSection .sortSection").on("click", ".sortOption", function() {
+            var key = $(this).data("key");
+            setSortKey(key);
         });
 
         $dsListFocusTrakcer.on("keydown", function(event) {
