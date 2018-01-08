@@ -11,6 +11,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var firstTouch = true;
     var subjectLimit = 100;
     var descLimit = 10000;
+    var updatedTickets = {}; // holds recently submitted/updated tickets that
+    // may not show up when all tickets are fetched
 
     SupTicketModal.setup = function() {
         $modal = $("#supTicketModal");
@@ -99,6 +101,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         })
         .then(function(oldTickets) {
             tickets = oldTickets;
+            includeUpdatedTickets();
             listTickets();
             modalHelper.removeWaitingBG();
             deferred.resolve();
@@ -127,22 +130,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 if (!tixs[i]) {
                     continue;
                 }
-
                 var tixGroup = tixs[i];
                 var userId = oldTickets[i].author_id;
                 var modifiedTicket = [];
                 modifiedTicket.push(oldTickets[i]);
-                if (tixGroup) {
-                    for (var j = 1; j < tixGroup.length; j++) {
-                        tixGroup[j].created_at = Date.parse(tixGroup[j].created_at);
-                        if (tixGroup[j].author_id === userId ||
-                            tixGroup[j].from === "user") {
-                            tixGroup[j].author = "user";
-                        } else {
-                            tixGroup[j].author = "xcalar";
-                        }
-                        modifiedTicket.push(tixGroup[j]);
+
+                for (var j = 1; j < tixGroup.length; j++) {
+                    tixGroup[j].created_at = Date.parse(tixGroup[j].created_at);
+                    if (tixGroup[j].author_id === userId ||
+                        tixGroup[j].from === "user") {
+                        tixGroup[j].author = "user";
+                    } else {
+                        tixGroup[j].author = "xcalar";
                     }
+                    modifiedTicket.push(tixGroup[j]);
                 }
 
                 allTix.push(modifiedTicket);
@@ -573,14 +574,60 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var curId = tickets[i][0].id;
             if (curId === ticketId) {
                 tickets[i].push(ticket);
+                updatedTickets[ticketId] = tickets[i];
                 groupFound = true;
                 break;
             }
         }
         if (!groupFound) {
             tickets.unshift([ticket]);
+            updatedTickets[ticketId] = tickets[0];
         }
         listTickets();
+    }
+
+    // after a fetch of all tickets, add in recently submitted tickets that are
+    // not yet showing up as part of fetched tickets
+    function includeUpdatedTickets() {
+        var ticketsToAdd = [];
+        for (ticketId in updatedTickets) {
+            ticketsToAdd.push(updatedTickets[ticketId]);
+        }
+        // this is the opposite order of "tickets"
+        ticketsToAdd.sort(function(a, b) {
+            if (a.created_at < b.created_at) {
+                return -1;
+            } else if (a.created_at > b.created_at) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var i = 0; i < ticketsToAdd.length; i++) {
+            var ticket = null;
+            var ticketIndex;
+            for (var j = 0; j < tickets.length; j++) {
+                if (tickets[j][0].id === ticketsToAdd[i][0].id) {
+                    ticket = tickets[j];
+                    ticketIndex = j;
+                    break;
+                }
+            }
+            if (ticket) {
+                if (ticket.length < ticketsToAdd[i].length) {
+                    // if updated ticket has more comments then replace old
+                    // ticket with new one
+                    tickets[ticketIndex] = ticketsToAdd[i];
+                } else {
+                    // current ticket is updated, so we can remove this ticket
+                    // from updatedTickets
+                    delete updatedTickets[ticketsToAdd[i][0].id];
+                }
+            } else {
+                tickets.unshift(ticketsToAdd[i]);
+            }
+        }
     }
 
     function getIssueType() {
