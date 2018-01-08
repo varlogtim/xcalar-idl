@@ -591,7 +591,9 @@ router.post("/xdp/installation/start", function(req, res) {
 router.post("/xdp/discover", function(req, res) {
     xcConsole.log("Discovering Xcalar");
     var credArray = req.body;
-    xcConsole.log(JSON.stringify(credArray));
+    var copied = JSON.parse(JSON.stringify(credArray));
+    delete copied.credentials;
+    xcConsole.log(JSON.stringify(copied));
     discoverXcalar(credArray)
     .fail(function (message) {
         res.status(message.status).send(message);
@@ -601,7 +603,6 @@ router.post("/xdp/discover", function(req, res) {
             "status": httpStatus.OK,
             "discoverResult": discoveryResult
         };
-        xcConsole.log("sending message: " + JSON.stringify(msg));
         res.status(msg.status).send(msg);
     });
 });
