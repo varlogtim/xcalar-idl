@@ -681,7 +681,7 @@ UnionTStr = {
     "UnionTable": "Union Table",
     "NewTableName": "New Table Name",
     "NewColName": "New Column Name",
-    "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click the column name to add the column as part of the union.",
+    "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click add button to add the column as part of the union.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns to union",

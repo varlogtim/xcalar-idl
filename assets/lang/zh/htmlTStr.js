@@ -203,7 +203,7 @@ module.exports = {
         "FrontVersion": "XD 版本",
         "License": "证书过期",
         "ThriftSHA": "Thrift 版本",
-        "copyRight": "Xcalar, Inc 版权所有 © 2017"
+        "copyRight": "Xcalar, Inc 版权所有 © 2018"
     },
     "admin": {
         "searchUser": "搜索用户",

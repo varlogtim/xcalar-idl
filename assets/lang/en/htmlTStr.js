@@ -1042,7 +1042,7 @@ module.exports = {
         "BackVersion": "XCE Version",
         "ThriftSHA": "Thrift Version",
         "License": "License Key Expiration",
-        "copyRight": "Copyright © 2017 Xcalar, Inc. All rights reserved."
+        "copyRight": "Copyright © 2018 Xcalar, Inc. All rights reserved."
     },
 
     "tutor": {
