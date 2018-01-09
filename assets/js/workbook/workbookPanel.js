@@ -416,7 +416,8 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 // Invariant: Due to activating one input field will cause the
                 // others to close, there will be only one active input field
                 // at any point in time.
-                if ($lastFocusedInput) {
+                var currentModals = $(".modalContainer:visible").length;
+                if ($lastFocusedInput && currentModals === 0) {
                     if ($lastFocusedInput.closest(".newWorkbookBox").length > 0)
                     {
                         // New workbook

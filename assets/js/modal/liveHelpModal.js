@@ -10,6 +10,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     var ticketId;
     var firstMsg;
     var connected = false;
+    var licenseInfo;
     // Initial setup
     LiveHelpModal.setup = function() {
         $modal = $("#liveHelpModal");
@@ -34,7 +35,10 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             $modal.find(".xi-fullscreen").hide();
             // If reqConn UI is displayed, hide all other UIs
             if ($modal.find(".reqConn").is(":visible")) {
+                $modal.find(".confirmTicket").removeClass("xc-disabled");
+                $modal.find(".confirmBox").hide();
                 $modal.find(".chatBox").hide();
+                $modal.find(".sendArea").hide();
                 $modal.find(".emailInfo").show();
                 $modal.find(".emailError").hide();
                 $modal.find(".sendEmail").attr("data-original-title",
@@ -80,6 +84,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         // Hide reqConn UI, display chatting UI
         $modal.find(".reqConn").hide();
         $modal.find(".chatBox").show();
+        $modal.find(".sendArea").show();
         $modal.find(".sendEmail").show();
         //$modal.find(".sendMsg").prop("disabled", true);
         clearInput();
@@ -93,10 +98,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         socket.emit("liveHelpConn", opts);
     }
     function confirmTicket() {
-        var confirmation = AlertTStr.SubmitTicket +
-                           "<a class='confirmTicket'>" +
-                           CommonTxtTstr.YES + "</a>";
-        appendMsg(confirmation, "sysMsg");
+        $modal.find(".confirmBox.genTicket").show();
+        resizeChatMsg();
     }
     // Only for sending messages
     function submitForm() {
@@ -137,15 +140,16 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     // Clear all input
     function clearInput() {
         $modal.find(".sendMsg").val("");
+        resizeSendArea();
         $modal.find("input").val("");
         $modal.find(".reqConnBtn").addClass("btn-disabled");
     }
     // Resize send area
-    function resetSendArea() {
-        var sendArea = $modal.find(".sendArea")[0];
-        var chatMsg = $modal.find(".chatMsg")[0];
-        $(sendArea).css("height", "80px");
-        $(chatMsg).css("height", "calc(100% - 90px)");
+    function resizeSendArea() {
+        var $sendArea = $modal.find(".sendArea").eq(0);
+        var $chatBox = $modal.find(".chatBox").eq(0);
+        $sendArea.css("height", "80px");
+        $chatBox.css("height", "calc(100% - 80px)");
     }
     // Send email
     function prepareEmail(dest) {
@@ -155,6 +159,20 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 content += $(e).prev().text() + ": " + $(e).text() + "\n";
             });
             if (content) {
+                if (licenseInfo == null) {
+                    SupTicketModal.fetchLicenseInfo()
+                    .then(function(licenseObj) {
+                        licenseInfo = AlertTStr.LicenseKey + "\n" +
+                                  licenseObj.key + "\n\n" +
+                                  AlertTStr.LicenseExpire + "\n" +
+                                  licenseObj.expiration + "\n\n";
+                    })
+                    .fail(function() {
+                        licenseInfo = "No license information";
+                    });
+                }
+                content += "\n=====Here is your license information=====\n\n" +
+                           licenseInfo;
                 var msgBody = "=====Your ticket ID is " + ticketId + "=====\n\n";
                 if (!ticketId) {
                     msgBody = "=====No ticket is created=====\n\n";
@@ -213,30 +231,30 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             if (e.which === keyCode.Enter && !e.shiftKey && $(this).val()) {
                 e.preventDefault();
                 submitForm();
-                resetSendArea();
+                resizeSendArea();
             }
         });
         // Enable sending message only when user enters chat message
         $modal.find(".sendMsg").on("input", function() {
-            var sendArea = $modal.find(".sendArea")[0];
-            var sendMsg = $modal.find(".sendMsg")[0];
-            var chatMsg = $modal.find(".chatMsg")[0];
+            var $sendArea = $modal.find(".sendArea").eq(0);
+            var $sendMsg = $modal.find(".sendMsg").eq(0);
+            var $chatBox = $modal.find(".chatBox").eq(0);
             // First, try to resize to default
-            resetSendArea();
-            var scrollHeight = sendMsg.scrollHeight;
-            var toIncrease = scrollHeight - $(sendArea).height();
+            resizeSendArea();
+            var scrollHeight = $sendMsg.prop("scrollHeight");
+            var toIncrease = scrollHeight - $sendArea.height();
             // If need to increase height
             if (toIncrease > 0 ) {
-                var newHeight = $(sendArea).height() + toIncrease;
+                var newHeight = $sendArea.height() + toIncrease;
                 // If the new height is below max-height, adjust accordingly
                 if (newHeight <= 200) {
-                    $(sendArea).height($(sendArea).height() + toIncrease);
-                    $(chatMsg).css("height", "calc(100% - " + (newHeight + 10) +
-                                   "px");
+                    $sendArea.height($sendArea.height() + toIncrease);
+                    $chatBox.css("height", "calc(100% - " + (newHeight) +
+                                   "px)");
                 } else {
                     // Set to max-height
-                    $(sendArea).height(200);
-                    $(chatMsg).css("height", "calc(100% - 210px)");
+                    $sendArea.height(200);
+                    $chatBox.css("height", "calc(100% - 200px)");
                 }
             }
         });
@@ -247,11 +265,19 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         $modal.on("click", ".close", function() {
             // If it is not on reqConn UI, ask the user if he needs all messages
             // to be sent to his email
-            if (!$modal.find(".reqConn").is(":visible")) {
-                var confirmation = AlertTStr.LeaveConMsg +
-                                   "<a class='confirmClose'>" +
-                                   CommonTxtTstr.YES + "</a>";
-                appendMsg(confirmation, "sysMsg");
+            if (!$modal.find(".reqConn").is(":visible") &&
+                $modal.find(".sendEmail").is(":visible")) {
+                var $confirmClose = $modal.find(".confirmBox.endChat").eq(0);
+                if ($confirmClose.is(":visible")) {
+                    $confirmClose.find(".confirmBoxRight").addClass("animated");
+                    setTimeout(function() {
+                        $confirmClose.find(".confirmBoxRight")
+                                       .removeClass("animated");
+                    }, 300);
+                } else {
+                    $modal.find(".confirmBox.endChat").show();
+                }
+                resizeChatMsg();
             } else {
                 closeModal();
             }
@@ -260,14 +286,37 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         $modal.on("click", ".confirmClose", function() {
             closeModal();
         });
+        $modal.on("click", ".confirmCancel", function() {
+            $(this).closest(".confirmBox").hide();
+            if ($modal.find(".confirmBox:visible").length === 1) {
+                $modal.find(".chatMsg").css("height", "calc(100% - 52px)");
+            } else {
+                $modal.find(".chatMsg").css("height", "100%");
+            }
+            resizeChatMsg();
+        });
         $modal.on("click", ".confirmTicket", function() {
             submitTicket(true, 0);
         });
         // Click on minimize button
-        $modal.on("click", ".minimize", minimize);
+        $modal.on("click", ".minimize", minimizeOrRestore);
+    }
+    function resizeChatMsg() {
+        var $chatMsg = $modal.find(".chatMsg").eq(0);
+        if ($modal.find(".confirmBox:visible").length === 0) {
+                $chatMsg.css("height", "100%");
+                $chatMsg.css("margin-top", "0");
+        } else {
+            if ($modal.find(".confirmBox:visible").length === 1) {
+                $chatMsg.css("height", "calc(100% - 52px)");
+            } else {
+                $chatMsg.css("height", "calc(100% - 107px)");
+            }
+            $chatMsg.css("margin-top", "-3px");
+        }
     }
     // Minimze the liveHelp modal
-    function minimize() {
+    function minimizeOrRestore() {
         width = $modal.parent().width();
         height = $modal.parent().height();
         if ($modal.height() !== 36) {
@@ -334,10 +383,13 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 } else {
                     ticketId = logs.ticketId;
                     admin = logs.admin;
+                    licenseInfo = AlertTStr.LicenseKey + "\n" +
+                                  licenseKey + "\n\n" +
+                                  AlertTStr.LicenseExpire + "\n" +
+                                  expiration + "\n\n";
                     info = AlertTStr.CaseId + "\n" + ticketId + "\n\n" +
-                       AlertTStr.LicenseKey + "\n" + licenseKey + "\n\n" +
-                       AlertTStr.LicenseExpire + "\n" + expiration + "\n\n" +
-                       AlertTStr.XcalarAdmin + "\n" + admin;
+                           licenseInfo +
+                           AlertTStr.XcalarAdmin + "\n" + admin;
                 }
             } catch (err) {
                 console.error(err);
@@ -360,9 +412,11 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 } else {
                     info = AlertTStr.TicketError;
                     appendMsg(info, "sysMsg");
+                    $modal.find(".confirmTicket").removeClass("xc-disabled");
                 }
             } else {
                 appendMsg(info, "sysMsg");
+                $modal.find(".confirmBox.genTicket .confirmCancel").click();
             }
         });
     }
@@ -379,6 +433,10 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
             clearTimeout(timer);
             timer = null;
         }
+        if ($modal.height() === 36) {
+            minimizeOrRestore();
+        }
+        $modal.find(".confirmBox").hide();
         $modal.find(".reqConn").show();
         $modal.find(".chatMsg").html("");
         clearInput();
@@ -412,7 +470,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         return pattern.test(emailAddress);
     }
     LiveHelpModal.userLeft = function() {
-        if (!$modal.find(".reqConn").is(":visible")) {
+        if (!$modal.find(".reqConn").is(":visible") &&
+            $modal.find(".sendEmail").is(":visible")) {
             closeSocket();
             autoSendEmail();
             updateTicket();

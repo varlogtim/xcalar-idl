@@ -538,7 +538,6 @@ AlertTStr = {
                      'You can choose to retry and wait a little longer, or ' +
                      'you can force the current initialization to overwrite ' +
                      'any concurrent / previously disrupted initialization.',
-    'LeaveConMsg': 'You are about to leave the conversation. Please confirm by clicking: ',
     "WaitChat": "Searching for an available Xcalar agent...",
     "StartChat": "You are now connected to a Xcalar agent.",
     "CaseId": "Your case ID is:",
@@ -553,7 +552,6 @@ AlertTStr = {
     "EmailFunc": "You can click the left top button to send a " +
                  "copy of all messages to your email address.",
     "NoSupport": "Oops..We couldn't find an available agent for you.",
-    "SubmitTicket": "Do you want to create a support ticket? ",
     "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you.",
     "NoEdits": "No edits",
     "NoEditsDetected": "No edits were detected",

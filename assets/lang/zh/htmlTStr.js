@@ -1076,7 +1076,9 @@ module.exports = {
         "SendEmail": "\"请先发送一些消息\"",
         "TypeMsg": "\"请在此输入消息，键入回车发送消息\"",
         "EmailInfo": "消息记录备份将发送到该邮箱",
-        "EmailError": "请输入正确的邮箱地址"
+        "EmailError": "请输入正确的邮箱地址",
+        "LeaveConMsg": "您即将结束对话，请确认。",
+        "SubmitTicket": "您是否要创建支持票？"
     },
 
     "jupyter": {

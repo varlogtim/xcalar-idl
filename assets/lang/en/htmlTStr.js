@@ -1153,7 +1153,9 @@ module.exports = {
         "TypeMsg": "\"Type message here and press enter to send\"",
         "EmailInfo": "A copy of your chat log will be sent to this email " +
                      "address",
-        "EmailError": "Invalid email address"
+        "EmailError": "Invalid email address",
+        "LeaveConMsg": "You are about to leave the conversation. Confirm?",
+        "SubmitTicket": "Do you want to create a support ticket? "
     },
 
     "jupyter": {
