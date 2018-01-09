@@ -535,7 +535,7 @@ window.XcSupport = (function(XcSupport, $) {
                     clearTimeout(connectionCheckTimer);
                     // reload browser if connection back
                     var hardLoad = !versionMatch;
-                    location.reload(hardLoad);
+                    xcHelper.reload(hardLoad);
                 })
                 .fail(function() {
                     checkConnectionTrigger(cnt + 1, alertId);

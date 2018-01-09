@@ -2,11 +2,11 @@
     var xcHelper = {};
     var root = this;
 
-    xcHelper.reload = function() {
+    xcHelper.reload = function(hardLoad) {
         // override heartbeat check function so that it cannot run during reload
         XcSupport.heartbeatCheck = function() {};
         xcManager.removeUnloadPrompt(true);
-        location.reload();
+        location.reload(hardLoad);
     };
 
     // looks for xcTable-AB12 or $('#xcTable-AB12') and returns AB12

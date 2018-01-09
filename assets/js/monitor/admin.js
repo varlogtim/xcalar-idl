@@ -716,7 +716,7 @@ window.Admin = (function($, Admin) {
                 ret.logs.indexOf("already running") > -1) {
                 Alert.show({msg: ret.logs, isAlert: true});
             } else {
-                location.reload();
+                xcHelper.reload();
             }
         })
         .fail(function(err) {
@@ -752,7 +752,7 @@ window.Admin = (function($, Admin) {
         .then(XFTSupportTools.clusterStop)
         .then(XFTSupportTools.clusterStart)
         .then(function() {
-            location.reload();
+            xcHelper.reload();
         })
         .fail(function(err) {
             exitSetupMode();

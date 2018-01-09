@@ -1217,7 +1217,7 @@ window.xcManager = (function(xcManager, $) {
                             // wait for commit to finish before refreshing
                             promise
                             .always(function() {
-                                location.reload();
+                                xcHelper.reload();
                             });
                         }
                     }]
