@@ -895,7 +895,7 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.lockTable(tableId, txId);
 
         var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
-        var finalTableId = xcHelper.getTableId(finalTableName);
+        // var finalTableId = xcHelper.getTableId(finalTableName);
 
         $("#dagWrap-" + tableId).addClass("rerunning");
         var queryPassed = false;
@@ -943,7 +943,7 @@ window.DagFunction = (function($, DagFunction) {
                     msg = "Error: " + StatusMessageTStr.RerunFailed;
                 }
 
-               msg = "Would you like to try editing this dataflow?<br/>" + msg;
+                msg = "Would you like to try editing this dataflow?<br/>" + msg;
 
                 Alert.error(StatusMessageTStr.RerunFailed, msg, {
                     buttons: [{

@@ -34,7 +34,7 @@
             console.log("ds preview fails");
         }
     }
-    if (version &&  version.split("-")[0] === "1.2.4") {
+    if (version && version.split("-")[0] === "1.2.4") {
         try {
             patchExportNodeStruct();
         } catch (error) {
@@ -113,7 +113,7 @@
             if (window.isBrowserSafari) {
                 for (var i = 0; i < mutationsList.length; i++) {
                     var mutation = mutationsList[i];
-                    if (mutation.type == 'childList') {
+                    if (mutation.type === 'childList') {
                         if (!$("#previewTable tbody").hasClass("patch")) {
                             console.log("patch preview!");
                             $("#previewTable tbody").addClass("patch");

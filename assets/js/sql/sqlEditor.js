@@ -98,7 +98,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 Alert.show({title: "SQL Error",
                            msg: errorMsg});
             });
-        } catch(e) {
+        } catch (e) {
             SQLEditor.resetProgress();
             Alert.show({title: "Compilation Error",
                         msg: "Error details: " + JSON.stringify(e)});

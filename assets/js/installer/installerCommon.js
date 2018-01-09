@@ -1074,8 +1074,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     return (InstallerCommon);
 }({}, jQuery));
 
-window.onbeforeunload = function (e) {
-  return true;
+window.onbeforeunload = function() {
+    return true;
 };
 
 $(document).ready(function() {

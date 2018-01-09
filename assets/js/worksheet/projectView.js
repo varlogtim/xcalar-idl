@@ -635,7 +635,9 @@ window.ProjectView = (function($, ProjectView) {
     if (window.unitTestMode) {
         ProjectView.__testOnly__ = {};
         ProjectView.__testOnly__.submitForm = submitForm;
-        ProjectView.__testOnly__.getFormHelper = function(){return formHelper};
+        ProjectView.__testOnly__.getFormHelper = function(){
+            return formHelper;
+        };
     }
     /* End Of Unit Test Only */
 

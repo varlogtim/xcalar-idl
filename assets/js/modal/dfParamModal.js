@@ -879,7 +879,7 @@ window.DFParamModal = (function($, DFParamModal){
             "single": "One File"
         };
 
-        settingText +=  getExportSettingInput(2, 'Overwrite', 'createRule', createRule, true, createRuleOptions, true) +
+        settingText += getExportSettingInput(2, 'Overwrite', 'createRule', createRule, true, createRuleOptions, true) +
                         getExportSettingInput(3, 'Record Delimeter', 'recordDelim', recordDelim, false) +
                         getExportSettingInput(4, 'Field Delimeter', 'fieldDelim', fieldDelim, false) +
                         getExportSettingInput(5, 'Quote Character', 'quoteDelim', quoteDelim, false) +
@@ -891,7 +891,7 @@ window.DFParamModal = (function($, DFParamModal){
         $dfParamModal.find(".exportSettingTable .settingRow").html(settingText);
 
         function getExportSettingInput(inputNum, name, className, defaultValue, hasDropDown, dropDownList, disabled) {
-            if (className == "headerType" && defaultValue == "none") {
+            if (className === "headerType" && defaultValue === "none") {
                 className += ' xc-disabled';
             }
             var html = '<div class="innerEditableRow exportSetting ' + className + '">' +
@@ -973,7 +973,7 @@ window.DFParamModal = (function($, DFParamModal){
                           '<span class="text">Advanced Export Settings</span>' +
                           '</div>';
 
-        defaultText +=  '<div class="templateTable">' +
+        defaultText += '<div class="templateTable">' +
                         '<div class="template flexContainer">' +
                         getExportSettingDefault('Overwrite', createRule) +
                         getExportSettingDefault('Record Delimeter', recordDelim) +
@@ -1001,18 +1001,18 @@ window.DFParamModal = (function($, DFParamModal){
 
     function handleExportValueChange($input) {
         // var val = $(".exportSettingTable .innerEditableRow.splitRule input").val();
-        // if (val == "Multiple Files") {
+        // if (val === "Multiple Files") {
         //     $(".exportSettingTable .innerEditableRow.maxSize").removeClass("xc-hidden");
-        // } else if (val == "One File") {
+        // } else if (val === "One File") {
         //     $(".exportSettingTable .innerEditableRow.maxSize").addClass("xc-hidden");
         // }
         var val = $($input).val();
-        if (val == "Append to Existing") {
+        if (val === "Append to Existing") {
             // $(".exportSettingTable .innerEditableRow.headerType").addClass("xc-hidden");
             $(".exportSettingTable .innerEditableRow.headerType input").val("none");
             $(".exportSettingTable .innerEditableRow.headerType")
             .addClass("xc-disabled");
-        } else if (val == "Do not Overwrite" || val == "Overwrite Existing") {
+        } else if (val === "Do not Overwrite" || val === "Overwrite Existing") {
             // $(".exportSettingTable .innerEditableRow.headerType").removeClass("xc-hidden");
             $(".exportSettingTable .innerEditableRow.headerType input").val("Every File");
             $(".exportSettingTable .innerEditableRow.headerType")
@@ -1021,7 +1021,7 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function specialCharToStr(input, className) {
-        var space = "&nbsp;";
+        // var space = "&nbsp;";
         switch (input) {
             case "\t":
                 return "\\t";
@@ -1044,7 +1044,7 @@ window.DFParamModal = (function($, DFParamModal){
             case "separate":
                 return "Separate File";
             case "none":
-                return (className == "splitRule" || className == "File") ? "Multiple Files" : "none";
+                return (className === "splitRule" || className === "File") ? "Multiple Files" : "none";
             case "size":
                 return "Multiple Files";
             case "single":
@@ -1097,7 +1097,7 @@ window.DFParamModal = (function($, DFParamModal){
         var exportOptions = {};
         var prefix = ".exportSettingTable .innerEditableRow";
         var inputSuffix = ' input';
-        var buttonSuffix = ' .radioButton.active';
+        // var buttonSuffix = ' .radioButton.active';
         var createRule = $dfParamModal
                           .find(prefix + ".createRule" + inputSuffix).val();
         var recordDelim = $dfParamModal

@@ -255,7 +255,7 @@ window.DagEdit = (function($, DagEdit) {
                 joinType: info.args.joinType,
                 evalString: info.args.evalString};
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiUnion) {
-           curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
+            curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
             curEdit.structs[curEdit.editingNode.value.name] = info.args;
             curEdit.aggregates[curEdit.editingNode.value.name] = info.args;
