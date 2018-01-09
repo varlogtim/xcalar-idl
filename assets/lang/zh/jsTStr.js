@@ -23,7 +23,6 @@ StatusMessageTStr = {
 'DeleteConstFailed': '无法删除聚合',
 'PartialDeleteTableFail': '部分表无法删除',
 'PartialDeleteConstFail': '部分聚合无法删除',
-'CouldNotDelete': '不支持删除操作',
 'NotDeletedList': '下列表不支持删除操作',
 'ExportTable': '导出表',
 'ExportFailed': '导出失败',
