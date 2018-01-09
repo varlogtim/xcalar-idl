@@ -22,11 +22,11 @@ all: generateHtml build prod alert
 
 installer: generateHtml build prod removeConfig
 
-rc: generateHtml build removeDebug prod removeConfig
+installerrc: generateHtml build removeDebug prod removeConfig
 
 trunk: generateHtml thriftSync thriftAlert removeConfig
 
-debug: generateHtml build debug removeConfig
+debug debugrc: generateHtml build debug removeConfig
 
 render: generateHtml
 
