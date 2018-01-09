@@ -1009,7 +1009,10 @@ window.DFCard = (function($, DFCard) {
         var txId;
 
         var passedCheckBeforeRunDF = false;
-        checkBeforeRunDF(advancedOpts.activeSession)
+        var notNeedToCheckDuplicated = advancedOpts.activeSession ||
+            (exportStruct && exportStruct.createRule == "appendOnly") ||
+            (exportStruct && exportStruct.createRule == "deleteAndReplace");
+        checkBeforeRunDF(notNeedToCheckDuplicated)
         .then(function() {
             return checkIfHasSystemParam(retName);
         })
@@ -1488,8 +1491,8 @@ window.DFCard = (function($, DFCard) {
         XcalarListExportTargets(ExTargetTypeTStr[targetType], targetName)
         .then(function(ret) {
             if (ret.numTargets === 1) {
-                var url = ret.targets[0].specificInput.sfInput.url ||
-                          ret.targets[0].specificInput.udfInput.url;
+                var url = (ret.targets[0].specificInput.sfInput && ret.targets[0].specificInput.sfInput.url) ||
+                          (ret.targets[0].specificInput.udfInput && ret.targets[0].specificInput.udfInput.url);
                 XcalarListFiles({
                     targetName: gDefaultSharedRoot,
                     path: url

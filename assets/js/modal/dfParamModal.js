@@ -226,6 +226,9 @@ window.DFParamModal = (function($, DFParamModal){
                 return showUnexpectedNodeTip(this);
             }
             var $radioButton = $(this).closest(".radioButton");
+            if ($radioButton.hasClass("active")) {
+                return;
+            }
             $radioButton.siblings().removeClass("active");
             $radioButton.addClass("active");
 
@@ -835,11 +838,11 @@ window.DFParamModal = (function($, DFParamModal){
                 }
             }
         } else {
-            $dfParamModal.removeClass("export");
             $advancedOpts.html("");
+            $dfParamModal.find('.exportSettingParamSection').html("");
+            $dfParamModal.removeClass("export");
         }
     }
-
 
     function setUpExportSettingTable(options) {
         var createRule = options.createRule;
@@ -1147,7 +1150,7 @@ window.DFParamModal = (function($, DFParamModal){
             specInput.sfInput.splitRule = getSplitRule(options.splitRule, options.maxSize);
             specInput.sfInput.headerType = getHeaderType();
         } else if (target.type === ExTargetTypeT.ExTargetUDFType) {
-            specInput.udfInput = new ExInitExportSFInputT();
+            specInput.udfInput = new ExInitExportUDFInputT();
             specInput.udfInput.fileName = options.fileName;
             specInput.udfInput.format = DfFormatTypeT.DfFormatCsv;
             specInput.udfInput.formatArgs = getFormatArgs(options.fieldDelim,
