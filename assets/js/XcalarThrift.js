@@ -503,8 +503,6 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
         return PromiseHelper.resolve(null);
     }
 
-    sourceArgs.path = xcHelper.encodeURL(sourceArgs.path);
-
     if (offset == null) {
         offset = 0;
     }
@@ -603,8 +601,6 @@ XcalarLoad = function(datasetName, options, txId) {
         schemaMode = options.schemaMode;
     }
     schemaMode = CsvSchemaModeTStr[schemaMode];
-
-    url = xcHelper.encodeURL(url);
 
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
@@ -2983,12 +2979,11 @@ XcalarListFiles = function(args) {
         return (deferred.promise());
     }
 
-    // var path = xcHelper.encodeURL(args.path);
     var recursive = (args.recursive === true) ? true : false;
     // var namePatternArray = getNamePattern(path, recursive);
     var sourceArgs = new DataSourceArgsT();
     sourceArgs.targetName = args.targetName;
-    sourceArgs.path = xcHelper.encodeURL(args.path);
+    sourceArgs.path = args.path;
     sourceArgs.fileNamePattern = args.fileNamePattern;
     sourceArgs.recursive = recursive;
 

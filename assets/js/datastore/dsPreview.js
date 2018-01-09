@@ -220,7 +220,6 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.changePreviewFile = function(path, noDetect) {
-        path = xcHelper.decodeDisplayURL(loadArgs.getPath(), path);
         loadArgs.setPreviewFile(path);
         refreshPreview(noDetect);
     };

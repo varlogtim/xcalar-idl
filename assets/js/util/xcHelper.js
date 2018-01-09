@@ -2246,56 +2246,6 @@
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
     };
 
-    xcHelper.encodeURL = function(url) {
-        // escapes all excep talphabetic, decimal digits, - _ . ! ~ * ' ( )
-        // must revert : and /
-        if (url.startsWith(FileProtocol.mapR)) {
-            // mapR protocol don't escape mapr://username@password part
-            var index = url.indexOf("@");
-            if (index > 0) {
-                return url.substring(0, index + 1) +
-                       encode(url.substring(index + 1));
-            }
-        }
-
-        return encode(url);
-
-        function encode(input) {
-            return encodeURIComponent(input).replace(/%3A/g, ":")
-                                          .replace(/%2F/g, "/");
-        }
-    };
-
-    xcHelper.encodeDisplayURL = function(url) {
-        if (!url.startsWith(FileProtocol.mapR)) {
-            return url;
-        }
-
-        var index = url.indexOf("@");
-        if (index < 0) {
-            // error case
-            return url;
-        }
-        var displayURL = FileProtocol.mapR + "redacted:redacted" +
-                         url.substring(index);
-        return displayURL;
-    };
-
-    xcHelper.decodeDisplayURL = function(basePath, url) {
-        if (!url.startsWith(FileProtocol.mapR)) {
-            return url;
-        }
-
-        var baseIndex = basePath.indexOf("@");
-        var index = url.indexOf("@");
-        if (baseIndex < 0 || index < 0) {
-            // error case
-            return url;
-        }
-        var decodeURL = basePath.substring(0, baseIndex) + url.substring(index);
-        return decodeURL;
-    };
-
     xcHelper.escapeColName = function(str) {
         // adds a backslash before each of these: [ ] . \
         return (str.replace(/[\[\]\.\\]/g, "\\$&"));
