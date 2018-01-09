@@ -1130,7 +1130,7 @@
                 return sortColsAndOrder;
             }
             var options = {renamedColIds: node.renamedColIds};
-            var sortColsAndOrder = genSortStruct(node.value.ordering, options);
+            var sortColsAndOrder = genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.sort(sortColsAndOrder, tableName);

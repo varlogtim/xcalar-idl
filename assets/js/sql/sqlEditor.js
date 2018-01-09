@@ -66,11 +66,12 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     function addEventListeners() {
         $("#sqlExecute").click(function() {
-            executeSQL();
+            SQLEditor.executeSQL();
         });
     }
 
-    function executeSQL() {
+    SQLEditor.executeSQL = function() {
+        var deferred = jQuery.Deferred();
         var sql = editor.getValue();
         sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
@@ -79,6 +80,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             sqlCom.compile(sql)
             .always(function() {
                 SQLEditor.resetProgress();
+            })
+            .done(function() {
+                deferred.resolve();
             })
             .fail(function() {
                 var errorMsg = "";
@@ -106,7 +110,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             SQLEditor.resetProgress();
             Alert.show({title: "Compilation Error",
                         msg: "Error details: " + JSON.stringify(e)});
+            deferred.reject();
         }
+        return deferred.promise();
     }
 
     return SQLEditor;
