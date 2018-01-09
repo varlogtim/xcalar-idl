@@ -8,11 +8,14 @@ function removeDebug() {
     /** START DEBUG ONLY **/
     // and ends with
     /** END DEBUG ONLY **/
-    var filesToRemoveDebugFrom = ["assets/js/login.js"];
+
+    // For html, it's POST grunt render :D
+    var filesToRemoveDebugFrom = ["assets/js/login.js", "index.html"];
     for (var i = 0; i < filesToRemoveDebugFrom.length; i++) {
         console.log("Writing to "+filesToRemoveDebugFrom[i]);
         var contents = fs.readFileSync(filesToRemoveDebugFrom[i], "utf8");
         contents = contents.replace(/\/\*\* START DEBUG ONLY \*\*\/(.|\n)*?\/\*\* END DEBUG ONLY \*\*\//g, "");
+        contents = contents.replace(/<!--!START DEBUG ONLY -->(.|\n)*?<!--!END DEBUG ONLY -->/g, "");
         fs.writeFileSync(filesToRemoveDebugFrom[i], contents);
     }
 }

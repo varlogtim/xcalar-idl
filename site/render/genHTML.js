@@ -90,8 +90,6 @@ function genHTMLHelper(file, srcDir, destMap, product) {
             fs.writeFileSync(dest[i], parsedHTML);
         }
     }
-
-
 }
 
 function replaceProductName(html) {
