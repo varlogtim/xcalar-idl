@@ -180,7 +180,9 @@ window.UnionView = (function(UnionView, $) {
         var tableId = tableInfoLists[tableIndex].tableId;
         if (colName != null) {
             var colNum = gTables[tableId].getColNumByBackName(colName);
-            formHelper.focusOnColumn(tableId, colNum);
+            if (colNum > 0) {
+                formHelper.focusOnColumn(tableId, colNum);
+            }
         }
     }
 
