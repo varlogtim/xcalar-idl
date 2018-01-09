@@ -1539,6 +1539,7 @@ window.DFParamModal = (function($, DFParamModal){
                 df = DF.getDataflow(retName);
                 df.updateParameterizedNode(dagNodeId, {"paramType": XcalarApisT.XcalarApiExport}, true);
                 closeDFParamModal();
+                xcHelper.showSuccess(SuccessTStr.ChangesSaved);
                 deferred.resolve();
                 return;
             }
