@@ -93,7 +93,6 @@ gUdfDefaultNoCheck = false; // when set true, allow update default udf
 gSessionNoCleanup = false;
 gIcvMode = false;
 gEnableIndexStyle = false;
-gAdmin = false; // if admin user
 gXcSupport = false; // if xcalar support user
 gEnableLocalFiles = false;
 gDemoMemory = false;

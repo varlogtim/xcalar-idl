@@ -8,6 +8,8 @@ if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
 
 var waadAuthContext;
 
+var _0x5d75=["\x6C\x65\x6E\x67\x74\x68","\x63\x68\x61\x72\x43\x6F\x64\x65\x41\x74","\x73\x75\x62\x73\x74\x72","\x30\x30\x30\x30\x30\x30\x30","\x61\x64\x6D\x69\x6E","\x74\x72\x75\x65","\x73\x65\x74\x49\x74\x65\x6D","\x6D\x79\x55\x73\x65\x72\x4E\x61\x6D\x65"];function hashFnv32a(_0xc409x2,_0xc409x3,_0xc409x4){var _0xc409x5,_0xc409x6,_0xc409x7=(_0xc409x4=== undefined)?0x811c9dc5:_0xc409x4;for(_0xc409x5= 0,_0xc409x6= _0xc409x2[_0x5d75[0]];_0xc409x5< _0xc409x6;_0xc409x5++){_0xc409x7^= _0xc409x2[_0x5d75[1]](_0xc409x5);_0xc409x7+= (_0xc409x7<< 1)+ (_0xc409x7<< 4)+ (_0xc409x7<< 7)+ (_0xc409x7<< 8)+ (_0xc409x7<< 24)};if(_0xc409x3){return (_0x5d75[3]+ (_0xc409x7>>> 0).toString(16))[_0x5d75[2]](-8)};return _0xc409x7>>> 0}function setAdmin(_0xc409x9){var _0xc409xa=hashFnv32a(_0xc409x9,true,0xdeadbeef);xcLocalStorage[_0x5d75[6]](_0x5d75[4]+ _0xc409xa,_0x5d75[5])}
+
 $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
@@ -99,7 +101,7 @@ $(document).ready(function() {
                         console.log('success');
                         // XXX this is a temp hack, should not using it later
                         if (data.isAdmin) {
-                            xcLocalStorage.setItem("admin", true);
+                            setAdmin(username);
                         } else {
                             xcLocalStorage.removeItem("admin");
                         }

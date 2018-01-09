@@ -24,6 +24,40 @@ $(document).ready(function() {
 });
 
 window.Shortcuts = (function($, Shortcuts) {
+    function hashFnv32a(str, asString, seed) {
+        /*jshint bitwise:false */
+        var i, l,
+            hval = (seed === undefined) ? 0x811c9dc5 : seed;
+
+        for (i = 0, l = str.length; i < l; i++) {
+            hval ^= str.charCodeAt(i);
+            hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) +
+                    (hval << 24);
+        }
+        if (asString) {
+            // Convert to 8 digit hex string
+            return ("0000000" + (hval >>> 0).toString(16)).substr(-8);
+        }
+        return hval >>> 0;
+    }
+
+    function isAdmin() {
+        var un = xcSessionStorage.getItem("xcalar-username");
+        return (xcLocalStorage.getItem("admin" +
+                                  hashFnv32a(un, true, 0xdeadbeef)) === "true");
+    }
+
+    function setAdmin(userId) {
+        var key = hashFnv32a(userId, true, 0xdeadbeef);
+        xcLocalStorage.setItem("admin" + key, "true");
+    }
+
+    function clearAdmin() {
+        var userId = xcSessionStorage.getItem("xcalar-username");
+        var key = hashFnv32a(userId, true, 0xdeadbeef);
+        xcLocalStorage.removeItem("admin" + key);
+    }
+
     var shortcutsOn = false;
     var autoLogin = true;
 
@@ -121,16 +155,13 @@ window.Shortcuts = (function($, Shortcuts) {
             }
 
             $('#shortcutMenuIcon').css('margin-right', 20);
-            xcLocalStorage.setItem("admin", "true");
-            gAdmin = true;
+            setAdmin(xcSessionStorage.getItem("xcalar-username"));
         } else {
             $('#shortcutSubMenu').find('.adminOff').hide();
             $('#shortcutSubMenu').find('.adminOn').show();
             $('#container').removeClass('admin');
             $('#shortcutMenuIcon').css('margin-right', 0);
-            xcLocalStorage.removeItem("admin");
-            gAdmin = false;
-
+            clearAdmin();
         }
     };
 
@@ -162,12 +193,6 @@ window.Shortcuts = (function($, Shortcuts) {
             gThriftTimeCheck = false;
         }
 
-        if (xcLocalStorage.getItem("admin") === "true") {
-            gAdmin = true;
-        } else {
-            gAdmin = false;
-        }
-
         if (xcLocalStorage.getItem("noSplashLogin") === "true") {
             turnOnSplash = false;
         } else {
@@ -181,7 +206,7 @@ window.Shortcuts = (function($, Shortcuts) {
 
         Shortcuts.toggleVerbose(verbose);
         Shortcuts.toggleThriftTimeChecker(gThriftTimeCheck);
-        Shortcuts.toggleAdmin(gAdmin);
+        Shortcuts.toggleAdmin(isAdmin());
         Shortcuts.toggleDebug(window.debugOn);
         Shortcuts.toggleSplash(turnOnSplash);
     };
