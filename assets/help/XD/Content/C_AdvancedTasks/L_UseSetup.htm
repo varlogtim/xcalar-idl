@@ -199,19 +199,34 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Constants.XdbLocalSerDesPath</span>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1" data-mc-conditions="">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">MaxInteractiveDataSize</span>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Sets the maximum amount of source data that can be imported to create a dataset for modeling. The default is 10 GB, and the possible value can range from 1 MB to 1 TB. Both the current value and the new value are displayed in bytes. This parameter does not limit the amount of data imported when you run a batch dataflow.</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">XdbSerDesMode</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                        <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Determines whether <span class="GeneralProductName3">Xcalar</span> serializes data to a lower tier of the memory hierarchy when the cluster is under memory pressure. The following list describes the meaning of its setting:</p>
+                                                        <ul>
+                                                            <li value="1">If the parameter is set to 1, serialization is disabled.</li>
+                                                            <li value="2">If the parameter is set to 2, data is serialized to local disks. The path to the serialization destination is determined by the <span class="UIelement">XdbLocalSerDesPath</span> parameter.</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1" data-mc-conditions="">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">XdbLocalSerDesPath</span>
                                                     </td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Full path to which <span class="GeneralProductName2">Xcalar Compute Engine</span> serializes data to a lower tier of the memory hierarchy if needed.</p>
-                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Always change this parameter from its default to a path backed by local disks. A path backed by SSDs (solid state drives) is strongly recommended for performance reasons.</div>
+                                                        <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Full path to which <span class="GeneralProductName3">Xcalar</span> serializes data. By default, data is serialized to the <var>node_id</var>/ directory under the <span class="GeneralProductName3">Xcalar</span> root directory. For example, if the <span class="GeneralProductName3">Xcalar</span> root directory is /var/opt/xcalar and node 0 is under memory pressure, data is serialized to /var/opt/xcalar/0/.</p>
+                                                        <div class="Note"><span class="label">Recommended</span>:&#160;To maximize performance, make sure that the path specified by this parameter is backed by SSDs (solid state drives.</div>
                                                     </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="UIelement">Constants.SendSupportBundle</span>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="UIelement">SendSupportBundle</span>
                                                     </td>
                                                     <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                        <p>Boolean value specifying whether support bundles are automatically sent to <span class="GeneralCompanyNameShort">Xcalar</span> when you generate a support ticket. For information about support bundles, see <a href="K_Monitor.htm#Generati" class="MCXref xref">Generating a support ticket</a>.</p>
+                                                        <p>Boolean value specifying whether support bundles are automatically sent to <span class="GeneralCompanyNameShort">Xcalar</span> when you generate a support ticket. For information about support bundles, see <a href="K2_Support.htm#Generati" class="MCXref xref">Generating a support ticket</a>.</p>
                                                         <p>The default value is false, which means that support bundles are saved only in <var>XcalarRootCompletePath</var>/support, where <var>XcalarRootCompletePath</var> is the full path where <span class="GeneralProductName3">Xcalar</span> is installed. If <span class="GeneralCompanyNameShort">Xcalar</span> needs diagnostic information about your cluster for troubleshooting, you have to manually send it. </p>
                                                     </td>
                                                 </tr>

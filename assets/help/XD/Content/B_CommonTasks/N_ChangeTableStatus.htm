@@ -172,54 +172,38 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1><a name="tablesList" class="ForCSH"></a>Understanding and changing table statuses</h1>
-                                        <p>A table can have an active, hidden, or temporary status. You can change the status of a table in multiple ways.</p>
+                                        <p>A table can be active or temporary. You can change the status of a table in multiple ways.</p>
                                         <p>Tables consume memory regardless of their status. To determine how much memory each table uses, see <a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm" class="MCXref xref" xrefformat="{para}">Understanding memory usage</a>.</p>
-                                        <h2>Viewing the tables list</h2>
+                                        <h2><a name="Viewing"></a>Viewing the tables list</h2>
                                         <p>To display the tables list, follow these steps:</p>
                                         <ol>
                                             <li value="1">Click <img src="../Resources/Images/XD_assets/xd-worksheet.png" /> (Worksheet icon).</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/XD_assets/xd-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel, which displays the names of all tables in the workbook. Use the <span class="UIelement">Active</span>, <span class="UIelement">Hidden</span>, and <span class="UIelement">Temporary</span> tabs to display tables based on their status. </p>
+                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/XD_assets/xd-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel, which displays the names of all tables in the workbook. Use the <span class="UIelement">Active</span> and <span class="UIelement">Temporary</span> tabs to display tables based on their status. </p>
                                                 <p>You can sort the table list by worksheet, the last update time, or table name. </p>
                                             </li>
                                         </ol>
                                         <div class="Note"><span class="label">TIP</span>:&#160;In the list of active tables, you can click any  table name to move the focus to the table in the worksheet.</div>
                                         <h2>Active table</h2>
-                                        <p>An active table is a table being displayed on a worksheet. You can perform operations on a column in an active table. You can also perform operations on multiple active tables, for example, by joining them.</p>
+                                        <p>An active table is a table displayed on a worksheet. You can perform operations on a column in an active table. You can also perform operations on multiple active tables, for example, by joining them.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The active table you are currently interacting with has a blue background for the table title. Other active tables in the worksheet have a gray background for the table title.</div>
-                                        <h2>Hidden table</h2>
-                                        <p>A hidden table is a table that you set aside to reduce clutter in your worksheet.&#160;You can also hide tables from a worksheet that you want to delete. For information about deleting a worksheet, see <a href="O_ManageWorksheet.htm#Deleting" class="MCXref xref" xrefformat="{para}">Deleting a worksheet</a>. When you hide a table, both the table and the dataflow graph associated with the table disappear from the worksheet.</p>
-                                        <p>The hidden table can be added back to a worksheet in the future. If the worksheet from which the table originated exists, the table is added to that worksheet. </p>
-                                        <p>If you delete the worksheet after hiding the table, the hidden table is no longer associated with any worksheet. When you add it back to a worksheet, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> displays the following modal window. Select the worksheet to which you want to add the table and then click <span class="UIelement">CONFIRM</span>.</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/add-hidden-table-to-worksheet.png" />
-                                        </p>
                                         <h2>Temporary table</h2>
                                         <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> creates temporary tables in several ways.</p>
                                         <p>A temporary table is a table that is no longer active after you perform an operation. </p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you create from your dataset a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. If you change the data type of one of its columns, a new active table  named <span class="UIelement">airlines#pe9</span> is created. The table named <span class="UIelement">airlines#pe8</span> is now categorized as a temporary table.</div>
                                         <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/XD_assets/xd-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
+                                        <p>You can also create a temporary table by using the <span class="UIelement">Send to temporary list</span> table option. This option removes the table from the worksheet and adds it to the list of temporary tables. </p>
                                         <h2>How undoing an operation affects a table's status</h2>
                                         <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert to this table</span> option in a dataflow graph. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> does not drop the table resulting from the operation being undone; instead, it categorizes the table as a temporary table. </p>
                                         <p>A temporary table created with an undone operation cannot be added back to the worksheet. Also, if another operation is performed in the active table, the temporary table is automatically dropped.</p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table, which enables you to redo the operation. If you do not redo the operation but perform another operation (for example, filtering a value), <span class="UIelement">airlines#pe9</span> is automatically dropped.</div>
                                         <div class="Note"><span class="label">NOTE</span>: The temporary tables created by reverting are kept until you drop them. For more information about undoing an operation, see <a href="F_UndoRedo.htm" class="MCXref xref" xrefformat="{para}">Undoing, redoing, and repeating an operation</a>.</div>
-                                        <h2>Hiding a table</h2>
-                                        <p>You can only hide an active table.&#160;You cannot hide a temporary table. Follow one of these steps to hide a table:</p>
-                                        <ul>
-                                            <li value="1">Right click the title bar for an active table to display a menu. Then select <span class="UIelement">Hide Table</span>.</li>
-                                            <li value="2">Right click a table icon in the dataflow for the table. In the menu, select <span class="UIelement">Hide Table</span>.</li>
-                                            <li value="3">In the <span class="UIelement">Tables</span> panel, click the <span class="UIelement">Active</span> tab.&#160;Select a table from the active table list and then click <img src="../Resources/Images/XD_assets/xd-archive-table.png" />. The following screenshot illustrates how to hide tables in the <span class="UIelement">Tables</span> panel: </li>
-                                        </ul>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/tables-list-for-archive.png" />
-                                        </p>
                                         <h2><a name="Changing"></a>Changing a table to an active table</h2>
-                                        <p>You can change a hidden or temporary table to an active table in one of two ways. If the worksheet from which the table originated has been deleted, the table is added to the active worksheet.</p>
+                                        <p>You can change a  temporary table to an active table in one of two ways. If the worksheet from which the table originated has been deleted, the table is added to the active worksheet.</p>
                                         <h3>From the Tables panel</h3>
                                         <p>Follow these steps to change the status of a table to active:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Tables</span> panel, display either a list of hidden tables or temporary tables.</li>
+                                            <li value="1">In the <span class="UIelement">Tables</span> panel, display either a list of  temporary tables.</li>
                                             <li value="2">
                                                 <p>Select the table that you want to change to an active table.&#160;You can select multiple tables from one list.</p>
                                                 <div class="Example"><span class="label">TIP:</span> The temporary table list might be long. To quickly locate the temporary table, type the complete or partial table name in the <span class="UIelement">Filter Temporary Tables</span> field to limit the list to only tables with a matching name.</div>

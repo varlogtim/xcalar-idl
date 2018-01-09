@@ -186,9 +186,11 @@
                                             </li>
                                             <li value="5"><a href="../B_CommonTasks/I_JoinTables.htm" class="MCXref xref" xrefformat="{para}">Joining tables</a>
                                             </li>
-                                            <li value="6"><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a>
+                                            <li value="6"><a href="../B_CommonTasks/I1_UnionTables.htm" class="MCXref xref" xrefformat="{para}">Creating a union of multiple tables</a>
                                             </li>
-                                            <li value="7"><a href="../C_AdvancedTasks/A_Extensions.htm" class="MCXref xref" xrefformat="{para}">Using extensions</a>
+                                            <li value="7"><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a>
+                                            </li>
+                                            <li value="8"><a href="../C_AdvancedTasks/A_Extensions.htm" class="MCXref xref" xrefformat="{para}">Using extensions</a>
                                             </li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;If the data type of a column is Mixed, you can start a Map function or  an extension from the drop-down menu. Other functions described in the list above are not available.</div>
@@ -279,10 +281,10 @@
                                         <ol>
                                             <li value="1">In the column drop-down menu, select <span class="UIelement">Split column</span>. A pop-up is displayed for you to specify how to split the column.</li>
                                             <li value="2">
-                                                <p>Type the delimiter in the <span class="UIelement">Split Column By</span> field. The delimiter is the character that separates the data to be split. Optionally, enter the number of splits. </p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the mm/dd/yy format, you can enter the slash (/) as the delimiter and 1 as the number of splits. Two columns are created, one with the mm field and the other with the dd/yy field.</div>
+                                                <p>Type the delimiter in the <span class="UIelement">Split column by delimiter</span> field. The delimiter can be a single character or a string. Optionally, type in the <span class="UIelement">Number of splits</span> field the number of columns created by splitting the column. </p>
+                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the mm/dd/yy format, you can enter the slash (/) as the delimiter and 2 as the number of splits. Two columns are created, one with the mm field and the other with the dd/yy field.</div>
                                             </li>
-                                            <li value="3">Click the check mark in the pop-up to submit your information.</li>
+                                            <li value="3">Click the check mark  to submit your information.</li>
                                         </ol>
                                         <h2>Sort</h2>
                                         <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible for the resultant table to contain fewer rows than before the sort. </p>

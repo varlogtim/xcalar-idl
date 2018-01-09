@@ -173,12 +173,20 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Table options</h1>
                                         <p>You can right click anywhere in the table title bar or click the triangle in the lower-right corner of the table title bar to display a drop-down menu. The menu presents table options for manipulating the entire table. This section explains the purpose of each table option.</p>
-                                        <h2>Hide table</h2>
-                                        <p>You can hide  a table that you rarely use. The hidden table does not show up in the worksheet, but you can add it back at any time. For more information about adding a hidden table back to the worksheet, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm#Changing" class="MCXref xref" xrefformat="{para}">Changing a table to an active table</a>.</p>
+                                        <h2>Copy table name</h2>
+                                        <p>You can copy the table name to your computer's clipboard. </p>
                                         <h2>Minimize table</h2>
                                         <p>You can minimize a table to significantly decrease the table width. You cannot view table columns in a minimized table, but the table remains visible in the worksheet, enabling you to click the table title bar to display the table options. One of the options is <span class="UIelement">Maximize table</span>, which returns the minimized table to its full size.</p>
+                                        <h2>Send to temporary list</h2>
+                                        <p>You can move a table from the worksheet to the list of temporary tables. After being sent to the list, you can select it from the list and add it back to the worksheet at any time.</p>
                                         <h2>Drop table</h2>
-                                        <p>You can drop a table you no longer need. Dropping a table removes it from memory.</p>
+                                        <p>You can drop a table you no longer need. This option is not available if the table is locked.</p>
+                                        <p>The following list describes the results of dropping a table:</p>
+                                        <ul>
+                                            <li value="1">The table is removed from memory. </li>
+                                            <li value="2">You cannot display the dataflow graph for the dropped table.</li>
+                                            <li value="3">If the dropped table exists as a temporary table in any dataflow graph, its icon in the dataflow graph is grayed out.</li>
+                                        </ul>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You cannot undo the action of dropping a table.</div>
                                         <h2>Export table</h2>
                                         <p>You can export a table or selected columns of a table to a default export target or a user-defined export target.</p>
@@ -247,7 +255,7 @@
                                         <h2>Correlation</h2>
                                         <p>You can display the Correlation And Quick Aggregates modal window from this option. For more information about correlations and aggregates, see <a href="../B_CommonTasks/L_Correlation.htm" class="MCXref xref" xrefformat="{para}">Determining correlation between two values</a>.</p>
                                         <h2>Create batch dataflow</h2>
-                                        <p>For each active table in the worksheet, you can create a batch dataflow.&#160;This option enables you to perform the same task as  described in <a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a batch dataflow</a></p>
+                                        <p>This option displays the <span class="UIelement">DATAFLOW</span>&#160;panel, in which you create a batch dataflow for a selected table. For more information about creating a batch dataflow, see <a href="../C_AdvancedTasks/E1_DfTasksAndBatchDfCreation.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a batch dataflow from a complete dataflow</a>.</p>
                                         <h2>Advanced Options</h2>
                                         <p>The advanced options provide a shortcut for these tasks that you can also accomplish through a table icon in a dataflow graph: </p>
                                         <ul>

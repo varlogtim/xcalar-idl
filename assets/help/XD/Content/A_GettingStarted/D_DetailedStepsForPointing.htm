@@ -179,10 +179,10 @@
                                         <p>Follow these steps to start <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Point the browser using the HTTP or HTTPS&#160;protocol to the location where <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> is installed. For example, enter the following URL:</p>
+                                                <p>Point the browser using the HTTPS&#160;protocol to the location where <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> is installed. For example, enter the following URL:</p>
                                                 <p class="userInput">https://xcalar.mycompany.com/index.html</p>
                                             </li>
-                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName3">Xcalar</span> administrator. </li>
+                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName3">Xcalar</span> administrator or by using the Microsoft Azure account credentials. </li>
                                         </ol>
                                         <h2>Before creating a workbook as your workspace</h2>
                                         <p>Before creating a book, decide on the workbook name. Workbook names can be changed at any time.</p>
@@ -191,7 +191,7 @@
                                                 <ul>
                                                     <li value="1">The name is case-sensitive. </li>
                                                     <li value="2">Length must not exceed 255 characters.</li>
-                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
                                                     <li value="4">First character must be a letter.</li>
                                                 </ul>
                                             </div>
@@ -203,7 +203,15 @@
                                                 <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> for the first time. At other times, you can display or dismiss the <span class="UIelement">Workbook Browser</span> by clicking <img src="../Resources/Images/XD_assets/xd-workbook-browser.png" /> in the upper left corner of the window. In the <span class="UIelement">Workbook Browser</span>, enter the workbook name and click <span class="UIelement">CREATE&#160;WORKBOOK</span> on the <span class="UIelement">New Workbook</span> card.</p>
                                                 <p>After the workbook is created,  it contains one worksheet named <span class="UIelement">Sheet 1</span>. </p>
                                             </li>
-                                            <li value="2">The newly created workbook is inactive. To activate it, click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" />, which is the first icon on the menu when you hover over the workbook card. (An active workbook is the one you can work on, and you can have only one active workbook at a time.)</li>
+                                            <li value="2">
+                                                <p>(Optional)&#160;Follow these steps to add a description for the workbook:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click the Edit icon on the <span class="UIelement">New Workbook</span> card to display the Edit Workbook modal window. </li>
+                                                    <li value="2">Type a description for the workbook.</li>
+                                                    <li value="3">Click <span class="UIelement">CONFIRM</span>.</li>
+                                                </ol>
+                                            </li>
+                                            <li value="3">The newly created workbook is inactive. To activate it, click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" />, which is the first icon on the menu when you hover over the workbook card. (An active workbook is the one you can work on, and you can have only one active workbook at a time.)</li>
                                         </ol>
                                         <p>For more information about the <span class="UIelement">Workbook Browser</span>, see <a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a>.</p>
                                         <h2><a name="Creating2"></a>Importing data from a data source</h2>
@@ -211,45 +219,51 @@
                                         <ol>
                                             <li value="1">
                                                 <p>Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Datasets</span> icon). Its location is shown in the following screenshot:</p>
-                                                <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
+                                                <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="834" data-mc-height="559" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Import Data Source</span> window, select the protocol for accessing the data source. The protocol can be HDFS, file, or S3. The following screen illustrates the <span class="UIelement">Import Data Source</span> window.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="781" data-mc-height="310" src="../Resources/Images/XD_screenshots/point-to-data-source_thumb_0_150.png" tabindex="" /></a>
+                                                <p>In the <span class="UIelement">Import Data Source</span> window, select the data target for accessing the data source. The following screen illustrates the <span class="UIelement">Import Data Source</span> window.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="731" data-mc-height="308" src="../Resources/Images/XD_screenshots/point-to-data-source_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">
-                                                <p>Select the path to the data source as follows:</p>
-                                                <ol style="list-style-type: lower-alpha;">
-                                                    <li value="1">
-                                                        <p>If you select <span class="UIelement">file:///</span>, enter the complete path to a  directory in the <span class="UIelement">Data Source Path</span> field as in the following example:</p>
-                                                        <p class="userInput">/mydata/airlines</p>
-                                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> accepts a path with or without the preceding forward slash&#160;(/).</p>
-                                                        <p>If you select <span class="UIelement">hdfs://</span>, enter the host name followed by a slash (/) in the <span class="UIelement">Data Source Path</span> field. The slash enables you to browse the root directory of the specified host. For example, enter the following path for the root directory on host1:</p>
-                                                        <p class="userInput">host1/</p>
-                                                        <p>Alternatively, to browse the contents of a directory other than the root directory, enter the complete path to that directory, as in the following example:</p>
-                                                        <p class="userInput">host1/datasets</p>
-                                                    </li>
-                                                    <li value="2">
-                                                        <p> Click <span class="UIelement">BROWSE</span> to display the <span class="UIelement">Browse Data Source</span> window, which lists the contents of the directory selected in the previous step. Navigate by double clicking the directory  icons until you see the desired source data file or directory. Click the file or directory icon to select it as your data source. </p>
-                                                        <div class="Example"><span class="label">TIP:</span>&#160;If you have a large number of files, use the <span class="UIelement">Regex Search</span> field to filter out irrelevant files. For example, typing the regular expression <span class="UIelement">us(t|a)</span> filters out all files except these two:&#160;<span class="UIelement">usability</span> and <span class="UIelement">justin</span>.</div>
-                                                        <p>Optionally, you can right click a file icon in this window and then click <span class="UIelement">Preview</span> to preview the raw data  before selecting the file. You can preview the file in ASCII&#160;format or as a hex dump. </p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;No previewer is available for directories. </div>
-                                                        <p>The following screenshots explain how to preview a file named airlines.csv.</p>
-                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/file-previewer-ascii.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="990" data-mc-height="508" src="../Resources/Images/XD_screenshots/file-previewer-ascii_thumb_0_150.png" tabindex="" /></a>
-                                                        </p>
-                                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/file-previewer-hex-dump.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="931" data-mc-height="507" src="../Resources/Images/XD_screenshots/file-previewer-hex-dump_thumb_0_150.png" tabindex="" /></a>
-                                                        </p>
-                                                    </li>
-                                                </ol>
+                                                <p>Type the path to the data source, as shown in the following examples:</p>
+                                                <p class="userInput">/datasets/airlines.csv</p>
+                                                <p class="userInput">/datasets/airlinesData</p>
+                                                <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> accepts a path with or without the preceding forward slash&#160;(/).</p>
+                                                <p>If the path is a directory, you can browse its contents or use the folder as the data source. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If your data target type is Generated, the <span class="UIelement">BROWSE</span>&#160;button is not displayed. Enter the number of rows of data to import as the pathname. This data target type is not commonly used. It is intended for advanced users.</div>
                                             </li>
                                             <li value="4">
-                                                <p>Click <span class="UIelement">NEXT</span>. The top portion of the <span class="UIelement">Import Data Source</span> window displays a preview of the source data in a tabular format. </p>
-                                                <p>If the data source is a directory, the records in the preview are from the first file in the directory. </p>
-                                                <p>You can position your mouse on a column header and drag it to resize each column. You can also use your mouse to scroll the rows.</p>
+                                                <p>Follow one of these steps:</p>
+                                                <ul>
+                                                    <li value="1">
+                                                        <p>If you specify a path to a directory and you want to browse its contents, click <span class="UIelement">BROWSE</span>. Navigate by double clicking the directory  icons until you see the desired source data file or directory. Click the file or directory icon to select it as your data source. </p>
+                                                        <div class="Note"><span class="label">TIP:</span>&#160;If you have a large number of files, use the <span class="UIelement">Regex Search</span> field to filter out irrelevant files. For example, typing the regular expression <span class="UIelement">us(t|a)</span> filters out all files except these two:&#160;<span class="UIelement">usability</span> and <span class="UIelement">justin</span>.</div>
+                                                    </li>
+                                                    <li value="2">If you specify a path to a directory that you want to use as the data source, click <span class="UIelement">NEXT</span>.</li>
+                                                    <li value="3">If you specify a path to a file, click <span class="UIelement">NEXT</span>.</li>
+                                                    <li value="4">If you import from a Generated data target, click <span class="UIelement">NEXT</span>.</li>
+                                                </ul>
                                             </li>
+                                            <p>When browsing files, you can right click a file icon in this window and then click <span class="UIelement">Preview</span> to preview the raw data  before selecting the file. You can preview the file in ASCII&#160;format or as a hex dump. </p>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;No previewer is available for directories. </div>
+                                            <p>The following screenshots explain how to preview a file named airlines.csv.</p>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/file-previewer-ascii.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="987" data-mc-height="508" src="../Resources/Images/XD_screenshots/file-previewer-ascii_thumb_0_150.png" tabindex="" /></a>
+                                            </p>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/file-previewer-hex-dump.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="928" data-mc-height="507" src="../Resources/Images/XD_screenshots/file-previewer-hex-dump_thumb_0_150.png" tabindex="" /></a>
+                                            </p>
                                             <li value="5">
+                                                <p>Click <span class="UIelement">NEXT</span>. The top portion of the <span class="UIelement">Import Data Source</span> window displays a preview of the dataset in a tabular format. </p>
+                                                <p>You can change how the preview is displayed in the following ways:</p>
+                                                <ul>
+                                                    <li value="1">Position your mouse on a column header and drag it to resize each column. </li>
+                                                    <li value="2">Use your mouse to scroll the rows.</li>
+                                                    <li value="3">A link is displayed below the last row. Click the link to display more rows in the preview.</li>
+                                                </ul>
+                                            </li>
+                                            <li value="6">
                                                 <p>(Optional) If you import a directory and you want to preview records from other files in the directory, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">Click <span class="UIelement">Change</span> to display the <span class="UIelement">Select File to Preview</span> modal window.</li>
@@ -257,13 +271,13 @@
                                                     <li value="3">Click <span class="UIelement">PREVIEW</span>.</li>
                                                 </ol>
                                             </li>
-                                            <li value="6">
+                                            <li value="7">
                                                 <p>(Optional)&#160;Specify values for the advanced options as described in <a href="#About" class="MCXref xref">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="624" data-mc-height="393" src="../Resources/Images/XD_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="7">
-                                                <p>In the <span class="UIelement">Dataset Name</span> field,  accept the suggested name or type the desired name. The name cannot be changed later. The dataset enables you to create tables from the data source.  For more information about datasets, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing datasets</a>.</p>
+                                            <li value="8">
+                                                <p>In the <span class="UIelement">Dataset Name</span> field,  accept the suggested name or type the desired name. The name cannot be changed later. The dataset enables you to create tables from the data source.  For more information about datasets, see <a href="../B_CommonTasks/A_ManageDatasets.htm" class="MCXref xref">Managing datasets</a>.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
@@ -275,14 +289,14 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="8">
-                                                <p>If you want <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to invoke an import UDF when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
+                                            <li value="9">
+                                                <p>If you want <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to run an import UDF when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
                                                 <p> You can preview the results of the import UDF by clicking <span class="UIelement">refresh preview</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs.</p>
                                                 <p>For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. If no UDFs are needed for parsing the data, skip to the next step.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;Parsing a data source with an import UDF is required if your data source contains illegal characters. For a list of these characters, see <a href="B2_PrepareDataSource.htm#Preparin" class="MCXref xref">Preparing the first row as column header</a>.</div>
                                             </li>
-                                            <li value="9">
-                                                <p>The fields in the rest of the <span class="UIelement">Import Data Source</span> window tell <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> about the data format and layout. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
+                                            <li value="10">
+                                                <p>This step is applicable only if you do not select <span class="UIelement">Parse Data With UDF</span>. The fields in the rest of the <span class="UIelement">Import Data Source</span> window tell <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> about the data format and layout. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
                                                 <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> again, click <span class="UIelement">REDETECT FORMAT</span>.</div>
                                                 <p>Depending on the format of the data source, some fields  might not be available. For example, for the Excel format, only <span class="UIelement">Promote First Row as Header</span> is available. The following table describes the fields:</p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
@@ -310,7 +324,7 @@
                                                                 <p>Depending on the data format, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> automatically selects or deselects this option. For example, if the data source is a CSV file, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> recommends that you promote the first row as header.</p>
                                                                 <p>When importing multiple files with the same first row, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> promotes the first row of the first file being processed and omits the first row of subsequent files.</p>
                                                                 <p>If you use the <span class="UIelement">Skip Rows</span> field to skip rows that do not require analysis, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> promotes the first row after the row-skipping.&#160;</p>
-                                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;The a file contains comments in the first row, and the strings <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> in cells on the second row. You can specify <span class="UIelement">1</span> in the <span class="UIelement">Skip Rows</span> field to eliminate the first row and promote the row containing <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> as header.</div>
+                                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;The  file contains comments in the first row, and the strings <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> in cells on the second row. You can specify <span class="UIelement">1</span> in the <span class="UIelement">Skip Rows</span> field to eliminate the first row and promote the row containing <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> as header.</div>
                                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;You can promote the first row  only at this point. You will not be able to change the first row into the header row at a later time.</div>
                                                             </td>
                                                         </tr>
@@ -334,17 +348,16 @@
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
                                                                 <p>The number of rows  to omit at the beginning of each file when <span class="GeneralProductName3">Xcalar</span> imports the data source.&#160;Typically you omit rows that do not contain data requiring analysis (for example, rows containing comments). If you import a directory with multiple files, the same number of rows are skipped in each file.</p>
-                                                                <p>If you use a UDF when importing a data source, the UDF parses the data before the rows are skipped.</p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;<span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> automatically displays a new preview after you change the value of a field. The preview helps you determine whether the change creates the desired table format. If not, click <span class="UIelement">REDETECT&#160;FORMAT</span> to restore all default values.</div>
                                             </li>
-                                            <li value="10">
+                                            <li value="11">
                                                 <p>Click <span class="UIelement">CREATE DATASET</span>. The <span class="UIelement">Dataset Preview</span> window is displayed.</p>
                                             </li>
-                                            <li value="11">
+                                            <li value="12">
                                                 <p>In the <span class="UIelement">Dataset Preview</span> window, click <span class="UIelement">Select All</span> to select all the columns and then click <span class="UIelement">CREATE&#160;TABLE</span>. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> creates a table with all the columns from the data source.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all the columns are included automatically in the <span class="UIelement">Dataset Preview</span>. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later. For information about adding columns, see <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
                                             </li>
@@ -355,7 +368,6 @@
                                         <ul>
                                             <li value="1">import files with names matching the specified pattern</li>
                                             <li value="2">import files recursively</li>
-                                            <li value="3">set the dataset size </li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;After using the advanced options, you can click <span class="UIelement">refresh preview</span> to see the effect of the option settings.</div>
                                         <h3>Pattern matching</h3>
@@ -365,7 +377,7 @@
                                         <p>If you import a directory, you can  traverse all subdirectories to import all files in the subdirectories.</p>
                                         <p>You can use pattern matching in conjunction with recursive importing to limit the  files whose names match the specified pattern. </p>
                                         <h4>Example of recursive importing with pattern matching (not regex)</h4>
-                                        <p>This example illustrates how to go through directories and find files with a matching pattern (without using regex). Suppose the data source directory selected is file:///flightData, and you want to create a dataset from the following files:</p>
+                                        <p>This example illustrates how to go through directories and find files with a matching pattern (without using regex). Suppose the data source directory selected is /flightData, and you want to create a dataset from the following files:</p>
                                         <ul>
                                             <li value="1">/flightData/airlines2015.csv </li>
                                             <li value="2">/flightData/airlines2016.csv</li>
@@ -373,35 +385,17 @@
                                         </ul>
                                         <p>In the <span class="UIelement">Pattern</span> field, specify airlines201*.csv, and then select <span class="UIelement">Recursive</span>. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> traverses all subdirectories under /flightData to locate files whose name matches airlines201*.csv and then creates a dataset with records from those files.</p>
                                         <h4>Example of recursive importing with pattern matching (regex)</h4>
-                                        <p>This example illustrates how to go through directories to find files with a matching regex pattern. Suppose the data source directory selected is file:///flightData, and you want to create a dataset from the following files:</p>
+                                        <p>This example illustrates how to go through directories to find files with a matching regex pattern. Suppose the data source directory selected is /flightData, and you want to create a dataset from the following files:</p>
                                         <ul>
                                             <li value="1">/flightData/airlines2015.csv </li>
                                             <li value="2">/flightData/airlines2016.csv</li>
                                             <li value="3">/flightData/currentYear/airlines2017.csv</li>
                                         </ul>
                                         <p>In the <span class="UIelement">Pattern</span> field, specify .*airlines201.\.csv. Then select <span class="UIelement">Recursive</span>.</p>
-                                        <h3><a name="Dataset"></a>Dataset size</h3>
-                                        <p>The <span class="UIelement">Dataset Size</span> field limits the size of the dataset created by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> when it imports a data source. If importing a data source results in a dataset that exceeds the setting of this field, the attempt to import the data source fails with an error message. </p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Regardless of the setting, if the size of the smallest file in the data source exceeds this limit, the attempt to import the data source fails. The dataset created by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> must import at least one file in the data source. It cannot import a partial file.</div>
-                                        <p>The following list describes the options for this field:</p>
-                                        <ul>
-                                            <li value="1">
-                                                <p><span class="UIelement">Entire file/folder</span>:&#160;If this option is selected, the maximum dataset size is 1 TB, by default. Due to the high limit, it is likely that <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can import all the data in the entire data source, whether it is a file or a folder.  This option is particularly useful for interactive analysis.</p>
-                                                <p>If you are not the <MadCap:conditionalText data-mc-conditions="General.XDHelp">cluster</MadCap:conditionalText>  administrator, consult your administrator to determine the current maximum dataset size. If you are the administrator, you can set the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter through the <span class="UIelement">Setup</span> icon of the Monitor. For information about setting parameter values, see <a href="../C_AdvancedTasks/L_UseSetup.htm#Configur" class="MCXref xref">Configuring parameters</a>.  </p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; If your data source is a 900-GB file or a folder consisting of files that add up to 900 GB, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> can import all data in the data source because the dataset size is below the 1-TB limit. If your data source is a 1.2 TB  file, the attempt to import it fails. If your data source is a folder consisting of files that add up to 1.2 TB, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports as many files in the folder as possible until the 1-TB limit is reached, provided that the smallest file in the folder is less than 1 TB.</div>
-                                            </li>
-                                            <li value="2">
-                                                <p><span class="UIelement">Custom size</span>: Typically, you use this option when you import a folder. When you set a dataset size limit, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> creates a dataset from as many files as allowed by the limit. If you import a data source that is a single file, the file must be under the specified limit, or the attempt to import fails. This option is particularly useful for previewing raw data and modeling.</p>
-                                                <p>The factory default for this field is 10&#160;GB. You can set another default value by using the <span class="UIelement">DATASET&#160;SIZE</span>&#160;field of the <span class="UIelement">Monitor</span> &gt;&#160;<span class="UIelement">General Settings</span> window. The value for the <span class="UIelement">DATASET&#160;SIZE</span>&#160;field is automatically shown in the <span class="UIelement">Custom Size</span> field each time you import data. </p>
-                                                <p> If importing a data source requires a size greater than the size shown in the <span class="UIelement">Custom size</span> field, enter the desired value to replace the default value.</p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; Suppose the dataset size is left at the default (10&#160;GB). If your data source is a 5-GB file or folder, you can import all the data in the data source. If the data source is a 15-GB file, the attempt to import fails. If the data source is a 15-GB&#160;folder, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports as many files  as allowed by the 10-GB limit, provided that the smallest file is smaller than 10 GB. </div>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;Suppose you use the Monitor to change the default dataset size to 20 GB. Each time you import a data source, the <span class="UIelement">Custom size</span> field automatically shows the default you set (20 GB). If your dataset needs a greater size, enter the desired value. For example, to be able to import a 30-GB file, you must enter 30 GB or a greater value.</div>
-                                            </li>
-                                        </ul>
                                         <p>You now have a dataset referencing your data source. The dataset is listed in the <span class="UIelement">Datasets</span> section of the left panel. </p>
                                         <h2>Next step</h2>
                                         <p>To create a table from a dataset, see <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</p>
-                                        <p>To perform tasks associated with datasets, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing datasets</a>.</p>
+                                        <p>To perform tasks associated with datasets, see <a href="../B_CommonTasks/A_ManageDatasets.htm" class="MCXref xref">Managing datasets</a>.</p>
                                         <div class="Note"><span class="label">NOTE</span>: If you prefer to create a dataset and a table at the same time in the future, you can enable an option in the <span class="UIelement">General Settings</span> window. For information about changing a setting, see <a href="../C_AdvancedTasks/K_Monitor.htm#Setting" class="MCXref xref">Changing the environment settings for Xcalar Design</a>.</div>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

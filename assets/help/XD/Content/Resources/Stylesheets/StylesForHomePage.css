@@ -40,6 +40,14 @@ body
 	font-weight: 400;
 }
 
+/*The following a tag specification is to override the default hyperlink style. The link style on DocPortal home page needs this style.*/
+
+a
+{
+	text-decoration: none;
+	color: #378cb3;
+}
+
 a.BlackText
 {
 	color: #000000;
@@ -92,10 +100,9 @@ p
 p.Copyright
 {
 	text-align: left;
-	margin: 10px 10px 10px 10px;
-	padding-left: 20px;
-	padding-bottom: 15px;
 	background-color: #d7d7d7;
+	padding-left: 50px;
+	padding-bottom: 1px;
 }
 
 .centered-text
@@ -270,6 +277,8 @@ div.footer
 {
 	padding-bottom: 0px;
 	padding-top: 0px;
+	padding-left: 5px;
+	font-size: 12px;
 	background-color: #f2f2f2;
 	height: 40px;
 }
@@ -822,9 +831,13 @@ div.body	/*Wrap all contents of home page in this div.*/
 div.footer
 {
 	position: absolute;
-	height: 40px;
 	bottom: 0;
 	width: 100%;
+	padding-left: 0;
+	background-color: #d6d6d6;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	height: 35pz;
 }
 
 .main-section > .row.outer-row
@@ -850,11 +863,11 @@ div.FloatingBox	/*Colorful boxes on the home page containing lists of topics*/
 	width: 32%;
 	margin: 0.5%;
 	/*So that there's white space separating the colorful boxes. Set to %. Don't set to px.*/
-	overflow-y: auto;
 	overflow-x: hidden;
 	height: 100%;
 	padding: 10px;
 	/*Gives space between border of a colorful box and the text inside it. Using px is OK because it's inside the box. It won't cause wrapping of the boxes even if browser window is narrow.*/
+	overflow-y: hidden;
 }
 
 body:not(.web) div.FloatingBoxesContainer
@@ -889,8 +902,8 @@ div.FloatingBoxesContainer	/*Container for all the floating boxes.*/
 	width: 100%;
 	padding: 0.5%;
 	margin: 0 auto;
-	height: 300px;
 	/*Set the fixed height so that the boxes have uniform height instead of varying with contents.*/
+	height: 450px;
 }
 
 .headingColor1

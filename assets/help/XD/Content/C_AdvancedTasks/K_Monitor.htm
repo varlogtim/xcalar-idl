@@ -190,7 +190,7 @@
                                                 <div class="Note"><span class="label">NOTE</span>: Some operations are grayed out. They represent the ones automatically started by <span class="GeneralProductName2">Xcalar Compute Engine</span>. You can configure <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to hide automatic operations from this list. See <a href="#Setting" class="MCXref xref" xrefformat="{para}">Changing the environment settings for Xcalar Design</a>.</div>
                                             </li>
                                             <li value="3">
-                                                <p>You can click <span class="UIelement">VIEW&#160;OUTPUT</span> to go to the table in the worksheet. If it is a hidden table, it is added back to the worksheet as an active table. You cannot click <span class="UIelement">VIEW&#160;OUTPUT</span> if the output of an operation is a table that has been dropped. </p>
+                                                <p>You can click <span class="UIelement">VIEW&#160;OUTPUT</span> to go to the table in the worksheet. You cannot click <span class="UIelement">VIEW&#160;OUTPUT</span> if the output of an operation is a table that has been dropped. </p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;Because an operation that has been undone is preserved in the list of operations, you can select an undone operation to find its output, and then put the temporary table created by the operation back in the worksheet.</div>
                                             </li>
                                         </ol>
@@ -203,18 +203,16 @@
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-cancel-in-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1319" data-mc-height="661" src="../Resources/Images/XD_screenshots/query-cancel-in-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Monitoring the system</h2>
-                                        <p>The <span class="UIelement">System</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-system.png" />) in the Monitor enables you to view <span class="GeneralProductName2">Xcalar Compute Engine</span> statistics.</p>
-                                        <p>The following screenshot illustrates how you can use the icons in the <span class="UIelement">System</span> panel to perform various tasks.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1155" data-mc-height="993" src="../Resources/Images/XD_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
+                                        <p>The <span class="UIelement">System</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-system.png" />) in the Monitor displays the <span class="UIelement">System</span> panel, which enables you to view <span class="GeneralProductName2">Xcalar Compute Engine</span> statistics and release memory.</p>
+                                        <p>To track your cluster's usage and view performance data in graphical formats, you can use <span class="GeneralProductName3">Xcalar</span> Enterprise Manager, a monitoring tool that you can install on-prem or in the cloud. For more information about <span class="GeneralProductName3">Xcalar</span> Enterprise Manager, contact <span class="GeneralCompanyNameShort">Xcalar</span>.</p>
+                                        <h3>Understanding the System panel</h3>
+                                        <p>The following screenshot illustrates  the functions of the icons in the <span class="UIelement">System</span> panel.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="938" data-mc-height="937" src="../Resources/Images/XD_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;You can also view statistics when workbook activation is in progress by clicking the memory alert icon (the icon next to the user icon).</div>
+                                        <p>For more information about memory usage and how to release memory by dropping tables, see <a href="I_UnderstandMemoryUse.htm" class="MCXref xref" xrefformat="{para}">Understanding memory usage</a>.</p>
                                         <h2><a name="Setting"></a><a name="GeneralSettings" class="ForCSH"></a>Changing the environment settings for <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span></h2>
-                                        <p>The Monitor provides a <span class="UIelement">Settings</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-settings.png" />) for you to perform these tasks:</p>
-                                        <ul>
-                                            <li value="1">Customizing the environment in which you run <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. </li>
-                                            <li value="2">Submitting a support ticket.</li>
-                                            <li value="3">Releasing memory.</li>
-                                        </ul>
+                                        <p>The Monitor provides a <span class="UIelement">Settings</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-settings.png" />) for you to customize the environment in which you run <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. </p>
                                         <h3>Understanding <span class="GeneralProductName3">Xcalar</span> settings</h3>
                                         <p>The settings determine the following <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> behavior:</p>
                                         <ul>
@@ -223,68 +221,10 @@
                                             <li value="3">Whether UDFs generated automatically by <span class="GeneralProductName3">Xcalar</span> are displayed in the UDF list.</li>
                                             <li value="4">Whether the operations list displayed by the Monitor includes operations started automatically by <span class="GeneralProductName2">Xcalar Compute Engine</span>. If you exclude these operations, the list only shows the operations started by you. For example, the ProfileSort operation is an automatic operation.</li>
                                             <li value="5">How often <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> saves your changes.</li>
-                                            <li value="6">The default maximum size of the dataset shown in the <span class="UIelement">Import Data Source</span> window.</li>
                                         </ul>
                                         <p>The following screenshot explains the fields in the <span class="UIelement">General Settings</span> window. For fields that accept a numeric value, you can type the value or drag the slider to make a change.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="942" data-mc-height="613" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="815" data-mc-height="522" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h3><a name="Understa"></a>Understanding the support ticket</h3>
-                                        <p>After you click <img src="../Resources/Images/XD_assets/xd-monitor-settings.png" />, the <span class="UIelement">Settings</span> panel is displayed, which enables you to submit a support ticket. You can send a support ticket to report a problem or to send a comment to <span class="GeneralCompanyNameShort">Xcalar</span>. To send a ticket from the cluster, the cluster must have Internet connection.</p>
-                                        <h4>Information in a support ticket</h4>
-                                        <p>A support ticket includes the following types of information:</p>
-                                        <ul>
-                                            <li value="1">Type of issue</li>
-                                            <li value="2">Comment</li>
-                                            <li value="3">License key</li>
-                                            <li value="4">Workbook name</li>
-                                            <li value="5">Number of nodes</li>
-                                            <li value="6">Status</li>
-                                            <li value="7">Node information, which includes:<ul><li value="1">CPU&#160;usage in percentage</li><li value="2">Memory used in percentage</li><li value="3">Memory used in bytes</li><li value="4">Number of bytes received from the network</li><li value="5">Number of bytes sent to the network</li><li value="6">Node ID</li><li value="7">Memory available in bytes</li></ul></li>
-                                            <li value="8">User name</li>
-                                            <li value="9">User unique ID</li>
-                                            <li value="10"><span class="GeneralProductName3">Xcalar</span> version</li>
-                                        </ul>
-                                        <h4>Information in a support bundle</h4>
-                                        <p>If you report a performance issue or a crash, you can include a support bundle, which contains additional information. </p>
-                                        <p>A support bundle includes the following types of information:</p>
-                                        <ul>
-                                            <li value="1">Any core dumps caused by a crash.</li>
-                                            <li value="2"><span class="GeneralProductName3">Xcalar</span> configuration (/etc/xcalar/*) and <span class="GeneralProductName3">Xcalar</span>-generated data (/var/opt/xcalar/*).</li>
-                                            <li value="3">System statistics and configuration, such as number of CPUs, memory, packages installed.</li>
-                                            <li value="4">System and <span class="GeneralProductName3">Xcalar</span> logs if permissions allow (for example, /var/log/messages, /var/log/httpd/*, /var/log/Xcalar*.log, and /var/log/xcalar/*).</li>
-                                        </ul>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The exact information included in the support bundle might vary, depending on the access rights given to <span class="GeneralProductName3">Xcalar</span>. Because by default, <span class="GeneralProductName3">Xcalar</span> does not run as root, the file permissions  set by the system administrator can prevent some information from being sent to <span class="GeneralCompanyNameShort">Xcalar</span>. For example, by default, <span class="GeneralCompanyNameShort">Xcalar</span> cannot collect syslog information unless it has permission to read the syslog file.</div>
-                                        <h4><a name="Generati"></a>Generating a support ticket</h4>
-                                        <p>To generate a support ticket, follow these steps:</p>
-                                        <ol>
-                                            <li value="1">
-                                                <p>In the <span class="UIelement">Monitor</span> &gt;&#160;<span class="UIelement">Settings</span> panel, click <span class="UIelement">File Support Ticket</span>. The <span class="UIelement">File Support Ticket</span> modal window is displayed.</p>
-                                            </li>
-                                            <li value="2">
-                                                <p>In the <span class="UIelement">Type of issue</span> field, use the drop-down menu to specify whether you are generating a new ticket or modifying an existing ticket.</p>
-                                                <p>The following screenshot shows how to select the ticket type:</p>
-                                                <p>
-                                                    <img src="../Resources/Images/XD_screenshots/generate-support-ticket.png" />
-                                                </p>
-                                            </li>
-                                            <li value="3">If you select to modify a ticket, a list of existing tickets submitted by you is displayed. Click an existing ticket  to modify.  </li>
-                                            <li value="4">(Optional)&#160;Type a comment providing information about a new ticket or additional information about an existing ticket.</li>
-                                            <li value="5">
-                                                <p>Disable or enable the <span class="UIelement">Regenerate Support Bundle</span>&#160;option. </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;Generating a support bundle might take a long time.</div>
-                                            </li>
-                                            <li value="6">Click <span class="UIelement">GENERATE&#160;TICKET</span>. When the ticket generation is in progress, the <span class="UIelement">File Support Ticket</span> icon turns gray. After the ticket is generated, the icon resumes its original color (white).</li>
-                                        </ol>
-                                        <h4>What happens if a support ticket cannot be sent</h4>
-                                        <p>The most common reason for failing to send a support ticket to <span class="GeneralCompanyNameShort">Xcalar</span> is that the <span class="GeneralProductName3">Xcalar</span> cluster is not connected to the Internet. If your ticket includes the support bundle, the bundle stays on the cluster until the Internet connection is available. <span class="GeneralProductName3">Xcalar</span> automatically sends the support bundle as soon as it can use the Internet. </p>
-                                        <p>The contents of the support ticket, excluding the support bundle, can be downloaded when <span class="GeneralProductName3">Xcalar</span> fails to send the ticket. When an error message indicates that the you can download the ticket, follow these steps to manually send the ticket to <span class="GeneralCompanyNameShort">Xcalar</span>:</p>
-                                        <ol>
-                                            <li value="1">In the <span class="UIelement">File Support Ticket</span> modal window, click <span class="UIelement">DOWNLOAD</span>, which replaces <span class="UIelement">GENERATE&#160;TICKET</span>.&#160;A&#160;ticket file is created and downloaded to your computer.</li>
-                                            <li value="2">Upload the ticket file from your computer by using the <span class="UIelement">Submit a request</span> link on the portal.</li>
-                                        </ol>
-                                        <h3>Releasing memory</h3>
-                                        <p>After you click <img src="../Resources/Images/XD_assets/xd-monitor-settings.png" />, the <span class="UIelement">Settings</span> panel is displayed, which enables you to release memory.</p>
-                                        <p>For more information about memory usage and how to release memory by dropping tables, see <a href="I_UnderstandMemoryUse.htm" class="MCXref xref" xrefformat="{para}">Understanding memory usage</a>.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

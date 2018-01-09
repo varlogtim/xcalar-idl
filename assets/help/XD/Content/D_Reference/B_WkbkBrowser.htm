@@ -178,13 +178,15 @@
                                         <ul>
                                             <li value="1">Activating an inactive or a paused workbook.</li>
                                             <li value="2">Pausing an active workbook.</li>
-                                            <li value="3">Deactivate a paused or active workbook.</li>
+                                            <li value="3">Deactivate a paused  workbook.</li>
                                             <li value="4">Deleting an inactive workbook.</li>
-                                            <li value="5">Editing a workbook name.</li>
-                                            <li value="6">Duplicating a workbook.</li>
+                                            <li value="5">Previewing a paused or inactive workbook.</li>
+                                            <li value="6">Editing a workbook name.</li>
+                                            <li value="7">Creating or editing a workbook description.</li>
+                                            <li value="8">Duplicating a workbook.</li>
                                         </ul>
                                         <p>You can edit or duplicate a workbook regardless of its status.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook_active.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1361" data-mc-height="366" src="../Resources/Images/XD_screenshots/workbook_active_thumb_0_40.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook_active.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1361" data-mc-height="363" src="../Resources/Images/XD_screenshots/workbook_active_thumb_0_40.png" tabindex="" /></a>
                                         </p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook-inactive.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1361" data-mc-height="298" src="../Resources/Images/XD_screenshots/workbook-inactive_thumb_0_40.png" tabindex="" /></a>
                                         </p>
@@ -206,14 +208,19 @@
                                         </ul>
                                         <div class="Note"><span class="label">NOTE</span>: <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> cannot change an active workbook to the paused or inactive state if the workbook has an operation in progress. Wait until the operation is finished before you switch from this workbook or click the pause icon for this workbook.</div>
                                         <h3>Re-activating a paused or inactive workbook</h3>
-                                        <p>You can re-activate a paused or inactive workbook at any time. For example, if workbook1 is paused and workbook2 is active, you can activate workbook1. This causes workbook2 to become inactive.</p>
+                                        <p>You can re-activate a paused or inactive workbook at any time. For example, if workbook1 is paused or inactive, and workbook2 is active, you can activate workbook1. This causes workbook2 to become inactive.</p>
                                         <p data-mc-conditions="General.XDHelp">When workbook activation is in progress, you can click the memory alert icon (the icon next to the user icon) to display <span class="GeneralProductName3">Xcalar</span> cluster statistics. </p>
                                         <h2>Effects of deleting a workbook</h2>
                                         <p>Deleting a workbook has the following  effects:</p>
                                         <ul>
                                             <li value="1">All worksheets in the workbook and all tables in the worksheets are deleted. They are not recoverable after the deletion.</li>
-                                            <li value="2">A dataset created through the workbook might or might not remain depending on whether the dataset is also being used by other workbooks. The dataset is removed only if the workbook being deleted is the only one using the dataset. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref" xrefformat="{para}">Understanding dataset deletion</a>.</li>
+                                            <li value="2">A dataset created through the workbook might or might not remain depending on whether the dataset is also being used by other workbooks. The dataset is removed only if the workbook being deleted is the only one using the dataset. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasets.htm#Effects" class="MCXref xref" xrefformat="{para}">Understanding dataset deletion</a>.</li>
                                         </ul>
+                                        <h2>Previewing a workbook</h2>
+                                        <p>Because activating a workbook takes time, before activating a workbook, you might want to preview its contents to make sure that it is the appropriate one. For each inactive or paused workbook, you can move the cursor over the workbook card in the <span class="UIelement">Workbook Browser</span> to show the Preview icon. Clicking the icon displays the <span class="UIelement">Workbook Preview</span> modal window. The following partial screenshot shows the location of the Preview icon:</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="926" data-mc-height="234" src="../Resources/Images/XD_screenshots/workbook-preview_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <p>The <span class="UIelement">Workbook Preview</span> modal window contains a list of tables organized by worksheets. You can click any table name to display the dataflow for the table. Knowing what tables in the workbook and the data lineage for each table helps you determine whether to activate the workbook.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

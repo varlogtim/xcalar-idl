@@ -173,7 +173,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>User-defined function (UDF) examples</h1>
-                                        <p>This section provides examples for these UDF&#160;typesf: </p>
+                                        <p>This section provides examples for these UDF&#160;types: </p>
                                         <ul>
                                             <li value="1"> UDF for a database operation.</li>
                                             <li value="2">UDF for importing data, which is called  an import UDF.</li>
@@ -278,14 +278,18 @@
 #   &lt;/book&gt;
 # &lt;/bookstore&gt;
 
+from codecs import getreader
 import xmltodict
 import json
-def xmlToJson1(fullPath, xmlStream):
-    allJson = xmltodict.parse(xmlStream.read())
+
+def xmlToJson(fullPath, xmlStream):
+    Utf8Reader = getreader("utf-8")
+    utf8Stream = Utf8Reader(xmlStream)
+    allJson = xmltodict.parse(utf8Stream.read())
     for book in allJson["bookstore"]["book"]:
         yield book</pre>
                                         </div>
-                                        <p>This module imports a third-party module named <span class="UIelement">xmltodict</span> and defines a function named <span class="UIelement">xmlToJson1</span>. This function has two parameters:</p>
+                                        <p>This module imports a third-party module named <span class="UIelement">xmltodict</span> and defines a function named <span class="UIelement">xmlToJson</span>. This function has two parameters:</p>
                                         <ul>
                                             <li value="1">The <span class="UIelement">xmlStream</span> parameter is a string containing the full contents of the data source. </li>
                                             <li value="2">The <span class="UIelement">fullPath</span> parameter  is a string, which is the full pathname to the data source.</li>
@@ -297,7 +301,7 @@ def xmlToJson1(fullPath, xmlStream):
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Parse Data With UDF</span> check box. </li>
                                             <li value="2">Select the <span class="UIelement">convertxmltojson</span> module.</li>
-                                            <li value="3">Select the <span class="UIelement">xmlToJson1</span> function. </li>
+                                            <li value="3">Select the <span class="UIelement">xmlToJson</span> function. </li>
                                         </ol>
                                         <p>For more information about importing a data source, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Importing data from a data source</a>.</p>
                                         <h3>Result of running the import UDF</h3>

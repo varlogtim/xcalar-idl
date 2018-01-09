@@ -278,12 +278,16 @@
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">This option filters only rows where the function cannot produce a value.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Join table back to original</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option joins the resultant table to the original table. The operation is a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column that results from the Group By operation to values in the original column.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Keep original table</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option keeps the original table as an active table. By default, the original table is sent to the temporary tables list.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Keep some columns</td>
-                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Join table back to original</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">This option joins the resultant table to the original table. The operation is a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column that results from the Group By operation to values in the original column.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">Keep some columns</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
                                                                 <p>By default,  the resultant table contains only the new column created from the Group By operation and the columns on which you group. All columns in the resultant table, including the columns on which you group, become derived columns.&#160;The Data Browser for the resultant table contains only the derived fields.</p>
                                                                 <p>This option enables you to select additional columns to include in the resultant table. The column created by the Group By function is a derived column. All prefixed columns retain the column prefix.</p>
                                                                 <div class="Note"><span class="label">NOTE:</span>&#160;This option is not applicable if you select <span class="UIelement">Join table back to original</span> because the table created by the Join operation automatically includes all the columns from the original table.</div>

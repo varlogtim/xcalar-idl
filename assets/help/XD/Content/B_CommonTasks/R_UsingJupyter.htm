@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Common tasks">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -172,11 +172,11 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Using <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> with Jupyter</h1>
-                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports the Jupyter Notebook, enabling you to write code directly in the browser to interactively analyze data obtained from a table. </p>
+                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports the Jupyter Notebook, enabling you to write code directly in the browser to interactively analyze data from a table or create user-defined functions (UDFs). </p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;This topic assumes that you are familiar with Jupyter. For more information about the Jupyter user interface for running code, generating documents, and so on, see <a href="https://jupyter-notebook.readthedocs.io/">https://jupyter-notebook.readthedocs.io</a>).</div>
-                                        <p>The term <em>notebook</em> refers to the Jupyter Notebook.</p>
+                                        <p>In the <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> online help, the term <em>notebook</em> means the Jupyter Notebook.</p>
                                         <h2>Programming language supported</h2>
-                                        <p>While Jupyter can run code written in various programming languages, the Jupyter Notebook accessed from  <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports only Python 2.7. </p>
+                                        <p>While Jupyter can run code written in various programming languages, the Jupyter Notebook accessed from  <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports only Python. </p>
                                         <h2>Relationship between a notebook and a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> workbook</h2>
                                         <p>You can create more than one notebook for each workbook. Remember that the purpose of opening a notebook is to use Jupyter to analyze data from a table. Therefore, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you do not open a notebook containing code that connects the notebook to another workbook. Otherwise, you do not get the expected results from running the code in the notebook.</p>
                                         <div class="Example"><span class="label">EXAMPLE</span>:&#160;Your currently active workbook is named Workbook1. Suppose you created a notebook earlier named MyNotebook2 when a workbook named Workbook2 was active, using MyNotebook2 for data from Workbook1 might cause unexpected results. To work on data from Workbook1, create a new notebook specifically for Workbook1.</div>
@@ -215,14 +215,14 @@
                                         <p>If you open an unintended notebook, follow these steps by using the Jupyter user interface:</p>
                                         <ol>
                                             <li value="1">Close the notebook.</li>
-                                            <li value="2">Open a notebook corresponding to the currently active workbook. </li>
+                                            <li value="2">Open a notebook corresponding to the active workbook. </li>
                                         </ol>
                                         <h3>If you open the correct notebook</h3>
                                         <p>If the notebook is indeed the one you want to use, switch to the workbook that is shown as the expected workbook in the warning message. For information about switching to another workbook, see <a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref" xrefformat="{para}">Workbook Browser</a>. After the correct workbook becomes active, you can use the notebook with the tables in the workbook as usual.</p>
                                         <h3>If you want to connect the notebook to the active workbook</h3>
                                         <p>You might have created the notebook from a workbook other than the one that is active. If from now on, you want to use the notebook with the active workbook, see <a href="#Connecti" class="MCXref xref" xrefformat="{para}">Connecting a notebook to the active workbook</a>.</p>
                                         <h2><a name="Connecti"></a>Connecting a notebook to the active workbook</h2>
-                                        <p>After you open a notebook, you can connect it to the currently active workbook, regardless of which workbook you were using when you created the notebook. </p>
+                                        <p>After you open a notebook, you can connect it to the active workbook, regardless of which workbook you used when you created the notebook. </p>
                                         <p>You can also use the following procedure to re-establish the connection to the active workbook. For example, if you have accidentally modified the <span class="GeneralProductName3">Xcalar</span> starter code and you want to restore it to its original form, you can complete the procedure for <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to re-enter the code in the notebook. After the code is written, delete the cell in which you made the unintended changes.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;You can establish a connection between a notebook and the active workbook. You cannot connect a notebook to any other workbook.</div>
                                         <p>To establish the new connection, follow these steps:</p>
@@ -233,16 +233,54 @@
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;If the notebook has a cell with starter code for connecting to a workbook other than the active workbook, you must delete that cell. A notebook with connections to multiple workbooks does not work properly. </div>
                                             </li>
                                         </ol>
-                                        <h2>Using a UDF template</h2>
-                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> provides you with two templates for UDFs: one for UDFs that you run as Map functions, and one for import UDFs.&#160;After you start the UDF template, you can use the Jupyter notebook editor to modify the code, which you can paste in the <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> <span class="UIelement">User Defined Function</span> panel.</p>
-                                        <p>Follow these steps to use a UDF&#160;template:</p>
+                                        <h2>Creating a UDF by using a UDF template</h2>
+                                        <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> provides you with two UDF&#160;templates: one for UDFs that you run as Map functions, and one for import UDFs.&#160;The procedure here describes how to  display the UDF template and modify the code in the template. The procedure  requires that you assign a name to the new UDF.</p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">Characters must be a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                    <li value="2">Letters must be lowercase.</li>
+                                                    <li value="3">First character must be a letter or an underscore.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <p>Follow these steps to create a UDF from a template displayed in a notebook:</p>
                                         <ol>
                                             <li value="1">Open a notebook and place the insertion point in a notebook cell.</li>
-                                            <li value="2">At the top of the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window, click <span class="UIelement">CODE&#160;SNIPPETS</span> to display a drop-down menu.</li>
-                                            <li value="3">Click <span class="UIelement">Map UDF</span> to display the template for a UDF that you run as a Map function. Click <span class="UIelement">Import UDF</span> to display the template for an import UDF.</li>
-                                            <li value="4">In the <span class="UIelement">UDF&#160;Template</span> modal window, fill out the fields, which will be used in the generated code snippet in the template. You can modify the code later.</li>
-                                            <li value="5">After the code is displayed in the notebook cell, use the notebook editor to make appropriate changes to the code.</li>
-                                            <li value="6">Click <span class="UIelement">Send to UDF&#160;Editor</span> at the bottom of the notebook cell. The code is pasted to the <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> <span class="UIelement">User Defined Function</span> panel. For more information about the actions you can take with the UDF code in the panel, see <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref" xrefformat="{para}">Using UDFs</a>.</li>
+                                            <li value="2">
+                                                <p>At the top of the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window, click <span class="UIelement">CODE&#160;SNIPPETS</span> to display a drop-down menu, as shown in the following screenshot:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/jupyter-nb-code-snippets.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="859" data-mc-height="679" src="../Resources/Images/XD_screenshots/jupyter-nb-code-snippets_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>Follow these steps to create a Map UDF:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click <span class="UIelement">Create Map UDF</span> to display the <span class="UIelement">UDF&#160;Template</span> modal window. </li>
+                                                    <li value="2">In the <span class="UIelement">UDF&#160;Template</span> modal window, type the function name, and specify the table and columns in the table that will be referenced in the function. </li>
+                                                    <li value="3">Click <span class="UIelement">CONFIRM</span>. Jupyter displays a notebook cell for you to enter your code and an additional cell to test your code.</li>
+                                                    <li value="4">When you are satisfied with the result of your UDF, click <span class="UIelement">Copy to UDF&#160;Editor</span>.&#160;The <span class="UIelement">User Defined Function</span> panel is displayed, and your code is pasted in the panel. For more information about the actions you can take with the UDF code in the panel, see <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref" xrefformat="{para}">Using UDFs</a>.</li>
+                                                </ol>
+                                                <p>Follow these steps to create an import UDF:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click <span class="UIelement">Create Import UDF</span> to display the <span class="UIelement">UDF&#160;Template</span> modal window.</li>
+                                                    <li value="2">In the <span class="UIelement">UDF&#160;Template</span> modal window, type the function name.</li>
+                                                    <li value="3">Click <span class="UIelement">CONFIRM</span>. Jupyter displays a notebook cell for you to enter your code and an additional cell to show an example of an import UDF.</li>
+                                                    <li value="4">When you are satisfied with the result of your UDF, click <span class="UIelement">Copy to UDF&#160;Editor</span>.&#160;The <span class="UIelement">User Defined Function</span> panel is displayed, and your code is pasted in the panel. For more information about the actions you can take with the UDF code in the panel, see <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref" xrefformat="{para}">Using UDFs</a>.</li>
+                                                </ol>
+                                            </li>
+                                        </ol>
+                                        <h2>Testing an existing import UDF</h2>
+                                        <p>Suppose you have an import UDF but you are unsure whether it is applicable to a data source file, you can use Jupyter to test the import UDF with the data source file. </p>
+                                        <p>Follow these steps to test an existing import UDF:</p>
+                                        <ol>
+                                            <li value="1">From the <span class="UIelement">CODE&#160;SNIPPETS</span> menu, select <span class="UIelement">Test Existing Import UDF</span>.</li>
+                                            <li value="2">
+                                                <p>In the modal window, enter the complete pathname of the data source file from which you import data. The following example is a pathname of a data source file:</p>
+                                                <p class="CLIoutput">/mycompany.com/datasets/airlines.csv</p>
+                                            </li>
+                                            <li value="3">Select the module name and the function name.&#160;These names identify the UDF that you want to test.</li>
+                                            <li value="4">Click <span class="UIelement">CONFIRM</span>. Jupyter displays a notebook cell containing the code from the UDF, which uses your specified path as an argument.</li>
+                                            <li value="5">Run the code in the notebook cell. Examine the output to determine whether the import UDF&#160;works properly with the specified source data file.</li>
                                         </ol>
                                         <h2><a name="Publishi"></a>Publishing data from a table to a notebook</h2>
                                         <p>You can publish a table or a partial table to a notebook. Then you can use Jupyter for data analysis or visualization for the published rows.</p>

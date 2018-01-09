@@ -173,7 +173,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Easy steps for importing data to <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> (with default settings)</h1>
                                         <p>This section describes the steps up to the point where you can start performing operations in tables presented in a  workbook.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>: The easy steps are appropriate if you want to get started quickly to familiarize yourself with <span class="GeneralProductFullVersion">Xcalar 1.2.2</span>. When you are ready to use  <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> in a production environment, or if any of the assumptions listed in this section is not true, follow the instructions in <a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Detailed steps for importing data to Xcalar Design (with custom settings)</a>.</div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: The easy steps are appropriate if you want to get started quickly to familiarize yourself with <span class="GeneralProductName3">Xcalar</span>. When you are ready to use  <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> in a production environment, or if any of the assumptions listed in this section is not true, follow the instructions in <a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Detailed steps for importing data to Xcalar Design (with custom settings)</a>.</div>
                                         <p> This section assumes that:</p>
                                         <ul>
                                             <li value="1">
@@ -182,7 +182,7 @@
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Importing Excel data does not require you to specify a UDF, but <span class="GeneralProductName3">Xcalar</span> actually uses a UDF when importing the data.</div>
                                             </li>
                                             <li value="2">
-                                                <p>Field names in the data source do not contain illegal characters, which are the following characters.</p>
+                                                <p>field names in the data source do not contain illegal characters, which are the following characters.</p>
                                                 <ul>
                                                     <li value="1">caret (^)</li>
                                                     <li value="2">single quote mark (')</li>
@@ -203,10 +203,10 @@
                                         <p>Follow these steps to start <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Point the browser using the HTTP or HTTPS&#160;protocol to the location where <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> is installed. For example, enter the following URL:</p>
+                                                <p>Point the browser using the HTTPS&#160;protocol to the location where <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> is installed. For example, enter the following URL:</p>
                                                 <p class="userInput">https://xcalar.mycompany.com/index.html</p>
                                             </li>
-                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName3">Xcalar</span> administrator. </li>
+                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName3">Xcalar</span> administrator or by using the Microsoft Azure account credentials. </li>
                                         </ol>
                                         <h2>Creating a workbook as your workspace</h2>
                                         <p>Follow these steps to create a workbook:</p>
@@ -218,18 +218,26 @@
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
                                                             <li value="2">Length must not exceed 255 characters.</li>
-                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
                                                             <li value="4">First character must be a letter.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" /> to activate the workbook. The icon is the first one on the menu when you hover over the workbook card. </li>
+                                            <li value="2">
+                                                <p>(Optional)&#160;Follow these steps to add a description for the workbook:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click the Edit icon on the <span class="UIelement">New Workbook</span> card to display the Edit Workbook modal window. </li>
+                                                    <li value="2">Type a description for the workbook.</li>
+                                                    <li value="3">Click <span class="UIelement">CONFIRM</span>.</li>
+                                                </ol>
+                                            </li>
+                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" /> to activate the workbook. The icon is the first one on the menu when you hover over the workbook card. </li>
                                         </ol>
                                         <h2>Displaying datasets</h2>
                                         <p> Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Datasets</span> icon) to display the window where you can start the steps for importing data.</p>
                                         <p>The following screenshot shows the location of the <span class="UIelement">Datasets</span> icon:</p>
-                                        <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
+                                        <p data-mc-conditions="General.XDHelp"><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datasets-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="834" data-mc-height="559" src="../Resources/Images/XD_screenshots/datasets-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2><a name="Pointing2"></a>Importing data from the data source</h2>
                                         <ol>
@@ -237,19 +245,14 @@
                                                 <p>In the <span class="UIelement">Import Data Source</span> window, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">
-                                                        <p>Select the protocol for accessing the data source. The protocol can be HDFS, file, or S3. For information about protocols, see <a href="B2_PrepareDataSource.htm#Understa" class="MCXref xref" xrefformat="{para}">Preparing the data source</a>.</p>
+                                                        <p>Select the data target for accessing the data source. For information about data targets, see <a href="B1_MakingDataAccessible.htm#Understa2" class="MCXref xref" xrefformat="{para}">Understanding data targets</a>.</p>
                                                         <p>The following screen illustrates the <span class="UIelement">Import Data Source</span> window.</p>
                                                     </li>
-                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="781" data-mc-height="310" src="../Resources/Images/XD_screenshots/point-to-data-source_thumb_0_150.png" tabindex="" /></a>
+                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="731" data-mc-height="308" src="../Resources/Images/XD_screenshots/point-to-data-source_thumb_0_150.png" tabindex="" /></a>
                                                     </p>
-                                                    <li value="2">
-                                                        <p>If you select <span class="UIelement">hdfs://</span>, enter the host name followed by a slash (/) in the <span class="UIelement">Data Source Path</span> field. The slash enables you to browse the root directory of the specified host. For example, enter the following path for the root directory on host1:</p>
-                                                        <p class="userInput">host1/</p>
-                                                        <p>Alternatively, to browse the contents of a directory other than the root directory, enter the complete path to that directory as in the following example:</p>
-                                                        <p class="userInput">host1/datasets </p>
-                                                    </li>
+                                                    <li value="2">Type the path to the data source file, such as /datasets/airlines.csv.</li>
                                                     <li value="3">
-                                                        <p>Click <span class="UIelement">BROWSE</span> to display the <span class="UIelement">Browse Data Source</span> window, in which  you can navigate to the data source. Click to choose the file or directory to be used as your data source, then click <span class="UIelement">NEXT</span>.</p>
+                                                        <p>Click <span class="UIelement">BROWSE</span> to display the <span class="UIelement">Browse Data Source</span> window, in which  you can navigate to the data source. Click to select the file or directory to be used as your data source, then click <span class="UIelement">NEXT</span>.</p>
                                                         <div class="Note"><span class="label">NOTE</span>:&#160;If your data source is a directory, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you follow the steps in <a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Detailed steps for importing data to Xcalar Design (with custom settings)</a>, which describes various options specifically for importing  a directory.</div>
                                                     </li>
                                                 </ol>
@@ -261,7 +264,7 @@
                                         <p>You now have a dataset that imports data from a data source. The dataset is listed in the <span class="UIelement">Datasets</span> section of the left panel. </p>
                                         <h2>Next step</h2>
                                         <p>To create a table from a dataset, see <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref" xrefformat="{para}">Creating a table</a>.</p>
-                                        <p>To perform tasks associated with datasets, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref" xrefformat="{para}">Managing datasets</a>.</p>
+                                        <p>To perform tasks associated with datasets, see <a href="../B_CommonTasks/A_ManageDatasets.htm" class="MCXref xref" xrefformat="{para}">Managing datasets</a>.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>
