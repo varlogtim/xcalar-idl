@@ -40,7 +40,7 @@ setupHostName = function() {
     }
 
     if (window.planServer == null || window.planServer === "") {
-        planServer = hostname;
+        planServer = hostname + "/sql";
     }
 };
 // for convenience, add the function list here and make them
