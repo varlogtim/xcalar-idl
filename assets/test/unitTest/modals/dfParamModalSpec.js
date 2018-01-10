@@ -168,7 +168,7 @@ describe("DFParamModal Test", function() {
         });
 
         it("inputs should be correct", function() {
-            expect($modal.find(".template .boxed").length).to.equal(10);
+            expect($modal.find(".template .boxed").length).to.equal(9);
             expect($modal.find(".template .boxed").eq(0).text()).to.equal("export-" + tableName);
             expect($modal.find(".template .boxed").eq(1).text()).to.equal("Default");
             expect($modal.find(".template .boxed").eq(2).text()).to.equal("createOnly");

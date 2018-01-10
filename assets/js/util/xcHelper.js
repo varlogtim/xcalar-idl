@@ -3783,25 +3783,24 @@
 
         function parseFunc(func) {
             if (func.name) {
-                if (str !== "") {
-                    str += "(";
-                }
                 str += func.name;
             }
 
             var args = func.args;
             for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] !== "object") {
-                    if (i === 0) {
-                        str += "(";
-                    } else {
-                        str += ",";
-                    }
-                    str += args[i];
-                } else if (typeof args[i] === "object") {
-                    parseFunc(args[i]);
+                if (i === 0) {
+                    str += "(";
+                } else {
+                    str += ",";
                 }
-                if (i === func.args.length - 1) {
+
+                if (typeof args[i] === "object") {
+                    parseFunc(args[i]);
+                } else {
+                    str += args[i];
+                }
+
+                if (i === args.length - 1) {
                     str += ")";
                 }
             }

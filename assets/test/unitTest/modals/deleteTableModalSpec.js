@@ -270,7 +270,7 @@ describe("Delete Table Modal Test", function() {
                 }]
             }]);
 
-            UnitTest.hasStatusBoxWithError("test. No tables were deleted.");
+            UnitTest.hasStatusBoxWithError("test. No tables were dropped.");
         });
 
         it('1 success, 1 regular fail, 1 locked fail', function() {
@@ -284,7 +284,7 @@ describe("Delete Table Modal Test", function() {
                 }]
             }]);
 
-            UnitTest.hasStatusBoxWithError("test. Some tables could not be deleted.");
+            UnitTest.hasStatusBoxWithError("test. Some tables could not be dropped.");
         });
 
         it('1 success, 1 locked fail', function() {
@@ -294,7 +294,7 @@ describe("Delete Table Modal Test", function() {
                         }]
             }]);
 
-            UnitTest.hasStatusBoxWithError("Cannot drop locked tables. Table unitTest1#tt1 was not deleted.");
+            UnitTest.hasStatusBoxWithError("Cannot drop locked tables. Table unitTest1#tt1 was not dropped.");
         });
     });
 

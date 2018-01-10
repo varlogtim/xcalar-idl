@@ -726,6 +726,7 @@ window.DagFunction = (function($, DagFunction) {
 
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
     DagFunction.runProcedureWithParams = function(tableName, params, newNodes, doNotRun) {
+        params = xcHelper.deepCopy(params);
         // XXX need to handle old struct format
         if (doNotRun) {
             console.log("Sample Usage: ");
