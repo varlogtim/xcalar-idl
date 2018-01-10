@@ -2442,6 +2442,36 @@ describe("xcHelper Test", function() {
         });
     });
 
+    describe("xcHelper.stringifyFunc()", function() {
+        var func;
+        before(function() {
+            func = xcHelper.stringifyFunc;
+        })
+        it("should work if no args", function() {
+            var fn = {name: "a", args:[]};
+            expect(func(fn)).to.equal('a()');
+
+            fn = {name: "a", args:[{name: "b", args: []}]};
+            expect(func(fn)).to.equal('a(b())');
+
+            fn = {name: "a", args:[1, {name: "b", args: []}]};
+            expect(func(fn)).to.equal('a(1,b())');
+        });
+        it("nested should work", function() {
+            var fn = {name:"a", args:[1, 2, 3]};
+            expect(func(fn)).to.equal('a(1,2,3)');
+
+            var fn = {name:"a", args:[1, {name:"b", args:[4, 5, 6]}, 3]};
+            expect(func(fn)).to.equal('a(1,b(4,5,6),3)');
+
+            var fn = {name:"a", args:[{name:"b", args:[2, 3, 4]}, 1]};
+            expect(func(fn)).to.equal('a(b(2,3,4),1)');
+
+            var fn = {name:"a", args:[{name:"b", args:[2, {name:"c", args:[3, 4]}]}, 1]};
+            expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
+        });
+    })
+
     describe("xcHelper.dropdownOpen", function() {
         describe("Basic Test", function() {
             var $icon, $menu;

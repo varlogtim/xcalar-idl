@@ -171,13 +171,13 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(9);
             expect($modal.find(".template .boxed").eq(0).text()).to.equal("export-" + tableName);
             expect($modal.find(".template .boxed").eq(1).text()).to.equal("Default");
-            expect($modal.find(".template .boxed").eq(2).text()).to.equal("createOnly");
+            expect($modal.find(".template .boxed").eq(2).text()).to.equal("Do not Overwrite");
             expect($modal.find(".template .boxed").eq(3).text()).to.equal("\\n");
             expect($modal.find(".template .boxed").eq(4).text()).to.equal("\\t");
             expect($modal.find(".template .boxed").eq(5).text()).to.equal("\"");
-            expect($modal.find(".template .boxed").eq(6).text()).to.equal("every");
-            expect($modal.find(".template .boxed").eq(7).text()).to.equal("true");
-            expect($modal.find(".template .boxed").eq(8).text()).to.equal("none");
+            expect($modal.find(".template .boxed").eq(6).text()).to.equal("Every File");
+            expect($modal.find(".template .boxed").eq(7).text()).to.equal("True");
+            expect($modal.find(".template .boxed").eq(8).text()).to.equal("Multiple Files");
         });
 
         it("str to special char should work", function() {

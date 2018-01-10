@@ -3778,19 +3778,18 @@
     // assumes valid func structure of {args:[], name:""};
     xcHelper.stringifyFunc = function(func) {
         var str = "";
-
         parseFunc(func);
+        return str;
 
         function parseFunc(func) {
             if (func.name) {
                 str += func.name;
+                str += "(";
             }
 
             var args = func.args;
             for (var i = 0; i < args.length; i++) {
-                if (i === 0) {
-                    str += "(";
-                } else {
+                if (i > 0) {
                     str += ",";
                 }
 
@@ -3799,13 +3798,11 @@
                 } else {
                     str += args[i];
                 }
-
-                if (i === args.length - 1) {
-                    str += ")";
-                }
+            }
+            if (func.name) {
+                str += ")";
             }
         }
-        return str;
     };
 
     /*

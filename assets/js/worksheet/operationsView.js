@@ -1050,7 +1050,7 @@ window.OperationsView = (function($, OperationsView) {
             return;
         }
 
-        $activeOpSection.find('.group').find(".argsSection").empty();
+        $activeOpSection.find('.group').find(".argsSection").last().empty();
 
         if (operatorName === "group by") {
             for (var i = 0; i < options.prefill.indexedFields.length; i++) {
