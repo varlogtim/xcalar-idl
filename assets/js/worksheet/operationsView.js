@@ -818,11 +818,10 @@ window.OperationsView = (function($, OperationsView) {
                     options.prefill.args[0][0] &&
                     options.prefill.args[0][0].indexOf("(") === -1) {
                     colName = options.prefill.args[0][0];
-                    isNewCol = true;
                 } else {
                     colName = "";
-                    isNewCol = false;
                 }
+                isNewCol = false;
             }
         }
         updateFormTitles(options);
@@ -1049,6 +1048,8 @@ window.OperationsView = (function($, OperationsView) {
             return;
         }
 
+        $activeOpSection.find('.group').find(".argsSection").empty();
+
         if (operatorName === "group by") {
             for (var i = 0; i < options.prefill.indexedFields.length; i++) {
                 if (i > 0) {
@@ -1067,7 +1068,7 @@ window.OperationsView = (function($, OperationsView) {
                 $("#mapFilter").val(options.prefill.ops[i]).trigger("input");
                 $activeOpSection.find(".functionsMenu").find("li").filter(function() {
                     return $(this).text() === options.prefill.ops[i];
-                }).click();
+                }).click(); // triggers listing of argument inputs
                 $group = $activeOpSection.find('.group').eq(i);
             } else {
                 if (operatorName === "group by" && i > 0) {
@@ -1083,11 +1084,8 @@ window.OperationsView = (function($, OperationsView) {
                 if ($args.eq(j).length) {
                     var arg = params[j];
                     if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
-                        if (isNaN(arg) && arg.indexOf("(") === -1 &&
-                            arg !== "true" && arg !== "false" &&
-                            arg !== "t" && arg !== "f") {
+                        if (isArgAColumn(arg)) {
                             // it's a column
-
                             if (arg[0] !== gAggVarPrefix) {
                                 // do not prepend colprefix if has aggprefix
                                 arg = gColPrefix + arg;
@@ -1539,7 +1537,6 @@ window.OperationsView = (function($, OperationsView) {
             $nextInput = $inputs.last();
         }
 
-
         $nextInput.focus();
         var val = $nextInput.val();
         // will highlight entire text if exists
@@ -1700,7 +1697,6 @@ window.OperationsView = (function($, OperationsView) {
     // $li = map's function menu li
     // groupIndex, the index of a group of arguments (multi filter)
     function updateArgumentSection($li, groupIndex) {
-
         var category;
         var categoryNum;
         var func;
@@ -1729,6 +1725,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var $argsSection = $argsGroup.find('.argsSection').last();
+        var firstTime = $argsSection.html() === "";
         $argsSection.removeClass('inactive');
         $argsSection.empty();
         $argsSection.data("fnname", operObj.fnName);
@@ -1748,7 +1745,11 @@ window.OperationsView = (function($, OperationsView) {
             // do not give default value if not the first group of args
             defaultValue = "";
         } else if (!isNewCol && colName) {
-            defaultValue = gColPrefix + colName;
+            if (isArgAColumn(colName)) {
+                defaultValue = gColPrefix + colName;
+            } else {
+                defaultValue = "";
+            }
         }
 
         var numArgs = Math.max(Math.abs(operObj.numArgs),
@@ -1788,8 +1789,11 @@ window.OperationsView = (function($, OperationsView) {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
         var despText = operObj.fnDesc || "N/A";
-        $argsGroup.find('.descriptionText').html('<b>' + OpFormTStr.Descript +
-                                                 ':</b> ' + despText);
+        var descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' + despText;
+        if (DagEdit.isEditMode()) {
+            descriptionHtml += '<br><span class="editDescWarning">' + DFTStr.NoColumnTypeCheck + '</span>';
+        }
+        $argsGroup.find('.descriptionText').html(descriptionHtml);
         if (operatorName === "group by") {
             var $strPreview = $operationsView.find('.strPreview');
             if ($strPreview.text() === "") {
@@ -1814,7 +1818,8 @@ window.OperationsView = (function($, OperationsView) {
         if (($activeOpSection.find('.group').length - 1) === groupIndex) {
             if (operatorName !== "group by") {
                 // xx not working well with group by
-                scrollToBottom();
+                var noAnim = (isEditMode && firstTime && groupIndex === 0);
+                scrollToBottom(noAnim);
             }
         }
     }
@@ -4664,16 +4669,17 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function scrollToBottom() {
+    function scrollToBottom(noAnim) {
         var animSpeed = 500;
         var scrollTop = $activeOpSection.closest('.mainContent')[0]
                                         .scrollHeight -
                         $activeOpSection.closest('.mainContent').height();
-        // $activeOpSection.closest('.mainContent').scrollTop(scrollHeight);
-        $activeOpSection.closest('.mainContent')
-        .animate({scrollTop: scrollTop}, animSpeed, function() {
-
-        });
+        if (noAnim) {
+            $activeOpSection.closest('.mainContent').scrollTop(scrollTop);
+        } else {
+            $activeOpSection.closest('.mainContent')
+            .animate({scrollTop: scrollTop}, animSpeed);
+        }
     }
 
     function filterTheMapFunctions(val) {
@@ -4812,6 +4818,13 @@ window.OperationsView = (function($, OperationsView) {
             html += '<div class="flexSpace"></div>';
         }
         return (html);
+    }
+
+    function isArgAColumn(arg) {
+        return (isNaN(arg) && 
+                arg.indexOf("(") === -1 &&
+                arg !== "true" && arg !== "false" &&
+                arg !== "t" && arg !== "f");
     }
 
     /* Unit Test Only */

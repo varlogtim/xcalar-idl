@@ -179,8 +179,13 @@ window.UnionView = (function(UnionView, $) {
     function focusOnColumn(colName, tableIndex) {
         var tableId = tableInfoLists[tableIndex].tableId;
         if (colName != null) {
-            var colNum = gTables[tableId].getColNumByBackName(colName);
+            var table = gTables[tableId];
+            if (!table) {
+                return; // can be in gDroppedTables when editing
+            }
+            var colNum = table.getColNumByBackName(colName);
             if (colNum > 0) {
+                // can be a hidden column when editing
                 formHelper.focusOnColumn(tableId, colNum);
             }
         }
@@ -822,6 +827,17 @@ window.UnionView = (function(UnionView, $) {
         });
         if (!xcHelper.validate(tableNameValids)) {
             return false;
+        }
+
+        if (!DagEdit.isEditMode()) {
+            for (var i = 0; i < tableNameValids.length; i++) {
+                var tId = xcHelper.getTableId(tableNameValids[i].$ele.val());
+                if (!gTables[tId] || !gTables[tId].isActive()) {
+                    var $tableInput = $unionTableList.find(".text").eq(i);
+                    StatusBox.show(TblTStr.NotActive, $tableInput, false);
+                    return false;
+                }
+            }
         }
 
         isValid = xcHelper.validate([{

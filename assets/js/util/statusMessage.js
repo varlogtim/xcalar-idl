@@ -193,22 +193,26 @@ window.StatusMessage = (function($, StatusMessage) {
             var panelName = "";
             switch (curTab) {
                 case ("workspaceTab"):
-                    var ws = WSManager.getActiveWS();
-                    // XXX the restore of subTab triiger it too early
-                    // and will breaak it if not do the check
-                    if (ws) {
-                        $("#pageStatusMenu").html(WSManager.getWSLists(true));
-                        panelName = WSTStr.Ws + ": " + WSManager.getWSName(ws) +
-                                    '<div class="menuIcon xc-action clickable" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'data-placement="top" ' +
-                                    'data-container="body" ' +
-                                    'data-original-title="' +
-                                        TooltipTStr.ViewAllWS + '">' +
-                                        '<i class="icon xi-list-view"></i>' +
-                                    '</div>';
+                    if (DagEdit.isEditMode()) {
+                        text = StatusMessageTStr.EditingDF;
                     } else {
-                        panelName = WSTStr.Ws;
+                        var ws = WSManager.getActiveWS();
+                        // XXX the restore of subTab triiger it too early
+                        // and will breaak it if not do the check
+                        if (ws) {
+                            $("#pageStatusMenu").html(WSManager.getWSLists(true));
+                            panelName = WSTStr.Ws + ": " + WSManager.getWSName(ws) +
+                                        '<div class="menuIcon xc-action clickable" ' +
+                                        'data-toggle="tooltip" ' +
+                                        'data-placement="top" ' +
+                                        'data-container="body" ' +
+                                        'data-original-title="' +
+                                            TooltipTStr.ViewAllWS + '">' +
+                                            '<i class="icon xi-list-view"></i>' +
+                                        '</div>';
+                        } else {
+                            panelName = WSTStr.Ws;
+                        }
                     }
                     break;
                 case ("dataflowTab"):

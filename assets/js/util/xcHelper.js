@@ -1965,10 +1965,11 @@
         var mainFrameWidth = $('#mainFrame').width();
         var currentScrollPosition = $('#mainFrame').scrollLeft();
         var $th = $tableWrap.find('th.col' + colNum);
+        if (!$th.length) {
+            return;
+        }
         var columnOffset = $th.offset().left - MainMenu.getOffset();
         var colWidth = $th.width();
-        // var mainMenuOffset = MainMenu.getOffset();
-
         var leftPosition = currentScrollPosition + columnOffset;
         var scrollPosition = leftPosition - ((mainFrameWidth - colWidth) / 2);
 

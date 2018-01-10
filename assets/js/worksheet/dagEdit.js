@@ -34,18 +34,33 @@ window.DagEdit = (function($, DagEdit) {
         $("#xcTableWrap-" + tableId).addClass("editingDf");
         var $dagWrap = $("#dagWrap-" + tableId);
         $dagWrap.addClass("editMode");
+        $("#workspaceBar").prepend('<div id="workspaceEditText" class="workspaceArea title">' + DFTStr.EDITINGDATAFLOW + '</div>');
+        // $dagWrap.after('<div id="dagPanelEditText">EDITING DATAFLOW</div>');
+        $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
+        xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
+
         var tableId = $dagWrap.data("id");
         if (!$dagWrap.hasClass("selected")) {
             TblFunc.focusTable(tableId);
         }
         xcHelper.centerFocusedTable(tableId, false,
                                     {onlyIfOffScreen: true});
-        StatusMessage.updateLocation(true, "Editing Dataflow");
+        StatusMessage.updateLocation(true, StatusMessageTStr.EditingDF);
         xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                              TooltipTStr.NoUndoEditMode);
         TblManager.alignTableEls();
         if (!restore) {
             curEdit = new EditInfo(node);
+        }
+        if (!Object.keys(curEdit.structs).length &&
+            !Object.keys(curEdit.newNodes).length) {
+            xcTooltip.add($dagWrap.find(".runBtn"), {
+                title: DFTStr.NoEdits
+            });
+        } else {
+            xcTooltip.add($dagWrap.find(".runBtn"), {
+                title: DFTStr.RunEdits
+            });
         }
     };
 
@@ -66,6 +81,9 @@ window.DagEdit = (function($, DagEdit) {
 
         function turnOff(toStore) {
             $("#container").removeClass("dfEditState");
+            $("#workspaceEditText").remove();
+            $("#dagPanelEditText").remove();
+            xcTooltip.remove($("#monitor-delete"));
             isEditMode = false;
             var $dagPanel = $("#dagPanel");
             var $dagWrap = $dagPanel.find(".dagWrap.editMode");
@@ -78,6 +96,10 @@ window.DagEdit = (function($, DagEdit) {
 
             $dagWrap.removeClass("editMode");
             $(".xcTableWrap").removeClass("editingDf editing");
+
+            xcTooltip.add($dagWrap.find(".runBtn"), {
+                title: DFTStr.NoEdits
+            });
 
             DagEdit.exitForm();
 
@@ -189,7 +211,7 @@ window.DagEdit = (function($, DagEdit) {
             // helps with the choppy animation of the operation form
             setTimeout(function() {
                 showEditForm(node, sourceTableNames, isDroppedTable, options.evalIndex);
-            });
+            }, 1);
         });
     };
 
@@ -268,6 +290,10 @@ window.DagEdit = (function($, DagEdit) {
         }
 
         $(".xcTableWrap").removeClass("editing");
+        $(".dagWrap.editMode").addClass("hasEdit");
+        xcTooltip.add($(".dagWrap.editMode").find(".runBtn"), {
+            title: DFTStr.RunEdits
+        });
 
         var alreadyHasEdit = Dag.updateEditedOperation(curEdit.treeNode, curEdit.editingNode, indexNodes,
                               curEdit.structs[curEdit.editingNode.value.name]);
@@ -313,6 +339,13 @@ window.DagEdit = (function($, DagEdit) {
         delete curEdit.descendantMap[node.value.name];
 
         Dag.removeEditedOperation(curEdit.treeNode, node, toDelete);
+        if (!Object.keys(curEdit.structs).length &&
+            !Object.keys(curEdit.newNodes).length) {
+            $(".dagWrap.editMode").removeClass("hasEdit");
+            xcTooltip.add($(".dagWrap.editMode").find(".runBtn"), {
+                title: DFTStr.NoEdits
+            });
+        }
     };
 
     DagEdit.setupMapPreForm = function() {
@@ -372,6 +405,12 @@ window.DagEdit = (function($, DagEdit) {
                              {title: TooltipTStr.MapNoDelete});
                 $mapPreForm.find(".delete").attr("data-tipclasses", "highZindex");
             }
+
+            $(".dagWrap.editMode").addClass("hasEdit");
+            xcTooltip.add($(".dagWrap.editMode").find(".runBtn"), {
+                title: DFTStr.RunEdits
+            });
+
 
             if (alreadyHasEdit) {
                 return;
@@ -693,6 +732,10 @@ window.DagEdit = (function($, DagEdit) {
         var evalHtml = "";
         mapStruct.eval.forEach(function(evalObj) {
             evalHtml += '<div class="row">' +
+                            '<div class="edit option xc-action">' +
+                                // '<span class="text">Edit</span>' +
+                                '<i class="icon xi-edit"></i>' +
+                            '</div>' +
                             '<div class="evalStr" ' +
                                 'data-toggle="tooltip" data-container="body" ' +
                                 'data-placement="top" data-tipclasses="highZindex" ' +
@@ -703,10 +746,6 @@ window.DagEdit = (function($, DagEdit) {
                             '<div class="optionSection">' +
                                 '<div class="delete option xc-action">' +
                                     '<i class="icon xi-trash"></i>' +
-                                '</div>' +
-                                '<div class="edit option xc-action">' +
-                                    // '<span class="text">Edit</span>' +
-                                    '<i class="icon xi-edit"></i>' +
                                 '</div>' +
                                 // '<div class="restore option xc-action">' +
                                 //     '<i class="icon xi-trash"></i>' +

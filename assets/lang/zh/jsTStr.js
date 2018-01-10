@@ -58,7 +58,8 @@ StatusMessageTStr = {
 'Finalize': "发布表",
 'FinalizeFailed': "发布失败",
 'ActionSuccess': '操作成功！',
-'ActionFailed': '操作失败！'
+'ActionFailed': '操作失败！',
+"EditingDF": "Editing Dataflow",
 };
 TooltipTStr = {
 'ComingSoon': '尚未发布，敬请期待',
@@ -779,7 +780,13 @@ DFTStr = {
 "NoEditDropped": "Cannot edit operation if descendant table has been dropped",
 "NoEditIndex": "Cannot edit index operations",
 "NoEditSupported": "Editing this operation is not supported",
-"ExpandToEdit": "Expand to edit operation"
+"ExpandToEdit": "Expand to edit operation",
+"NoEdits": "No edits made",
+"RunEdits": "Run",
+"NoColumnTypeCheck": "Column types will not be checked when editing a dataflow.",
+"EDITINGDATAFLOW": "EDITING DATAFLOW",
+"TableListNoEdit": "The tables list cannot be modified when editing a dataflow.",
+"NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory"
 
 };
 DSTStr = {

@@ -102,7 +102,7 @@ window.Dag = (function($, Dag) {
                         'data-placement="top" title="' +
                             'Exit editing mode' + '" ' +
                         'class="btn btn-small editBtn endEdit">' +
-                            '<i class="icon xi-undo-highlight"></i>' +
+                            '<i class="icon xi-exiteditingmode"></i>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

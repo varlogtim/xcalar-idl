@@ -580,6 +580,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
         }
         if (!groupFound) {
+            ticket.status = "new";
             tickets.unshift([ticket]);
             updatedTickets[ticketId] = tickets[0];
         }

@@ -238,6 +238,9 @@ window.JoinView = (function($, JoinView) {
                     $clauseContainer.find(".colSelectInstr")
                                     .html(JoinTStr.ColSelectInstr);
                 }
+                if (isEditMode) {
+                    $joinView.find(".colSelectInstr").append('<span class="editDescWarning">' + DFTStr.NoColumnTypeCheck + '</span>');
+                }
             }
         });
 
@@ -648,7 +651,9 @@ window.JoinView = (function($, JoinView) {
                 addClause(true, tableId, colNums[i]);
             }
             updatePreviewText();
-            $rightTableDropdown.find("input").focus();
+            if (!DagEdit.isEditMode()) {
+                $rightTableDropdown.find("input").focus();
+            }
         }
 
 
@@ -1063,7 +1068,9 @@ window.JoinView = (function($, JoinView) {
             $("#container").addClass("joinState2");
 
             if ($joinTableName.val().trim() === "") {
-                $joinTableName.focus();
+                if (!DagEdit.isEditMode()) {
+                    $joinTableName.focus();
+                }
             }
 
             // clear any empty column rows
@@ -1078,7 +1085,11 @@ window.JoinView = (function($, JoinView) {
             });
 
             formHelper.refreshTabbing();
-
+            if (DagEdit.isEditMode()) {
+                setTimeout(function () {
+                    $joinTableName.blur();
+                });
+            }
         } else {
             return;
         }

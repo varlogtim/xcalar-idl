@@ -2045,7 +2045,9 @@ FormHelper.prototype = {
             return ($ele.is(":visible") && !$ele.is("[disabled]") &&
                     !$ele.is("[readonly]") && !$ele.hasClass("unavailable") &&
                     !$ele.hasClass("btn-disabled") &&
-                    $ele.css('visibility') !== "hidden");
+                    $ele.css('visibility') !== "hidden" &&
+                    window.getComputedStyle($ele[0])
+                    .getPropertyValue("pointer-events") !== "none");
         }
     },
 

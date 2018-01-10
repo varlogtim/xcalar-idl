@@ -318,6 +318,10 @@ window.DagPanel = (function($, DagPanel) {
             }, 400);
         });
 
+        $("#exitDagEdit").click(function() {
+            DagEdit.off();
+        });
+
         var dagPanelTop = 0;
         var scrollTop = 0;
         $dagPanel.on('mousedown', '.ui-resizable-n', function() {
@@ -618,7 +622,8 @@ window.DagPanel = (function($, DagPanel) {
             var tableName = $opWrap.data("table");
             var tableId = xcHelper.getTableId(tableName);
 
-            $menu.find(".expandTag, .collapseTag, .undoEdit, .exitEdit")
+            $menu.find(".expandTag, .collapseTag, .undoEdit, .exitEdit, " +
+                        ".commentOp")
                  .addClass("xc-hidden");
 
             if ($opWrap.hasClass("tagHeader")) {
@@ -663,7 +668,7 @@ window.DagPanel = (function($, DagPanel) {
                         $menu.find(".editOp").removeClass("unavailable");
                     }
 
-                    if ($opWrap.closest(".hasEdit").length) {
+                    if ($opWrap.closest(".dagTableWrap.hasEdit").length) {
                         $menu.find(".undoEdit").removeClass("xc-hidden");
                     }
                 }
@@ -685,6 +690,8 @@ window.DagPanel = (function($, DagPanel) {
 
             if (DagEdit.isEditMode()) {
                 $menu.find(".exitEdit").removeClass("xc-hidden");
+            } else {
+                $menu.find(".commentOp").removeClass("xc-hidden");
             }
 
             positionAndShowDagTableDropdown($opIcon, $menu, $(event.target));
@@ -780,7 +787,7 @@ window.DagPanel = (function($, DagPanel) {
 
             if (!Object.keys(edits.structs).length &&
                 !Object.keys(edits.newNodes).length) {
-                Alert.error(AlertTStr.NoEdits, AlertTStr.NoEditsDetected);
+                return;
             } else {
                 Alert.show({
                     "title": AlertTStr.RunEdit,

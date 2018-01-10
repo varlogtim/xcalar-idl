@@ -675,29 +675,11 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    // function searchTreeForName(tree, name) {
-    //     var foundNode;
-    //     search(tree);
-    //     function search(node) {
-    //         if (node.value.name === name) {
-    //             foundNode = node;
-    //             return;
-    //         }
-    //         for (var i = 0; i < node.parents.length; i++) {
-    //             if (!foundNode) {
-    //                 search(node.parents[i]);
-    //             } else {
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //     return foundNode;
-    // }
-
     // if a startNode has a dropped parent, we need to search all of its parents
     // until we find one that is not dropped and add it to the startNodes list
     function includeDroppedNodesInStartNodes(startNodes) {
         var seen = {};
+        var added = {};
         for (var i = 0; i < startNodes.length; i++) {
             var node = startNodes[i];
             var parents = node.parents;
@@ -709,14 +691,18 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         function findNonDroppedParent(node, child) {
+            if (node.value.state === DgDagStateT.DgDagStateReady) {
+                if (added[child.value.name]) {
+                    return;
+                }
+                added[child.value.name] = true;
+                startNodes.push(child);
+                return;
+            }
             if (seen[node.value.name]) {
                 return;
             }
             seen[node.value.name] = true;
-            if (node.value.state === DgDagStateT.DgDagStateReady) {
-                startNodes.push(child);
-                return;
-            }
             for (var i = 0; i < node.parents.length; i++) {
                 findNonDroppedParent(node.parents[i], node);
             }

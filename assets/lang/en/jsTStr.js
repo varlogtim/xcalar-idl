@@ -57,6 +57,7 @@ StatusMessageTStr = {
     "PleaseWait": "Please wait",
     'Finalize': "Finalizing table",
     'FinalizeFailed': "Finalize failed",
+    "EditingDF": "Editing Dataflow",
     // Must keep in sync with htmlTStr
     'ActionSuccess': 'Your action was successful!',
     'ActionFailed': 'Your action failed!',
@@ -947,7 +948,13 @@ DFTStr = {
     "NoEditDropped": "Cannot edit operation if descendant table has been dropped",
     "NoEditIndex": "Cannot edit index operations",
     "NoEditSupported": "Editing this operation is not supported",
-    "ExpandToEdit": "Expand to edit operation"
+    "ExpandToEdit": "Expand to edit operation",
+    "NoEdits": "No edits made",
+    "RunEdits": "Run",
+    "NoColumnTypeCheck": "Column types will not be checked when editing a dataflow.",
+    "EDITINGDATAFLOW": "EDITING DATAFLOW",
+    "TableListNoEdit": "The tables list cannot be modified when editing a dataflow.",
+    "NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory"
 };
 
 DSTStr = {
