@@ -1048,7 +1048,6 @@ window.TableList = (function($, TableList) {
                     WSManager.removeTable(tableId);
                 }
             }
-
             TblManager.refreshTable([tableName], null, [], worksheet, null)
             .then(function() {
                 deferred.resolve(worksheet, tableName);
@@ -1862,7 +1861,9 @@ window.TableList = (function($, TableList) {
             if ($lastTable.length > 0) {
                 var deferred = jQuery.Deferred();
                 xcHelper.centerFocusedTable($lastTable.data("id"), !noAnim)
-                .then(deferred.resolve);
+                .then(function() {
+                    deferred.resolve();
+                });
                 return deferred.promise();
             }
         }

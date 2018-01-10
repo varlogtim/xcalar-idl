@@ -1884,7 +1884,9 @@ window.OperationsView = (function($, OperationsView) {
 
             // automatically show empty checkbox if optional detected
             if (description.indexOf('optional') > -1) {
-                if (types.length === 1 && types[0] === ColumnType.boolean) {
+                if (types.length === 1 && types[0] === ColumnType.boolean ||
+                    (types.length === 2 && types.indexOf(ColumnType.boolean) > -1 &&
+                        types.indexOf(ColumnType.undefined) > -1)) {
                     addBoolCheckbox($input);
                 } else {
                     showEmptyOptions($input);

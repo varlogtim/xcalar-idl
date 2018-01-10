@@ -1851,18 +1851,17 @@ FormHelper.prototype = {
         }
 
         this.$form.addClass('xc-hidden');
-        $("#container").removeClass("formOpen")
+        $("#container").removeClass("formOpen");
         DagEdit.exitForm();
         DagPanel.updateExitMenu();
 
         if (this.mainMenuState != null) {
-
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
             this.mainMenuState = null;
         }
+
         StatusBox.forceHide();
         xcTooltip.hideAll();
-
     },
 
     checkBtnFocus: function() {

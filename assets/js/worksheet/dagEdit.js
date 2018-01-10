@@ -106,7 +106,6 @@ window.DagEdit = (function($, DagEdit) {
             xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                                  TooltipTStr.NoUndoActiveForm);
             StatusMessage.updateLocation(true);
-            TblManager.alignTableEls();
             MainMenu.closeForms();
 
             if (toStore) {
@@ -231,6 +230,7 @@ window.DagEdit = (function($, DagEdit) {
         if ($("#container").hasClass("dfEditState")) {
             TblFunc.focusTable($(".dagWrap.editMode").data("id"));
         }
+        TblManager.alignTableEls();
     };
 
     DagEdit.store = function(info) {
@@ -812,7 +812,6 @@ window.DagEdit = (function($, DagEdit) {
     // will always resolve
     function focusEditingTable(tableName, results) {
         var deferred = jQuery.Deferred();
-
         TblManager.findAndFocusTable(tableName, true)
         .then(function(ret) {
             results[tableName] = ret;

@@ -1878,16 +1878,17 @@
         }
 
         TblFunc.focusTable(tableId);
-
         options = options || {};
-
-        var tableWidth = $tableWrap.width();
-        var tableLeft = $tableWrap.offset().left;
-        var tableRight = tableLeft + tableWidth;
+        var tableRect = $tableWrap[0].getBoundingClientRect();
+        var tableWidth = tableRect.width;
+        var tableLeft = tableRect.left;
+        var tableRight = tableRect.right;
         var mainMenuOffset = MainMenu.getOffset();
+
         var $mainFrame = $('#mainFrame');
-        var mainFrameWidth = $mainFrame.width();
-        var mainFrameRight = $mainFrame[0].getBoundingClientRect().right;
+        var mainFrameRect = $mainFrame[0].getBoundingClientRect();
+        var mainFrameWidth = mainFrameRect.width;
+        var mainFrameRight = mainFrameRect.right;
         // cases to center: if table is small enough to fit entirely within the
         // window.
         // otherwise align table to the left of the window

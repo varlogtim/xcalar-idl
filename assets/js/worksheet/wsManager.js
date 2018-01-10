@@ -659,7 +659,6 @@ window.WSManager = (function($, WSManager) {
             "newWorksheetIndex": WSManager.indexOfWS(newWSId),
             "newWorksheetName": newWS.name
         };
-
         findTableListHelper()
         .then(function() {
             var wsToSend = null;
@@ -693,7 +692,14 @@ window.WSManager = (function($, WSManager) {
                 // It's really a pull not a move
                 // 1) Refresh Orphan List
                 // 2) Trigger Add from Orphan list
-                TableList.refreshOrphanList()
+                var promise;
+                if ($('#orphanedTablesList .tableInfo[data-id="' + tableId + '"]').length) {
+                    promise = PromiseHelper.resolve();
+                } else {
+                    promise = TableList.refreshOrphanList();
+                }
+                
+                promise
                 .then(function() {
                     $('#orphanedTablesList .tableInfo[data-id="' +
                        tableId + '"]')

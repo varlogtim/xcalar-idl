@@ -863,7 +863,16 @@ window.DagFunction = (function($, DagFunction) {
         // query is run
         var nameToTagsMap = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
-            nameToTagsMap[treeNodesToRerun[i].value.struct.dest] = treeNodesToRerun[i].value.tags;
+            var tags = treeNodesToRerun[i].value.tags;
+            if (tags.length === 1) {
+                if (paramNodes.indexOf(treeNodesToRerun[i].value.name) > -1 &&
+                    (xcHelper.getTableName(tags[0]) === SQLOps.SplitCol ||
+                    xcHelper.getTableName(tags[0]) === SQLOps.ChangeType)) {
+                    // if node is splitcol or changetype and is edited, do not keep tag
+                    continue;
+                }
+            }
+            nameToTagsMap[treeNodesToRerun[i].value.struct.dest] = tags;
         }
 
         var commentsToNamesMap = {};
@@ -1055,8 +1064,8 @@ window.DagFunction = (function($, DagFunction) {
                               Authentication.getHashId();
 
                 var node = new TreeValue(XcalarApisT.XcalarApiIndex, struct, 0,
-                                    'indexInput',
-                                    struct.dest, 1, "", DgDagStateT.DgDagStateReady);
+                                    'indexInput', struct.dest, 1, "", "", 
+                                    DgDagStateT.DgDagStateReady);
                 var dest;
                 for (var j = 0; j < valueArray.length; j++) {
                     if (valueArray[j].name === name) {
