@@ -160,7 +160,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())),
             success: function(data) {
                 try {
-                    deferred.resolve(data.stdout);
+                    deferred.resolve(data);
                 } catch (e) {
                     deferred.reject(e);
                     console.error(e);

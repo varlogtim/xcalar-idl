@@ -663,8 +663,7 @@
                  "/true/true",
             success: function(data) {
                 try {
-                    deferred.resolve(JSON.parse(JSON.parse(data.stdout)
-                                                    .sqlQuery));
+                    deferred.resolve(JSON.parse(data.sqlQuery));
                 } catch (e) {
                     deferred.reject(data.stdout);
                     // console.error(e);
