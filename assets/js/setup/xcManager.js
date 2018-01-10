@@ -135,9 +135,16 @@ window.xcManager = (function(xcManager, $) {
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
+            var userExists = false;
             XcSupport.holdSession()
+            .fail(function(err) {
+                if (err === WKBKTStr.Hold) {
+                    userExists = true;
+                    xcManager.forceLogout();
+                }
+            })
             .always(function() {
-                if (firstTimeUser) {
+                if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
                     Alert.show({
