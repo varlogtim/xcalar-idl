@@ -1293,7 +1293,6 @@ Thrift.Protocol.prototype = {
             st.push(st[pos].shift());
         }
     },
-
     /**
      * Deserializes the beginning of a set.
      * @returns {AnonReadColBeginReturn}
