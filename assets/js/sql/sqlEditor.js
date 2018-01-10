@@ -41,6 +41,10 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     function setupEditor() {
         var textArea = document.getElementById("sqlEditor");
+        if (!textArea) {
+            // For Release Candidates
+            return;
+        }
 
         editor = CodeMirror.fromTextArea(textArea, {
             "mode": "text/x-sql",
