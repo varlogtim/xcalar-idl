@@ -2578,14 +2578,14 @@ table.datasetTable {
 
 #dsListSection {
     .topWrapper {
-        .size(@height: 40px);
+        .size(@height: 45px);
         margin-bottom: 5px;
-        padding: 0 15px;
 
         .iconSection {
             .size(@width: 40px);
             margin-right: 5px;
             float: left;
+            margin-left: 15px;
 
             .xc-action {
                 .size(20px, 20px);
@@ -2606,11 +2606,13 @@ table.datasetTable {
         }
 
         .pathSection {
-            .size(@width: ~"calc(100% - 50px)", @height: 20px);
+            .size(@width: ~"calc(100% - 80px)", @height: 20px);
             font-size: 12px;
             .textOverflowOneLine;
             cursor: default;
             float: left;
+            margin-right: 15px;
+            margin-bottom: 5px;
 
             span {
                 color: @color-bg-softBlue;
@@ -2621,6 +2623,10 @@ table.datasetTable {
 
         .sortSection {
             clear: both;
+            background-color: @color-bg-light-navy;
+            border-bottom: 1px solid @color-bg-dark-marine;
+            padding-right: 15px;
+            padding-top: 1px;
 
             .sortOption {
                 &.key {
@@ -2628,11 +2634,16 @@ table.datasetTable {
                     cursor: default;
                 }
             }
+
+            .divider {
+                .size(@height: 11px);
+                top: -1px;
+            }
         }
     }
 
     .gridViewWrapper {
-        .size(@height: ~"calc(100% - 35px)");
+        .size(@height: ~"calc(100% - 40px)");
         .position(relative);
         overflow-x: hidden;
         overflow-y: auto;
