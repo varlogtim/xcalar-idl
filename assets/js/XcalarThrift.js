@@ -38,6 +38,10 @@ setupHostName = function() {
     if (hostname.charAt(hostname.length - 1) === "/") {
         hostname = hostname.substring(0, hostname.length-1);
     }
+
+    if (window.planServer == null || window.planServer === "") {
+        planServer = hostname;
+    }
 };
 // for convenience, add the function list here and make them
 // comment in default

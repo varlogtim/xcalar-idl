@@ -662,19 +662,14 @@
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())) +
                  "/true/true",
             success: function(data) {
-                if (data.status === 200) {
-                    try {
-                        deferred.resolve(JSON.parse(JSON.parse(data.stdout)
-                                                        .sqlQuery));
-                    } catch (e) {
-                        deferred.reject(data.stdout);
-                        // console.error(e);
-                        // console.error(data.stdout);
-                        // throw data.stdout;
-                    }
-                } else {
-                    deferred.reject(data);
-                    console.error(data);
+                try {
+                    deferred.resolve(JSON.parse(JSON.parse(data.stdout)
+                                                    .sqlQuery));
+                } catch (e) {
+                    deferred.reject(data.stdout);
+                    // console.error(e);
+                    // console.error(data.stdout);
+                    // throw data.stdout;
                 }
             },
             error: function(error) {

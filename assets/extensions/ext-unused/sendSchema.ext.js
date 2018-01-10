@@ -159,16 +159,11 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             url: planServer + "/schemaupdate/" +
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())),
             success: function(data) {
-                if (data.status === 200) {
-                    try {
-                        deferred.resolve(data.stdout);
-                    } catch (e) {
-                        deferred.reject(e);
-                        console.error(e);
-                    }
-                } else {
-                    deferred.reject(data);
-                    console.error(data);
+                try {
+                    deferred.resolve(data.stdout);
+                } catch (e) {
+                    deferred.reject(e);
+                    console.error(e);
                 }
             },
             error: function(error) {
