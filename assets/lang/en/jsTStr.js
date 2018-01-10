@@ -846,7 +846,7 @@ MonitorTStr = {
     "Subject": "Subject",
     "ClosedTicket": "Ticket is closed and cannot be updated.",
     "TicketErr1": "Your organization could not be verified.",
-    "TicketErr2": "Ticket could not be updated because your organization does not match the organization associated with this ticket ID.",
+    "TicketErr2": "This ticket could not be found within your organization.",
 
 
 
@@ -864,8 +864,7 @@ MonitorTStr = {
     "AdditionalInfo": "Additional (New) Information",
     "NoTickets": "No tickets found",
     "SelectExistingTicket": "Select an existing ticket",
-    "CharLimitErr": "Character limit of <limit> exceeded.",
-    "TicketErr3": "Ticket <id> could not be found."
+    "CharLimitErr": "Character limit of <limit> exceeded."
 };
 
 SchedTStr = {

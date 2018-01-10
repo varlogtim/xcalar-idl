@@ -551,7 +551,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         } else if (errorType.orgMisMatch) {
             msg = MonitorTStr.TicketErr2;
         } else if (errorType.ticketNotFound) {
-            msg = xcHelper.replaceMsg(MonitorTStr.TicketErr3, {id: ticketObj.ticketId});
+            msg = MonitorTStr.TicketErr2;
         }
 
         if ($modal.is(":visible")) {
