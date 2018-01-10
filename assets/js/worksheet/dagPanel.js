@@ -229,6 +229,21 @@ window.DagPanel = (function($, DagPanel) {
         return deferred;
     };
 
+    // this function is called when an operation form opens. It will update
+    // the dagpanel dropdowns and add an exit option for that form
+    // name is optional, if not provided then will remove li
+    DagPanel.updateExitMenu = function(name) {
+        var $menu = $dagPanel.find('.dagOperationDropDown');
+        $menu.find(".exitFormOption").remove();
+        if (!name) {
+            return;
+        }
+        var nameUpper = xcHelper.capitalize(name);
+        $menu.prepend('<li class="exitFormOption" ' +
+            'data-action="exitFormOption" data-formname="' + name +
+            '">Exit ' + nameUpper + '</li>');
+    }
+
     // opening and closing of dag is temporarily disabled during animation
     function setupDagPanelSliding() {
         $panelSwitch.click(function(event) {
@@ -623,8 +638,12 @@ window.DagPanel = (function($, DagPanel) {
             var tableId = xcHelper.getTableId(tableName);
 
             $menu.find(".expandTag, .collapseTag, .undoEdit, .exitEdit, " +
-                        ".commentOp")
+                        ".commentOp, .editOp")
                  .addClass("xc-hidden");
+
+            if (!$("#container").hasClass("formOpen")) {
+                $menu.find(".editOp").removeClass("xc-hidden");
+            }
 
             if ($opWrap.hasClass("tagHeader")) {
                 if ($opWrap.hasClass("expanded")) {
@@ -690,7 +709,7 @@ window.DagPanel = (function($, DagPanel) {
 
             if (DagEdit.isEditMode()) {
                 $menu.find(".exitEdit").removeClass("xc-hidden");
-            } else {
+            } else if (!$("#container").hasClass("formOpen")) {
                 $menu.find(".commentOp").removeClass("xc-hidden");
             }
 
@@ -1180,6 +1199,9 @@ window.DagPanel = (function($, DagPanel) {
                 case ("expandTag"):
                 case ("collapseTag"):
                     Dag.toggleTaggedGroup($dagWrap, $menu.data("opIcon"));
+                    break;
+                case ("exitFormOption"):
+                    MainMenu.closeForms();
                     break;
                 case ("none"):
                     // do nothing;

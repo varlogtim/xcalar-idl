@@ -35,7 +35,7 @@ window.DagEdit = (function($, DagEdit) {
         var $dagWrap = $("#dagWrap-" + tableId);
         $dagWrap.addClass("editMode");
         $("#workspaceBar").prepend('<div id="workspaceEditText" class="workspaceArea title">' + DFTStr.EDITINGDATAFLOW + '</div>');
-        // $dagWrap.after('<div id="dagPanelEditText">EDITING DATAFLOW</div>');
+        $dagWrap.after('<div id="dagPanelEditText">Other dataflows have been hidden in edit mode.</div>');
         $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
 

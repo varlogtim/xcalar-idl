@@ -786,8 +786,11 @@ window.OperationsView = (function($, OperationsView) {
             return PromiseHelper.reject();
         }
         var deferred = jQuery.Deferred();
+        if (!options.restore) {
+            operatorName = operator.toLowerCase().trim();
+        }
 
-        formHelper.showView();
+        formHelper.showView(operatorName);
 
         isEditMode = options.prefill ? true : false;
         if (options.prefill && options.prefill.isDroppedTable) {
@@ -799,7 +802,6 @@ window.OperationsView = (function($, OperationsView) {
         if (options.restore) {
             $activeOpSection.removeClass('xc-hidden');
         } else {
-            operatorName = operator.toLowerCase().trim();
             tableId = currTableId;
             // changes mainMenu and assigns activeOpSection
             showOpSection();

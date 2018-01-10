@@ -1814,7 +1814,7 @@ FormHelper.prototype = {
         return deferred.promise();
     },
 
-    showView: function() {
+    showView: function(formName) {
         this.isFormOpen = true;
         this.openTime = Date.now();
         this.mainMenuState = MainMenu.getState();
@@ -1828,6 +1828,16 @@ FormHelper.prototype = {
         } else {
             MainMenu.open();
         }
+        $("#container").addClass("formOpen")
+
+        var name = formName || this.id;
+        name = name.toLowerCase();
+        var viewIndex = name.indexOf("view");
+        if (viewIndex > -1) {
+            name = name.slice(0, viewIndex);
+        }
+        name = $.trim(name);
+        DagPanel.updateExitMenu(name);
 
         return wasMenuOpen;
     },
@@ -1841,7 +1851,9 @@ FormHelper.prototype = {
         }
 
         this.$form.addClass('xc-hidden');
+        $("#container").removeClass("formOpen")
         DagEdit.exitForm();
+        DagPanel.updateExitMenu();
 
         if (this.mainMenuState != null) {
 

@@ -266,15 +266,22 @@
     }
 }
 
-#container.columnPicker {
-    #undoRedoArea {
-        .noUndoTip {
-            display: block;
+#container {
+    &.columnPicker {
+        #undoRedoArea {
+            .noUndoTip {
+                display: block;
+            }
+        }
+        #undo, #redo {
+            opacity: 0.3;
+            pointer-events: none;
         }
     }
-    #undo, #redo {
-        opacity: 0.3;
-        pointer-events: none;
+    &.formOpen {
+        #dagPanel .startEdit {
+            .xc-disabled;
+        }
     }
 }
 
