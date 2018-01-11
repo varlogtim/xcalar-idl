@@ -833,6 +833,8 @@ window.DagFunction = (function($, DagFunction) {
         var translation = {};
         var tagHeaders = {}; // will store a map {tag#oldId: tag#newId}
         var aggRenames = {};
+        var aggNodes = {};
+        var parameterizedAggs = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
             var destTableValue = treeNodesToRerun[i].value;
 
@@ -840,7 +842,13 @@ window.DagFunction = (function($, DagFunction) {
                 updateSourceName(destTableValue, translation);
             }
 
-            updateDestinationName(destTableValue, translation, tagHeaders, aggRenames);
+            updateDestinationName(destTableValue, translation, tagHeaders, aggRenames, paramNodes);
+            if (destTableValue.api === XcalarApisT.XcalarApiAggregate) {
+                aggNodes[destTableValue.struct.dest] = treeNodesToRerun[i];
+                if (paramNodes.indexOf(destTableValue.name) > -1) {
+                    parameterizedAggs[destTableValue.struct.dest] = true;
+                }
+            }
         }
 
         for (var i = 0; i < treeNodesToRerun.length; i++) {
@@ -911,6 +919,31 @@ window.DagFunction = (function($, DagFunction) {
 
         XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
+            var storedAggs = Aggregates.getNamedAggs();
+            for (var name in aggRenames) {
+                var backName = aggRenames[name].slice(gAggVarPrefix.length);
+                if (storedAggs[name.slice(gAggVarPrefix.length)] ||
+                    parameterizedAggs[backName]) {
+                    // if not parameterized and pre-renamed version is not stored in the
+                    // aggregate cache, then we don't add to Aggregates
+                    var aggNode = aggNodes[backName];
+                    var evalStr = aggNode.value.struct.eval[0].evalString;
+                    var op = evalStr.slice(0, evalStr.indexOf("("));
+                    var arg = evalStr.slice(evalStr.indexOf("(") + 1, -1);
+
+                    var aggInfo = {
+                        "value": null,
+                        "dagName": backName,
+                        "aggName": aggRenames[name],
+                        "tableId": xcHelper.getTableId(aggNode.value.struct.source),
+                        "backColName": arg,
+                        "op": op
+                    };
+
+                    Aggregates.addAgg(aggInfo);
+                }
+            }
+
             queryPassed = true;
             return tagNodesAfterEdit(nameToTagsMap, tagHeaders,
                                      nonInvolvedNames);
@@ -995,7 +1028,7 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        function updateDestinationName(value, translation, tagHeaders, aggRenames) {
+        function updateDestinationName(value, translation, tagHeaders, aggRenames, paramNodes) {
             if (value.struct.dest in translation) {
                 value.struct.dest = translation[value.struct.dest];
             } else {
@@ -1011,12 +1044,19 @@ window.DagFunction = (function($, DagFunction) {
                 }
 
                 if (value.api === XcalarApisT.XcalarApiAggregate) {
-                    aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
+                    if (paramNodes.indexOf(value.name) > -1) {
+                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + tableName;
+                        value.struct.dest = tableName;
+                    } else {
+                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
+                        value.struct.dest = newTableName;
+                    }
+                    // aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
                 } else {
                     translation[value.struct.dest] = newTableName;
+                    value.struct.dest = newTableName;
                 }
-
-                value.struct.dest = newTableName;
+                
             }
         }
 

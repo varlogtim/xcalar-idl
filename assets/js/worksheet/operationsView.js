@@ -1366,6 +1366,10 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var input = $input.val().trim();
+        if (input.length === 1 && !isNaN(input)) {
+            // if it's a single number don't suggest
+            return;
+        }
         var listLis = getArgSuggestLists(input);
 
         $list.find("ul").html(listLis);
