@@ -131,7 +131,7 @@ describe("LiveHelp Modal Test", function() {
         // Click "Close" button
         it("Should require confirmation when close the modal", function() {
             $modal.find(".close").click();
-            expect($modal.find(".sysMsg").last().text()).to.include("Please confirm");
+            assert.isTrue($modal.find(".confirmBox.endChat").is(":visible"));
         });
 
         // Click confirm button
@@ -148,6 +148,8 @@ describe("LiveHelp Modal Test", function() {
 
     after(function() {
         UnitTest.offMinMode();
+        $modal.find(".close").click();
+        $modal.find(".confirmClose").click();
         LiveHelpModal.__testOnly__.setSendReqToSocket(oldSendReqToSocket);
         LiveHelpModal.__testOnly__.setSendEmail(oldSendEmail);
         LiveHelpModal.__testOnly__.setSendMsgToSocket(oldSendMsgToSocket);
