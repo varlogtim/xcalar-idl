@@ -945,6 +945,7 @@ ColTStr = {
 'SplitColWarn': '许多列会生成',
 'RenameSpecialChar': '无效名称，名称只能包含字母数字， - ，_和空格，并且必须以字母开头。',
 'ColNameInvalidChar': '无效名称，请不要包含以下字符: ^.\',":()[]{}\\',
+'ColNameInvalidCharSpace': '无效名称，请不要包含以下字符: ^.\',":()[]{}\\ or space',
 'RenameStartNum': '无效名称，不能以数字开头。',
 'ImmediateClash': '无效名称，该名称已被其他列使用',
 'LongName': '列名过长，请使用少于255个字符。',

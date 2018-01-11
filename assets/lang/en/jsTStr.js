@@ -1134,6 +1134,8 @@ ColTStr = {
                          'a letter.',
     'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\',
+    'ColNameInvalidCharSpace': 'Invalid name. Ensure name does not contain the ' +
+                          'following characters: ^.\',":()[]{}\\ or space',
     'RenameStartNum': 'Invalid name, cannot begin with a number.',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',

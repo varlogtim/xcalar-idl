@@ -1159,7 +1159,7 @@ module.exports = {
     },
 
     "jupyter": {
-        "RenameCols": "Prefixed columns were found in your table. You can rename these columns before publishing your table to Jupyter.",
+        "RenameCols": "Prefixed columns or column names with spaces were found in your table. You can rename these columns before publishing your table to Jupyter.",
         "OriginalName": "Original Name",
         "NewName": "New Name",
         "PUBLISH": "PUBLISH",

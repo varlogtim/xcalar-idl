@@ -84,7 +84,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                             'data-container="body" title="' +
                             JupyterTStr.PrefixNoRename + '"';
             } else {
-                newColName = xcHelper.stripColName(cols[i].getFrontColName());
+                newColName = xcHelper.stripColName(cols[i].getFrontColName(), true);
                 newColName = getAutoGenColName(newColName, existingCols);
             }
 
@@ -150,7 +150,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
         $modal.find(".rightColSection .arg").each(function(i) {
             name = $.trim($(this).val());
             if (!$(this).hasClass("readonly")) {
-                var err = xcHelper.validateColName(name);
+                var err = xcHelper.validateColName(name, true);
                 if (err) {
                     StatusBox.show(err, $(this), true, {
                         preventImmediateHide: true,

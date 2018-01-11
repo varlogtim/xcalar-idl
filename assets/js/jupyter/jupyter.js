@@ -134,7 +134,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
         var tableId = xcHelper.getTableId(tableName);
         var columns = gTables[tableId].getAllCols(true);
         for (var i = 0; i < columns.length; i++) {
-            if (columns[i].getBackColName().indexOf(gPrefixSign) > -1 && (
+            if ((columns[i].getBackColName().indexOf(gPrefixSign) > -1 ||
+                columns[i].getBackColName().indexOf(" ") > -1) && (
                 columns[i].getType() !== ColumnType.object &&
                 columns[i].getType() !== ColumnType.array)) {
                 return true;

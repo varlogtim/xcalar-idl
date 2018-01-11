@@ -2197,11 +2197,15 @@
         return str.replace(/\"/g, "\\\"");
     };
 
-    xcHelper.hasInvalidCharInCol = function(str) {
-        return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
+    xcHelper.hasInvalidCharInCol = function(str, noSpace) {
+        if (noSpace) {
+            return /^ | $|[\^,\(\)\[\]{}'"\.\\ ]|:/.test(str);
+        } else {
+            return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
+        }
     };
 
-    xcHelper.validateColName = function(columnName) {
+    xcHelper.validateColName = function(columnName, noSpace) {
         if (!columnName || columnName.trim().length === 0) {
             return ErrTStr.NoEmpty;
         }
@@ -2210,8 +2214,12 @@
         var firstrChar = columnName.charAt(0);
         if (columnName.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
             error = ColTStr.LongName;
-        } else if (xcHelper.hasInvalidCharInCol(columnName)) {
-            error = ColTStr.ColNameInvalidChar;
+        } else if (xcHelper.hasInvalidCharInCol(columnName, noSpace)) {
+            if (noSpace) {
+                error = ColTStr.ColNameInvalidCharSpace;
+            } else {
+                error = ColTStr.ColNameInvalidChar;
+            }
         } else if (columnName === "DATA") {
             error = ErrTStr.PreservedName;
         } else if (firstrChar >= "0" && firstrChar <= "9") {
@@ -2261,12 +2269,19 @@
         return (str);
     };
 
-    xcHelper.stripColName = function(colName) {
-        var res = colName.split(/[\[\]\.\\]/g).filter(function(str) {
+    xcHelper.stripColName = function(colName, stripSpace) {
+        var pattern;
+        if (stripSpace) {
+            pattern = /[\[\]\.\\ ]/g
+        } else {
+            pattern = /[\[\]\.\\]/g
+        }
+        var res = colName.split(pattern).filter(function(str) {
             return (str !== "");
         }).join("_");
         return res;
     };
+
 
     xcHelper.scrollToBottom = function($target) {
         // scroll to bottom
