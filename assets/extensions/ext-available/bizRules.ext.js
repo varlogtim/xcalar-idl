@@ -7,6 +7,11 @@ window.UExtBizRules = (function(UExtBizRules) {
             "type": "table",
             "name": "BRI Table",
             "fieldClass": "briTable"
+        },
+        {
+            "type": "string",
+            "name": "Module Name (Lower Case)",
+            "fieldClass": "moduleName"
         }
         ]
     }];
@@ -44,6 +49,7 @@ window.UExtBizRules = (function(UExtBizRules) {
             var args = self.getArgs();
             var briTable = args.briTable;
             var cols = briTable.tableCols;
+            var briModuleName = args.moduleName;
             var argCol;
 
             for (var i = 0; i<cols.length; i++) {
@@ -58,8 +64,12 @@ window.UExtBizRules = (function(UExtBizRules) {
             }
 
             var numRules = -1;
-            var briModuleName = userIdName.toLowerCase().replace(/[^a-zA-Z0-9]/g,
-                                                               '');
+            var regex = new RegExp("^[a-z][a-z0-9-_]*$");
+            if (!regex.test(briModuleName)) {
+                return XcSDK.Promise.reject("Module Name can only contain " +
+                       "characters a-z, 0-9, -, _ and must start with an " +
+                       "alphabet.");
+            }
             ext.getNumRows(briTable.getName(), {})
             .then(function(numRows) {
                 if (numRows > 1000) {
@@ -181,7 +191,7 @@ window.UExtBizRules = (function(UExtBizRules) {
                     '    funcList = [<FUNC_NAME>];\n' +
                     '    fargs = [<ARG_NAME>]\n' +
                     '    resList = []\n' +
-                    '    for i in xrange(len(funcList)):\n' +
+                    '    for i in range(len(funcList)):\n' +
                     '        f = funcList[i]\n' +
                     '        res = f(*fargs[i])\n' +
                     '        resList.append(str(res))\n' +
@@ -246,7 +256,8 @@ window.UExtBizRules = (function(UExtBizRules) {
                                                                 ruleDescString);
                 udfString += ruleLookupTemplate;
 
-                return XcalarUploadPython("bri_" + briModuleName, udfString);
+                return XcalarUploadPythonRejectDuplicate("bri_" + briModuleName,
+                                                         udfString);
             })
             .then(function() {
                 Alert.show({title: "Business Rules Inventory",

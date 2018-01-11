@@ -4041,6 +4041,31 @@ XcalarListXdfs = function(fnNamePattern, categoryPattern) {
     return (deferred.promise());
 };
 
+XcalarUploadPythonRejectDuplicate = function(moduleName, pythonStr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (error && error.output && error.output.error &&
+            error.output.error.message &&
+            error.output.error.message.length > 0) {
+            error = error.output.error.message;
+        }
+        thriftError = thriftLog("XcalarUdfUpload", error);
+        Log.errorLog("Upload Python", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
 XcalarUploadPython = function(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4060,10 +4085,10 @@ XcalarUploadPython = function(moduleName, pythonStr) {
                 deferred.resolve();
             })
             .fail(function(error2) {
-                if (error2 && error2.output
-                    && error2.output.error
-                    && error2.output.error.message
-                    && error2.output.error.message.length > 0) {
+                if (error2 && error2.output &&
+                    error2.output.error &&
+                    error2.output.error.message &&
+                    error2.output.error.message.length > 0) {
                     error2 = error2.output.error.message;
                 }
                 thriftError = thriftLog("XcalarUpdateAfterUpload", error2);
@@ -4087,7 +4112,7 @@ XcalarUploadPython = function(moduleName, pythonStr) {
             error.output.error.message.length > 0) {
             error = error.output.error.message;
         }
-        thriftError = thriftLog("XcalarUpdateAfterUpload", error);
+        thriftError = thriftLog("XcalarUdfUpload", error);
         Log.errorLog("Upload Python", null, null, thriftError);
         deferred.reject(thriftError);
     });
