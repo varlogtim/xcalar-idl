@@ -857,7 +857,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         var settingText = "";
         var createRuleOptions = {
-            "createOnly": "Do not Overwrite",
+            "createOnly": "Do Not Overwrite",
             "appendOnly": "Append to Existing",
             "deleteAndReplace": "Overwrite Existing"
         };

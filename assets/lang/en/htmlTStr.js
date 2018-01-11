@@ -954,7 +954,7 @@ module.exports = {
         "currParamList": "Current Parameter List",
         "systemParamList": "System Parameter List",
         "editParam": "Parameterized Operation",
-        "exportSetting": "Advance Export Settings",
+        "exportSetting": "Advanced Export Settings",
         "param": "Parameter",
         "val": "Value",
         "empty": "No Value"
