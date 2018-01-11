@@ -3,7 +3,7 @@ window.ErrorMessage = (function(ErrorMessage, $){
     var $modalBg; // $("#modalBackground")
     var colorNum = 8;
     // constant
-    var minHeight = 472;
+    var minHeight = 580;
     var minWidth  = 800;
 
     ErrorMessage.setup = function() {
@@ -155,7 +155,8 @@ window.ErrorMessage = (function(ErrorMessage, $){
 
     function appendLog(installationLogs) {
         var $content = $("#errorMessageModal .logWrap .logArea");
-        $content.html(splitLogByHost(installationLogs));
+        // $content.html(splitLogByHost(installationLogs));
+        $content.html("<div class='msgRow'>" + installationLogs + "</div>");
     }
 
     function splitLogByHost(logs) {
@@ -170,7 +171,7 @@ window.ErrorMessage = (function(ErrorMessage, $){
                 var color = "color" + colorId;
                 out += "<div class='msgRow'>" +
                        "<div class='" + color + "'>" +
-                       "    Host:" + allNodes[i] +
+                       "Host:" + allNodes[i] +
                        "</div>" +
                        "</div>";
                 colorId++;

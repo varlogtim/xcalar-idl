@@ -219,12 +219,14 @@ window.Installer = (function(Installer, $) {
             }
             $form.find(".section:not(.buttonSection) input").prop("disabled", true);
             $form.find("#numServers").prop("disabled", true);
+            $form.find(".radioButtonGroup").addClass("unclickable");
             InstallerCommon.prepareStart($form, doingString, doingLower);
         }
 
         function handleFail() {
             $form.find(".section:not(.buttonSection) input").prop("disabled", false);
             $form.find("#numServers").prop("disabled", false);
+            $form.find(".radioButtonGroup").removeClass("unclickable");
             InstallerCommon.handleFail($form, prevString, doingLower);
         }
 

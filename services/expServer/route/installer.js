@@ -446,6 +446,7 @@ function discoverUtil(credArray, execCommand, script) {
     var deferredOut = jQuery.Deferred();
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
+    var retMsg = {};
 
     function initialStep() {
         var deferred = jQuery.Deferred();
@@ -454,22 +455,22 @@ function discoverUtil(credArray, execCommand, script) {
             fs.writeFile(credentialLocation, password,
                          {mode: parseInt('600', 8)},
                          function(err) {
-                             if (err) {
-                                 deferred.reject(err);
-                                 return;
-                             }
-                             deferred.resolve();
+                            if (err) {
+                                deferred.reject(err);
+                                return;
+                            }
+                            deferred.resolve();
                          });
         } else if ("sshKey" in credArray.credentials) {
             var sshkey = credArray.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
                          {mode: parseInt('600', 8)},
                          function(err) {
-                             if (err) {
-                                 deferred.reject(err);
-                                 return;
-                             }
-                             deferred.resolve();
+                            if (err) {
+                                deferred.reject(err);
+                                return;
+                            }
+                            deferred.resolve();
                          });
         } else {  // when it contains sshUserSettings
             deferred.resolve();
@@ -535,11 +536,16 @@ function discoverUtil(credArray, execCommand, script) {
     })
     .fail(function(err) {
         xcConsole.log("Failure: Xcalar discovery failed with return code: " + err);
-        retMsg = {
-            "status": httpStatus.InternalServerError,
-            "logs": errorLog
-        };
-        deferredOut.reject(retMsg);
+        support.slaveExecuteAction("GET", "/installationLogs/slave",
+            {isHTTP: "true"})
+        .always(function(message) {
+            retMsg = {
+                "status": httpStatus.InternalServerError,
+                "errorLog": errorLog, // the error message by script running
+                "installationLogs": message.logs // all installation logs
+            };
+            deferredOut.reject(retMsg);
+        });
     })
     .done(function(discoveryResult) {
         xcConsole.log("Success: Xcalar discovery succeeded.");
@@ -548,7 +554,6 @@ function discoverUtil(credArray, execCommand, script) {
 
     return deferredOut.promise();
 }
-
 
 function installXcalar(credArray) {
     installUpgradeUtil(credArray, "cluster-install.sh");

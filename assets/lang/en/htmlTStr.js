@@ -1094,7 +1094,7 @@ module.exports = {
         "uninstallWizard": "UNINSTALL WIZARD",
         "upgradeWizard": "UPGRADE WIZARD",
         "installWizardContent": "To install Xcalar on a target cluster.",
-        "upgradeWizardContent": "To upgrade a target cluster to a newer" +
+        "upgradeWizardContent": "To upgrade a target cluster to a newer " +
                                 "version of Xcalar. The option to upgrade " +
                                 "is only available when an existing version " +
                                 "exists and the Xcalar cluster is powered off.",

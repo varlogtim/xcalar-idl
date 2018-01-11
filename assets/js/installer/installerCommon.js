@@ -95,6 +95,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (curStep === 0 && (!$("#formArea").hasClass(formClass))) {
                 return;
             }
+            hideFailure($form);
             validateStep(curStep, $form)
             .then(function(returnStructure) {
                 if (returnStructure) {
@@ -137,6 +138,13 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             var $activeRadio = $(this);
             var $form = $(this).closest("form");
             radioAction($radioButtonGroup, $activeRadio, $form);
+            return false;
+        });
+
+        $forms.find(".checkboxLine .label").click(function() {
+            // If option is the same as before, ignore and return
+            var $checkbox = $(this).closest(".checkboxLine").find(".checkbox");
+            $checkbox.click();
             return false;
         });
 
@@ -623,6 +631,11 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         $error.show();
     }
 
+    function hideFailure($form) {
+        $form.find(".error").find("span").html("");
+        $form.find(".error").hide();
+    }
+
     function clearForm($form, withReset) {
         if (withReset) {
             $form[0].reset();
@@ -630,7 +643,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 clearNumberServer($form);
             }
         }
-        $form.find(".error").hide();
+        hideFailure($form);
         function clearNumberServer($form) {
             $form.prop("disabled", false);
             $form.find(".hostnameSection").addClass("hidden");
@@ -848,6 +861,13 @@ window.InstallerCommon = (function(InstallerCommon, $) {
 
     InstallerCommon.validateDiscover = function($form, $forms) {
         var deferred = jQuery.Deferred();
+        var prevString = "DISCOVER";
+        var doingString = "DISCOVERING...";
+        $form.find("input.next").val(doingString).addClass("inactive");
+        $form.find("input.back").addClass("inactive").hide();
+        $form.find(".section:not(.buttonSection) input").prop("disabled", true);
+        $form.find(".radioButtonGroup").addClass("unclickable");
+
         var result = {};
         InstallerCommon.validateHosts($form, true)
         .then(function(res) {
@@ -877,7 +897,14 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             deferred.resolve();
         })
         .fail(function(arg1, arg2) {
-            deferred.reject(arg1, arg2);
+            InstallerCommon.showErrorModal(arg2);
+            deferred.reject("Failed to discover", arg1);
+        })
+        .always(function() {
+            $form.find("input.next").val(prevString).removeClass("inactive");
+            $form.find("input.back").removeClass("inactive").show();
+            $form.find(".section:not(.buttonSection) input").prop("disabled", false);
+            $form.find(".radioButtonGroup").removeClass("unclickable");
         });
         return deferred.promise();
 
@@ -1030,7 +1057,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 success: function(ret) {
                     deferred.resolve("Request is handled successfully", ret);
                 },
-                error: function(ret, textStatus, xhr) {
+                error: function(xhr, textStatus, err) {
                     if (xhr.responseJSON) {
                         // under this case, server sent the response and set
                         // the status code
