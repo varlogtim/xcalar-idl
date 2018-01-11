@@ -225,7 +225,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     if ($form.find(".nfsServer").val().trim().length === 0) {
                         deferred.reject("NFS Server Invalid",
                             "You must provide a valid NFS Server IP or FQDN");
-                    } else if ($form.find(".nfsMountPoint").val().trim().length === 0) {
+                    } else if ($form.find("input.nfsMountPoint").val().trim().length === 0) {
                         deferred.reject("NFS MountPoint Invalid",
                             "You must provide a valid NFS Mount Point");
                     } else {
