@@ -15,6 +15,10 @@
 // the buttons belonging to the extension
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
+
+
+// THIS EXTENSION NO LONGER WORKS!!! NEEDS REWRITING
+
 window.UExtKMeans = (function(UExtKMeans) {
     UExtKMeans.buttons = [{
         "buttonText": "K-Means Clustering",
