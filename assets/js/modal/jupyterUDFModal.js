@@ -130,8 +130,12 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         }
         $modal.removeClass("type-map type-newImport type-testImport");
         $modal.addClass("type-" + type);
-
         modalHelper.setup();
+        if (type === "testImport") {
+            $modal.css({"minHeight": 310});
+        } else {
+            $modal.css({"minHeight": 290});
+        }
     };
 
     JupyterUDFModal.refereshTarget = function(targetList) {
