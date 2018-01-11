@@ -75,7 +75,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         var totalRows = table.resultSetCount;
         var data = table.getRowDistribution().map(function(d, i) {
             var row = percentageLabel ? d / totalRows : d;
-            return {"row": row, "node": "Node" + i};
+            return {"row": row, "node": "Node " + i};
         });
         var $svg = $modal.find(".chart").empty();
         var svg = d3.select($svg.get(0));

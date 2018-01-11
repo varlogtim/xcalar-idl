@@ -4,6 +4,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
     var cols = [];
     var $udfModuleList;
     var $udfFnList;
+    var $targetList;
 
     JupyterUDFModal.setup = function() {
         $modal = $("#jupyterUDFTemplateModal");
@@ -111,6 +112,14 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                 $udfFnList.find(".fnName").val(fn);
             }
         }).setupListeners();
+
+        $targetList = $modal.find(".targetList");
+        new MenuHelper($targetList, {
+            "onSelect": function($li) {
+                var target = $li.text();
+                $targetList.find(".target").val(target);
+            }
+        }).setupListeners();
     };
 
     JupyterUDFModal.show = function(type) {
@@ -123,6 +132,10 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         $modal.addClass("type-" + type);
 
         modalHelper.setup();
+    };
+
+    JupyterUDFModal.refereshTarget = function(targetList) {
+        $targetList.find("ul").html(targetList);
     };
 
     JupyterUDFModal.refreshUDF = function(listXdfsObj) {
@@ -159,7 +172,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         if (!isValid) {
             return;
         }
-        var fnName =  $modal.find(".fnName:visible").val();
+        var fnName = $modal.find(".fnName:visible").val();
 
         var isFnNameValid = xcHelper.checkNamePattern("udfFn", "check", fnName);
         if (!isFnNameValid) {
@@ -185,6 +198,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             });
         } else if ($modal.hasClass("type-testImport")) {
             JupyterPanel.appendStub("testImportUDF", {
+                target: $modal.find(".target:visible").val(),
                 url: $modal.find(".url:visible").val(),
                 moduleName: $modal.find(".moduleName:visible").val(),
                 fnName: $modal.find(".fnName:visible").val()

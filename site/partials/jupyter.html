@@ -91,8 +91,21 @@
       </div>
       <div class="testImportForm form">
         <div class="row">
-          <span class="label"><%= dicts.dsParser.Full %>:</span>
-          <input class="xc-input arg url" type="text" spellcheck="false" placeholder="file://mystoragecontainer1234/myfolder/">
+           <span class="label"><%= dicts.ds.Target %>:</span>
+           <div class="dropDownList targetList">
+            <input type="text" class="text arg target readonly" readonly spellcheck="false">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul></ul>
+              include "../util/menuScrollArea.html"
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="label"><%= dicts.dsForm.filePath %>:</span>
+          <input class="xc-input arg url" type="text" spellcheck="false" placeholder="/mystoragecontainer1234/myfolder/">
         </div>
          <div class="row">
           <span class="label"><%= dicts.UDF.ModuleName %>:</span>
