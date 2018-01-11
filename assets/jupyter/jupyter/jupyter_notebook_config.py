@@ -68,7 +68,7 @@
 # Use '*' to allow any origin to access your server.
 # 
 # Takes precedence over allow_origin_pat.
-c.NotebookApp.ip = '*'
+c.NotebookApp.ip = '127.0.0.1'
 c.NotebookApp.open_browser = False
 c.NotebookApp.allow_origin = '*'
 c.NotebookApp.port = 8890
@@ -93,7 +93,7 @@ c.NotebookApp.port = 8890
 # The base URL for the notebook server.
 # 
 # Leading and trailing slashes can be omitted, and will automatically be added.
-# c.NotebookApp.base_url = '/'
+c.NotebookApp.base_url = '/jupyter/'
 
 # Specify what command to use to invoke a web browser when opening the notebook.
 # If not specified, the default browser will be determined by the `webbrowser`

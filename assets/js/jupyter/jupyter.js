@@ -9,12 +9,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     JupyterPanel.initialize = function() {
         if (window.jupyterNode == null || window.jupyterNode === "") {
-            var colIndex = hostname.lastIndexOf(":");
-            if (colIndex < 6) {
-                colIndex = hostname.length;
-            }
-            var tempName = hostname.slice(0, colIndex);
-            window.jupyterNode = tempName + ":8889";
+            window.jupyterNode = hostname + '/jupyter';
         }
 
         KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
