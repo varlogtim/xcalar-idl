@@ -1114,8 +1114,7 @@ window.xcFunction = (function($, xcFunction) {
                     "title": ExportTStr.Success,
                     "msgTemplate": msg,
                     "instr": instr,
-                    "isAlert": true,
-                    "isCheckBox": true
+                    "isAlert": true
                 });
             }
             Transaction.done(txId, {
