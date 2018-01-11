@@ -114,8 +114,7 @@ define(function() {
                     case ("basicUDF"):
                         text = '# PLEASE TAKE NOTE:\n'
                              + '# UDFs can only support return values of type String.\n'
-                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n'
-                             + 'from codecs import getreader\n';
+                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n';
                         var colsArg = "";
                         var retStr = "";
                         var assertStr = "";
@@ -156,19 +155,22 @@ define(function() {
                         texts.push(text);
                         break;
                     case ("importUDF"):
-                        text =  'def ' + args.fnName + '(inp, ins):\n' +
+                        text =  'from codecs import getreader\n' +
+                                'def ' + args.fnName + '(inp, ins):\n' +
                                 '    # FILL IN YOUR FUNCTION HERE\n' +
                                 '    pass\n';
                         texts.push(text);
 
                         text =  '#The following function is a sample of how an import UDF should be written\n' +
+                                'from codecs import getreader\n' +
                                 'def __sampleCsvReader(inp, ins):\n' +
                                 '    hasHeader = False\n' +
                                 '    fieldDelim = ","\n' +
                                 '    headers = None\n' +
                                 '    Utf8Reader = getreader("utf-8")\n' +
-                                '    utf8Stream = Utf8Reader(inStream)\n' +
+                                '    utf8Stream = Utf8Reader(ins)\n' +
                                 '    for line in utf8Stream:\n' +
+                                '        line = line.rstrip("\\n") #Remove new line character\n' +
                                 '        record = {}\n' +
                                 '        if hasHeader:\n' +
                                 '            headers = line.split(fieldDelim)\n' +
@@ -195,14 +197,11 @@ define(function() {
                                 '\n' +
                                 'userName = "' + username + '"\n' +
                                 'tempDatasetName = userName + "." + str(random.randint(10000,99999)) + "jupyterDS" + str(random.randint(10000,99999))\n' +
-                                'dataset = Dataset(xcalarApi,\n' +
+                                'dataset = UdfDataset(xcalarApi,\n' +
+                                '    "' + args.target + '",\n' +
                                 '    "' + args.url + '",\n' +
                                 '    tempDatasetName,\n' +
-                                '    DfFormatTypeT.DfFormatJson,\n' +
-                                '    "",\n' +
-                                '    False,\n' +
-                                '    "' + args.moduleName + ':' + args.fnName + '",\n' +
-                                '    0)\n' +
+                                '    "' + args.moduleName + ':' + args.fnName + '")\n' +
                                 '\n' +
                                 'dataset.load()\n' +
                                 '\n' +
@@ -292,11 +291,11 @@ define(function() {
 
                 // rework "new notebook" - prevent menu item from
                 // opening in a new window
-                $("#new-notebook-submenu-python2").find("a").off("click");
-                $("#new-notebook-submenu-python2").find("a").click(function() {
+                $("#new-notebook-submenu-python3").find("a").off("click");
+                $("#new-notebook-submenu-python3").find("a").click(function() {
                     Jupyter.notebook.contents.new_untitled("", {type: "notebook"})
                     .then(function(data) {
-                        var url = "/notebooks/" + data.path + "?kernel_name=python2&needsTemplate=true";
+                        var url = "/notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
                         window.location.href = url;
                     });
                 });

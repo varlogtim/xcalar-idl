@@ -493,7 +493,7 @@ c.NotebookApp.webbrowser_open_new = 0
 # A class for managing multiple kernels.
 
 # The name of the default kernel to start
-# c.MultiKernelManager.default_kernel_name = 'python2'
+c.MultiKernelManager.default_kernel_name = 'python3'
 
 # The kernel manager class.  This is configurable to allow subclassing of the
 # KernelManager for customized behavior.

@@ -147,7 +147,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
     function loadJupyterNotebook(lastLocation) {
         var url;
         if (lastLocation) {
-            url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python2#";
+            url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python3#";
         } else {
             url = jupyterNode + "/tree#";
         }

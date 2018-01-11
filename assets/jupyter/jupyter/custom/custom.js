@@ -26,11 +26,11 @@ define(['base/js/namespace'], function(Jupyter) {
             // prevents bug where new tab opens in windows chrome
             window.location.href = $(this).attr("href");
         });
-        $("#kernel-python2 a").off("click");
-        $("#kernel-python2 a").click(function() {
+        $("#kernel-python3 a").off("click");
+        $("#kernel-python3 a").click(function() {
             Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
             .then(function(data) {
-                var url = "/notebooks/" + data.path + "?kernel_name=python2&needsTemplate=true";
+                var url = "/notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
                 window.location.href = url;
             });
         });
@@ -53,7 +53,7 @@ define(['base/js/namespace'], function(Jupyter) {
         Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
         .then(function(data) {
             var encodedTableName = encodeURIComponent(tableName);
-            var url = "/notebooks/" + data.path + "?kernel_name=python2&" +
+            var url = "/notebooks/" + data.path + "?kernel_name=python3&" +
                         "needsTemplate=true&publishTable=true&" +
                         "tableName=" + encodedTableName + "&numRows=" + numRows;
             window.location.href = url;
