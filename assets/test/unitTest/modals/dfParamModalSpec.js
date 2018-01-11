@@ -192,33 +192,26 @@ describe("DFParamModal Test", function() {
 
         it("get export options should work", function() {
             var prefix = ".exportSettingTable .innerEditableRow";
-            var inputSuffix = ' input';
-            var buttonSuffix = ' .radioButton.active';
-            var createRule = $modal.find(prefix + ".createRule" + buttonSuffix)
-                             .data("option");
-            var recordDelim = $modal
-                              .find(prefix + ".recordDelim" + inputSuffix).val();
-            var fieldDelim = $modal
-                             .find(prefix + ".fieldDelim" + inputSuffix).val();
-            var quoteDelim = $modal
-                             .find(prefix + ".quoteDelim" + inputSuffix).val();
-            var headerType = $modal.find(prefix + ".headerType" + buttonSuffix)
-                             .data("option");
-            var sorted = $modal.find(prefix + ".sorted" + buttonSuffix)
-                         .data("option");
-            var splitRule = $modal.find(prefix + ".splitRule" + buttonSuffix)
-                            .data("option");
-            var maxSize = $modal
-                          .find(prefix + ".maxSize" + inputSuffix).val();
+            var createRule = $modal.find(prefix + ".createRule input").val();
+            var recordDelim = $modal.find(prefix + ".recordDelim input").val();
+            var fieldDelim = $modal.find(prefix + ".fieldDelim input").val();
+            var quoteDelim = $modal.find(prefix + ".quoteDelim input").val();
+            var headerType = $modal.find(prefix + ".headerType input").val();
+            var sorted = $modal.find(prefix + ".sorted input").val();
+            var splitRule = $modal.find(prefix + ".splitRule input").val();
             var exportOptions = DFParamModal.__testOnly__.getExportOptions();
-            expect(exportOptions.createRule).to.equal(createRule);
+
+            expect(createRule).to.equal("Do not Overwrite");
+            expect(exportOptions.createRule).to.equal("createOnly");
             expect(exportOptions.fieldDelim).to
             .equal(DFParamModal.__testOnly__.strToSpecialChar(fieldDelim));
             expect(exportOptions.recordDelim).to
             .equal(DFParamModal.__testOnly__.strToSpecialChar(recordDelim));
-            expect(exportOptions.headerType).to.equal(headerType);
-            expect(exportOptions.sorted).to.equal(sorted === "true");
-            expect(exportOptions.splitRule).to.equal(splitRule);
+            expect(headerType).to.equal("Every File");
+            expect(exportOptions.headerType).to.equal("every");
+            expect(exportOptions.sorted).to.equal(sorted === "True");
+            expect(splitRule).to.equal("Multiple Files");
+            expect(exportOptions.splitRule).to.equal("none");
         });
 
         describe("export submit with invalid file name", function() {
