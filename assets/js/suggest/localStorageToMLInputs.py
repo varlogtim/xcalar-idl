@@ -39,7 +39,7 @@ def parseLocStor():
             # If want to filter on key name, do so here
             parsedValues.append(parsedKeyValue[1])
 
-    print "Most recent time: " + str(mostRecentTime)
+    print("Most recent time: " + str(mostRecentTime))
 
     return parsedValues
 

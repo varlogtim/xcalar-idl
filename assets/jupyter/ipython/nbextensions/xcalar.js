@@ -114,7 +114,8 @@ define(function() {
                     case ("basicUDF"):
                         text = '# PLEASE TAKE NOTE:\n'
                              + '# UDFs can only support return values of type String.\n'
-                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n';
+                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n'
+                             + 'from codecs import getreader\n';
                         var colsArg = "";
                         var retStr = "";
                         var assertStr = "";
@@ -165,7 +166,9 @@ define(function() {
                                 '    hasHeader = False\n' +
                                 '    fieldDelim = ","\n' +
                                 '    headers = None\n' +
-                                '    for line in ins:\n' +
+                                '    Utf8Reader = getreader("utf-8")\n' +
+                                '    utf8Stream = Utf8Reader(inStream)\n' +
+                                '    for line in utf8Stream:\n' +
                                 '        record = {}\n' +
                                 '        if hasHeader:\n' +
                                 '            headers = line.split(fieldDelim)\n' +
@@ -173,16 +176,16 @@ define(function() {
                                 '            continue\n' +
                                 '        vals = line.split(fieldDelim)\n' +
                                 '        if not headers:\n' +
-                                '            headers = ["column" + str(i + 1) for i in xrange(len(vals))]\n' +
-                                '        for i in xrange(len(headers)):\n' +
+                                '            headers = ["column" + str(i + 1) for i in range(len(vals))]\n' +
+                                '        for i in range(len(headers)):\n' +
                                 '            record[headers[i]] = vals[i]\n' +
                                 '        yield record\n' +
                                 '\n' +
                                 'import inspect\n' +
                                 'if inspect.isgeneratorfunction(' + args.fnName + '):\n' +
-                                '    print "Your generator function looks good. Try it on a file!"\n' +
+                                '    print("Your generator function looks good. Try it on a file!")\n' +
                                 'else:\n' +
-                                '    print "You must return a generator. Please try again"';
+                                '    print("You must return a generator. Please try again")';
                         texts.push(text);
                         break;
                     case("testImportUDF"):
@@ -206,10 +209,10 @@ define(function() {
                                 'resultSet = ResultSet(xcalarApi, datasetName=dataset.name, maxRecords=100)\n' +
                                 '\n' +
                                 'for row in resultSet:\n' +
-                                '    print row\n' +
+                                '    print(row)\n' +
                                 '\n' +
                                 'dataset.delete()\n' +
-                                'print "End of UDF"';
+                                'print("End of UDF")';
                         texts.push(text);
                         break;
                     default:

@@ -19,6 +19,7 @@ from dateutil.relativedelta import relativedelta
 from calendar import isleap as __isleap
 import math
 from scipy.stats import beta, chi2, expon, poisson, norm
+from functools import reduce
 
 
 defaultDateFmt = "%m/%d/%Y"
@@ -33,7 +34,7 @@ defaultTimeFmt = "%H:%M:%S"
 #get generator for all dates between start and end included
 #start, end: must be of type Date
 def __rangeOfDates(start, end):
-    for n in xrange(int((end - start).days) + 1):
+    for n in range(int((end - start).days) + 1):
         yield start + timedelta(n)
 
 #return format to Xcalar design
@@ -305,7 +306,7 @@ def permut(n, r):
     r = int(r)
     #eliminates the multiplication required for (n-r)! as the same term is
     #divided
-    return str(reduce(int.__mul__, range(n - r + 1, n + 1), 1))
+    return str(reduce(int.__mul__, list(range(n - r + 1, n + 1)), 1))
 
 #direct combination - nCr
 def combin(n, r):
@@ -314,7 +315,7 @@ def combin(n, r):
     r = min(r, n - r) # to get least number of multiplications in reduce
     #eliminates the need to calculate 3 factorials by removing common terms
     #in n! and (n - r)!
-    return str(reduce(int.__mul__, range(n - r + 1, n + 1), 1) / math.factorial(r))
+    return str(reduce(int.__mul__, list(range(n - r + 1, n + 1)), 1) / math.factorial(r))
 
 #mathematical definition of combination to check result
 # def comb_checker(n_, r_):

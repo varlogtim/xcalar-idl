@@ -42,8 +42,8 @@ def getOneHotEncodingFromValues(values):
     # Literally creates an identity matrix at the moment.
     # In the future, may switch this infrastructure to
     # numpy vectorizer + numpy onehot encoding
-    oneHotArr = [[1 if j == i else 0 for j in xrange(len(values))]
-                 for i in xrange(len(values))]
+    oneHotArr = [[1 if j == i else 0 for j in range(len(values))]
+                 for i in range(len(values))]
     return oneHotArr
 
 def getCategoryMapFromColumn(column):
@@ -164,11 +164,11 @@ def checkInputDataValid(X):
         elif mlType == "categorical":
             categoricalBuckets[feature] = set({})
         elif mlType == None:
-            print "Unrecognized type."
+            print("Unrecognized type.")
             return False
         else:
             # Should _never_ happen.
-            print "Type not cts, categorical, or invalid type."
+            print("Type not cts, categorical, or invalid type.")
             return False
 
     featureSet = set(types.keys())
@@ -176,7 +176,7 @@ def checkInputDataValid(X):
     for recordDict in X:
         curFeatures = set(recordDict.keys())
         if not featureSet == curFeatures:
-            print "Not all records have same features."
+            print("Not all records have same features.")
             return False
         for feature in curFeatures:
             if (isContinuous(recordDict[feature]) and
@@ -189,7 +189,7 @@ def checkInputDataValid(X):
                 categoricalBuckets[feature].add(recordDict[feature])
             else:
                 # feature types do not match
-                print "Feature type not consistent across records."
+                print("Feature type not consistent across records.")
                 return False
 
     # Check that categorical features have small numbers of possible labels
@@ -206,7 +206,7 @@ def checkInputDataValid(X):
             continue
         else:
             if len(bucket) > ArbitraryMaxCategoricalLabels:
-                print "Too many labels for category."
+                print("Too many labels for category.")
                 return True
     return True
 
@@ -217,7 +217,7 @@ def sortAndOrderFeatures(X):
     """
     # X here is list of dicts
     if not checkInputDataValid(X):
-        print "Invalid input data."
+        print("Invalid input data.")
     typeMap = getFeatureTypeMap(X)
     categorical = set({})
     continuous = set({})
@@ -228,7 +228,7 @@ def sortAndOrderFeatures(X):
         elif mlType == "categorical":
             categorical.add(feature)
         else:
-            print "Invalid type."
+            print("Invalid type.")
             return {}
     for idx, feature in enumerate(continuous):
         orderMap[feature] = idx

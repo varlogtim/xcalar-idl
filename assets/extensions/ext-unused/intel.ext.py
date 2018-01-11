@@ -6,7 +6,7 @@ import datetime, time
 def doesNotContain(*arg):
     found = False
     colVal = str(arg[0])
-    for a in xrange(len(arg)-1):
+    for a in range(len(arg)-1):
         if colVal.find(str(arg[a+1])) != -1:
             found = True
             break

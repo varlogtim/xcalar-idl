@@ -26,7 +26,7 @@ def getSma(values, numDays):
 	allV = values.split(",")
 	curSum = 0
 	curCount = 0
-	for i in xrange(min(len(values), numDays)):
+	for i in range(min(len(values), numDays)):
 		curSum += float(allV[i])
 		curCount += 1
 	if curCount == 0:
@@ -56,7 +56,7 @@ def getGoldenCrossDate(values, lookbackDays=None):
 		return "Not crossed yet"
 
 	# Already crossed. When did it cross?
-	for i in xrange(maxDatapoints - 1):
+	for i in range(maxDatapoints - 1):
 		fiftySum = fiftySum - valArray[i] + valArray[50 + i]
 		twoHundredSum = twoHundredSum - valArray[i] + valArray[50 + i]
 		fiftyAverage = float(fiftySum) / 50
@@ -73,13 +73,13 @@ def getEma(values, numDays):
 		return "Too few days on the market"
 	getStart = 0
 	startCount = 0
-	for i in xrange(min(len(valArray) - numDays, numDays)):
+	for i in range(min(len(valArray) - numDays, numDays)):
 		getStart += valArray[-1 - i]
 		startCount += 1
 	prevEma = getStart / startCount
 	multiplier = (float(2) / (numDays + 1))
 	emaArray = []
-	for i in xrange(len(valArray) - startCount):
+	for i in range(len(valArray) - startCount):
 		curEma = (valArray[len(valArray) - startCount - 1 - i] - prevEma) *\
 				  multiplier + prevEma
 		emaArray.insert(0, str(curEma))
@@ -98,7 +98,7 @@ def getEmaActions(emaShort, emaLong, numDays):
 	ema13 = list(reversed([float(x) for x in ema13]))
 	prev = "Sell"
 	actions = []
-	for i in xrange(numValues):
+	for i in range(numValues):
 		if ema5[i] > ema13[i]:
 			#buy event
 			if (prev == "Sell"):
@@ -120,7 +120,7 @@ def removeNoActions(actions, numDays):
 	if len(actions) < numDays:
 		numDays = len(actions)
 	hasBuy = False
-	for i in xrange(numDays):
+	for i in range(numDays):
 		if (actions[i] == "Buy"):
 			hasBuy = True
 			break
@@ -134,7 +134,7 @@ def getCurVal(actions, price, numDays, amountOfMoney):
 	numDays = min(len(actions), len(price), numDays)
 	start = False
 	numShares = -1
-	for i in xrange(numDays):
+	for i in range(numDays):
 		if actions[numDays - 1 - i] == "Buy":
 			if (start == True):
 				return "Bug in algo"

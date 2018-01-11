@@ -31,7 +31,7 @@ def parser(infileStr):
             rowNum += 1
             continue
 
-        for i in xrange(ni):
+        for i in range(ni):
             input = dict()
             input["type"] = "input"
             input["dataNum"] = rowNum
@@ -40,7 +40,7 @@ def parser(infileStr):
             input["inputData"] = float(line[i])
             array.append(input)
 
-        for o in xrange(no):
+        for o in range(no):
             output = dict()
             output["type"] = "output"
             output["dataNum"] = rowNum
@@ -51,8 +51,8 @@ def parser(infileStr):
 
         rowNum += 1
 
-    for r in xrange(nh):
-        for c in xrange(ni):
+    for r in range(nh):
+        for c in range(ni):
             hw = dict()
             hw["type"] = "hw"
             hw["hwRow"] = r
@@ -60,8 +60,8 @@ def parser(infileStr):
             hw["hwData"] = rand(-0.2, 0.2)
             array.append(hw)
 
-    for r in xrange(no):
-        for c in xrange(nh):
+    for r in range(no):
+        for c in range(nh):
             ow = dict()
             ow["type"] = "ow"
             ow["owRow"] = r

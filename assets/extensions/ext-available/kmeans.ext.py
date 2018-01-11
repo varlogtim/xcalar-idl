@@ -26,10 +26,10 @@ def cluster(col, argString):
     point = col.split(",")
     means = argString.split("#")
     # last element is empty
-    for x in xrange(len(means) - 1):
+    for x in range(len(means) - 1):
         mean = means[x].split(",")
         distance = 0
-        for y in xrange(len(mean)):
+        for y in range(len(mean)):
             distance += (float(point[y]) - float(mean[y])) ** 2
         distances.append(distance)
 
@@ -42,7 +42,7 @@ def distance(col1, col2):
     distance = 0
     point1 = col1.split(",");
     point2 = col2.split(",");
-    for x in xrange(len(point1)):
+    for x in range(len(point1)):
         distance += (float(point1[x]) - float(point2[x])) ** 2
 
     return str(distance ** .5)
