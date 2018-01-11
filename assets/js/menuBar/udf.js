@@ -782,7 +782,7 @@ window.UDF = (function($, UDF) {
 
         try {
             var splits = error.error.match(/^.*: '(.*)' at line (.*) column (.*)/);
-            if (splits.length < 3) {
+            if (!splits || splits.length < 3) {
                 console.error("cannot parse error", error);
                 return null;
             }

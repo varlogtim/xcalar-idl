@@ -1,7 +1,7 @@
 describe("UDF Test", function() {
     var waitTime = 200;
     var defaultModule = "default";
-    var syntaxErrror = "Error: [\"SyntaxError: ('invalid syntax', ('xcalar_udf_cdf', 12, 5, 'def :\\n'))\n\"]";
+    var syntaxErrror = "error: 'invalid syntax' at line 12 column 5";
     var $udfSection;
     var $udfManager;
 
@@ -110,9 +110,9 @@ describe("UDF Test", function() {
             res = parseSyntaxError({"error": "(a,b,c,d)"});
             expect(res).to.be.null;
 
-            res = parseSyntaxError({"error": syntaxErrror});
+            res = parseSyntaxError({"error": "error: 'invalid syntax' at line 12 column 1"});
             expect(res).to.be.an("object");
-            expect(res.reason).to.equal("\'invalid syntax\'");
+            expect(res.reason).to.equal("invalid syntax");
             expect(res.line).to.equal(12);
         });
 

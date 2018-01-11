@@ -274,18 +274,20 @@ window.UnionView = (function(UnionView, $) {
         $result.find(".lists:first-child .resultCol").each(function(index) {
             var $col = $(this);
             var type = $col.data("type");
-            if (type) {
-                resultCols[index] = {
-                    name: $col.find("input").val(),
-                    type: type
-                };
+            resultCols[index] = {
+                name: $col.find("input").val()
+            };
+            if ($col.hasClass("cast") && type != null) {
+                resultCols[index].type = type;
             }
         });
 
         tableInfoLists.forEach(function(tableIfo) {
             tableIfo.selectedCols.forEach(function(colInfo, index) {
+                resultCols[index] = resultCols[index] || {};
                 // use the first col that is not empty as resultCol
-                resultCols[index] = resultCols[index] || colInfo;
+                resultCols[index].name = resultCols[index].name || colInfo.name;
+                resultCols[index].type = resultCols[index].type || colInfo.type;
             });
         });
 
@@ -377,10 +379,12 @@ window.UnionView = (function(UnionView, $) {
                     }
                     var tableIndex = getListIndex($dropDownList);
                     var colIndex = Number($dropDownList.data("index"));
+                    var used = Number($li.data("used"));
+                    used = isNaN(used) ? null : used;
                     var colInfo = {
                         name: colName,
                         type: $li.data("type"),
-                        used: Number($li.data("used"))
+                        used: used
                     };
                     selectColumn(colInfo, colIndex, tableIndex);
                     xcTooltip.hideAll();

@@ -160,7 +160,7 @@ describe("Union View Test", function() {
         $input.val("");
         $unionView.find(".confirm").click();
         UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-        $input.val("text");
+        $input.val(text);
     });
 
     it("should validate and show empty new table error", function() {
