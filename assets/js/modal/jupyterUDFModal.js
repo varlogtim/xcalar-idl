@@ -138,7 +138,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         }
     };
 
-    JupyterUDFModal.refereshTarget = function(targetList) {
+    JupyterUDFModal.refreshTarget = function(targetList) {
         $targetList.find("ul").html(targetList);
     };
 

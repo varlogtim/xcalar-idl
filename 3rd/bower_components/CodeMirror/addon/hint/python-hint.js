@@ -45,19 +45,11 @@
     return scriptHint(editor, pythonKeywordsU, function (e, cur) {return e.getTokenAt(cur);});
   };
 
-  var pythonKeywords = "and del from not while as elif global or with assert else if pass yield"
-+ "break except import print class exec in raise continue finally is return def for lambda try";
+  var pythonKeywords = "False class finally is return None continue for lambda try True def from nonlocal while and del global not with as elif if or yield assert else import pass break except in raise";
   var pythonKeywordsL = pythonKeywords.split(" ");
   var pythonKeywordsU = pythonKeywords.toUpperCase().split(" ");
 
-  var pythonBuiltins = "abs divmod input open staticmethod all enumerate int ord str "
-+ "any eval isinstance pow sum basestring execfile issubclass print super"
-+ "bin file iter property tuple bool filter len range type"
-+ "bytearray float list raw_input unichr callable format locals reduce unicode"
-+ "chr frozenset long reload vars classmethod getattr map repr xrange"
-+ "cmp globals max reversed zip compile hasattr memoryview round __import__"
-+ "complex hash min set apply delattr help next setattr buffer"
-+ "dict hex object slice coerce dir id oct sorted intern ";
+  var pythonBuiltins = "abs dict help min setattr all dir hex next slice any divmod id object sorted ascii enumerate input oct staticmethod bin eval int open str bool exec isinstance ord sum bytearray filter issubclass pow super bytes float iter print tuple callable format len property type chr frozenset list range vars classmethod getattr locals repr zip compile globals map reversed __import__ complex hasattr max round delattr hash memoryview set";
   var pythonBuiltinsL = pythonBuiltins.split(" ").join("() ").split(" ");
   var pythonBuiltinsU = pythonBuiltins.toUpperCase().split(" ").join("() ").split(" ");
 

@@ -45,7 +45,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 return "<li>" + targetName + "</li>";
             }).join("");
             $("#dsForm-targetMenu ul").html(html);
-            JupyterUDFModal.refereshTarget(html);
+            JupyterUDFModal.refreshTarget(html);
         };
         var updateNumTargets = function(num) {
             $(".numDSTargets").html(num);
