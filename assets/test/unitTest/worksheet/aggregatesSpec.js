@@ -227,7 +227,7 @@ describe("Aggregates Test", function() {
             })
             .fail(function() {
                 UnitTest.hasAlertWithText("Error: Could not find dag node. " +
-                                            "No aggregates were deleted.");
+                                            "No aggregates were dropped.");
                 XIApi.deleteTable = cachedDelete;
                 setTimeout(function() {
                     done(); // some delay when closing alert
@@ -281,7 +281,7 @@ describe("Aggregates Test", function() {
                 expect(ret[1]).to.equal("otherFakeAgg");
                 expect(dagMakeInactiveCalled).to.be.true;
                 UnitTest.hasAlertWithText("Error: Could not find dag node. " +
-                                    "Aggregate nonexistant was not deleted.");
+                                    "Aggregate nonexistant was not dropped.");
                 XIApi.deleteTable = cachedDelete;
                 Dag.makeInactive = cachedDagFn;
                 setTimeout(function() {
@@ -316,7 +316,7 @@ describe("Aggregates Test", function() {
                 expect(ret.length).to.equal(0);
                 expect(dagMakeInactiveCalled).to.be.false;
                 UnitTest.hasAlertWithText("Error: Could not find dag node. " +
-                                            "No aggregates were deleted.");
+                                            "No aggregates were dropped.");
                 XIApi.deleteTable = cachedDelete;
                 Dag.makeInactive = cachedDagFn;
                 setTimeout(function() {

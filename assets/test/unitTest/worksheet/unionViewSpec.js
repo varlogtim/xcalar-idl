@@ -87,7 +87,7 @@ describe("Union View Test", function() {
         $unionView.find(".focusTable").eq(0).click();
         expect(testId).to.equal("test1");
 
-        oldFunc = xcHelper.centerFocusedTable;
+        xcHelper.centerFocusedTable = oldFunc;
     });
 
     it("should search column", function() {
