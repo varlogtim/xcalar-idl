@@ -274,14 +274,18 @@ window.TblFunc = (function(TblFunc, $) {
                     if (menuAnimating) {
                         $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
                         $thead.find(".lockIconWrap").addClass("xc-hidden");
-                        $tableTitle.animate({left: center}, animSpeed, function() {
+                        $tableTitle.addClass("animating");
+                        $tableTitle.stop().animate({left: center}, animSpeed, function() {
+                            $tableTitle.removeClass("animating");
                             $thead.find('.dropdownBox')
                                   .removeClass('dropdownBoxHidden');
                             $thead.find(".lockIconWrap").removeClass("xc-hidden");
                             TblFunc.moveTableDropdownBoxes();
                         });
                     } else {
-                        $tableTitle.css('left', center);
+                        if (!$tableTitle.hasClass("animating")) {
+                            $tableTitle.css('left', center);
+                        }
                     }
 
                     $table.find('.lockedTableIcon')

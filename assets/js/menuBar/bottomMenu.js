@@ -4,6 +4,7 @@ window.BottomMenu = (function($, BottomMenu) {
     var isMenuOpen = false;
     var isPoppedOut = false;
     var menuAnimCheckers = [];
+    var needsMainMenuBackOpen = false;
 
     BottomMenu.setup = function() {
         $menuPanel = $("#bottomMenu");
@@ -190,6 +191,13 @@ window.BottomMenu = (function($, BottomMenu) {
     }
 
     function closeMenu(topMenuOpening) {
+        if (needsMainMenuBackOpen && !topMenuOpening) {
+            needsMainMenuBackOpen = false;
+            if ($(".topMenuBarTab.active").hasClass("mainMenuOpen")) {
+                MainMenu.open();
+                return;
+            }
+        }
         $menuPanel.removeClass("open");
         $("#container").removeClass("bottomMenuOpen");
         isMenuOpen = false;
@@ -224,6 +232,9 @@ window.BottomMenu = (function($, BottomMenu) {
                 // disable closing if popped out
                 return;
             } else {
+                if (needsMainMenuBackOpen) {
+                    hasAnim = false;
+                }
                 closeMenu();
             }
         } else {
@@ -240,6 +251,10 @@ window.BottomMenu = (function($, BottomMenu) {
                 clickable = true;
             });
         }
+    }
+
+    BottomMenu.unsetMenuCache = function() {
+        needsMainMenuBackOpen = false;
     }
 
     function openMenu(sectionIndex) {
@@ -262,6 +277,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $section.addClass("active");
         var isBottomMenuOpening = false;
         if ($("#mainMenu").hasClass("open")) {
+            needsMainMenuBackOpen = true;
             isBottomMenuOpening = true;
             MainMenu.close(isBottomMenuOpening);
             noAnim();
@@ -306,6 +322,7 @@ window.BottomMenu = (function($, BottomMenu) {
         refreshEditor();
 
         if (sectionId === "extension-ops") {
+
             MainMenu.closeForms();
             // close these views before we open extensionManager otherwise
             // extensionmanager listeners and classes might be removed

@@ -103,7 +103,7 @@ window.DagEdit = (function($, DagEdit) {
                 title: DFTStr.NoEdits
             });
 
-            DagEdit.exitForm();
+            DagEdit.exitForm(true);
 
             xcTooltip.changeText($("#undoRedoArea").find(".noUndoTip"),
                                  TooltipTStr.NoUndoActiveForm);
@@ -222,7 +222,10 @@ window.DagEdit = (function($, DagEdit) {
         });
     };
 
-    DagEdit.exitForm = function() {
+    DagEdit.exitForm = function(force) {
+        if (!force && !DagEdit.isEditMode()) {
+            return;
+        }
         for (var tableName in curEdit.editingTables) {
             var status = curEdit.editingTables[tableName];
             if (status === "inactive") {

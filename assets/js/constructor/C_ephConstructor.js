@@ -1857,6 +1857,9 @@ FormHelper.prototype = {
 
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
+            if (!this.mainMenuState.isTopOpen) {
+               BottomMenu.unsetMenuCache(); 
+            }
             this.mainMenuState = null;
         }
 

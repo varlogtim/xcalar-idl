@@ -435,13 +435,14 @@ window.MainMenu = (function($, MainMenu) {
 
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
-
-        var mainMenuOpening = true;
+        
         if (BottomMenu.isMenuOpen()) {
+            var mainMenuOpening = true;
             BottomMenu.close(mainMenuOpening);
         }
-        $("#container").addClass("mainMenuOpen");
         isMenuOpen = true;
+        $("#container").addClass("mainMenuOpen");
+        
         $curTab.addClass("mainMenuOpen");
 
         // recenter table titles if on workspace panel
@@ -472,7 +473,10 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.find(".commonSection").removeClass("active");
 
         $("#container").removeClass("mainMenuOpen");
-        $curTab.removeClass("mainMenuOpen");
+        if (!noAnim) {
+            $curTab.removeClass("mainMenuOpen");
+        }
+        
         isMenuOpen = false;
 
         setCloseClass(noAnim);
