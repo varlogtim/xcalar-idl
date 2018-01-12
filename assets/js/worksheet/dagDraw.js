@@ -1883,6 +1883,9 @@ window.DagDraw = (function($, DagDraw) {
                     info.url = value.fileName || "";
                     info.opText = "";
                     break;
+                case ('unionInput'):
+                    node.value.indexedFields = getUnionSrcCols(node);
+                    break;
                 default:
                     var name;
                     if (key.slice(key.length - 5) === "Input") {
@@ -2017,6 +2020,9 @@ window.DagDraw = (function($, DagDraw) {
                                     joinSubType);
 
                 break;
+            case (SQLOps.Union):
+                node.value.indexedFields = getUnionSrcCols(node);
+                break;
             default:
                 if (taggedOp.indexOf(SQLOps.Ext) === 0) {
                     info.tooltip = taggedOp;
@@ -2148,6 +2154,39 @@ window.DagDraw = (function($, DagDraw) {
                 return getSrcIndex(node.parents[0]);
             }
         }
+    }
+
+    function getUnionSrcCols(node) {
+        var srcColSets = [];
+        var lSrcCols = [];
+        var rSrcCols = [];
+        var parents = getGroupLeaves(node); // gets leaves within a tagged group
+
+        for (var i = 0; i < parents.length; i++) {
+            var parentIndex = i;
+            if (parents[i].value.api === XcalarApisT.XcalarApiMap) {
+                srcColSets[parentIndex] = parseConcatCols(parents[i]);
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiIndex) {
+                var cols = [];
+                for (var j = 0; j < parents[i].value.struct.key.length; j++) {
+                    cols.push(parents[i].value.struct.key[j].name);
+                }
+                srcColSets[parentIndex] = cols;
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiUnion) {
+                srcColSets[parentIndex] = parents[i].value.struct.columns[parentIndex].map(function(colInfo) {
+                    return colInfo.sourceColumn;
+                });
+            }
+            node.value.struct.columns[parentIndex].forEach(function(colInfo) {
+                if (colInfo.sourceColumn === colInfo.destColumn && colInfo.sourceColumn.indexOf("XC_") !== 0) {
+                    if (srcColSets[parentIndex].indexOf(colInfo.sourceColumn) === -1) {
+                        srcColSets[parentIndex].push(colInfo.sourceColumn);
+                    }
+                }
+            });
+        }
+
+        return srcColSets;
     }
 
     // made only for join, gets leaves within a tagged group

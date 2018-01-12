@@ -620,7 +620,6 @@ window.xcFunction = (function($, xcFunction) {
         var finalTableName;
         var finalTableCols;
 
-
         XIApi.union(txId, tableInfos, dedup, newTableName)
         .then(function(nTableName, nTableCols) {
             finalTableCols = nTableCols;

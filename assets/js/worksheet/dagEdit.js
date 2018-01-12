@@ -9,6 +9,7 @@ window.DagEdit = (function($, DagEdit) {
         // and index are linked, so when  we undo a group by edit, we need to undo the
         // index edit as well
         this.newNodes = {};
+        this.insertNodes = {};
         this.editingTables = {}; // map of names of tables currently being edited
         this.descendantRefCounts = {}; // counts how many times a table is included as a descendant
         this.descendantMap = {}; // map of edited tables and their descendant
@@ -38,6 +39,7 @@ window.DagEdit = (function($, DagEdit) {
         $dagWrap.after('<div id="dagPanelEditText">Other dataflows have been hidden in edit mode.</div>');
         $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
+        $dagWrap.find(".tagHeader.union.expanded").find(".groupTagIcon").click();
 
         var tableId = $dagWrap.data("id");
         if (!$dagWrap.hasClass("selected")) {
@@ -147,7 +149,13 @@ window.DagEdit = (function($, DagEdit) {
         options = options || {};
         curEdit.editingNode = node;
         var api = node.value.api;
-        var sourceTableNames = node.getNonIndexSourceNames(true);
+        var sourceTableNames;
+        if (api = XcalarApisT.XcalarApiUnion) {
+            sourceTableNames = node.getTagSourceNames();
+        } else {
+            sourceTableNames = node.getNonIndexSourceNames(true);
+        }
+
         sourceTableNames = sourceTableNames.filter(function(name) {
             return name.indexOf("#") > -1; // exclude aggregates
         });
@@ -235,6 +243,7 @@ window.DagEdit = (function($, DagEdit) {
 
     DagEdit.store = function(info) {
         var indexNodes = [];
+        var joinColumns;
 
         if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
             checkIndexNodes(info.indexFields, indexNodes, 0);
@@ -253,8 +262,46 @@ window.DagEdit = (function($, DagEdit) {
             info.args.joinType = joinType;
 
             if (joinType !== "crossJoin") {
+                var curIndex = 0;
                 checkIndexNodes(info.indexFields[0], indexNodes, 0);
+                if (indexNodes.length) {
+                    curIndex++;
+                }
                 checkIndexNodes(info.indexFields[1], indexNodes, 1);
+                // if self join, may need to do a rename of columns in join
+                // operation
+                if (curEdit.editingNode.parents[0].value.name === 
+                    curEdit.editingNode.parents[1].value.name &&
+                    indexNodes.length > curIndex) {
+                    var indexKeys = curEdit.structs[indexNodes[curIndex]
+                                                    .value.name].key;
+                    var allColumns = xcHelper.deepCopy(curEdit.editingNode
+                                                        .value.struct.columns);
+                    var colAdded = false;
+                    columns = allColumns[1];
+                    for (var i = 0; i < indexKeys.length; i++) {
+                        var colFound = false;
+                        for (var j = 0; j < columns.length; j++) {
+                            if (columns[j].sourceColumn === 
+                                indexKeys[i].keyFieldName) {
+                                colFound = true;
+                                break;
+                            }
+                        }
+                        if (!colFound) {
+                            colAdded = true;
+                            columns.push({
+                                columnType: indexKeys[i].type,
+                                sourceColumn: indexKeys[i].keyFieldName,
+                                destColumn: indexKeys[i].keyFieldName + 
+                                            Math.floor(Math.random() * 1000)
+                            });
+                        }
+                    }
+                    if (colAdded) {
+                        joinColumns = allColumns;
+                    }
+                }
             }
         }
 
@@ -275,9 +322,19 @@ window.DagEdit = (function($, DagEdit) {
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiJoin) {
             curEdit.structs[curEdit.editingNode.value.name] = {
                 joinType: info.args.joinType,
-                evalString: info.args.evalString};
+                evalString: info.args.evalString
+            };
+            if (joinColumns) {
+                curEdit.structs[curEdit.editingNode.value.name].columns = joinColumns;
+            }
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiUnion) {
-            curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
+            // curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
+            // don't include dest
+            curEdit.structs[curEdit.editingNode.value.name] = {
+                columns: info.args.columns,
+                dedup: info.args.dedup,
+                source: info.args.source
+            };
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
             curEdit.structs[curEdit.editingNode.value.name] = info.args;
             curEdit.aggregates[curEdit.editingNode.value.name] = info.args;
@@ -313,6 +370,41 @@ window.DagEdit = (function($, DagEdit) {
         curEdit.descendantMap[curEdit.editingNode.value.name] = descendants;
     };
 
+    DagEdit.storeUnion = function(tableInfos, dedup, newTableName) {
+        var txId = Transaction.start({
+            "operation": "SQL Simulate",
+            "simulate": true
+        });
+
+        XIApi.union(txId, tableInfos, dedup, newTableName)
+        .then(function(nTableName, nTableCols) {
+            var query = Transaction.done(txId, {
+                "noNotification": true,
+                "noSql": true
+            });
+
+            if (query[query.length - 1] === ",") {
+                query = query.slice(0, -1);
+            }
+            query = JSON.parse("[" + query + "]");
+
+            // XXX may need to add linked nodes
+            if (query.length > 1) {
+                if (!curEdit.insertNodes[curEdit.editingNode.value.name]) {
+                    curEdit.insertNodes[curEdit.editingNode.value.name] = [];
+                }
+                for (var i = 0; i < query.length - 1; i++) {
+                    curEdit.insertNodes[curEdit.editingNode.value.name].push(query[i]);
+                }
+            }
+            
+            DagEdit.store(query[query.length - 1]);
+        })
+        .fail(function(err) {
+
+        });
+    }
+
     DagEdit.undoEdit = function(node) {
         var linkedNodes = curEdit.linkedNodes[node.value.name];
         var toDelete = [];
@@ -325,6 +417,7 @@ window.DagEdit = (function($, DagEdit) {
         }
         delete curEdit.structs[node.value.name];
         delete curEdit.newNodes[node.value.name];
+        delete curEdit.insertNodes[node.value.name];
         delete curEdit.aggregates[node.value.name];
         var descendants = curEdit.descendantMap[node.value.name];
         for (var i = 0; i < descendants.length; i++) {
@@ -562,9 +655,13 @@ window.DagEdit = (function($, DagEdit) {
 
                     for (var j = 0; j < struct.columns[i].length; j++) {
                         var colName = struct.columns[i][j].sourceColumn;
+                        if (colName.indexOf("XC_") === 0) {
+                            continue;
+                        }
                         var rename = struct.columns[i][j].destColumn;
                         var type = translateType(struct.columns[i][j].columnType);
                         cols.push({
+                            origName: node.value.indexedFields[i][j],
                             name: colName,
                             rename: rename,
                             type: type
@@ -573,15 +670,41 @@ window.DagEdit = (function($, DagEdit) {
                     tableCols.push(cols);
                 }
 
+                var indexedFields = node.value.indexedFields;
+                var colNumSets = [];
+                
+                for (var i = 0; i < indexedFields.length; i++) {
+                    var tId = xcHelper.getTableId(sourceTableNames[i]);
+                    var table = gTables[tId] || gDroppedTables[tId]; 
+                    var colNums = [];
+                    if (table && table.getAllCols().length > 1) {
+                        for (var j = 0; j < indexedFields[i].length; j++) {
+                            var colNum = table.getColNumByBackName(indexedFields[i][j]);
+                            if (colNum != null && colNum > -1) {
+                                colNums.push(colNum);
+                            } else {
+                                var num = table.tableCols.length;
+                                ColManager.pullCol(num, tId, {
+                                    direction: "L",
+                                    escapedName: indexedFields[i][j],
+                                    fullName: indexedFields[i][j],
+                                });
+                                colNums.push(num);
+                            }
+                        }
+                    }
+                    colNumSets.push(colNums);
+                }
+
                 prefillInfo = {
                     "dedup": struct.dedup,
                     "sourceTables": sourceTableNames,
                     "dest": xcHelper.getTableName(origStruct.dest), // XXX allow changing
-                    "srcCols": struct.columns,
                     "isDroppedTable": isDroppedTable,
-                    "tableCols": tableCols
+                    "tableCols": tableCols,
+                    "colNumSets": colNumSets
                 };
-                UnionView.show(tableId, [], {prefill: prefillInfo});
+                UnionView.show(tableId, colNumSets[0], {prefill: prefillInfo});
                 break;
             case (XcalarApisT.XcalarApiProject):
                 var colNums = [];
@@ -653,6 +776,7 @@ window.DagEdit = (function($, DagEdit) {
         $dagTable.closest(".dagTableWrap").addClass("editingChild");
     }
 
+    // will store a new indexNode in "indexNodes" if the operation is needed for groupby or join
     function checkIndexNodes(indexFields, indexNodes, parentNum) {
         var indexNode;
         var keys = indexFields.map(function(name) {

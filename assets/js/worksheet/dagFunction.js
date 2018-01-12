@@ -304,7 +304,7 @@ window.DagFunction = (function($, DagFunction) {
 
         return (names);
     }
-    // only being used for group by
+    // only being used for group by, join, union
     function setIndexedFields(sets) {
         var seen = {};
         for (var i = 0; i < sets.length; i++) {
@@ -376,7 +376,6 @@ window.DagFunction = (function($, DagFunction) {
 
         return cols;
     }
-
 
     DagFunction.destruct = function(tableId) {
         delete dagLineage[tableId];
@@ -725,7 +724,7 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
-    DagFunction.runProcedureWithParams = function(tableName, params, newNodes, doNotRun) {
+    DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes, doNotRun) {
         params = xcHelper.deepCopy(params);
         // XXX need to handle old struct format
         if (doNotRun) {
@@ -765,6 +764,9 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         // create new index nodes into valueArray and modify it's child node
+        var newIndexNodesArray = [];
+        insertIndexNodesIntoValArray(newIndexNodes, valueArray, newIndexNodesArray);
+
         var newNodesArray = [];
         insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray);
 
@@ -792,6 +794,13 @@ window.DagFunction = (function($, DagFunction) {
             if (newTreeNode) {
                 startNodes.push(newTreeNode);
             }
+        }
+
+        for (var i = 0; i < newIndexNodesArray.length; i++) {
+            var newTreeNode = findTreeNodeInNodeArray(newIndexNodesArray[i], treeNodeArray);
+            newTreeNode.value.tag = newTreeNode.children[0].value.tag;
+            newTreeNode.value.tags = newTreeNode.value.tag.split(",");
+            startNodes.push(newTreeNode);
         }
 
         for (var i = 0; i < newNodesArray.length; i++) {
@@ -1088,9 +1097,9 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     // for new index nodes
-    function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
-        for (var name in newNodes) {
-            var indexNodes = newNodes[name];
+    function insertIndexNodesIntoValArray(newIndexNodes, valueArray, newNodesArray) {
+        for (var name in newIndexNodes) {
+            var indexNodes = newIndexNodes[name];
             for (var i = 0; i < indexNodes.length; i++) {
                 var indexNode = indexNodes[i];
                 var struct = new XcalarApiIndexInputT();
@@ -1123,6 +1132,31 @@ window.DagFunction = (function($, DagFunction) {
                     }
                 }
 
+                valueArray.unshift(node);
+                newNodesArray.push(struct.dest);
+            }
+        }
+    }
+
+    // for other new nodes
+    function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
+        for (var name in newNodes) {
+            var nodes = newNodes[name]; 
+            var dest;
+            for (var j = 0; j < valueArray.length; j++) {
+                if (valueArray[j].name === name) {
+                    dest = valueArray[j];
+                    break;
+                }
+            }
+
+            for (var i = 0; i < nodes.length; i++) {
+                var struct = nodes[i].args;
+                var api = XcalarApisTFromStr[nodes[i].operation];
+                var inputName = DagFunction.getInputType(XcalarApisTStr[api]);
+                var node = new TreeValue(api, struct, 0,
+                                    inputName, struct.dest, 1, "", "", 
+                                    DgDagStateT.DgDagStateReady);
                 valueArray.unshift(node);
                 newNodesArray.push(struct.dest);
             }

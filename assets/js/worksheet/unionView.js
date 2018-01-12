@@ -155,13 +155,16 @@ window.UnionView = (function(UnionView, $) {
         editingInfo = options;
         for (var i = 1; i < options.sourceTables.length; i++) {
             var tId = xcHelper.getTableId(options.sourceTables[i]);
-            addTable(tId, null, options.tableCols[i]);
+            addTable(tId, options.colNumSets[i], options.tableCols[i]);
         }
         var $resultInputs = $unionView.find(".resultInput");
         for (var i = 0; i < options.tableCols[0].length; i++) {
             $resultInputs.eq(i).val(options.tableCols[0][i].rename);
         }
         $unionView.find(".newTableName").val(options.dest);
+        if (options.dedup) {
+            $unionView.find(".modeList").find('li[name="union"]').trigger(fakeEvent.mouseup);
+        }
     }
 
     function searchColumn(keyword, index) {
@@ -200,13 +203,23 @@ window.UnionView = (function(UnionView, $) {
 
         if (tableId != null) {
             var table = gTables[tableId] || gDroppedTables[tableId];
+            var selectedCols = [];
             if (colInfos) {
-                tableInfo.selectedCols = colInfos.map(function(colInfo) {
-                    return {
-                        name: colInfo.name,
-                        type: colInfo.type
-                    };
-                });
+                for (var i = 0; i < colInfos.length; i++) {
+                    if (colNums[i] > 0) {
+                        var progCol = table.getCol(colNums[i]);
+                        selectedCols.push({
+                            name: progCol.getBackColName(),
+                            type: progCol.getType()
+                        });
+                    } else {
+                        selectedCols.push({
+                            name: colInfos[i].origName,
+                            type: colInfos[i].type
+                        });
+                    }
+                }
+                tableInfo.selectedCols = selectedCols;
             } else {
                 tableInfo.selectedCols = colNums.map(function(colNum) {
                     var progCol = table.getCol(colNum);
@@ -659,7 +672,7 @@ window.UnionView = (function(UnionView, $) {
         });
         if (hiddenCols) {
             hiddenCols.forEach(function(col) {
-                var colName = col.name;
+                var colName = col.origName;
                 var colType = col.type;
                 if (used[colName]) {
                     return;
@@ -785,30 +798,10 @@ window.UnionView = (function(UnionView, $) {
         };
 
         if (DagEdit.isEditMode()) {
-            var columns = [];
-            for (var i = 0; i < tableInfos.length; i++) {
-                var columnSet = [];
-                for (var j = 0; j < tableInfos[i].columns.length; j++) {
-                    var type = xcHelper.convertColTypeToFeildType(tableInfos[i]
-                                                            .columns[j].type);
-                    type = DfFieldTypeTStr[type];
-                    columnSet.push({
-                        "sourceColumn": tableInfos[i].columns[j].name,
-                        "destColumn": tableInfos[i].columns[j].rename,
-                        "columnType": type
-                    });
-                }
-                columns.push(columnSet);
-            }
-            DagEdit.store({
-                args: {
-                    columns: columns
-                }
-            });
+            DagEdit.storeUnion(tableInfos, dedup, newTableName + "#aa00");
         } else {
             xcFunction.union(tableInfos, dedup, newTableName, options);
         }
-
 
         UnionView.close();
     }
@@ -889,19 +882,11 @@ window.UnionView = (function(UnionView, $) {
                     } else if (columnInfo.type !==
                               tableInfoLists[j].selectedCols[i].type &&
                               !$resultCol.hasClass("cast")) {
-                        if (DagEdit.isEditMode()) {
-                            // not allowed to cast when editing
-                            StatusBox.show(UnionTStr.TypeMismatch,
-                                           $unionView.find('.inputCol[data-index="' +
-                                                            i + '"]').eq(0));
-                        } else {
-                            $resultCol.addClass("cast");
-                            $unionView.find('.columnList[data-index="' + i + '"]')
-                                  .addClass("cast");
-                            StatusBox.show(UnionTStr.Cast,
-                                           $resultCol.find(".typeList"));
-                        }
-
+                        $resultCol.addClass("cast");
+                        $unionView.find('.columnList[data-index="' + i + '"]')
+                              .addClass("cast");
+                        StatusBox.show(UnionTStr.Cast,
+                                       $resultCol.find(".typeList"));
                         return false;
                     }
                 }

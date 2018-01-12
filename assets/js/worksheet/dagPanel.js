@@ -629,6 +629,7 @@ window.DagPanel = (function($, DagPanel) {
             $('.menu').hide().removeClass('leftColMenu');
             xcMenu.removeKeyboardNavigation();
             $('#dagSchema').removeClass("active");
+            var $dagWrap = $(this).closest(".dagWrap");
 
             var $opIcon = $(this);
             var $opWrap = $opIcon.closest(".actionType");
@@ -678,13 +679,35 @@ window.DagPanel = (function($, DagPanel) {
                 } else {
                     xcTooltip.remove($menu.find(".editOp"));
 
-                    if ($opWrap.hasClass("collapsed")) {
+                    if ($opWrap.hasClass("collapsed") && !$opWrap.hasClass("union")) {
                         $menu.find(".editOp").addClass("unavailable");
                         xcTooltip.add($menu.find(".editOp"), {
                             title: DFTStr.ExpandToEdit
                         });
                     } else {
-                        $menu.find(".editOp").removeClass("unavailable");
+                        var hideEdit = false;
+                        if ($opWrap.parent().hasClass("tagged")) {
+                            var allDagInfo = $dagWrap.data("allDagInfo");
+                            var nodeId = $opWrap.data("id") + "";
+                            var node = allDagInfo.nodeIdMap[nodeId];
+                            for (var i = 0; i < node.value.tags.length; i++) {
+                                if (node.value.tags[i].indexOf(SQLOps.Union) === 0) {
+                                    var tagId = xcHelper.getTableId(node.value.tags[i]);
+                                    if (allDagInfo.tagGroups[tagId] && allDagInfo.tagGroups[tagId].group.indexOf(nodeId) > -1) {
+                                        hideEdit = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (hideEdit) {
+                            $menu.find(".editOp").addClass("unavailable");
+                                xcTooltip.add($menu.find(".editOp"), {
+                                title: "Please edit the Union operation directly"
+                            });
+                        } else {
+                            $menu.find(".editOp").removeClass("unavailable");
+                        }
                     }
 
                     if ($opWrap.closest(".dagTableWrap.hasEdit").length) {
@@ -709,6 +732,9 @@ window.DagPanel = (function($, DagPanel) {
 
             if (DagEdit.isEditMode()) {
                 $menu.find(".exitEdit").removeClass("xc-hidden");
+                if ($opWrap.hasClass("union")) {
+                    $menu.find(".expandTag").addClass("xc-hidden");
+                }
             } else if (!$("#container").hasClass("formOpen")) {
                 $menu.find(".commentOp").removeClass("xc-hidden");
             }
@@ -814,7 +840,7 @@ window.DagPanel = (function($, DagPanel) {
                     "onConfirm": function() {
                         DagEdit.off(null, true, true);
                         TblFunc.focusTable(tableId);
-                        DagFunction.runProcedureWithParams(tableName, edits.structs, edits.newNodes);
+                        DagFunction.runProcedureWithParams(tableName, edits.structs, edits.newNodes, edits.insertNodes);
                     }
                 });
             }
