@@ -735,7 +735,7 @@ describe("DagEdit Test", function() {
             UnionView.show = function(tId, colNums, options) {
                 // skip a parent because of index operation
                 expect(tId).to.equal(xcHelper.getTableId(node.parents[0].value.name));
-                expect(colNums.length).to.equal(0);
+                expect(colNums.length).to.equal(1);
 
                 expect(options.prefill.dest).to.equal(node.value.name.split("#")[0]);
                 expect(options.prefill.dedup).to.be.false;

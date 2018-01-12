@@ -150,7 +150,7 @@ window.DagEdit = (function($, DagEdit) {
         curEdit.editingNode = node;
         var api = node.value.api;
         var sourceTableNames;
-        if (api = XcalarApisT.XcalarApiUnion) {
+        if (api === XcalarApisT.XcalarApiUnion) {
             sourceTableNames = node.getTagSourceNames();
         } else {
             sourceTableNames = node.getNonIndexSourceNames(true);

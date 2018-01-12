@@ -559,7 +559,6 @@ describe("Dag Panel Test", function() {
 
             expect(cachedFnTriggered).to.be.false;
             $dagPanel.find(".runBtn").eq(0).click();
-            UnitTest.hasAlertWithTitle("No edits");
             expect(cachedFnTriggered).to.be.false;
 
             var cachedFn4 = DagEdit.getInfo;
