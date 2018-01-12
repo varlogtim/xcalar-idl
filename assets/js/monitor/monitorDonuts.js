@@ -63,6 +63,9 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             var val = ramData[index];
             var rawVal = val;
             var sizeOption = {base2: true};
+            if (index == networkIndex) {
+                var sizeOption = {base3: true};
+            }
             val = xcHelper.sizeTranslator(val, true, null,
                                                     sizeOption);
             $monitorPanel.find(".donutLegendInfo").removeClass("xc-hidden");
@@ -245,7 +248,11 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         num = num || 0;
         var $sizeType = $(selector).next();
         var type = $sizeType.text();
+
         var sizeOption = {base2: true};
+        if (index === networkIndex) {
+            sizeOption = {base3: true};
+        }
         d3.select(selector)
             .transition()
             .duration(duration)
@@ -303,6 +310,9 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             }
         } else {
             var sizeOption = {base2: true};
+            if (index === networkIndex) {
+                sizeOption = {base3: true};
+            }
             var usedRaw = stats.used;
 
             var sumTotal = xcHelper.sizeTranslator(stats.total, true, null,

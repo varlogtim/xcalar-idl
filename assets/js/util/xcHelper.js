@@ -1102,6 +1102,9 @@
         var unit;
         if (options.base2) {
             unit = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+        } else if (options.base3) {
+            size *= 8;
+            unit = ["B", "Kib", "Mib", "Gib", "Tib", "Pib"];
         } else {
             unit = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
