@@ -3038,6 +3038,13 @@ table.datasetTable {
         .folderOpt {
             display: block;
         }
+
+        &.hasDS {
+            .delete {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+        }
     }
     &.targetOpts {
         .targetOpt {

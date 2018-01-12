@@ -33,8 +33,7 @@ window.DS = (function ($, DS) {
 
         setupGridViewButtons();
         setupGrids();
-        xcMenu.add($gridMenu);
-        setupMenuActions();
+        setupGridMenu();
     };
 
     // Restore dsObj
@@ -1545,83 +1544,6 @@ window.DS = (function ($, DS) {
             goToDirHelper($grid.data("dsid"));
         });
 
-        // click right menu
-        $gridView.parent()[0].oncontextmenu = function(event) {
-            var $target = $(event.target);
-            var $grid = $target.closest(".grid-unit");
-            var classes = "";
-            var totalSelected = $gridView.find(".grid-unit.selected").length;
-
-            if ($grid.length && totalSelected > 1) {
-                // multi selection
-                $gridMenu.removeData("dsid");
-                classes += " multiOpts";
-
-                $gridMenu.find(".multiLock, .multiUnlock").show();
-                $gridMenu.find(".multiDelete").removeClass("disabled");
-                var numDS = $gridView.find(".grid-unit.selected.ds").length;
-                var numLocked = $gridView.find(".grid-unit.selected.locked").length;
-                if (numDS === 0) {
-                    // when no ds
-                    $gridMenu.find(".multiLock, .multiUnlock").hide();
-                } else if (numLocked === 0) {
-                    // when all ds are unlokced
-                    $gridMenu.find(".multiUnlock").hide();
-                } else if (numDS === numLocked) {
-                    // when all ds are locked
-                    $gridMenu.find(".multiLock").hide();
-                    if (numDS === totalSelected) {
-                        // when only have ds
-                        $gridMenu.find(".multiDelete").addClass("disabled");
-                    }
-                }
-            } else {
-                cleanDSSelect();
-
-                if ($grid.length) {
-                    $grid.addClass("selected");
-                    var dsId = $grid.data("dsid");
-                    var dsObj = DS.getDSObj(dsId);
-                    if (!dsObj.isEditable()) {
-                        classes += " uneditable";
-                    } else if ($grid.hasClass("deleting")) {
-                        // if it's deleting, also make it uneditable
-                        classes += " uneditable";
-                    }
-
-                    $gridMenu.data("dsid", dsId);
-
-                    if (dsObj.beFolder()) {
-                        classes += " folderOpts";
-                    } else {
-                        classes += " dsOpts";
-
-                        if (dsObj.isLocked()) {
-                            classes += " dsLock";
-                        }
-                    }
-
-                    if ($grid.hasClass("unlistable")) {
-                        classes += " unlistable";
-
-                        if ($grid.hasClass("noAction")) {
-                            classes += " noAction";
-                        }
-                    }
-                } else {
-                    classes += " bgOpts";
-                    $gridMenu.removeData("dsid");
-                }
-            }
-
-            xcHelper.dropdownOpen($target, $gridMenu, {
-                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "classes": classes,
-                "floating": true
-            });
-            return false;
-        };
-
         $("#dsListSection .gridViewWrapper").on("mousedown", function(event) {
             if (event.which !== 1) {
                 return;
@@ -1637,6 +1559,19 @@ window.DS = (function ($, DS) {
             }
 
             createRectSelection(event.pageX, event.pageY);
+        });
+
+        $gridView.on("mouseenter", ".grid-unit.folder", function() {
+            if ($gridView.hasClass("listView")) {
+                var $folder = $(this);
+                var folderId = $folder.data("dsid");
+                var dsObj = DS.getDSObj(folderId);
+                if (dsObj && dsObj.beFolderWithDS()) {
+                    $folder.find(".delete").addClass("xc-disabled");
+                } else {
+                    $folder.find(".delete").removeClass("xc-disabled");
+                }
+            }
         });
     }
 
@@ -1826,6 +1761,91 @@ window.DS = (function ($, DS) {
             var key = $(this).attr("name");
             setSortKey(key);
         });
+    }
+
+    function setupGridMenu() {
+        xcMenu.add($gridMenu);
+        // set up click right menu
+        $gridView.parent()[0].oncontextmenu = function(event) {
+            var $target = $(event.target);
+            var $grid = $target.closest(".grid-unit");
+            var classes = "";
+            var totalSelected = $gridView.find(".grid-unit.selected").length;
+
+            if ($grid.length && totalSelected > 1) {
+                // multi selection
+                $gridMenu.removeData("dsid");
+                classes += " multiOpts";
+
+                $gridMenu.find(".multiLock, .multiUnlock").show();
+                $gridMenu.find(".multiDelete").removeClass("disabled");
+                var numDS = $gridView.find(".grid-unit.selected.ds").length;
+                var numLocked = $gridView.find(".grid-unit.selected.locked").length;
+                if (numDS === 0) {
+                    // when no ds
+                    $gridMenu.find(".multiLock, .multiUnlock").hide();
+                } else if (numLocked === 0) {
+                    // when all ds are unlokced
+                    $gridMenu.find(".multiUnlock").hide();
+                } else if (numDS === numLocked) {
+                    // when all ds are locked
+                    $gridMenu.find(".multiLock").hide();
+                    if (numDS === totalSelected) {
+                        // when only have ds
+                        $gridMenu.find(".multiDelete").addClass("disabled");
+                    }
+                }
+            } else {
+                cleanDSSelect();
+
+                if ($grid.length) {
+                    $grid.addClass("selected");
+                    var dsId = $grid.data("dsid");
+                    var dsObj = DS.getDSObj(dsId);
+                    if (!dsObj.isEditable()) {
+                        classes += " uneditable";
+                    } else if ($grid.hasClass("deleting")) {
+                        // if it's deleting, also make it uneditable
+                        classes += " uneditable";
+                    }
+
+                    $gridMenu.data("dsid", dsId);
+
+                    if (dsObj.beFolder()) {
+                        classes += " folderOpts";
+                        if (dsObj.beFolderWithDS()) {
+                            classes += " hasDS";
+                        }
+                    } else {
+                        classes += " dsOpts";
+
+                        if (dsObj.isLocked()) {
+                            classes += " dsLock";
+                        }
+                    }
+
+                    if ($grid.hasClass("unlistable")) {
+                        classes += " unlistable";
+
+                        if ($grid.hasClass("noAction")) {
+                            classes += " noAction";
+                        }
+                    }
+                } else {
+                    classes += " bgOpts";
+                    $gridMenu.removeData("dsid");
+                }
+            }
+
+            xcHelper.dropdownOpen($target, $gridMenu, {
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "classes": classes,
+                "floating": true
+            });
+            return false;
+        };
+
+        setupMenuActions();
     }
 
     function focsueOnTracker() {
