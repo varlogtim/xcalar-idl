@@ -390,6 +390,21 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.appExecute(txId, name, isGlobal, inStr);
         },
 
+        createDataTarget: function(targetType, targetName, targetParams) {
+            return XIApi.createDataTarget(targetType, targetName, targetParams);
+        },
+        deleteDataTarget: function(targetName) {
+            // Currently licenseMgr is the only extension that invokes this. We
+            // restrict the name to avoid unintentionally deleting other targets
+            if (targetName.startsWith("licenseMgr_")) {
+                return XIApi.deleteDataTarget(targetName);
+            } else {
+                var deferred = jQuery.Deferred();
+                deferred.reject("Delete target operation is not supported yet");
+                return deferred.promise();
+            }
+        },
+
         // private functions
         _addMeta: function(srcTable, dstTable, dstCols, options) {
             // XXX options is later used to customize tableCols

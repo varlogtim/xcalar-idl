@@ -1217,6 +1217,13 @@
         return PromiseHelper.when.apply(this, promises);
     };
 
+    XIApi.createDataTarget = function(targetType, targetName, targetParams) {
+        return XcalarTargetCreate(targetType, targetName, targetParams);
+    };
+
+    XIApi.deleteDataTarget = function (targetName) {
+        return XcalarTargetDelete(targetName);
+    };
 
     function joinCast(txId, lInfo, rInfo) {
         var deferred = jQuery.Deferred();

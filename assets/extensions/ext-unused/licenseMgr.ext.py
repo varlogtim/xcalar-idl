@@ -15,7 +15,7 @@ def getTable(filePath, inStream, tableName = "license"):
 
     req = urllib.request.Request("%s%s" % (licenseServerApiEndpoint, tableName))
     req.add_header('Content-Type', 'application/json')
-    rsp = urllib.request.urlopen(req, json.dumps(data))
+    rsp = urllib.request.urlopen(req, json.dumps(data).encode())
     parsedData = json.loads(rsp.read())
     for row in parsedData:
         yield row

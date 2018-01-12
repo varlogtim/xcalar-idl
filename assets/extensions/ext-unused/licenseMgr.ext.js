@@ -79,8 +79,8 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             $.ajax({
                 "type": "POST",
                 "contentType": "application/json",
-                //"url": "https://zd.xcalar.net/license/api/v1.0/secure/addlicense",
-                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/secure/addlicense",
+                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws" +
+                       ".com/production/license/api/v1.0/secure/addlicense",
                 "crossdomain": true,
                 "data": JSON.stringify(data),
                 "success": function () {
@@ -99,39 +99,55 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
 
     function viewLicense() {
         var ext = new XcSDK.Extension();
-        var licenseTables = [ "license", "owner", "organization", "activation", "marketplace" ]
+        var licenseTables = ["license", "owner", "organization", "activation",
+                             "marketplace"];
 
         ext.start = function() {
-            var deferred = XcSDK.Promise.deferred();
-            var extDeferred = XcSDK.Promise.resolve().promise();
-
-            for (var ii = 0; ii < licenseTables.length; ii++) {
-                // This is necessary because of late binding of javascript.
-                // By the time this function gets executed, ii may
-                // already be at the very last
-                (function (licenseTable) {
-                    var licenseTableCopy = licenseTable;
-                    var newTableName = ext.createTableName(licenseTable);
-
-                    extDeferred = extDeferred.then(function() {
-                        return (ext.load( { url: "memory://1"},
-                                          { format: "json", moduleName: "licensemgr", funcName: "getTable", udfQuery: {tableName: licenseTable} }, licenseTableCopy))
-                    });
-
-                    extDeferred = extDeferred.then(function(dsName) {
-                        return (ext.indexFromDataset(dsName, newTableName, licenseTable));
-                    });
-
-                    extDeferred = extDeferred.then(function() {
-                        var newTable = ext.createNewTable(newTableName);
-                        return newTable.addToWorksheet();
-                    });
-
-                })(licenseTables[ii]);
+            function getTable(licenseTable, targetName) {
+                var deferred = XcSDK.Promise.deferred();
+                var licenseTableCopy = licenseTable;
+                var newTableName = ext.createTableName(licenseTable);
+                var dsArgs = {
+                    "url": "1",
+                    "targetName": targetName
+                };
+                var formatArgs = {
+                    "format": "JSON",
+                    "moduleName": "licensemgr",
+                    "funcName": "getTable",
+                    "udfQuery": {"tableName": licenseTable}
+                };
+                ext.load(dsArgs, formatArgs, licenseTableCopy)
+                .then(function(dsName) {
+                    return ext.indexFromDataset(dsName, newTableName,
+                                                licenseTable);
+                })
+                .then(function() {
+                    var newTable = ext.createNewTable(newTableName);
+                    return newTable.addToWorksheet();
+                })
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+                return deferred.promise();
             }
-
-            extDeferred.then(deferred.resolve).fail(deferred.reject);
-
+            var deferred = XcSDK.Promise.deferred();
+            var randId = Math.floor(Math.random() * 1000);
+            var targetName = "licenseMgr_" + randId;
+            var targetType = "memory";
+            var targetParams = {};
+            ext.createDataTarget(targetType, targetName, targetParams)
+            .then(function () {
+                var promiseArray = [];
+                for (var i = 0; i < licenseTables.length; i++) {
+                    promiseArray.push(getTable.bind(window, licenseTables[i], targetName));
+                }
+                return PromiseHelper.chain(promiseArray);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(function() {
+                ext.deleteDataTarget(targetName);
+            });
             return deferred.promise();
         }
 
