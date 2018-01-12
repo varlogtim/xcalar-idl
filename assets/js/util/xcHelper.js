@@ -3707,6 +3707,8 @@
         if (table && table.backTableMeta) {
             colMeta = changeColMetaToMap(table.backTableMeta.valueAttrs);
             deferred.resolve(colMeta, true);
+        } else if (DagEdit.isEditMode()) {
+            deferred.resolve({}, false);
         } else {
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {

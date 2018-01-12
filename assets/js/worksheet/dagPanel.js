@@ -662,6 +662,7 @@ window.DagPanel = (function($, DagPanel) {
                 !$opWrap.hasClass("filter") && !$opWrap.hasClass("join") &&
                 !$opWrap.hasClass("aggregate") && !$opWrap.hasClass("project") &&
                 !$opWrap.hasClass("union")) {
+                // XXX need  check for extension operation
                 $menu.find(".editOp").addClass("unavailable");
                 xcTooltip.add($menu.find(".editOp"), {
                     title: DFTStr.NoEditSupported
@@ -693,7 +694,8 @@ window.DagPanel = (function($, DagPanel) {
                             for (var i = 0; i < node.value.tags.length; i++) {
                                 if (node.value.tags[i].indexOf(SQLOps.Union) === 0) {
                                     var tagId = xcHelper.getTableId(node.value.tags[i]);
-                                    if (allDagInfo.tagGroups[tagId] && allDagInfo.tagGroups[tagId].group.indexOf(nodeId) > -1) {
+                                    if (allDagInfo.tagGroups[tagId] &&
+                                        allDagInfo.tagGroups[tagId].group.indexOf(nodeId) > -1) {
                                         hideEdit = true;
                                         break;
                                     }

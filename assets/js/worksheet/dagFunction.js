@@ -653,7 +653,7 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function getNonInvolvedRerunNames(tree, startTreeNodes) {
+    function getNonInvolvedRerunNames(tree, startTreeNodes, newNodes) {
         var seen = {};
         var mapOfNames = {};
         for (var i = 0; i < startTreeNodes.length; i++) {
@@ -668,7 +668,25 @@ window.DagFunction = (function($, DagFunction) {
             }
             seen[node.value.name] = true;
             for (var i = 0; i < node.parents.length; i++) {
-                mapOfNames[node.parents[i].value.name] = node.parents[i].value;
+                var name = node.parents[i].value.name;
+                var newNodeFound = false;
+                // ignore newly created nodes
+                for (var n in newNodes) {
+                    var nameList = newNodes[n];
+                    for (var j = 0; j < nameList.length; j++) {
+                        if (nameList[j].args.dest === name) {
+                            newNodeFound = true;
+                            break;
+                        }
+                    }
+                    if (newNodeFound) {
+                        break;
+                    }
+                }
+                if (!newNodeFound) {
+                    mapOfNames[name] = node.parents[i].value;
+                }
+                
                 search(node.parents[i]);
             }
         }
@@ -805,8 +823,6 @@ window.DagFunction = (function($, DagFunction) {
 
         for (var i = 0; i < newNodesArray.length; i++) {
             var newTreeNode = findTreeNodeInNodeArray(newNodesArray[i], treeNodeArray);
-            newTreeNode.value.tag = newTreeNode.children[0].value.tag;
-            newTreeNode.value.tags = newTreeNode.value.tag.split(",");
             startNodes.push(newTreeNode);
         }
 
@@ -823,7 +839,7 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
         // returns map of name : value
-        var nonInvolvedNames = getNonInvolvedRerunNames(deepCopyTree, startNodes);
+        var nonInvolvedNames = getNonInvolvedRerunNames(deepCopyTree, startNodes, newNodes);
 
         // Step 2. Remove nodes from treeNodeArray that is not in involvedNames
         var treeNodesToRerun = [];
@@ -1143,9 +1159,9 @@ window.DagFunction = (function($, DagFunction) {
         for (var name in newNodes) {
             var nodes = newNodes[name]; 
             var dest;
-            for (var j = 0; j < valueArray.length; j++) {
-                if (valueArray[j].name === name) {
-                    dest = valueArray[j];
+            for (var i = 0; i < valueArray.length; i++) {
+                if (valueArray[i].name === name) {
+                    dest = valueArray[i];
                     break;
                 }
             }
@@ -1155,10 +1171,11 @@ window.DagFunction = (function($, DagFunction) {
                 var api = XcalarApisTFromStr[nodes[i].operation];
                 var inputName = DagFunction.getInputType(XcalarApisTStr[api]);
                 var node = new TreeValue(api, struct, 0,
-                                    inputName, struct.dest, 1, "", "", 
+                                    inputName, struct.dest, 1, dest.tag, "", 
                                     DgDagStateT.DgDagStateReady);
                 valueArray.unshift(node);
                 newNodesArray.push(struct.dest);
+                node.tags = node.tag.split(",");
             }
         }
     }
@@ -1479,7 +1496,7 @@ window.DagFunction = (function($, DagFunction) {
 
             for (var name in immediates) {
                 var immediate = immediates[name];
-                if (!immediate.used) {
+                if (!immediate.used && name.indexOf("XC_") !== 0) {
                     var newProgCol = ColManager.newCol({
                         "backName": name,
                         "name": name,
