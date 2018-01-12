@@ -1647,11 +1647,12 @@ table.datasetTable {
     }
 
     .errorSection {
-        // height: 35px; // xx why was the height limited?
+        .size(@width: 100%, @height: ~"calc(100% - 75px)");
         padding-top: 10px;
         padding-left: 25px;
         color: @color-table-red;
         white-space: normal;
+        overflow: auto;
     }
 
     .previewSection {

@@ -1383,7 +1383,9 @@ window.DSPreview = (function($, DSPreview) {
                         ? AlertTStr.Error + ": " + error.log
                         : error.error;
             } else {
-                error = error.error + (error.log ? error.log : "");
+                error = (error.error ? error.error : "") +
+                        (error.log ? error.log : "");
+                error = error || ErrTStr.Unknown;
             }
         }
 
