@@ -142,10 +142,10 @@ describe("Union View Test", function() {
             testTableId = tableId;
             testColNum = colNum
         };
-        var $dropdown = $unionView.find(".columnList").eq(0);
-        $dropdown.find(".text").click();
+        var $inputCol = $unionView.find(".candidateSection .inputCol").eq(0).eq(0);
+        $inputCol.find(".focusCol").click();
         expect(testTableId).to.equal("test1");
-        expect(testColNum).to.equal(1);
+        expect(testColNum).to.equal(2);
         FormHelper.prototype.focusOnColumn = oldFunc;
     });
 
@@ -209,7 +209,7 @@ describe("Union View Test", function() {
         UnionView.show("test1", null, {
             prefill: {
                 tableCols: [[{
-                    name: "col2",
+                    origName: "col2",
                     type: ColumnType.string
                 }]],
                 sourceTables: ["a#test1", "b#test2"],

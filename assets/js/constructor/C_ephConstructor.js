@@ -1828,7 +1828,7 @@ FormHelper.prototype = {
         } else {
             MainMenu.open();
         }
-        $("#container").addClass("formOpen")
+        $("#container").addClass("formOpen");
 
         var name = formName || this.id;
         name = name.toLowerCase();
@@ -1858,7 +1858,7 @@ FormHelper.prototype = {
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
             if (!this.mainMenuState.isTopOpen) {
-               BottomMenu.unsetMenuCache(); 
+                BottomMenu.unsetMenuCache();
             }
             this.mainMenuState = null;
         }
@@ -2077,7 +2077,7 @@ FormHelper.prototype = {
         return this.isFormOpen;
     },
 
-    focusOnColumn: function(tableId, colNum) {
+    focusOnColumn: function(tableId, colNum, noSelect) {
         if (tableId == null || colNum == null) {
             // error case
             return;
@@ -2088,7 +2088,7 @@ FormHelper.prototype = {
             WSManager.focusOnWorksheet(ws, true);
         }
 
-        xcHelper.centerFocusedColumn(tableId, colNum, true);
+        xcHelper.centerFocusedColumn(tableId, colNum, true, noSelect);
 
         var $th = $("#xcTable-" + tableId).find("th.col" + colNum);
         xcTooltip.transient($th, {

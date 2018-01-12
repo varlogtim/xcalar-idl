@@ -104,7 +104,7 @@ window.UnionView = (function(UnionView, $) {
             removeTable(index);
         });
 
-        $unionView.on("click", ".candidateSection .addCol", function() {
+        $unionView.on("click", ".candidateSection .inputCol", function() {
             var $col = $(this).closest(".inputCol");
             var colName = $col.find(".text").text();
             var colType = $col.data("type");
@@ -144,18 +144,23 @@ window.UnionView = (function(UnionView, $) {
             searchColumn(keyword, index);
         });
 
-        $unionView.on("click", ".focusCol", function() {
-            var $div = $(this);
-            var tableIndex = getListIndex($div);
-            focusOnColumn($div.text(), tableIndex);
+        $unionView.on("click", ".focusCol", function(event) {
+            event.stopPropagation();
+            var $icon = $(this);
+            var $inputCol = $icon.closest(".inputCol");
+            var tableIndex = getListIndex($inputCol);
+            var colName = $icon.prev(".colName").text();
+            focusOnColumn(colName, tableIndex);
         });
     }
 
     function restorePrefill(options) {
+        options = options || {};
         editingInfo = options;
+        var colNumSets = options.colNumSets || [];
         for (var i = 1; i < options.sourceTables.length; i++) {
             var tId = xcHelper.getTableId(options.sourceTables[i]);
-            addTable(tId, options.colNumSets[i], options.tableCols[i]);
+            addTable(tId, colNumSets[i], options.tableCols[i]);
         }
         var $resultInputs = $unionView.find(".resultInput");
         for (var i = 0; i < options.tableCols[0].length; i++) {
@@ -189,7 +194,7 @@ window.UnionView = (function(UnionView, $) {
             var colNum = table.getColNumByBackName(colName);
             if (colNum > 0) {
                 // can be a hidden column when editing
-                formHelper.focusOnColumn(tableId, colNum);
+                formHelper.focusOnColumn(tableId, colNum, true);
             }
         }
     }
@@ -213,6 +218,7 @@ window.UnionView = (function(UnionView, $) {
                             type: progCol.getType()
                         });
                     } else {
+                        // from dag edit
                         selectedCols.push({
                             name: colInfos[i].origName,
                             type: colInfos[i].type
@@ -298,6 +304,7 @@ window.UnionView = (function(UnionView, $) {
         tableInfoLists.forEach(function(tableIfo) {
             tableIfo.selectedCols.forEach(function(colInfo, index) {
                 resultCols[index] = resultCols[index] || {};
+                colInfo = colInfo || {};
                 // use the first col that is not empty as resultCol
                 resultCols[index].name = resultCols[index].name || colInfo.name;
                 resultCols[index].type = resultCols[index].type || colInfo.type;
@@ -384,8 +391,11 @@ window.UnionView = (function(UnionView, $) {
                 onOpen: function() {
                     getCandidateDropdownList($dropDownList);
                 },
-                onSelect: function($li) {
-                    var colName = $li.text();
+                onSelect: function($li, $lastSelected, event) {
+                    if ($(event.target).hasClass("focusCol")) {
+                        return true; // keep dropdown open
+                    }
+                    var colName = $li.find(".colName").text();
                     var $text = $dropDownList.find(".text");
                     if (colName === $text.text()) {
                         return;
@@ -402,7 +412,6 @@ window.UnionView = (function(UnionView, $) {
                     selectColumn(colInfo, colIndex, tableIndex);
                     xcTooltip.hideAll();
                 },
-                onlyClickIcon: true,
                 container: "#unionView .middleSection",
                 bounds: "#unionView .middleSection"
             }).setupListeners();
@@ -483,7 +492,6 @@ window.UnionView = (function(UnionView, $) {
         resultCols.forEach(function(resultCol, colIndex) {
             var colType = resultCol.type;
             var colName = resultCol.name;
-
             colName = xcHelper.parsePrefixColName(colName).name;
             colName = xcHelper.uniqueName(colName, checkName);
             nameMap[colName] = true;
@@ -551,7 +559,7 @@ window.UnionView = (function(UnionView, $) {
             var innerHTML = "";
             if (selectedCols[colIndex] != null) {
                 var inputColName = selectedCols[colIndex].name;
-                innerHTML = '<div class="text focusCol textOverflowOneLine' +
+                innerHTML = '<div class="text textOverflowOneLine' +
                             ' tooltipOverflow"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
@@ -605,17 +613,22 @@ window.UnionView = (function(UnionView, $) {
                 var colType = col.type;
                 var colName = col.name;
                 return '<div class="inputCol" data-type="' + colType + '">' +
-                            '<i class="addCol icon xi-plus xc-action"' +
+                            '<i class="addCol icon xi-plus"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
                             ' data-title="' + UnionTStr.AddCol + '"' +
                             '></i>' +
-                            '<div class="text focusCol textOverflowOneLine tooltipOverflow"' +
+                            '<div class="colName text textOverflowOneLine tooltipOverflow"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
                             ' data-title="' + colName + '">' +
                                 colName +
                             '</div>' +
+                            '<i class="focusCol icon xi-show xc-action fa-16"' +
+                            ' data-toggle="tooltip" data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="' + TooltipTStr.FocusOnCol + '"' +
+                            '></i>' +
                         '</div>';
             }).join("");
         }
@@ -725,7 +738,12 @@ window.UnionView = (function(UnionView, $) {
                     ' data-placement="top"' +
                     (isUsed ? ' data-used="' + col.used.index + '"' : '') +
                     '>' +
-                        col.name +
+                        '<span class="colName">' + col.name + '</span>' +
+                        '<i class="focusCol icon xi-show xc-action fa-16"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + TooltipTStr.FocusOnCol + '"' +
+                        '></i>' +
                     '</li>';
         });
         if (candidateCols.length === 0) {

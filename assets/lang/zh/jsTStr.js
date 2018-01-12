@@ -139,6 +139,11 @@ TooltipTStr = {
 'SavedOn': '最近保存时间',
 "UnlockTable": "Click to unlock table",
 "MapNoDelete": "Cannot remove. Map must have at least 1 operation.",
+"UnionFocusSelect": "请选择一个表",
+"UnionFocus": "点击查看表",
+"FocusOnCol": "点击查看列",
+"UnionDeleteTable": "从合并表中删除表",
+"UnionSearch": "在表中查找",
 };
 CommonTxtTstr = {
 'ArrayVal': '数组值',
@@ -552,7 +557,7 @@ UnionTStr = {
 "UnionTable": "合并表",
 "NewTableName": "新表名",
 "NewColName": "新列名",
-"CandidateHint": "此处的列不会出现在合并后的表中。点击添加按钮以添加列至合并表",
+"CandidateHint": "此处的列不会出现在合并后的表中。点击列名以添加列至合并表",
 "EmptyList": "无可选项",
 "SelectCol": "请选择用于合并的列",
 "TypeMismatch": "Columns to union have different types. Select columns of the same type.",

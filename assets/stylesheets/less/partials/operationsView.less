@@ -2403,9 +2403,22 @@ html.firefox {
                 border-top: 1px solid @color-table-hoverBg-gray;
 
                 li {
-                    &.used {
+                    .position(relative);
+                    &:hover {
+                        padding-right: 20px;
+                        .icon {
+                            display: inline-block;
+                        }
+                    }
+
+                    &.used .text {
                         color: @color-font-greyish-brown;
                         opacity: 0.8;
+                    }
+
+                    .icon {
+                        display: none;
+                        .position(absolute, @top: 4px, @right: 3px);
                     }
                 }
             }
@@ -2480,6 +2493,22 @@ html.firefox {
 
         .inputCol {
             border: 1px solid @color-table-hoverBg-gray;
+            cursor: pointer;
+
+            .focusCol {
+                display: none;
+            }
+
+            &:hover {
+                .focusCol {
+                    display: inline-block;
+                    .position(absolute, @top: 4px, @right: 3px);
+                }
+
+                .text {
+                    padding-right: 20px;
+                }
+            }
         }
     }
 

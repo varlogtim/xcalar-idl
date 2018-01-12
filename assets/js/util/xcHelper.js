@@ -1964,7 +1964,7 @@
     };
 
     // animate: boolean indicating whether to animate the scrolling
-    xcHelper.centerFocusedColumn = function(tableId, colNum, animate) {
+    xcHelper.centerFocusedColumn = function(tableId, colNum, animate, noSelect) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var mainFrameWidth = $('#mainFrame').width();
         var currentScrollPosition = $('#mainFrame').scrollLeft();
@@ -1978,7 +1978,9 @@
         var scrollPosition = leftPosition - ((mainFrameWidth - colWidth) / 2);
 
         TblFunc.focusTable(tableId);
-        $th.find('.flex-mid').mousedown();
+        if (!noSelect) {
+            $th.find('.flex-mid').mousedown();
+        }
 
         if (animate && !gMinModeOn) {
             $('#mainFrame').animate({
@@ -2275,9 +2277,9 @@
     xcHelper.stripColName = function(colName, stripSpace) {
         var pattern;
         if (stripSpace) {
-            pattern = /[\[\]\.\\ ]/g
+            pattern = /[\[\]\.\\ ]/g;
         } else {
-            pattern = /[\[\]\.\\]/g
+            pattern = /[\[\]\.\\]/g;
         }
         var res = colName.split(pattern).filter(function(str) {
             return (str !== "");
