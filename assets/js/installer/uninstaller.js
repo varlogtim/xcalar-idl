@@ -40,7 +40,9 @@ window.Uninstaller = (function(Uninstaller, $) {
         })
         .fail(function() {
             InstallerCommon.handleFail($form, prevString, doingLower);
-            InstallerCommon.showErrorModal(arguments[1]);
+            if (arguments.length > 0 && arguments[0] !== "Cancelled") {
+                InstallerCommon.showErrorModal(arguments[1]);
+            }
             deferred.reject("Failed to install", arguments[1]);
         });
         return deferred.promise();

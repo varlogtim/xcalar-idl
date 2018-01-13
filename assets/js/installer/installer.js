@@ -201,7 +201,9 @@ window.Installer = (function(Installer, $) {
         })
         .fail(function() {
             handleFail();
-            InstallerCommon.showErrorModal(arguments[1]);
+            if (arguments.length > 0 && arguments[0] !== "Cancelled") {
+                InstallerCommon.showErrorModal(arguments[1]);
+            }
             if (arguments[0]) {
                 deferred.reject(arguments[0], arguments[1]);
             } else {
