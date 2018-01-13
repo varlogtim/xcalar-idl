@@ -562,6 +562,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         var $exeButton = $form.find(".next");
         $exeButton.val(doingString).addClass("inactive");
         $form.find("input.back").addClass("inactive").hide();
+        $form.find("input.cancel").removeClass("inactive");
         $form.find("input.cancel").removeClass("hidden");
     };
 
@@ -578,6 +579,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (cancel) {
                 cancel = false;
                 $form.find("input.cancel").val("CANCEL");
+                $form.find("input.cancel").removeClass("inactive");
                 clearInterval(intervalTimer);
                 intervalTimer = undefined;
                 deferred.reject("Cancelled", "Operation cancelled");
