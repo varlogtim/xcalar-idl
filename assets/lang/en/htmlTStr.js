@@ -616,7 +616,7 @@ module.exports = {
         "Regex": "Regex",
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
-        "SkipRowsHint": "Skip the number of rows for each files in the data source",
+        "SkipRowsHint": "To skip a number of rows from the top of each file in your data import, enter that number",
         "CREATEDS": "CREATE DATASET",
         "CREATETABLE": "CREATE TABLE",
         "applyUDF": "Click to apply UDF",

@@ -453,7 +453,7 @@ module.exports = {
         "applyPattern": "应用模式",
         "Regex": "正则表达式",
         "SkipRows": "跳过行",
-        "SkipRowsHint": "每个文件都会跳过指定的行数",
+        "SkipRowsHint": "输入要跳过的行数，使导入的每个文件都跳过该行数",
         "UDF": "使用UDF解析数据",
         "fileNameTitle": "请输入一个不含特殊字符文件名",
         "filePath": "数据源路径"
