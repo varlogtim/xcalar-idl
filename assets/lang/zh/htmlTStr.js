@@ -556,7 +556,7 @@ module.exports = {
         "Offset": "偏移",
         "SearchHint": "正则表达式搜索",
         "SkipToOffset": "跳转至",
-        "Up": "返回",
+        "Up": "返回上层目录",
         "filePathHint": "点击查看历史记录",
         "header": "浏览数据源",
         "instr": "选择数据源，然后单击“下一步”按钮。",

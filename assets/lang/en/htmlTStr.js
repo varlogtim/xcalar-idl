@@ -630,7 +630,7 @@ module.exports = {
     "fileBrowser": {
         "header": "Browse Data Source",
         "instr": "Select the data source that you want to import and then click the \"NEXT\" button.",
-        "Up": "Go back",
+        "Up": "Up a directory level",
         "filePathHint": "Click to see history",
         "SearchHint": "Regex Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
