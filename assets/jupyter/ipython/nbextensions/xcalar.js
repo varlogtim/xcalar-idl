@@ -16,19 +16,18 @@ define(function() {
 
             $(document).on("click", ".sendToUDF", function () {
                 var code = Jupyter.notebook.get_selected_cell().get_text();
-                code = trimUDFCode(code);
                 var request = {action: "sendToUDFEditor", code: code};
                 parent.postMessage(JSON.stringify(request), "*");
             });
 
-            if (params["needsTemplate"] === "true") {
+            if (params.needsTemplate === "true") {
                 // brand new workbook
-                var publishTable = params["publishTable"] === "true";
+                var publishTable = params.publishTable === "true";
                 var tableName;
                 var numRows = "0";
                 if (publishTable) {
-                    tableName = decodeURIComponent(params["tableName"]);
-                    numRows = params["numRows"];
+                    tableName = decodeURIComponent(params.tableName);
+                    numRows = params.numRows;
                 }
                 var request = {action: "newUntitled",
                                publishTable: publishTable,
@@ -107,14 +106,23 @@ define(function() {
                 var text;
                 switch (stubName) {
                     case ("connWorkbook"):
-                        text = '%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. Creating a XcalarApi object\nxcalarApi = XcalarApi()\n';
-                        text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                        text = '# Xcalar Notebook Connector\n' +
+                                '# \n' +
+                                '# Connects this Jupyter Notebook to the Xcalar Workbook <' + sessionName + '>\n' +
+                                '#\n' +
+                                '# To use any data from your Xcalar Workbook, run this snippet before other \n' +
+                                '# Xcalar Snippets in your workbook. \n' +
+                                '# \n' +
+                                '# A best practice is not to edit this cell.\n' +
+                                '#\n' +
+                                '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
+                                '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
+                        text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                        text += '# Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
                         texts.push(text);
                         break;
                     case ("basicUDF"):
-                        text = '# PLEASE TAKE NOTE:\n'
-                             + '# UDFs can only support return values of type String.\n'
-                             + '# Function names that start with __ are considered private functions and will not be directly invokable.\n';
+                        var text = "";
                         var colsArg = "";
                         var retStr = "";
                         var assertStr = "";
@@ -141,27 +149,102 @@ define(function() {
                             udfName = "yourUDF";
                             dfName = "dataframeName";
                         }
-                        text += 'def ' + udfName + '(' + colsArg + '):\n'
-                             + '    # You can modify the function name.\n'
-                             + '    # Your code starts from here. This is an example code.\n'
-                             + '    return ' + retStr + '\n';
+                        text += '# Xcalar Map UDF Template\n' +
+                                '#\n' +
+                                '# A function definition to contain your Map UDF Python code. The sample Python\n' +
+                                '# code concatenates all of your parameters into one string, and returns that \n' +
+                                '# string.\n' +
+                                '# \n' +
+                                '# To create your own map UDF, edit the function definition below, named \n' +
+                                '# <' + udfName +'>. \n' +
+                                '#\n' +
+                                '# To test your map UDF, run this cell to define your UDF \n' +
+                                '# and use the cell beneath this one. \n' +
+                                '#\n' +
+                                '# To copy this UDF to the Xcalar UDF editor, click the Copy to UDF Editor \n' +
+                                '# button at the bottom of this cell, name your module, and click SAVE. \n' +
+                                '#\n' +
+                                '# REQUIREMENT: Map UDF functions must return a string value.\n' +
+                                '#\n' +
+                                '# Best practice is to name helper functions by starting with __. Such \n' +
+                                '# functions will be considered private functions and will not be directly \n' +
+                                '# invokable from Xcalar Design.\n' +
+                                '\n' +
+                                '# Map UDF function definition.\n';
+                        text += 'def ' + udfName + '(' + colsArg + '):\n' +
+                               '    # You can modify the function name.\n' +
+                               '    # Your code starts from here. This is an example code.\n' +
+                               '    return ' + retStr + '\n';
                         texts.push(text);
-                        text =  '# Test your UDF with a sample of the table\n'
-                             + '# DO NOT MODIFY THIS CODE HERE\n'
-                             + tableStub
-                             + 'for index, row in ' + dfName + '.iterrows():\n'
-                             + '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n'
-                             + '    print(' + udfName + '(' + assertStr + '))';
+                        text =  '# Test Map UDF Template \n' +
+                                '#\n' +
+                                '# Creates a pandas dataframe containing a sample of the \n' +
+                                '# selected table when you clicked CODE SNIPPETS --> Create Map UDF, and \n' +
+                                '# invokes your Map UDF function.\n' +
+                                '# \n' +
+                                '# To test your UDF, run your Map UDF function cell, and then run this cell. \n' +
+                                '#\n' +
+                                '# Best practice is to not modify this code. However, if you modify the \n' +
+                                '# function name or parameters in your Map UDF template, then you should\n' +
+                                '# carefully make the same modifications at bottom.\n' +
+                               tableStub +
+                               'for index, row in ' + dfName + '.iterrows():\n' +
+                               '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n' +
+                               '    print(' + udfName + '(' + assertStr + '))';
                         texts.push(text);
                         break;
                     case ("importUDF"):
-                        text =  'from codecs import getreader\n' +
+                        text =  '# Xcalar Import UDF Template\n' +
+                                '# \n' +
+                                '# This is a function definition for your import UDF named <' + args.fnName + '>. \n' +
+                                '#\n' +
+                                '# REQUIREMENTS: Import UDF functions take two arguments...\n' +
+                                '#   inp: The file path to the data source file being imported.\n' +
+                                '#   ins: A file stream for the data source file.\n' +
+                                '#\n' +
+                                '#   Your Import UDF function must be a generator, a Python function which \n' +
+                                '#   processes and returns a stream of data. \n' +
+                                '# \n' +
+                                '# To create an import UDF, replace the "pass" instruction with the Python \n' +
+                                '# code for your Import UDF function. \n' +
+                                '#\n' +
+                                '# To define your import UDF, run this cell.\n' +
+                                '# \n' +
+                                '# To test whether this import UDF is a generator, or to view a sample import \n' +
+                                '# UDF, use the cell beneath this one.\n' +
+                                '# \n' +
+                                '# To copy this UDF to the Xcalar UDF editor, click the Copy to UDF Editor \n' +
+                                '# button at the bottom of this cell, name your module, and save the UDF. \n' +
+                                '#\n' +
+                                '# To test this import UDF with an external file, click the Copy to UDF Editor \n' +
+                                '# button at the bottom of this cell, enter a module name, and click SAVE. \n' +
+                                '# Then, click CODE SNIPPETS --> Test Existing Import UDF.\n' +
+                                '#\n' +
+                                '# Best practice is to name helper functions by starting with __. Such \n' +
+                                '# functions will be considered private functions and will not be directly \n' +
+                                '# invokable from Xcalar Design.\n' +
+                                '#\n' +
+                                '# The sample Python code below does nothing. \n' +
+                                '\n' +
+                                '# Function definition for your Import UDF.\n' +
+                                'from codecs import getreader\n\n' +
                                 'def ' + args.fnName + '(inp, ins):\n' +
                                 '    # FILL IN YOUR FUNCTION HERE\n' +
                                 '    pass\n';
                         texts.push(text);
 
-                        text =  '#The following function is a sample of how an import UDF should be written\n' +
+                        text =  '# Xcalar Import UDF Test\n' +
+                                '# \n' +
+                                '# This sample UDF is a working generator function which:\n' +
+                                '# 1) Creates column headers named column1, column2, ..., columnX \n' +
+                                '# 2) Splits data into arrays of values, using the configured delimiter \n' +
+                                '# 3) Yields rows as a 2-dimensional array pairing the column header with the \n' +
+                                '#    appropriate parsed value. \n' +
+                                '# \n' +
+                                '# To test whether your UDF <' + args.fnName +'> is a Python generator function, run \n' +
+                                '# the cell containing your import UDF and then run this cell. \n' +
+                                '\n' +
+                                '# Sample generator function.\n' +
                                 'from codecs import getreader\n' +
                                 'def __sampleCsvReader(inp, ins):\n' +
                                 '    hasHeader = False\n' +
@@ -183,6 +266,8 @@ define(function() {
                                 '            record[headers[i]] = vals[i]\n' +
                                 '        yield record\n' +
                                 '\n' +
+                                '# Function to test if your Import UDF named <' + args.fnName + '> is a Python \n' +
+                                '# generator.\n' +
                                 'import inspect\n' +
                                 'if inspect.isgeneratorfunction(' + args.fnName + '):\n' +
                                 '    print("Your generator function looks good. Try it on a file!")\n' +
@@ -191,7 +276,17 @@ define(function() {
                         texts.push(text);
                         break;
                     case("testImportUDF"):
-                        text = 'from xcalar.compute.api.Dataset import *\n' +
+                        text = '# Xcalar Import UDF Test\n' +
+                                '#\n' +
+                                '# This Python code tests whether your UDF <' + args.fnName + '> will function on \n' +
+                                '# external data source file <' + args.target + ":" + args.url + '>\n' +
+                                '#\n' +
+                                '# To test your import UDF, update the version in your UDF editor by clicking \n' +
+                                '# the Copy to UDF Editor button, and clicking SAVE. Then, run this cell.\n' +
+                                '#\n' +
+                                '# Best practice is to use a file containing a sample of your total data \n' +
+                                '# source file, because this Python code will output all of the results inline.\n\n' +
+                                'from xcalar.compute.api.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
                                 'import random\n' +
                                 '\n' +
@@ -221,8 +316,19 @@ define(function() {
             }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
-                var text = '%matplotlib inline\n#To faciliate manipulations later\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n#Xcalar imports. For more information, refer to discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n#Code starts here. Creating a XcalarApi object\nxcalarApi = XcalarApi()\n';
-                text += '#Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                var text = '# Xcalar Notebook Connector\n' +
+                                '# \n' +
+                                '# Connects this Jupyter Notebook to the Xcalar Workbook <' + sessionName + '>\n' +
+                                '#\n' +
+                                '# To use any data from your Xcalar Workbook, run this snippet before other \n' +
+                                '# Xcalar Snippets in your workbook. \n' +
+                                '# \n' +
+                                '# A best practice is not to edit this cell.\n' +
+                                '#\n' +
+                                '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
+                                '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
+                text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                text += '# Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
                 cell.set_text(text);
                 cell.execute();
                 Jupyter.notebook.save_notebook();
@@ -238,7 +344,27 @@ define(function() {
             }
 
             function getPublishTableStub(tableName, colNames, numRows) {
-                var text = '#Publish table as pandas dataframe\nfrom collections import OrderedDict\n';
+                var rowsText = "all";
+                if (numRows && numRows > 0) {
+                    rowsText = numRows;
+                }
+                var text = '# Publish Table to Jupyter Notebook\n' +
+                            '# \n' +
+                            '# This snippet is configured to load <' + rowsText +'> rows of Xcalar table <' + tableName + '> into a pandas dataframe named\n' +
+                            '# <' + tableName + '_pd>' + '.\n' +
+                            '#\n' +
+                            '# To instantiate or refresh your pandas dataframe, run the Connect snippet, \n' +
+                            '# and then run this snippet. \n' +
+                            '#\n' +
+                            '# Best Practice is not to edit this code. \n' +
+                            '#\n' +
+                            '# To use different data with this Jupyter Notebook:\n' +
+                            '# 1) Go to the table in your Xcalar Workbook.\n' +
+                            '# 2) From the table menu, click Publish to Jupyter.\n' +
+                            '# 3) Click full table or enter a number of rows and click submit.\n' +
+                            '\n' +
+                            '# Imports data into a pandas dataframe.\n' +
+                            'from collections import OrderedDict\n';
                 var rowLimit = "";
                 if (numRows && numRows > 0) {
                     rowLimit = ", maxRecords=" + numRows;
@@ -248,18 +374,18 @@ define(function() {
                 for (var i = 0; i<colNames.length;i++) {
                     filterDict += '"' + colNames[i] + '",';
                 }
-                filterDict += ']\n    kv_list = []\n'
-                filterDict += '    for k in col_list:\n'
-                            + '        if k not in row:\n'
-                            + '            kv_list.append((k, None))\n'
-                            + '        else:\n'
-                            + '            kv_list.append((k, row[k]))\n'
-                            + '            if type(row[k]) is list:\n'
-                            + '                for i in range(len(row[k])):\n'
-                            + '                    subKey = k + "[" + str(i) + "]"\n'
-                            + '                    if subKey in col_list:\n'
-                            + '                        row[subKey] = row[k][i]\n'
-                            + '    filtered_row = OrderedDict(kv_list)\n'
+                filterDict += ']\n    kv_list = []\n';
+                filterDict += '    for k in col_list:\n' +
+                              '        if k not in row:\n' +
+                              '            kv_list.append((k, None))\n' +
+                              '        else:\n' +
+                              '            kv_list.append((k, row[k]))\n' +
+                              '            if type(row[k]) is list:\n' +
+                              '                for i in range(len(row[k])):\n' +
+                              '                    subKey = k + "[" + str(i) + "]"\n' +
+                              '                    if subKey in col_list:\n' +
+                              '                        row[subKey] = row[k][i]\n' +
+                              '    filtered_row = OrderedDict(kv_list)\n';
                 text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '"' + rowLimit + ')\n';
                 tableName = tableName.replace(/[#-]/g, "_");
                 var dfName = tableName + '_pd';
@@ -394,17 +520,6 @@ define(function() {
                     options: options,
                 };
                 parent.postMessage(JSON.stringify(message), "*");
-            }
-
-            // for sending to udf panel
-            function trimUDFCode(code) {
-                var lines = code.split("\n");
-                if (lines[lines.length - 26] === "# Test your code with a sample of the table") {
-                    lines = lines.slice(0, lines.length - 26);
-                } else if (lines[lines.length - 25] === "# DO NOT MODIFY BELOW THIS LINE") {
-                    lines = lines.slice(0, lines.length - 25);
-                }
-                return lines.join("\n");
             }
 
             // We probably want to put these codes in another file.
