@@ -101,7 +101,9 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function clearLogs() {
         $logCard.find(".content").empty();
-        logs = {};
+        for (var host in logs) {
+            logs[host] = "";
+        }
     }
 
     function scrollToRight() {
