@@ -1558,6 +1558,14 @@ table.datasetTable {
         }
 
     }
+
+    #preview-target, #preview-url, #preview-pattern, #preview-file {
+        .flex-display;
+        span {
+            display: block;
+            .textOverflowOneLine;
+        }
+    }
 }
 
 // Preview Table Section
@@ -1596,7 +1604,8 @@ table.datasetTable {
         }
 
         .url {
-            .size(@width: ~"calc(100% - 340px)");
+            // .size(@width: ~"calc(100% - 340px)");
+            .size(@width: ~"calc(100% - 180px)");
             float: left;
             .flex-display;
             padding-right: 5px;
@@ -1612,7 +1621,7 @@ table.datasetTable {
         }
 
         .buttonGroup {
-            .size(@width: 160px);
+            // .size(@width: 160px);
             float: right;
 
             button {
@@ -1624,7 +1633,7 @@ table.datasetTable {
         #preview-parser {
             // XXX temporary hide it
             display: none;
-            .size(@width: 100%);
+            // .size(@width: 100%);
             padding-right: 5px;
         }
     }

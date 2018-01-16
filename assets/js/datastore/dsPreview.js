@@ -127,6 +127,11 @@ window.DSPreview = (function($, DSPreview) {
             });
         });
 
+        $previeWrap.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.add($(this), {"title": $(this).text()});
+            xcTooltip.auto(this);
+        });
+
         // minimize
         $("#dsForm-minimize").click(function() {
             xcTooltip.hideAll();
@@ -1728,8 +1733,8 @@ window.DSPreview = (function($, DSPreview) {
         if (!pattern) {
             $pattern.addClass("xc-hidden");
         } else {
-            $pattern.removeClass("xc-hidden")
-            .find(".text").text(pattern);
+            $pattern.removeClass("xc-hidden");
+            $pattern.find(".text").text(pattern);
         }
     }
 
@@ -1766,7 +1771,7 @@ window.DSPreview = (function($, DSPreview) {
         var $ele = $("#preview-changeFile").add($file);
         $file.find(".text").text();
         $ele.addClass("xc-hidden");
-
+        xcTooltip.remove($file.find(".text"));
     }
 
     function previewFileSelect(isParseMode) {
