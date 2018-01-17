@@ -1258,9 +1258,10 @@ window.DS = (function ($, DS) {
                     format = xcHelper.parseDSFormat(ds);
                     obj = $.extend(obj, {
                         "format": format,
-                        "path": ds.url,
+                        "path": ds.loadArgs.sourceArgs.path,
                         "unlistable": !ds.isListable,
-                        "locked": ds.locked
+                        "locked": ds.locked,
+                        "targetName": ds.loadArgs.sourceArgs.targetName
                     });
 
                     createDS(obj);
@@ -1284,9 +1285,10 @@ window.DS = (function ($, DS) {
                 format = xcHelper.parseDSFormat(ds);
                 options = $.extend({}, options, {
                     "format": format,
-                    "path": ds.url,
+                    "path": ds.loadArgs.sourceArgs.path,
                     "unlistable": !ds.isListable,
-                    "locked": ds.locked
+                    "locked": ds.locked,
+                    "targetName": ds.loadArgs.sourceArgs.targetName
                 });
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
