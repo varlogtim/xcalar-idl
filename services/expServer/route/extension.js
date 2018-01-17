@@ -332,7 +332,7 @@ router.post("/extension/download", function(req, res) {
     xcConsole.log(pkg);
     downloadExtension(pkg.name, pkg.version)
     .then(function(ret) {
-        writeTarGzWithCleanup(ret.data, pkg.name, pkg.version);
+        return writeTarGzWithCleanup(ret.data, pkg.name, pkg.version);
     })
     .then(function() {
         res.jsonp({status: Status.Ok});
