@@ -1606,6 +1606,18 @@ FormHelper.Template = {
             '</div>'
 };
 
+FormHelper.updateColumns = function(tableId) {
+    DFCreateView.updateTables(tableId, true);
+    ProjectView.updateColumns();
+    OperationsView.updateColumns();
+    JoinView.updateColumns();
+    ExportView.updateColumns();
+    SmartCastView.updateColumns(tableId);
+    UnionView.updateColumns(tableId);
+    SortView.updateColumns(tableId);
+    // extensions view doesn't cache columns
+};
+
 // used for forms in the left panel
 // options: paddingTop: integer, pixels from the top to position
 FormHelper.scrollToElement = function($el, options) {

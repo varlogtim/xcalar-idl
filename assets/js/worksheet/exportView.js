@@ -264,6 +264,39 @@ window.ExportView = (function($, ExportView) {
         formHelper.clear();
     };
 
+    ExportView.updateColumns = function() {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+        // keep deselected cols deselected and select the new cols
+        var selectedCols = exportHelper.getExportColumns();
+        var nonSelectedCols = [];
+        $exportView.find('.cols li:not(.checked)').each(function() {
+            nonSelectedCols.push($(this).text().trim());
+        });
+
+        clearAllCols();
+        refreshTableColList();
+        var colNums = [];
+        var $cols = $exportView.find(".cols li");
+        nonSelectedCols.forEach(function(colName) {
+            var $col = $cols.filter(function() {
+                return $(this).text() === colName;
+            });
+            colNums.push($col.data("colnum"));
+        });
+
+        var allCols = gTables[tableId].getAllCols();
+        for (var i = 0; i < colNums.length; i++) {
+            var colNum = colNums[i];
+            if (!allCols[colNum - 1].backName.trim().length ||
+                allCols[colNum - 1].isDATACol()) {
+                continue;
+            }
+            deselectCol(colNum, true);
+        }
+    };
+
     function submitForm() {
         var deferred = jQuery.Deferred();
         var isValid = xcHelper.validate([

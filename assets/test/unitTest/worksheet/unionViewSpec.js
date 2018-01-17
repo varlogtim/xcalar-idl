@@ -231,6 +231,18 @@ describe("Union View Test", function() {
         });
     });
 
+    describe("pulling column", function() {
+        it("should update columns", function() {
+            var progCol3 = ColManager.newPullCol("col3", null, ColumnType.string);
+            table1.tableCols.push(progCol3);
+            expect($unionView.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(1);
+            expect($unionView.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
+            UnionView.updateColumns(table1.getId());
+            expect($unionView.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(2);
+            expect($unionView.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
+        });
+    });
+
     after(function() {
         delete gTables["test1"];
         delete gTables["test2"];

@@ -84,7 +84,7 @@ window.SmartCastView = (function($, SmartCastView) {
         curTableId = tableId;
         isOpen = true;
 
-        initialSugget(tableId);
+        initialSuggest(tableId);
         smartSuggest(tableId);
 
         var columnPicker = {
@@ -130,6 +130,17 @@ window.SmartCastView = (function($, SmartCastView) {
         recTypes = [];
         curTableId = null;
         formHelper.clear();
+    };
+
+    SmartCastView.updateColumns = function(tableId) {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+        if (tableId !== curTableId) {
+            return;
+        }
+       
+        initialSuggest(curTableId);
     };
 
     function clearCast() {
@@ -294,7 +305,7 @@ window.SmartCastView = (function($, SmartCastView) {
         return xcSuggest.suggestType(datas, type);
     }
 
-    function initialSugget(tableId) {
+    function initialSuggest(tableId) {
         var tableCols = gTables[tableId].tableCols;
 
         var $table = $("#xcTable-" + tableId);
@@ -302,6 +313,10 @@ window.SmartCastView = (function($, SmartCastView) {
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
+
+        colNames = [];
+        colTypes = [];
+        recTypes = [];
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
@@ -340,6 +355,9 @@ window.SmartCastView = (function($, SmartCastView) {
         SmartCastView.__testOnly__.deSelectCol = deSelectCol;
         SmartCastView.__testOnly__.changeColType = changeColType;
         SmartCastView.__testOnly__.submitForm = submitForm;
+        SmartCastView.__testOnly__.getInfo = function() {
+            return {colNames: colNames, colTypes: colTypes, recTypes: recTypes};
+        }
     }
     /* End Of Unit Test Only */
 

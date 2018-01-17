@@ -2,6 +2,7 @@ describe("Smart Cast View Test", function() {
     var $castView;
     var $castTable;
     var $table;
+    var prefix;
 
     var dsName, tableName, tableId;
 
@@ -12,11 +13,12 @@ describe("Smart Cast View Test", function() {
         $castTable = $("#smartCast-table");
 
         UnitTest.addAll(testDatasets.fakeYelp, "yelp_smartCast_test")
-        .then(function(resDS, resTable) {
+        .then(function(resDS, resTable, pFix) {
             dsName = resDS;
             tableName = resTable;
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);
+            prefix = pFix;
             done();
         })
         .fail(function(error) {
@@ -170,6 +172,44 @@ describe("Smart Cast View Test", function() {
             // call another close should have nothing happen
             SmartCastView.close();
             assert.isFalse($castView.is(":visible"));
+        });
+    });
+
+    describe("pulling column", function() {
+        var colName;
+        before(function(done) {
+            colName = prefix + gPrefixSign + "four";
+            ColManager.hideCol([4], tableId, {noAnimate: true})
+            .then(function() {
+                SmartCastView.show(tableId);
+                var colInfo = SmartCastView.__testOnly__.getInfo();
+                expect(colInfo.colNames.indexOf(colName)).to.equal(-1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should update columns", function(done) {
+            ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
+            UnitTest.testFinish(function() {
+                var colInfo = SmartCastView.__testOnly__.getInfo();
+                return colInfo.colNames.indexOf(colName) > -1;
+            })
+            .then(function() {
+                var colInfo = SmartCastView.__testOnly__.getInfo();
+                expect(colInfo.colNames.indexOf(colName)).to.equal(12);
+                expect(colInfo.recTypes[12]).to.equal("boolean");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+        
+        after(function() {
+            SmartCastView.close();
         });
     });
 

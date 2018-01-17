@@ -160,7 +160,7 @@ describe('OperationsView Test', function() {
         describe('function getMatchingColNames', function() {
             it('getMatchingColNames() should work', function() {
                 var fn = OperationsView.__testOnly__.getMatchingColNames;
-                var colNames = OperationsView.__testOnly__.colNames;
+                var colNames = OperationsView.__testOnly__.getColNamesCache();
                 var oldColNames = xcHelper.deepCopy(colNames);
                 emptyColName();
                 colNames["ayz"] = "ayz";
@@ -802,7 +802,7 @@ describe('OperationsView Test', function() {
 
                 expect($header.closest("th").hasClass("modalHighlighted")).to.be.false;
                 expect($header2.closest("th").hasClass("modalHighlighted")).to.be.true;
-                expect($argInputs.eq(0).data("colnum")).to.equal(4);
+                expect($argInputs.eq(0).data("colname")).to.equal(xcHelper.getPrefixColName(prefix, 'four'));
 
                 $argInputs.eq(0).val("").trigger("input");
                 UnitTest.testFinish(function() {
@@ -2892,6 +2892,75 @@ describe('OperationsView Test', function() {
                     done();
                 }, 500);
             });
+        });
+    });
+
+    describe("pulling column in map form", function() {
+        var $mapForm;
+        var colLower;
+
+        before(function(done) {
+            ColManager.hideCol([4], tableId, {noAnimate: true})
+            .then(function() {
+                return OperationsView.show(tableId, [1], "map");
+            })
+            .then(function() {
+                $mapForm = $operationsView.find('.map:visible');
+                colLower = (prefix + gPrefixSign + "four").toLowerCase();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("check colnames", function() {
+            var colNames =  OperationsView.__testOnly__.getColNamesCache();
+            expect(Object.keys(colNames).length).to.equal(11);
+            expect(colNames[colLower]).to.be.undefined;
+        });
+
+        it("json modal should open", function(done) {
+            $("#xcTable-" + tableId).find(".jsonElement .pop").eq(0).click();
+            UnitTest.testFinish(function() {
+                return $("#jsonModal").is(":visible");
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("update columns should be triggered", function(done) {
+            var colNames =  OperationsView.__testOnly__.getColNamesCache();
+            expect(Object.keys(colNames).length).to.equal(11);
+            expect(colNames[colLower]).to.be.undefined;
+
+            $("#jsonModal").find('.mainKey[data-key="four"]').find(".jKey")
+                                                            .eq(0).click();
+            UnitTest.testFinish(function() {
+                var colNames =  OperationsView.__testOnly__.getColNamesCache();
+                return colNames[colLower] !== undefined;
+            })
+            .then(function() {
+                var colNames =  OperationsView.__testOnly__.getColNamesCache();
+                expect(Object.keys(colNames).length).to.equal(12);
+                expect(colNames[colLower]).to.not.be.undefined;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function(done) {
+            OperationsView.close();
+            // allow time for operations view to close
+            setTimeout(function() {
+                done();
+            }, 500);
         });
     });
 

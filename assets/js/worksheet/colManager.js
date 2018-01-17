@@ -179,8 +179,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.execCol("pull", usrStr, tableId, newColNum, {noLog: true})
         .then(function() {
             TblManager.updateHeaderAndListInfo(tableId);
-            DFCreateView.updateTables(tableId, true);
-            ProjectView.updateColumns();
+            FormHelper.updateColumns(tableId);
             Log.add(SQLTStr.PullCol, sqlOptions);
             deferred.resolve(newColNum);
         })
@@ -1277,9 +1276,7 @@ window.ColManager = (function($, ColManager) {
             $colToUnnest.after(ths);
         }
         pullRowsBulkHelper(tableId);
-
-        DFCreateView.updateTables(tableId, true);
-        ProjectView.updateColumns();
+        FormHelper.updateColumns(tableId);
 
         Log.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,

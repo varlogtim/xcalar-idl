@@ -738,6 +738,18 @@ window.JoinView = (function($, JoinView) {
         $(".xcTable").find(".formColNum").remove();
     };
 
+    JoinView.updateColumns = function() {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+        lastSideClicked = null;
+        focusedListNum = null;
+        focusedThNum = null;
+        needsNextStepUpdate = true;
+        displayAllColumnsList();
+        resetRenames();
+    };
+
     function addCastDropDownListener() {
         var $lists = $joinView.find(".cast.new .dropDownList");
         $lists.closest('.cast.new').removeClass('new');

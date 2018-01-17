@@ -971,7 +971,6 @@ describe("JoinView Test", function() {
                 };
                 JoinView.show(tableId, [], {prefill: prefillInfo});
                 expect($("#joinView").is(":visible")).to.be.true;
-
             });
 
             it("join type should be selected", function() {
@@ -1022,6 +1021,47 @@ describe("JoinView Test", function() {
                 $joinForm.find(".confirm").click();
                 expect(called).to.be.true;
                 DagEdit.store = cachedFn;
+            });
+        });
+
+        after(function() {
+            JoinView.close();
+        });
+    });
+
+    describe("pulling column", function() {
+        var colName;
+        before(function(done) {
+            colName = prefix + gPrefixSign + "four";
+            ColManager.hideCol([4], tableId, {noAnimate: true})
+            .then(function() {
+                JoinView.show(tableId, [1]);
+                expect($("#joinView").is(":visible")).to.be.true;
+                JoinView.updateColumns();
+                expect($("#joinView").find(".leftCols li").length).to.equal(11);
+                expect($("#joinView").find(".leftCols li").filter(function() {
+                    return $(this).text() === colName;
+                }).length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should update columns", function(done) {
+            ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
+            UnitTest.testFinish(function() {
+                return $("#joinView").find(".leftCols li").filter(function() {
+                    return $(this).text() === colName;
+                }).length === 1;
+            })
+            .then(function() {
+                expect($("#joinView").find(".leftCols li").length).to.equal(12);
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
     });

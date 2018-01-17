@@ -2814,15 +2814,9 @@ window.TblManager = (function($, TblManager) {
             if (event.which !== 1) {
                 return;
             }
-            if ($("#container").hasClass("columnPicker") &&
-                !$("#container").hasClass("dataflowState") &&
-                 !$("#container").hasClass("projectState") ) {
-                // not focus when in modal
-                return;
-            }
+
             var $td = $(this);
-            if ($("#container").hasClass("dataflowState") &&
-                $("#container").hasClass("projectState") &&
+            if ($("#container").hasClass("formOpen") &&
                 !$td.hasClass("jsonElement")) {
                 // no json modal for regular tds if form is open
                 return;

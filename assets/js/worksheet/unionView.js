@@ -79,6 +79,18 @@ window.UnionView = (function(UnionView, $) {
         editingInfo = {};
     };
 
+    UnionView.updateColumns = function(tId) {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+        for (var i = 0; i < tableInfoLists.length; i++) {
+            if (tableInfoLists[i].tableId === tId) {
+                updateList();
+                return;
+            }
+        }
+    };
+
     function addEvents() {
         $unionView.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);

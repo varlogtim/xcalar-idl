@@ -3,7 +3,6 @@ window.SortView = (function($, SortView) {
     var $sortTable; // $("#sortView-table")
 
     var curTableId;
-    var newColOrders = [];
     var colNames = [];
     var colTypes = [];
     var colOrders = [];
@@ -118,6 +117,15 @@ window.SortView = (function($, SortView) {
                     $cell = $target.closest("td");
                 }
                 var colNum = xcHelper.parseColNum($cell);
+
+                var type = gTables[curTableId].getCol(colNum).getType();
+                if (validTypes.indexOf(type) === -1) {
+                    xcTooltip.transient($cell, {
+                        "title": ColTStr.NoOperateGeneral,
+                        "container": "#container"
+                    }, 1000);
+                    return;
+                }
                 if ($cell.hasClass("modalHighlighted")) {
                     deSelectCol(colNum);
                 } else {
@@ -139,6 +147,16 @@ window.SortView = (function($, SortView) {
         curTableId = null;
     };
 
+    SortView.updateColumns = function(tableId) {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+        if (tableId !== curTableId) {
+            return;
+        }
+        setColumnCache(tableId);
+    }
+
     function resetForm() {
         colNames = [];
         colTypes = [];
@@ -154,12 +172,10 @@ window.SortView = (function($, SortView) {
         if (!keepData) {
             $sortTable.addClass("empty")
                 .find(".tableContent").empty();
-            newColOrders = [];
         }
     }
 
     function submitForm() {
-        // var len = newColOrders.length;
         var colInfos = [];
         // may be deleted
         if (!gTables.hasOwnProperty(curTableId)) {
@@ -171,6 +187,8 @@ window.SortView = (function($, SortView) {
             StatusBox.show(TblTStr.NotActive, $sortTable);
             return;
         }
+
+        var newColOrders = getNewColOrders();
 
         for (var i = 0; i < newColOrders.length; i++) {
             var colNum = newColOrders[i].colNum;
@@ -218,17 +236,24 @@ window.SortView = (function($, SortView) {
 
         $sortTable.removeClass("empty")
             .find(".tableContent").append(html);
-        newColOrders.push({
-            colNum: colNum,
-            order: order
-        });
         xcHelper.scrollToBottom($sortView.find(".mainContent"));
         updateColHeaderNums($table);
     }
 
+    function getNewColOrders() {
+        var newColOrders = [];
+        $sortTable.find(".row").each(function() {
+            newColOrders.push({
+                colNum: $(this).data("col"),
+                order: $(this).find(".colOrder .text").text()
+            });
+        });
+        return newColOrders;
+    }
 
     function updateColHeaderNums($table) {
         $(".xcTable").find(".formColNum").remove();
+        var newColOrders = getNewColOrders();
         for (var i = 0; i < newColOrders.length; i++) {
             var colNum = newColOrders[i].colNum;
             $table.find("th.col" + colNum + ' .header')
@@ -238,6 +263,7 @@ window.SortView = (function($, SortView) {
 
     function restoreHighlightedCols() {
         var $table = $("#xcTable-" + curTableId);
+        var newColOrders = getNewColOrders();
         for (var i = 0; i < newColOrders.length; i++) {
             $table.find(".col" + newColOrders[i].colNum)
                   .addClass("modalHighlighted");
@@ -248,12 +274,7 @@ window.SortView = (function($, SortView) {
     function deSelectCol(colNum) {
         var $table = $("#xcTable-" + curTableId);
         $table.find(".col" + colNum).removeClass("modalHighlighted");
-        for (var i = 0; i < newColOrders.length; i++) {
-            if (newColOrders[i].colNum === colNum) {
-                newColOrders.splice(i, 1);
-                break;
-            }
-        }
+
         getRow(colNum).remove();
 
         if ($sortTable.find(".row").length === 0) {
@@ -270,12 +291,7 @@ window.SortView = (function($, SortView) {
 
         var $col = getRow(colNum).find(".colOrder");
         $col.find(".text").text(colOrder);
-        for (var i = 0; i < newColOrders.length; i++) {
-            if (newColOrders[i].colNum === colNum) {
-                newColOrders[i].order = colOrder;
-                break;
-            }
-        }
+
         if (colOrder === colOrders[colNum]) {
             $col.addClass("initialOrder");
         } else {
@@ -343,6 +359,9 @@ window.SortView = (function($, SortView) {
         var tableKeyNames = table.getKeyName();
         var tableKeys = table.getKeys();
         var tableOrder = table.backTableMeta.ordering;
+        colNames = [];
+        colTypes = [];
+        colOrders = [];
 
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];

@@ -10,6 +10,7 @@ window.OperationsView = (function($, OperationsView) {
                                 //  .groupby etc')
     var currentCol;
     var colNum = "";
+    var triggerColName = "";
     var colName = "";
     var colNamesCache = {};
     var isNewCol;
@@ -674,13 +675,15 @@ window.OperationsView = (function($, OperationsView) {
             }
         });
 
+        // used only for groupby columns to keep
         $operationsView.find('.columnsWrap').on('click', 'li', function(event) {
             var $li = $(this);
-            var colNum = $li.data('colnum');
+            var colNum = $li.data("colnum");
             var toHighlight = false;
             if (!$li.hasClass('checked')) {
                 toHighlight = true;
             }
+
 
             if (event.shiftKey && focusedColListNum != null) {
                 var start = Math.min(focusedColListNum, colNum);
@@ -704,22 +707,6 @@ window.OperationsView = (function($, OperationsView) {
             focusedColListNum = colNum;
         });
 
-        function selectCol(colNum) {
-            var $colList = $activeOpSection.find(".cols");
-            $colList.find('li[data-colnum="' + colNum + '"]')
-                    .addClass('checked')
-                    .find('.checkbox').addClass('checked');
-            checkToggleSelectAllBox();
-        }
-
-        function deselectCol(colNum) {
-            var $colList = $activeOpSection.find(".cols");
-            $colList.find('li[data-colnum="' + colNum + '"]')
-                    .removeClass('checked')
-                    .find('.checkbox').removeClass('checked');
-            checkToggleSelectAllBox();
-        }
-
         $operationsView.find('.selectAllCols').on('click', function() {
             var $checkbox = $(this);
             var $cols = $activeOpSection.find(".cols");
@@ -735,19 +722,6 @@ window.OperationsView = (function($, OperationsView) {
             }
             focusedColListNum = null;
         });
-
-        // if all lis are checked, select all checkbox will be checked as well
-        function checkToggleSelectAllBox() {
-            var totalCols = $activeOpSection.find('.cols li').length;
-            var selectedCols = $activeOpSection.find('.cols li.checked').length;
-            if (selectedCols === 0) {
-                $activeOpSection.find('.selectAllWrap').find('.checkbox')
-                                                  .removeClass('checked');
-            } else if (selectedCols === totalCols) {
-                $activeOpSection.find('.selectAllWrap').find('.checkbox')
-                                                  .addClass('checked');
-            }
-        }
 
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
@@ -811,6 +785,10 @@ window.OperationsView = (function($, OperationsView) {
             } else if (currColNums && currColNums.length) {
                 colNum = currColNums[0];
             }
+            if (table.getCol(colNum)) {
+                 triggerColName = table.getCol(colNum).getBackColName();
+            }
+           
             if (currColNums && currColNums.length) {
                 currentCol = table.getCol(colNum);
                 colName = currentCol.getFrontColName(true);
@@ -890,6 +868,29 @@ window.OperationsView = (function($, OperationsView) {
     OperationsView.close = function() {
         if (formHelper.isOpen()) {
             closeOpSection();
+        }
+    };
+
+    OperationsView.updateColumns = function(tId) {
+        if (!formHelper.isOpen()) {
+            return;
+        }
+
+        focusedColListNum = null;
+        updateColNamesCache();
+
+        if (operatorName === "group by") {
+            var colsToKeep = [];
+            $activeOpSection.find('.cols li.checked').each(function() {
+                colsToKeep.push($(this).text());
+            });
+            var listHtml = getTableColList();
+            $activeOpSection.find(".cols").html(listHtml);
+            $activeOpSection.find(".selectAllCols").removeClass('checked');
+            colsToKeep.forEach(function(colName) {
+                var colNum = getColNum(colName);
+                selectCol(colNum - 1);
+            });
         }
     };
 
@@ -2135,11 +2136,12 @@ window.OperationsView = (function($, OperationsView) {
 
         updateStrPreview(noHighlight);
     }
-    function checkArgsHasCol(colNum) {
+
+    function checkArgsHasCol(colName) {
         var found = false;
         $activeOpSection.find(".arg:visible").each(function() {
             var $arg = $(this);
-            if ($arg.data("colnum") === colNum) {
+            if ($arg.data("colname") === colName) {
                 found = true;
                 return false;
             }
@@ -2153,18 +2155,19 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var arg = $input.val().trim();
-        var prevColNum = $input.data("colnum");
-        $input.data("colnum", null);
+        var prevColName = $input.data("colname");
+        $input.data("colname", null);
         var $table = $("#xcTable-" + tableId);
-        if (prevColNum > 0 && !checkArgsHasCol(prevColNum)) {
-            $table.find(".col" + prevColNum).removeClass("modalHighlighted");
+        if (prevColName && !checkArgsHasCol(prevColName)) {
+            var colNum = getColNum(prevColName); 
+            $table.find(".col" + colNum).removeClass("modalHighlighted");
         }
 
         if (xcHelper.hasValidColPrefix(arg)) {
             arg = parseColPrefixes(arg);
             var colNum = table.getColNumByFrontName(arg);
             if (colNum > -1) {
-                $input.data("colnum", colNum);
+                $input.data("colname", arg);
                 $table.find(".col" + colNum).addClass("modalHighlighted");
             }
         }
@@ -3302,10 +3305,10 @@ window.OperationsView = (function($, OperationsView) {
         if (!hasFuncFormat(firstArg)) {
             filterColNum = getColNum(firstArg);
         } else {
-            filterColNum = colNum;
+            filterColNum = getColNum(triggerColName);
         }
         if (filterColNum == null || filterColNum < 0) {
-            filterColNum = colNum;
+            filterColNum = getColNum(triggerColName);
         }
 
         var filterString = formulateMapFilterString(operator, args,
@@ -3539,6 +3542,7 @@ window.OperationsView = (function($, OperationsView) {
         var hasWeirdQuotes = (mapStr.indexOf("“") > -1 ||
                               mapStr.indexOf("”") > -1);
 
+        var colNum = getColNum(triggerColName);
         if (isEditMode) {
             DagEdit.store({
                 args: {
@@ -4835,6 +4839,35 @@ window.OperationsView = (function($, OperationsView) {
                 arg !== "t" && arg !== "f");
     }
 
+    function selectCol(colNum) {
+        var $colList = $activeOpSection.find(".cols");
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .addClass('checked')
+                .find('.checkbox').addClass('checked');
+        checkToggleSelectAllBox();
+    }
+
+    function deselectCol(colNum) {
+        var $colList = $activeOpSection.find(".cols");
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .removeClass('checked')
+                .find('.checkbox').removeClass('checked');
+        checkToggleSelectAllBox();
+    }
+
+    // if all lis are checked, select all checkbox will be checked as well
+    function checkToggleSelectAllBox() {
+        var totalCols = $activeOpSection.find('.cols li').length;
+        var selectedCols = $activeOpSection.find('.cols li.checked').length;
+        if (selectedCols === 0) {
+            $activeOpSection.find('.selectAllWrap').find('.checkbox')
+                                              .removeClass('checked');
+        } else if (selectedCols === totalCols) {
+            $activeOpSection.find('.selectAllWrap').find('.checkbox')
+                                              .addClass('checked');
+        }
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         OperationsView.__testOnly__ = {};
@@ -4872,7 +4905,9 @@ window.OperationsView = (function($, OperationsView) {
 
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;
-        OperationsView.__testOnly__.colNames = colNamesCache;
+        OperationsView.__testOnly__.getColNamesCache = function() {
+            return colNamesCache;
+        };
 
 
     }

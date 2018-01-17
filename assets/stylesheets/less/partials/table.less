@@ -910,6 +910,10 @@ html.edge {
             display: none;
             // jquery fades in display
         }
+
+        .formColNum {
+            top: -5px !important;
+        }
     }
     &.tableDarkened {
         pointer-events: none;
@@ -982,10 +986,6 @@ html.edge {
             }
         }
 
-        td.jsonElement {
-            pointer-events: none;
-        }
-
         tbody tr {
             &:nth-child(odd) {
                 td.modalHighlighted {
@@ -1053,11 +1053,6 @@ html.edge {
                 // columnPicker class disables the select all behavior of the first
                 // column header, but we want it for export
             }
-        }
-    }
-    &.dataflowState, &.projectState {
-        td.jsonElement {
-            pointer-events: initial;
         }
     }
 }

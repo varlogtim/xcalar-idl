@@ -8,6 +8,7 @@ describe('ExportView Test', function() {
     var cachedGetTableList;
     var cachedCenterFn;
     var $table;
+    var prefix;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
@@ -15,12 +16,13 @@ describe('ExportView Test', function() {
         cachedCenterFn = xcHelper.centerFocusedTable;
 
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName) {
+        .always(function(ds, tName, pFix) {
             testDs = ds;
             tableName = tName;
             $exportForm = $('#exportView');
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);
+            prefix = pFix;
 
             // add a second table for table list testing
             tableName2 = "fakeTable#zz999";
@@ -625,14 +627,60 @@ describe('ExportView Test', function() {
                 done();
             });
         });
+
+        after(function() {
+            $exportForm.find(".close").click();
+        });
+    });
+
+    describe("pulling column", function() {
+        var colName;
+        before(function(done) {
+            colName = prefix + gPrefixSign + "four";
+            ColManager.hideCol([4], tableId, {noAnimate: true})
+            .then(function() {
+                ExportView.show(tableId, [1]);
+                expect($exportForm.find(".cols li").length).to.equal(5);
+                expect($exportForm.find(".cols li").filter(function() {
+                    return $(this).text() === colName;
+                }).length).to.equal(0);
+                $exportForm.find(".cols li").eq(0).removeClass('checked')
+                .find(".checked").removeClass("checked");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should update columns", function(done) {
+            ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
+            UnitTest.testFinish(function() {
+                return $exportForm.find(".cols li").filter(function() {
+                    return $(this).text() === colName;
+                }).length === 1;
+            })
+            .then(function() {
+                expect($exportForm.find(".cols li").length).to.equal(6);
+                expect($exportForm.find(".cols li").eq(0).hasClass("checked")).to.be.false;
+                expect($exportForm.find(".cols li").eq(1).hasClass("checked")).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+        
+        after(function() {
+            $exportForm.find(".close").click();
+        });
     });
 
     after(function(done) {
         delete gTables[tableId2];
         WSManager.getTableList = cachedGetTableList;
         xcHelper.centerFocusedTable = cachedCenterFn;
-        $exportForm.find(".close").click();
-
+        
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             done();
