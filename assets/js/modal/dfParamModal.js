@@ -156,32 +156,7 @@ window.DFParamModal = (function($, DFParamModal){
                 isValid = false;
                 hideAddParamSection();
             } else {
-                isValid = xcHelper.validate([{
-                    "$ele": $input,
-                    "error": ErrTStr.NoSpecialCharOrSpace,
-                    "check": function() {
-                        return !xcHelper.checkNamePattern("param", "check",
-                                                          paramName);
-                    }
-                },
-                {
-                    "$ele": $input,
-                    "error": xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
-                        "name": paramName
-                    }),
-                    "check": function() {
-                        return systemParams.hasOwnProperty(paramName);
-                    }
-                },
-                {
-                    "$ele": $input,
-                    "error": xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
-                        "name": paramName
-                    }),
-                    "check": function() {
-                        return df.paramMap.hasOwnProperty(paramName);
-                    }
-                }]);
+                isValid = validateParamName($input, paramName, df);
             }
 
             if (!isValid) {
@@ -1504,6 +1479,34 @@ window.DFParamModal = (function($, DFParamModal){
         return (!braceOpen);
     }
 
+    function validateParamName($ele, paramName, df) {
+        return xcHelper.validate([{
+            "$ele": $ele,
+            "error": ErrTStr.NoSpecialCharOrSpace,
+            "check": function() {
+                return !xcHelper.checkNamePattern("param", "check",
+                                                  paramName);
+            }
+        },
+        {
+            "$ele": $ele,
+            "error": xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+                "name": paramName
+            }),
+            "check": function() {
+                return systemParams.hasOwnProperty(paramName);
+            }
+        },
+        {
+            "$ele": $ele,
+            "error": xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                "name": paramName
+            }),
+            "check": function() {
+                return df.paramMap.hasOwnProperty(paramName);
+            }
+        }]);
+    }
     // submit
     function storeRetina() {
         //XX need to check if all default inputs are filled
@@ -1588,6 +1591,8 @@ window.DFParamModal = (function($, DFParamModal){
 
             params = [];
             var $invalidTr;
+            var retName = $dfParamModal.data("df");
+            var df = DF.getDataflow(retName);
             $paramLists.find(".row:not(.unfilled)").each(function() {
                 var $row = $(this);
                 var name = $row.find(".paramName").text();
@@ -1601,6 +1606,14 @@ window.DFParamModal = (function($, DFParamModal){
                         return false; // stop iteration
                     }
 
+                    if (!df.paramMap.hasOwnProperty(name)) {
+                        isValid = validateParamName(
+                                       $row.find(".paramName").eq(0), name, df);
+                        if (!isValid) {
+                            return false; // stop iteration
+                        }
+                        df.addParameter(name);
+                    }
                     params.push({
                         "name": name,
                         "val": val
@@ -1636,8 +1649,6 @@ window.DFParamModal = (function($, DFParamModal){
                 return;
             }
 
-            var retName = $dfParamModal.data("df");
-            var df = DF.getDataflow(retName);
             var paramInfo;
             updateRetina()
             .then(function(paramInformation) {
