@@ -23,17 +23,18 @@ require("jsdom").env("", function(err, window) {
 });
 
 var defaultHostsFile = "/etc/xcalar/default.cfg";
-var defaultXcalarctl = process.env.XLRDIR ?
-    process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
+var defaultXcalarDir = process.env.XLRDIR || "/opt/xcalar";
 var defaultHttpPort = process.env.XCE_HTTP_PORT ?
     process.env.XCE_HTTP_PORT : 80;
 var defaultHttpsPort = process.env.XCE_HTTPS_PORT ?
     process.env.XCE_HTTPS_PORT : 443;
 // we need to fix this eventually, but for now ignore untrusted certs
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+var defaultXcalarctl = defaultXcalarDir + "/bin/xcalarctl";
 var defaultStartCommand = defaultXcalarctl + " start";
 var defaultStopCommand = defaultXcalarctl + " stop";
 var defaultStatusCommand = defaultXcalarctl + " status";
+var supportBundleCommand = defaultXcalarDir + "/scripts/support-generate.sh";
 
 var logPath = "/var/log/Xcalar.log";
 var installationLogPath;
@@ -298,6 +299,8 @@ function slaveExecuteAction(action, slaveUrl, content) {
             }
         case "/installationLogs/slave":
             return readInstallerLog(installationLogPath);
+        case "/service/bundle/slave":
+            return generateSupportBundle();
         default:
             xcConsole.log("Should not be here!");
     }
@@ -460,6 +463,10 @@ function xcalarStatus() {
     return executeCommand(defaultStatusCommand);
 }
 
+function generateSupportBundle() {
+    xcConsole.log("Generating Support Bundle");
+    return executeCommand(supportBundleCommand);
+}
 // Remove session files
 function removeSessionFiles(filePath) {
     // '/var/opt/xcalar/sessions' without the final slash is also legal

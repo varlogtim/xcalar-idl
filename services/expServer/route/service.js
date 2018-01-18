@@ -77,6 +77,17 @@ router.get("/service/status", function(req, res) {
     });
 });
 
+router.post("/service/bundle", function(req, res) {
+    xcConsole.log("Generating Support Bundle as Master");
+    support.masterExecuteAction("POST", "/service/bundle/slave", req.body)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
+});
+
 // Slave request
 router.post("/service/start/slave", function(req, res) {
     xcConsole.log("Starting Xcalar as Slave");
@@ -102,6 +113,13 @@ router.get("/service/status/slave", function(req, res) {
     });
 });
 
+router.post("/service/bundle/slave", function(req, res) {
+    xcConsole.log("Generating Support Bundle as Slave")
+    support.slaveExecuteAction("POST", "/service/bundle/slave")
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+})
 // Single node commands
 router.delete("/service/sessionFiles", function(req, res) {
     xcConsole.log("Removing Session Files");
