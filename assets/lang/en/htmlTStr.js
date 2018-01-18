@@ -19,7 +19,7 @@ module.exports = {
         "CLOSE": "CLOSE",
         "ClusterName": "Cluster Name",
         "ColRenames": "Column Renames",
-        "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
+        "ColRenameInstr": "The columns that you selected contain duplicates. Please rename either or both of the offending columns.",
         "Columns": "Columns",
         "ComeSoon": "Coming Soon",
         "CompleteExc": "complete!",
@@ -129,7 +129,7 @@ module.exports = {
     "status": {
         "actionSuccess": "Your action was successful!",
         "SUCCESS": "SUCCESS",
-        "actionFailed": "Your action failed!",
+        "actionFailed": "Your action failed.",
         "FAILED": "FAILED",
         "INPROGRESS": "IN PROGRESS"
     },
@@ -292,7 +292,7 @@ module.exports = {
     },
 
     "TooltipTStr": {
-        "NoWSToMV": "No worksheet to move to",
+        "NoWSToMV": "No destination worksheet",
         "Restore": "Restore to default",
         "ToggleAdvanced": "Toggle advanced options",
         "AllowDelete": "Allow table to be dropped",
@@ -303,7 +303,7 @@ module.exports = {
         "ErrorQueries": "Show error operations",
         "RunQueries": "Show running operations",
         "DoneQueries": "Show finished operations",
-        "SelectCol": "Please select a column first!",
+        "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
         "IcvRestriction": "ER table only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
@@ -316,10 +316,10 @@ module.exports = {
         "ProfileSortAsc": "Ascending alphabetically by value",
         "ProfileSortDesc": "Descending alphabetically by value",
         "ChooseUdfModule": "Please choose a module first", // used in jststr
-        "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+    "Severity1": "Xcalar Cluster is down or unresponsive, or critical features are unusable in a production deployment (development systems do not apply)." ,
         "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
-        "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
-        "Severity4": "Feature request",
+        "Severity3": "General information requests, follow-ups on Sev-1 and Sev-2 issues post-workaround.",
+        "Severity4": "Feature requests",
         "CustomTicketId": "The organization associated with the ticket ID must match your organization."
     },
 
@@ -407,8 +407,8 @@ module.exports = {
         "ConstList": "Aggregates",
         "active": "Add To Worksheet",
         "filterOrphan": "Filter Temporary Tables",
-        "ActiveTableInstr": "To add a table to the worksheet, import a dataset in the <b>Datasets</b> panel and select this dataset to add as a table in the current worksheet.",
-        "HideTableInstr": "To hide a table, right click the title bar for an active table to display a menu. Then select <b>Hide Table</b>.",
+        "ActiveTableInstr": "To add a table to the current worksheet, from the <b>Datasets</b> panel import a dataset and select this dataset.",
+        "HideTableInstr": "To hide a table, right click the title bar for an active table. Then select <b>Hide Table</b> from the dropdown menu.",
         "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
         "ConstTableInstr": "This section contains named aggregate values."
     },
@@ -552,7 +552,7 @@ module.exports = {
         "Targets": "Data Targets",
         "Retry": "Retry",
         "RetryPoint": "Please try to import data with different parameters.",
-        "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created.",
+        "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull columns after the table is created.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Locked By"
     },
@@ -630,7 +630,7 @@ module.exports = {
     "fileBrowser": {
         "header": "Browse Data Source",
         "instr": "Select the data source that you want to import and then click the \"NEXT\" button.",
-        "Up": "Up a directory level",
+        "Up": "Go to parent directory",
         "filePathHint": "Click to see history",
         "SearchHint": "Regex Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
@@ -666,7 +666,7 @@ module.exports = {
         "Title": "Create New Table",
         "SelectWS": "Select Worksheet",
         "CONFIRM": "CREATE TABLE",
-        "NoCartInstr": "To pull a column by default inside the new table, select a dataset on the left and click on the column names that you are interested in inside the center panel."
+        "NoCartInstr": "To pull a column by default into a new table, select a dataset on the left and click on the column names that you are interested in inside the center panel."
     },
 
     "dsPreview": {
@@ -683,7 +683,7 @@ module.exports = {
         "createBtn": "CREATE EXPORT TARGET",
         "CreateTarget": "Create Export Target",
         "EditTarget": "Export Target Information",
-        "CreateTargetInstr": "Select a target type and choose a name for your export target. Provided any additional information as needed.",
+        "CreateTargetInstr": "Select a target type and choose a name for your export target. Provide any additional information as needed.",
         "TargetInfo": "Details about the selected export target are provided below. To create a new target, click the button on the top left corner of the left panel.",
         "TargetType": "Target Type",
         "LocalFS": "File System",
@@ -697,7 +697,7 @@ module.exports = {
 
     "aggModal": {
         "CorrAggTitle": "Correlation and Quick Aggregates",
-        "CorrAggInstr": "Viewing correlation coefficients for every pair of numerical columns. To view common aggregate functions on all numerical columns, please click on the vertical tab.",
+        "CorrAggInstr": "Viewing correlation coefficients for every pair of numerical columns. To view common aggregate functions for all numerical columns, please click on the vertical tab.",
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "TableName": "Table Name",
@@ -720,7 +720,7 @@ module.exports = {
         "exportHeader": "Columns to Export",
         "exportInstr": "Select the columns that you want to export at the end of your batch dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your batch dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
-        "noColsHint": "No columns available for export",
+        "noColsHint": "No columns are available for export",
         "newParam": "new parameter",
         "param": "Parameter",
         "params": "Parameters",
@@ -782,7 +782,7 @@ module.exports = {
 
     "exportView": {
         "header": "Export Table",
-        "instr": "Please fill in the file name, choose where to export, and select the colums you wish to export.",
+        "instr": "Please fill in the file name, choose where to export, and select the columns you wish to export.",
         "ExportAs": "Export As",
 
         "Columns": "Columns",
@@ -812,7 +812,7 @@ module.exports = {
 
     "joinView": {
         "header": "Join",
-        "instr": "First, select the column from the left table that you would like to join on. Next, select the table followed by the column from the right that you would like to join on.",
+        "instr": "First, select the column from the left table that you would like to join. Next, select the table followed by the column from the right that you would like to join.",
         "NewTableName": "New Table Name",
         "keepTables": "Keep original tables",
         "keepTablesHint": "Keep both left and right tables and append the new table to the current worksheet",
@@ -846,7 +846,7 @@ module.exports = {
         "viewTables": "View other tables",
         "colSelectTitle": "Columns To Join",
         "colKeepTitle": "Column Selector",
-        "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
+        "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are duplicate column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
         "Estimate": "Estimate join size",
         "EstimateTooltip": "Run an estimator to approximate the number of rows in the final table",
         "CopyAll": "Copy All",
@@ -871,7 +871,7 @@ module.exports = {
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
         "ColumnTitle": "Columns In Union Table",
-        "Instr": "Select tables you would like to union on and select columns from each table.",
+        "Instr": "Select tables you would like to union and select columns from each table.",
         "CandidateTitle": "To be Dropped",
         "AddTable": "Add Table To Union",
         "confirm": "Union",
@@ -894,7 +894,7 @@ module.exports = {
 
     "smartCast": {
         "header": "SMART CAST",
-        "instr": "Cast columns from one type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Design to detect the appropriate types.",
+        "instr": "Cast columns from one data type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Design to detect the appropriate types.",
         "detect": "DETECT",
         "clearAll": "CLEAR ALL",
         "colInstrHeader": "Select Columns to Cast",
@@ -1016,7 +1016,7 @@ module.exports = {
 
     "deleteTable": {
         "header": "Drop Tables",
-        "instr": "To free space on this application please drop old or unnecessary tables.",
+        "instr": "To free space in this application please drop old or unnecessary tables.",
         "CONFIRM": "DROP TABLES",
         "Orphan": "Temporary Tables",
         "Inactive": "Hidden Tables",
@@ -1097,7 +1097,7 @@ module.exports = {
         "upgradeWizardContent": "To upgrade a target cluster to a newer " +
                                 "version of Xcalar. The option to upgrade " +
                                 "is only available when an existing version " +
-                                "exists and the Xcalar cluster is powered off.",
+                                "is installed and the Xcalar cluster is powered off.",
         "uninstallWizardContent": "To remove Xcalar from a target cluster.",
         "title": "Error",
         "instrUp": "An error has occurred.",
