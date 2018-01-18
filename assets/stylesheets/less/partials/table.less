@@ -451,6 +451,14 @@ html.edge {
         width: 100%;
         display: block;
     }
+
+    .lineChar {
+        color: @color-bg-select-blue;
+        padding-left: 1px;
+        padding-right: 2px;
+        display: inline-block;
+        white-space: nowrap;
+    }
 }
 
 .xcTableWrap {
@@ -1439,7 +1447,7 @@ html.edge {
             &:not(.indexedColumn), &.noIndexStyle {
                 &:hover {
                     .sortIcon {
-                        visibility: visible; 
+                        visibility: visible;
                     }
                     .sortIcon:hover {
                         color: @color-font-greyish-brown;

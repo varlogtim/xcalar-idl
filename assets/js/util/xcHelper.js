@@ -216,9 +216,13 @@
      * options:
      *  defaultHeaderStyle: when set true, use the default table header style
      */
+    var $tempDiv = $('<div style="position:absolute;display:inline-block;' +
+                        'white-space:pre;"></div>');
+    $tempDiv.appendTo($("body"));
     xcHelper.getTextWidth = function($el, val, options) {
         $el = $el || $();
         options = options || {};
+        var extraSpace = 0;
 
         var defaultStyle;
         if (options.defaultHeaderStyle) {
@@ -242,25 +246,21 @@
                 }
                 text = $.trim($el.text());
             }
+            // \n and \r have 3 pixels of padding
+            extraSpace = $el.find(".lineChar").length * 3;
         } else {
             text = val;
         }
 
-        // XXX why this part need escape?
-        text = xcHelper.escapeHTMLSpecialChar(text);
-
-        var $tempDiv = $("<div>" + text + "</div>");
+        $tempDiv.text(text);
         $tempDiv.css({
             "font-family": defaultStyle.fontFamily || $el.css("font-family"),
             "font-size": defaultStyle.fontSize || $el.css("font-size"),
-            "font-weight": defaultStyle.fontWeight || $el.css("font-weight"),
-            "position": "absolute",
-            "display": "inline-block",
-            "white-space": "pre"
-        }).appendTo($("body"));
+            "font-weight": defaultStyle.fontWeight || $el.css("font-weight")
+        });
 
-        var width = $tempDiv.width() + defaultStyle.padding;
-        $tempDiv.remove();
+        var width = $tempDiv.width() + defaultStyle.padding + extraSpace;
+        $tempDiv.empty();
         return width;
     };
 
@@ -1452,8 +1452,6 @@
                 $btn = $(html);
                 $btn.click(function() {
                     $(this).blur();
-                    var $hiddenInput = $("<input>");
-                    $("body").append($hiddenInput);
 
                     var logCaches = Log.getAllLogs();
                     var log;
@@ -1468,9 +1466,7 @@
                         log = JSON.stringify(logCaches);
                     }
 
-                    $hiddenInput.val(log).select();
-                    document.execCommand("copy");
-                    $hiddenInput.remove();
+                    xcHelper.copyToClipboard(log);
                     xcHelper.showSuccess(SuccessTStr.Copy);
                 });
                 break;
@@ -1519,6 +1515,15 @@
 
         return $btn;
     };
+
+    xcHelper.copyToClipboard = function(text) {
+        var $hiddenInput = $("<textarea></textarea>"); //use textarea
+        // to preserve new line characters
+        $("body").append($hiddenInput);
+        $hiddenInput.val(text).select();
+        document.execCommand("copy");
+        $hiddenInput.remove();
+    }
 
     xcHelper.validate = function(eles) {
         /*
@@ -3932,6 +3937,14 @@
             }
         }
     };
+
+    xcHelper.styleNewLineChar = function(text) {
+        return text.replace(/\n/g,
+                    '<span class="newLine lineChar">\\n</span>')
+                    .replace(/\r/g,
+                    '<span class="carriageReturn lineChar">\\r</span>');
+    };
+
 
     /*
     options: {

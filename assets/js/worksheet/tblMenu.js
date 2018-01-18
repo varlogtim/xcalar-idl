@@ -1121,7 +1121,7 @@ window.TblMenu = (function(TblMenu, $) {
     }
 
     function copyToClipboard(valArray, stringify) {
-        var $hiddenInput = $("<input>");
+
         var str = "";
         if (stringify) {
             str = JSON.stringify(valArray);
@@ -1129,10 +1129,7 @@ window.TblMenu = (function(TblMenu, $) {
             str = valArray.join(", ");
         }
 
-        $("body").append($hiddenInput);
-        $hiddenInput.val(str).select();
-        document.execCommand("copy");
-        $hiddenInput.remove();
+        xcHelper.copyToClipboard(str);
     }
 
     function sortHighlightCells(cells) {

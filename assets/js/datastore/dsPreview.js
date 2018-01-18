@@ -3618,10 +3618,14 @@ window.DSPreview = (function($, DSPreview) {
 
             tdData = stripQuote(tdData, quote);
             val = tdData.join("");
+            if (strToDelimit !== "\n") {
+                val = xcHelper.styleNewLineChar(val);
+            }
             if (isTh && !val) { // autoname if no value for header
                 val = "column" + blankThCount;
             }
             html += val;
+
             tdData = [];
         } else {
             // when not apply delimiter
@@ -3631,6 +3635,8 @@ window.DSPreview = (function($, DSPreview) {
                 d = data[i];
 
                 var cellClass = "td";
+                var escaped = xcHelper.escapeHTMLSpecialChar(d);
+
                 if (d === "\t") {
                     cellClass += " has-margin has-tab";
                 } else if (d === ",") {
@@ -3641,13 +3647,19 @@ window.DSPreview = (function($, DSPreview) {
                     cellClass += " has-quote";
                 } else if (/\W/.test(d)) {
                     cellClass += " has-specialChar";
+                    if (d === "\n") {
+                        cellClass += " newLine";
+                    } else if (d === "\r") {
+                        cellClass += " carriageReturn";
+                    }
                 }
+
                 if (isEditable && isTh) {
-                    html += xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(d));
+                    html += xcHelper.escapeDblQuoteForHTML(escaped);
                 } else {
                     html += '<span class="' + cellClass + '">' +
-                            xcHelper.escapeHTMLSpecialChar(d) +
-                        '</span>';
+                                escaped +
+                            '</span>';
                 }
             }
             var lenDiff = data.length - dataLen;

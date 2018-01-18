@@ -171,7 +171,7 @@ CommonTxtTstr = {
     "ColRenameInstr": "The columns that you have selected are duplicates. Please rename either or both of the offending columns.",
     'Continue': 'Continue',
     'Copy': 'Copy',
-    'CopyLog': 'Copy log',
+    'CopyLog': 'Copy logs',
     'Create': 'Create',
     'Created': 'Created',
     'Default': 'default',

@@ -1082,8 +1082,6 @@ window.Log = (function($, Log) {
     }
 
     function copyLog() {
-        var $hiddenInput = $("<input>");
-        $("body").append($hiddenInput);
         var value;
         if ($machineTextarea.is(":visible")) {
             xcAssert(!$textarea.is(":visible"),
@@ -1097,9 +1095,7 @@ window.Log = (function($, Log) {
             value = JSON.stringify(Log.getAllLogs());
         }
 
-        $hiddenInput.val(value).select();
-        document.execCommand("copy");
-        $hiddenInput.remove();
+        xcHelper.copyToClipboard(value);
     }
 
     function toggleLogSize($section) {

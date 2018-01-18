@@ -1164,7 +1164,7 @@ window.ColManager = (function($, ColManager) {
                 if (res.tdClass !== "") {
                     tdClass += " " + res.tdClass;
                 }
-
+              
                 tBodyHTML += '<td class="' + tdClass + '">' +
                                 res.td +
                             '</td>';
@@ -1486,12 +1486,19 @@ window.ColManager = (function($, ColManager) {
         var tdValLen = formatVal.length;
         var truncated = (tdValLen > limit);
 
+     
         if (truncated) {
             var truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +
                         "...(" + (xcHelper.numToStr(truncLen)) +
                         " " + TblTStr.Truncate + ")";
             tdClass += " truncated";
+        }   
+
+        if (!isDATACol) {
+            if (typeof formatVal === "string") {
+                formatVal = xcHelper.styleNewLineChar(formatVal);
+            }  
         }
 
         // For formated number, need seprate display of formatVal
@@ -2019,7 +2026,7 @@ window.ColManager = (function($, ColManager) {
         return (true);
     }
 
-    function getTableCellHtml(value, isTruncated, fullValue, isDATACol) {
+    function getTableCellHtml(value, isTruncated, rawValue, isDATACol) {
         var tdClass;
         var html;
 
@@ -2032,22 +2039,18 @@ window.ColManager = (function($, ColManager) {
                     '</div>';
             if (isTruncated) {
                 html += '<div class="dataColText originalData">' +
-                            fullValue +
+                            rawValue +
                         '</div>';
             }
 
         } else {
-            tdClass = isTruncated ? "" : " originalData";
-
             html =
-                '<div class="tdText displayedData clickable' + tdClass + '">' +
+                '<div class="tdText displayedData clickable">' +
                     value +
+                '</div>' +
+                '<div class="tdText originalData">' +
+                    rawValue +
                 '</div>';
-            if (isTruncated) {
-                html += '<div class="tdText originalData">' +
-                            fullValue +
-                        '</div>';
-            }
         }
         return (html);
     }

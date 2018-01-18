@@ -218,7 +218,8 @@ window.MonitorLog = (function(MonitorLog, $) {
         });
 
         $logCard.on('click', '.copyLog', function() {
-            copyLog();
+            var logs = getLogText();
+            xcHelper.copyToClipboard(logs);
             var $btn = $(this).find(".icon");
             var oldTitle = $btn.attr("data-original-title");
             xcTooltip.changeText($btn, CommonTxtTstr.LogCopied);
@@ -509,15 +510,6 @@ window.MonitorLog = (function(MonitorLog, $) {
         $link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(logs));
         $link.click();
         $link.remove();
-    }
-
-    function copyLog() {
-        var logs = getLogText();
-        var $hiddenInput = $("<input>");
-        $("body").append($hiddenInput);
-        $hiddenInput.val(logs).select();
-        document.execCommand("copy");
-        $hiddenInput.remove();
     }
 
     function getLogText() {

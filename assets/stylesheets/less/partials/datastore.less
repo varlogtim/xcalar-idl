@@ -1426,7 +1426,7 @@ table.datasetTable {
                         font-size: 14px;
                     }
                 }
-                
+
                 &.picked {
                     background-color: @color-selectedCell-light;
                 }
@@ -2413,8 +2413,12 @@ table.datasetTable {
         }
 
         tr:hover td {
-               background-color: #EDEDED !important;
-           }
+           background-color: #EDEDED !important;
+        }
+
+        td {
+            padding: 0px 8px 8px 8px;
+        }
     }
 
     &.UDFHint {
@@ -2512,6 +2516,39 @@ table.datasetTable {
         }
         &::-moz-selection {
             color: @color-table-preview-highlight;
+        }
+        &.newLine, &.carriageReturn {
+            margin-left: 9px;
+            margin-right: 7px;
+            position: relative;
+
+            &:after {
+                position: absolute;
+                color: red;
+                color: @color-bg-select-blue;
+                top: 0px;
+                left: -8px;
+                z-index: 1;
+            }
+            &:active:after {
+                color: @color-table-preview-highlight;
+            }
+
+            &.highlight {
+                &:after {
+                    background: @color-table-preview-highlight;
+                }
+            }
+        }
+        &.newLine {
+            &:after {
+                content: "\\n";
+            }
+        }
+        &.carriageReturn {
+            &:after {
+                content: "\\r";
+            }
         }
     }
 

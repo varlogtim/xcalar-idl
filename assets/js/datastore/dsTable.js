@@ -415,12 +415,8 @@ window.DSTable = (function($, DSTable) {
 
         $dsInfoPath.on("click", function() {
             // copies filepath to clipboard
-            var $hiddenInput = $("<input>");
-            $("body").append($hiddenInput);
             var value = $dsInfoPath.text();
-            $hiddenInput.val(value).select();
-            document.execCommand("copy");
-            $hiddenInput.remove();
+            xcHelper.copyToClipboard(value);
 
             $dsInfoPath.parent().addClass("animate");
             setTimeout(function() {
@@ -719,6 +715,7 @@ window.DSTable = (function($, DSTable) {
                     ' data-container="body"><div class="header">' +
                   '</div></th>';
         }
+
         // table header
         for (var i = 0; i < numKeys; i++) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
@@ -808,6 +805,9 @@ window.DSTable = (function($, DSTable) {
                                     xcHelper.numToStr(hiddenStrLen) + " " +
                                     TblTStr.Truncate + ")";
                     }
+                }
+                if (typeof parsedVal === "string") {
+                    parsedVal = xcHelper.styleNewLineChar(parsedVal);
                 }
 
                 var selected  = "";
