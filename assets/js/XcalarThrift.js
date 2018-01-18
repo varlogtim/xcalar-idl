@@ -4380,16 +4380,10 @@ XcalarSupportGenerate = function(miniBundle, supportId) {
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle, miniBundle, supportId)
     .then(function(ret) {
-        Alert.show({
-            title: SuccessTStr.BundleGenerated,
-            msg: SuccessTStr.BundleUploaded + ret.supportBundleSent,
-            isAlert: true
-        });
-
         console.log("Support bundle path: " + ret.bundlePath);
         console.log("Support bundle id: " + ret.supportId);
         console.log("Support bundle set: " + ret.supportBundleSent);
-        deferred.resolve(ret.bundlePath, ret.supportId, ret.supportBundleSent);
+        deferred.resolve(ret);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSupportGenerate", error);

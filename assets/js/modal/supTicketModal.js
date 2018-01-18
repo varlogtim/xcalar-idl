@@ -634,14 +634,49 @@ window.SupTicketModal = (function($, SupTicketModal) {
     function getIssueType() {
         return $modal.find('.issueList .text').val();
     }
-
+    function submitBundleSuccess(alertMsg) {
+        Alert.show({
+            title: SuccessTStr.BundleGenerated,
+            msg: alertMsg,
+            isAlert: true
+        });
+    }
     function submitBundle(ticketId) {
         var deferred = jQuery.Deferred();
         $("#userMenu").find(".supTicket").addClass("xc-disabled");
-
+        var mgmtdRet;
         // xcalarSupportGenerate has an alert on success
         XcalarSupportGenerate(false, ticketId)
-        .then(deferred.resolve)
+        .then(function(ret) {
+            mgmtdRet = ret;
+            deferred.resolve(ret.bundlePath, ret.supportId,
+                             ret.supportBundleSent);
+        }, function() {
+            var innerDeferred = jQuery.Deferred();
+            jQuery.ajax({
+                "type": "POST",
+                "contentType": "application/json",
+                "url": xcHelper.getAppUrl() + "/service/bundle",
+                success: function(data) {
+                    data = parseSuccessData(data);
+                    innerDeferred.resolve(data.logs);
+                },
+                error: function(xhr) {
+                    var data = parseErrorData(xhr);
+                    innerDeferred.reject(data.logs);
+                }
+            });
+            return innerDeferred.promise();
+        })
+        .then(function(ret) {
+            if (mgmtdRet != null) {
+                submitBundleSuccess(SuccessTStr.BundleUploaded +
+                                    mgmtdRet.supportBundleSent);
+            } else {
+                submitBundleSuccess(ret);
+                deferred.resolve(ret);
+            }
+        })
         .fail(function(err) {
             if ($modal.is(":visible")) {
                 modalHelper.removeWaitingBG();
@@ -659,7 +694,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         .always(function() {
             $("#userMenu").find(".supTicket").removeClass("xc-disabled");
         });
-
         return deferred.promise();
     }
 
@@ -917,6 +951,30 @@ window.SupTicketModal = (function($, SupTicketModal) {
             var time = $(this).data("time");
             $(this).html(moment(time).fromNow());
         });
+    }
+
+    function parseSuccessData(data) {
+        if (data.logs) {
+            data.logs = atob(data.logs);
+        }
+        return data;
+    }
+
+    function parseErrorData(xhr) {
+        var data;
+        if (xhr.responseJSON) {
+            data = xhr.responseJSON;
+            if (data.logs) {
+                data.logs = atob(data.logs);
+            }
+        } else {
+            data = {
+                "status": xhr.status,
+                "logs": xhr.statusText,
+                "unexpectedError": true
+            };
+        }
+        return data;
     }
 
     /* Unit Test Only */
