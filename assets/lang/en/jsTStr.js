@@ -9,14 +9,14 @@ StatusMessageTStr = {
     'Loading': 'Loading',
     'ImportDataset': 'Importing Data Source',
     'ImportTables': 'Importing Tables',
-    'ImportDSFailed': 'Importing data source failed',
+    'ImportDSFailed': 'Data source import failed',
     'DSFetchFailed': 'Dataset preview failed',
     'CreatingTable': 'Creating table',
     'TableCreationFailed': 'Table creation failed',
     'Join': 'Joining tables',
-    'JoinFailed': 'Join table failed',
+    'JoinFailed': 'Table join failed',
     'JoinFailedAlt': 'Join failed',
-    'Union': 'Unionizing tables',
+    'Union': 'Creating table Union',
     'UnionFailed': 'Union failed',
     'DeleteTable': 'Dropping table',
     'DeleteTableFailed': 'Drop table(s) failed',
@@ -26,12 +26,12 @@ StatusMessageTStr = {
     'NotDeletedList': 'The following tables could not be dropped: ',
     'ExportTable': 'Exporting table',
     'ExportFailed': 'Export failed',
-    'Aggregate': 'Performing Aggregate',
+    'Aggregate': 'Calculating Aggregate',
     'AggregateFailed': 'Aggregate failed',
-    'SplitColumn': 'Split column',
+    'SplitColumn': 'Splitting column',
     'SplitColumnFailed': 'Split column failed',
-    'ChangeType': 'Change data type',
-    'ChangeTypeFailed': 'Change data type failed',
+    'ChangeType': 'Changing data type',
+    'ChangeTypeFailed': 'Changing data type failed',
     'OnColumn': 'on column',
     'Sort': 'Sorting column',
     'SortFailed': 'Sort column failed',
@@ -51,9 +51,9 @@ StatusMessageTStr = {
     'StoredProc': 'Performing Stored Procedure',
     'StoredProcFailed': 'Stored Procedure execution failed',
     'SettingExtensions': 'Setting up extensions',
-    'RerunFailed': 'Rerunning Dataflow Failed',
+    'RerunFailed': 'Failed to Rerun Dataflow',
     'CurrReplay': 'Currently Replaying',
-    'CompReplay': 'Completed Replaying',
+    'CompReplay': 'Completed Replay',
     "PleaseWait": "Please wait",
     'Finalize': "Finalizing table",
     'FinalizeFailed': "Finalize failed",
@@ -72,15 +72,15 @@ TooltipTStr = {
     'SelectCol': 'Please select a column first!',
     'NoFnBarFormOpen': 'Please exit the current form to enter an operation',
     'SuggKey': 'Suggested Key',
-    'NoWSToMV': 'No worksheet to move to',
+    'NoWSToMV': 'No destination worksheet',
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
-    'UnhideWS': 'Unhide worksheet',
+    'UnhideWS': 'Show worksheet',
     'LockedTable': 'Table is locked',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',
-    'CloseQG': 'Click to hide dataflow graph',
-    'OpenQG': 'Click to view dataflow graph',
+    'CloseQG': 'Click to hide dataflow graphs',
+    'OpenQG': 'Click to show dataflow graphs',
     'SaveQG': 'Save image',
     'NewTabQG': 'Open image in new tab',
     'AddDataflow': 'Create batch dataflow',
@@ -90,7 +90,7 @@ TooltipTStr = {
     'ToGridView': 'Switch to Grid View',
     'ToListView': 'Switch to List View',
     'ClickCollapse': 'Click to collapse',
-    'CollapsedTable': '1 table is collapsed',
+    'CollapsedTable': 'A table is collapsed',
     'SelectAllColumns': 'Select all columns',
     'ViewColumnOptions': 'View column options',
     'ViewTableOptions': 'View table options',
@@ -108,7 +108,7 @@ TooltipTStr = {
     "Saved": "Last saved",
     "SavedOn": "Last saved on",
     "GeneratingComplement": "Generating complement table",
-    "ComplementSourceDropped": "Cannot create complement table if descendant table has been dropped",
+    "ComplementSourceDropped": "Cannot create complement table; descendant table has been dropped",
     "ComplementRestriction": "Complement table only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
     "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
@@ -124,12 +124,12 @@ TooltipTStr = {
     "UnionDeleteTable": "Remove table from union",
     "UnionSearch": "Search within this table",
     "UnlockTable": "Click to unlock table",
-    "MapNoDelete": "Cannot remove. Map must have at least 1 operation.",
+    "MapNoDelete": "Cannot remove. Map must have at least one operation.",
 
     // Sync with htmlTStr
-    "IcvGenerating": "Erroneous rows(ER) table is generating",
+    "IcvGenerating": "Generating Erroneous Rows(ER) Table",
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
-    "IcvSourceDropped": "Cannot create erroneous rows(ER) table if descendant table has been dropped",
+    "IcvSourceDropped": "Cannot create Erroneous Rows(ER) table if descendant table has been dropped",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
@@ -152,7 +152,7 @@ TooltipTStr = {
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
     'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Please delete unused datasets.',
-    'LowMemByOthers': 'Other users in the cluster have exceeded the optimum memory allocated for tables. Please contact an administrator.'
+    'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.'
 };
 
 CommonTxtTstr = {
@@ -163,7 +163,7 @@ CommonTxtTstr = {
     'ClickToExpand': 'Click to expand',
     'ClickToOpts': 'Click to see options',
     "ColRenames": "Column Renames",
-    "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
+    "ColRenameInstr": "The columns that you have selected are duplicates. Please rename either or both of the offending columns.",
     'Continue': 'Continue',
     'Copy': 'Copy',
     'CopyLog': 'Copy log',
@@ -187,7 +187,7 @@ CommonTxtTstr = {
     'LeaveWarn': 'You are leaving Xcalar',
     'LogCopied': 'Log copied to clipboard',
     'LogOut': 'Log Out',
-    'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
+    'LogoutWarn': 'You have unsaved changes. Please save or you risk losing' +
                     ' work',
     'NA': 'N/A',
     'NestedArrayVal': 'nested array value',
@@ -226,7 +226,7 @@ ErrTStr = {
     'Error': 'Error',
     'Unknown': 'Unknown Error',
     'NoEmpty': 'Please fill out this field.',
-    'PositiveInteger': 'Please Enter a positive Integer as number of Runs',
+    'PositiveInteger': 'Please Enter a positive integer as number of Runs',
     'InvalidField': 'Invalid Field.',
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
@@ -251,17 +251,17 @@ ErrTStr = {
                         'please choose another name.',
     'DSStartsWithLetter': 'Dataset name should start with letter.',
     'PrefixStartsWithLetter': 'Prefix should start with letter.',
-    'TableConflict': 'A table with the same name already exists, ' +
-                        'please choose another name.',
-    'ExportConflict': 'This file name is taken, please choose another name.',
-    'ColumnConflict': 'A column with the same name already exists, ' +
-                        'please choose another name.',
-    'PrefixConflict': 'A prefix with the same name already exists, ' +
-                      'please choose another name.',
-    'DFConflict': 'A dataflow with the same name already exists, ' +
-                            'please choose another name.',
+    'TableConflict': 'A table with the same name already exists. ' +
+                        'Please choose another name.',
+    'ExportConflict': 'This file name is taken. Please choose another name.',
+    'ColumnConflict': 'A column with the same name already exists. ' +
+                        'Please choose another name.',
+    'PrefixConflict': 'A prefix with the same name already exists. ' +
+                      'Please choose another name.',
+    'DFConflict': 'A dataflow with the same name already exists. ' +
+                            'Please choose another name.',
     'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, - and _ are allowed.',
-    'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
+    'InvalidWSInList': 'Invalid worksheet name. Please choose a ' +
                         'worksheet from the pop up list.',
     'OnlyNumber': 'Please input a number.',
     'OnlyInt': 'Please input an integer.',
@@ -270,25 +270,25 @@ ErrTStr = {
     'NoNegativeNumber': 'Please input a number greater than or equal to 0',
     'NoAllZeros': 'Values cannot all be zeros',
     'NoWKBKSelect': 'Please select a workbook',
-    'NoWS': 'This worksheet is deleted, please choose another worksheet',
+    'NoWS': 'This worksheet was deleted. Please choose another worksheet',
     'NoSelect': 'Please select an option from the dropdown list',
     'NoGroupSelect': 'No group selected.',
     'InvalidColName': 'Invalid column name.',
     'ColInModal': 'Please input a column name that starts with $',
-    'NoMultiCol': 'This field only accept one column.',
+    'NoMultiCol': 'This field only accepts one column.',
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
     'ParamInUse': 'Cannot delete, this parameter is in use.',
-    'MVFolderConflict': 'Cannot move, name conflicts with files in target ' +
-                        'folder',
+    'MVFolderConflict': 'Cannot move. Name conflicts with files in target ' +
+                        'folder.',
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'TimeExpire': 'Please choose a time that is in the future.',
-    'LongFileName': 'File name is too long, please use less than 255 chars.',
+    'LongFileName': 'File name is too long. Please use less than 255 chars.',
     'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
     'NoSupportOp': 'This operation is not supported.',
     'PreservedName': 'This name is reserved, please use another name.',
     'InvalidWin': 'Cannot window an unsorted table',
     'InvalidQuery': 'Operation Failed',
-    'InvalidRegEx': 'Invalid regular expression (Please check your syntax)',
+    'InvalidRegEx': 'Invalid regular expression. Please check your syntax.',
     'BracketsMis': 'Your function string has mismatched brackets.',
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters.',
@@ -314,8 +314,8 @@ ErrTStr = {
     'NoSort': 'No columns selected to sort on.',
     'NoSortChange': 'Please select at least one column to sort on.',
     'NoTypeChange': 'Please change at least one column\'s type to apply the cast.',
-    'IcvFailed': 'Failed to generate erroneous rows (ER) table',
-    'IcvAlt': 'Failed to generate erroneous rows (ER) table. Please use map ' +
+    'IcvFailed': 'Failed to generate Erroneous Rows (ER) Table',
+    'IcvAlt': 'Failed to generate Erroneous Rows (ER) Table. Please use map ' +
               'with show erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload dataflow',
@@ -327,7 +327,7 @@ ErrTStr = {
     'SourceTableNotExists': 'Source table does not exist.',
     'TableNotExists': 'Table does not exist.',
     'SelectOption': 'Please select an option.',
-    'NotDisplayRows': 'Could Not Display Rows',
+    'NotDisplayRows': 'Could not display rows',
     'AppInstallFailed': 'App Installation Failed',
     'ExtUploadFailed': 'Failed to upload extension',
     'ExtEnableFailure': 'Extension failed to be enabled',
@@ -335,13 +335,13 @@ ErrTStr = {
     'ExtRemovalFailure': 'Extension failed to be removed',
     'ExtDownloadFailure': 'Extension failed to be downloaded',
     'CannotDropLocked': 'Cannot drop locked tables',
-    'RefreshBrowser': 'Refresh  Browser',
+    'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
     'NoEmptyMustRevert': 'Please fill out this field. If you want to use the ' +
                        'original value, please click the "Default value" icon.',
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
-    'NoFolderPreview': 'Cannot preview directory, please select a file.',
+    'NoFolderPreview': 'Cannot preview directory. Please select a file.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -352,14 +352,14 @@ ErrTStr = {
 };
 
 ErrWRepTStr = {
-    'FolderConflict': 'Folder "<name>" already exists, ' +
-                        'please choose another name.',
-    'ParamConflict': 'Parameter "<name>" already exists, ' +
-                    'please choose another name.',
-    'SystemParamConflict': 'Parameter "<name>" is a system parameter, ' +
-                    'please choose another name.',
-    'TableConflict': 'Table "<name>" already exists, ' +
-                        'please choose another name.',
+    'FolderConflict': 'Folder "<name>" already exists. ' +
+                        'Please choose another name.',
+    'ParamConflict': 'Parameter "<name>" already exists. ' +
+                    'Please choose another name.',
+    'SystemParamConflict': 'Parameter "<name>" is a system parameter. ' +
+                    'Please choose another name.',
+    'TableConflict': 'Table "<name>" already exists. ' +
+                        'Please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
@@ -376,8 +376,8 @@ ErrWRepTStr = {
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
     'TableNotDeleted': 'Table <name> was not dropped.',
     'ConstNotDeleted': 'Aggregate <name> was not dropped.',
-    'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists, ' +
-                    'please choose another name.',
+    'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists. ' +
+                    'Please choose another name.',
     'OutputNotFound': '<name> Not Found',
     'OutputNotExists': '<name> no longer exists.',
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
@@ -490,16 +490,16 @@ SuccessTStr = {
     "Profile": "Profile Image Saved Successfully!",
     "BundleGenerated": "Bundle Generated",
     "BundleUploaded": "Bundle generated! Uploaded: ",
-    "FlushLog": "Flush Log Successfully!",
+    "FlushLog": "Log Flushed Successfully!",
 };
 
 FailTStr = {
-    "Profile": "Saving Profile Image Failed.",
-    "ProfileStats": "Generate Statistics Failed.",
-    "SaveSettings": "Saving Settings Failed.",
-    "RmDF": "Remove Batch Dataflow Failed.",
-    "RmSched": "Delete Schedule Failed.!",
-    "FlushLog": "Flush Log Failed!",
+    "Profile": "Profile Image Save Failed.",
+    "ProfileStats": "Statistics Generation Failed.",
+    "SaveSettings": "Settings Save Failed.",
+    "RmDF": "Batch Dataflow Removal Failed.",
+    "RmSched": "Delete Schedule Failed.",
+    "FlushLog": "Flush Log Failed.",
     "Target": "Add Target Failed"
 };
 
@@ -517,7 +517,7 @@ ThriftTStr = {
 AlertTStr = {
     'Title': 'Warning',
     'Error': 'Error',
-    'ErrorMsg': 'Error Occurred!',
+    'ErrorMsg': 'Error Occurred.',
     'NoDel': 'Cannot Delete',
     'ContinueConfirm': 'Are you sure you want to continue?',
     'BracketsMis': 'Mismatched Brackets',
@@ -531,7 +531,7 @@ AlertTStr = {
     'Connecting': 'Connecting...',
     'TryConnect': 'Connecting in <second>s.',
     'UserOverLimit': 'Concurrent Users Over Limit',
-    'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license, please logout',
+    'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license. Please logout',
     'UnexpectInit': 'Unexpected Initialization Time',
     'UnexpectInitMsg': 'The initialization time is taking longer than usual. ' +
                      'This may be due to a slow network connection or a ' +
@@ -552,8 +552,8 @@ AlertTStr = {
     "EmailSent": "Success! All messages have been sent to your email address.",
     "EmailFunc": "You can click the left top button to send a " +
                  "copy of all messages to your email address.",
-    "NoSupport": "Oops..We couldn't find an available agent for you.",
-    "WaitTicket": "Please wait for a few seconds while we are creating a ticket for you.",
+    "NoSupport": "Oops... We couldn't find an available agent for you.",
+    "WaitTicket": "Please wait for a few seconds while we create a ticket for you.",
     "NoEdits": "No edits",
     "NoEditsDetected": "No edits were detected",
     "RunEdit": "Run edited dataflow",
@@ -613,8 +613,8 @@ AggTStr = {
                  'tab.',
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
-    'NoCorr': 'No columns of type number for correlation',
-    'NoAgg': 'No columns of type number for quick aggregation',
+    'NoCorr': 'No numerical columns to calculate correlations',
+    'NoAgg': 'No numerical columns to calculate quick aggregates',
 
     // with replace
     'AggTitle': 'Aggregate: <op>',
@@ -651,7 +651,7 @@ JoinTStr = {
     'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
         'but still the best key found.',
     'NoColToCheck': 'No available column names to check',
-    'InvalidClause': 'Invalid Clause to join',
+    'InvalidClause': 'Invalid clause to join',
     'TypeMistch': 'Left selected column and right selected column has type ' +
                   'mismatch, cannot join',
     'EstimateJoin': 'Estimate join size',
@@ -660,7 +660,7 @@ JoinTStr = {
     'Estimating': 'Estimating...',
     'JOIN': 'JOIN',
     'ModifyDesc': 'Would you like to modify the join?',
-    "ColSelectInstr": "Please select pairs of columns, one column from the " +
+    "ColSelectInstr": "Please select pairs of columns: one column from the " +
                       "left table and one column from the right table, " +
                       "to be joined together.",
     "ColSelectInstrCross": "Cross join does not require join keys since it is " +
@@ -676,7 +676,7 @@ JoinTStr = {
 UnionTStr = {
     "ChooseType": "Select column type",
     "OneTableToUnion": "Need at least two tables to union.",
-    "Cast": "Columns to union have different types, please select a type for the resultant column.",
+    "Cast": "Columns to union have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add to the union table",
     "Table": "Table",
     "UnionTable": "Union Table",
@@ -740,9 +740,9 @@ WKBKTStr = {
                     'workbooks, hover over the workbook card and click ' +
                     'the duplicate button.',
     'NoOldWKBK': 'Cannot Retrieve Old Workbook',
-    'NoOldWKBKInstr': 'If you still see the error after re-login, ' +
+    'NoOldWKBKInstr': 'If you still see the error after logging in again, ' +
                       'please copy your log and restart the server.',
-    'NoOldWKBKMsg': 'Please Use new workbook or logout and try again!',
+    'NoOldWKBKMsg': 'Please use new workbook or log out and try again!',
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
     'Hold': 'Login Warning',
@@ -752,7 +752,7 @@ WKBKTStr = {
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
     "Activate": "Activate Workbook",
-    "ActivateInstr": "Acitvate workbook will cause deactivation of current active workbook, do you still want to continue?",
+    "ActivateInstr": "Activating a workbook will deactivate the currently active workbook. Do you still want to continue?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
     "Duplicate": "Duplicate Workbook",
@@ -764,8 +764,8 @@ WKBKTStr = {
     "WaitActivateFinish": "Please wait for workbook to activate.",
     "NoActive": "No active workbooks. Please create or activate one first.",
     // With replace
-    'Conflict': 'Workbook "<name>" already exists, ' +
-                'please choose another name.',
+    'Conflict': 'Workbook "<name>" already exists. ' +
+                'Please choose another name.',
     'Active': 'Active',
     'Inactive': 'Inactive',
     'Paused': 'Paused',
@@ -775,7 +775,7 @@ WKBKTStr = {
     'WS': 'Worksheets',
     'State': 'State',
     'Creating': 'Creating Workbook',
-    'Updating': "Upading Workbook",
+    'Updating': "Updating Workbook",
     'SwitchErr': 'Switch Workbook Error',
     'SwitchErrMsg': 'Error occurred while switching workbooks. Proceeding with the switch may cause problems to the workbook. Do you still want to continue?',
     'DeleteMsg': 'Are you sure you want to delete the workbook?',
@@ -838,9 +838,9 @@ MonitorTStr = {
     "AcctAdmin": "Account Admin",
     "AcctAdmins": "Account Admins",
     "Severity": "Severity",
-    "Severity1": "Xcalar Cluster is down, unresponsive or critical features unusable in a production deployment (development systems do not apply)." ,
+    "Severity1": "Xcalar Cluster is down or unresponsive, or critical features are unusable in a production deployment (development systems do not apply)." ,
     "Severity2": "Xcalar Cluster is up but performance or functionality is severely compromised, with no workaround.",
-    "Severity3": "General information requests, workarounds applied for Severity 1 and Severity 2 issues.",
+    "Severity3": "General information requests, follow-ups on Sev-1 and Sev-2 issues post-workaround.",
     "Severity4": "Feature request",
     "Subject": "Subject",
     "ClosedTicket": "Ticket is closed and cannot be updated.",
@@ -859,7 +859,7 @@ MonitorTStr = {
     'StopAlertMsg': 'The administrator has stopped the cluster.',
     'AdminAlert': 'Admin Alert',
     'FlushLog': 'Flush Log',
-    'FlushLogMsg': 'Are you sure you want to flush Xcalar Log?',
+    'FlushLogMsg': 'Are you sure you want to flush the Xcalar Log?',
     "AdditionalInfo": "Additional (New) Information",
     "NoTickets": "No tickets found",
     "SelectExistingTicket": "Select an existing ticket",
@@ -906,7 +906,7 @@ DFTStr = {
     "ParamNoValue": "Please assign values to all the parameters being used in the current dataflow.",
     "PointTo": "File Path",
     "Refresh": "Refresh Dataflow",
-    "RefreshMsg": "The dataflow you are working on is modified by other users",
+    "RefreshMsg": "The dataflow you are working on was modified by other users",
     "SlightSkew": "Slight skew",
     "ViewTable": "VIEW TABLE",
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
@@ -972,7 +972,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please check the validation of path, pattern, UDF and try again.',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, and UDF, and try again.',
     'CancalPoint': 'Cancel import dataset',
     'DSSourceHint': 'Please try another path or use another data target.',
     'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
@@ -1001,7 +1001,7 @@ DSTStr = {
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
     'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
-    'SkipRowsError': 'The rows skipped are more than the rows you are previewing, cannot preview',
+    'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1034,10 +1034,10 @@ DSFormTStr = {
     'NoParseJSON': 'Cannot parse data as json',
     'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or use a valid path pattern',
     'NoData': 'No data',
-    'NoFile': 'File not found, please go back to select a valid file/folder.',
+    'NoFile': 'File not found. Please go back to select a valid file/folder.',
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Creating a table with too many columns from a dataset ' +
-                'may be slow, are you sure you want to continue?',
+                'may be slow. Are you sure you want to continue?',
     'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
                 'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
@@ -1086,7 +1086,7 @@ WSTStr = {
     'WSName': 'Worksheet Name',
     'WSHidden': 'worksheet is hidden',
     'InvalidWSName': 'Invalid worksheet name',
-    'InvalidWSNameErr': 'please input a valid name!',
+    'InvalidWSNameErr': 'Please input a valid name.',
     'AddOrphanFail': 'Add Temporary Table Failed',
     'NewWS': 'New Worksheet',
     'DelWS': 'Delete Worksheet',
@@ -1137,10 +1137,10 @@ ColTStr = {
                           'following characters: ^.\',":()[]{}\\',
     'ColNameInvalidCharSpace': 'Invalid name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\ or space',
-    'RenameStartNum': 'Invalid name, cannot begin with a number.',
-    'ImmediateClash': 'Invalid name, name already exists in at least one ' +
+    'RenameStartNum': 'Invalid name: a name cannot begin with a number.',
+    'ImmediateClash': 'Invalid name: this name already exists in at least one ' +
                       'DATA cell',
-    'LongName': 'Column Name is too long, please use fewer than 255 characters.',
+    'LongName': 'Column Name is too long. Please use fewer than 255 characters.',
     'NoOperateArray': 'Cannot directly operate on entire arrays',
     'NoOperateObject': 'Cannot directly operate on entire objects',
     'NoOperateNestedArray': 'Cannot directly operate on nested array values',
@@ -1154,8 +1154,8 @@ SideBarTStr = {
     'SendToWS': 'Send To Worksheet',
     'WSTOSend': 'Worksheet to send',
     'NoSheet': 'No Sheet',
-    'NoSheetTableInstr': 'You have tables that are not in any worksheet, ' +
-                         'please choose a worksheet for these tables!',
+    'NoSheetTableInstr': 'You have tables that are not in any worksheet. ' +
+                         'Please choose a worksheet for these tables!',
     'PopBack': 'Dock',
     'PopOut': 'Undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
