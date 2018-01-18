@@ -2701,8 +2701,8 @@ table.datasetTable {
                         &, &:hover {
                             opacity: 0.5;
 
-                            .delete {
-                                display: none;
+                            .delete, .unlock, .lock {
+                                pointer-events: none;
                             }
                         }
                     }
@@ -3083,7 +3083,7 @@ table.datasetTable {
     }
 
     &.unlistable.noAction {
-        .preview, .delete {
+        .preview, .delete, .unlockDS, .lockDS {
             opacity: @opacity-disabled;
             pointer-events: none;
         }
