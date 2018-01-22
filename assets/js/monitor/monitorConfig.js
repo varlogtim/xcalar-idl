@@ -223,7 +223,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 return false;
             }
 
-            if (!newVal.length) {
+            if (!newVal.length && paramObj.defaultValue !== "") {
                 errorFound = {
                     input: $newValInput,
                     reason: "empty"
