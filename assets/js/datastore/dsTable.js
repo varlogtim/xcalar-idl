@@ -46,7 +46,7 @@ window.DSTable = (function($, DSTable) {
         updateTableInfo(dsObj, isLoading);
 
         if (isLoading) {
-            setupViewBeforeLoading();
+            setupViewBeforeLoading(dsObj);
             // hide carts
             DSCart.switchToCart(null);
             return PromiseHelper.resolve();
@@ -125,11 +125,28 @@ window.DSTable = (function($, DSTable) {
         DSForm.hide();
     }
 
-    function setupViewBeforeLoading() {
+    function setupViewBeforeLoading(dsObj) {
         $dsTableContainer.removeClass("error");
         $dsTableContainer.addClass("loading");
         $("#dsColsBtn").addClass("xc-hidden");
+        $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
         $tableWrap.html("");
+        if (dsObj) {
+            var progressAreaHtml = "";
+            var txId = DS.getGridByName(dsObj.name).data("txid");
+            var $lockIcon = $dsTableContainer
+                            .find('.lockedTableIcon[data-txid="' + txId + '"]');
+            if ($lockIcon.length) {
+                $lockIcon.removeClass("xc-hidden");
+                return;
+            }
+            var withText = true;
+            progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
+            $dsTableContainer.find(".loadSection").append(progressAreaHtml);
+            var progressCircle = new ProgressCircle(txId, 0, withText);
+            $dsTableContainer.find(".cancelLoad").data("progresscircle",
+                                                       progressCircle);
+        }
     }
 
     function setupViewAfterLoading(dsObj) {
@@ -494,6 +511,11 @@ window.DSTable = (function($, DSTable) {
             var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
             TblFunc.moveFirstColumn($dsTable);
+        });
+
+        $dsTableContainer.on("click", ".cancelLoad", function() {
+            var txId = $(this).data("txid");
+            QueryManager.cancelDS(txId);
         });
     }
 

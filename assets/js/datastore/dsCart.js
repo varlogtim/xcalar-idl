@@ -574,7 +574,7 @@ window.DSCart = (function($, DSCart) {
 
         var deferred = jQuery.Deferred();
 
-        subQuery.check()
+        subQuery.getProgress()
         .then(function(res) {
             if (res === 100) {
                 mainQuery.subQueries[0].state = "done";

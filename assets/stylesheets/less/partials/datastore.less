@@ -326,7 +326,9 @@
     overflow-x: auto;
 
     &.loading {
-        height: 40px !important;
+        height: 100% !important;
+        width: 100%;
+        position: relative;
         .errorSection, .datasetTableWrap {
             display: none !important;
         }
@@ -352,6 +354,7 @@
         display: none;
         margin-left: 15px;
         margin-top: 15px;
+        margin-right: 15px;
     }
 
     .errorSection {

@@ -1639,19 +1639,7 @@
             var iconNum = $('.lockedTableIcon[data-txid="' + txId +
                             '"] .progress').length;
             // tableWrap may not exist during multijoin on self
-            var $lockedIcon = $(
-                '<div class="lockedTableIcon" data-txid="' + txId +
-                '" data-iconnum="' + iconNum + '">' +
-                  '<div class="iconPart" data-toggle="tooltip" ' +
-                    'data-original-title="Cancel Operation" ' +
-                    'data-placement="top" data-container="body">' +
-                    '<div class="leftPart"></div>' +
-                    '<div class="rightPart"></div>' +
-                    '<i class="icon xi-clock"></i>' +
-                    '<i class="icon xi-close"></i>' +
-                    '<div class="progress"></div>' +
-                  '</div>' +
-                '</div>');
+            var $lockedIcon = $(xcHelper.getLockIconHtml(txId, iconNum));
             if (txId == null) {
                 $lockedIcon.addClass("noCancel");
             }
@@ -1735,6 +1723,29 @@
         WSManager.unlockTable(tableId);
         Log.unlockUndoRedo();
     };
+
+    xcHelper.getLockIconHtml = function(txId, iconNum, withText) {
+        var html = '<div class="cancelLoad lockedTableIcon"' +
+            ' data-txid="' + txId +
+            '" data-iconnum="' + iconNum + '">' +
+              '<div class="iconPart" data-toggle="tooltip" ' +
+                'data-original-title="' + TooltipTStr.CancelQuery + '" ' +
+                'data-placement="top" data-container="body">' +
+                '<div class="leftPart"></div>' +
+                '<div class="rightPart"></div>' +
+                '<i class="icon xi-clock"></i>' +
+                '<i class="icon xi-close"></i>' +
+                '<div class="progress"></div>' +
+              '</div>';
+        if (withText) {
+            html += '<div class="textPart pctText">' +
+            '<span class="num">0</span>' + '<span class="unit">%</span>' +
+            '</div>' +
+                '<div class="textPart cancelText">' + AlertTStr.CANCEL + '</div>';
+        }
+        html += '</div>';
+        return html;
+    }
 
     xcHelper.disableSubmit = function($submitBtn) {
         if ($submitBtn.is("button")) {

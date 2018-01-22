@@ -591,6 +591,10 @@ window.DS = (function ($, DS) {
             });
 
             deferred.reject(error);
+        })
+        .always(function() {
+            $("#dsTableContainer").find('.lockedTableIcon[data-txid="' +
+                                        txId + '"]').remove();
         });
 
         return deferred.promise();

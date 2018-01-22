@@ -294,6 +294,7 @@ SQLOps = {
     ExportTable: "exportTable",
     Query: "xcalarQuery",
     Retina: "runBatchDataflow",
+    ListFiles: "listFiles",
     // XI operation
     AddNewCol: "addNewCol",
     HideCol: "hideCol",

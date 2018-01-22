@@ -1681,6 +1681,124 @@ input {
     }
 }
 
+.lockedTableIcon {
+    .position(absolute, @top: 40%, @left: 50%);
+    display: inline-block;
+    z-index: @z-index-dfPanel; // want dfPanel to cover it
+    width: 150px;
+    .transform(translateX(-50%));
+
+    &.noCancel {
+        pointer-events: none;
+    }
+
+    .iconPart {
+        opacity: 0.8;
+        margin-left: auto;
+        margin-right: auto;
+        width: 90px;
+        height: 90px;
+        .leftPart {
+            .transition(all 0.5s);
+            width: 45px;
+            height: 90px;
+            border-radius: 90px 0 0 90px;
+            background-color: @color-bg-lockedIcon-light;
+            float: left;
+        }
+        .rightPart {
+            .transition(all 0.5s);
+            width: 45px;
+            height: 90px;
+            border-radius: 0 90px 90px 0;
+            background-color: @color-bg-lockedIcon-dark;
+            float: left;
+        }
+        i {
+            position: absolute;
+            top: 15px;
+            left: 45px;
+            font-size: 60px;
+            color: @color-white;
+            opacity: 0.8;
+            &.xi-close {
+                top: 17px;
+                left: 44px;
+                font-size: 58px;
+                display: none;
+            }
+            &.xi-clock {
+                clip: rect(13px, 46px, 44px, 19px); // clip to hide outer circle
+            }
+        }
+
+    }
+
+    &:hover {
+        .iconPart {
+            cursor: pointer;
+            .leftPart {
+                .transition(all 0.5s);
+                background-color: @color-bg-lockedIcon-cancel-light;
+            }
+            .rightPart {
+                .transition(all 0.5s);
+                background-color: @color-bg-lockedIcon-cancel-dark;
+            }
+            .xi-close {
+                display: inline;
+            }
+            .xi-clock {
+                display: none;
+            }
+            .progress {
+                display: none;
+            }
+        }
+
+        .textPart {
+            &.pctText {
+                display: none;
+            }
+            &.cancelText {
+                display: block;
+            }
+        }
+    }
+
+    .progress {
+        .size(64px, 64px);
+        opacity: 0.8;
+        .position(absolute, @top: 13px, @left: 43px);
+        path {
+            fill: transparent;
+            &:first-child {
+                fill: @color-white;
+            }
+        }
+    }
+    .textPart {
+        .size(90px, 36px);
+        margin: 14px auto 0;
+        background-color: @color-bg-lockedIcon-lighter;
+        color: @color-white;
+        line-height: 36px;
+        text-align: center;
+        font-size: 14px;
+
+        .unit {
+            margin-right: -6px;
+            margin-left: 2px;
+        }
+
+        &.cancelText {
+            display: none;
+            background-color: @color-bg-lockedIcon-cancel-lighter;
+            cursor: pointer;
+        }
+    }
+}
+
 i.qMark {
     .size(12px, 12px);
     background: @color-bg-select-blue;

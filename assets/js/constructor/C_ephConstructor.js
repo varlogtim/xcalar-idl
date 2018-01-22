@@ -3241,7 +3241,7 @@ var XcSubQuery = (function() {
             return QueryStateTStr[this.state];
         },
 
-        check: function() {
+        getProgress: function() {
             var self = this;
             var deferred = jQuery.Deferred();
             if (!self.dstTable || self.name.indexOf("drop") === 0) {
@@ -3317,12 +3317,13 @@ var ScollTableChecker = (function() {
 /* End of ScollTableChecker */
 
 /* Progress circle for locked tables */
-var ProgressCircle = function(txId, iconNum) {
+var ProgressCircle = function(txId, iconNum, hasText) {
     this.txId = txId;
     this.iconNum = iconNum;
     this.__reset();
     this.status = "inProgress";
     this.progress = 0;
+    this.hasText = hasText;
 };
 
 ProgressCircle.prototype = {
@@ -3365,6 +3366,23 @@ ProgressCircle.prototype = {
                 return (arc(i(t)));
             });
         }
+
+        if (!this.hasText) {
+            return;
+        }
+
+        d3.select('.lockedTableIcon[data-txid="' + this.txId +
+                   '"] .pctText .num')
+        .transition()
+        .duration(duration)
+        .ease("linear")
+        .tween("text", function(a) {
+            var num = this.textContent || 0;
+            var i = d3.interpolateNumber(num, pct);
+            return (function(t) {
+                this.textContent = Math.ceil(i(t));
+            });
+        });
     },
     __reset: function() {
         var radius = 32;

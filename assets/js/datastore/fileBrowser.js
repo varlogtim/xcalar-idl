@@ -686,10 +686,19 @@ window.FileBrowser = (function($, FileBrowser) {
         var targetName = getCurrentTarget();
         var curBrowserId = fileBrowserId;
 
+        var txId = Transaction.start({
+            "operation": SQLOps.ListFiles,
+            "sql": sql,
+            "steps": 1
+        });
+
         $fileBrowser.addClass("loadMode");
         var timer = setTimeout(function() {
             $loadSection.show();
+
         }, 500);
+        $loadSection.show();
+
 
         XcalarListFiles({targetName: targetName, path: path})
         .then(function(listFilesOutput) {

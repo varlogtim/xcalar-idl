@@ -116,7 +116,11 @@ window.QueryManager = (function(QueryManager, $) {
             if (options.queryName) {
                 outerQueryCheck(id);
             } else {
-                subQueryCheck(subQuery);
+                // delay first check so we don't check too early before
+                // the operation has been started
+                setTimeout(function() {
+                    subQueryCheck(subQuery);
+                }, 10);
             }
         }
         var $query = $queryList.find('.query[data-id="' + id + '"]');
@@ -1241,7 +1245,7 @@ window.QueryManager = (function(QueryManager, $) {
             return PromiseHelper.reject();
         }
 
-        subQuery.check()
+        subQuery.getProgress()
         .then(function(res) {
             if (!queryLists[id]) {
                 clearIntervalHelper(id);
@@ -1284,9 +1288,29 @@ window.QueryManager = (function(QueryManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.error("Check failed", error);
-            clearIntervalHelper(id);
-            deferred.reject();
+            if (queryLists[id] && error && 
+                error.status === StatusT.StatusDagNodeNotFound) {
+                var mainQuery = queryLists[id];
+                if (subQuery.name.indexOf("delete") > -1) {
+                    clearIntervalHelper(id);
+                    deferred.reject();
+                } else {
+                    if (mainQuery.state === QueryStatus.Cancel ||
+                        mainQuery.state === QueryStatus.Done ||
+                        mainQuery.state === QueryStatus.Error) {
+                        clearIntervalHelper(id);
+                        deferred.reject();
+                    } else {
+                        // could be that operation hasn't started yet, just keep
+                        // trying
+                        deferred.resolve();
+                    }
+                }
+            } else {
+                console.error("Check failed", error);
+                clearIntervalHelper(id);
+                deferred.reject();
+            }
         });
 
         return deferred.promise();
