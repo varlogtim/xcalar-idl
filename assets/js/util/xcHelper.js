@@ -2731,7 +2731,16 @@
             "TSV": "CSV",
             "XLSX": "Excel",
             "XLS": "Excel",
-            "TXT": "TEXT"
+            "TXT": "TEXT",
+            "XML": "XML",
+            "HTML": "HTML",
+            "TAR": "TAR",
+            "ZIP": "ZIP",
+            "PDF": "PDF",
+            "JPG": "JPG",
+            "PNG": "PNG",
+            "GIF": "GIF",
+            "BMP": "BMP"
         };
 
         if (formatMap.hasOwnProperty(ext)) {

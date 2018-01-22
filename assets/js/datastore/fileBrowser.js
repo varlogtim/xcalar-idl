@@ -510,6 +510,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $innerContainer.height(getScrollHeight());
         centerUnitIfHighlighted(toListView);
         refreshEllipsis();
+        refreshIcon();
     }
 
     // centers a grid-unit if it is highlighted
@@ -1176,6 +1177,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         document.getElementById('innerFileBrowserContainer').innerHTML = html;
         refreshEllipsis();
+        refreshIcon();
 
         if (len > lowerFileLimit) {
             $visibleFiles = $container.find('.visible');
@@ -1194,6 +1196,57 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             $fileBrowser.removeClass('unsortable');
         }
+    }
+
+    function refreshIcon() {
+        var gridFormatMap = {
+            "JSON": "xi-json-big-file",
+            "CSV": "xi-csv-big-file",
+            "Excel": "xi-xls-big-file",
+            "TEXT": "xi-text-big-file",
+            "XML": "xi-xml-big-file",
+            "HTML": "xi-html-big-file",
+            "TAR": "xi-tar-big-file",
+            "ZIP": "xi-zip-big-file",
+            "PDF": "xi-pdf-big-file",
+            "JPG": "xi-jpg-big-file",
+            "PNG": "xi-png-big-file",
+            "GIF": "xi-gif-big-file",
+            "BMP": "xi-bmp-big-file"
+        };
+        var listFormatMap = {
+            "JSON": "xi-json-file",
+            "CSV": "xi-csv-file",
+            "Excel": "xi-xls-file",
+            "TEXT": "xi-text-file",
+            "XML": "xi-xml-file",
+            "HTML": "xi-html-file",
+            "TAR": "xi-tar-file",
+            "ZIP": "xi-zip-file",
+            "PDF": "xi-pdf-file",
+            "JPG": "xi-jpg-file",
+            "PNG": "xi-png-file",
+            "GIF": "xi-gif-file",
+            "BMP": "xi-bmp-file-1"
+        };
+        var isListView = $fileBrowserMain.hasClass("listView");
+        $container.find(".grid-unit.ds .icon").each(function() {
+            var $icon = $(this);
+            var name = $icon.next().data("name");
+            var fileType = xcHelper.getFormat(name);
+            if (fileType && listFormatMap.hasOwnProperty(fileType) &&
+                gridFormatMap.hasOwnProperty(fileType)) {
+                $icon.removeClass();
+                $icon.addClass("gridIcon icon");
+                if (isListView) {
+                    // Change icons to listView version
+                    $icon.addClass(listFormatMap[fileType]);
+                } else {
+                    // Change icons to gridView version
+                    $icon.addClass(gridFormatMap[fileType]);
+                }
+            }
+        });
     }
 
     function refreshEllipsis() {
