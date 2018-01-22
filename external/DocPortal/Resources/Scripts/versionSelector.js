@@ -10,9 +10,10 @@ window.VersionSelector = (function($, VersionSelector) {
             "container": "#contentBody",
             "bounds": "#contentBody"
         }).setupListeners();
+        $("#versionSelectorList input").val("Version 1.3.0");
         $(".Version-1_3_0").show();
     };
-    
+
     function showVersion(versionText) {
         var className = versionText.replaceAll("\\.", "_").replaceAll(" ", "-");
         $(".version").hide();
@@ -86,7 +87,6 @@ window.VersionSelector = (function($, VersionSelector) {
                     self.toggleList($(this), $(this).hasClass("openUpwards"));
                 });
             }
-
             // on click a list
             $dropDownList.on({
                 "mouseup": function(event) {
