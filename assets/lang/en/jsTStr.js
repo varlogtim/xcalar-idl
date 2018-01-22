@@ -125,6 +125,8 @@ TooltipTStr = {
     "UnionSearch": "Search within this table",
     "UnlockTable": "Click to unlock table",
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
+    "ClickToSortAsc": "Click to sort ascending",
+    "ClickToSortDesc": "Click to sort descending",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",

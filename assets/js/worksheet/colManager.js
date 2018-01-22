@@ -1542,7 +1542,8 @@ window.ColManager = (function($, ColManager) {
 
     function styleColHeadHelper(colNum, tableId) {
         var $table = $("#xcTable-" + tableId);
-        var progCol = gTables[tableId].getCol(colNum);
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
         var $th = $table.find("th.col" + colNum);
         var $header = $th.find("> .header");
         var colType = progCol.getType();
@@ -1568,6 +1569,23 @@ window.ColManager = (function($, ColManager) {
 
         if (progCol.hasMinimized()) {
             $table.find("td.col" + colNum).addClass("userHidden");
+        }
+        if ([ColumnType.integer, ColumnType.float, ColumnType.string,
+            ColumnType.boolean, ColumnType.number].indexOf(colType) > -1
+            && !progCol.isEmptyCol()) {
+            $th.addClass("sortable");
+        } else {
+            $th.removeClass("sortable");
+        }
+        var keys = table.getKeys();
+        var backName = progCol.getBackColName();
+        var indexed = keys.find(function(k) {
+            return k.name === backName;
+        });
+        if (indexed) {
+            $th.addClass("indexedColumn");
+        } else {
+            $th.removeClass("indexedColumn");
         }
 
         if ($th.hasClass("selectedCell") ||

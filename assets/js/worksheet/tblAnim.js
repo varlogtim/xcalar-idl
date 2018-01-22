@@ -555,6 +555,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.$el = $el;
         dragInfo.$tableWrap = $tableWrap;
 
+        $el.closest("th").addClass("colDragging");
         var cursorStyle = '<div id="moveCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
         $tableWrap.addClass("checkingColDrag");
@@ -673,6 +674,10 @@ window.TblAnim = (function($, TblAnim) {
     function endColDrag() {
         $(document).off('mouseup.endColDrag');
         $('#moveCursor').remove();
+        setTimeout(function () {
+            dragInfo.$el.closest("th").removeClass("colDragging");
+        })
+        
         setTimeout(function() {
             dragInfo.$tableWrap.removeClass("checkingColDrag");
             $('body').removeClass('tooltipOff');

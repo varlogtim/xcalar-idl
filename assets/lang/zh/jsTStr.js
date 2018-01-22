@@ -139,6 +139,8 @@ TooltipTStr = {
 'SavedOn': '最近保存时间',
 "UnlockTable": "Click to unlock table",
 "MapNoDelete": "Cannot remove. Map must have at least 1 operation.",
+"ClickToSortAsc": "Click to sort ascending",
+"ClickToSortDesc": "Click to sort descending",
 "UnionFocusSelect": "请选择一个表",
 "UnionFocus": "点击查看表",
 "FocusOnCol": "点击查看列",

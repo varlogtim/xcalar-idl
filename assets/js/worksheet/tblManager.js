@@ -848,27 +848,53 @@ window.TblManager = (function($, TblManager) {
             return k.name === backName;
         });
 
-        var sortIcon = '<i class="sortIcon"></i>'; // placeholder
+       
 
         if (progCol.hasMinimized()) {
             width = 15;
             columnClass += " userHidden";
         }
+        var type = progCol.getType();
+        var sortTip = "";
+        if ([ColumnType.integer, ColumnType.float, ColumnType.string,
+                      ColumnType.boolean, ColumnType.number].indexOf(type) > -1
+            && !progCol.isEmptyCol()) {
+            columnClass += " sortable ";
+            sortTip = ' data-toggle="tooltip" '; 
+        }
+
+        var sortIcon = '<div class="sortIcon">' +
+                        '<i class="icon xi-sort fa-12" ' + sortTip +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortAsc + '"></i></div>'; // placeholder
+  
 
         if (indexed) {
             columnClass += " indexedColumn";
             if (!table.showIndexStyle()) {
                 columnClass += " noIndexStyle";
             }
-
             var order = indexed.ordering;
             if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
-                sortIcon = '<i class="sortIcon icon ' +
-                            'xi-arrowtail-up fa-12"></i>';
+                sortIcon = '<div class="sortIcon"><i class="icon ' +
+                            'xi-arrow-up fa-12" '+ sortTip +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortDesc + '"></i>';
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                sortIcon = '<i class="sortIcon icon ' +
-                            'xi-arrowtail-down fa-12"></i>';
+                sortIcon = '<div class="sortIcon"><i class="icon ' +
+                            'xi-arrow-down fa-12" ' + sortTip +
+                            'data-container="body" ' +
+                            'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortAsc + '"></i>';
             }
+            var keyNames = table.getKeyName();
+            if (keyNames.length > 1) {
+                var sortNum = keyNames.indexOf(backName);
+                sortIcon += '<span class="sortNum">' + (sortNum + 1) + '</span>';
+            }
+            sortIcon += '</div>';
         } else if (progCol.isEmptyCol()) {
             columnClass += " newColumn";
         }
@@ -2392,6 +2418,37 @@ window.TblManager = (function($, TblManager) {
                 }
                 event.preventDefault();
             }
+        });
+
+        $thead.on("mousedown", ".sortIcon", function() {
+            var $th = $(this).closest('th');
+            var colNum = xcHelper.parseColNum($th);
+            FnBar.focusOnCol($th, tableId, colNum);
+            TblManager.highlightColumn($th, false);
+            lastSelectedCell = $th;
+        });
+
+        $thead.on("click", ".sortIcon", function() {
+            var $th = $(this).closest("th");
+            if (!$th.hasClass("sortable")) {
+                return;
+            }
+            var colNum = xcHelper.parseColNum($th);
+            var table = gTables[tableId];        
+            var progCol = table.getCol(colNum);
+            var colName = progCol.getBackColName();
+            
+            var keyNames = table.getKeyName();
+            var keyIndex = keyNames.indexOf(colName);
+            var order = XcalarOrderingT.XcalarOrderingAscending;
+            if (keyIndex > -1) {
+                var keys = table.backTableMeta.keyAttr;
+                if (XcalarOrderingTFromStr[keys[keyIndex].ordering] === 
+                    XcalarOrderingT.XcalarOrderingAscending) {
+                    order =  XcalarOrderingT.XcalarOrderingDescending;
+                }
+            }
+            TblMenu.sortColumn([colNum], tableId, order);
         });
 
         $thead.find(".rowNumHead").mousedown(function() {

@@ -1059,7 +1059,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
     }
 
-    function sortColumn(colNums, tableId, order) {
+    function sortColumn(colNums, tableId, order, options) {
         var colInfo = [];
         for (var i = 0; i < colNums.length; i++) {
             colInfo.push({
@@ -1073,7 +1073,27 @@ window.TblMenu = (function(TblMenu, $) {
             return xcFunction.sort(tableId, colInfo);
         }
         var colNum = colNums[0];
-        var progCol = gTables[tableId].getCol(colNum);
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
+        var colName = progCol.getBackColName();
+        var keys = table.backTableMeta.keyAttr;
+        var keyNames = table.getKeyName();
+        var keyIndex = keyNames.indexOf(colName);
+        if (keyIndex === -1 || 
+            order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].name === colName ||
+                    keys[i].name === "xcalarRecordNum") {
+                    continue;
+                }
+                colInfo.push({
+                    name: keys[i].name,
+                    ordering: XcalarOrderingTFromStr[keys[i].ordering],
+                    typeToCast: null
+                });
+            }
+        }
+
         var type = progCol.getType();
 
         if (type !== "string") {
@@ -1184,7 +1204,8 @@ window.TblMenu = (function(TblMenu, $) {
             p: "profile",
             s: "sort",
             t: "changeDataType",
-            x: "exitOp"
+            x: "exitOp",
+            u: "union"
         };
 
         cellMenuMap = {

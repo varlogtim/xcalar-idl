@@ -223,6 +223,9 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // sort table column
+    // colInfo: [{colNum(optional): int, ordering: order, typeToCast: string or null,
+    //            name(optional): string}]
+
     // options:
     //      formOpenTime: number
     xcFunction.sort = function(tableId, colInfo, options) {
@@ -237,8 +240,12 @@ window.xcFunction = (function($, xcFunction) {
 
         for (var i = 0; i < colInfo.length; i++) {
             var progCol = table.getCol(colInfo[i].colNum);
+            if (!progCol) {
+                keys.push(colInfo[i].name);
+            } else {
+                keys.push(progCol.getFrontColName(true));
+            }
 
-            keys.push(progCol.getFrontColName(true));
             colNums.push(colInfo[i].colNum);
             orders.push(colInfo[i].ordering);
         }
@@ -297,7 +304,10 @@ window.xcFunction = (function($, xcFunction) {
                 sortTableName = sortTableName.newTableName;
             }
             finalTableName = sortTableName;
-            var options = {"selectCol": colNums};
+            var colsToSelect = colNums.filter(function(colNum) {
+                return colNum > 0;
+            });
+            var options = {"selectCol": colsToSelect};
             // sort will filter out KNF, so it change the profile
             return TblManager.refreshTable([finalTableName], finalTableCols,
                                             [tableName], worksheet, txId,
@@ -351,12 +361,17 @@ window.xcFunction = (function($, xcFunction) {
             var newTableCols = tableCols;
             for (var i = 0; i < colInfo.length; i++) {
                 var typeToCast = colInfo[i].typeToCast;
+                var backColName;
                 var progCol = table.getCol(colNums[i]);
-                var backColName = progCol.getBackColName();
+                if (!progCol) {
+                    backColName = colInfo[i].name;
+                } else {
+                    backColName = progCol.getBackColName();
+                }
 
                 var parsedName = xcHelper.parsePrefixColName(backColName);
                 if (parsedName.prefix !== "") {
-                    // if it's a prefix, need to cast to immeidate first
+                    // if it's a prefix, need to cast to immediate first
                     // as sort will create an immeidate and go back to sort table's
                     // parent table need to have the same column
                     typeToCast = typeToCast || progCol.getType();

@@ -680,8 +680,12 @@
 
 // colmenu dropdown option when in FASJ mode
 #container.columnPicker {
-    .topHeader .dotWrap {
+    .topHeader .dotWrap, .topHeader .xi-sort {
         visibility: hidden;
+        pointer-events: none;
+    }
+    .sortIcon {
+        pointer-events: none;
     }
 
     #colMenu, #tableMenu {

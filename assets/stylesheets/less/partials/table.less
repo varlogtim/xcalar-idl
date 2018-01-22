@@ -128,6 +128,13 @@ html.edge {
                 height: @height-xcColHeaderOuter - 10px;
             }
         }
+        &.indexedColumn {
+            .header {
+                .sortIcon {
+                    visibility: visible;
+                }
+            }
+        }
     }
 
     td {
@@ -1193,6 +1200,10 @@ html.edge {
             display: none;
         }
 
+        .sortIcon {
+           display: none !important;
+        }
+
         .flex-left {
             display: none;
         }
@@ -1303,7 +1314,7 @@ html.edge {
             background-color: @color-bg-select-blue !important;
         }
 
-        .sortIcon  {
+        .sortIcon, .sortNum {
             color: @color-white !important;
         }
 
@@ -1410,6 +1421,38 @@ html.edge {
                 }
             }
         }
+
+        &.sortable {
+            .header {
+                .position(absolute, @top: 35px);
+                width: inherit;
+                z-index: @z-index-tableHeaderInput;
+
+                &:after {
+                    top: @height-xcColHeaderOuter - 6px;
+                }
+            }
+            .sortIcon {
+                cursor: pointer;
+                opacity: @opacity-unhover;
+            }
+            &:not(.indexedColumn) {
+                &:hover {
+                    .sortIcon {
+                        visibility: visible; 
+                    }
+                    .sortIcon:hover {
+                        color: @color-font-greyish-brown;
+                        opacity: @opacity-hover;
+                    }
+                }
+            }
+            &.indexedColumn {
+                .sortIcon {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
     }
 
     .dragArea {
@@ -1442,10 +1485,36 @@ html.edge {
 
             .sortIcon {
                 .flex(0 1 20px);
-                color: @color-font-darkGray;
+                color: @color-font-greyish-brown;
                 display: block;
-                .size(@height: 12px);
+                .size(@height: 100%);
                 .vertical-align;
+                z-index: @z-index-tableHeaderGrab;
+                position: relative;
+                visibility: hidden;
+
+                .icon {
+                    position: relative;
+                    top: 0px;
+                }
+                .xi-sort {
+                    top: 1px;
+                }
+            }
+
+            .sortNum {
+                position: absolute;
+                left: 50%;
+                margin-left: 6px;
+                top: 8px;
+                font-size: 10px;
+                color: @color-font-greyish-brown;
+                font-family: @font-base;
+                pointer-events: none;
+            }
+
+            .xi-arrow-down + .sortNum {
+                margin-left: 3px;
             }
 
             .prefix {
@@ -1564,6 +1633,12 @@ html.edge {
 
         &.type-data .flexWrap.flex-left {
             background: transparent;
+        }
+    }
+
+    .colDragging.sortable {
+        .sortIcon {
+            visibility: visible !important;
         }
     }
 }

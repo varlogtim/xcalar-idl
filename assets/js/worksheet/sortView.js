@@ -193,9 +193,7 @@ window.SortView = (function($, SortView) {
         for (var i = 0; i < newColOrders.length; i++) {
             var colNum = newColOrders[i].colNum;
             var newOrder = newColOrders[i].order;
-            if (newOrder === colOrders[colNum] && newColOrders.length === 1) {
-                break;
-            }
+
             newOrder = (newOrder === XcalarOrderingTStr[XcalarOrderingT
                                                     .XcalarOrderingAscending]) ?
                         XcalarOrderingT.XcalarOrderingAscending :
