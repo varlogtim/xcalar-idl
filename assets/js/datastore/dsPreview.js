@@ -255,9 +255,16 @@ window.DSPreview = (function($, DSPreview) {
             if ($("#importColRename").length) {
                 return;
             }
+
+            // prevent resize from letting the table get smaller than 175px
+            var minTableWidth = 175;
+            var curWidth = $(this).closest("th").outerWidth();
+            var tableWidth = $previewTable.outerWidth();
+            var extraTableWidth = tableWidth - minTableWidth;
+            var minColWidth = Math.max(25, curWidth - extraTableWidth);
             TblAnim.startColResize($(this), event, {
                 target: "datastore",
-                minWidth: 25
+                minWidth: minColWidth
             });
         });
 
@@ -322,8 +329,8 @@ window.DSPreview = (function($, DSPreview) {
                 $bottomCard.css('top', bottomCardTop);
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
-                $previeWrap.height('100%');
-                $previeWrap.addClass("dragging");
+                $previeWrap.outerHeight('100%');
+                $previeWrap.addClass("dragging"); 
                 // if resize is triggered, don't validate, just return to old
                 // value
                 if ($("#importColRename").length) {
@@ -3505,7 +3512,6 @@ window.DSPreview = (function($, DSPreview) {
         return false;
     }
    
-
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSPreview.__testOnly__ = {};

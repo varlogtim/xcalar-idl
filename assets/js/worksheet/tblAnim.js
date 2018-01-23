@@ -33,7 +33,12 @@ window.TblAnim = (function($, TblAnim) {
         rescol.newWidth = rescol.startWidth;
         rescol.table = $table;
         rescol.tableHead = $el.closest('.xcTableWrap').find('.xcTheadWrap');
-        rescol.leftDragMax = rescol.cellMinWidth - rescol.startWidth;
+        if (options.minWidth != null) {
+            rescol.minResizeWidth = options.minWidth;
+        } else {
+            rescol.minResizeWidth = rescol.cellMinWidth;
+        }
+        rescol.leftDragMax = rescol.minResizeWidth - rescol.startWidth;
 
         if (!rescol.$th.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
@@ -87,7 +92,7 @@ window.TblAnim = (function($, TblAnim) {
             newWidth = rescol.startWidth + dragDist;
         } else {
             // resizing too small so we set with to the minimum allowed
-            newWidth = rescol.cellMinWidth;
+            newWidth = rescol.minResizeWidth;
         }
         rescol.$th.outerWidth(newWidth);
         rescol.newWidth = newWidth;

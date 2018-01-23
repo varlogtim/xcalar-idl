@@ -1645,6 +1645,8 @@ table.datasetTable {
         padding: 0;
         position: absolute;
         background: @color-white;
+        border-top: 1px solid @color-border-pinkish-grey2;
+        overflow: hidden;
 
         .ui-resizable-n {
             top:0px;
@@ -1667,8 +1669,8 @@ table.datasetTable {
         .buttonSection {
             position: relative;
             background: @color-white;
+            .position(absolute, @right: 0px, @bottom: 0px);
         }
-
     }
 
     #preview-target, #preview-url, #preview-pattern, #preview-file {
@@ -2036,7 +2038,6 @@ table.datasetTable {
 #importDataForm {
     .size(@height: ~"calc(100% - 15px)");
     padding-top: 15px;
-    border-top: 1px solid @color-border-pinkish-grey2;
     @row-width: 130px;
     .position(relative);
 
