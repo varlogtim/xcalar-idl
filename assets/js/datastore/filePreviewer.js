@@ -1,6 +1,7 @@
 window.FilePreviewer = (function(FilePreviewer, $) {
     var previewArgs = null;
     var $fileBrowserPreview; // $("#fileBrowserPreview")
+    var $cardMain;
     var idCount = 0;
     var initialOffset = 0;
     var totalSize = 0;
@@ -11,6 +12,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     FilePreviewer.setup = function() {
         $fileBrowserPreview = $("#fileBrowserPreview");
+        $cardMain = $fileBrowserPreview.parent();
         FilePreviewer.close();
         addEventListener();
     };
@@ -19,6 +21,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         cleanPreviewer();
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
+        $cardMain.addClass("previewOpen");
         if (options.isFolder) {
             handleError(ErrTStr.NoFolderPreview);
             return PromiseHelper.resolve();
@@ -29,6 +32,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     FilePreviewer.close = function() {
         $fileBrowserPreview.addClass("xc-hidden");
+        $cardMain.removeClass("previewOpen full");
         cleanPreviewer();
     };
 
@@ -57,7 +61,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function previewFile(offset) {
-        var args = previewArgs;
+        var args = previewArgs; 
         if (args == null) {
             console.error("invliad arguments");
             return PromiseHelper.reject("invliad arguments");
@@ -133,7 +137,13 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function inPreviewMode() {
         previewOrHexMode();
         $("#fileBrowserMain").removeClass("xc-hidden");
-        $fileBrowserPreview.removeClass("hexMode");
+        $fileBrowserPreview.removeClass("hexMode hexModeAnim");
+        $cardMain.removeClass("hexMode");
+        $cardMain.addClass("noAnim");
+        setTimeout(function() {
+            // prevent animation when switching mode
+            $cardMain.removeClass("noAnim");
+        });
     }
 
     function isInHexMode() {
@@ -144,6 +154,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         previewOrHexMode();
         $("#fileBrowserMain").addClass("xc-hidden");
         $fileBrowserPreview.addClass("hexMode");
+        $cardMain.addClass("hexMode");
+        // timeout so we don't animate the width
+        setTimeout(function() {
+            $fileBrowserPreview.addClass("hexModeAnim");
+        });
     }
 
     function previewOrHexMode() {
@@ -220,7 +235,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             var code = ch.charCodeAt(0);
             var hexCode = hex[(0xF0 & code) >> 4] + hex[0x0F & code];
             var cell = getCell(hexCode, offset);
-            return " " + cell;
+            return "" + cell;
         }).join("");
 
         var numOfPaddings = blockSize - block.length;
@@ -265,8 +280,15 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function calculateCharsPerLine() {
-        var $section = $fileBrowserPreview.find(".preview.normal");
-        var sectionWidth = $section.width();
+        var sectionWidth;
+        var padding = 50;
+        var leftPanelPct = .25;
+        if ($fileBrowserPreview.parent().hasClass("full")) {
+            sectionWidth = $fileBrowserPreview.parent().width() - padding;
+        } else {
+            sectionWidth = ($fileBrowserPreview.parent().width() *
+                            leftPanelPct) - (padding + 7);
+        }
 
         var charWidth = calculateCharWidth();
 
@@ -306,6 +328,18 @@ window.FilePreviewer = (function(FilePreviewer, $) {
                 }
             }
         });
+
+        $fileBrowserPreview.find(".sliderPart").click(function() {
+            if ($fileBrowserPreview.parent().hasClass("full")) {
+                $fileBrowserPreview.parent().removeClass("full");
+                initialPreview(previewArgs);
+
+            } else {
+                $fileBrowserPreview.parent().addClass("full");
+                initialPreview(previewArgs);
+            }
+            
+        });
     }
 
     function hoverEvent() {
@@ -335,7 +369,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         var $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
         if (offset >= totalSize) {
             StatusBox.show(DSTStr.OffsetErr, $skipToOffset, false, {
-                "side": "left"
+                "side": "right"
             });
             return PromiseHelper.resolve();
         }

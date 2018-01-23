@@ -69,8 +69,11 @@
     </div>
   </section>
   <section class="cardMain">
+    <div id="fileBrowserPreview" class="leftMain xc-hidden">
+      include "filePreviewer.html"
+    </div>
     <!-- File Browser Main Section -->
-    <div id="fileBrowserMain" class="xc-grid leftMain gridView fileBrowserMain">
+    <div id="fileBrowserMain" class="xc-grid rightMain gridView fileBrowserMain">
         <!-- Loading Sectoin -->
         <section class="loadingSection">
           <div class="waitingIcon"></div>
@@ -98,9 +101,6 @@
         <section id="fileBrowserContainer" class="mainSection fileBrowserContainer">
           <div id="innerFileBrowserContainer" class="clearfix innerFileBrowserContainer"></div>
         </section>
-    </div>
-    <div id="fileBrowserPreview" class="rightMain xc-hidden">
-      include "filePreviewer.html"
     </div>
   </section>
   <section class="cardBorder"></section>
