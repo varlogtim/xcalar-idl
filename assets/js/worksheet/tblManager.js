@@ -848,8 +848,6 @@ window.TblManager = (function($, TblManager) {
             return k.name === backName;
         });
 
-       
-
         if (progCol.hasMinimized()) {
             width = 15;
             columnClass += " userHidden";
@@ -876,25 +874,31 @@ window.TblManager = (function($, TblManager) {
                 columnClass += " noIndexStyle";
             }
             var order = indexed.ordering;
+            var sorted = false;
             if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<div class="sortIcon"><i class="icon ' +
                             'xi-arrow-up fa-12" '+ sortTip +
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"></i>';
+                sorted = true;
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<div class="sortIcon"><i class="icon ' +
                             'xi-arrow-down fa-12" ' + sortTip +
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortAsc + '"></i>';
+                sorted = true;
             }
-            var keyNames = table.getKeyName();
-            if (keyNames.length > 1) {
-                var sortNum = keyNames.indexOf(backName);
-                sortIcon += '<span class="sortNum">' + (sortNum + 1) + '</span>';
+            if (sorted) {
+                var keyNames = table.getKeyName();
+                if (keyNames.length > 1) {
+                    var sortNum = keyNames.indexOf(backName);
+                    sortIcon += '<span class="sortNum">' + (sortNum + 1) + '</span>';
+                }
+                sortIcon += '</div>';
             }
-            sortIcon += '</div>';
+            
         } else if (progCol.isEmptyCol()) {
             columnClass += " newColumn";
         }

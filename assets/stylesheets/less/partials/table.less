@@ -128,7 +128,7 @@ html.edge {
                 height: @height-xcColHeaderOuter - 10px;
             }
         }
-        &.indexedColumn {
+        &.indexedColumn:not(.noIndexStyle) {
             .header {
                 .sortIcon {
                     visibility: visible;
@@ -1436,7 +1436,7 @@ html.edge {
                 cursor: pointer;
                 opacity: @opacity-unhover;
             }
-            &:not(.indexedColumn) {
+            &:not(.indexedColumn), &.noIndexStyle {
                 &:hover {
                     .sortIcon {
                         visibility: visible; 
@@ -1447,7 +1447,8 @@ html.edge {
                     }
                 }
             }
-            &.indexedColumn {
+
+            &.indexedColumn  {
                 .sortIcon {
                     opacity: @opacity-hover;
                 }
