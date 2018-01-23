@@ -1602,6 +1602,8 @@ table.datasetTable {
 /* Data Form Preview */
 #dsForm-preview {
     .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
+    overflow: hidden;
+    
 
     &.minimize {
         .cardMain {
@@ -1617,18 +1619,33 @@ table.datasetTable {
         }
     }
 
+    .cardWrap {
+        .position(relative);
+        .size(@height: ~"calc(100% - 36px)", @width: 100%);
+    }
+
     .cardMain {
         padding-top: 0;
-        .size(@min-height: ~"calc(100% - 436px)", @height: ~"calc(50% - 18px)");
+        padding-bottom: 5px;
+        .size(@height: 50%);
         .text-selection;
         .transition(height 0.3s);
+
+        &.dragging {
+            .transition(height 0s);
+            pointer-events: none; // prevent rows from highlighting on hover
+        }
     }
 
     .cardBottom {
-        .size(@max-height: 400px, @height: ~"calc(50% - 18px)");
+        .size(@height: 50%, @width: 100%);
         padding: 0;
-        padding-top: 15px;
-        position: relative;
+        position: absolute;
+        background: @color-white;
+
+        .ui-resizable-n {
+            top:0px;
+        }
 
         .pulloutTab {
             .size(@width: 100px, @height: 15px);
@@ -1642,6 +1659,11 @@ table.datasetTable {
                 background-color: #CCCCCC;
                 margin-top: 3px;
             }
+        }
+
+        .buttonSection {
+            position: relative;
+            background: @color-white;
         }
 
     }
@@ -1902,7 +1924,8 @@ table.datasetTable {
 
 /* End of data form preview */
 #importDataForm {
-    .size(@height: 100%);
+    .size(@height: ~"calc(100% - 15px)");
+    padding-top: 15px;
     border-top: 1px solid @color-border-pinkish-grey2;
     @row-width: 170px;
     .position(relative);
@@ -1919,7 +1942,7 @@ table.datasetTable {
         padding-right: 5px;
 
         &#dsForm-detect {
-            top: 7px;
+            top: 22px;
         }
     }
 

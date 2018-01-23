@@ -174,6 +174,40 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         setupForm();
+
+        var $bottomCard = $previewCard.find(".cardBottom");
+        var bottomCardTop = 0;
+        $bottomCard .on('mousedown', '.ui-resizable-n', function() {
+            bottomCardTop = $bottomCard.position().top;
+        });
+
+        $bottomCard.resizable({
+            handles: "n",
+            containment: 'parent',
+            start: function(event, ui) {
+                $bottomCard.css('top', bottomCardTop);
+                ui.originalPosition.top = bottomCardTop;
+                ui.position.top = bottomCardTop;
+                $previeWrap.height('100%');
+                $previeWrap.addClass("dragging");
+            },
+            resize: function() {
+
+            },
+            stop: function() {
+                var containerHeight = $previewCard.find(".cardWrap").height();
+                bottomCardTop = $bottomCard.position().top;
+
+                var topPct = 100 * (bottomCardTop / containerHeight);
+
+                $bottomCard.css('top', topPct + '%');
+                $bottomCard.outerHeight((100 - topPct) + '%');
+                $previeWrap.outerHeight(topPct + '%');
+                setTimeout(function() {
+                   $previeWrap.removeClass("dragging"); 
+                });
+            }
+        });
     };
 
     // restore: boolean, set to true if restoring after an error
