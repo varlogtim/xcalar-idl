@@ -112,6 +112,7 @@ module.exports = {
         "RoundTitle": "小数位数",
         "SaveImage": "保存图片",
         "SendToTemp": "Send to temporary list",
+        "Share": "共享",
         "ShowExportCols": "查看导出的列",
         "ShowSchema": "显示模式",
         "Skew": "查看倾斜细节",
@@ -142,7 +143,8 @@ module.exports = {
         "HideOps": "Hide operations",
         "UndoEdit": "Undo edit",
         "ExitEditMode": "Exit editing mode",
-        "AddOperation": "Add an operation"
+        "AddOperation": "Add an operation",
+        "Unshare": "取消共享",
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",

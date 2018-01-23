@@ -366,8 +366,9 @@ window.QueryManager = (function(QueryManager, $) {
             // Load hasn't been triggered yet so no DS to cancel (rare)
             return;
         }
-        var dstTable = subQuery.dstTable.split(".").pop();
-        var $grid = DS.getGridByName(dstTable);
+
+        var dsId = subQuery.dstTable.substring(gDSPrefix.length);
+        var $grid = DS.getGrid(dsId);
         DS.cancel($grid);
         // DS.cancel preps the DsObj and icon and
         // eventually calls QueryManager.cancelQuery

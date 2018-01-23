@@ -1455,30 +1455,7 @@ window.DSPreview = (function($, DSPreview) {
             name = "ds" + name;
         }
 
-        var originalName = name;
-        var tries = 1;
-        var validNameFound = false;
-        while (!validNameFound && tries < 20) {
-            if (DS.has(name)) {
-                validNameFound = false;
-            } else {
-                validNameFound = true;
-            }
-
-            if (!validNameFound) {
-                name = originalName + tries;
-                tries++;
-            }
-        }
-
-        if (!validNameFound) {
-            while (DS.has(name) && tries < 100) {
-                name = xcHelper.randName(name, 4);
-                tries++;
-            }
-        }
-
-        return name;
+        return DS.getUniqueName(name);
     }
 
     function getSkipRows() {

@@ -51,5 +51,73 @@ module.exports = function(server) {
         socket.on("adminAlert", function(alertOption) {
             socket.broadcast.emit("adminAlert", alertOption);
         });
+
+        addDSSocketEvent(socket);
     });
+
+    function addDSSocketEvent(socket) {
+        var lockTimer = null;
+        var dsInfo = {
+            id: -1,
+            lock: {}
+        };
+
+        var unlockDSInfo = function() {
+            clearTimeout(lockTimer);
+            dsInfo.lock = {};
+        };
+
+        var updateVersionId = function(versionId) {
+            dsInfo.id = Math.max(dsInfo.id, versionId);
+        };
+
+        socket.on("ds", function(arg, calllback) {
+            var versionId = arg.id;
+            var success = true;
+
+            switch ( arg.event) {
+                case "updateVersionId":
+                    updateVersionId(versionId);
+                    break;
+                case "changeStart":
+                    if (versionId <= dsInfo.id || dsInfo.lock.id != null) {
+                        success = false;
+                    } else {
+                        dsInfo.lock = {
+                            id: versionId,
+                            arg: arg
+                        };
+                    }
+
+                    lockTimer = setTimeout(function() {
+                        unlockDSInfo();
+                    }, 100000); // 100s
+
+                    if (calllback != null) {
+                        calllback(success);
+                    }
+                    break;
+                case "changeEnd":
+                    if (versionId === dsInfo.lock.id) {
+                        updateVersionId(versionId);
+                        socket.broadcast.emit("ds.update", dsInfo.lock.arg);
+                        unlockDSInfo();
+                    } else {
+                        success = false;
+                    }
+
+                    if (calllback != null) {
+                        calllback(success);
+                    }
+                    break;
+                case "changeError":
+                    if (versionId === dsInfo.lock.id) {
+                        unlockDSInfo();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
 };

@@ -378,6 +378,11 @@ window.KVStore = (function($, KVStore) {
         return getInfo(KVStore.gEphStorageKey, gKVScope.EPHM, ignoreFail);
     };
 
+    KVStore.getSharedDSInfo = function() {
+        var ignoreFail = true;
+        return getInfo(KVStore.gSharedDSKey, gKVScope.GLOB, ignoreFail);
+    };
+
     function getInfo(infoKey, infoScope, ignoreFail) {
         var deferred = jQuery.Deferred();
 

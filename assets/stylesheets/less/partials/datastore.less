@@ -3399,6 +3399,31 @@ table.datasetTable {
             pointer-events: none;
         }
     }
+
+    &.sharedDir {
+        .share {
+            display: none;
+        }
+
+        &.sharedHomeDir {
+            .moveUp {
+                display: none;
+            }
+        }
+
+        &.noUnshare {
+            .unshare {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+        }
+    }
+
+    &:not(.sharedDir) {
+        .unshare {
+            display: none;
+        }
+    }
 }
 
 #gridViewSubMenu {

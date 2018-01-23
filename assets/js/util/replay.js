@@ -427,7 +427,6 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId", "horColNums"];
         argsMap[SQLOps.Corr] = ["tableId", "vertColNums", "horColNums"];
-        argsMap[SQLOps.AddOtherUserDS] = ["name", "format", "path"];
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
@@ -450,7 +449,6 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DSToDir] = Tab.DS;
         tabMap[SQLOps.DSDropBack] = Tab.DS;
         tabMap[SQLOps.DelFolder] = Tab.DS;
-        tabMap[SQLOps.AddOtherUserDS] = Tab.DS;
     }
 
     function sqlFilter(sql) {
@@ -1293,12 +1291,6 @@ window.Replay = (function($, Replay) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    };
-
-    replayFuncs[SQLOps.AddOtherUserDS] = function(options) {
-        var args = getArgs(options);
-        DS.addOtherUserDS.apply(window, args);
-        return PromiseHelper.resolve(null);
     };
 
     replayFuncs[SQLOps.SplitCol] = function(options) {

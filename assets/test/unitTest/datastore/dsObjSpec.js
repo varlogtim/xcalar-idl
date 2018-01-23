@@ -68,7 +68,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should get dsObj", function() {
-            expect(DS.getDSObj(".")).to.equal(DS.getHomeDir());
+            expect(DS.getDSObj(".").parentId).to.equal(".parent");
         });
 
         it("Should get error dsobj", function() {
@@ -151,31 +151,6 @@ describe("Dataset-DSObj Test", function() {
             var dsId = ds.getId();
             DS.__testOnly__.removeDS(dsId);
             expect(DS.getDSObj(dsId)).to.be.null;
-        });
-
-        it("Should add other user's ds", function(done) {
-            var homeFolder = DS.getHomeDir();
-            var user = xcHelper.randName(XcSupport.getUser());
-            var dsName = genUniqDSName("dsobj");
-            var testName = user + "." + dsName;
-
-            var ds = DS.addOtherUserDS(testName, {
-                "format": "CSV",
-                "path": "testPath"
-            });
-            expect(ds).not.to.be.null;
-            expect(ds.getName()).to.equal(dsName);
-            expect(ds.getFormat()).to.equal("CSV");
-            expect(ds.getPath()).to.equal("testPath");
-            expect(ds.isEditable()).to.be.false;
-
-            DS.restore(homeFolder, false)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
         });
 
         it("Should upgrade dsObj", function() {
@@ -340,7 +315,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should add folder by clicking addFolderBtn", function() {
-            var homeFolder = DS.getHomeDir();
+            var homeFolder = DS.getDSObj(DSObjTerm.homeDirId);
             var numEles = homeFolder.eles.length;
             $("#addFolderBtn").click();
 
@@ -400,7 +375,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should delete folder", function() {
-            var homeFolder = DS.getHomeDir();
+            var homeFolder = DS.getDSObj(DSObjTerm.homeDirId);
             var numEles = homeFolder.eles.length;
             var id = $folder.data("dsid");
 
@@ -443,27 +418,6 @@ describe("Dataset-DSObj Test", function() {
             // should blur it first, otherwise rename will have bug
             var $grid = DS.getGrid(testFolder.getId());
             $grid.find(".label textarea").blur();
-        });
-
-        it("Should not create folder in uneditable folder", function() {
-            var id = xcHelper.randName("folderId");
-            var name = xcHelper.randName("folderName");
-            DS.__testOnly__.createDS({
-                "id": id,
-                "name": name,
-                "parentId": DSObjTerm.homeDirI,
-                "isFolder": true,
-                "uneditable": true
-            });
-            DS.goToDir(id);
-            var res = DS.newFolder();
-            expect(res).to.be.null;
-            assert.isTrue($("#alertModal").is(":visible"));
-            $("#alertModal .cancel").click();
-            assert.isFalse($("#alertModal").is(":visible"));
-
-            DS.goToDir(DSObjTerm.homeDirId);
-            DS.__testOnly__.removeDS(id);
         });
 
         it("Should get testFolder from id", function() {
@@ -513,20 +467,6 @@ describe("Dataset-DSObj Test", function() {
 
             DS.upDir();
             assert.isFalse($grid.hasClass("xc-hidden"), "see folder");
-        });
-
-        it("canCreateFolder() should work for this folder", function() {
-            var dsId = testFolder.getId();
-            // manually make it uneditable
-            testFolder.uneditable = true;
-            expect(DS.__testOnly__.canCreateFolder(dsId)).to.be.false;
-            assert.isTrue($("#alertModal").is(":visible"), "see alert");
-            $("#alertModal .close").click();
-            assert.isFalse($("#alertModal").is(":visible"), "close alert");
-
-            // make it editable
-            testFolder.uneditable = false;
-            expect(DS.__testOnly__.canCreateFolder(dsId)).to.be.true;
         });
     });
 
@@ -1231,12 +1171,12 @@ describe("Dataset-DSObj Test", function() {
             var oldHomeFolder = DS.getHomeDir();
             DS.clear();
 
-            var curHomeFolder = DS.getHomeDir();
+            var curHomeFolder = DS.getDSObj(DSObjTerm.homeDirId);
             expect(curHomeFolder.totalChildren).to.equal(0);
 
             DS.restore(oldHomeFolder, false)
             .then(function() {
-                curHomeFolder = DS.getHomeDir();
+                curHomeFolder = DS.getDSObj(DSObjTerm.homeDirId);
                 // at least has the test folder and test ds
                 expect(curHomeFolder.totalChildren).to.be.at.least(1);
                 expect(DS.has(testDS.getName())).to.be.true;
@@ -1420,7 +1360,7 @@ describe("Dataset-DSObj Test", function() {
             };
             $ds.data("txid", "test");
             DS.remove($ds);
-            UnitTest.hasAlertWithTitle(DSTStr.CancalPoint, {
+            UnitTest.hasAlertWithTitle(DSTStr.CancelPoint, {
                 "confirm": true
             });
             expect(test).to.be.true;

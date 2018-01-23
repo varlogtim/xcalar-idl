@@ -866,6 +866,11 @@ DSTStr = {
 'ClickChange': 'Click to change',
 'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
 'DetectInvalidColMsgFix': 'The following column names contain invalid characters',
+'ShareDS': '共享数据集',
+'UnshareDS': '取消共享数据集',
+'UnshareFail': '取消共享数据集失败',
+'ShareDSMsg': '您确定要共享<name>吗？ 数据集会被命名为<newName>。',
+'UnshareDSMsg': '您确定要取消共享<name>吗？ 数据集会被命名为<newName>。'
 };
 DSFormTStr = {
 'Pattern': '模式',

@@ -133,7 +133,7 @@ window.DSTable = (function($, DSTable) {
         $tableWrap.html("");
         if (dsObj) {
             var progressAreaHtml = "";
-            var txId = DS.getGridByName(dsObj.name).data("txid");
+            var txId = DS.getGrid(dsObj.getId()).data("txid");
             var $lockIcon = $dsTableContainer
                             .find('.lockedTableIcon[data-txid="' + txId + '"]');
             if ($lockIcon.length) {

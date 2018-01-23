@@ -732,7 +732,6 @@ window.Log = (function($, Log) {
             // case SQLOps.DSToDir:
             // case SQLOps.DSDropBack:
             // case SQLOps.DelFolder:
-            // case SQLOps.AddOtherUserDS:
                 return UndoType.Invalid;
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
@@ -1229,11 +1228,9 @@ window.Log = (function($, Log) {
             // case (SQLOps.DSToDir):
             // case (SQLOps.DSDropBack):
             // case (SQLOps.DelFolder):
-            case (SQLOps.AddOtherUserDS):
             case (SQLOps.ChangeFormat):
             case (SQLOps.RoundToFixed):
             case (SQLOps.MarkPrefix):
-            // case (SQLOps.AddOtherUserDS):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

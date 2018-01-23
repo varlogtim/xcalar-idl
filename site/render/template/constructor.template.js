@@ -206,6 +206,69 @@
         return UserInfoConstructor<%= v %>;
     }());
 
+    // ds.js
+    win.DSInfoConstructor<%= v %> = (function() {
+        // var _super = __getConstructor("DSInfoConstructor", parentVersion);
+        var _super = {};
+        <% if (isCurCtor) {%>
+        var DSInfoKeys = {
+            DS: "DS",
+            VersionId: "VersionId"
+        };
+        <%}%>
+        /* Attr:
+            version: <%= version %>,
+            DSInfoKeys.DS: (obj) datasets meta
+            DSInfoKeys.VersionId: number to represent ds meta's version
+        */
+        function DSInfoConstructor<%= v %>(options) {
+            options = options || {};
+            <%= assert %>
+            // var self = _super.call(this);
+            var self = this;
+            <%= addVersion %>
+
+            this[DSInfoKeys.DS] = options[DSInfoKeys.DS] || {};
+            this[DSInfoKeys.VersionId] = options[DSInfoKeys.VersionId] || 0;
+
+            if (<%= checkFunc %>(options)) {
+                // DSInfoConstructor<%= v %>.restore(self, options, version);
+            }
+            return self;
+        }
+
+        __extends(DSInfoConstructor<%= v %>, _super, {
+            <% if (isCurCtor) {%>
+            updateDSInfo: function(sharedDS) {
+                this[DSInfoKeys.DS] = sharedDS;
+            },
+
+            getDSInfo: function() {
+                return this[DSInfoKeys.DS];
+            },
+
+            getVersionId: function() {
+                return this[DSInfoKeys.VersionId]
+            },
+
+            setVersionId: function(id) {
+                if (id <= DSInfoKeys.VersionId) {
+                    console.error("error case");
+                } else {
+                    this[DSInfoKeys.VersionId] = id;
+                }
+            },
+
+            updateVersionId: function() {
+                this[DSInfoKeys.VersionId]++;
+                return this[DSInfoKeys.VersionId];
+            },
+            <%}%>
+        });
+
+        return DSInfoConstructor<%= v %>;
+    }());
+
     // authentication.js
     win.XcAuth<%= v %> = (function() {
         var _super = __getConstructor("XcAuth", parentVersion);
@@ -2268,7 +2331,7 @@
                         "$ele": DS.getGrid(self.id),
                         "error": ErrTStr.PreservedName,
                         "check": function() {
-                            return newName === DSObjTerm.OtherUserFolder;
+                            return newName === DSObjTerm.SharedFolder;
                         }
                     }
                 ]);

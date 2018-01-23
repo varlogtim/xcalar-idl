@@ -297,6 +297,9 @@ window.xcManager = (function(xcManager, $) {
             }, {
                 "key": keys.gSettingsKey,
                 "scope": gKVScope.GLOB
+            }, {
+                "key": keys.gSharedDSKey,
+                "scope": gKVScope.GLOB
             }];
             var promises = [];
 

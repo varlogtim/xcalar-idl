@@ -257,6 +257,7 @@ module.exports = {
         "RoundTitle": "Num decimals to keep",
         "SaveImage": "Save image",
         "SendToTemp": "Send to temporary list",
+        "Share": "Share",
         "ShowExportCols": "View exported columns",
         "ShowSchema": "Show schema",
         "Skew": "View skew details",
@@ -286,6 +287,7 @@ module.exports = {
         "RevealOps": "Reveal operations",
         "HideOps": "Hide operations",
         "UndoEdit": "Revert to original operation",
+        "Unshare": "Unshare",
         "CommentOp": "Add a comment",
         "ExitEditMode": "Exit editing mode",
         "AddOperation": "Add new operation"

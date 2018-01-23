@@ -127,8 +127,8 @@ DSObjTerm = {
     "homeDir": ".",
     "homeDirId": ".",
     "homeParentId": ".parent",
-    "OtherUserFolder": "Other Users",
-    "OtherUserFolderId": ".other"
+    "SharedFolder": "Shared",
+    "SharedFolderId": ".shared"
 };
 
 DSFormat = {
@@ -275,7 +275,6 @@ SQLType = {
 SQLOps = {
     DSPoint: "importDataSource",
     IndexDS: "indexFromDataset",
-    AddOtherUserDS: "addOtherUserDS",
     Sort: "sort",
     Filter: "filter",
     Aggr: "aggregate",

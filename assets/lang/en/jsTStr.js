@@ -1011,6 +1011,9 @@ DSTStr = {
     'ClickChange': 'Click to change',
     'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
     'DetectInvalidColMsgFix': 'The following column names contain invalid characters',
+    'ShareDS': 'Share Dataset',
+    'UnshareDS': 'Unshare Dataset',
+    'UnshareFail': 'Unshare Dataset Failed',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1032,8 +1035,8 @@ DSTStr = {
     'PointErr': 'Cannot import the dataset',
     'OffsetErr': 'Offset is larger than the dataset size',
     'DelUploadMsg': 'Are you sure you want to delete <filename>?',
-    
-
+    'ShareDSMsg': 'Are you sure you want to share <name>? It will be renamed to <newName>.',
+    'UnshareDSMsg': 'Are you sure you want to unshare <name>? It will be renamed to <newName>.'
 };
 
 DSFormTStr = {

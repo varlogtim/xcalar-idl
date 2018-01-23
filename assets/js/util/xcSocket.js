@@ -50,14 +50,12 @@ window.XcSocket = (function(XcSocket) {
         return registered;
     };
 
-    XcSocket.sendMessage = function(msg, arg) {
+    XcSocket.sendMessage = function(msg, arg, callback) {
         if (socket == null) {
             return;
         }
 
-        socket.emit(msg, arg, function() {
-            console.log("Send " + msg + " to all clients");
-        });
+        socket.emit(msg, arg, callback);
     };
 
     function getExpServerUrl(host) {
@@ -131,6 +129,10 @@ window.XcSocket = (function(XcSocket) {
                 "msg": alertOption.message,
                 "isAlert": true
             });
+        });
+
+        socket.on("ds.update", function(arg) {
+            DS.updateDSInfo(arg);
         });
     }
 
