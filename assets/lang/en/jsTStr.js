@@ -175,8 +175,10 @@ CommonTxtTstr = {
     'DefaultVal': 'Default value',
     'deleting': 'deleting',
     'elapsedTime': 'elapsed time',
+    'empty': 'empty',
     'Existing': 'Existing',
     'Exit': 'Exit',
+    'FIX': 'FIX',
     'GenTicket': 'Generate Ticket',
     'GENTICKET': 'GENERATE TICKET',
     'UPDATETICKET': 'UPDATE TICKET',
@@ -344,6 +346,7 @@ ErrTStr = {
                        'original value, please click the "Default value" icon.',
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
+    'DuplicateColNames': 'Duplicate column names were detected', 
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1002,8 +1005,12 @@ DSTStr = {
     'Unlistable': 'Dataset is marked for deletion',
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
+    'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',
     'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
     'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it.',
+    'ClickChange': 'Click to change',
+    'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
+    'DetectInvalidColMsgFix': 'The following column names contain invalid characters',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1025,7 +1032,8 @@ DSTStr = {
     'PointErr': 'Cannot import the dataset',
     'OffsetErr': 'Offset is larger than the dataset size',
     'DelUploadMsg': 'Are you sure you want to delete <filename>?',
-    'DetectInvalidColMsg': 'The following column names contain invalid characters: <cols>. Do you want to continue?'
+    
+
 };
 
 DSFormTStr = {

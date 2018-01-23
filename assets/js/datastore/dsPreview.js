@@ -98,6 +98,141 @@ window.DSPreview = (function($, DSPreview) {
             applyHighlight(selection.toString());
         });
 
+        $previewTable.on("mousedown", ".editableHead", function(event) {
+            $("#importColRename").trigger("blur");
+            if ($("#importColRename").length) {
+                return false;
+            }
+            var $input = $(this);
+            $input.removeClass("error");
+            var rect = this.getBoundingClientRect();
+            var val = $input.val();
+            var maxWidth = 400;
+            var width = rect.width;
+            var html = '<input class="xc-input" id="importColRename" ' +
+                            'spellcheck="false" type="text" value="' + val +
+                            '" ' + ' style="width:' + width + 'px;top:' +
+                            rect.top + 'px;left:' + rect.left + 'px;">';
+
+            $previeWrap.append(html);
+            var $renameInput = $("#importColRename");
+            $renameInput.data("$input", $input);
+            var scrollWidth = $renameInput[0].scrollWidth;
+            if (scrollWidth > (width - 2)) {
+                width = Math.min($previewCard.find(".previewSection").width(), 
+                                scrollWidth + 80);
+                $renameInput.outerWidth(width);
+            }
+
+            if (width > $previewCard.find(".previewSection").width()) {
+                $renameInput.outerWidth($previewCard.find(".previewSection")
+                            .width());
+            } 
+
+            rect = $renameInput[0].getBoundingClientRect();
+            var winRight = $(window).width() - 5;
+            var diff = rect.right - winRight;
+            if (diff > 0) {
+                var newLeft = rect.left - diff;
+                $renameInput.css("left", newLeft);
+            } else if (rect.left < $previewCard.offset().left) {
+                $renameInput.css("left", $previewCard.offset().left);
+            }
+
+            setTimeout(function() {  
+                $renameInput.focus();
+                $renameInput.selectAll();
+                var timeout;
+
+                // if scroll is triggered, don't validate, just return to old
+                // value
+                $previewCard.find(".previewSection").scroll(function() {
+                    cleanupColRename();
+                });
+        
+                $renameInput.on("blur", function() {
+                    var val = $renameInput.val();
+                    $renameInput.tooltip("destroy");
+                    clearTimeout(timeout);
+                    var nameErr = xcHelper.validateColName(val);
+                    if (!nameErr && checkIndividualDuplicateName(val,
+                                    $input.closest("th").index())) {
+                        nameErr = ErrTStr.ColumnConflict;
+                    }
+                    if (nameErr) {
+                        $renameInput.focus().addClass("error");
+                        
+                        xcTooltip.transient($renameInput, {
+                            "title": nameErr,
+                            "template": xcTooltip.Template.Error
+                        });
+
+                        timeout = setTimeout(function() {
+                            $renameInput.tooltip('destroy');
+                        }, 5000);
+
+                        return false;
+                    }
+
+                    $input.val(val);
+                    $renameInput.remove();
+                    $previewCard.find(".previewSection").off("scroll");
+                });
+
+                $renameInput.on("keydown", function(event) {
+                    if (event.which === keyCode.Enter) {
+                        $renameInput.trigger("blur");
+                    }
+                });
+
+                $renameInput.on("input", function() {
+                    $renameInput.removeClass("error");
+                    $renameInput.tooltip("destroy");
+                    clearTimeout(timeout);
+                    var scrollWidth = $renameInput[0].scrollWidth;
+                    if (scrollWidth < maxWidth &&
+                        scrollWidth > ($renameInput.outerWidth() - 2)) {
+                        $renameInput.outerWidth(scrollWidth + 80);
+                        rect = $renameInput[0].getBoundingClientRect();
+                        var winRight = $(window).width() - 5;
+                        var diff = rect.right - winRight;
+                        if (diff > 0) {
+                            var newLeft = rect.left - diff;
+                            $renameInput.css("left", newLeft);
+                        }
+                    }
+                });
+            });
+        });
+
+
+        xcMenu.add($previewCard.find(".castDropdown"));
+
+        $previewTable.on("click", ".flex-left", function(event) {
+            var $dropdown = $previewCard.find(".castDropdown");
+            $dropdown.data('th', $(this).closest("th"));
+            $dropdown.removeClass("type-string type-boolean " +
+                                  "type-integer type-float");
+            $dropdown.addClass("type-" + $(this).closest("th").data("type"));
+            $(this).addClass("selected");
+            positionAndShowCastDropdown($(this));
+        });
+
+        $previewCard.find(".castDropdown").find("li").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var type = $(this).data("type");
+            var $th = $previewCard.find(".castDropdown").data("th");
+            $th.find(".header").removeClass("type-string type-boolean " +
+                                            "type-integer type-float");
+            $th.find(".header").addClass("type-" + type);
+            $th.data("type", type);
+            xcTooltip.changeText($th.find(".flex-left"), 
+                                    xcHelper.capitalize(type) + 
+                                    '<br>' + DSTStr.ClickChange);
+        });
+
         $highlightBtns.on("click", ".highlight", function() {
             if (highlighter === "") {
                 return;
@@ -114,6 +249,10 @@ window.DSPreview = (function($, DSPreview) {
         // resize column
         $previewTable.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {
+                return;
+            }
+            $("#importColRename").trigger("blur");
+            if ($("#importColRename").length) {
                 return;
             }
             TblAnim.startColResize($(this), event, {
@@ -184,10 +323,16 @@ window.DSPreview = (function($, DSPreview) {
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
                 $previeWrap.height('100%');
-                $previeWrap.addClass("dragging");
+                $previeWrap.addClass("dragging"); 
+                // if resize is triggered, don't validate, just return to old
+                // value
+                if ($("#importColRename").length) {
+                    $("#importColRename").val($("#importColRename")
+                                         .data("$input").val());
+                    $("#importColRename").trigger("blur");
+                }
             },
             resize: function() {
-
             },
             stop: function() {
                 var containerHeight = $previewCard.find(".cardWrap").height();
@@ -323,6 +468,31 @@ window.DSPreview = (function($, DSPreview) {
         return cleanTempParser();
     };
 
+    function positionAndShowCastDropdown($div) {
+        var $menu = $previewCard.find(".castDropdown");
+        var topMargin = 1;
+        var top = $div[0].getBoundingClientRect().bottom + topMargin;
+        var left = $div[0].getBoundingClientRect().left;
+
+        $menu.css({'top': top, 'left': left});
+        xcMenu.show($menu, function() {
+            $menu.data("th").find(".flex-left").removeClass("selected");
+        });
+        var rightBoundary = $(window).width() - 5;
+
+        if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - $menu.width();
+            $menu.css('left', left);
+        }
+        xcTooltip.hideAll();
+    }
+
+    function cleanupColRename() {
+        $("#importColRename").tooltip("destroy");
+        $("#importColRename").remove();
+        $previewCard.find(".previewSection").off("scroll");
+    }
+
     function setupForm() {
         $form.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
@@ -426,6 +596,8 @@ window.DSPreview = (function($, DSPreview) {
         // submit the form
         $form.on("click", ".confirm", function() {
             var $submitBtn = $(this).blur();
+            $("#importColRename").tooltip("destroy");
+            $("#importColRename").remove();
             var toCreateTable = $submitBtn.hasClass("createTable");
             submitForm(toCreateTable);
         });
@@ -712,6 +884,7 @@ window.DSPreview = (function($, DSPreview) {
         var $advanceSection = $form.find(".advanceSection").removeClass("active");
         $advanceSection.find(".active").removeClass("active");
         $advanceSection.find(".radioButton").eq(0).addClass("active");
+        cleanupColRename();
 
         loadArgs.reset();
         detectArgs = {
@@ -812,6 +985,7 @@ window.DSPreview = (function($, DSPreview) {
 
 
     function submitForm(toCreateTable) {
+
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
@@ -841,7 +1015,7 @@ window.DSPreview = (function($, DSPreview) {
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, path, quote, skipRows, isRecur, isRegex);
 
-        var headers = getColumnHeaders();
+        var typedColumns = getColumnHeaders();
         cacheUDF(udfModule, udfFunc);
 
         var colLen = 0;
@@ -853,13 +1027,17 @@ window.DSPreview = (function($, DSPreview) {
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
-        invalidHeaderDetection(headers)
+        invalidHeaderDetection(typedColumns)
         .then(function() {
             return tooManyColAlertHelper(colLen);
         })
         .then(function() {
+            if (format !== formatMap.CSV ||
+                !hasTypedColumnChange(typedColumns)) {
+                typedColumns = null;
+            }
             // XXX temp fix to preserve CSV header order
-            headers = (format !== formatMap.JSON) ? headers : null;
+            typedColumns = (format !== formatMap.JSON) ? typedColumns : null;
             if (format === "Excel" && header) {
                 udfFunc = "openExcelWithHeader";
             }
@@ -878,7 +1056,7 @@ window.DSPreview = (function($, DSPreview) {
                 "quoteChar": quote,
                 "skipRows": skipRows,
                 "isRegex": isRegex,
-                "headers": headers,
+                "typedColumns": typedColumns,
                 "udfQuery": udfQuery
             };
 
@@ -920,10 +1098,29 @@ window.DSPreview = (function($, DSPreview) {
 
     function getColumnHeaders() {
         var headers = [];
-        $previewTable.find("th:not(.rowNumHead)").each(function() {
-            headers.push($(this).find(".text").text());
-        });
+        if (loadArgs.format === formatMap.CSV) {
+            $previewTable.find("th:not(.rowNumHead)").each(function() {
+                var $th = $(this);
+                var type = $th.data("type") || "string";
+                type = xcHelper.convertColTypeToFeildType(type)
+                type = DfFieldTypeTStr[type];
+                var header = {
+                    colType: type,
+                    colName: $th.find(".text").val()
+                };
 
+                headers.push(header);
+            });
+        } else {
+            $previewTable.find("th:not(.rowNumHead)").each(function() {
+                var header = {
+                    colType: "",
+                    colName: $(this).find(".text").text()
+                }
+                headers.push(header);
+            });
+        }
+        
         return headers;
     }
 
@@ -2230,7 +2427,9 @@ window.DSPreview = (function($, DSPreview) {
             errorHandler(DSFormTStr.NoData);
             return;
         }
-
+        
+        cleanupColRename();
+        $previewCard.find(".previewSection").off("scroll");
         $previeWrap.find(".errorSection").addClass("hidden");
         $previeWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
@@ -2293,13 +2492,39 @@ window.DSPreview = (function($, DSPreview) {
         var thLen  = $tHead.find("th").length;
         var ths = "";
 
-        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            ths += '<th>' +
-                        '<div class="header">' +
+        var thHtml;
+        if (loadArgs.format === formatMap.CSV) {
+            thHtml = '<th class="editable" data-type="string">' +
+                        '<div class="header type-string">' +
                             colGrabTemplate +
-                            '<div class="text"></div>' +
+                            '<div class="flexContainer flexRow">' +
+                                '<div class="flexWrap flex-left" ' +
+                                'data-toggle="tooltip" data-container="body" ' +
+                                'data-placement="top" data-original-title="' + 
+                                xcHelper.capitalize(ColumnType.string) + 
+                                '<br>' + DSTStr.ClickChange + '">' +
+                                    '<span class="iconHidden"></span>' + 
+                                    '<span class="type icon"></span>' +
+                                    '<div class="dropdownBox"></div>' +
+                                '</div>' +
+                                '<div class="flexWrap flex-mid">' +
+                                    '<input spellcheck="false" ' +
+                                    'class="text tooltipOverflow ' +
+                                    'editableHead" value="">' +
+                                '</div>' +
+                            '</div>' +
                         '</div>' +
                     '</th>';
+        } else {
+            thHtml = '<th>' +
+                '<div class="header">' +
+                    colGrabTemplate +
+                    '<div class="text"></div>' +
+                '</div>' +
+            '</th>';
+        }
+        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
+            ths += thHtml;
         }
         $tHrow.append(ths);
 
@@ -2310,6 +2535,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $previewTable.empty().append($tHead, $tbody);
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
+        loadArgs.setOriginalTypedColumns(getColumnHeaders());
 
         if (fieldDelim !== "") {
             $previewTable.addClass("has-delimiter");
@@ -2608,15 +2834,18 @@ window.DSPreview = (function($, DSPreview) {
 
     function getTheadHTML(datas, delimiter, tdLen) {
         var thead = "<thead><tr>";
-        var colGrab = (delimiter === "") ? "" : colGrabTemplate;
-
+        var colGrab = colGrabTemplate;
+        var isEditable = false;
+        if (loadArgs.format === formatMap.CSV) {
+            isEditable = true;
+        }
         // when has header
         if (loadArgs.useHeader()) {
             thead +=
                 '<th class="rowNumHead">' +
                     '<div class="header"></div>' +
                 '</th>' +
-                parseTdHelper(datas[0], delimiter, true);
+                parseTdHelper(datas[0], delimiter, true, isEditable);
         } else {
             thead +=
                '<th class="rowNumHead">' +
@@ -2624,13 +2853,43 @@ window.DSPreview = (function($, DSPreview) {
                 '</th>';
 
             for (var i = 0; i < tdLen - 1; i++) {
-                thead +=
-                    '<th>' +
-                        '<div class="header">' +
-                            colGrab +
-                            '<div class="text">column' + i + '</div>' +
-                        '</div>' +
-                    '</th>';
+                if (isEditable) {
+                    thead += '<th class="editable" data-type="string">' +
+                            '<div class="header type-string">' +
+                                colGrab +
+                                '<div class="flexContainer flexRow">' +
+                                    '<div class="flexWrap flex-left" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-container="body" ' +
+                                    'data-placement="top" ' +
+                                    'data-original-title="' + 
+                                    xcHelper.capitalize(ColumnType.string) + 
+                                    '<br>' + DSTStr.ClickChange + '">' +
+                                        '<span class="iconHidden"></span>' + 
+                                        '<span class="type icon"></span>' +
+                                        '<div class="dropdownBox"></div>' +
+                                    '</div>' +
+                                    '<div class="flexWrap flex-mid">' +
+                                        '<input spellcheck="false" ' +
+                                        'class="text tooltipOverflow ' +
+                                        'editableHead th col' + i + 
+                                        '" value="column' + i + 
+                                        '" data-original-title="column' + i +
+                                        '" data-container="body" data-toggle="tooltip">' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '</th>';
+                } else {
+                    thead +=
+                        '<th>' +
+                            '<div class="header">' +
+                                colGrab +
+                                '<div class="text">column' + i + '</div>' +
+                            '</div>' +
+                        '</th>';
+                }
+                
             }
         }
 
@@ -2724,7 +2983,7 @@ window.DSPreview = (function($, DSPreview) {
         return res;
     }
 
-    function parseTdHelper(data, strToDelimit, isTh) {
+    function parseTdHelper(data, strToDelimit, isTh, isEditable) {
         var hasQuote = false;
         var hasBackSlash = false;
         var dels = strToDelimit.split("");
@@ -2733,9 +2992,34 @@ window.DSPreview = (function($, DSPreview) {
 
         var hasDelimiter = (delLen !== 0);
         var colGrab = hasDelimiter ? colGrabTemplate : "";
-        var html = isTh ? '<th><div class="header">' + colGrab +
+        var html;
+        if (isEditable) {
+            html = isTh ? '<th class="editable" data-type="string">' +
+                    '<div class="header type-string">' +
+                    colGrab + 
+
+                    '<div class="flexContainer flexRow">' +
+                                    '<div class="flexWrap flex-left" '+
+                                    'data-toggle="tooltip" ' +
+                                    'data-container="body" ' +
+                                    'data-placement="top" ' +
+                                    'data-original-title="' + 
+                                    xcHelper.capitalize(ColumnType.string) + 
+                                    '<br>' + DSTStr.ClickChange + '">' +
+                                    '<span class="iconHidden"></span>' + 
+                                        '<span class="type icon"></span>' +
+                                        '<div class="dropdownBox"></div>' +
+                                    '</div>' +
+                                    '<div class="flexWrap flex-mid">' +
+                                        '<input spellcheck="false" ' +
+                                        'class="text cell tooltipOverflow ' +
+                                        'editableHead th' + 
+                                        '" value="' : '<td class="cell"><div class="innerCell">';
+        } else {
+            html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text cell">'
                             : '<td class="cell"><div class="innerCell">';
+        }
 
         var dataLen = data.length;
         var rawStrLimit = 1000; // max number of characters in undelimited column
@@ -2744,7 +3028,9 @@ window.DSPreview = (function($, DSPreview) {
         var i = 0;
         var d;
         var tdData = [];
-
+        var val;
+        var blankThCount = 0;
+        
         if (hasDelimiter) {
             // when has delimiter
             var columnCount = 0;
@@ -2767,7 +3053,13 @@ window.DSPreview = (function($, DSPreview) {
 
                 if (isDelimiter) {
                     tdData = stripQuote(tdData, quote);
-                    html += tdData.join("");
+                   
+                    val = tdData.join("");
+                    if (isTh && !val) {
+                        blankThCount++;
+                        val = "column" + blankThCount;
+                    }
+                    html += val;
                     tdData = [];
                     // skip delimiter
                     if (hiddenStrLen) {
@@ -2776,11 +3068,36 @@ window.DSPreview = (function($, DSPreview) {
                                 TblTStr.Truncate + ")</span>";
                     }
                     if (isTh) {
-                        html += '</div></div></th>' +
+                        if (isEditable) {
+                            html += '"></div></div></div></th>' +
+                                '<th class="editable" data-type="string">' +
+                                    '<div class="header type-string">' +
+                                        colGrab +
+                                '<div class="flexContainer flexRow">' +
+                                    '<div class="flexWrap flex-left" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-container="body" ' +
+                                    'data-placement="top" ' +
+                                    'data-original-title="' + 
+                                    xcHelper.capitalize(ColumnType.string) + 
+                                    '<br>' + DSTStr.ClickChange + '">' +
+                                    '<span class="iconHidden"></span>' + 
+                                        '<span class="type icon"></span>' +
+                                        '<div class="dropdownBox"></div>' +
+                                    '</div>' +
+                                    '<div class="flexWrap flex-mid">' +
+                                        '<input spellcheck="false" ' +
+                                        'class="text cell tooltipOverflow ' +
+                                        'editableHead th' + 
+                                        '" value="';
+                        } else {
+                            html += '</div></div></th>' +
                                 '<th>' +
                                     '<div class="header">' +
                                         colGrab +
                                         '<div class="text cell">';
+                        }
+                       
                     } else {
                         html += '</div></td><td class="cell">' +
                                     '<div class="innerCell">';
@@ -2833,10 +3150,15 @@ window.DSPreview = (function($, DSPreview) {
                 } else if (/\W/.test(d)) {
                     cellClass += " has-specialChar";
                 }
-
-                html += '<span class="' + cellClass + '">' +
+                if (isEditable && isTh) {
+                    html += xcHelper.escapeHTMLSpecialChar(d);
+                } else {
+                    html += '<span class="' + cellClass + '">' +
                             xcHelper.escapeHTMLSpecialChar(d) +
                         '</span>';
+                }
+
+                
             }
             var lenDiff = data.length - dataLen;
             if (lenDiff > 0) {
@@ -2847,7 +3169,12 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (isTh) {
-            html += '</div></div></th>';
+            if (isEditable) {
+                html += '"></div></div></div></th>';
+            } else {
+                html += '</div></div></th>';
+            }
+           
         } else {
             html += '</div></td>';
         }
@@ -3005,44 +3332,198 @@ window.DSPreview = (function($, DSPreview) {
         if (headers == null) {
             return PromiseHelper.resolve();
         }
-
-        var invalidHeaders = headers.filter(xcHelper.hasInvalidCharInCol)
-                                    .map(invalidHeadersConversion);
+        var $ths = $previewTable.find("th");
+        var invalidHeaders = [];
+        headers.forEach(function(header, i) {
+            var error = xcHelper.validateColName(header.colName)
+            if (error) {
+                invalidHeaders.push({
+                    text: invalidHeadersConversion(header, error),
+                    index: i,
+                    error: error 
+                });
+                $ths.eq(i + 1).find(".text").addClass("error");
+            }
+        })
 
         if (invalidHeaders.length === 0) {
-            return PromiseHelper.resolve();
+            return checkBulkDuplicateNames(headers);
         }
 
         var deferred = jQuery.Deferred();
-        var msg = xcHelper.replaceMsg(DSTStr.DetectInvalidColMsg, {
-            "cols": '<span id="invalidColAlert">' +
-                        invalidHeaders.join(",") +
-                    '</span>'
+
+        var msg;
+        if (loadArgs.getFormat() === formatMap.CSV) {
+            msg = '<span class="tableTitle">' + DSTStr.DetectInvalidColMsgFix +
+                  ':</span>'
+        } else {
+            msg = '<span class="tableTitle">' + DSTStr.DetectInvalidColMsg +
+                  ':</span>' 
+        }
+
+        var table = '<div id="invalidDSColTable">' + msg +
+        '<div class="row header">' +
+        '<span class="colNum">No.</span><span class="colName">Name</span></div>';
+        invalidHeaders.forEach(function(err) {
+            table += '<div class="row">' +
+                        '<span class="colNum">' + (err.index + 1) +
+                        '</span>' +
+                        '<span class="colName">' + err.text + '</span>' +
+                    '</div>';
         });
+        table += '</div>';
+
+        if (loadArgs.getFormat() === formatMap.CSV) {
+            Alert.show({
+                "title": DSTStr.DetectInvalidCol,
+                "instr": DSTStr.DetectInvalidColInstrForce,
+                "msgTemplate": table,
+                "onCancel": function() {
+                    xcHelper.enableSubmit($form.find(".confirm"));
+                    deferred.reject();
+                },
+                "buttons": [{
+                    name: CommonTxtTstr.FIX,
+                    func: function() {
+                        xcHelper.enableSubmit($form.find(".confirm"));
+                        deferred.reject();
+                    }
+                }]
+            });
+        } else {
+            Alert.show({
+                "title": DSTStr.DetectInvalidCol,
+                "instr": DSTStr.DetectInvalidColInstr,
+                "msgTemplate": table,
+                "onConfirm": deferred.resolve,
+                "onCancel": function() {
+                    xcHelper.enableSubmit($form.find(".confirm"));
+                    deferred.reject();
+                }
+            });
+        }
+
+        return deferred.promise();
+    }
+
+    function invalidHeadersConversion(header, error) {
+        var text = '<span>'
+        if (error === ColTStr.RenameStartNum) {
+            text += '<b class="highlight">' + header.colName.slice(0, 1) +
+                    '</b>' + header.colName.slice(1);
+
+        } else if (error === ErrTStr.NoEmpty) {
+            text += '<span class="empty">' + CommonTxtTstr.empty + '</span>';
+        } else {
+            text += Array.from(header.colName).map(function(ch) {
+                return xcHelper.hasInvalidCharInCol(ch)
+                       ? '<b class="highlight">' + ch + '</b>'
+                       : ch;
+            }).join("");
+        } 
+                
+        text += '</span>';
+        return text;
+    }
+
+    function checkIndividualDuplicateName(name, index) {
+        var dupFound = false;
+        $previewTable.find("th:not(.rowNumHead)").each(function(i) {
+            if ((i + 1) === index) {
+                return true;
+            }
+            var $th = $(this);
+            var colName = $th.find(".text").val();
+            if (colName === name) {
+                dupFound = true;
+                return false;
+            }
+
+        });
+        return dupFound;
+    }
+
+    function checkBulkDuplicateNames(headers) {
+        var nameMap = {};
+        for (var i = 0; i < headers.length; i++) {
+            if (!nameMap.hasOwnProperty(headers[i].colName)) {
+                nameMap[headers[i].colName] = [i + 1];
+            } else {
+                nameMap[headers[i].colName].push(i + 1);
+            }
+        }
+        var namesArray = [];
+        var $ths = $previewTable.find("th");
+        for (var name in nameMap) {
+            if (nameMap[name].length > 1) {
+                namesArray.push({colName: name, indices: nameMap[name]});
+                for (var i = 1; i < nameMap[name].length; i++) {
+                    $ths.eq(nameMap[name][i]).find(".text").addClass("error");
+                }
+            }
+        }
+        if (!namesArray.length) {
+            return PromiseHelper.resolve();
+        }
+        var deferred = jQuery.Deferred();
+
+        namesArray.sort(function(a, b) {
+            if (a.indices[0] >= b.indices[0]) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+
+        var table = '<div id="duplicateDSColTable"><span class="tableTitle">' +
+        ErrTStr.DuplicateColNames + ':</span><div class="row header">' +
+        '<span class="colName">Name</span><span class="colNums">Column Nos.' +
+        '</span></div>';
+        namesArray.forEach(function(name) {
+            table += '<div class="row">' +
+                        '<span class="colName">' + name.colName +
+                        '</span>' +
+                        '<span class="colNums">' + name.indices.join(",") +
+                        '</span>' +
+                    '</div>';
+        });
+        table += '</div>';
 
         Alert.show({
             "title": DSTStr.DetectInvalidCol,
-            "instr": DSTStr.DetectInvalidColInstr,
-            "msgTemplate": msg,
+            "instr": DSTStr.DetectInvalidColInstrForce,
+            "msgTemplate": table,
             "onConfirm": deferred.resolve,
             "onCancel": function() {
                 xcHelper.enableSubmit($form.find(".confirm"));
                 deferred.reject();
-            }
+            },
+            "buttons": [{
+                name: CommonTxtTstr.FIX,
+                func: function() {
+                    xcHelper.enableSubmit($form.find(".confirm"));
+                    deferred.reject();
+                }
+            }]
         });
 
         return deferred.promise();
     }
 
-    function invalidHeadersConversion(header) {
-        return '<span>' +
-                    Array.from(header).map(function(ch) {
-                        return xcHelper.hasInvalidCharInCol(ch)
-                               ? '<b class="highlight">' + ch + '</b>'
-                               : ch;
-                    }).join("") +
-                '</span>';
+    function hasTypedColumnChange(currTypedCols) {
+        prevTypedCols = loadArgs.getOriginalTypedColumns();
+        for (var i = 0; i < currTypedCols.length; i++) {
+            if (!prevTypedCols[i]) {
+                return true;
+            }
+            if ((currTypedCols[i].colName !== prevTypedCols[i].colName) ||
+                (currTypedCols[i].colType !== prevTypedCols[i].colType)) {
+                return true;
+            }
+        }
+        return false;
     }
+   
 
     /* Unit Test Only */
     if (window.unitTestMode) {

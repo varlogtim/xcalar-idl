@@ -1763,12 +1763,53 @@ html.microsoft {
 /* End Of Alert Modal */
 
 /* Special Case In Alert Modal */
-#invalidColAlert {
+#invalidColAlert, #invalidDSColTable, #duplicateDSColTable {
     white-space: pre;
     .highlight {
         background-color: @color-bg-gold;
     }
 }
+
+#invalidDSColTable, #duplicateDSColTable {
+    text-align: left;
+    .flex-display;
+    .flex-direction(column);
+    white-space: normal;
+
+    .row {
+        white-space: pre;
+    }
+
+    .tableTitle {
+        display: inline-block;
+        max-width: 400px;
+        margin-bottom: 4px;
+    }
+
+    .header {
+        font-weight: bold;
+    }
+    .colNum {
+        width: 80px;
+        display: inline-block;
+        float: left;
+    }
+    .empty {
+        font-style: italic;
+        color: @color-defaultGray;
+    }
+}
+#duplicateDSColTable {
+    .colName {
+        width: 60%;
+        float: left;
+    }
+    .colNums {
+        width: 40%;
+        display: inline-block;
+    }
+}
+
 /* End of Special Case In Alert Modal */
 
 #jupyterFinalizeModal {

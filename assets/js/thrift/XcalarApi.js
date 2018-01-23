@@ -669,7 +669,6 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgs, par
     }
 
     var workItem = xcalarLoadWorkItem(name, sourceArgs, parseArgs, maxSize);
-
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;

@@ -161,6 +161,10 @@ DSFormController.prototype = {
         if (options.isRegex != null) {
             this.isRegex = options.isRegex;
         }
+
+        if (options.typedColumns != null) {
+            this.typedColumns = options.typedColumns;
+        }
     },
 
     reset: function() {
@@ -178,6 +182,7 @@ DSFormController.prototype = {
         delete this.isRegex;
         delete this.udfModule;
         delete this.udfFunc;
+        delete this.typedColumns;
     },
 
     getTargetName: function() {
@@ -260,6 +265,7 @@ DSFormController.prototype = {
     getArgStr: function() {
         var args = $.extend({}, this);
         delete args.previewFile;
+        delete args.typedColumns;
         return JSON.stringify(args);
     },
 
@@ -271,6 +277,14 @@ DSFormController.prototype = {
     isUDFApplied: function(module, func) {
         return module && func &&
               (this.udfModule === module) && (this.udfFunc === func);
+    },
+
+    setOriginalTypedColumns: function(typedColumns) {
+        this.typedColumns = typedColumns;
+    },
+
+    getOriginalTypedColumns: function() {
+        return this.typedColumns;
     }
 };
 

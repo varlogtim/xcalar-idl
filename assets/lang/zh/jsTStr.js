@@ -166,8 +166,10 @@ CommonTxtTstr = {
 'DefaultVal': '默认值',
 'RevertDefaultVal': '恢复为默认值',
 'elapsedTime': '耗时',
+'empty': 'empty',
 'Existing': '存在',
 'Exit': '退出',
+'FIX': 'FIX',
 'GenTicket': '生成服务支持券',
 'GENTICKET': 'GENERATE TICKET',
 'UPDATETICKET': 'UPDATE TICKET',
@@ -322,6 +324,7 @@ ErrTStr = {
 'NoEmptyMustRevert': '请填写该栏. 如果您想使用默认值, 请点击"默认值"按钮。',
 'InUsedNoDelete': '该参数正在使用中，删除失败',
 'NoFolderPreview': '无法预览文件夹，请选择一个文件。',
+'DuplicateColNames': 'Duplicate column names were detected', 
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',
@@ -857,9 +860,12 @@ DSTStr = {
 'FailUnlockDS': '解锁数据集\"<ds>\"失败: <error>',
 'DetectInvalidCol': '数据集列名包含无效字符',
 'DetectInvalidColInstr': '在处理数据时，无效列名可能会导致结果出错。 建议提前处理其中的无效字符。',
-'DetectInvalidColMsg': '以下列名包含无效字符: <cols>。您确定要继续吗?',
 'InUseInstr': '请在解锁数据集之前删除所有与该数据集相关的激活/隐藏/临时表和常量。',
 'SkipRowsError': '省略的行数大于预览的行数，无法预览',
+'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',
+'ClickChange': 'Click to change',
+'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
+'DetectInvalidColMsgFix': 'The following column names contain invalid characters',
 };
 DSFormTStr = {
 'Pattern': '模式',

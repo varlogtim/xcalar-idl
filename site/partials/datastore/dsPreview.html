@@ -3,6 +3,7 @@
     <div class="title"><%= dicts.ds.Point %></div>
   </header>
   <div class="cardWrap">
+    <% var types = ['Boolean', 'Integer', 'Float', 'String']; %>
       <%  if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
       include "../demo/dsDemo2-previewTable.html"
     <% } else { %>
@@ -65,6 +66,18 @@
       </div>
       <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.APPLYUDF %></button>
       <!-- End Of Preview Section -->
+      <ul class="menu castDropdown">
+        <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%=type.toLowerCase() %>" data-type="<%=type.toLowerCase() %>">
+          <div class="flexWrap flex-left">
+            <span class="type icon"></span>
+          </div>
+          <div class="flexWrap flex-right">
+            <span class="label"><%= type %></span>
+          </div>
+          <i class="icon xi-tick fa-11 blue"></i>
+        </li>
+        <% }) %>
+      </ul>
     </div>
     <% } %>
     <div class="cardBottom">

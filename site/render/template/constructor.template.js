@@ -1875,6 +1875,9 @@
                 if (options.targetName != null) {
                     self.targetName = options.targetName;
                 }
+                if (options.typedColumns != null) {
+                    self.typedColumns = options.typedColumns;
+                }
                 delete self.previewSize;
             }
             return self;
@@ -1974,7 +1977,7 @@
                 // loadURL, format, fullName,
                 // fieldDelim, lineDelim, hasHeader,
                 // moduleName, funcName, isRecur,
-                // quoteChar, skipRows, pattern
+                // quoteChar, skipRows, pattern, headers, typedColumns
                 var self = this;
                 var pattern = xcHelper.getFileNamePattern(self.pattern,
                                                           self.isRegex);
@@ -1988,7 +1991,9 @@
                     "quoteChar": self.quoteChar,
                     "skipRows": self.skipRows,
                     "fileNamePattern": pattern,
-                    "udfQuery": self.udfQuery
+                    "udfQuery": self.udfQuery,
+                    "headers": self.headers,
+                    "typedColumns": self.typedColumns
                 };
                 return [self.path, self.format, self.fullName, options];
             },

@@ -2246,7 +2246,10 @@
 
         var error = null;
         var firstrChar = columnName.charAt(0);
-        if (columnName.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
+        if (firstrChar >= "0" && firstrChar <= "9") {
+            error = ColTStr.RenameStartNum;
+        } else if (columnName.length > 
+                    XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
             error = ColTStr.LongName;
         } else if (xcHelper.hasInvalidCharInCol(columnName, noSpace)) {
             if (noSpace) {
@@ -2256,8 +2259,6 @@
             }
         } else if (columnName === "DATA") {
             error = ErrTStr.PreservedName;
-        } else if (firstrChar >= "0" && firstrChar <= "9") {
-            error = ColTStr.RenameStartNum;
         }
         return error;
     };

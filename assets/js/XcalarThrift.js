@@ -595,15 +595,18 @@ XcalarLoad = function(datasetName, options, txId) {
     var quoteChar = options.quoteChar;
     var skipRows = options.skipRows;
     var fileNamePattern = options.fileNamePattern;
+    var typedColumns = options.typedColumns || [];
     var schemaMode;
-
-    if (options.hasOwnProperty("hasHeader")) {
+    if (format === "CSV" && typedColumns.length) {
+        schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
+    } else if (options.hasOwnProperty("hasHeader")) {
         schemaMode = (options.hasHeader) ?
                      CsvSchemaModeT.CsvSchemaModeUseHeader :
                      CsvSchemaModeT.CsvSchemaModeNoneProvided;
     } else {
         schemaMode = options.schemaMode;
     }
+   
     schemaMode = CsvSchemaModeTStr[schemaMode];
 
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
@@ -696,6 +699,7 @@ XcalarLoad = function(datasetName, options, txId) {
                 parserArgJson.hasHeader = (hasHeader === true) ? true : false;
                 parserArgJson.schemaFile = ""; // Not used yet. Wait for backend to implement;
                 parserArgJson.schemaMode = schemaMode;
+                parserArgJson.typedColumns = typedColumns;
                 break;
             default:
                 return PromiseHelper.reject("Error Format");

@@ -1804,6 +1804,59 @@ table.datasetTable {
         overflow-y: hidden;
         overflow-x: auto;
     }
+
+    .castDropdown {
+        background-color: @color-white;
+        width: 120px;
+        li {
+            background-color: @color-white;
+            color: @color-font-darkGray;
+            padding: 0px;
+            &:hover, .hover {
+                background-color: @color-selectedCell-light;
+                .flex-left {
+                    background-color: @color-selectedCell-dark;
+                }
+            }
+            .typeIcon;
+            .type.icon {
+                color: @color-font-darkGray;
+            }
+        }
+
+        .flexWrap.flex-left {
+            .flex(0 0 24px);
+            padding: 6px 5px;
+            position: relative;
+            height: 28px;
+            overflow: hidden; 
+            background-color: @color-bg-white-three;
+        }
+        .flexWrap.flex-right {
+            .flex(1 1 auto);
+            padding: 5px 8px;
+        }
+
+        .xi-tick {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            display: none;
+        }
+
+        &.type-boolean .type-boolean .xi-tick {
+            display: block;
+        }
+        &.type-float .type-float .xi-tick {
+            display: block;
+        }
+        &.type-integer .type-integer .xi-tick {
+            display: block;
+        }
+        &.type-string .type-string .xi-tick {
+            display: block;
+        }
+    }
 }
 
 #dsPreviewTableWrap {
@@ -1849,6 +1902,25 @@ table.datasetTable {
                 display: none;
             }
         }
+    }
+}
+
+#importColRename {
+    position: fixed;
+    z-index: 11;
+    border: 1px solid  @color-border-softBlue;
+    height: 26px;
+    line-height: 25px;
+    font-weight: 600;
+    padding: 0px;
+    padding-left: 0px;
+    padding-right: 4px;
+    text-align: center;
+    font-size: 13px;
+    margin-left: 1px;
+
+    &.error {
+        border-color: @color-error-border;
     }
 }
 
@@ -1912,6 +1984,41 @@ table.datasetTable {
             // Chrome on retina has bug not showing the div
             // this CSS fix it altought I do not know whyT__T
             -webkit-transform:translateZ(0);
+        }
+        &.editable  {
+            .flex-left {
+                .flex(0 1 24px);
+                cursor: pointer;
+                &:hover {
+                    .dropdownBox {
+                        opacity: 1;
+                    }
+                }
+                &.selected {
+                    border: 1px solid @color-border-softBlue;
+                }
+            }
+            .flex-mid {
+                height: 26px;
+                margin-top: 0px;
+                .text {
+                    padding-right: 5px;
+                    margin-left: 0px;
+                    &.error {
+                        border: 1px solid @color-error-border;
+                    }
+                }
+            }
+ 
+            .dropdownBox {
+                width: 12px;
+                height: 5px;
+                border-top: 5px solid transparent;
+                border-right: 5px solid @color-border-darkGray;
+                bottom: 1px;
+                right: 1px;
+                opacity: 0.5;
+            }
         }
     }
 
