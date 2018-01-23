@@ -633,29 +633,33 @@ describe("xcSuggest", function() {
         });
 
         it("xcSuggest.detectFieldDelimiter should work", function() {
+            // Take two lines as sample since we now compute variance as score
             var tests = [{
-                "data": "a,b,c,d",
+                "data": "a,b,c,d\na,b,c,d",
                 "expect": ","
             }, {
-                "data": "a\tb\tc\te",
+                "data": "a\tb\tc\te\na\tb\tc\td",
                 "expect": "\t"
             }, {
-                "data": "a,b,c\td",
+                "data": "a,b,c\td\na,b,c|d",
                 "expect": ","
             }, {
-                "data": "a\tb\tc,d",
+                "data": "a\tb\tc,d\na\tb\tc:d",
                 "expect": "\t"
             }, {
-                "data": "a\tb|c,d",
+                "data": "a\tb|c,d\na,b|c\td",
                 "expect": ","
             }, {
-                "data": "a\tb|c,d",
-                "expect": ","
-            }, {
-                "data": "a|b|c,d",
+                "data": "a|b|c,d\na|b|c.d",
                 "expect": "|"
             }, {
-                "data": "abcd",
+                "data": "a:b:c,d\na:b-c:d",
+                "expect": ":"
+            }, {
+                "data": "a;b;c,d\na.b;c;d",
+                "expect": ";"
+            }, {
+                "data": "abcd\nabcd",
                 "expect": ""
             }];
 

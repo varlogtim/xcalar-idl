@@ -596,39 +596,86 @@ window.xcSuggest = (function($, xcSuggest) {
     };
 
     xcSuggest.detectFieldDelimiter = function(rawStr) {
-        // first line is a good reference of delimiter
-        var firstLine = rawStr.split(/(\r|\n)/)[0];
-        var commaCount = coutCharOccurrence(firstLine, ",");
-        var tabCount = coutCharOccurrence(firstLine, "\\t");
-        var pipCount = coutCharOccurrence(firstLine, "\\|");
-
-        // when has pip
-        if (pipCount > commaCount && pipCount > tabCount) {
-            return "|";
-        }
-
-        if (commaCount > 0 && tabCount > 0) {
-            if (commaCount >= tabCount) {
-                return ",";
-            } else {
-                return "\t";
+        // Number of samples can be changed
+        var numOfSamples = 10;
+        var samples = rawStr.split(/\r\n|\r|\n/).slice(0, numOfSamples);
+        // delimiters: [",", "\t", "|"]
+        var delimiters = [];
+        // occurences: {",": [1,1,1...], "\t": [2,2,2...], "|": [3,3,3...]}
+        var occurences = {};
+        var validLineCounter = 0;
+        for (var i = 0; i < samples.length; i++) {
+            // Only keep non-alphanumeric characters
+            var line = samples[i].replace(/[a-zA-Z\d ]/g, "");
+            if (line) {
+                // Ignore lines that have no potential delimiters, otherwise it
+                // will harm the accuracy when computing the variance.
+                // Also increase validLineCounter
+                validLineCounter += 1;
+                Object.keys(occurences).map(function(key) {
+                    // Append 0 to each array in the obj
+                    // Occurence is per row
+                    occurences[key].push(0);
+                });
+                for (var j = 0; j < line.length; j++) {
+                    var char = line[j];
+                    if (!occurences.hasOwnProperty(char)) {
+                        delimiters.push(char);
+                        // Fill all missing 0s based on validLineCounter
+                        occurences[char] = new Array(validLineCounter).fill(0);
+                    }
+                    occurences[char][validLineCounter - 1] += 1;
+                }
             }
-        } else {
-            // one of comma and tab or both are 0
-            if (commaCount > 0) {
-                return ",";
-            } else if (tabCount > 0) {
-                return "\t";
+        }
+        if (delimiters.length === 0) {
+            return "";
+        }
+        var bestDelim = delimiters[0];
+        var minScore = computeVariance(occurences[bestDelim]);
+        for (var i = 1; i < delimiters.length; i++) {
+            var currDelim = delimiters[i];
+            var currScore = computeVariance(occurences[currDelim]);
+            if (currScore < minScore) {
+                bestDelim = currDelim;
+                minScore = currScore;
+            } else if (currScore === minScore) {
+                // When there is a tie, we have preference as comma > tab > pipe
+                // All others follow a "first detected, first selected" rule
+                if (currDelim === "," ||
+                    (currDelim === "\t" && bestDelim !== ",") ||
+                    (currDelim === "|" && bestDelim !== "," &&
+                     bestDelim !== "\t")) {
+                    bestDelim = currDelim;
+                    minScore = currScore;
+                }
             }
         }
-
-        // cannot detect
-        return "";
+        return bestDelim;
     };
 
     function coutCharOccurrence(str, ch) {
         var regEx = new RegExp(ch, "g");
         return (str.match(regEx) || []).length;
+    }
+
+    function computeVariance(nums) {
+        var len = nums.length;
+        var sum = nums.reduce(function(a, b) { return a + b; });
+        var avg = sum / len;
+        var res = 0;
+        for (var i = 0; i < len; i++) {
+            if (i === 0) {
+                res += Math.pow((nums[i] - avg), 2);
+            } else {
+                res += Math.pow((nums[i] - avg), 2);
+            }
+        }
+        if (len === 1) {
+            return res / len;
+        }
+        // Otherwise return the unbiased estimate of variance
+        return res / (len - 1);
     }
 
     // parsedRows is a two dimension that represents a table's data
