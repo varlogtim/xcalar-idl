@@ -590,6 +590,7 @@ function executeCommand(command) {
     });
 
     out.stdout.on('error', function(data) {
+        xcConsole.log(data);
         lines += data;
         var result;
         result = {"status": httpStatus.InternalServerError,
