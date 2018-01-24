@@ -176,9 +176,16 @@ function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, 
     };
 
     if (ldapConfigOut.activeDir) {
-        ldapConfigOut.adUserGroup = adUserGroup;
-        ldapConfigOut.adAdminGroup = adAdminGroup;
-        ldapConfigOut.adDomain = adDomain;
+        var propArray = [ 'adUserGroup', 'adAdminGroup',
+                          'adDomain'];
+        var valArray = [ adUserGroup, adAdminGroup,
+                         adDomain ];
+
+        for (var ii = 0; ii < propArray.length; ii++) {
+            if (valArray[ii] !== "" ) {
+                ldapConfigOut[propArray[ii]] = valArray[ii];
+            }
+        }
         ldapConfigOut.adSubGroupTree = adSubGroupTree;
     } else {
         var propArray = [ 'adUserGroup', 'adAdminGroup',

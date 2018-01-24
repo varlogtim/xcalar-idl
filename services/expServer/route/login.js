@@ -453,11 +453,13 @@ function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     });
 
     if (ldapConn.activeDir) {
-        ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup"))
+        ldapConn.adUserGroup = (ldapConfig.hasOwnProperty("adUserGroup") &&
+                                 ldapConfig.adUserGroup !== "")
                                     ? ldapConfig.adUserGroup
                                     : "Xce User";
 
-        ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup"))
+        ldapConn.adAdminGroup = (ldapConfig.hasOwnProperty("adAdminGroup") &&
+                                  ldapConfig.adUserGroup !== "")
                                     ? ldapConfig.adAdminGroup
                                     : "Xce Admin";
 
