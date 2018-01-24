@@ -1110,7 +1110,19 @@ LoginConfigTStr = {
     "PasswordMismatch": "您输入的密码不匹配",
     "EmptyPasswordError": "您需要输入密码",
     "EmptyUsernameError": "您需要输入用户名",
-    "EmptyEmailError": "您需要输入邮件"
+    "EmptyEmailError": "您需要输入邮件",
+    "shortPassword": "密码长度不得少于七位",
+    "longPassword": "密码长度不得超过128位",
+    "duplicateUserName": "密码和用户名不能互相重合",
+    "illegalCharacter": "密码包含非法字符，可允许使用的字符包括：小写字母(a-z), " +
+                        "大写字母(A-Z), 数字(0-9) and 以及如下符号" +
+                        "` ~ ! @ # $ % ^ & * _ - + = | : ; \" \', . ? / [ ] ( ) { } < >",
+    "atLeastOne": "请输入至少一个大写字母，小写字母，数字和符号",
+    "invalid": "无效密码",
+    "veryWeak": "非常弱",
+    "weak": "弱",
+    "strong": "强",
+    "veryStrong": "非常强"
 };
 
 JupyterTStr = {

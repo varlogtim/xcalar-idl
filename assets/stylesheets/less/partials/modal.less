@@ -5026,6 +5026,46 @@ html.microsoft {
     #loginConfigWAADSignOnUrl {
         user-select: all;
     }
+
+    #loginConfigAdminPassword {
+        &.invalid {
+            border-color: @color-invalid;
+        }
+        &.veryWeak {
+            border-color: @color-very-weak;
+        }
+        &.weak {
+            border-color: @color-weak;
+        }
+        &.strong {
+            border-color: @color-strong;
+        }
+        &.veryStrong {
+            border-color: @color-very-strong;
+        }
+    }
+    #passwordStrengthHint {
+        &.invalid {
+            color: @color-invalid;
+        }
+        &.veryWeak {
+            color: @color-very-weak;
+        }
+        &.weak {
+            color: @color-weak;
+        }
+        &.strong {
+            color: @color-strong;
+        }
+        &.veryStrong {
+            color: @color-very-strong;
+        }
+    }
+    #passwordStrengthHint, #passwordRequirement {
+        margin-left: 187px;
+        margin-top: 5px;
+        font-size: 12px;
+    }
 }
 
 #eulaModal {

@@ -5,6 +5,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     var defaultAdminConfig;
     var ldapConfig;
     var ldapChoice = "ldap";
+    var strengthClasses = "veryWeak weak strong veryStrong invalid";
 
     LoginConfigModal.setup = function() {
         $modal = $("#loginConfigModal");
@@ -13,7 +14,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         $modal.on("click", ".close, .cancel", closeModal);
         setupListeners();
 
-        var signOnUrl=hostname + "/assets/htmlFiles/login.html";
+        var signOnUrl = hostname + "/assets/htmlFiles/login.html";
         $("#loginConfigWAADSignOnUrl").text(signOnUrl);
     };
 
@@ -39,11 +40,13 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
                 $("#loginConfigEnableDefaultAdmin").find(".checkbox").addClass("checked");
                 $("#loginConfigEnableDefaultAdmin").next().removeClass("xc-hidden");
             }
-
             $("#loginConfigAdminUsername").val(defaultAdminConfig.username);
             $("#loginConfigAdminEmail").val(defaultAdminConfig.email);
             $("#loginConfigAdminPassword").val("");
             $("#loginConfigAdminConfirmPassword").val("");
+            $("#passwordStrengthHint").html("");
+            $("#loginConfigAdminPassword").removeClass(strengthClasses);
+            $("#passwordStrengthHint").removeClass(strengthClasses);
         }
 
         if (ldapConfig !== null) {
@@ -78,9 +81,13 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function setupListeners() {
         $modal.find(".confirm").click(submitForm);
 
-        $modal.find(".loginSectionToggle").click(function() {
+        $modal.find(".loginSectionToggle").click(function(e) {
             $(this).find(".checkbox").toggleClass("checked");
             $(this).next().toggleClass("xc-hidden");
+            if (($(this).attr('id') === "loginConfigEnableDefaultAdmin") &&
+            (!$(this).find(".checkbox").hasClass("checked"))) {
+                StatusBox.forceHide();
+            }
         });
 
         $("#loginConfigEnableADGroupChain").click(function() {
@@ -98,6 +105,17 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             } else {
                 $modal.find(".adOnly").hide();
             }
+        });
+
+        $("#loginConfigAdminPassword").on("focusout", function() {
+            validatePassword($(this));
+        });
+
+        $("#loginConfigAdminPassword").on("keyup", function(e) {
+            if (e.keyCode === 13) {
+                validatePassword($(this));
+            }
+            calculatePasswordStrength($(this));
         });
     }
 
@@ -123,14 +141,18 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         } else if (defaultAdminConfig.defaultAdminEnabled !== defaultAdminEnabled ||
                    defaultAdminConfig.username !== adminUsername ||
                    defaultAdminConfig.email !== adminEmail ||
-                   adminPassword.trim() !== "") {
+                   adminPassword !== "") {
             if (defaultAdminEnabled) {
-                if (adminPassword.trim() === "") {
+                if (adminPassword === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyPasswordError, false).promise());
                 } else if (adminUsername.trim() === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyUsernameError, false).promise());
                 } else if (adminEmail.trim() === "") {
                     return (deferred.reject(LoginConfigTStr.EmptyEmailError, false).promise());
+                }
+                var passwordStrength = getPasswordStrength(adminPassword, adminUsername.trim());
+                if (passwordStrength.strength === "invalid") {
+                    return (deferred.reject(passwordStrength.hint, false).promise());
                 }
             }
             setDefaultAdminConfig(hostname, defaultAdminEnabled, adminUsername, adminPassword, adminEmail)
@@ -247,7 +269,221 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         defaultAdminConfig = null;
         ldapConfig = null;
         modalHelper.clear();
+        $("#passwordStrengthHint").html("");
+        $("#loginConfigAdminPassword").removeClass(strengthClasses);
+        $("#passwordStrengthHint").removeClass(strengthClasses);
+        StatusBox.forceHide();
     }
 
+    function validatePassword($input) {
+        var userName = $("#loginConfigAdminUsername").val();
+        var password = $("#loginConfigAdminPassword").val();
+        var res = getPasswordStrength(password, userName);
+        if ((res.strength === "invalid") && ($input.is(":visible"))) {
+            StatusBox.show(res.hint, $input, false, {"persist": false});
+        } else {
+            StatusBox.forceHide();
+        }
+    }
+
+    function calculatePasswordStrength($input) {
+        var userName = $("#loginConfigAdminUsername").val();
+        var password = $("#loginConfigAdminPassword").val();
+        if (password === "") {
+            $($input).removeClass(strengthClasses);
+            $("#passwordStrengthHint").removeClass(strengthClasses);
+            $("#passwordStrengthHint").html("");
+            return;
+        }
+        var res = getPasswordStrength(password, userName);
+        var classToShow = res.strength;
+        var hintToShow = (res.strength === "invalid") ? LoginConfigTStr.invalid : res.hint;
+        if (!$($input).hasClass(classToShow)) {
+            $($input).removeClass(strengthClasses).addClass(classToShow);
+            $("#passwordStrengthHint").removeClass(strengthClasses).addClass(classToShow);
+        }
+        if ($("#passwordStrengthHint").html() !== hintToShow) {
+            $("#passwordStrengthHint").html(hintToShow);
+        }
+    }
+
+    function getPasswordStrength(password, userName) {
+        // MIN Solutions space: (26 * 2 + 10 + 31) ^ 7 = 93 ^ 7 = 6.017e+13
+        // Single high-performance computer may attack 2 million keys per second
+        // Time taken = 6.017e+13 / 2,000,000,000 = 30085 seconds
+        // Do not consider minLength and maxLength currently
+        // var minLength = 7;
+        // var maxLength = 128;
+        var upperLetterCount = 0;
+        var lowerLetterCount = 0;
+        var middleDigitCount = 0;
+        var middleSymbolCount = 0;
+        var digitCount = 0;
+        var symbolCount = 0;
+        var showsUp = {};
+        var duplicateTimes = 0;
+        var symbols = "`~!@#$%^&*_-+=|\:;\"\',.?/[](){}<>\\";
+        var lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+        var upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var digits = "0123456789";
+        var orderSymbols = "!@#$%^&*()_+";
+        var scores = 0;
+        var weakThreshold = 20;
+        var strongThreshold = 60;
+        var veryStrongThreshold = 80;
+
+        // if (password.length < minLength) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.shortPassword
+        //     }
+        // }
+        // if (password.length > maxLength) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.longPassword
+        //     }
+        // }
+        var lowerCasePass = password.toLowerCase();
+        var lowerCaseUserName = userName.toLowerCase();
+        if ((lowerCaseUserName !== "") && (lowerCasePass === lowerCaseUserName ||
+            lowerCasePass.indexOf(lowerCaseUserName) !== - 1 ||
+            (lowerCaseUserName.indexOf(lowerCasePass) !== - 1) && lowerCasePass.length >= 3)) {
+            return {
+                "strength": "invalid",
+                "hint": LoginConfigTStr.duplicateUserName
+            };
+        }
+        for (var i = 0; i < password.length; i++) {
+            var curr = password.charAt(i);
+            if (curr >= "A" && curr <= "Z") {
+                upperLetterCount++;
+            } else if (curr >= "a" && curr <= "z") {
+                lowerLetterCount++;
+            } else if (curr >= "0" && curr <= "9") {
+                digitCount++;
+                if (i >= 1 && i < password.length - 1) {
+                    middleDigitCount++;
+                }
+            } else if (symbols.indexOf(curr) !== -1) {
+                symbolCount++;
+                if (i >= 1 && i < password.length - 1) {
+                    middleSymbolCount++;
+                }
+            } else {
+                return {
+                    "strength": "invalid",
+                    "hint": LoginConfigTStr.illegalCharacter
+                };
+            }
+            if (showsUp[curr]) {
+                showsUp[curr]++;
+            } else {
+                showsUp[curr] = 1;
+            }
+        }
+        // if (upperLetterCount == 0 || lowerLetterCount == 0 || digitCount == 0 || symbolCount == 0) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.atLeastOne
+        //     }
+        // }
+        if (password.length < 3) {
+            return {
+                "strength": "veryWeak",
+                "hint": LoginConfigTStr.veryWeak
+            };
+        }
+
+        // scores += password.length * 5
+        //        + (digitCount > 3 ? 10 : 0)
+        //        + (symbolCount > 3 ? 10 : 0)
+        //        + ((Object.keys(showsUp).length / password.length) > 0.6 ? 15 : 0);
+
+        var consecutiveLowerCount = getConsecutive(password, lowerCaseLetters, 3);
+        var consecutiveUpperCount = getConsecutive(password, upperCaseLetters, 3);
+        var consecutiveDigitCount = getConsecutive(password, digits, 3);
+        var sequentialLetterCount = getSequential(password.toLowerCase(), lowerCaseLetters, 3);
+        var sequentialDigitcount = getSequential(password, digits, 3);
+        var sequentialSymbolCount = getSequential(password, orderSymbols, 3);
+        for (var key in showsUp) {
+            if (showsUp[key] > 0) {
+                duplicateTimes += showsUp[key];
+            }
+        }
+        scores += password.length * 4
+               + (password.length - upperLetterCount) * 2
+               + (password.length - lowerLetterCount) * 2
+               + digitCount * 4
+               + symbolCount * 6
+               + (middleSymbolCount + middleDigitCount) * 2
+               + ((password.length > 10) && ((Object.keys(showsUp).length / password.length) > 0.6) ? password.length * 2 : 0)
+               - ((symbolCount === 0 && digitCount === 0) ? password.length : 0)
+               - ((symbolCount === 0 && upperLetterCount === 0 && lowerLetterCount === 0) ? password.length : 0)
+               - (duplicateTimes / password.length ) * 10
+               - consecutiveLowerCount * 2
+               - consecutiveUpperCount * 2
+               - consecutiveDigitCount * 2
+               - sequentialLetterCount * 3
+               - sequentialDigitcount * 3
+               - sequentialSymbolCount * 3;
+
+        if (scores <= weakThreshold) {
+            return {
+                "strength": "veryWeak",
+                "hint": LoginConfigTStr.veryWeak
+            };
+        } else if (scores <= strongThreshold) {
+            return {
+                "strength": "weak",
+                "hint": LoginConfigTStr.weak
+            };
+        } else if (scores <= veryStrongThreshold) {
+            return {
+                "strength": "strong",
+                "hint": LoginConfigTStr.strong
+            };
+        } else {
+            return {
+                "strength": "veryStrong",
+                "hint": LoginConfigTStr.veryStrong
+            };
+        }
+
+        // consecutive with each other, like "aaaaab" is has a consecutive string of a
+        // with length 5
+        function getConsecutive(password, orderString, threshold) {
+            var count = 0;
+            var currLength = 0;
+            for (var i = 0; i < password.length; i++) {
+                var curr = password.charAt(i);
+                if (orderString.indexOf(curr) === -1) {
+                    if (currLength >= threshold) {
+                        count += currLength;
+                    }
+                    currLength = 0;
+                } else {
+                    currLength++;
+                }
+            }
+            if (currLength >= threshold) {
+                count += currLength;
+            }
+            return count;
+        }
+
+        // follow each other in order from smallest to largest, without gaps,
+        // like "abcde" is one sequential string
+        function getSequential(password, orderString, threshold) {
+            var count = 0;
+            for (var i = 0; i < orderString.length - (threshold - 1); i++) {
+                var str = orderString.substring(i, i + threshold);
+                if (password.indexOf(str) !== -1) {
+                    count++;
+                }
+            }
+            return count;
+        }
+    }
     return (LoginConfigModal);
 }(jQuery, {}));

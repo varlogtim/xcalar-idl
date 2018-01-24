@@ -1316,7 +1316,21 @@ LoginConfigTStr = {
     "PasswordMismatch": "The passwords entered did not match.",
     "EmptyPasswordError": "You need to enter a password.",
     "EmptyUsernameError": "You need to enter a username.",
-    "EmptyEmailError": "You need to enter an email address."
+    "EmptyEmailError": "You need to enter an email address.",
+    "shortPassword": "Your password must be at least 7 characters long. Please try another.",
+    "longPassword": "Your password must be at not more than 128 characters long. Please try another.",
+    "duplicateUserName": "The password and the username should not duplicate with each other",
+    "illegalCharacter": "The password Contains illegal Character. Please contain " +
+                        "legal Characters from lowercase letter (a-z), " +
+                        "uppercase letter(A-Z), number(0-9) and special character" +
+                        "` ~ ! @ # $ % ^ & * _ - + = | : ; \" \', . ? / [ ] ( ) { } < >",
+    "atLeastOne": "Please include at least one lowercase letter, one " +
+                         "uppercase letter one number and one symbol",
+    "invalid": "Invalid",
+    "veryWeak": "Very Weak",
+    "weak": "Weak",
+    "strong": "Strong",
+    "veryStrong": "Very Strong"
 };
 
 JupyterTStr = {
