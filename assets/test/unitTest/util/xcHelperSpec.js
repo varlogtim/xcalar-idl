@@ -138,6 +138,14 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("^test2");
     });
 
+    it("xcHelper.fullTextRegExKey should work", function() {
+        var res = xcHelper.fullTextRegExKey("test");
+        expect(res).to.equal("^test$");
+        // case 2
+        res = xcHelper.fullTextRegExKey("^test2$");
+        expect(res).to.equal("^test2$");
+    });
+
     it("xcHelper.getTextWidth should work", function() {
         var res = xcHelper.getTextWidth(null, "test", {
             "defaultHeaderStyle": true

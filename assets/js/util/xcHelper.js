@@ -195,6 +195,17 @@
         return searchKey;
     };
 
+    xcHelper.fullTextRegExKey = function(searchKey) {
+        // Make it a full-text regex search, i.e. prepend ^ and append $
+        if (!searchKey.startsWith("^")) {
+            searchKey = "^" + searchKey;
+        }
+        if (!searchKey.endsWith("$")) {
+            searchKey += "$";
+        }
+        return searchKey;
+    };
+
     /*
      * options:
      *  defaultHeaderStyle: when set true, use the default table header style

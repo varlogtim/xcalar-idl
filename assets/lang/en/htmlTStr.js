@@ -632,7 +632,7 @@ module.exports = {
         "instr": "Select the data source that you want to import and then click the \"NEXT\" button.",
         "Up": "Go to parent directory",
         "filePathHint": "Click to see history",
-        "SearchHint": "Regex Search",
+        "SearchHint": "Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
         "Offset": "Offset",
         "SkipToOffset": "Skip to",

@@ -734,6 +734,7 @@ describe("Dataset-File Browser Test", function() {
 
     describe("Search Behavior Test", function() {
         var $searchSection = $("#fileBrowserSearch");
+        var $searchDropdown = $("#fileSearchDropdown");
 
         before(function(done) {
             // not using the cached history
@@ -750,9 +751,14 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("Should search files", function() {
-            $searchSection.find("input").val("netstore").trigger("input");
+            var $input = $searchSection.find("input");
+            $input.val("netstore").trigger("input");
             // should only have one result
             var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.equal(1);
+            // should have one result as it is by default a "conatins" search
+            $input.val("ets").trigger("input");
+            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
             expect($grids.length).to.equal(1);
             expect($grids.eq(0).hasClass("active")).to.be.true;
         });
@@ -765,14 +771,54 @@ describe("Dataset-File Browser Test", function() {
             expect($grid.hasClass("active")).to.be.true;
         });
 
-        it("Should match re.match's way to search", function() {
+        it("Should do regex(match) search", function() {
             var $input = $searchSection.find("input");
             // should no result
-            $input.val("ets").trigger("input");
+            $input.val("ets.*").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(0));
             var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
             expect($grids.length).to.equal(0);
             // should have one result
-            $input.val(".*ets").trigger("input");
+            $input.val(".*ets.*").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(0));
+            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.be.at.least(1);
+        });
+
+        it("Should do regex(contains) search", function() {
+            var $input = $searchSection.find("input");
+            // should have one result
+            $input.val("et*s").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(1));
+            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.be.at.least(1);
+        });
+
+        it("Should do glob(match) search", function() {
+            var $input = $searchSection.find("input");
+            // should no result
+            $input.val("ets*").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(2));
+            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.equal(0);
+            // should have one result
+            $input.val("*ets*").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(2));
+            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.be.at.least(1);
+        });
+
+        it("Should do glob(contains) search", function() {
+            var $input = $searchSection.find("input");
+            // should have one result
+            $input.val("et*s").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(3));
             $grids = $("#innerFileBrowserContainer").find(".grid-unit");
             expect($grids.length).to.be.at.least(1);
         });
@@ -780,6 +826,8 @@ describe("Dataset-File Browser Test", function() {
         it("Should hanld invalid search", function() {
             var $input = $searchSection.find("input");
             $searchSection.find("input").val("*").trigger("input");
+            FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(0));
             // should only have one result
             var error = $("#innerFileBrowserContainer").text();
             expect(error).to.equal(ErrTStr.InvalidRegEx);

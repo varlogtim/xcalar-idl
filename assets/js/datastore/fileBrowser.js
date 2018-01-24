@@ -6,6 +6,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
+    var $searchDropdown;  // $("#fileSearchDropdown")
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
@@ -37,6 +38,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowserMain = $("#fileBrowserMain");
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
+        $searchDropdown = $("#fileSearchDropdown");
         $visibleFiles = $();
 
         FilePreviewer.setup();
@@ -347,8 +349,19 @@ window.FileBrowser = (function($, FileBrowser) {
     function addSearchSectionEvents() {
         // search bar
         var $searchSection = $("#fileBrowserSearch");
+        var dropdown = new MenuHelper($searchSection, {
+            "onlyClickIcon": false,
+            "onSelect": applySearchPattern,
+            "container": "#fileBrowser"
+        }).setupListeners();
+
         $searchSection.on("input", "input", function() {
             var searchKey = $(this).val();
+            refreshSearchDropdown(searchKey);
+            if ((searchKey.length > 0 && !$searchSection.hasClass("open")) ||
+                searchKey.length === 0) {
+                dropdown.toggleList($searchSection);
+            }
             searchFiles(searchKey);
         });
 
@@ -358,6 +371,35 @@ window.FileBrowser = (function($, FileBrowser) {
             // stop event propogation
             return false;
         });
+    }
+
+    function refreshSearchDropdown(key) {
+        $searchDropdown.empty();
+        if (key.length > 0) {
+            var html = '<li>' +
+                            'regex(match): ' +
+                            '<span class="regMatch">' + key + '</span>' +
+                       '</li>' +
+                       '<li>' +
+                            'regex(contains): ' +
+                            '<span class="regContain">' + key + '</span>' +
+                       '</li>' +
+                       '<li>' +
+                            'glob(match): ' +
+                            '<span class="globMatch">' + key + '</span>' +
+                       '</li>' +
+                       '<li>' +
+                            'glob(contains): ' +
+                            '<span class="globContain">' + key + '</span>' +
+                       '</li>';
+            $searchDropdown.prepend(html);
+        }
+    }
+
+    function applySearchPattern($pattern) {
+        var type = $pattern.find("span").attr("class");
+        var searchKey = $pattern.find("span").text();
+        searchFiles(searchKey, type);
     }
 
     function addBrowserMenuEvents() {
@@ -819,14 +861,39 @@ window.FileBrowser = (function($, FileBrowser) {
         DSPreview.show(options);
     }
 
-    function searchFiles(searchKey) {
+    function searchFiles(searchKey, type) {
         var $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
-
         try {
             var regEx = null;
             if (searchKey != null) {
-                searchKey = xcHelper.prefixRegExKey(searchKey);
+                var fullTextMatch = false;
+                if (type == null) {
+                    // Do a regular text search
+                    searchKey = xcHelper.escapeRegExp(searchKey);
+                } else {
+                    switch (type) {
+                        case ("regMatch"):
+                            fullTextMatch = true;
+                            break;
+                        case ("regContain"):
+                            // Do nothing as it is a "contain" already
+                            break;
+                        case ("globMatch"):
+                            fullTextMatch = true;
+                        case ("globContain"):
+                            searchKey = xcHelper.escapeRegExp(searchKey);
+                            searchKey = searchKey.replace(/\\\*/g, ".*");
+                            break;
+                        default:
+                            console.error("File search type not supported");
+                            break;
+                    }
+                }
+                if (fullTextMatch) {
+                    // Add ^ and $ for full text match
+                    searchKey = xcHelper.fullTextRegExKey(searchKey);
+                }
                 regEx = new RegExp(searchKey);
             }
             var grid = getFocusGrid();
@@ -1576,6 +1643,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.oversizeHandler = oversizeHandler;
         FileBrowser.__testOnly__.sumbitForm = sumbitForm;
         FileBrowser.__testOnly__.showScrolledFiles = showScrolledFiles;
+        FileBrowser.__testOnly__.applySearchPattern = applySearchPattern;
     }
     /* End Of Unit Test Only */
 

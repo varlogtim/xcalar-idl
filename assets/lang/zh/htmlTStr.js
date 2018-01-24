@@ -554,7 +554,7 @@ module.exports = {
     },
     "fileBrowser": {
         "Offset": "偏移",
-        "SearchHint": "正则表达式搜索",
+        "SearchHint": "搜索",
         "SkipToOffset": "跳转至",
         "Up": "返回上层目录",
         "filePathHint": "点击查看历史记录",
