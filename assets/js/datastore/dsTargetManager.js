@@ -459,10 +459,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
         var $form = $("#dsTarget-form");
         $form.find("input").blur();
         var $submitBtn = $("#dsTarget-submit").blur();
+
         var args = validateForm($form);
         if (!args) {
             return;
         }
+        xcHelper.toggleBtnInProgress($submitBtn, true);
         var errorParser = function(log) {
             try {
                 return log.split("ValueError:")[1].split("\\")[0];
@@ -471,10 +473,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 return null;
             }
         };
-
         xcHelper.disableSubmit($submitBtn);
         XcalarTargetCreate.apply(this, args)
         .then(function() {
+            xcHelper.toggleBtnInProgress($submitBtn, true);
             xcHelper.showSuccess(SuccessTStr.Target);
             DSTargetManager.refreTargets(true);
             resetForm();
@@ -482,6 +484,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         })
         .fail(function(error) {
             // fail case being handled in submitForm
+            xcHelper.toggleBtnInProgress($submitBtn, false);
             StatusBox.show(FailTStr.Target, $submitBtn, false, {
                 detail: errorParser(error.log)
             });
@@ -490,6 +493,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         .always(function() {
             xcHelper.enableSubmit($submitBtn);
         });
+
         return deferred.promise();
     }
 

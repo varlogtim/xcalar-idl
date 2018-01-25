@@ -44,8 +44,8 @@ window.DSExport = (function($, DSExport) {
         $form.submit(function(event) {
             event.preventDefault();
             $form.find("input").blur();
-
             var $submitBtn = $("#exportFormSubmit").blur();
+            xcHelper.toggleBtnInProgress($submitBtn, true);
             xcHelper.disableSubmit($submitBtn);
             $form.find(".formRow").addClass("disabled");
 
@@ -61,6 +61,7 @@ window.DSExport = (function($, DSExport) {
 
             submitForm(targetType, name, formatSpecificArg, options)
             .then(function() {
+                xcHelper.toggleBtnInProgress($submitBtn, true);
                 xcHelper.showSuccess(SuccessTStr.Target);
                 resetForm();
                 KVStore.commit();
@@ -68,6 +69,7 @@ window.DSExport = (function($, DSExport) {
             .fail(function(error) {
                 // fail case being handled in submitForm
                 xcConsole.error(error);
+                xcHelper.toggleBtnInProgress($submitBtn, false);
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);

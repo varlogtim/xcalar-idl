@@ -1323,22 +1323,31 @@
         return ($waitingIcon);
     };
 
-    xcHelper.toggleBtnInProgress = function($btn) {
+    xcHelper.toggleBtnInProgress = function($btn, success) {
         var html;
-
         if ($btn.hasClass("btnInProgress")) {
-            html = $btn.data("oldhtml");
-            $btn.html(html)
-                .removeClass("btnInProgress")
-                .removeData("oldhtml");
+            var oldHtml = $btn.data("oldhtml");
+            $btn.removeClass("btnInProgress");
+            if (success) {
+                html = '<span class="text center-button-text">' + oldHtml + '</span><i class="icon xi-tick xi-tick-fade-in"></i>';
+                $btn.html(html);
+                setTimeout(function() {
+                    $btn.html(oldHtml)
+                        .removeData("oldhtml");
+                }, 2700);
+            } else{
+                $btn.html(oldHtml)
+                    .removeData("oldhtml");
+            }
         } else {
             var text = $btn.text();
             var oldhtml = $btn.html();
+
             html = '<div class="animatedEllipsisWrapper">' +
                         '<div class="text">' +
                             text +
                         '</div>' +
-                        '<div class="animatedEllipsis">' +
+                        '<div class="animatedEllipsis staticEllipsis">' +
                           '<div>.</div>' +
                           '<div>.</div>' +
                           '<div>.</div>' +
