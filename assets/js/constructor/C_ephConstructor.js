@@ -176,6 +176,8 @@ DSFormController.prototype = {
         delete this.pattern;
         delete this.isRecur;
         delete this.isRegex;
+        delete this.udfModule;
+        delete this.udfFunc;
     },
 
     getTargetName: function() {
@@ -259,6 +261,16 @@ DSFormController.prototype = {
         var args = $.extend({}, this);
         delete args.previewFile;
         return JSON.stringify(args);
+    },
+
+    setUDFToApply: function(module, func) {
+        this.udfModule = module;
+        this.udfFunc = func;
+    },
+
+    isUDFApplied: function(module, func) {
+        return module && func &&
+              (this.udfModule === module) && (this.udfFunc === func);
     }
 };
 
@@ -1258,7 +1270,7 @@ ExportHelper.getTableCols = function(tableId, validTypes) {
             html +=
                 '<li class="checked" data-colnum="' + colNum + '">' +
                     '<span class="text tooltipOverflow" ' +
-                    'data-original-title="' + 
+                    'data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                     'data-toggle="tooltip" data-placement="top" ' +

@@ -1622,6 +1622,21 @@ table.datasetTable {
         }
     }
 
+    &.toApplyUDF {
+        .cardMain {
+            .position(relative);
+
+            > div {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+        }
+
+        #dsForm-applyUDF {
+            display: block;
+        }
+    }
+
     .cardWrap {
         .position(relative);
         .size(@height: ~"calc(100% - 36px)", @width: 100%);
@@ -1677,6 +1692,14 @@ table.datasetTable {
             display: block;
             .textOverflowOneLine;
         }
+    }
+
+    #dsForm-applyUDF {
+        display: none;
+        .center-align;
+        .position(absolute);
+        background-color: @color-white;
+        .size(@width: 300px);
     }
 }
 
@@ -2160,16 +2183,6 @@ table.datasetTable {
         }
 
         &.udf {
-            button {
-                .size(@width: 280px);
-                float: left;
-                margin-left: 30px;
-
-                &:first-child {
-                    margin-left: 0;
-                }
-            }
-
             .disabled {
                 pointer-events: none;
                 opacity: @opacity-disabled;
@@ -2181,6 +2194,21 @@ table.datasetTable {
                         background-color: @color-selectedCell-light;
                     }
                 }
+
+                .hidden {
+                    display: none;
+                }
+            }
+        }
+
+        &.writeUDF {
+            .size(@height: 36px);
+            margin-top: 20px;
+
+            button {
+                .size(@width: 360px);
+                float: left;
+                margin-left: 0;
             }
         }
 

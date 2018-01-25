@@ -199,7 +199,7 @@ window.DSPreview = (function($, DSPreview) {
                 $bottomCard.outerHeight((100 - topPct) + '%');
                 $previeWrap.outerHeight(topPct + '%');
                 setTimeout(function() {
-                   $previeWrap.removeClass("dragging"); 
+                    $previeWrap.removeClass("dragging");
                 });
             }
         });
@@ -443,7 +443,7 @@ window.DSPreview = (function($, DSPreview) {
     function setupUDFSection() {
         $("#dsForm-applyUDF").click(function() {
             $(this).blur();
-            refreshPreview(true);
+            applyUDF();
         });
 
         $("#dsForm-writeUDF").click(function() {
@@ -456,6 +456,7 @@ window.DSPreview = (function($, DSPreview) {
             "onSelect": function($li) {
                 var module = $li.text();
                 selectUDFModule(module);
+                changeUDF();
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
@@ -465,6 +466,7 @@ window.DSPreview = (function($, DSPreview) {
             "onSelect": function($li) {
                 var func = $li.text();
                 selectUDFFunc(func);
+                changeUDF();
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
@@ -563,6 +565,8 @@ window.DSPreview = (function($, DSPreview) {
         // stop the reset from triggering
         // only when cached moduleName and funcName is not null
         // we restore it
+        loadArgs.setUDFToApply(null, null);
+        toggleApplyUDF(false);
         if (lastUDFModule != null && lastUDFFunc != null &&
             validateUDFFunc(lastUDFModule, lastUDFFunc)) {
 
@@ -615,10 +619,10 @@ window.DSPreview = (function($, DSPreview) {
                         .find("input").removeAttr("disabled");
             udfFuncHint.clearInput();
 
-            var $funcLis = $udfFuncList.find(".list li").addClass("xc-hidden")
+            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
                             .filter(function() {
                                 return $(this).data("module") === module;
-                            }).removeClass("xc-hidden");
+                            }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
             }
@@ -630,6 +634,35 @@ window.DSPreview = (function($, DSPreview) {
             func = "";
         }
         udfFuncHint.setInput(func);
+    }
+
+    function toggleApplyUDF(on) {
+        if (on) {
+            $previewCard.addClass("toApplyUDF");
+        } else {
+            $previewCard.removeClass("toApplyUDF");
+        }
+    }
+
+    function changeUDF() {
+        var udfModule = $udfModuleList.find("input").val();
+        var udfFunc = $udfFuncList.find("input").val();
+        if (loadArgs.isUDFApplied(udfModule, udfFunc)) {
+            toggleApplyUDF(false);
+        } else {
+            toggleApplyUDF(true);
+        }
+    }
+
+    function applyUDF() {
+        var udfModule = $udfModuleList.find("input").val();
+        var udfFunc = $udfFuncList.find("input").val();
+        var res = refreshPreview(true);
+        if (res != null) {
+            // when udf is applied
+            toggleApplyUDF(false);
+            loadArgs.setUDFToApply(udfModule, udfFunc);
+        }
     }
 
     function cacheUDF(udfModule, udfFunc) {
@@ -741,7 +774,7 @@ window.DSPreview = (function($, DSPreview) {
         // udf section
         var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
         resetUdfSection();
-
+        toggleApplyUDF(false); // UDF will be auto applied
         // format
         var format = options.format;
         if (format === formatMap.TEXT) {
@@ -1443,8 +1476,8 @@ window.DSPreview = (function($, DSPreview) {
 
     function changeFormat(format) {
         var oldFormat = loadArgs.getFormat();
-        var hasChangeFormat = toggleFormat(format);
         var useUDF = isUseUDFWithFunc();
+        var hasChangeFormat = toggleFormat(format);
         var changeWithExcel = function(fomratOld, formatNew) {
             return fomratOld != null &&
                     (fomratOld.toUpperCase() === "EXCEL" ||
@@ -1457,7 +1490,13 @@ window.DSPreview = (function($, DSPreview) {
         };
 
         if (hasChangeFormat) {
-            if (changeWithExcel(oldFormat, format) ||
+            toggleApplyUDF(false);
+
+            if (format === "UDF") {
+                // reset UDF apply button
+                loadArgs.setUDFToApply(null, null);
+                toggleApplyUDF(true);
+            } else if (changeWithExcel(oldFormat, format) ||
                 chanegFromUDF(useUDF)) {
                 refreshPreview(true);
             } else {
@@ -2178,7 +2217,7 @@ window.DSPreview = (function($, DSPreview) {
     function refreshPreview(noDetect, changePattern) {
         var formOptions = validateForm();
         if (formOptions == null) {
-            return;
+            return null;
         }
         formOptions.changePattern = changePattern;
         clearPreviewTable(); // async remove the old ds
