@@ -413,7 +413,7 @@ define(function() {
                     parent.postMessage(JSON.stringify(request), "*");
                 });
                 $("#open_notebook").attr("title", "Opens the Dashboard view");
-                $("#open_notebook").find("a").attr("href", "/tree");
+                $("#open_notebook").find("a").attr("href", Jupyter.menubar.base_url + "tree");
 
                 // rework "new notebook" - prevent menu item from
                 // opening in a new window
@@ -421,7 +421,7 @@ define(function() {
                 $("#new-notebook-submenu-python3").find("a").click(function() {
                     Jupyter.notebook.contents.new_untitled("", {type: "notebook"})
                     .then(function(data) {
-                        var url = "/notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
+                        var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
                         window.location.href = url;
                     });
                 });
@@ -429,7 +429,7 @@ define(function() {
                 // rework "kill and exit" - direct to tree after shutting down
                 // notebook
                 $("#kill_and_exit").click(function() {
-                    window.location.href = "/tree";
+                    window.location.href = Jupyter.menubar.base_url + "tree";
                 });
 
                 // lets xcalar know if rename occurs

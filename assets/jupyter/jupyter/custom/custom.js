@@ -30,7 +30,7 @@ define(['base/js/namespace'], function(Jupyter) {
         $("#kernel-python3 a").click(function() {
             Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
             .then(function(data) {
-                var url = "/notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
+                var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
                 window.location.href = url;
             });
         });
@@ -53,7 +53,7 @@ define(['base/js/namespace'], function(Jupyter) {
         Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
         .then(function(data) {
             var encodedTableName = encodeURIComponent(tableName);
-            var url = "/notebooks/" + data.path + "?kernel_name=python3&" +
+            var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&" +
                         "needsTemplate=true&publishTable=true&" +
                         "tableName=" + encodedTableName + "&numRows=" + numRows;
             window.location.href = url;
