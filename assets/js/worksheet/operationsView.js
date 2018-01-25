@@ -239,8 +239,8 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     var value = $input.val().trim().toLowerCase();
-                    var prevValue = $input.data('value');
-                    $input.data('value', value);
+                    var prevValue = $input.data("value");
+                    $input.data("value", value);
 
                     if (value === "") {
                         clearFunctionsInput($input.data('fninputnum'));
@@ -271,7 +271,7 @@ window.OperationsView = (function($, OperationsView) {
 
                 var $input = $(this);
                 var value = $input.val().trim().toLowerCase();
-                $input.data('value', value);
+                $input.data("value", value);
 
                 // find which element caused the change event;
                 var $changeTarg = gMouseEvents.getLastMouseDownTarget();
@@ -917,13 +917,14 @@ window.OperationsView = (function($, OperationsView) {
         var value = $li.text();
         var $input = $li.closest('.list').siblings('.autocomplete');
         var fnInputNum = $input.data('fninputnum');
-        var originalInputValue = $input.val();
+        var originalInputValue = $input.data("value");
         hideDropdowns();
 
         // value didn't change && argSection is inactive (not showing)
         if (!forceUpdate && originalInputValue === value &&
             $activeOpSection.find('.group').eq(fnInputNum)
                             .find('.argsSection.inactive').length === 0) {
+            $input.val(value);
             return;
         }
 
@@ -933,7 +934,7 @@ window.OperationsView = (function($, OperationsView) {
             return;
         }
 
-        $input.data('value', value.trim());
+        $input.data("value", value.trim());
         enterFunctionsInput(fnInputNum);
     }
 
@@ -1564,7 +1565,7 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.icvMode').addClass('inactive');
         $activeOpSection.find(".advancedSection").addClass("inactive");
         $argsGroup.find('.descriptionText').empty();
-        $argsGroup.find('.functionsInput').data('value', "");
+        $argsGroup.find('.functionsInput').data("value", "");
         $activeOpSection.find('.newTableNameRow').addClass('inactive');
         hideDropdowns();
         checkIfStringReplaceNeeded(true);
@@ -4373,7 +4374,7 @@ window.OperationsView = (function($, OperationsView) {
 
         // clear function list input
         $operationsView.find('.functionsInput').attr('placeholder', "")
-                                               .data('value', "")
+                                               .data("value", "")
                                                .val("");
         // clear functions list menu
         $operationsView.find('.genFunctionsMenu').data('category', 'null');
