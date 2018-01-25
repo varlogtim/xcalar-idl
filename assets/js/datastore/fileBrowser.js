@@ -1212,7 +1212,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             var gridClass = isDirectory ? "folder" : "ds";
-            var iconClass = isDirectory ? "xi-folder" : "xi_data";
+            var iconClass = isDirectory ? "xi-folder" : "xi-documentation-paper";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
             var date = "";
@@ -1266,7 +1266,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function refreshIcon() {
-        var gridFormatMap = {
+        var listFormatMap = {
             "JSON": "xi-json-big-file",
             "CSV": "xi-csv-big-file",
             "Excel": "xi-xls-big-file",
@@ -1281,7 +1281,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "GIF": "xi-gif-big-file",
             "BMP": "xi-bmp-big-file"
         };
-        var listFormatMap = {
+        var gridFormatMap = {
             "JSON": "xi-json-file",
             "CSV": "xi-csv-file",
             "Excel": "xi-xls-file",

@@ -1124,7 +1124,7 @@ table.datasetTable {
         .rightMain {
             width: 100%;
         }
-        
+
         &.hexMode {
             .leftMain, .rightMain {
                 .transition(none);
@@ -1265,7 +1265,11 @@ table.datasetTable {
 
             .grid-unit {
                 .gridIcon, .xi-cancel, .xi-trash {
-                    color: @color-border-pinkish-grey2;
+                    color: @color-bg-99-grey;
+                }
+
+                .xi-folder {
+                    color: @color-bg-cancel-gray;
                 }
 
                 &.active {
@@ -1404,13 +1408,13 @@ table.datasetTable {
             overflow: hidden;
             width: 100%;
             .mainSection {
-                
+
                 &.leftPart {
                     .size(@width: 25%);
                     border-right: none;
                 }
 
-                &.rightPart { 
+                &.rightPart {
                     display: block;
                     .size(@width: 75%);
                 }
@@ -1452,7 +1456,7 @@ table.datasetTable {
                 .size(@width: 0);
                 float: left;
             }
-           
+
             .topSection {
                 .size(@width: 100%, @height: @top-h);
 
@@ -1603,7 +1607,6 @@ table.datasetTable {
 #dsForm-preview {
     .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
     overflow: hidden;
-    
 
     &.minimize {
         .cardMain {
