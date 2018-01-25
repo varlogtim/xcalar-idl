@@ -1930,227 +1930,285 @@ table.datasetTable {
     .size(@height: ~"calc(100% - 15px)");
     padding-top: 15px;
     border-top: 1px solid @color-border-pinkish-grey2;
-    @row-width: 170px;
+    @row-width: 130px;
     .position(relative);
 
-    &.udf {
-        .bottomSection, .divider {
-            display: none;
-        }
-    }
-
-    .btn.fixed {
-        .size(@width: 180px);
-        .position(absolute, @right: 20px);
-        padding-right: 5px;
-
-        &#dsForm-detect {
-            top: 22px;
+    &.multiFiles {
+        .topSection {
+            .actionPart {
+                display: block;
+            }
         }
     }
 
     .contentSection {
         .size(@width: 100%, @height: ~"calc(100% - 50px)");
-        padding: 10px 0;
         overflow-y: auto;
     }
 
+    .topSection {
+        padding-top: 10px;
+
+        &.collapse {
+            .less {
+                display: none;
+            }
+
+            .row {
+                &:not(:first-child) {
+                    display: none;
+                }
+            }
+
+            .inputPart {
+                 &:after {
+                    content: "......";
+                    margin-left: 15px;
+                }
+            }
+        }
+
+        &:not(.collapse) {
+            .more {
+                display: none;
+            }
+        }
+
+        .inputPart {
+            @large-input: 473px;
+            @take-width: @large-input + 22;
+
+            .inputWrap {
+                margin-right: 22px;
+            }
+
+            input {
+                width: @large-input !important;
+            }
+
+            label {
+                .textOverflowOneLine;
+                width: ~"calc(100% - @{take-width})";
+                margin-right: 0;
+            }
+
+        }
+
+        .actionPart {
+            display: none;
+            .size(@width: 100px);
+            .horizontal-align;
+            margin-top: 5px;
+            cursor: pointer;
+
+            .text {
+                .position(relative, @top: 3px);
+                .font(@size: 11px, @weight: 300);
+                text-align: center;
+            }
+
+            .icon {
+                .horizontal-align;
+            }
+        }
+    }
+
+    .middleSection {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .advanceSection {
+        background-color: @color-bg-white-seven;
+        padding-top: 15px;
+        padding-bottom: 15px;
+
+        &.active {
+            .row {
+                display: block;
+            }
+        }
+
+        .listInfo {
+            cursor: pointer;
+        }
+
+        input {
+            background-color: @color-white !important;
+        }
+
+        .row {
+            display: none;
+            padding-left: 35px;
+
+            &:not(.metadata) {
+                label {
+                    margin-left: 22px;
+                }
+            }
+
+            &.extraCols {
+                .size(@height: 70px);
+
+                .part {
+                    &:not(.active) {
+                        input {
+                            pointer-events: none;
+                            opacity: 0.6;
+                        }
+                    }
+                }
+            }
+
+            &.termination {
+                .size(@height: 70px);
+
+                .multiLine {
+                    .position(relative, @top: 5px);
+                }
+
+                .qMark {
+                    top: 10px;
+                }
+
+                .radioButtonGroup {
+                    display: block;
+                    float: left;
+
+                    .radioButton {
+                        margin-top: 5px;
+
+                        &:first-child {
+                            margin-top: 0;
+                        }
+                    }
+                }
+            }
+
+            .checkboxSection {
+                .size(@width: 150px);
+                float: left;
+
+                .text {
+                    .size(@width: 100px);
+                }
+            }
+
+            > label {
+                .size(@width: 100px);
+            }
+        }
+
+        .part {
+            .size(@height: 30px);
+            margin-top: 5px;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            .inputWrap {
+                float: left;
+                .size(@min-width: 180px);
+            }
+        }
+    }
+
     .buttonSection {
-        border-top: 1px solid @color-border-pinkish-grey2;
         padding: 7px 15px;
         .size(@height: 50px);
     }
 
     .row {
         padding: 0 15px;
-        .size(@width: 100%, @height: 30px);
+        .size(@height: 30px);
         margin-top: 10px;
 
         &:first-child {
             margin-top: 0;
         }
 
-        > label, > div {
+        > label, > div, .qMark {
             display: inline-block;
             float: left;
             margin-right: 10px;
         }
 
+        .qMark {
+            .vertical-align;
+        }
+
         > label {
             .size(@width: @row-width, @height: 30px);
             .font(@size: 14px, @line-height: 30px);
-            text-align: right;
-
-            .qMark {
-                margin: 0 3px;
-                .position(relative, @top: -1px);
-            }
+            text-align: left;
         }
 
         .inputWrap {
             .input-box(@w: 310px, @h: 30px);
-            max-width: ~"calc(100% - 370px)";
+            // max-width: ~"calc(100% - 370px)";s
 
             input {
                 max-width: 100%;
             }
+        }
 
-            #dsForm-dsName {
-                .size(@width: 475px);
+        &.title {
+            label {
+                font-weight: 700;
             }
         }
 
-        .refreshPreview {
-            .size(@height: 30px);
-            display: inline-block;
-            float: left;
-            margin-left: 20px;
-            cursor: pointer;
-            .font(@line-height: 30px, @color: @color-bg-select-blue);
-
-            i, span {
-                display: inline-block;
+        &.udf {
+            button {
+                .size(@width: 280px);
                 float: left;
-                height: 30px;
+                margin-left: 30px;
+
+                &:first-child {
+                    margin-left: 0;
+                }
             }
 
-            .icon {
-                top: 0;
-                margin-right: 5px;
-                &::before {
-                    display: block;
-                    .vertical-align;
+            .disabled {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+
+            .list {
+                li {
+                    &.hover, &.highlighted {
+                        background-color: @color-selectedCell-light;
+                    }
                 }
             }
         }
 
-        &.advanceSection {
-            min-height: 30px;
-            height: auto;
+        &.checkboxRow {
+            margin-left: @row-width + 10px;
 
-            .advanceOption {
-                .size(@width: 100%);
+            .qMark {
+                margin-left: 20px;
+                margin-right: 0;
+            }
 
-                ul > li {
-                    padding-left: 0;
+            .text {
+                margin-right: 5px;
+            }
+        }
 
-                    .label {
-                        .size(@width: 170px);
-                    }
-                }
+        &.xml {
+            .inputWrap {
+                .size(@width: ~"calc(100% - 200px)");
 
-                .radioButtonGroup {
-                    .size(@width: ~"calc(100% - 180px)");
-                }
-
-                .unavailable {
-                    opacity: @opacity-disabled;
-
-                    &.checkboxSection, &.refreshPreview {
-                        pointer-events: none;
-                    }
+                input {
+                    .size(@width: 100%);
                 }
             }
 
-            .listInfo {
-                .expand {
-                    .icon {
-                        .font(@color: @color-font-greyish-brown);
-                    }
-                }
-
+            .checkboxSection {
                 .text {
-                    cursor: pointer;
-                    font-weight: 600;
-                }
-            }
-
-            .label {
-                .size(@height: 30px);
-                line-height: 30px;
-                margin-right: 10px;
-                text-align: right;
-            }
-
-            .option {
-                opacity: @opacity-hover;
-                margin-top: 15px;
-                box-shadow: none;
-
-                > div, > input {
-                    display: inline-block;
-                    float: left;
-                }
-
-                &.pattern {
-                    .input-box(@w: ~"calc(100% - 535px)", @h: 30px);
-
-                    input {
-                        max-width: 420px;
-                    }
-
-                    .checkboxSection {
-                        margin-left: 20px;
-                        > div {
-                            .font(@weight: 600, @line-height: 30px);
-
-                            margin-left: 7px;
-
-                            .icon {
-                                top: 55%;
-                            }
-                        }
-                    }
-                }
-
-                &.limit {
-                    .size(@height: 60px);
-
-                    .radioButtonGroup {
-                        .size(@height: 60px);
-                        float: left;
-
-                        .radioButton {
-                            .size(@height: 30px);
-
-                            .radioText, .radio {
-                                .size(@height: 100%);
-                                float: left;
-                            }
-
-                            .radioText {
-                                line-height: 30px;
-                            }
-
-                            .radio .icon {
-                                .vertical-align;
-                            }
-                        }
-                    }
-
-                    .inputWrap {
-                        .input-box(@w: 80px, @h: 30px);
-                        margin-left: 10px;
-                        float: left;
-                    }
-
-                    .dropDownList {
-                        margin-left: -1px;
-                        .styleDropDownList(80px, 30px);
-
-                        ul {
-                            margin: 0;
-                        }
-
-                        li {
-                            .size(@height: 20px);
-                            line-height: 20px;
-                            text-align: center;
-                            padding: 0;
-                            box-shadow: none;
-                            opacity: @opacity-hover;
-                        }
-                    }
+                    .size(@width: 100px);
                 }
             }
         }
@@ -2166,97 +2224,19 @@ table.datasetTable {
         background-color: @color-font-pinkish-grey2;
     }
 
-    .bottomSection {
-        min-height: 150px; // to allow dropdown to open fully
-        .row:first-child {
-            margin-top: 10px;
-        }
-    }
+    .inputable {
+        cursor: text;
 
-    #udfArgs {
-        .size(@height: auto, @max-height: 90px, @min-height: 30px);
-
-        &.active {
-            .listSection {
-                display: inline-block;
-            }
-
-            .refreshPreview {
-                display: inline-block;
-                margin-top: 60px;
-            }
-        }
-
-        .checkboxSection {
-            .size(@width: @row-width);
-
-            > div {
-                float: right;
-
-                &.text {
-                    margin-right: 8px;
-                }
-            }
-        }
-
-        .listSection {
-            display: none;
-            .size(@width: 320px, @height: 90px);
-            .rounded;
-            padding: 10px;
-            background-color: @color-bg-white-seven;
-            border: 2px solid @color-border-white-two;
-
-            .dropDownList {
-                .size(@width: 300px);
-                clear: both;
-
-                &:first-child {
-                    margin-bottom: 10px;
-                }
-
-                &.disabled {
-                    pointer-events: none;
-                }
-
-                input {
-                    cursor: text;
-
-                    &:focus {
-                        border: 1px solid @color-border-select-blue;
-                        outline: none;
-                    }
-                }
-
-                .list {
-                    li {
-                        &.hover, &.highlighted {
-                            background-color: @color-selectedCell-light;
-                        }
-                    }
-                }
-            }
-
-            .hidden {
-                display: none;
-            }
-        }
-
-        .refreshPreview {
-            display: none;
+        &:focus {
+            outline: none;
+            border-color: @color-border-softBlue;
+            background-color: @color-white;
         }
     }
 
     #lineDelim, #fieldDelim {
         input {
-            cursor: text;
             font-family: @font-code;
-
-            &:focus {
-                outline: none;
-                border-color: @color-border-softBlue;
-                background-color: @color-white;
-            }
         }
 
         .nullVal {
@@ -2268,8 +2248,8 @@ table.datasetTable {
         font-family: @font-code;
     }
 
-    #promoteHeaderCheckbox, #genLineNumbersCheckbox {
-        margin-left: @row-width + 10px;
+    #dsForm-metadataFile {
+        .size(@width: 482px);
     }
 }
 /* End Of Import Data View Section */

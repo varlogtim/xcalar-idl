@@ -603,7 +603,7 @@ window.Shortcuts = (function($, Shortcuts) {
             $("#filePath").val(filePath);
             $("#dsForm-path").find('.confirm').click(); // go to next step
             $formatDropdown.find('li[name="JSON"]').click();
-            $('#dsForm-dsName').val(dsName);
+            $("#importDataForm").find(".dsName").eq(0).val(dsName);
 
             $('#dsForm-preview').find('.confirm').last().click();
             dsIcon = ".ds.grid-unit[data-dsname='" + dsName + "']:not(.inactive)";

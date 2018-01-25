@@ -9,12 +9,10 @@ describe("Dataset-DSPreview Test", function() {
     var $fieldText;
     var $lineText;
 
-    var $udfArgs;
     var $udfModuleList;
     var $udfFuncList;
 
     var $headerCheckBox; // promote header checkbox
-    var $udfCheckbox; // udf checkbox
     var $genLineNumCheckBox;
 
     var $skipInput;
@@ -34,12 +32,10 @@ describe("Dataset-DSPreview Test", function() {
         $fieldText = $("#fieldText");
         $lineText = $("#lineText");
 
-        $udfArgs = $("#udfArgs");
         $udfModuleList = $("#udfArgs-moduleList");
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox"); // promote header checkbox
-        $udfCheckbox = $("#udfCheckbox"); // udf checkbox
         $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         $skipInput = $("#dsForm-skipRows");
@@ -571,11 +567,6 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.setPreviewFile(oldPreviewFile);
         });
 
-        it("DSPreview.getAdvanceOption should work", function() {
-            var advanceOption = DSPreview.getAdvanceOption();
-            expect(advanceOption).to.be.an.instanceof(DSFormAdvanceOption);
-        });
-
         it("DSPreview.backFromParser should work", function() {
             var oldFunc = DSPreview.changePreviewFile;
             DSPreview.changePreviewFile = function() {
@@ -600,7 +591,7 @@ describe("Dataset-DSPreview Test", function() {
         it("DSPreview.toggleXcUDFs should work", function() {
             var isHide = UserSettings.getPref("hideXcUDF") || false;
             var $li = $("<li>_xcalar_test</li>");
-            $("#udfArgs-moduleList").append($li);
+            $udfModuleList.append($li);
             DSPreview.toggleXcUDFs(!isHide);
             expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
 
@@ -1173,7 +1164,6 @@ describe("Dataset-DSPreview Test", function() {
             expect($formatText.data("format")).to.equal("CSV");
 
             // UI part
-            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
             assert.isTrue($fieldText.is(":visible"), "has field delimiter");
             assert.isTrue($lineText.is(":visible"), "has line delimiter");
@@ -1186,7 +1176,6 @@ describe("Dataset-DSPreview Test", function() {
             expect($formatText.data("format")).to.equal("JSON");
 
             // UI part
-            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
             assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
             assert.isFalse($fieldText.is(":visible"), "no field delimiter");
             assert.isFalse($lineText.is(":visible"), "no line delimiter");
@@ -1200,7 +1189,6 @@ describe("Dataset-DSPreview Test", function() {
 
             // UI part
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
-            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
             assert.isFalse($fieldText.is(":visible"), "no field delimiter");
             assert.isTrue($lineText.is(":visible"), "has line delimiter");
             assert.isTrue($quoteInput.is(":visible"), "has quote char");
@@ -1212,12 +1200,48 @@ describe("Dataset-DSPreview Test", function() {
             expect($formatText.data("format")).to.equal("EXCEL");
 
             // UI part
-            assert.isFalse($udfCheckbox.is(":visible"), "no udf checkbox");
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
             assert.isFalse($fieldText.is(":visible"), "no field delimiter");
             assert.isFalse($lineText.is(":visible"), "no line delimiter");
-            assert.isFalse($quoteInput.is(":visible"), "has quote char");
-            assert.isFalse($skipInput.is(":visible"), "has skip rows");
+            assert.isFalse($quoteInput.is(":visible"), "no quote char");
+            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isFalse($udfModuleList.is(":visible"), "no udf module");
+            assert.isFalse($udfFuncList.is(":visible"), "no udf func");
+            assert.isFalse($form.find(".matchedXPath").is(":visible"), "no xml paths");
+            assert.isFalse($form.find(".elementXPath").is(":visible"), "no xml paths");
+        });
+
+        it("Format Should be UDF", function() {
+            DSPreview.__testOnly__.toggleFormat("UDF");
+            expect($formatText.data("format")).to.equal("UDF");
+
+            // UI part
+            assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isFalse($lineText.is(":visible"), "no line delimiter");
+            assert.isFalse($quoteInput.is(":visible"), "no quote char");
+            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isTrue($udfModuleList.is(":visible"), "no udf module");
+            assert.isTrue($udfFuncList.is(":visible"), "no udf func");
+            assert.isFalse($("#dsForm-xPaths").is(":visible"), "no xml paths");
+            assert.isFalse($form.find(".matchedXPath").is(":visible"), "no xml paths");
+            assert.isFalse($form.find(".elementXPath").is(":visible"), "no xml paths");
+        });
+
+        it("Format Should be XML", function() {
+            DSPreview.__testOnly__.toggleFormat("XML");
+            expect($formatText.data("format")).to.equal("XML");
+            // UI part
+            assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isFalse($lineText.is(":visible"), "no line delimiter");
+            assert.isFalse($quoteInput.is(":visible"), "no quote char");
+            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isFalse($udfModuleList.is(":visible"), "no udf module");
+            assert.isFalse($udfFuncList.is(":visible"), "no udf func");
+            assert.isTrue($("#dsForm-xPaths").is(":visible"),  "has xml paths");
+            assert.isTrue($form.find(".matchedXPath").is(":visible"), "has xml paths");
+            assert.isTrue($form.find(".elementXPath").is(":visible"), "has xml paths");
         });
 
         after(function() {
@@ -1235,30 +1259,23 @@ describe("Dataset-DSPreview Test", function() {
             isUseUDFWithFunc = DSPreview.__testOnly__.isUseUDFWithFunc;
         });
 
-        it("Should toggle UDF", function() {
+        it("Should toggle UDF format", function() {
             var isUseUDF = DSPreview.__testOnly__.isUseUDF;
-            var $checkbox = $udfCheckbox.find(".checkbox");
-            var $detect = $("#dsForm-detect");
-
             // test 1
-            DSPreview.__testOnly__.toggleUDF(true);
-            expect($udfArgs.hasClass("active")).to.be.true;
-            expect($checkbox.hasClass("checked")).to.be.true;
+            DSPreview.__testOnly__.toggleFormat("UDF");
+            expect($form.find(".format.udf").hasClass("xc-hidden")).to.be.false;
             expect(isUseUDF()).to.be.true;
             expect(isUseUDFWithFunc()).to.be.false;
-            expect($detect.hasClass("xc-hidden")).to.be.true;
 
             // test 2
-            DSPreview.__testOnly__.toggleUDF(false);
-            expect($udfArgs.hasClass("active")).to.be.false;
-            expect($checkbox.hasClass("checked")).to.be.false;
+            DSPreview.__testOnly__.toggleFormat("CSV");
+            expect($form.find(".format.udf").hasClass("xc-hidden")).to.be.true;
             expect(isUseUDF()).to.be.false;
             expect(isUseUDFWithFunc()).to.be.false;
-            expect($detect.hasClass("xc-hidden")).to.be.false;
         });
 
         it("Should have default UDF", function() {
-            DSPreview.__testOnly__.toggleUDF(true);
+            DSPreview.__testOnly__.toggleFormat("UDF");
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
 
@@ -1323,7 +1340,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should validate name", function() {
             loadArgs.setFormat("CSV");
-            var $dsName = $("#dsForm-dsName");
+            var $dsName = $form.find(".dsName").eq(0);
             $dsName.val("");
 
             // test1
@@ -1380,7 +1397,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("Should validate UDF", function() {
-            $udfCheckbox.find(".checkbox").click();
+            DSPreview.__testOnly__.toggleFormat("UDF");
             $udfModuleList.find("input").val("");
 
             // empty module test
@@ -1395,41 +1412,47 @@ describe("Dataset-DSPreview Test", function() {
 
             // valid test
             $udfFuncList.find("input").val("openExcel");
-            expect(validateForm()).not.to.be.null;
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("JSON");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("openExcel");
 
             // remove UDF checkbox
             $udfModuleList.find("input").val("");
             $udfFuncList.find("input").val("");
-            $udfCheckbox.find(".checkbox").click();
+            DSPreview.__testOnly__.toggleFormat("CSV");
             expect(validateForm()).not.to.be.null;
         });
 
         it("should validate delimiter", function() {
             // invalid field delimiter
-            loadArgs.setFieldDelim({});
+            $fieldText.removeClass("nullVal").val("\\");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidDelim);
-            loadArgs.setFieldDelim(",");
+            $fieldText.val(",");
 
             // invalid line delimiter
-            loadArgs.setLineDelim({});
+            $lineText.removeClass("nullVal").val("\\");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidDelim);
 
             // invalid line delimiter
+            $lineText.val("ab");
             loadArgs.setLineDelim("ab");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidLineDelim);
 
+            $lineText.val("\r\n");
             loadArgs.setLineDelim("\r\n");
 
             // invalid quote
-            loadArgs.setQuote({});
+            $quoteInput.val("\\");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidQuote);
 
             // valid case
-            loadArgs.setQuote('"');
+            $quoteInput.val("\"");
             expect(validateForm()).not.to.be.null;
         });
 
@@ -1497,7 +1520,7 @@ describe("Dataset-DSPreview Test", function() {
                 "dsName": "test",
                 "moduleName": "default",
                 "funcName": "openExcel",
-                "format": "raw",
+                "format": "UDF",
                 "hasHeader": true,
                 "fieldDelim": "",
                 "lineDelim": "\n",
@@ -1505,14 +1528,11 @@ describe("Dataset-DSPreview Test", function() {
                 "skipRows": 1
             });
 
-            expect($("#dsForm-dsName").val()).to.equal("test");
-
-            expect($udfCheckbox.find(".checkbox").hasClass("checked"))
-            .to.be.true;
+            expect($form.find(".dsName").eq(0).val()).to.equal("test");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.equal("openExcel");
 
-            expect($formatText.data("format")).to.equal("TEXT");
+            expect($formatText.data("format")).to.equal("UDF");
             expect($headerCheckBox.find(".checkbox").hasClass("checked"))
             .to.be.true;
 
@@ -1696,16 +1716,16 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should click to toggle advanced option", function() {
-            var $advanceOption = $form.find(".advanceOption");
-            var $button = $advanceOption.find(".expand");
+            var $advanceSection = $form.find(".advanceSection");
+            var $button = $advanceSection.find(".listWrap");
 
-            expect($advanceOption.hasClass("active")).to.be.false;
+            expect($advanceSection.hasClass("active")).to.be.false;
             // open advance option
             $button.click();
-            expect($advanceOption.hasClass("active")).to.be.true;
+            expect($advanceSection.hasClass("active")).to.be.true;
             // close advance option
             $button.click();
-            expect($advanceOption.hasClass("active")).to.be.false;
+            expect($advanceSection.hasClass("active")).to.be.false;
         });
 
         it("should click to fetch more rows", function(done) {
@@ -1749,31 +1769,9 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.set({format: "CSV"});
         });
 
-        it("should click refresh button to refresh", function() {
-            var $button = $form.find(".refreshPreview");
-            // make an error case
-            $("#dsForm-dsName").val("");
-            loadArgs.set({format: null});
-            $button.click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-
-            // case 2
-            loadArgs.set({format: "CSV"});
-            $button.click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-        });
-
-        it("should click detect button to auto preview", function() {
-            $("#dsForm-skipRows").val("1");
-            // make an error case
-            $("#dsForm-dsName").val("");
-            $("#dsForm-detect").click();
-            expect($("#dsForm-skipRows").val()).to.equal("0");
-        });
-
         it("should click confirm to submit the form", function() {
             // make an error case
-            $("#dsForm-dsName").val("");
+            $form.find(".dsName").eq(0).val("");
             $form.find(".confirm:not(.creatTable)").click();
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
         });
@@ -1854,8 +1852,6 @@ describe("Dataset-DSPreview Test", function() {
                 expect($formatText.data("format")).to.equal("CSV");
                 expect($headerCheckBox.find(".checkbox").hasClass("checked"))
                 .to.be.false;
-                expect($udfCheckbox.find(".checkbox").hasClass("checked"))
-                .to.be.false;
                 expect($lineText.val()).to.equal("\\n");
                 expect($fieldText.val()).to.equal("\\t");
                 expect($quoteInput.val()).to.equal("\"");
@@ -1870,7 +1866,7 @@ describe("Dataset-DSPreview Test", function() {
         it("Should sumibt form and load ds", function(done) {
             var validFunc = function(dsName) { return !DS.has(dsName); };
             var testDS = xcHelper.uniqueRandName("testSuitesSp500", validFunc, 10);
-            $("#dsForm-dsName").val(testDS);
+            $form.find(".dsName").eq(0).val(testDS);
             var $grid;
             DSPreview.__testOnly__.submitForm()
             .then(function() {

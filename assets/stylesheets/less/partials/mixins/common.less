@@ -300,6 +300,22 @@
     }
 }
 
+.btn-transparent {
+    background-color: transparent;
+    opacity: @opacity-unhover;
+    color: @color-bg-select-blue;
+    border: 1px solid @color-bg-select-blue;
+
+    &:hover, &:focus {
+        opacity: @opacity-hover;
+        background-color: transparent;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
 .btn-small {
     .size(30px, 30px);
     line-height: 30px;

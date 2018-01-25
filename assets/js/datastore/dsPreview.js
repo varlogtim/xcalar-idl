@@ -29,7 +29,6 @@ window.DSPreview = (function($, DSPreview) {
     var highlighter = "";
 
     var loadArgs = new DSFormController();
-    var advanceOption;
     var detectArgs = {};
 
     // UI cache
@@ -56,6 +55,8 @@ window.DSPreview = (function($, DSPreview) {
         "CSV": "CSV",
         "TEXT": "raw",
         "EXCEL": "Excel",
+        "UDF": "UDF",
+        "XML": "XML"
     };
 
     DSPreview.setup = function() {
@@ -77,12 +78,6 @@ window.DSPreview = (function($, DSPreview) {
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
         $genLineNumCheckBox = $("#genLineNumbersCheckbox");
-
-        var $advanceOption = $form.find(".advanceOption");
-        advanceOption = new DSFormAdvanceOption($advanceOption, {
-            "container": "#dsForm-preview",
-            "onOpenList": openAdvanceList
-        });
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -234,10 +229,9 @@ window.DSPreview = (function($, DSPreview) {
             resetForm();
 
             loadArgs.set(options);
-            advanceOption.set(options);
 
-            var loadURL = loadArgs.getPath();
-            setDefaultDSName(loadURL);
+            var path = loadArgs.getPath();
+            setDefaultDSName([path]);
         }
 
         var module = null;
@@ -300,7 +294,7 @@ window.DSPreview = (function($, DSPreview) {
         if (delimiter == null) {
             cleanTempParser();
             tempParserUDF = moduleName;
-            toggleUDF(true);
+            toggleFormat("UDF");
             selectUDF(moduleName, "parser");
         } else {
             applyLineDelim(delimiter);
@@ -325,25 +319,17 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
-    DSPreview.getAdvanceOption = function() {
-        return advanceOption;
-    };
-
     DSPreview.cleanup = function() {
         return cleanTempParser();
     };
 
     function setupForm() {
-        // setup udf
-        $form.on("click", ".refreshPreview", function() {
-            var $btn = $(this).blur();
-            var changePattern = $btn.hasClass("changePattern");
-            var format = loadArgs.getFormat();
-            if (format == null) {
-                refreshPreview(false, true, changePattern);
-            } else {
-                refreshPreview(true, false, changePattern);
-            }
+        $form.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+
+        $form.on("click", ".topSection .actionPart", function() {
+            $(this).closest(".topSection").toggleClass("collapse");
         });
 
         // set up format dropdownlist
@@ -421,12 +407,6 @@ window.DSPreview = (function($, DSPreview) {
             getPreviewTable();
         });
 
-        // auto detect
-        $("#dsForm-detect").click(function() {
-            $(this).blur();
-            autoPreview();
-        });
-
         // back button
         $form.on("click", ".cancel", function() {
             var path = loadArgs.getPath();
@@ -450,27 +430,27 @@ window.DSPreview = (function($, DSPreview) {
             submitForm(toCreateTable);
         });
 
+        $form.submit(function(event) {
+            // any button click will trigger submit
+            event.preventDefault();
+        });
+
         setupUDFSection();
+        setupXMLSection();
+        setupAdvanceSection();
     }
 
     function setupUDFSection() {
-         // udf checkbox
-        $("#udfCheckbox").on("click", function() {
-            var $checkbox = $(this).find(".checkbox");
-            if ($checkbox.hasClass("checked")) {
-                var useUDF = isUseUDFWithFunc();
-                // uncheck box
-                toggleUDF(false);
-                if (useUDF) {
-                    // auto refresh when use UDF before and now uncheck
-                    refreshPreview(true);
-                }
-            } else {
-                // check the box
-                toggleUDF(true);
-            }
+        $("#dsForm-applyUDF").click(function() {
+            $(this).blur();
+            refreshPreview(true);
         });
 
+        $("#dsForm-writeUDF").click(function() {
+            $(this).blur();
+            // XXX TODO: implement the function to guide user to write UDF
+            $("#jupyterTab").click();
+        });
         // dropdown list for udf modules and function names
         var moduleMenuHelper = new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
@@ -499,6 +479,38 @@ window.DSPreview = (function($, DSPreview) {
             "menuHelper": funcMenuHelper,
             "onEnter": selectUDFFunc
         });
+    }
+
+    function setupXMLSection() {
+        $form.on("click", ".row.xml .checkboxSection", function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+    }
+
+    function setupAdvanceSection() {
+        // advance section
+        var $advanceSection = $form.find(".advanceSection");
+        $advanceSection.on("click", ".listWrap", function() {
+            $advanceSection.toggleClass("active");
+            $(this).toggleClass("active");
+        });
+
+        var $extraCols = $advanceSection.find(".extraCols");
+        $extraCols.on("click", ".checkboxSection", function() {
+            var $part = $(this).closest(".part");
+            $part.find(".checkbox").toggleClass("checked");
+            $part.toggleClass("active");
+
+            if ($part.hasClass("active")) {
+                $part.find("input").focus();
+            }
+        });
+
+        $advanceSection.find(".performance").on("click", ".checkboxSection", function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+
+        xcHelper.optionButtonEvent($advanceSection);
     }
 
     function listUDFSection(listXdfsObj) {
@@ -549,7 +561,6 @@ window.DSPreview = (function($, DSPreview) {
         // restet the udf lists, otherwise the if clause in
         // selectUDFModule() and selectUDFFunc() will
         // stop the reset from triggering
-        toggleUDF(false);
         // only when cached moduleName and funcName is not null
         // we restore it
         if (lastUDFModule != null && lastUDFFunc != null &&
@@ -604,10 +615,10 @@ window.DSPreview = (function($, DSPreview) {
                         .find("input").removeAttr("disabled");
             udfFuncHint.clearInput();
 
-            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
+            var $funcLis = $udfFuncList.find(".list li").addClass("xc-hidden")
                             .filter(function() {
                                 return $(this).data("module") === module;
-                            }).removeClass("hidden");
+                            }).removeClass("xc-hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
             }
@@ -619,24 +630,6 @@ window.DSPreview = (function($, DSPreview) {
             func = "";
         }
         udfFuncHint.setInput(func);
-    }
-
-    function toggleUDF(usUDF) {
-        var $checkbox = $("#udfCheckbox").find(".checkbox");
-        var $udfArgs = $("#udfArgs");
-        var $detect = $("#dsForm-detect");
-
-        if (usUDF) {
-            $form.addClass("udf");
-            $checkbox.addClass("checked");
-            $udfArgs.addClass("active");
-            $detect.addClass("xc-hidden");
-        } else {
-            $form.removeClass("udf");
-            $checkbox.removeClass("checked");
-            $udfArgs.removeClass("active");
-            $detect.removeClass("xc-hidden");
-        }
     }
 
     function cacheUDF(udfModule, udfFunc) {
@@ -651,7 +644,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function isUseUDF() {
-        return $("#udfCheckbox").find(".checkbox").hasClass("checked");
+        return (loadArgs.getFormat() === "UDF");
     }
 
     function isUseUDFWithFunc() {
@@ -681,9 +674,13 @@ window.DSPreview = (function($, DSPreview) {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
         $form.find(".checkbox.checked").removeClass("checked");
+        $form.find(".collapse").removeClass("collapse");
+
+        var $advanceSection = $form.find(".advanceSection").removeClass("active");
+        $advanceSection.find(".active").removeClass("active");
+        $advanceSection.find(".radioButton").eq(0).addClass("active");
 
         loadArgs.reset();
-        advanceOption.reset();
         detectArgs = {
             "fieldDelim": "",
             "lineDelim": "\n",
@@ -739,22 +736,18 @@ window.DSPreview = (function($, DSPreview) {
         $form.find(".checkbox.checked").removeClass("checked");
 
         // dsName
-        $("#dsForm-dsName").val(options.dsName);
+        $form.find(".dsName").eq(0).val(options.dsName);
 
         // udf section
         var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
         resetUdfSection();
-        if (wasUDFCached) {
-            toggleUDF(true);
-        }
-
-        // advanced section
-        advanceOption.set(options);
 
         // format
         var format = options.format;
         if (format === formatMap.TEXT) {
             format = "TEXT";
+        } else if (wasUDFCached) {
+            format = "UDF";
         }
         toggleFormat(format);
 
@@ -807,18 +800,13 @@ window.DSPreview = (function($, DSPreview) {
 
         var header = loadArgs.useHeader();
         var targetName = loadArgs.getTargetName();
-        var loadURL = loadArgs.getPath();
-        var advanceArgs = advanceOption.getArgs();
-        if (advanceArgs == null) {
-            return PromiseHelper.reject("Checking Invalid");
-        }
-
-        var pattern = advanceArgs.pattern;
-        var isRecur = advanceArgs.isRecur;
-        var isRegex = advanceArgs.isRegex;
+        var path = loadArgs.getPath();
+        var pattern = loadArgs.getPattern();
+        var isRecur = loadArgs.getRecur();
+        var isRegex = loadArgs.getRegEx();
 
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
-        //     header, loadURL, quote, skipRows, isRecur, isRegex);
+        //     header, path, quote, skipRows, isRecur, isRegex);
 
         var headers = getColumnHeaders();
         cacheUDF(udfModule, udfFunc);
@@ -846,7 +834,7 @@ window.DSPreview = (function($, DSPreview) {
                 "name": dsName,
                 "targetName": targetName,
                 "format": format,
-                "path": loadURL,
+                "path": path,
                 "pattern": pattern,
                 "fieldDelim": fieldDelim,
                 "lineDelim": lineDelim,
@@ -906,54 +894,94 @@ window.DSPreview = (function($, DSPreview) {
         return headers;
     }
 
-    function validateForm(skipFormatCheck) {
-        var $dsName = $("#dsForm-dsName");
-        var dsName = $dsName.val().trim();
+    function validateDSNames() {
+        var isValid = true;
+        var dsNames = [];
+
         // validate name
+        $form.find(".dsName").each(function() {
+            var $dsName = $(this);
+            var dsName = $dsName.val().trim();
+            isValid = xcHelper.validate([
+                {
+                    "$ele": $dsName
+                },
+                {
+                    "$ele": $dsName,
+                    "error": ErrTStr.TooLong,
+                    "formMode": true,
+                    "check": function() {
+                        return (dsName.length >=
+                                XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                    }
+                },
+                {
+                    "$ele": $dsName,
+                    "error": ErrTStr.DSStartsWithLetter,
+                    "formMode": true,
+                    "check": function() {
+                        return !xcHelper.isStartWithLetter(dsName);
+                    }
+                },
+                {
+                    "$ele": $dsName,
+                    "formMode": true,
+                    "error": ErrTStr.DSNameConfilct,
+                    "check": function(name) {
+                        var dsToReplace = $previewCard.data("dsid") || null;
+                        if (dsToReplace) {
+                            if (name === xcHelper.parseDSName(dsToReplace).dsName) {
+                                return false;
+                            }
+                        }
+                        return DS.has(name) || dsNames.includes(dsName); // already used
+                    }
+
+                },
+                {
+                    "$ele": $dsName,
+                    "formMode": true,
+                    "error": ErrTStr.NoSpecialCharOrSpace,
+                    "check": function() {
+                        return !xcHelper.checkNamePattern("dataset", "check",
+                                                          dsName);
+                    }
+                }
+            ]);
+
+            dsNames.push(dsName);
+
+            if (!isValid) {
+                return false; // stop looping
+            }
+        });
+
+        return isValid ? dsNames : null;
+    }
+
+    function validateFormat() {
+        var format = loadArgs.getFormat();
+        isValid = xcHelper.validate([{
+            "$ele": $formatText,
+            "error": ErrTStr.NoEmptyList,
+            "check": function() {
+                return (format == null);
+            }
+        }]);
+        return isValid ? format : null;
+    }
+
+    function validateUDF() {
+        var $moduleInput = $udfModuleList.find("input");
+        var $funcInput = $udfFuncList.find("input");
         var isValid = xcHelper.validate([
             {
-                "$ele": $dsName
+                "$ele": $moduleInput,
+                "error": ErrTStr.NoEmptyList
             },
             {
-                "$ele": $dsName,
-                "error": ErrTStr.TooLong,
-                "formMode": true,
-                "check": function() {
-                    return (dsName.length >=
-                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
-                }
-            },
-            {
-                "$ele": $dsName,
-                "error": ErrTStr.DSStartsWithLetter,
-                "formMode": true,
-                "check": function() {
-                    return !xcHelper.isStartWithLetter(dsName);
-                }
-            },
-            {
-                "$ele": $dsName,
-                "formMode": true,
-                "error": ErrTStr.DSNameConfilct,
-                "check": function(name) {
-                    var dsToReplace = $previewCard.data("dsid") || null;
-                    if (dsToReplace) {
-                        if (name === xcHelper.parseDSName(dsToReplace).dsName) {
-                            return false;
-                        }
-                    }
-                    return DS.has(name);
-                }
-
-            },
-            {
-                "$ele": $dsName,
-                "formMode": true,
-                "error": ErrTStr.NoSpecialCharOrSpace,
-                "check": function() {
-                    return !xcHelper.checkNamePattern("dataset", "check",
-                                                      dsName);
-                }
+                "$ele": $funcInput,
+                "error": ErrTStr.NoEmptyList
             }
         ]);
 
@@ -961,86 +989,27 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        // validate format
-        var format = loadArgs.getFormat();
-        isValid = xcHelper.validate([{
-            "$ele": $formatText,
-            "error": ErrTStr.NoEmptyList,
-            "check": function() {
-                return (!isUseUDF() && !skipFormatCheck && (format == null));
-            }
-        }]);
+        udfModule = $moduleInput.val();
+        udfFunc = $funcInput.val();
 
-        if (!isValid) {
-            return null;
-        }
+        return [udfModule, udfFunc];
+    }
 
-        // validate UDF
-        var hasUDF = isUseUDF();
-        var udfModule = "";
-        var udfFunc = "";
-        var udfQuery = null; // not used yet
-        var targetName = loadArgs.getTargetName();
-
-        if (!hasUDF && DSTargetManager.isGeneratedTarget(targetName)) {
-            udfModule = "default";
-            udfFunc = "convertNewLineJsonToArrayJson";
-        } else if (format === "raw" &&
-            $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
-            udfModule = "default";
-            if (loadArgs.useHeader()) {
-                udfFunc = "genLineNumberWithHeader";
-            } else {
-                udfFunc = "genLineNumber";
-            }
-            format = formatMap.JSON;
-            return {
-                "dsName": dsName,
-                "format": format,
-                "udfModule": udfModule,
-                "udfFunc": udfFunc,
-                "fieldDelim": "\t",
-                "lineDelim": "\n",
-                "quote": "\"",
-                "skipRows": 0
-            };
-        } else if (hasUDF) {
-            var $moduleInput = $udfModuleList.find("input");
-            var $funcInput = $udfFuncList.find("input");
-
-            isValid = xcHelper.validate([
-                {
-                    "$ele": $moduleInput,
-                    "error": ErrTStr.NoEmptyList
-                },
-                {
-                    "$ele": $funcInput,
-                    "error": ErrTStr.NoEmptyList
-                }
-            ]);
-
-            if (!isValid) {
-                return null;
-            }
-
-            udfModule = $moduleInput.val();
-            udfFunc = $funcInput.val();
-            // streaming UDF can only be json
-            format = formatMap.JSON;
-        }
-
+    function validateCSVArgs(isCSV) {
         // validate delimiter
         var fieldDelim = loadArgs.getFieldDelim();
         var lineDelim = loadArgs.getLineDelim();
         var quote = loadArgs.getQuote();
-
-        isValid = xcHelper.validate([
+        var skipRows = getSkipRows();
+        var isValid = xcHelper.validate([
             {
                 "$ele": $fieldText,
                 "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
                 "check": function() {
-                    return (typeof fieldDelim === "object");
+                    // for Text foramt don't check field delim
+                    var res = xcHelper.delimiterTranslate($fieldText);
+                    return (isCSV && typeof res === "object");
                 }
             },
             {
@@ -1048,7 +1017,8 @@ window.DSPreview = (function($, DSPreview) {
                 "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
                 "check": function() {
-                    return (typeof lineDelim === "object");
+                    var res = xcHelper.delimiterTranslate($lineText);
+                    return (typeof res === "object");
                 }
             },
             {
@@ -1065,8 +1035,8 @@ window.DSPreview = (function($, DSPreview) {
                 "error": DSFormTStr.InvalidQuote,
                 "formMode": true,
                 "check": function() {
-                    return (typeof quote === "object") ||
-                           (xcHelper.delimiterTranslate($quote).length > 1);
+                    var res = xcHelper.delimiterTranslate($quote);
+                    return (typeof res === "object") || (res.length > 1);
                 }
             }
         ]);
@@ -1075,45 +1045,152 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        // validate skipRows
-        var skipRows = getSkipRows();
-        isValid = xcHelper.validate([
-            {
-                "$ele": $("#dsForm-skipRows"),
-                "error": ErrTStr.NoNegativeNumber,
-                "formMode": true,
-                "check": function() {
-                    return (skipRows < 0);
-                }
-            }
-        ]);
+        return [fieldDelim, lineDelim, quote, skipRows];
+    }
+
+    function validateXMLArgs() {
+        var $xPaths = $("#dsForm-xPaths");
+        var isValid = xcHelper.validate([{
+            $ele: $xPaths
+        }]);
 
         if (!isValid) {
             return null;
         }
 
-        // validate advanced args
-        var advanceArgs = advanceOption.getArgs();
-        if (advanceArgs == null) {
+        var xPaths = $("#dsForm-xPaths").val().trim();
+        var matchedXPath = $form.find(".matchedXPath")
+                                .find(".checkbox").hasClass("checked");
+        var elementXPath = $form.find(".elementXPath")
+                                .find(".checkbox").hasClass("checked");
+        return {
+            xPaths: xPaths,
+            matchedXPath: matchedXPath,
+            elementXPath: elementXPath
+        };
+    }
+
+    function validateAdvanceArgs() {
+        var $advanceSection = $form.find(".advanceSection");
+        var validateExtraColumnArg = function($ele) {
+            var isValid = true;
+            if ($ele.find(".checkbox").hasClass("checked")) {
+                isValid = xcHelper.validate([{
+                    $ele: $ele.find("input"),
+                    onErr: function() {
+                        if (!$advanceSection.hasClass("active")) {
+                            $advanceSection.find(".listWrap").click();
+                        }
+                    },
+                    delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
+                }]);
+            }
+            return isValid;
+        };
+
+        var $fileName = $advanceSection.find(".fileName");
+        var $rowNum = $advanceSection.find(".rowNumber");
+
+        if (!validateExtraColumnArg($fileName) ||
+            !validateExtraColumnArg($rowNum)) {
             return null;
         }
 
-        // special case: special json:
-        if (format === formatMap.JSON && detectArgs.isSpecialJSON === true) {
-            // if user specified udf, then use the udf.
+        var metaFile = $("#dsForm-metadataFile").val().trim() || null;
+        var rowNum = $fileName.find("input").val().trim() || null;
+        var fileName = $fileName.find("input").val().trim() || null;
+        var unsorted = $advanceSection.find(".performance .checkbox")
+                                      .hasClass("checked");
+        var termination = $advanceSection.find(".termination")
+                                         .find(".radioButton.active")
+                                         .data("option");
+        return {
+            metaFile: metaFile,
+            rowNum: rowNum,
+            fileName: fileName,
+            unsorted: unsorted,
+            termination: termination
+        };
+    }
+
+    function validateForm() {
+        var dsNames = validateDSNames();
+        if (dsNames == null) {
+            // error case
+            return null;
+        }
+
+        var format = validateFormat();
+        if (format == null) {
+            // error case
+            return null;
+        }
+
+        var hasUDF = isUseUDF();
+        var udfModule = "";
+        var udfFunc = "";
+        var udfQuery = null; // not used yet
+        var fieldDelim = null;
+        var lineDelim = null;
+        var quote = null;
+        var skipRows = null;
+        var xmlArgs = {};
+
+        if (hasUDF) {
+            var udfArgs = validateUDF();
+            if (udfArgs == null) {
+                // error case
+                return null;
+            }
+            udfModule = udfArgs[0];
+            udfFunc = udfArgs[1];
+            // XXX TODO: don't change to JSON format and show it as user defined format
+            format = formatMap.JSON;
+        } else if (format === "raw" &&
+                   $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
+            udfModule = "default";
+            udfFunc = loadArgs.useHeader()
+                      ? "genLineNumberWithHeader"
+                      : "genLineNumber";
+            // XXX TODO: don't change to JSON format and show it as TEXT format
+            format = formatMap.JSON;
+        } else if (format === "raw" || format === "CSV") {
+            var isCSV = (format === "CSV");
+            var csvArgs = validateCSVArgs(isCSV);
+            if (csvArgs == null) {
+                // error case
+                return null;
+            }
+            fieldDelim = isCSV ? csvArgs[0] : null;
+            lineDelim = csvArgs[1];
+            quote = csvArgs[2];
+            skipRows = csvArgs[3];
+        } else if (format === formatMap.JSON &&
+                    detectArgs.isSpecialJSON === true) {
+            // special case: special json
+            // if user specified udf, then use the udf (hasUDF case).
             // otherwise, treat it as special json
-            if (udfModule === "" || udfFunc === "") {
-                udfModule = "default";
-                udfFunc = "convertNewLineJsonToArrayJson";
-                format = formatMap.JSON;
-            }
+            udfModule = "default";
+            udfFunc = "convertNewLineJsonToArrayJson";
         } else if (format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
+        } else if (format === formatMap.XML) {
+            xmlArgs = validateXMLArgs();
+            if (xmlArgs == null) {
+                // error case
+                return null;
+            }
         }
 
-        return {
-            "dsName": dsName,
+        var advanceArgs = validateAdvanceArgs();
+        if (advanceArgs == null) {
+            // error case
+            return null;
+        }
+
+        var args = {
+            "dsName": dsNames[0],
             "format": format,
             "udfModule": udfModule,
             "udfFunc": udfFunc,
@@ -1123,18 +1200,8 @@ window.DSPreview = (function($, DSPreview) {
             "quote": quote,
             "skipRows": skipRows
         };
-    }
 
-    function openAdvanceList($section) {
-        var $pattern = $section.find(".pattern");
-        var $input = $pattern.find("input");
-        if (isPreviewSingleFile()) {
-            $pattern.children().addClass("unavailable");
-            $input.prop("disabled", true);
-        } else {
-            $pattern.children().removeClass("unavailable");
-            $input.prop("disabled", false);
-        }
+        return $.extend(args, xmlArgs, advanceArgs);
     }
 
     function getNameFromPath(path) {
@@ -1325,20 +1392,10 @@ window.DSPreview = (function($, DSPreview) {
             return false;
         }
 
-        var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
-        var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
-        var $genLineNums = $genLineNumCheckBox.parent().addClass("xc-hidden");
-        var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
-        var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
-        var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
-        var $skipRows = $("#dsForm-skipRows").closest(".row")
-                                             .removeClass("xc-hidden");
+        $form.find(".format").addClass("xc-hidden");
 
         if (format == null) {
             // reset case
-            $lineDelim.addClass("xc-hidden");
-            $fieldDelim.addClass("xc-hidden");
-            $headerRow.addClass("xc-hidden");
             $formatText.data("format", "").val("");
             loadArgs.setFormat(null);
             return false;
@@ -1347,42 +1404,34 @@ window.DSPreview = (function($, DSPreview) {
         format = format.toUpperCase();
         var text = $('#fileFormatMenu li[name="' + format + '"]').text();
         $formatText.data("format", format).val(text);
-        $form.removeClass("format-excel");
 
         switch (format) {
             case "CSV":
-                $skipRows.removeClass("");
+                $form.find(".format.csv").removeClass("xc-hidden");
                 setFieldDelim();
                 break;
             case "TEXT":
-                // no field delimiter when format is text
-                $fieldDelim.addClass("xc-hidden");
-
+                $form.find(".format.text").removeClass("xc-hidden");
                 toggleGenLineNum(false);
                 loadArgs.setFieldDelim("");
+
+                var $genLineNums = $genLineNumCheckBox.parent();
                 if (isPreviewSingleFile()) {
                     $genLineNums.removeClass("xc-hidden");
+                } else {
+                    $genLineNums.addClass("xc-hidden");
                 }
                 break;
             case "EXCEL":
-                $lineDelim.addClass("xc-hidden");
-                $fieldDelim.addClass("xc-hidden");
-                // excel not use udf section
-                $udfArgs.addClass("xc-hidden");
-                $form.addClass("format-excel");
-                $skipRows.addClass("xc-hidden");
-                $quoteRow.addClass("xc-hidden");
+                $form.find(".format.excel").removeClass("xc-hidden");
                 break;
-            // json and random
             case "JSON":
-                // json and random
-                // Note: random is setup in shortcuts.js,
-                // so prod build will not have it
-                $headerRow.addClass("xc-hidden");
-                $lineDelim.addClass("xc-hidden");
-                $fieldDelim.addClass("xc-hidden");
-                $skipRows.addClass("xc-hidden");
-                $quoteRow.addClass("xc-hidden");
+                break;
+            case "UDF":
+                $form.find(".format.udf").removeClass("xc-hidden");
+                break;
+            case "XML":
+                $form.find(".format.xml").removeClass("xc-hidden");
                 break;
             default:
                 throw ("Format Not Support");
@@ -1395,10 +1444,21 @@ window.DSPreview = (function($, DSPreview) {
     function changeFormat(format) {
         var oldFormat = loadArgs.getFormat();
         var hasChangeFormat = toggleFormat(format);
+        var useUDF = isUseUDFWithFunc();
+        var changeWithExcel = function(fomratOld, formatNew) {
+            return fomratOld != null &&
+                    (fomratOld.toUpperCase() === "EXCEL" ||
+                    formatNew.toUpperCase() === "EXCEL");
+        };
+
+        var chanegFromUDF = function(wasUseUDF) {
+            // auto refresh when use UDF before and now change to another format
+            return wasUseUDF && !isUseUDF();
+        };
+
         if (hasChangeFormat) {
-            if (oldFormat != null &&
-                (oldFormat.toUpperCase() === "EXCEL" ||
-                format.toUpperCase() === "EXCEL")) {
+            if (changeWithExcel(oldFormat, format) ||
+                chanegFromUDF(useUDF)) {
                 refreshPreview(true);
             } else {
                 getPreviewTable();
@@ -1503,24 +1563,16 @@ window.DSPreview = (function($, DSPreview) {
         var udfQuery = options.udfQuery || null;
 
         var targetName = loadArgs.getTargetName();
-        var loadURL = loadArgs.getPath();
-        var dsName = $("#dsForm-dsName").val();
+        var path = loadArgs.getPath();
+        var dsName = $form.find(".dsName").eq(0).val();
         if (!dsName) {
-            dsName = setDefaultDSName(loadURL);
+            dsName = setDefaultDSName([path])[0];
         }
 
-        var advanceArgs = advanceOption.getArgs();
-        var recursive = false;
-        var isRegex = false;
-        var pattern = null;
-
-        if (advanceArgs != null) {
-            recursive = advanceArgs.isRecur;
-            isRegex = advanceArgs.isRegex;
-            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
-        } else {
-            console.error("error case");
-        }
+        var recursive = loadArgs.getRecur();
+        var isRegex = loadArgs.getRegEx();
+        var pattern = loadArgs.getPattern();
+        pattern = xcHelper.getFileNamePattern(pattern, isRegex);
 
         var hasUDF = false;
         if (udfModule && udfFunc) {
@@ -1538,6 +1590,7 @@ window.DSPreview = (function($, DSPreview) {
         var $waitSection = $previeWrap.find(".waitSection")
                                     .removeClass("hidden");
         $previeWrap.find(".errorSection").addClass("hidden");
+
         var sql = {
             "operation": SQLOps.PreviewDS,
             "dsPath": null,
@@ -1553,11 +1606,11 @@ window.DSPreview = (function($, DSPreview) {
             "steps": 1
         });
 
-        setPreviewInfo(targetName, loadURL, pattern);
+        setPreviewInfo(targetName, path, pattern);
 
         var curPreviewId = updatePreviewId();
         var def = isFirstTime
-                  ? checkIsFolder(targetName, loadURL)
+                  ? checkIsFolder(targetName, path)
                   : PromiseHelper.resolve();
 
         var urlToPreview;
@@ -1569,7 +1622,7 @@ window.DSPreview = (function($, DSPreview) {
             if (isFirstTime || previewFile == null || options.changePattern) {
                 var args = {
                     targetName: targetName,
-                    path: loadURL,
+                    path: path,
                     recursive: recursive,
                     fileNamePattern: pattern
                 };
@@ -1588,11 +1641,14 @@ window.DSPreview = (function($, DSPreview) {
                 toggleFormat("EXCEL");
                 sql.moduleName = udfModule;
                 sql.funcName = udfFunc;
-            } else if (DSTargetManager.isGeneratedTarget(targetName)) {
+            } else if (isFirstTime && !hasUDF && DSTargetManager.isGeneratedTarget(targetName)) {
                 // special case
                 hasUDF = true;
-                udfModule = udfModule || "default";
-                udfFunc = udfFunc || "convertNewLineJsonToArrayJson";
+                udfModule = "default";
+                udfFunc = "convertNewLineJsonToArrayJson";
+                toggleFormat("UDF");
+                selectUDFModule(udfModule);
+                selectUDFFunc(udfFunc);
                 sql.moduleName = udfModule;
                 sql.funcName = udfFunc;
             }
@@ -1754,10 +1810,36 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function setDefaultDSName(loadURL) {
-        var dsName = getNameFromPath(loadURL);
-        $("#dsForm-dsName").val(dsName);
-        return dsName;
+    function setDefaultDSName(paths) {
+        var dsNames = [];
+        var html = "";
+        paths.forEach(function(path) {
+            var dsName = getNameFromPath(path);
+            dsNames.push(dsName);
+
+            html += '<div class="row">' +
+                        '<div class="inputWrap">' +
+                            '<input class="large dsName" type="text"' +
+                            ' autocomplete="off" spellcheck="false"' +
+                            ' value="' + dsName + '">' +
+                        '</div>' +
+                        '<label class="tooltipOverflow"' +
+                        ' data-toggle="tooltip"' +
+                        ' data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + path + '">' +
+                            path +
+                        '</label>' +
+                    '</div>';
+        });
+        $form.find(".topSection .inputPart").html(html);
+        if (paths.length > 1) {
+            $form.addClass("multiFiles");
+        } else {
+            $form.removeClass("multiFiles");
+        }
+
+        return dsNames;
     }
 
     function setPreviewInfo(targetName, url, pattern) {
@@ -1810,18 +1892,10 @@ window.DSPreview = (function($, DSPreview) {
 
     function previewFileSelect(isParseMode) {
         var previewFile = $("#preview-file").find(".text").text();
-        var advanceArgs = advanceOption.getArgs();
-        var recursive = false;
-        var isRegex = false;
-        var pattern = null;
-
-        if (advanceArgs != null) {
-            recursive = advanceArgs.isRecur;
-            isRegex = advanceArgs.isRegex;
-            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
-        } else {
-            console.error("error case");
-        }
+        var recursive = loadArgs.getRecur();
+        var isRegex = loadArgs.getRegEx();
+        var pattern = loadArgs.getPattern();
+        pattern = xcHelper.getFileNamePattern(pattern, isRegex);
 
         PreviewFileModal.show({
             "targetName": loadArgs.getTargetName(),
@@ -2074,44 +2148,35 @@ window.DSPreview = (function($, DSPreview) {
 
     function fetchMoreRowsFromPreview(rowsToAdd) {
         var targetName = loadArgs.getTargetName();
-        var loadURL = loadArgs.getPreviewFile();
+        var path = loadArgs.getPreviewFile();
         var buffer = rawData;
-
-        var advanceArgs = advanceOption.getArgs();
-        var isRecur = false;
-        var isRegex = false;
-        var pattern = null;
-
-        if (advanceArgs != null) {
-            isRecur = advanceArgs.isRecur;
-            isRegex = advanceArgs.isRegex;
-            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
-        } else {
-            console.error("error case");
-        }
+        var isRecur = loadArgs.getRecur();
+        var isRegex = loadArgs.getRegEx();
+        var pattern = loadArgs.getPattern();
+        pattern = xcHelper.getFileNamePattern(pattern, isRegex);
 
         var rowsToShow = getRowsToPreivew() + rowsToAdd;
         var args = {
             targetName: targetName,
-            path: loadURL,
+            path: path,
             fileNamePattern: pattern,
             recursive: isRecur
         };
         return getDataFromPreview(args, buffer, rowsToShow);
     }
 
-    function autoPreview() {
-        $("#dsForm-skipRows").val(0);
-        var oldFormat = loadArgs.getFormat();
-        smartDetect(true);
-        var newFormat = loadArgs.getFormat();
-        if (oldFormat !== formatMap.EXCEL && newFormat === formatMap.EXCEL) {
-            refreshPreview();
-        }
-    }
+    // function autoPreview() {
+    //     $("#dsForm-skipRows").val(0);
+    //     var oldFormat = loadArgs.getFormat();
+    //     smartDetect(true);
+    //     var newFormat = loadArgs.getFormat();
+    //     if (oldFormat !== formatMap.EXCEL && newFormat === formatMap.EXCEL) {
+    //         refreshPreview();
+    //     }
+    // }
 
-    function refreshPreview(noDetect, skipFormatCheck, changePattern) {
-        var formOptions = validateForm(skipFormatCheck);
+    function refreshPreview(noDetect, changePattern) {
+        var formOptions = validateForm();
         if (formOptions == null) {
             return;
         }
@@ -2286,7 +2351,6 @@ window.DSPreview = (function($, DSPreview) {
     function toggleGenLineNum(genLineNum) {
         if (genLineNum) {
             $genLineNumCheckBox.find(".checkbox").addClass("checked");
-            $("#udfArgs").addClass("xc-hidden");
             $("#lineDelim").parent().addClass("xc-hidden");
             $quote.closest(".row").addClass("xc-hidden");
             $("#dsForm-skipRows").closest(".row").addClass("xc-hidden");
@@ -2294,7 +2358,6 @@ window.DSPreview = (function($, DSPreview) {
 
         } else {
             $genLineNumCheckBox.find(".checkbox").removeClass("checked");
-            $("#udfArgs").removeClass("xc-hidden");
             $("#lineDelim").parent().removeClass("xc-hidden");
             $quote.closest(".row").removeClass("xc-hidden");
             $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
@@ -2788,11 +2851,6 @@ window.DSPreview = (function($, DSPreview) {
         // applyLineDelim("\n");
         applyQuote("\"");
 
-        // step 0: check if should check UDF or not
-        if (!isUseUDFWithFunc()) {
-            toggleUDF(false);
-        }
-
         // step 1: detect format
         var lineDelim = loadArgs.getLineDelim();
         detectArgs.format = detectFormat(rawData, lineDelim);
@@ -2976,7 +3034,6 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.applyLineDelim = applyLineDelim;
         DSPreview.__testOnly__.applyQuote = applyQuote;
         DSPreview.__testOnly__.toggleFormat = toggleFormat;
-        DSPreview.__testOnly__.toggleUDF = toggleUDF;
         DSPreview.__testOnly__.isUseUDF = isUseUDF;
         DSPreview.__testOnly__.isUseUDFWithFunc = isUseUDFWithFunc;
         DSPreview.__testOnly__.selectUDFModule = selectUDFModule;

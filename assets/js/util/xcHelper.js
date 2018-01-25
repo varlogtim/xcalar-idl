@@ -1476,6 +1476,7 @@
            isAlert: if set true, will show Alert Modal, default is StatusBox
            formMode: if set true, will use StatusBox's form mode
            side: string, side to show the pop up
+           delay: dealy to show the status box
            ...: to be extened in the future.
 
          * Check will run in array's order.
@@ -1518,7 +1519,13 @@
                 if (ele.isAlert) {
                     Alert.error(ErrTStr.InvalidField, error);
                 } else {
-                    StatusBox.show(error, $e, ele.formMode, options);
+                    if (ele.delay != null) {
+                        setTimeout(function() {
+                            StatusBox.show(error, $e, ele.formMode, options);
+                        }, 300);
+                    } else {
+                        StatusBox.show(error, $e, ele.formMode, options);
+                    }
                 }
 
                 // callback
@@ -1756,7 +1763,7 @@
         }
         html += '</div>';
         return html;
-    }
+    };
 
     xcHelper.disableSubmit = function($submitBtn) {
         if ($submitBtn.is("button")) {

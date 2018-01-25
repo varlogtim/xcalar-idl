@@ -129,118 +129,6 @@ function MouseEvents() {
     };
 }
 
-// dsForm.js and fileBrowser.js
-function DSFormAdvanceOption($section, options) {
-    this.$section = $section;
-    this.options = options || {};
-    this.__addEventListener();
-    this.reset();
-
-    return this;
-}
-
-DSFormAdvanceOption.prototype = {
-    __addEventListener: function() {
-        var self = this;
-        var $section = self.$section;
-        // add event listener
-        $section.on("click", ".listInfo .expand, .listInfo .text", function() {
-            self.__toggleList();
-        });
-
-        var $pattern = $section.find(".option.pattern");
-        $pattern.on("click", ".checkboxSection", function() {
-            $(this).find(".checkbox").toggleClass("checked");
-        });
-    },
-
-    __toggleList: function() {
-        var $section = this.$section;
-        var container = this.container;
-        var options = this.options;
-
-        $section.toggleClass("active");
-        $(container).toggleClass("has-expand-list");
-        var isOpen = $section.hasClass("active");
-        var callback = options.onOpenList;
-        if (isOpen && typeof callback === "function") {
-            callback($section);
-        }
-    },
-
-    reset: function() {
-        var $section = this.$section;
-        $section.find("input").val("")
-                .end()
-                .find(".checked").removeClass("checked");
-        if ($section.hasClass("active")) {
-            this.__toggleList();
-        }
-        this.set();
-    },
-
-    set: function(options) {
-        options = options || {};
-
-        var $section = this.$section;
-        var $pattern = $section.find(".option.pattern");
-        var hasSet;
-
-        if (options.pattern != null && options.pattern !== "") {
-            hasSet = true;
-            $pattern.find("input").val(options.pattern);
-        }
-
-        if (options.isRecur) {
-            hasSet = true;
-            $pattern.find(".recursive .checkbox").addClass("checked");
-        }
-
-        if (options.isRegex) {
-            hasSet = true;
-            $pattern.find(".regex .checkbox").addClass("checked");
-        }
-
-        if (hasSet) {
-            this._expandSection();
-        }
-    },
-
-    _expandSection: function() {
-        var $section = this.$section;
-        if (!$section.hasClass("active")) {
-            $section.find(".listInfo .expand").click();
-        }
-    },
-
-    getArgs: function() {
-        var $section = this.$section;
-        var $pattern = $section.find(".option.pattern");
-        var pattern = $pattern.find(".input").val().trim();
-        var isRecur = $pattern.find(".recursive .checkbox").hasClass("checked");
-        var isRegex = $pattern.find(".regex .checkbox").hasClass("checked");
-        if (pattern === "") {
-            pattern = null;
-        }
-
-        if (pattern != null && isRegex) {
-            try {
-                var searchKey = xcHelper.prefixRegExKey(pattern);
-                new RegExp(searchKey);
-            } catch (e) {
-                StatusBox.show(ErrTStr.InvalidRegEx, $pattern.find("input"));
-                return null;
-            }
-        }
-
-        return {
-            "pattern": pattern,
-            "isRecur": isRecur,
-            "isRegex": isRegex
-        };
-    }
-};
-
 // dsPreview.js
 function DSFormController() {
     return this;
@@ -249,6 +137,7 @@ function DSFormController() {
 DSFormController.prototype = {
     set: function(options) {
         options = options || {};
+
         if (options.targetName != null) {
             this.targetName = options.targetName;
         }
@@ -260,6 +149,18 @@ DSFormController.prototype = {
         if (options.format != null) {
             this.format = options.format;
         }
+
+        if (options.pattern != null) {
+            this.pattern = options.pattern;
+        }
+
+        if (options.isRecur != null) {
+            this.isRecur = options.isRecur;
+        }
+
+        if (options.isRegex != null) {
+            this.isRegex = options.isRegex;
+        }
     },
 
     reset: function() {
@@ -269,8 +170,12 @@ DSFormController.prototype = {
         this.quote = "\"";
         this.previewFile = null;
 
+        delete this.targetName;
         delete this.path;
         delete this.format;
+        delete this.pattern;
+        delete this.isRecur;
+        delete this.isRegex;
     },
 
     getTargetName: function() {
@@ -336,6 +241,18 @@ DSFormController.prototype = {
 
     getPreviewFile: function() {
         return this.previewFile;
+    },
+
+    getPattern: function() {
+        return this.pattern;
+    },
+
+    getRecur: function() {
+        return this.isRecur || false;
+    },
+
+    getRegEx: function() {
+        return this.isRegex || false;
     },
 
     getArgStr: function() {

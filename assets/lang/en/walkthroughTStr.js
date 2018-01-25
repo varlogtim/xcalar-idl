@@ -32,7 +32,7 @@ var WalkThroughTStr = {
         // If step's name is not here, it will not get played!
         '_order': ['w2-newDs', 'w2-browseDs', 'w2-dsPath', 'w2-next',
                    'w2-dsName',  'w2-dsFormat', 'w2-dsOptions', 'w2-refresh',
-                   'w2-redetect', 'w2-dsConfirm'],
+                   'w2-dsConfirm'],
         'w2-newDs': 'Click this button to import a new dataset then follow the steps on the right panel.',
         'w2-browseDs': 'The browse button will enable you to browse through your files to select the dataset.',
         'w2-dsPath': 'You can also enter the path for your data source here.',
@@ -41,7 +41,6 @@ var WalkThroughTStr = {
         'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
         'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
         'w2-refresh': 'If you have chosen a UDF or changed advanced optoins and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
-        'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
         'w2-dsConfirm': 'After you are satisfied with your selections, click this button to finalize.'
     },
     'w3': {
@@ -73,7 +72,7 @@ var WalkThroughTStr = {
         // If step's name is not here, it will not get played!
         '_order': ['w2-newDs', 'w2-browseDs', 'w2-dsDrop', 'w2-next',
                    'w2-dsName',  'w2-dsFormat', 'w2-dsOptions', 'w2-refresh',
-                   'w2-redetect', 'w2-dsConfirm'],
+                   'w2-dsConfirm'],
         'w2-newDs': 'Click this button to import a new dataset then follow the steps on the right panel.',
         'w2-browseDs': 'The browse button will enable you to browse through your files to select a dataset to upload.',
         'w2-dsDrop': 'You can also drag and drop a file to upload here.',
@@ -82,7 +81,6 @@ var WalkThroughTStr = {
         'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
         'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
         'w2-refresh': 'If you have chosen a UDF or changed advanced optoins and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
-        'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
         'w2-dsConfirm': 'After you are satisfied with your selections, click on refresh preview to make sure that the selection is valid and then click on finalize.'
     },
 };

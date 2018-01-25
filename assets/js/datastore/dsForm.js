@@ -203,6 +203,7 @@ window.DSForm = (function($, DSForm) {
         }
         var targetName = getDataTarget();
         var path = getFilePath();
+
         DSPreview.show({
             targetName: targetName,
             "path": path,

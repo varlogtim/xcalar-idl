@@ -72,120 +72,34 @@
         <div class="border"></div>
       </div>
       <form id="importDataForm" target="_blank">
-        <!-- auto detect -->
-        <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
-        <button id="dsForm-detect" type="button" class="fixed btn iconBtn" data-introstep="w2-redetect">
-        <% } else { %>
-        <button id="dsForm-detect" type="button" class="fixed btn iconBtn">
-        <% } %>
-          <i class="icon xi-magic-wand fa-17"></i>
-          <%= dicts.dsForm.REDETECT %>
-        </button>
-
         <div id="importDataForm-content" class="contentSection">
-          <!-- row -->
-          <div class="row">
-            <label for="dsForm-dsName"><%= dicts.dsForm.DSName %>:</label>
-            <div class="inputWrap">
-              <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
-               <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="w2-dsName">
-              <% } else { %>
-               <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
-              <% } %>
+          <!-- top section -->
+          <section class="topSection">
+            <div class="row title">
+              <label><%= dicts.dsForm.DSName %>:</label>
             </div>
-          </div>
-          <!-- row -->
-          <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
-          <div id="udfArgs" class="row udf clearfix active">
-          <% } else { %>
-          <div id="udfArgs" class="row udf clearfix">
-          <% }%>
-            <div id="udfCheckbox" class="checkboxSection">
-              <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
-              <div class="checkbox checked">
-              <% } else { %>
-              <div class="checkbox">
-              <% }%>
-                <i class="icon xi-ckbox-empty"></i>
-                <i class="icon xi-ckbox-selected"></i>
-              </div>
-              <div class="text"><%= dicts.dsForm.UDF %></div>
-            </div>
-            <div class="listSection">
-              <!-- udf module -->
-              <div id="udfArgs-moduleList" class="rowContent dropDownList">
-                <input class="text" type="text" spellcheck="false" placeholder="<%= dicts.UDF.Module %>">
-                <div class="iconWrapper">
-                  <i class="icon xi-arrow-down"></i>
+            <div class="inputPart">
+              <div class="row">
+                <div class="inputWrap">
+                  <input class="large dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="w2-dsName">
                 </div>
-                <div class="list">
-                  <ul></ul>
-                  include "../../util/menuScrollArea.html"
-                </div>
-              </div>
-              <!-- udf function -->
-              <div id="udfArgs-funcList" class="dropDownList disabled">
-                <input class="text" type="text" spellcheck="false" placeholder="<%= dicts.UDF.Func %>">
-                <div class="iconWrapper">
-                  <i class="icon xi-arrow-down"></i>
-                </div>
-                <div class="list">
-                  <ul></ul>
-                  include "../../util/menuScrollArea.html"
-                </div>
+                <label>/path1/test.csv</label>
               </div>
             </div>
-            <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
-            <div class="xc-action refreshPreview" data-introstep="w2-refresh">
-            <% } else { %>
-            <div class="xc-action refreshPreview">
-            <% }%>
-              <i class="icon xi-refresh fa-14"></i>
-              <span><%= dicts.dsForm.applyUDF %></span>
+            <div class="actionPart">
+              <div class="text more"><%= dicts.dsForm.SeeMore %></div>
+              <div class="text less"><%= dicts.dsForm.SeeLess %></div>
+              <i class="more icon xi-arrow-down fa-11"></i>
+              <i class="less icon xi-arrow-up fa-11"></i>
             </div>
-          </div>
-          <!-- advance option -->
-          <div class="row advanceSection clearfix">
-            <div class="advanceOption listWrap xc-expand-list">
-              <div class="listInfo no-selection">
-                <span class="expand">
-                  <i class="icon xi-arrow-down fa-10"></i>
-                </span>
-                <span class="text"><%= dicts.common.AdvancedOpts %></span>
-              </div>
-              <ul>
-                <!-- pattern -->
-                <li class="pattern option">
-                  <div class="label"><%= dicts.dsForm.Pattern %>:</div>
-                  <input type="text" class="input textOverflowOneLine" spellcheck="false">
-                  <div class="recursive checkboxSection">
-                    <div><%= dicts.dsForm.Recursive %></div>
-                    <div class="checkbox">
-                      <i class="icon xi-ckbox-empty"></i>
-                      <i class="icon xi-ckbox-selected"></i>
-                    </div>
-                  </div>
-                  <div class="regex checkboxSection">
-                    <div><%= dicts.dsForm.Regex %></div>
-                    <div class="checkbox">
-                      <i class="icon xi-ckbox-empty"></i>
-                      <i class="icon xi-ckbox-selected"></i>
-                    </div>
-                  </div>
-                  <div class="xc-action refreshPreview changePattern">
-                    <i class="icon xi-refresh fa-14"></i>
-                    <span><%= dicts.dsForm.applyPattern %></span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <!-- end of advance option -->
+          </section>
+          <!-- end of top section -->
           <div class="divider"></div>
-          <!-- bottom section -->
-          <div class="bottomSection">
-            <!-- row -->
+          <!-- middle section -->
+          <section class="middleSection">
+            <!-- format menu -->
             <div class="row">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
               <label><%= dicts.dsForm.Format %>:</label>
               <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
               <div id="fileFormat" class="dropDownList rowContent" data-introstep="w2-dsFormat">
@@ -196,21 +110,23 @@
                 <div class="iconWrapper">
                   <i class="icon xi-arrow-down"></i>
                 </div>
-                <!-- Format Menu -->
                 <div id="fileFormatMenu" class="list">
                   <ul>
                     <li name="CSV"><%= dicts.dsFormat.CSV %></li>
                     <li name="JSON"><%= dicts.dsFormat.JSON %></li>
                     <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
                     <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
+                    <li name="UDF"><%= dicts.dsFormat.UDF %></li>
+                    <li name="XML"><%= dicts.dsFormat.XML %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
                 </div>
               </div>
             </div>
-            <!-- row -->
-            <div class="row">
+            <!-- promote header -->
+            <div class="row format csv text excel checkboxRow">
               <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
                 <div class="text"><%= dicts.dsForm.Header %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
@@ -218,19 +134,20 @@
                 </div>
               </div>
             </div>
-            <!-- row -->
-            <!-- row -->
-            <div class="row" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'dataStoreTut1Demo') ? 'style="display:none;"' : '' %>>
+            <!-- gne line number -->
+            <div class="row format text checkboxRow" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'dataStoreTut1Demo') ? 'style="display:none;"' : '' %>>
               <div id="genLineNumbersCheckbox" class="checkboxSection rowContent">
-                <div class="text">Generate Line Numbers</div>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <div class="text"><%= dicts.dsForm.GenLineNum %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
                   <i class="icon xi-ckbox-selected"></i>
                 </div>
               </div>
             </div>
-            <!-- row -->
-            <div class="row">
+            <!-- line delimiter -->
+            <div class="row format csv text">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
               <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
               <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsOptions"' : '' %>>
                 <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
@@ -249,11 +166,10 @@
                 </div>
               </div>
             </div>
-            <!-- row -->
-            <div class="row">
+            <!-- field delimiter -->
+            <div class="row format csv">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
               <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
-              <!-- Field Delimiter -->
-
               <div id="fieldDelim" class="dropDownList">
                 <input id="fieldText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
                 <div class="iconWrapper">
@@ -270,22 +186,181 @@
                 </div>
               </div>
             </div>
-            <!-- row -->
-            <div class="row">
+            <!-- quote char -->
+            <div class="row format csv text">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
               <label for="dsForm-quote"><%= dicts.dsForm.Quoting %>:</label>
-              <!-- Field Delimiter -->
               <div class="inputWrap">
                 <input id="dsForm-quote" class="text" type="text" spellcheck="false">
               </div>
             </div>
-            <!-- row -->
-            <div class="row">
-              <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %><i title="<%= dicts.dsForm.SkipRowsHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>:</label>
+            <!-- skip rows -->
+            <div class="row format csv text">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.dsForm.SkipRowsHint %>" data-placement="top"></i>
+              <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-skipRows" class="text" type="number" value="0">
               </div>
             </div>
-          </div>
+            <!-- udf module -->
+            <div class="row format udf">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <label><%= dicts.dsForm.Module %>:</label>
+              <div id="udfArgs-moduleList" class="rowContent dropDownList">
+                <input class="text inputable" type="text" spellcheck="false" placeholder="<%= dicts.UDF.Module %>">
+                <div class="iconWrapper">
+                  <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                  <ul></ul>
+                  include "../../util/menuScrollArea.html"
+                </div>
+              </div>
+            </div>  
+            <!-- udf function -->
+            <div class="row format udf">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <label><%= dicts.dsForm.Function %>:</label>
+              <div class="inputPart">
+                <div id="udfArgs-funcList" class="dropDownList disabled">
+                  <input class="text inputable" type="text" spellcheck="false" placeholder="<%= dicts.UDF.Func %>">
+                  <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                  </div>
+                  <div class="list">
+                    <ul></ul>
+                    include "../../util/menuScrollArea.html"
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- udf buttons -->
+            <div class="row format udf">
+              <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.APPLYUDF %></button>
+              <button id="dsForm-writeUDF" class="btn btn-transparent"><%= dicts.dsForm.WRITEPARSER %></button>
+            </div>
+            <!-- xml xPaths -->
+            <div class="row format xml">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <label for="dsForm-xPaths"><%= dicts.dsForm.xPaths %>:</label>
+              <div class="inputWrap">
+                <input id="dsForm-xPaths" class="text" type="text" spellcheck="false">
+              </div>
+            </div>
+            <!-- xml matched xPath -->
+            <div class="row format xml checkboxRow matchedXPath">
+              <div class="checkboxSection rowContent">
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <div class="text"><%= dicts.dsForm.MatchedXPath %></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty"></i>
+                  <i class="icon xi-ckbox-selected"></i>
+                </div>
+              </div>
+            </div>
+            <!-- xml element xPath -->
+            <div class="row format xml checkboxRow elementXPath">
+              <div class="checkboxSection rowContent">
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <div class="text"><%= dicts.dsForm.ElementXPath %></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty"></i>
+                  <i class="icon xi-ckbox-selected"></i>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- end of middle section -->
+          <!-- advance section-->
+          <section class="advanceSection">
+            <div class="listWrap xc-expand-list">
+              <div class="listInfo no-selection">
+                <span class="expand">
+                  <i class="icon xi-arrow-down fa-10"></i>
+                </span>
+                <span class="text"><%= dicts.common.AdvancedOpts %></span>
+              </div>
+            </div>
+            <!-- metadata file -->
+            <div class="row metadata">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <label><%= dicts.dsForm.MetaDataFile %>:</label>
+              <div class="inputWrap">
+                <input id="dsForm-metadataFile" class="large" type="text">
+              </div>
+            </div>
+            <!-- extra columns -->
+            <div class="row extraCols">
+              <label><%= dicts.dsForm.ExtraCols %>:</label>
+              <div class="multiLine">
+                <!-- file name -->
+                <div class="part fileName">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                  <div class="checkboxSection">
+                    <div class="text"><%= dicts.dsForm.FileName %>:</div>
+                    <div class="checkbox">
+                      <i class="icon xi-ckbox-empty"></i>
+                      <i class="icon xi-ckbox-selected"></i>
+                    </div>
+                  </div>
+                  <div class="inputWrap">
+                    <input type="text" placeholder="<%= dicts.MenuTStr.RenameColTitle %>...">
+                  </div>
+                </div>
+                <!-- row number -->
+                <div class="part rowNumber">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                  <div class="checkboxSection">
+                    <div class="text"><%= dicts.dsForm.RowNum %>:</div>
+                    <div class="checkbox">
+                      <i class="icon xi-ckbox-empty"></i>
+                      <i class="icon xi-ckbox-selected"></i>
+                    </div>
+                  </div>
+                  <div class="inputWrap">
+                    <input type="text" placeholder="<%= dicts.MenuTStr.RenameColTitle %>...">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- performance -->
+            <div class="row performance">
+              <label><%= dicts.dsForm.Performance %>:</label>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <div class="checkboxSection">
+                <div class="text"><%= dicts.dsForm.UnsortedRows %>:</div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty"></i>
+                  <i class="icon xi-ckbox-selected"></i>
+                </div>
+              </div>
+            </div>
+            <!-- termination -->
+            <div class="row termination">
+              <label><%= dicts.dsForm.Termination %>:</label>
+              <div class="multiLine">
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <!-- radio buttons -->
+                <div class="radioButtonGroup">
+                  <div class="radioButton xc-action" data-option="stop">
+                    <div class="radio">
+                      <i class="icon xi-radio-selected"></i>
+                      <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <span><%= dicts.dsForm.TerminateOnError %></span>
+                  </div>
+                  <div class="radioButton xc-action" data-option="continue">
+                    <div class="radio">
+                      <i class="icon xi-radio-selected"></i>
+                      <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <span><%= dicts.dsForm.ContinueOnError %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- end of advance section -->
         </div>
         <!-- buttons -->
         <div class="buttonSection">

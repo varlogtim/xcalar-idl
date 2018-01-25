@@ -297,7 +297,7 @@ window.TestSuite = (function($, TestSuite) {
 
             self.checkExists(check)
             .then(function() {
-                $("#dsForm-dsName").val(dsName);
+                $("#importDataForm").find(".dsName").eq(0).val(dsName);
                 // auto detect should fill in the form
                 $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
                 if ($("#alertModal").is(":visible") &&

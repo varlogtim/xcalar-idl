@@ -619,12 +619,30 @@ module.exports = {
         "SkipRowsHint": "Skip the first X rows in each file in the data source",
         "CREATEDS": "CREATE DATASET",
         "CREATETABLE": "CREATE TABLE",
-        "applyUDF": "Click to apply UDF",
+        "APPLYUDF": "APPLY UDF",
         "applyPattern": "Refresh Files",
         "CreateTableHint": "Create a dataset and create a table from the dataset",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
-        "PARSER": "VISUAL PARSER"
+        "PARSER": "VISUAL PARSER",
+        "GenLineNum": "Generate Line Numbers",
+        "WRITEPARSER": "WRITE PARSER USING JUPYTER",
+        "Module": "Module",
+        "Function": "Function",
+        "SeeMore": "See More",
+        "SeeLess": "See Less",
+        "MetaDataFile": "Metadata File",
+        "ExtraCols": "Extra Columns",
+        "FileName": "File Name",
+        "RowNum": "Row Number",
+        "Performance": "Performance",
+        "UnsortedRows": "Unsorted Rows",
+        "Termination": "Termination",
+        "TerminateOnError": "Terminate on first error",
+        "ContinueOnError": "Return  all used records",
+        "xPaths": "xPaths",
+        "MatchedXPath": "Matched XPath",
+        "ElementXPath": "Element XPath"
     },
 
     "fileBrowser": {
@@ -649,7 +667,8 @@ module.exports = {
         "EXCEL": "Excel",
         "TEXT": "Text",
         "XML": "XML",
-        "PLAINTEXT": "PLAIN TEXT"
+        "PLAINTEXT": "PLAIN TEXT",
+        "UDF": "User Defined Format"
     },
 
     "dsTable": {
