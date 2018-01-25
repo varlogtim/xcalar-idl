@@ -13,44 +13,50 @@
   </div>
   <!-- cardMain -->
   <div class="cardMain">
-    <form id="dsTarget-form" target="_blank" autocomplete="off">
-      <!-- Top Form -->
-      <div class="formSection">
-        <!-- target name -->
+    <div id="dsTarget-form" target="_blank" autocomplete="off">
+      <div class="formSection name">
         <div class="formRow">
           <label for="dsTarget-name"><%= dicts.common.Name %>:</label>
           <input id="dsTarget-name" class="xc-input" name="dsTarget-name" type="text" placeholder="" autocomplete="off" spellcheck="false" autofocus>
         </div>
-        <!-- target path -->
+      </div>
+      <div class="formSection type">
         <div class="formRow">
-          <label for="type"><%= dicts.dsTarget.Type %>:</label>
+          <header class="formTitle"><%= dicts.dsTarget.Type %>:</header>
           <div id="dsTarget-type" class="dropDownList">
             <input class="text" type="text" value="" spellcheck="false" disabled>
             <div class="iconWrapper">
               <i class="icon xi-arrow-down"></i>
             </div>
-            <ul class="list"></ul>
+            <div id="dsTarget-type-menu" class="list">
+              <ul></ul>
+              include "../../util/menuScrollArea.html"
+            </div>
           </div>
         </div>
       </div>
-      <!-- end of top form -->
-      <!-- middle form -->
       <div class="formSection description xc-hidden">
-          <header class="formTitle"><%= dicts.common.Descrip %></header>
-          <div class="formRow"></div>
+        <div class="formRow">
+          <header class="formTitle"><%= dicts.common.Descrip %>:</header>
+        </div>
+        <div class="formContent">
+          <div class="formRow">
+            <div id="dsTarget-description">
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- end of middle form -->
-      <!-- Bottom Form -->
       <div class="formSection params xc-hidden">
-        <header class="formTitle"><%= dicts.dsTarget.AdditionalInfo %></header>
+        <div class="formRow">
+          <header class="formTitle"><%= dicts.dsTarget.TargetParams %>:</header>
+        </div>
         <div class="formContent"></div>
       </div>
-      <!-- end of bottom form -->
       <div class="formButton">
         <button id="dsTarget-submit" class="btn" type="submit"><%= dicts.common.ADD %></button>
         <button id="dsTarget-reset" class="btn btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
       </div>
-    </form>
+    </div>
   </div>
   <!-- end card main -->
 </div>
@@ -88,7 +94,9 @@
       <!-- end of Top Form -->
       <!-- Bottom Form -->
       <div class="formSection params">
-        <header class="formTitle"><%= dicts.dsTarget.AdditionalInfo %></header>
+        <div class="formRow">
+          <header class="formTitle"><%= dicts.dsTarget.TargetParams %>:</header>
+        </div>
         <div class="formContent"></div>
       </div>
       <!-- end of Bottom form -->

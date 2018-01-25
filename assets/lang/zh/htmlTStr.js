@@ -517,9 +517,9 @@ module.exports = {
         "Create": "添加数据目标",
         "CreateInstr": "请选择目标类型，填写目标名称，并填写相应的信息",
         "Type": "类型",
-        "AdditionalInfo": "其他信息",
         "TargetInfo": "数据目标信息",
         "TargetInfoInstr": "以下是所选目标的详细信息。 要创建新目标, 请点击左边栏上方的创建按钮。",
+        "TargetParams": "目标参数",
         "DELETETARGET": "删除目标"
     },
     "dsUploader": {

@@ -140,10 +140,11 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 selectTargetType(typeId);
                 StatusBox.forceHide();
             },
-            "container": "#dsTarget-form"
+            "container": "#dsTarget-create-card",
+            "bounds": "#dsTarget-create-card"
         }).setupListeners();
 
-        $("#dsTarget-form").submit(function(event) {
+        $("#dsTarget-submit").click(function(event) {
             event.preventDefault();
             submitForm();
         });
@@ -151,11 +152,11 @@ window.DSTargetManager = (function($, DSTargetManager) {
         $("#dsTarget-reset").click(function() {
             var $form = $("#dsTarget-form");
             $form.find(".description").addClass("xc-hidden")
-                 .find(".formRow").empty();
+                 .find("#dsTarget-description").empty();
             $form.find(".params").addClass("xc-hidden")
                  .find(".formContent").empty();
-            $("#dsTarget-type .text").removeData("id");
-            $("#dsTarget-name").focus();
+            $("#dsTarget-type .text").val("").removeData("id");
+            $("#dsTarget-name").val("").focus();
         });
     }
 
@@ -350,7 +351,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         var $form = $("#dsTarget-form");
         var targetType = typeSet[typeId];
         $form.find(".description").removeClass("xc-hidden")
-             .find(".formRow").text(targetType.description);
+             .find("#dsTarget-description").text(targetType.description);
         if (targetType.parameters.length > 0) {
             var html = getTargetTypeParamOptions(targetType.parameters);
             $form.find(".params").removeClass("xc-hidden")
@@ -378,9 +379,14 @@ window.DSTargetManager = (function($, DSTargetManager) {
                         'data-name="' + param.name + '">' +
                             param.name + ":" +
                         '</label>' +
+                        '<input ' +
+                        'class="' + inputClass + '" ' +
+                        'style="display:none"' +
+                        'placeholder="' + descrp + '" ' +
+                        'autocomplete="off" ' +
+                        'spellcheck="false">' +
                         '<input id="' + labelName + '" ' +
                         'class="' + inputClass + '" ' +
-                        'type="' + type + '" ' +
                         'placeholder="' + descrp + '" ' +
                         'autocomplete="off" ' +
                         'spellcheck="false">' +
@@ -441,7 +447,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         $form.find(".params .formRow").each(function() {
             var $param = $(this);
-            var $input = $(this).find("input");
+            var $input = $(this).find("input:visible");
             if ($input.length &&
                 (!$input.hasClass("optional") || $input.val().trim() !== "")) {
                 eles.push({$ele: $input});

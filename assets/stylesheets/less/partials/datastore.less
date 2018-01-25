@@ -3477,13 +3477,20 @@ table.datasetTable {
     }
 
     .formSection {
-        padding-bottom: 20px;
-        border-bottom: 1px solid @color-border-pinkish-grey2;
+        margin-bottom: 16px;
+        // border-bottom: 1px solid @color-border-pinkish-grey2;
 
         &.description {
             .formRow {
                 .size(@height: auto);
                 white-space: normal;
+            }
+            .formContent {
+                margin-top: 8px;
+                .formRow {
+                    padding-left: 58px;
+                    font-weight: 400;
+                }
             }
         }
 
@@ -3524,8 +3531,7 @@ table.datasetTable {
 
     .formTitle {
         .size(@height: 20px);
-        .font(@weight: 700, @color: @color-font-select-blue);
-        margin: 18px 0 18px 5%;
+        .font(@weight: 600, @color: @color-font-greyish-brown, @size: 14px);
     }
 
     .formRow {
@@ -3534,7 +3540,7 @@ table.datasetTable {
         .flex-display;
         .size(@height: 30px);
         line-height: 30px;
-        margin-bottom: 10px;
+        margin-bottom: 13px;
 
         &.placeholderRow {
            .xc-disabled;
@@ -3546,7 +3552,7 @@ table.datasetTable {
 
         label {
             .flex(0 0 130px);
-            .font(@size: 14px, @weight: 600, @color: @color-font-greyish-brown);
+            .font(@size: 14px, @weight: 400, @color: @color-font-greyish-brown);
         }
 
         input {
@@ -3560,7 +3566,6 @@ table.datasetTable {
 
             &:last-child {
                 padding-right: 0;
-
                 label {
                     .flex(0 0 50px);
                 }
@@ -3579,6 +3584,63 @@ table.datasetTable {
                 margin-right: 10px;
             }
         }
+    }
+}
+#dsTarget-create-card {
+    .cardMain {
+        padding-top: 0px !important;
+        height: ~"calc(100% - 92px)" !important;
+    }
+    .cardContainer {
+        .cardInstruction {
+            // .size(@height: 70px);
+            border: none;
+            // .icon {
+            //     line-height: 42px;
+            // }
+            // .defaultText {
+            //     .flex-display;
+            //     .align-items(@align: center);
+            // }
+        }
+    }
+    .formSection {
+        &.name {
+            margin-top: 0px;
+            background-color: @color-bg-graph-gray;
+            height: 100px !important;
+            #dsTarget-name {
+                background-color: @color-white;
+            }
+            .flex-display;
+            .align-items(center);
+            padding: 0px;
+            .formTitle {
+                font-weight: 400;
+            }
+            .formRow {
+                margin-top: 0px;
+                margin-bottom: 0px;
+            }
+            margin-bottom: 36px;
+        }
+
+        &.type {
+            .formTitle {
+                .flex(0 0 130px);
+            }
+        }
+    }
+    .formBottom {
+        bottom: 10px;
+        position: absolute;
+    }
+    #dsTarget-type-menu {
+        max-height: 90px;
+    }
+    #dsTarget-description {
+        width: 100%;
+        word-wrap: break-word;
     }
 }
 
