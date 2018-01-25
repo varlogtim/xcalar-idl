@@ -159,13 +159,18 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     var TreeValue = function(api, struct, dagNodeId, inputName, name,
-                             numParents, tag, comment, state) {
+                             numParents, parents,
+                             numChildren, children,
+                             tag, comment, state) {
         this.api = api;
         this.struct = struct;
         this.dagNodeId = dagNodeId;
         this.inputName = inputName;
         this.name = name;
         this.numParents = numParents;
+        this.parentIds = parents;
+        this.numChildren = numChildren;
+        this.childIds = children;
         this.indexedFields = [];
         this.tag = tag;
         this.tags = [];
@@ -189,7 +194,7 @@ window.DagFunction = (function($, DagFunction) {
             var inputStruct = nodes[i].input[inputName];
             var dagNodeId = nodes[i].dagNodeId;
             var name = nodes[i].name.name;
-            var numParents = nodes[i].numParent;
+            var numParents = nodes[i].numParents;
             if (nodes[i].api === XcalarApisT.XcalarApiExecuteRetina &&
                 i === nodes.length - 1) {
                 numParents = 0; // last execute retina should not have a parent
@@ -206,7 +211,12 @@ window.DagFunction = (function($, DagFunction) {
             var comment = nodes[i].comment;
             var state = nodes[i].state;
             var treeNode = new TreeValue(nodes[i].api, inputStruct, dagNodeId,
-                                    inputName, name, numParents, tag, comment, state);
+                                         inputName, name,
+                                         numParents,
+                                         nodes[i].parents,
+                                         nodes[i].numChildren,
+                                         nodes[i].children,
+                                         tag, comment, state);
             valArray.push(treeNode);
             if (nodes[i].api === XcalarApisT.XcalarApiExport && i !== 0) {
                 startPoints.push(treeNode);
@@ -618,7 +628,15 @@ window.DagFunction = (function($, DagFunction) {
         return deferred.promise();
     }
 
-    function findTreeValueInValArray(name, valArray) {
+    function findTreeValueInValArrayById(id, valArray) {
+        for (var i = 0; i < valArray.length; i++) {
+            if (valArray[i].dagNodeId === id) {
+                return (valArray[i]);
+            }
+        }
+    }
+
+    function findTreeValueInValArrayByName(name, valArray) {
         for (var i = 0; i < valArray.length; i++) {
             if (valArray[i].name === name) {
                 return (valArray[i]);
@@ -686,7 +704,7 @@ window.DagFunction = (function($, DagFunction) {
                 if (!newNodeFound) {
                     mapOfNames[name] = node.parents[i].value;
                 }
-                
+
                 search(node.parents[i]);
             }
         }
@@ -1081,13 +1099,13 @@ window.DagFunction = (function($, DagFunction) {
                     translation[value.struct.dest] = newTableName;
                     value.struct.dest = newTableName;
                 }
-                
+
             }
         }
 
         function modifyValueArrayWithParameters(valArray, params) {
             for (var p in params) {
-                var tValue = findTreeValueInValArray(p, valArray);
+                var tValue = findTreeValueInValArrayByName(p, valArray);
                 var struct = tValue.struct;
                 var param = params[p];
                 for (var key in param) {
@@ -1129,7 +1147,7 @@ window.DagFunction = (function($, DagFunction) {
                               Authentication.getHashId();
 
                 var node = new TreeValue(XcalarApisT.XcalarApiIndex, struct, 0,
-                                    'indexInput', struct.dest, 1, "", "", 
+                                    'indexInput', struct.dest, 1, "", "",
                                     DgDagStateT.DgDagStateReady);
                 var dest;
                 for (var j = 0; j < valueArray.length; j++) {
@@ -1157,7 +1175,7 @@ window.DagFunction = (function($, DagFunction) {
     // for other new nodes
     function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
         for (var name in newNodes) {
-            var nodes = newNodes[name]; 
+            var nodes = newNodes[name];
             var dest;
             for (var i = 0; i < valueArray.length; i++) {
                 if (valueArray[i].name === name) {
@@ -1171,7 +1189,7 @@ window.DagFunction = (function($, DagFunction) {
                 var api = XcalarApisTFromStr[nodes[i].operation];
                 var inputName = DagFunction.getInputType(XcalarApisTStr[api]);
                 var node = new TreeValue(api, struct, 0,
-                                    inputName, struct.dest, 1, dest.tag, "", 
+                                    inputName, struct.dest, 1, dest.tag, "",
                                     DgDagStateT.DgDagStateReady);
                 valueArray.unshift(node);
                 newNodesArray.push(struct.dest);
@@ -1309,7 +1327,6 @@ window.DagFunction = (function($, DagFunction) {
 
     function constructTree(node, valArray, alreadySeen, child, endPoints) {
         var parentTree = null;
-        var parentNames = [];
         if (!node) {
             return; // xx temporarily muting
             console.error(valArray);
@@ -1320,55 +1337,18 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         var treeNode = new TreeNode(node);
-        if (node.numParents === 0) {
-            endPoints.push(treeNode);
-        } else if (node.api === XcalarApisT.XcalarApiJoin) {
-            // Join
-            parentNames.push(node.struct.source[0]);
-            parentNames.push(node.struct.source[1]);
-        } else if (node.api === XcalarApisT.XcalarApiUnion) {
-            // union
-            node.struct.source.forEach(function(src) {
-                parentNames.push(src);
-            });
-        } else if (node.api === XcalarApisT.XcalarApiIndex) {
-            // Index
-            parentNames.push(node.struct.source);
-        } else {
-            parentNames.push(node.struct.source);
-            if (node.numParents > 1) {
-                var parsedParents = [];
-                if (node.struct.eval) {
-                    if (node.aggSources) {
-                        parsedParents = node.aggSources;
-                    } else {
-                        parsedParents = DagFunction.getAggsFromEvalStrs(node.struct.eval);
-                        if (parsedParents.length) {
-                            node.aggSources = parsedParents;
-                        }
-                    }
-                } else {
-                    console.error("unexpected struct, could not find srsc tables");
-                    console.error(node.struct);
-                }
-                for (var i = 0; i < parsedParents.length; i++) {
-                    parentNames.push(parsedParents[i]);
-                }
-            }
-        }
-
         var parents = [];
 
-        for (var i = 0; i < parentNames.length; i++) {
-            var parentName = parentNames[i];
-            if (parentName in alreadySeen) {
-                parentTree = alreadySeen[parentName];
+        for (var i = 0; i < node.numParents; i++) {
+            var parentId = node.parentIds[i];
+            if (parentId in alreadySeen) {
+                parentTree = alreadySeen[parentId];
                 parentTree.children.push(treeNode);
                 if (treeNode.value.api === XcalarApisT.XcalarApiExport) {
                     parentTree.value.exportNode = treeNode;
                 }
             } else {
-                parentNode = findTreeValueInValArray(parentName, valArray);
+                parentNode = findTreeValueInValArrayById(parentId, valArray);
                 if (parentNode) {
                     parentTree = constructTree(parentNode, valArray,
                                               alreadySeen, treeNode, endPoints);
@@ -1389,8 +1369,8 @@ window.DagFunction = (function($, DagFunction) {
                 treeNode.value.exportNode = child;
             }
         }
-        alreadySeen[node.name] = treeNode;
-        return (alreadySeen[node.name]);
+        alreadySeen[node.dagNodeId] = treeNode;
+        return (alreadySeen[node.dagNodeId]);
     }
 
     // cretes a map of dagNodIds: node
