@@ -71,7 +71,8 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
         var inputAttr;
         var newColName;
         for (var i = 0; i < cols.length; i++) {
-            leftHtml += '<div class="column">' + cols[i].getBackColName() +
+            leftHtml += '<div class="column">' + 
+                    xcHelper.escapeHTMLSpecialChar(cols[i].getBackColName()) +
                         '</div>';
             newColName = "";
             inputClass = "";

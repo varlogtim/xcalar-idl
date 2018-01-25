@@ -631,7 +631,7 @@ window.Profile = (function($, Profile, d3) {
     // refresh profile
     function refreshProfile() {
         var instr = xcHelper.replaceMsg(ProfileTStr.Info, {
-            "col": statsCol.frontColName,
+            "col": xcHelper.escapeHTMLSpecialChar(statsCol.frontColName),
             "type": statsCol.type
         });
 

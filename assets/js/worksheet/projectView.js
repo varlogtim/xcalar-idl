@@ -266,13 +266,15 @@ window.ProjectView = (function($, ProjectView) {
         var prefixedHtml = "";
 
         for (var i = 0; i < derived.length; i++) {
+            var colName = xcHelper.escapeHTMLSpecialChar(derived[i].colName);
             derivedHtml +=
                 '<li data-colnum="' + derived[i].colNum + '">' +
                     '<span class="text tooltipOverflow" ' +
-                    'data-original-title="' + derived[i].colName + '" ' +
+                    'data-original-title="' + xcHelper.escapeDblQuoteForHTML(
+                        xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                     'data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body">' +
-                        derived[i].colName +
+                        colName +
                     '</span>' +
                     '<div class="checkbox">' +
                         '<i class="icon xi-ckbox-empty fa-13"></i>' +
@@ -300,13 +302,16 @@ window.ProjectView = (function($, ProjectView) {
 
             for (var j = 0; j < prefixed[i].group.length; j++) {
                 var group = prefixed[i].group;
+                var colName = xcHelper.escapeHTMLSpecialChar(group[j].colName);
                 prefixedHtml +=
                     '<li data-colnum="' + group[j].colNum + '">' +
                         '<span class="text tooltipOverflow" ' +
-                        'data-original-title="' + group[j].colName + '" ' +
+                        'data-original-title="' + 
+                        xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
-                            group[j].colName +
+                            colName +
                         '</span>' +
                     '</li>';
             }

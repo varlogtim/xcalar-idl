@@ -1626,8 +1626,11 @@ window.JoinView = (function($, JoinView) {
                         '<span class="text tooltipOverflow" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' +
-                            progCol.getFrontColName(true) + '">' +
-                            progCol.getFrontColName(true) +
+                            xcHelper.escapeHTMLSpecialChar(
+                                xcHelper.escapeHTMLSpecialChar(
+                                progCol.getFrontColName(true))) + '">' +
+                            xcHelper.escapeHTMLSpecialChar(
+                                progCol.getFrontColName(true)) +
                         '</span>' +
                         '<div class="checkbox checked">' +
                             '<i class="icon xi-ckbox-empty fa-13"></i>' +
@@ -2604,7 +2607,7 @@ window.JoinView = (function($, JoinView) {
                                                                       .trim();
             if (whereClause.length > 0) {
                 previewText += '<br/><span class="keyword">WHERE </span>';
-                previewText += whereClause;
+                previewText += xcHelper.escapeHTMLSpecialChar(whereClause);
             }
         }
 
@@ -2640,13 +2643,15 @@ window.JoinView = (function($, JoinView) {
 
         for (var i = 0; i < numPairs; i++) {
             if (columnPairs[i][0]) {
-                leftColText = '<span class="highlighted">' + columnPairs[i][0] +
+                leftColText = '<span class="highlighted">' +
+                            xcHelper.escapeHTMLSpecialChar(columnPairs[i][0]) +
                               '</span>';
             } else {
                 leftColText = "\"\"";
             }
             if (columnPairs[i][1]) {
-                rightColText = '<span class="highlighted">' + columnPairs[i][1]+
+                rightColText = '<span class="highlighted">' + 
+                            xcHelper.escapeHTMLSpecialChar(columnPairs[i][1]) +
                               '</span>';
             } else {
                 rightColText = "\"\"";

@@ -67,7 +67,8 @@ window.FnBar = (function(FnBar, $) {
                                             "window");
 
                 setTimeout(function() {
-                    var error = ErrTStr.BracketsMis + "<br/>" + funcStr;
+                    var error = ErrTStr.BracketsMis + "<br/>" + 
+                                xcHelper.escapeHTMLSpecialChar(funcStr);
                     StatusBox.show(error, $fnBar.prev().prev(), null, {
                         "offsetX": pos.left - 178,
                         "side": "bottom",
@@ -794,6 +795,7 @@ window.FnBar = (function(FnBar, $) {
         var endText = false;
 
         if (operation.length) {
+            opeartion = xcHelper.escapeHTMLSpecialChar(operation);
             text = "Invalid Operator: <b>" + operation + "</b>.<br/>";
         } else {
             if (fnBarVal.indexOf("(") === -1) {

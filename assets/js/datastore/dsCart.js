@@ -733,7 +733,8 @@ window.DSCart = (function($, DSCart) {
                     '<span class="colName textOverflow tooltipOverflow"' +
                     ' data-toggle="tooltip"' +
                     ' data-container="body"' +
-                    ' data-title=" ' + escapedVal + '">' +
+                    ' data-title=" ' + xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(escapedVal)) + '">' +
                         escapedVal +
                     '</span>' +
                 '</div>' +

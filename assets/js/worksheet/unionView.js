@@ -506,6 +506,7 @@ window.UnionView = (function(UnionView, $) {
             var colName = resultCol.name;
             colName = xcHelper.parsePrefixColName(colName).name;
             colName = xcHelper.uniqueName(colName, checkName);
+            colName = xcHelper.escapeHTMLSpecialChar(colName);
             nameMap[colName] = true;
 
             resultColHTML +=
@@ -576,8 +577,10 @@ window.UnionView = (function(UnionView, $) {
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
                             ' data-placement="top"' +
-                            ' data-title="' + inputColName + '">' +
-                                inputColName +
+                            ' data-title="' +  xcHelper.escapeHTMLSpecialChar(
+                                xcHelper.escapeHTMLSpecialChar(inputColName)) + 
+                            '">' +
+                                xcHelper.escapeHTMLSpecialChar(inputColName) +
                             '</div>' +
                             '<div class="iconWrapper down xc-action">' +
                                 '<i class="icon xi-arrow-down"></i>' +
@@ -623,7 +626,7 @@ window.UnionView = (function(UnionView, $) {
             var candidateCols = getCandidateCols(tableInfo, false, hiddenCols);
             lists = candidateCols.map(function(col) {
                 var colType = col.type;
-                var colName = col.name;
+                var colName = xcHelper.escapeHTMLSpecialChar(col.name);
                 return '<div class="inputCol" data-type="' + colType + '">' +
                             '<i class="addCol icon xi-plus"' +
                             ' data-toggle="tooltip" data-container="body"' +
@@ -633,7 +636,8 @@ window.UnionView = (function(UnionView, $) {
                             '<div class="colName text textOverflowOneLine tooltipOverflow"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
-                            ' data-title="' + colName + '">' +
+                            ' data-title="' + 
+                            xcHelper.escapeHTMLSpecialChar(colName) + '">' +
                                 colName +
                             '</div>' +
                             '<i class="focusCol icon xi-show xc-action fa-16"' +

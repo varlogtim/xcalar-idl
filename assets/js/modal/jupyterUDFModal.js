@@ -57,9 +57,11 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                                 'data-container="body" ' +
                                 'title="Cannot directly operate on objects ' +
                                 'or arrays" class="unavailable">' +
-                                progCols[i].getBackColName() + "</li>";
+                                xcHelper.escapeHTMLSpecialChar(
+                                        progCols[i].getBackColName()) + "</li>";
                     } else {
-                        html += "<li>" + progCols[i].getBackColName() + "</li>";
+                        html += "<li>" + xcHelper.escapeHTMLSpecialChar(
+                                    progCols[i].getBackColName()) + "</li>";
                     }
                 }
                 $modal.find(".columnsList ul").html(html);

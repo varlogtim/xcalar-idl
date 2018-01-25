@@ -2299,9 +2299,9 @@
     xcHelper.stripColName = function(colName, stripSpace) {
         var pattern;
         if (stripSpace) {
-            pattern = /[\[\]\.\\ ]/g;
+            pattern = /[()\[\]\.\\ ]/g;
         } else {
-            pattern = /[\[\]\.\\]/g;
+            pattern = /[()\[\]\.\\]/g;
         }
         var res = colName.split(pattern).filter(function(str) {
             return (str !== "");

@@ -41,7 +41,8 @@ window.xcFunction = (function($, xcFunction) {
             "htmlExclude": ["formOpenTime"]
         };
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.Filter + ': ' + frontColName,
+            "msg": StatusMessageTStr.Filter + ': ' +
+                   xcHelper.escapeHTMLSpecialChar(frontColName),
             "operation": SQLOps.Filter,
             "sql": sql,
             "steps": 1
@@ -150,7 +151,8 @@ window.xcFunction = (function($, xcFunction) {
             "htmlExclude": ["aggStr"]
         };
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
-                  StatusMessageTStr.OnColumn + ": " + frontColName;
+                  StatusMessageTStr.OnColumn + ": " +
+                  xcHelper.escapeHTMLSpecialChar(frontColName);
         var txId = Transaction.start({
             "msg": msg,
             "operation": SQLOps.Aggr,
@@ -274,7 +276,8 @@ window.xcFunction = (function($, xcFunction) {
         if (colInfo.length > 1) {
             msg = StatusMessageTStr.Sort + " multiple columns";
         } else {
-            msg = StatusMessageTStr.Sort + " " + keys[0];
+            msg = StatusMessageTStr.Sort + " " + 
+            xcHelper.escapeHTMLSpecialChar(keys[0]);
         }
         var txId = Transaction.start({
             "msg": msg,
@@ -1009,7 +1012,8 @@ window.xcFunction = (function($, xcFunction) {
             "htmlExclude": ["mapOptions"]
         };
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.Map + " " + fieldName,
+            "msg": StatusMessageTStr.Map + " " + 
+            xcHelper.escapeHTMLSpecialChar(fieldName),
             "operation": SQLOps.Map,
             "sql": sql,
             "steps": 1

@@ -1212,27 +1212,24 @@
 
                 function parseFunc(func) {
                     if (func.name) {
-                        if (str !== "") {
-                            str += "(";
-                        }
                         str += func.name;
+                        str += "(";
                     }
 
                     var args = func.args;
                     for (var i = 0; i < args.length; i++) {
-                        if (typeof args[i] !== "object") {
-                            if (i === 0) {
-                                str += "(";
-                            } else {
-                                str += ",";
-                            }
-                            str += args[i];
-                        } else if (typeof args[i] === "object") {
+                        if (i > 0) {
+                            str += ",";
+                        }
+
+                        if (typeof args[i] === "object") {
                             parseFunc(args[i]);
+                        } else {
+                            str += args[i];
                         }
-                        if (i === func.args.length - 1) {
-                            str += ")";
-                        }
+                    }
+                    if (func.name) {
+                        str += ")";
                     }
                 }
                 return str;

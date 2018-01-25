@@ -1335,12 +1335,15 @@ ExportHelper.getTableCols = function(tableId, validTypes) {
 
     allCols.forEach(function(progCol, index) {
         if (validTypes.indexOf(progCol.getType()) > -1) {
-            var colName = progCol.getFrontColName(true);
+            var colName = xcHelper.escapeHTMLSpecialChar(
+                                progCol.getFrontColName(true));
             var colNum = (index + 1);
             html +=
                 '<li class="checked" data-colnum="' + colNum + '">' +
                     '<span class="text tooltipOverflow" ' +
-                    'data-original-title="' + colName + '" ' +
+                    'data-original-title="' + 
+                        xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                     'data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body">' +
                         colName +

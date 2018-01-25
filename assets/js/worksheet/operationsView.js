@@ -1350,7 +1350,8 @@ window.OperationsView = (function($, OperationsView) {
         var count = 0;
 
         for (var i = 0; i < allMatches.length; i++) {
-            listLis += "<li>" + allMatches[i] + "</li>";
+            listLis += "<li>" + xcHelper.escapeHTMLSpecialChar(allMatches[i]) +
+                         "</li>";
             count++;
             if (count > listMax) {
                 break;
@@ -1798,7 +1799,8 @@ window.OperationsView = (function($, OperationsView) {
         var despText = operObj.fnDesc || "N/A";
         var descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' + despText;
         if (DagEdit.isEditMode()) {
-            descriptionHtml += '<br><span class="editDescWarning">' + DFTStr.NoColumnTypeCheck + '</span>';
+            descriptionHtml += '<br><span class="editDescWarning">' +
+                                DFTStr.NoColumnTypeCheck + '</span>';
         }
         $argsGroup.find('.descriptionText').html(descriptionHtml);
         if (operatorName === "group by") {
@@ -1872,6 +1874,7 @@ window.OperationsView = (function($, OperationsView) {
             }
             types = parseType(typeId);
             var $input = $rows.eq(i).find('.arg');
+
             if (i === 0 && operatorName !== "group by") {
                 $input.val(defaultValue);
             } else {
@@ -4817,8 +4820,11 @@ window.OperationsView = (function($, OperationsView) {
                         '<span class="text tooltipOverflow" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' +
-                            progCol.getFrontColName(true) + '">' +
-                            progCol.getFrontColName(true) +
+                            xcHelper.escapeHTMLSpecialChar(
+                                xcHelper.escapeHTMLSpecialChar(
+                                progCol.getFrontColName(true))) + '">' +
+                            xcHelper.escapeHTMLSpecialChar(
+                                progCol.getFrontColName(true)) +
                         '</span>' +
                         '<div class="checkbox">' +
                             '<i class="icon xi-ckbox-empty fa-13"></i>' +

@@ -902,8 +902,10 @@ window.DFCard = (function($, DFCard) {
 
         for (var i = 0; i < numCols; i++) {
             var name = cols[i].columnName; // or we can show cols[i].headerAlias
+            name = xcHelper.escapeHTMLSpecialChar(name);
             html += '<li>' +
-                        '<div title="' + name + '" class="name">' +
+                        '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
+                        '" class="name">' +
                             name + '</div>' +
                     '</li>';
         }

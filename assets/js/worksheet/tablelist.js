@@ -1576,7 +1576,8 @@ window.TableList = (function($, TableList) {
                             '</i>' +
                         '</div>' +
                         '<span class="text">' +
-                            no + ". " + progCol.getFrontColName(true) +
+                            no + ". " + xcHelper.escapeHTMLSpecialChar(
+                                                progCol.getFrontColName(true)) +
                         '</span>' +
                     '</li>';
         }

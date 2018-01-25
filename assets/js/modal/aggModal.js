@@ -417,9 +417,12 @@ window.AggModal = (function($, AggModal) {
                             '</span>';
                 name = operations[i].colName;
             }
+            name = xcHelper.escapeHTMLSpecialChar(name);
             html += '<div class="aggTableField rowLabel">' +
                         prefixLabel +
-                        '<span data-original-title="' + name + '" ' +
+                        '<span data-original-title="' + 
+                            xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(name)) + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
@@ -442,6 +445,7 @@ window.AggModal = (function($, AggModal) {
             } else {
                 prefClass = "";
             }
+            var colName = xcHelper.escapeHTMLSpecialChar(labels[i].colName);
             html += '<div class="aggTableField colLabel">' +
                         '<span data-original-title="' + labels[i].prefix +
                         '" ' +
@@ -451,12 +455,14 @@ window.AggModal = (function($, AggModal) {
                             prefClass + '">' +
                             labels[i].prefix +
                         '</span>' +
-                        '<span data-original-title="' + labels[i].colName +
+                        '<span data-original-title="' + 
+                        xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(colName)) +
                         '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
-                            labels[i].colName +
+                            colName +
                         '</span>' +
                     '</div>';
         }

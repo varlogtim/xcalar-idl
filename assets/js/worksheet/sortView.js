@@ -311,12 +311,16 @@ window.SortView = (function($, SortView) {
         }
 
         var colName = colNames[colNum];
+        colName = xcHelper.escapeHTMLSpecialChar(colName);
+
         var html = '<div class="row" data-col="' + colNum + '">' +
                         '<div class="col colName ' +
                         'textOverflowOneLine tooltipOverflow" ' +
                         'data-toggle="tooltip" data-placement="top"' +
                         'data-container="body" ' +
-                        'data-original-title="' + colName + '">' +
+                        'data-original-title="' + 
+                        xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(colName)) + '">' +
                             colName +
                         '</div>' +
                         '<div class="' + colTypeClass + '">' +

@@ -1006,6 +1006,7 @@ window.Log = (function($, Log) {
                 html += ',';
             }
             var val = JSON.stringify(options[key]);
+            val = xcHelper.escapeHTMLSpecialChar(val);
             html += '<span class="' + key + '">' +
                         '<span class="logKey">' + key + '</span>' +
                         '<span class="logColon">:</span>' +
@@ -1034,7 +1035,7 @@ window.Log = (function($, Log) {
         } else {
             // thrift operation
             var string = '<span class="cliWrap" data-cli=' + id + '>' +
-                            xcLog.cli +
+                            xcHelper.escapeHTMLSpecialChar(xcLog.cli) +
                          '</span>';
             return string;
         }

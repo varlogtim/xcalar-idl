@@ -867,8 +867,12 @@ window.DagEdit = (function($, DagEdit) {
                                 'data-toggle="tooltip" data-container="body" ' +
                                 'data-placement="top" data-tipclasses="highZindex" ' +
                                 'data-original-title="' +
-                                xcHelper.escapeDblQuoteForHTML(evalObj.evalString) + '">' +
-                                evalObj.evalString +
+                                xcHelper.escapeDblQuoteForHTML(
+                                    xcHelper.escapeHTMLSpecialChar(
+                                    xcHelper.escapeHTMLSpecialChar(
+                                        evalObj.evalString))) + '">' +
+                                xcHelper.escapeHTMLSpecialChar(
+                                    evalObj.evalString) +
                             '</div>' +
                             '<div class="optionSection">' +
                                 '<div class="delete option xc-action">' +

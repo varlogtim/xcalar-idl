@@ -837,8 +837,10 @@ window.Dag = (function($, Dag) {
                 continue;
             }
             var type = progCol.getType();
-            var name = progCol.getFrontColName(true);
-            var backName = progCol.getBackColName();
+            var name = xcHelper.escapeHTMLSpecialChar(
+                                                progCol.getFrontColName(true));
+            var backName = xcHelper.escapeHTMLSpecialChar(
+                                                progCol.getBackColName());
             html += '<li>' +
                         '<div>' +
                             '<span class="iconWrap">' +
@@ -846,7 +848,8 @@ window.Dag = (function($, Dag) {
                             '</span>' +
                             '<span class="text">' + type + '</span>' +
                         '</div>' +
-                        '<div title="' + name + '" class="name" ' +
+                        '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
+                        '" class="name" ' +
                         'data-backname="' + backName + '">' +
                             name +
                         '</div>' +

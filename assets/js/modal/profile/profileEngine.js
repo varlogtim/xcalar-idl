@@ -50,7 +50,8 @@ window.ProfileEngine = (function(ProfileEngine) {
         };
 
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.Profile + " " + colName,
+            "msg": StatusMessageTStr.Profile + " " +
+                   xcHelper.escapeHTMLSpecialChar(colName),
             "operation": SQLOps.Profile,
             "sql": sql,
             "steps": -1

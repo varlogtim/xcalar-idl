@@ -1082,6 +1082,7 @@ window.QueryManager = (function(QueryManager, $) {
             for (var i = 0; i < querySplit.length; i++) {
                 var subQuery = querySplit[i];
                 if (subQuery.trim() !== "") {
+                    subQuery = xcHelper.escapeHTMLSpecialChar(subQuery);
                     queryString += '<div class="queryRow">' + subQuery +
                                    ';</div>';
                 }
@@ -1089,6 +1090,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (!query && !blank) {
             queryString = '<div class="queryRow"></div>';
         } else {
+            query = xcHelper.escapeHTMLSpecialChar(query);
             queryString = '<div class="queryRow">' + query + '</div>';
         }
         if (errorText) {

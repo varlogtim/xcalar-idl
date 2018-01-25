@@ -268,13 +268,15 @@ window.SmartCastView = (function($, SmartCastView) {
             colTypeClass += " xc-disabled";
         }
 
-        var colName = colNames[colNum];
+        var colName = xcHelper.escapeHTMLSpecialChar(colNames[colNum]);
         var html = '<div class="row" data-col="' + colNum + '">' +
                         '<div class="col colName ' +
                         'textOverflowOneLine tooltipOverflow" ' +
                         'data-toggle="tooltip" data-placement="top"' +
                         'data-container="body" ' +
-                        'data-original-title="' + colName + '">' +
+                        'data-original-title="' +
+                        xcHelper.escapeDblQuoteForHTML(
+                            xcHelper.escapeHTMLSpecialChar(colName)) + '">' +
                             colName +
                         '</div>' +
                         '<div class="' + colTypeClass + '">' +

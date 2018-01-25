@@ -1117,7 +1117,7 @@ window.DagDraw = (function($, DagDraw) {
         var $operation = $dagWrap.find('.actionType[data-id="' +
                                             node.value.dagNodeId + '"]');
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
-        var info = getDagNodeInfo(node, key);
+        var info = getDagNodeInfo(node, key, {noTooltipEscape: true});
         // var operation = info.type;
 
         // if (info.subType === "sort") {
@@ -1379,7 +1379,7 @@ window.DagDraw = (function($, DagDraw) {
             return originHTML;
         }
 
-        var opText = info.opText;
+        var opText = xcHelper.escapeHTMLSpecialChar(info.opText);
         var classes = "";
         var dataAttr = "";
         var groupTagIcon = "";
@@ -1462,7 +1462,6 @@ window.DagDraw = (function($, DagDraw) {
                             groupTagIcon + commentIcon +
                         '</div>' +
                     '</div>';
-
         return (originHTML);
     }
 
@@ -1718,7 +1717,8 @@ window.DagDraw = (function($, DagDraw) {
         return iconClass;
     }
 
-    function getDagNodeInfo(node, key) {
+    function getDagNodeInfo(node, key, options) {
+        options = options || {};
         var parenIndex;
         var evalStr = "";
         var value = node.value.struct;
@@ -1848,6 +1848,7 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     break;
                 case ('joinInput'):
+                console.log(JSON.stringify(info));
                     info = getJoinInfo(info, node, value, parentNames, isCollapsedTag);
                     break;
                 case ('mapInput'):
@@ -1862,7 +1863,8 @@ window.DagDraw = (function($, DagDraw) {
                     fieldNames = fieldNames.slice(0, -2);
                     info.subType = "map" + evalStr.slice(0, evalStr.indexOf('('));
                     info.eval = evalStr;
-                    info.tooltip = "Map: " + evalStr + ".<br>" + fieldNames;
+                    info.tooltip = "Map: " + xcHelper.escapeHTMLSpecialChar(evalStr) + ".<br>" + 
+                    xcHelper.escapeHTMLSpecialChar(fieldNames);
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
                     break;
@@ -1907,11 +1909,24 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText += ", " + parentNames[i];
                 }
             }
+        }  
+      
+        // if ((taggedInfo || key !== "mapInput") && (!taggedInfo || key === "groupByInput")) {
+        if ((taggedInfo || key !== "mapInput") && !(taggedInfo && key === "groupByInput")) {
+            // map and groupby already escaped once
+            info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);
+          
         }
-
-        info.tooltip = info.tooltip.replace(/"/g, "&quot;");
-        info.eval = info.eval.replace(/"/g, "&quot;");
-
+        if (!options.noTooltipEscape) {
+            info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);  
+        }
+        
+        info.tooltip =  xcHelper.escapeDblQuoteForHTML(info.tooltip);
+        
+        info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
+        info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
+        info.eval =  xcHelper.escapeDblQuoteForHTML(info.eval);
+        
         return (info);
     }
 
@@ -1988,15 +2003,16 @@ window.DagDraw = (function($, DagDraw) {
                 for (var i = 0; i < aggs.length; i++) {
                     tooltip += aggs[i] + ", ";
                 }
-                tooltip = tooltip.slice(0, -2);
+                tooltip = xcHelper.escapeHTMLSpecialChar(tooltip.slice(0, -2));
                 tooltip += "<br>Grouped by: ";
+                var tooltipPart2 = "";
                 for (var col in gbOnCols) {
-                    tooltip += col + ", ";
+                    tooltipPart2 += col + ", ";
                     info.opText += col + ", ";
                 }
                 info.text = "Group by";
                 info.opText = info.opText.slice(0, -2);
-                tooltip = tooltip.slice(0, -2) + "<br>" + sampleStr;
+                tooltip += xcHelper.escapeHTMLSpecialChar(tooltipPart2.slice(0, -2)) + "<br>" + sampleStr;
                 info.tooltip = tooltip;
                 break;
             case (SQLOps.Join):
@@ -2070,9 +2086,9 @@ window.DagDraw = (function($, DagDraw) {
             }
         }
 
-        info.tooltip = joinText + " Join between table &quot;" +
-                       parentNames[0] + "&quot; and table &quot;" +
-                       parentNames[1] + "&quot;";
+        info.tooltip = joinText + " Join between table \"" +
+                       parentNames[0] + "\" and table \"" +
+                       parentNames[1] + "\"";
         var invalidColFound = false;
 
         if (joinType === "cross") {
@@ -2096,9 +2112,9 @@ window.DagDraw = (function($, DagDraw) {
 
 
         if (invalidColFound) {
-            info.tooltip = joinText + " Join between table &quot;" +
-                       parentNames[0] + "&quot; and table &quot;" +
-                       parentNames[1] + "&quot;";
+            info.tooltip = joinText + " Join between table \"" +
+                       parentNames[0] + "\" and table \"" +
+                       parentNames[1] + "\"";
         }
         info.opText = parentNames[0] + ", " + parentNames[1];
 
@@ -2229,8 +2245,8 @@ window.DagDraw = (function($, DagDraw) {
             // nested args, use general filterstr for tooltip
             info.opText = filterStr.slice(parenIndex + 1,
                                           filterStr.lastIndexOf(')')).trim();
-            info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                            "&quot;: " + filterStr;
+            info.tooltip = "Filtered table \"" + parentNames[0] +
+                            "\": " + filterStr;
         } else if (filterTypeMap[abbrFilterType]) {
             var filteredOn = filterStr.slice(parenIndex + 1,
                                              filterStr.indexOf(','));
@@ -2241,9 +2257,9 @@ window.DagDraw = (function($, DagDraw) {
             filterValue = $.trim(filterValue);
             info.opText = filteredOn;
             if (filterType === "regex") {
-                info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                               "&quot; using regex: &quot;" +
-                               filterValue + "&quot; on " +
+                info.tooltip = "Filtered table \"" + parentNames[0] +
+                               "\" using regex: \"" +
+                               filterValue + "\" on " +
                                filteredOn + ".";
             } else if (filterType === "not") {
                 filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
@@ -2251,8 +2267,8 @@ window.DagDraw = (function($, DagDraw) {
                                 .slice(0, filterValue.lastIndexOf(')'));
                 info.opText = filteredOn;
                 if (filteredOn.indexOf(")") > -1) {
-                    info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                               "&quot; where " + filteredOn +
+                    info.tooltip = "Filtered table \"" + parentNames[0] +
+                               "\"; where " + filteredOn +
                                " is " + filterType + " " +
                                filterValue + ".";
                 } else {
@@ -2267,13 +2283,13 @@ window.DagDraw = (function($, DagDraw) {
                                              filterStr.lastIndexOf(')'))
                                       .trim();
                     }
-                    info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                                    "&quot;: " + filterStr;
+                    info.tooltip = "Filtered table \"" + parentNames[0] +
+                                    "\": " + filterStr;
                 }
 
             } else {
-                info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                               "&quot; where " + filteredOn +
+                info.tooltip = "Filtered table \"" + parentNames[0] +
+                               "\" where " + filteredOn +
                                " is " + filterType + " " +
                                filterValue + ".";
             }
@@ -2289,8 +2305,8 @@ window.DagDraw = (function($, DagDraw) {
                                      filterStr.lastIndexOf(')'))
                               .trim();
             }
-            info.tooltip = "Filtered table &quot;" + parentNames[0] +
-                            "&quot;: " + filterStr;
+            info.tooltip = "Filtered table \"" + parentNames[0] +
+                            "\": " + filterStr;
         }
         info.opText = info.opText;
         return info;

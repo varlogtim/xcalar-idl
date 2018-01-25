@@ -114,6 +114,9 @@ window.ProfileSelector = (function(ProfileSelector, $) {
 
     function drawFilterRect(bound, top, right, bottom, left) {
         var chart = getChart();
+        if (!chartBuilder) {
+            return;
+        }
         var chartType = chartBuilder.getType();
         var areasToSelect = getAreaToSelect(chartType, bound, top, right,
                                             bottom, left);

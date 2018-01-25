@@ -1184,7 +1184,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '</button>' +
                         '</div>';
         }
-
+        inputVal = xcHelper.escapeHTMLSpecialChar(inputVal);
         var html;
         if (isCheckbox) {
             html =
@@ -1324,7 +1324,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var lists = getMatchingColNames(input, colNames);
         var html = "";
         lists.forEach(function(li) {
-            html += "<li>" + li + "</li>";
+            html += "<li>" + xcHelper.escapeHTMLSpecialChar(li) + "</li>";
         });
         return html;
     }
