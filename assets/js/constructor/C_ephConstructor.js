@@ -269,16 +269,6 @@ DSFormController.prototype = {
         return JSON.stringify(args);
     },
 
-    setUDFToApply: function(module, func) {
-        this.udfModule = module;
-        this.udfFunc = func;
-    },
-
-    isUDFApplied: function(module, func) {
-        return module && func &&
-              (this.udfModule === module) && (this.udfFunc === func);
-    },
-
     setOriginalTypedColumns: function(typedColumns) {
         this.typedColumns = typedColumns;
     },
@@ -3322,7 +3312,7 @@ ProgressCircle.prototype = {
         .transition()
         .duration(duration)
         .ease("linear")
-        .tween("text", function(a) {
+        .tween("text", function() {
             var num = this.textContent || 0;
             var i = d3.interpolateNumber(num, pct);
             return (function(t) {

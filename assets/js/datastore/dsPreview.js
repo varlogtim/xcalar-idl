@@ -98,7 +98,7 @@ window.DSPreview = (function($, DSPreview) {
             applyHighlight(selection.toString());
         });
 
-        $previewTable.on("mousedown", ".editableHead", function(event) {
+        $previewTable.on("mousedown", ".editableHead", function() {
             $("#importColRename").trigger("blur");
             if ($("#importColRename").length) {
                 return false;
@@ -119,7 +119,7 @@ window.DSPreview = (function($, DSPreview) {
             $renameInput.data("$input", $input);
             var scrollWidth = $renameInput[0].scrollWidth;
             if (scrollWidth > (width - 2)) {
-                width = Math.min($previewCard.find(".previewSection").width(), 
+                width = Math.min($previewCard.find(".previewSection").width(),
                                 scrollWidth + 80);
                 $renameInput.outerWidth(width);
             }
@@ -127,7 +127,7 @@ window.DSPreview = (function($, DSPreview) {
             if (width > $previewCard.find(".previewSection").width()) {
                 $renameInput.outerWidth($previewCard.find(".previewSection")
                             .width());
-            } 
+            }
 
             rect = $renameInput[0].getBoundingClientRect();
             var winRight = $(window).width() - 5;
@@ -139,7 +139,7 @@ window.DSPreview = (function($, DSPreview) {
                 $renameInput.css("left", $previewCard.offset().left);
             }
 
-            setTimeout(function() {  
+            setTimeout(function() {
                 $renameInput.focus();
                 $renameInput.selectAll();
                 var timeout;
@@ -149,7 +149,7 @@ window.DSPreview = (function($, DSPreview) {
                 $previewCard.find(".previewSection").scroll(function() {
                     cleanupColRename();
                 });
-        
+
                 $renameInput.on("blur", function() {
                     var val = $renameInput.val();
                     $renameInput.tooltip("destroy");
@@ -208,7 +208,7 @@ window.DSPreview = (function($, DSPreview) {
 
         xcMenu.add($previewCard.find(".castDropdown"));
 
-        $previewTable.on("click", ".flex-left", function(event) {
+        $previewTable.on("click", ".flex-left", function() {
             var $dropdown = $previewCard.find(".castDropdown");
             $dropdown.data('th', $(this).closest("th"));
             $dropdown.removeClass("type-string type-boolean " +
@@ -228,8 +228,8 @@ window.DSPreview = (function($, DSPreview) {
                                             "type-integer type-float");
             $th.find(".header").addClass("type-" + type);
             $th.data("type", type);
-            xcTooltip.changeText($th.find(".flex-left"), 
-                                    xcHelper.capitalize(type) + 
+            xcTooltip.changeText($th.find(".flex-left"),
+                                    xcHelper.capitalize(type) +
                                     '<br>' + DSTStr.ClickChange);
         });
 
@@ -323,7 +323,7 @@ window.DSPreview = (function($, DSPreview) {
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
                 $previeWrap.height('100%');
-                $previeWrap.addClass("dragging"); 
+                $previeWrap.addClass("dragging");
                 // if resize is triggered, don't validate, just return to old
                 // value
                 if ($("#importColRename").length) {
@@ -615,7 +615,7 @@ window.DSPreview = (function($, DSPreview) {
     function setupUDFSection() {
         $("#dsForm-applyUDF").click(function() {
             $(this).blur();
-            applyUDF();
+            refreshPreview(true);
         });
 
         $("#dsForm-writeUDF").click(function() {
@@ -628,7 +628,6 @@ window.DSPreview = (function($, DSPreview) {
             "onSelect": function($li) {
                 var module = $li.text();
                 selectUDFModule(module);
-                changeUDF();
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
@@ -638,7 +637,6 @@ window.DSPreview = (function($, DSPreview) {
             "onSelect": function($li) {
                 var func = $li.text();
                 selectUDFFunc(func);
-                changeUDF();
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
@@ -737,8 +735,6 @@ window.DSPreview = (function($, DSPreview) {
         // stop the reset from triggering
         // only when cached moduleName and funcName is not null
         // we restore it
-        loadArgs.setUDFToApply(null, null);
-        toggleApplyUDF(false);
         if (lastUDFModule != null && lastUDFFunc != null &&
             validateUDFFunc(lastUDFModule, lastUDFFunc)) {
 
@@ -778,7 +774,7 @@ window.DSPreview = (function($, DSPreview) {
         if (module === "") {
             $udfFuncList.addClass("disabled")
                     .find("input").attr("disabled", "disabled");
-            udfFuncHint.clearInput();
+            selectUDFFunc("");
 
             $udfFuncList.parent().tooltip({
                 "title": TooltipTStr.ChooseUdfModule,
@@ -789,51 +785,27 @@ window.DSPreview = (function($, DSPreview) {
             $udfFuncList.parent().tooltip("destroy");
             $udfFuncList.removeClass("disabled")
                         .find("input").removeAttr("disabled");
-            udfFuncHint.clearInput();
-
             var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
                             .filter(function() {
                                 return $(this).data("module") === module;
                             }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
+            } else {
+                selectUDFFunc("");
             }
         }
     }
 
     function selectUDFFunc(func) {
-        if (func == null) {
-            func = "";
-        }
-        udfFuncHint.setInput(func);
-    }
-
-    function toggleApplyUDF(on) {
-        if (on) {
-            $previewCard.addClass("toApplyUDF");
+        func = func || "";
+        var $button = $("#dsForm-applyUDF");
+        if (func) {
+            $button.removeClass("xc-disabled");
+            udfFuncHint.setInput(func);
         } else {
-            $previewCard.removeClass("toApplyUDF");
-        }
-    }
-
-    function changeUDF() {
-        var udfModule = $udfModuleList.find("input").val();
-        var udfFunc = $udfFuncList.find("input").val();
-        if (loadArgs.isUDFApplied(udfModule, udfFunc)) {
-            toggleApplyUDF(false);
-        } else {
-            toggleApplyUDF(true);
-        }
-    }
-
-    function applyUDF() {
-        var udfModule = $udfModuleList.find("input").val();
-        var udfFunc = $udfFuncList.find("input").val();
-        var res = refreshPreview(true);
-        if (res != null) {
-            // when udf is applied
-            toggleApplyUDF(false);
-            loadArgs.setUDFToApply(udfModule, udfFunc);
+            $button.addClass("xc-disabled");
+            udfFuncHint.clearInput();
         }
     }
 
@@ -947,7 +919,6 @@ window.DSPreview = (function($, DSPreview) {
         // udf section
         var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
         resetUdfSection();
-        toggleApplyUDF(false); // UDF will be auto applied
         // format
         var format = options.format;
         if (format === formatMap.TEXT) {
@@ -1102,7 +1073,7 @@ window.DSPreview = (function($, DSPreview) {
             $previewTable.find("th:not(.rowNumHead)").each(function() {
                 var $th = $(this);
                 var type = $th.data("type") || "string";
-                type = xcHelper.convertColTypeToFeildType(type)
+                type = xcHelper.convertColTypeToFeildType(type);
                 type = DfFieldTypeTStr[type];
                 var header = {
                     colType: type,
@@ -1116,11 +1087,11 @@ window.DSPreview = (function($, DSPreview) {
                 var header = {
                     colType: "",
                     colName: $(this).find(".text").text()
-                }
+                };
                 headers.push(header);
             });
         }
-        
+
         return headers;
     }
 
@@ -1687,12 +1658,8 @@ window.DSPreview = (function($, DSPreview) {
         };
 
         if (hasChangeFormat) {
-            toggleApplyUDF(false);
-
             if (format === "UDF") {
-                // reset UDF apply button
-                loadArgs.setUDFToApply(null, null);
-                toggleApplyUDF(true);
+                // nothing to do now
             } else if (changeWithExcel(oldFormat, format) ||
                 chanegFromUDF(useUDF)) {
                 refreshPreview(true);
@@ -2049,16 +2016,12 @@ window.DSPreview = (function($, DSPreview) {
     function setDefaultDSName(paths) {
         var dsNames = [];
         var html = "";
+        var $inputPart = $form.find(".topSection .inputPart");
         paths.forEach(function(path) {
             var dsName = getNameFromPath(path);
             dsNames.push(dsName);
 
             html += '<div class="row">' +
-                        '<div class="inputWrap">' +
-                            '<input class="large dsName" type="text"' +
-                            ' autocomplete="off" spellcheck="false"' +
-                            ' value="' + dsName + '">' +
-                        '</div>' +
                         '<label class="tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
@@ -2066,16 +2029,36 @@ window.DSPreview = (function($, DSPreview) {
                         ' data-title="' + path + '">' +
                             path +
                         '</label>' +
+                        '<div class="inputWrap">' +
+                            '<input class="large dsName" type="text"' +
+                            ' autocomplete="off" spellcheck="false"' +
+                            ' value="' + dsName + '">' +
+                        '</div>' +
                     '</div>';
         });
-        $form.find(".topSection .inputPart").html(html);
+        $inputPart.html(html);
         if (paths.length > 1) {
             $form.addClass("multiFiles");
         } else {
             $form.removeClass("multiFiles");
         }
-
+        autoResizeLabels($inputPart);
         return dsNames;
+    }
+
+    function autoResizeLabels($inputPart) {
+        var $labels = $inputPart.find("label");
+        var $label = $labels.eq(0);
+        var width = parseInt($label.css("minWidth"));
+        var maxWidth = parseInt($label.css("maxWidth"));
+
+        $labels.each(function() {
+            var $ele = $(this);
+            width = Math.max(width, xcHelper.getTextWidth($ele, $ele.text()));
+            width = Math.min(width, maxWidth);
+        });
+
+        $labels.width(width);
     }
 
     function setPreviewInfo(targetName, url, pattern) {
@@ -2500,10 +2483,10 @@ window.DSPreview = (function($, DSPreview) {
                             '<div class="flexContainer flexRow">' +
                                 '<div class="flexWrap flex-left" ' +
                                 'data-toggle="tooltip" data-container="body" ' +
-                                'data-placement="top" data-original-title="' + 
-                                xcHelper.capitalize(ColumnType.string) + 
+                                'data-placement="top" data-original-title="' +
+                                xcHelper.capitalize(ColumnType.string) +
                                 '<br>' + DSTStr.ClickChange + '">' +
-                                    '<span class="iconHidden"></span>' + 
+                                    '<span class="iconHidden"></span>' +
                                     '<span class="type icon"></span>' +
                                     '<div class="dropdownBox"></div>' +
                                 '</div>' +
@@ -2862,18 +2845,18 @@ window.DSPreview = (function($, DSPreview) {
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
                                     'data-placement="top" ' +
-                                    'data-original-title="' + 
-                                    xcHelper.capitalize(ColumnType.string) + 
+                                    'data-original-title="' +
+                                    xcHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +
-                                        '<span class="iconHidden"></span>' + 
+                                        '<span class="iconHidden"></span>' +
                                         '<span class="type icon"></span>' +
                                         '<div class="dropdownBox"></div>' +
                                     '</div>' +
                                     '<div class="flexWrap flex-mid">' +
                                         '<input spellcheck="false" ' +
                                         'class="text tooltipOverflow ' +
-                                        'editableHead th col' + i + 
-                                        '" value="column' + i + 
+                                        'editableHead th col' + i +
+                                        '" value="column' + i +
                                         '" data-original-title="column' + i +
                                         '" data-container="body" data-toggle="tooltip">' +
                                     '</div>' +
@@ -2996,24 +2979,23 @@ window.DSPreview = (function($, DSPreview) {
         if (isEditable) {
             html = isTh ? '<th class="editable" data-type="string">' +
                     '<div class="header type-string">' +
-                    colGrab + 
-
+                    colGrab +
                     '<div class="flexContainer flexRow">' +
-                                    '<div class="flexWrap flex-left" '+
+                                    '<div class="flexWrap flex-left" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
                                     'data-placement="top" ' +
-                                    'data-original-title="' + 
-                                    xcHelper.capitalize(ColumnType.string) + 
+                                    'data-original-title="' +
+                                    xcHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +
-                                    '<span class="iconHidden"></span>' + 
+                                    '<span class="iconHidden"></span>' +
                                         '<span class="type icon"></span>' +
                                         '<div class="dropdownBox"></div>' +
                                     '</div>' +
                                     '<div class="flexWrap flex-mid">' +
                                         '<input spellcheck="false" ' +
                                         'class="text cell tooltipOverflow ' +
-                                        'editableHead th' + 
+                                        'editableHead th' +
                                         '" value="' : '<td class="cell"><div class="innerCell">';
         } else {
             html = isTh ? '<th><div class="header">' + colGrab +
@@ -3078,17 +3060,17 @@ window.DSPreview = (function($, DSPreview) {
                                     'data-toggle="tooltip" ' +
                                     'data-container="body" ' +
                                     'data-placement="top" ' +
-                                    'data-original-title="' + 
-                                    xcHelper.capitalize(ColumnType.string) + 
+                                    'data-original-title="' +
+                                    xcHelper.capitalize(ColumnType.string) +
                                     '<br>' + DSTStr.ClickChange + '">' +
-                                    '<span class="iconHidden"></span>' + 
+                                    '<span class="iconHidden"></span>' +
                                         '<span class="type icon"></span>' +
                                         '<div class="dropdownBox"></div>' +
                                     '</div>' +
                                     '<div class="flexWrap flex-mid">' +
                                         '<input spellcheck="false" ' +
                                         'class="text cell tooltipOverflow ' +
-                                        'editableHead th' + 
+                                        'editableHead th' +
                                         '" value="';
                         } else {
                             html += '</div></div></th>' +
@@ -3097,7 +3079,6 @@ window.DSPreview = (function($, DSPreview) {
                                         colGrab +
                                         '<div class="text cell">';
                         }
-                       
                     } else {
                         html += '</div></td><td class="cell">' +
                                     '<div class="innerCell">';
@@ -3335,16 +3316,16 @@ window.DSPreview = (function($, DSPreview) {
         var $ths = $previewTable.find("th");
         var invalidHeaders = [];
         headers.forEach(function(header, i) {
-            var error = xcHelper.validateColName(header.colName)
+            var error = xcHelper.validateColName(header.colName);
             if (error) {
                 invalidHeaders.push({
                     text: invalidHeadersConversion(header, error),
                     index: i,
-                    error: error 
+                    error: error
                 });
                 $ths.eq(i + 1).find(".text").addClass("error");
             }
-        })
+        });
 
         if (invalidHeaders.length === 0) {
             return checkBulkDuplicateNames(headers);
@@ -3355,10 +3336,10 @@ window.DSPreview = (function($, DSPreview) {
         var msg;
         if (loadArgs.getFormat() === formatMap.CSV) {
             msg = '<span class="tableTitle">' + DSTStr.DetectInvalidColMsgFix +
-                  ':</span>'
+                  ':</span>';
         } else {
             msg = '<span class="tableTitle">' + DSTStr.DetectInvalidColMsg +
-                  ':</span>' 
+                  ':</span>';
         }
 
         var table = '<div id="invalidDSColTable">' + msg +
@@ -3407,7 +3388,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function invalidHeadersConversion(header, error) {
-        var text = '<span>'
+        var text = '<span>';
         if (error === ColTStr.RenameStartNum) {
             text += '<b class="highlight">' + header.colName.slice(0, 1) +
                     '</b>' + header.colName.slice(1);
@@ -3420,8 +3401,8 @@ window.DSPreview = (function($, DSPreview) {
                        ? '<b class="highlight">' + ch + '</b>'
                        : ch;
             }).join("");
-        } 
-                
+        }
+
         text += '</span>';
         return text;
     }

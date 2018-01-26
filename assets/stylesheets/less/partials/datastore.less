@@ -1622,21 +1622,6 @@ table.datasetTable {
         }
     }
 
-    &.toApplyUDF {
-        .cardMain {
-            .position(relative);
-
-            > div {
-                pointer-events: none;
-                opacity: @opacity-disabled;
-            }
-        }
-
-        #dsForm-applyUDF {
-            display: block;
-        }
-    }
-
     .cardWrap {
         .position(relative);
         .size(@height: ~"calc(100% - 36px)", @width: 100%);
@@ -1692,14 +1677,6 @@ table.datasetTable {
             display: block;
             .textOverflowOneLine;
         }
-    }
-
-    #dsForm-applyUDF {
-        display: none;
-        .center-align;
-        .position(absolute);
-        background-color: @color-white;
-        .size(@width: 300px);
     }
 }
 
@@ -2077,8 +2054,6 @@ table.datasetTable {
     }
 
     .topSection {
-        padding-top: 10px;
-
         &.collapse {
             .less {
                 display: none;
@@ -2094,7 +2069,12 @@ table.datasetTable {
                  &:after {
                     content: "......";
                     margin-left: 15px;
+                    .position(relative, @top: -5px);
                 }
+            }
+
+            .actionPart {
+                margin-top: -10px;
             }
         }
 
@@ -2108,18 +2088,15 @@ table.datasetTable {
             @large-input: 473px;
             @take-width: @large-input + 22;
 
-            .inputWrap {
-                margin-right: 22px;
-            }
-
             input {
                 width: @large-input !important;
             }
 
             label {
                 .textOverflowOneLine;
-                width: ~"calc(100% - @{take-width})";
-                margin-right: 0;
+                text-align: right;
+                .size(@min-width: @row-width + 22, @max-width: 300px);
+                direction: rtl;
             }
 
         }
@@ -2313,9 +2290,13 @@ table.datasetTable {
             margin-top: 20px;
 
             button {
-                .size(@width: 360px);
+                .size(@width: 300px);
                 float: left;
-                margin-left: 0;
+
+                &:first-child {
+                    margin-left: 0;
+                    margin-right: 10px;
+                }
             }
         }
 
