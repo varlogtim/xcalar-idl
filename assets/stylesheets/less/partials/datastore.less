@@ -1640,7 +1640,6 @@ table.datasetTable {
 
     .cardMain {
         padding-top: 0;
-        padding-bottom: 5px;
         .size(@height: 50%);
         .text-selection;
         .transition(height 0.3s);
@@ -2060,6 +2059,10 @@ table.datasetTable {
         }
     }
 
+    .qMark {
+        cursor: help;
+    }
+
     .contentSection {
         .size(@width: 100%, @height: ~"calc(100% - 50px)");
         overflow-y: auto;
@@ -2160,15 +2163,11 @@ table.datasetTable {
             display: none;
             padding-left: 35px;
 
-            &:not(.metadata) {
+            &.extraCols {
+                .size(@height: 70px);
                 label {
                     margin-left: 22px;
                 }
-            }
-
-            &.extraCols {
-                .size(@height: 70px);
-
                 .part {
                     &:not(.active) {
                         input {
@@ -2182,17 +2181,14 @@ table.datasetTable {
             &.termination {
                 .size(@height: 70px);
 
-                .multiLine {
-                    .position(relative, @top: 5px);
-                }
-
                 .qMark {
-                    top: 10px;
+                    top: 15px;
                 }
 
                 .radioButtonGroup {
                     display: block;
                     float: left;
+
 
                     .radioButton {
                         margin-top: 5px;
@@ -2209,7 +2205,7 @@ table.datasetTable {
                 float: left;
 
                 .text {
-                    .size(@width: 100px);
+                    .size(@width: 118px);
                 }
             }
 
@@ -2251,6 +2247,21 @@ table.datasetTable {
             display: inline-block;
             float: left;
             margin-right: 10px;
+        }
+
+        .qMarkHeight {
+            height: 25px;
+            .qMark {
+                margin-right: 0px;
+            }
+        }
+        .multiLine {
+            display: inline-block;
+            float: left;
+            &.termOptions {
+                position: relative;
+                top: 5px;
+            }
         }
 
         .qMark {

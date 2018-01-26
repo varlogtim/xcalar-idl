@@ -112,7 +112,7 @@
           <section class="middleSection">
             <!-- format menu -->
             <div class="row">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFormat %>" data-placement="top"></i>
               <label><%= dicts.dsForm.Format %>:</label>
               <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
               <div id="fileFormat" class="dropDownList rowContent" data-introstep="w2-dsFormat">
@@ -129,8 +129,8 @@
                     <li name="JSON"><%= dicts.dsFormat.JSON %></li>
                     <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
                     <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
-                    <li name="UDF"><%= dicts.dsFormat.UDF %></li>
                     <li name="XML"><%= dicts.dsFormat.XML %></li>
+                    <li name="UDF"><%= dicts.dsFormat.UDF %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
                 </div>
@@ -139,7 +139,7 @@
             <!-- promote header -->
             <div class="row format csv text excel checkboxRow">
               <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSCSVPromote %>" data-placement="top"></i>
                 <div class="text"><%= dicts.dsForm.Header %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
@@ -150,7 +150,7 @@
             <!-- gne line number -->
             <div class="row format text checkboxRow" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'dataStoreTut1Demo') ? 'style="display:none;"' : '' %>>
               <div id="genLineNumbersCheckbox" class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvRow %>" data-placement="top"></i>
                 <div class="text"><%= dicts.dsForm.GenLineNum %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
@@ -160,7 +160,7 @@
             </div>
             <!-- line delimiter -->
             <div class="row format csv text">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSRecordDelim %>" data-placement="top"></i>
               <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
               <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsOptions"' : '' %>>
                 <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
@@ -181,7 +181,7 @@
             </div>
             <!-- field delimiter -->
             <div class="row format csv">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFieldDelim %>" data-placement="top"></i>
               <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
               <div id="fieldDelim" class="dropDownList">
                 <input id="fieldText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
@@ -201,15 +201,15 @@
             </div>
             <!-- quote char -->
             <div class="row format csv text">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSQuote %>" data-placement="top"></i>
               <label for="dsForm-quote"><%= dicts.dsForm.Quoting %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-quote" class="text" type="text" spellcheck="false">
               </div>
             </div>
             <!-- skip rows -->
-            <div class="row format csv text">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.dsForm.SkipRowsHint %>" data-placement="top"></i>
+            <div class="row format csv text excel">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSSkipRows %>" data-placement="top"></i>
               <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-skipRows" class="text" type="number" value="0">
@@ -217,7 +217,7 @@
             </div>
             <!-- udf module -->
             <div class="row format udf">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSUDFModule %>" data-placement="top"></i>
               <label><%= dicts.dsForm.Module %>:</label>
               <div id="udfArgs-moduleList" class="rowContent dropDownList">
                 <input class="text inputable" type="text" spellcheck="false" placeholder="<%= dicts.UDF.Module %>">
@@ -232,7 +232,7 @@
             </div>
             <!-- udf function -->
             <div class="row format udf">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSUDFFunction %>" data-placement="top"></i>
               <label><%= dicts.dsForm.Function %>:</label>
               <div class="inputPart">
                 <div id="udfArgs-funcList" class="dropDownList disabled">
@@ -254,7 +254,7 @@
             </div>
             <!-- xml xPaths -->
             <div class="row format xml">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
               <label for="dsForm-xPaths"><%= dicts.dsForm.xPaths %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-xPaths" class="text" type="text" spellcheck="false">
@@ -263,7 +263,7 @@
             <!-- xml matched xPath -->
             <div class="row format xml checkboxRow matchedXPath">
               <div class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLMatched %>" data-placement="top"></i>
                 <div class="text"><%= dicts.dsForm.MatchedXPath %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
@@ -274,7 +274,7 @@
             <!-- xml element xPath -->
             <div class="row format xml checkboxRow elementXPath">
               <div class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLElement %>" data-placement="top"></i>
                 <div class="text"><%= dicts.dsForm.ElementXPath %></div>
                 <div class="checkbox">
                   <i class="icon xi-ckbox-empty"></i>
@@ -296,7 +296,7 @@
             </div>
             <!-- metadata file -->
             <div class="row metadata">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvMeta %>" data-placement="top"></i>
               <label><%= dicts.dsForm.MetaDataFile %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-metadataFile" class="large" type="text">
@@ -308,7 +308,7 @@
               <div class="multiLine">
                 <!-- file name -->
                 <div class="part fileName">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvFile %>" data-placement="top"></i>
                   <div class="checkboxSection">
                     <div class="text"><%= dicts.dsForm.FileName %>:</div>
                     <div class="checkbox">
@@ -322,7 +322,7 @@
                 </div>
                 <!-- row number -->
                 <div class="part rowNumber">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvRow %>" data-placement="top"></i>
                   <div class="checkboxSection">
                     <div class="text"><%= dicts.dsForm.RowNum %>:</div>
                     <div class="checkbox">
@@ -336,7 +336,7 @@
                 </div>
               </div>
             </div>
-            <!-- performance -->
+            <!-- performance
             <div class="row performance">
               <label><%= dicts.dsForm.Performance %>:</label>
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
@@ -347,12 +347,24 @@
                   <i class="icon xi-ckbox-selected"></i>
                 </div>
               </div>
-            </div>
+            </div> -->
             <!-- termination -->
             <div class="row termination">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTerm %>" data-placement="top"></i>
               <label><%= dicts.dsForm.Termination %>:</label>
               <div class="multiLine">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="" data-placement="top"></i>
+                <!-- When chrome fixes their glitchy bug, we can stop doing this weird thing -->
+                <div class="qMarkHeight">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopAll %>" data-placement="top"></i>
+                </div>
+                <div class="qMarkHeight">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
+                </div>
+                <div class="qMarkHeight">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopError %>" data-placement="top"></i>
+                </div>
+              </div>
+              <div class="multiLine termOptions">
                 <!-- radio buttons -->
                 <div class="radioButtonGroup">
                   <div class="radioButton xc-action" data-option="stop">
@@ -368,6 +380,13 @@
                       <i class="icon xi-radio-empty"></i>
                     </div>
                     <span><%= dicts.dsForm.ContinueOnError %></span>
+                  </div>
+                  <div class="radioButton xc-action" data-option="continuesome">
+                    <div class="radio">
+                      <i class="icon xi-radio-selected"></i>
+                      <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <span><%= dicts.dsForm.TerminateFile %></span>
                   </div>
                 </div>
               </div>
