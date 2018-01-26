@@ -1067,6 +1067,8 @@ DSParserTStr = {
 };
 
 DSTargetTStr = {
+    "Create": "Create data target",
+    "AdminOnly": "Only admins can create new import targets",
     "DEL": "DELETE TARGET",
     "DelFail": "Target Deletion Failed",
     "NoDelete": "Cannot delete default target",
@@ -1076,6 +1078,8 @@ DSTargetTStr = {
 };
 
 DSExportTStr = {
+    "Create": "Create export target",
+    "AdminOnly": "Only admins can create new export targets",
     'ExportFail': 'Failed to add export target',
     'InvalidType': 'Invalid Target Type',
     'InvalidTypeMsg': 'Please select a valid target type',

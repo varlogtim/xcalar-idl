@@ -894,6 +894,8 @@ DSParserTStr = {
 "Proceed": "继续"
 };
 DSTargetTStr = {
+"Create": "创建目标",
+"AdminOnly": "只有管理员权限才能创建目标",
 "DEL": "删除目标",
 "DelFail": "目标删除失败",
 "NoDelete": "无法删除默认目标",
@@ -902,6 +904,8 @@ DSTargetTStr = {
 "TargetExists": "目标<target>已存在",
 };
 DSExportTStr = {
+"Create": "创建导出目标",
+"AdminOnly": "只有管理员权限才能创建导出目标",
 'ExportFail': '无法添加导出目标',
 'InvalidType': '目标类型无效',
 'InvalidTypeMsg': '请选择有效的目标类型',

@@ -91,7 +91,16 @@
         .mainContent {
             overflow: auto;
         }
-
+    }
+    &.noAdmin {
+        #dsTarget-create-card, #exportTargetCard {
+            display: none;
+        }
+        #dsTarget-info-card, #exportTargetEditCard {
+            .formButton {
+                display: none;
+            }
+        }
     }
 }
 
@@ -3837,6 +3846,19 @@ table.datasetTable {
         .formButton {
             .btn {
                 margin-right: 0px;
+            }
+        }
+    }
+}
+
+#datastoreMenu {
+    &.noAdmin {
+        #dsTarget-create, #createExportButton {
+            opacity: @opacity-disabled !important;
+        }
+        #dsTarget-menu, #expTargetGridMenu {
+            li[data-action="create"], li[data-action="delete"] {
+                display: none;
             }
         }
     }

@@ -32,7 +32,9 @@ window.DSExport = (function($, DSExport) {
         });
 
         $("#createExportButton").click(function() {
-            showExportTargetForm();
+            if(!$("#datastoreMenu").hasClass("noAdmin")) {
+                showExportTargetForm();
+            }
         });
 
         $gridView.on("click", ".grid-unit", function() {
@@ -236,6 +238,10 @@ window.DSExport = (function($, DSExport) {
         return null;
     };
 
+    DSExport.clickFirstGrid = function() {
+         $gridView.find(".target").eq(0).click();
+    };
+
     function getDefaultPath() {
         var group;
         var targets;
@@ -349,7 +355,7 @@ window.DSExport = (function($, DSExport) {
             $editForm.find(".udfFuncName").val($grid.data("fnname"));
         }
         var $deleteBtn = $("#exportTargetDelete");
-        if (name === "Default") {
+        if (name === "Default" || (!Admin.isAdmin())) {
             $deleteBtn.addClass("unavailable");
             xcTooltip.add($deleteBtn, {
                 title: DSExportTStr.NoDelete

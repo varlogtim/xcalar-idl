@@ -43,6 +43,7 @@ window.DataStore = (function($, DataStore) {
                   .removeClass("target");
             $menu.find(".menuSection").addClass("xc-hidden");
 
+            var isAdmin = readOnlyForNoAdmin();
             var id = $button.attr("id");
             if (id === "outButton") {
                 var $exportView = $("#datastore-out-view");
@@ -50,7 +51,12 @@ window.DataStore = (function($, DataStore) {
                 $title.text(DSTStr.OUT);
                 $menu.find(".out").removeClass("xc-hidden");
                 if ($exportView.hasClass("firstTouch")) {
-                    DSExport.refresh(true);
+                    DSExport.refresh(true)
+                    .always(function() {
+                        if (!isAdmin) {
+                            DSExport.clickFirstGrid();
+                        }
+                    })
                     $exportView.removeClass("firstTouch");
                 }
             } else if (id === "targetButton") {
@@ -59,7 +65,12 @@ window.DataStore = (function($, DataStore) {
                 $menu.find(".target").removeClass("xc-hidden");
                 $title.text(DSTStr.TARGET);
                 if ($targetView.hasClass("firstTouch")) {
-                    DSTargetManager.getTargetTypeList();
+                    DSTargetManager.getTargetTypeList()
+                    .always(function() {
+                        if (!isAdmin) {
+                            DSTargetManager.clickFirstGrid();
+                        }
+                    });
                     $targetView.removeClass("firstTouch");
                 }
             } else {
@@ -71,6 +82,21 @@ window.DataStore = (function($, DataStore) {
                 DSCart.refresh();
             }
             // button switch styling handled in mainMenu.js
+            function readOnlyForNoAdmin() {
+                var isAdmin = Admin.isAdmin();
+                if (!isAdmin) {
+                    $panel.addClass("noAdmin");
+                    $menu.addClass("noAdmin");
+                    xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.AdminOnly);
+                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.AdminOnly);
+                } else {
+                    $panel.removeClass("noAdmin");
+                    $menu.removeClass("noAdmin");
+                    xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.Create);
+                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.Create);
+                }
+                return isAdmin;
+            }
         });
     }
 

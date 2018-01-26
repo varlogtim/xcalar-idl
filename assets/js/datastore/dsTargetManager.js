@@ -104,13 +104,19 @@ window.DSTargetManager = (function($, DSTargetManager) {
         return promise;
     };
 
+    DSTargetManager.clickFirstGrid = function() {
+         $gridView.find(".target").eq(0).click();
+    }
+
     function addEventListeners() {
         $("#dsTarget-refresh").click(function() {
             DSTargetManager.refreTargets();
         });
 
         $("#dsTarget-create").click(function() {
-            showTargetCreateView();
+            if(!$("#datastoreMenu").hasClass("noAdmin")) {
+                showTargetCreateView();
+            }
         });
 
         $("#dsTarget-delete").click(function() {
@@ -179,7 +185,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 classes += " bgOpts";
             }
             var $deleteLi = $gridMenu.find('.targetOpt[data-action="delete"]');
-            if (isDefaultTarget($grid.data("name"))) {
+            if (isDefaultTarget($grid.data("name")) || (!Admin.isAdmin())) {
                 $deleteLi.addClass("unavailable");
                 xcTooltip.add($deleteLi, {
                     title: DSTargetTStr.NoDelete
