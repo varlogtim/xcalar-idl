@@ -197,12 +197,8 @@ window.Function.prototype.bind = function() {
 
     // For retina test
     var retinaName;
-    var retinaFilterDagNodeId;
-    var retinaFilterParamType;
-    var retinaFilterParam;
-    var retinaExportDagNodeId;
-    var retinaExportParamType;
-    var retinaExportParam;
+    var retinaFilterStr;
+    var retinaExportFile;
     var paramInput;
     var retinaImportName;
 
@@ -915,6 +911,26 @@ window.Function.prototype.bind = function() {
                         loadOutput.dataset.name + "\"");
             test.pass();
 
+        })
+        .fail(test.fail);
+    }
+
+    function testGetDatasetsInfo(test) {
+        var datasetNamePattern = "*";
+        xcalarGetDatasetsInfo(thriftHandle, datasetNamePattern)
+        .then(function(getDatasetsOutput) {
+            printResult(getDatasetsOutput);
+
+            for (var i = 0, datasetInfo = null;
+                i < getDatasetsOutput.numDatasets; i++) {
+                    datasetInfo = getDatasetsOutput.datasets[i];
+                    console.log("\tdataset[" + i.toString() + "].datasetName = " +
+                        datasetInfo.datasetName);
+                    console.log("\tdataset[" + i.toString() + "].datasetSize = " +
+                        datasetInfo.datasetSize);
+                }
+
+            test.pass();
         })
         .fail(test.fail);
     }
@@ -2183,12 +2199,11 @@ window.Function.prototype.bind = function() {
                     if (iter == 2) {
                         test.assert(
                             exportInput.fileName
-                                === retinaExportParam.fileName, undefined,
+                                === retinaExportFile, undefined,
                             "exportFileName does not match parameterized string"
                         );
                     }
-                    retinaExportDagNodeId = getRetinaOutput.retina.retinaDag
-                        .node[ii].dagNodeId;
+
                     break;
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].filterStr = " +
@@ -2197,12 +2212,10 @@ window.Function.prototype.bind = function() {
                     if (iter == 2) {
                         test.assert(getRetinaOutput.retina.retinaDag.node[ii].
                                     input.filterInput.eval.evalString ===
-                                    retinaFilterParam.filterStr, undefined,
+                                    retinaFilterStr, undefined,
                                "FilterStr does not match parameterized string");
                     }
 
-                    retinaFilterDagNodeId = getRetinaOutput.retina.retinaDag.
-                                            node[ii].dagNodeId;
                     break;
                 case XcalarApisT.XcalarApiBulkLoad:
                     console.log("\tnode[" + ii + "].datasetUrl = " +
@@ -2227,80 +2240,26 @@ window.Function.prototype.bind = function() {
         return (testGetRetina(2, test));
     }
 
-    function testUpdateRetinaExport(test) {
-        var specInput = new ExInitExportSpecificInputT();
-        specInput.sfInput = new ExInitExportSFInputT();
-        specInput.sfInput.fileName = "yelp-mgmtdTest" +
-                                     Math.floor(Math.random()*10000) + ".csv";
-        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
-        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
-        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
-        specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
-        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
-        specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-        specInput.sfInput.formatArgs.csv.fieldDelim = ",";
-        specInput.sfInput.formatArgs.csv.recordDelim = "\n";
-        specInput.sfInput.formatArgs.csv.quoteDelim = "\"";
-
-        var target = new ExExportTargetHdrT();
-        target.type = ExTargetTypeT.ExTargetSFType;
-        target.name = "Default";
-
-        xcalarUpdateRetinaExport(thriftHandle, retinaName,
-                                 retinaExportDagNodeId,
-                                 target, specInput,
-                                 ExExportCreateRuleT.ExExportDeleteAndReplace,
-                                 true)
-        .then(function(status) {
-            xcalarGetRetina(thriftHandle, retinaName)
-            .then(function(getRetinaOutput) {
-                for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes;
-                     ii++) {
-                    if (getRetinaOutput.retina.retinaDag.node[ii].dagNodeId === retinaExportDagNodeId) {
-                        var exportMeta = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput;
-                        printResult(exportMeta);
-
-                        test.assert(exportMeta.fileName
-                                    == specInput.sfInput.fileName,
-                                   undefined, "fileNames do not match");
-                        test.assert(exportMeta.specificInput.sfInput.splitRule.type
-                                    == specInput.sfInput.splitRule.type,
-                                   undefined, "splitRules do not match");
-                        test.assert(exportMeta.specificInput.sfInput.headerType
-                                    == specInput.sfInput.headerType,
-                                   undefined, "headerTypes do not match");
-                        test.assert(exportMeta.specificInput.sfInput.formatArgs.csv.fieldDelim
-                                    == specInput.sfInput.formatArgs.csv.fieldDelim,
-                                   undefined, "fieldDelims do not match");
-                        test.assert(exportMeta.target.type == target.type,
-                                   undefined, "targetTypes do not match");
-                        test.assert(exportMeta.target.name == target.name,
-                                   undefined, "targetNames do not match");
-                        test.assert(exportMeta.sorted == true,
-                                   undefined, "sortedness does not match");
-                        test.assert(exportMeta.createRule == ExExportCreateRuleT.ExExportDeleteAndReplace,
-                                   undefined, "createRules do not match");
-                    }
-                }
-                test.pass();
-            })
-            .fail(test.fail);
-        })
-        .fail(test.fail);
-    }
-
     function testUpdateRetina(test) {
+        xcalarGetRetinaJson(thriftHandle, retinaName)
+        .then(function(jsonOutput) {
+            printResult(jsonOutput);
 
-        xcalarUpdateRetina(thriftHandle, retinaName,
-                           retinaFilterDagNodeId,
-                           retinaFilterParamType,
-                           retinaFilterParam)
-        .then(function(status) {
-            printResult(status);
+            var json = JSON.parse(jsonOutput.retinaJson);
+
+            for (var ii = 0; ii < json.query.length; ii++) {
+                if (json.query[ii].operation === "XcalarApiFilter") {
+                    json.query[ii].args.eval[0].evalString =
+                        retinaFilterStr;
+                }
+
+                if (json.query[ii].operation === "XcalarApiExport") {
+                    json.query[ii].args.fileName = retinaExportFile;
+                }
+            }
+
             return (xcalarUpdateRetina(thriftHandle, retinaName,
-                                       retinaExportDagNodeId,
-                                       retinaExportParamType,
-                                       retinaExportParam));
+                                       JSON.stringify(json)));
         })
         .then(function(status) {
             test.pass();
@@ -2329,7 +2288,7 @@ window.Function.prototype.bind = function() {
             }
 
             var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportParam.fileName;
+                           retinaExportFile;
 
             // Take the .csv off
             fullPath = fullPath.slice(0, -".csv".length);
@@ -2375,7 +2334,7 @@ window.Function.prototype.bind = function() {
             }
 
             var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportParam.fileName;
+                           retinaExportFile;
 
             // Take the .csv off
             fullPath = fullPath.slice(0, -".csv".length);
@@ -3787,15 +3746,8 @@ window.Function.prototype.bind = function() {
     newTableOutput       = null;
 
     retinaName            = "";
-    retinaFilterDagNodeId = 0;
-    retinaFilterParamType = XcalarApisT.XcalarApiFilter;
-    retinaFilterParam  = new XcalarApiParamFilterT();
-    retinaFilterParam.filterStr = "gt(yelp_user::votes.funny, <foo>)";
-    retinaExportParamType = XcalarApisT.XcalarApiExport;
-    retinaExportParam = new XcalarApiParamExportT();
-    retinaExportParam.fileName  = "retinaDstFile.csv";
-    retinaExportParam.targetName = "Default";
-    retinaExportParam.targetType = ExTargetTypeT.ExTargetSFType;
+    retinaFilterStr = "gt(yelp_user::votes.funny, <foo>)";
+    retinaExportFile  = "retinaDstFile.csv";
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
@@ -3834,6 +3786,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseDisabled, "1981");
 
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetDatasetsInfo, "get dataset info", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListUserDatasets, "list user's datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseEnabled, "");
@@ -3901,8 +3854,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-    // XXX: will be enabled when retina update is cleaned up
-    addTestCase(testUpdateRetinaExport, "updateRetinaExport", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseDisabled, "");
