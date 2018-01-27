@@ -254,6 +254,15 @@ window.DSTable = (function($, DSTable) {
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
 
         $path.text(path);
+        // XXX needs back end call
+        // var showFileHtml = '<button id="showFileListBtn" ' +
+        //                 'class="btn btn-large btn-transparent iconBtn">' +
+        //                 '<i class="icon xi-show"></i>' +
+        //                 'View files / folders</button>';
+        // $path.append(showFileHtml);
+        // $("#showFileListBtn").click(function() {
+        //     FileListModal.show();
+        // });
         xcTooltip.changeText($path, path);
         xcTooltip.enable($path);
 
