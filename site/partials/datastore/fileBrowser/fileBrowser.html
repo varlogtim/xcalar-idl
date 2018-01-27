@@ -53,8 +53,12 @@
               <span class="label"><%= dicts.common.Type %></span>
               <i class="icon xi-tick fa-12"></i>
           </li>
-          <li data-sortkey="date">
-            <span class="label"><%= dicts.common.Date %></span>
+          <li class="cdate" data-sortkey="cdate">
+            <span class="label"><%= dicts.common.DateCreated %></span>
+            <i class="icon xi-tick fa-12"></i>
+          </li>
+          <li data-sortkey="mdate">
+            <span class="label"><%= dicts.common.DateModified %></span>
             <i class="icon xi-tick fa-12"></i>
           </li>
         </ul>
@@ -87,8 +91,13 @@
             <span class="label"><%= dicts.common.Name %></span>
             <i class="icon xi-sort fa-15 xc-action"></i>
           </div>
-          <!-- file date -->
-          <div class="title fileDate" data-sortkey="date">
+          <!-- file date created -->
+          <div class="title fileDate cdate" data-sortkey="cdate">
+            <span class="label"><%= dicts.common.DateCreated %></span>
+            <i class="icon xi-sort fa-15 xc-action"></i>
+          </div>
+          <!-- file date modified-->
+          <div class="title fileDate mdate" data-sortkey="mdate">
             <span class="label"><%= dicts.common.DateModified %></span>
             <i class="icon xi-sort fa-15 xc-action"></i>
           </div>

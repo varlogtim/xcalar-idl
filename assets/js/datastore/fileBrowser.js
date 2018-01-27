@@ -206,7 +206,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // click on title to sort
-        var titleLabel = ".title .label, .title .xi-sort";
+        var titleLabel = ".title";
         $fileBrowserMain.on("click", titleLabel, function(event) {
             var $title = $(this).closest(".title");
 
@@ -217,6 +217,8 @@ window.FileBrowser = (function($, FileBrowser) {
             // click on selected title, reverse sort
             if ($title.hasClass("select")) {
                 reverseFiles();
+                var $icon = $title.find(".icon").eq(0);
+                toggleSortIcon($icon);
             } else {
                 sortAction($title, false);
             }
@@ -922,9 +924,13 @@ window.FileBrowser = (function($, FileBrowser) {
         var key = $option.data("sortkey");
 
         FilePreviewer.close();
-
-        $option.siblings(".select").removeClass("select");
+        $option.siblings(".select").each(function() {
+            var $currOpt = $(this);
+            $currOpt.removeClass("select");
+            toggleSortIcon($currOpt.find(".icon").eq(0), true);
+        });
         $option.addClass("select");
+        toggleSortIcon($option.find(".icon").eq(0));
 
         reverseSort = false;
         sortFilesBy(key, sortRegEx);
@@ -932,10 +938,13 @@ window.FileBrowser = (function($, FileBrowser) {
         if (isFromSortOption) {
             $fileBrowserMain.find(".titleSection .title").each(function() {
                 var $title = $(this);
+                var $icon = $title.find(".icon").eq(0);
                 if ($title.data("sortkey") === key) {
                     $title.addClass("select");
+                    toggleSortIcon($icon);
                 } else {
                     $title.removeClass("select");
+                toggleSortIcon($icon, true);
                 }
             });
         } else {
@@ -1035,7 +1044,16 @@ window.FileBrowser = (function($, FileBrowser) {
             });
 
             files = folders.concat(datasets);
-        } else if (key === "date") {
+        } else if (key === "cdate") {
+            if (!(files.length > 0 && files[0].attr && files[0].attr.ctime)) {
+                // If files have no ctime
+                return;
+            }
+            // sort by ctime
+            files.sort(function(a, b) {
+                return (a.attr.ctime - b.attr.ctime);
+            });
+        } else if (key === "mdate") {
             // sort by mtime
             files.sort(function(a, b) {
                 return (a.attr.mtime - b.attr.mtime);
@@ -1189,17 +1207,28 @@ window.FileBrowser = (function($, FileBrowser) {
 
         return deferred.promise();
     }
+    function genDateHtml(fileTime, type) {
+        var time = moment(fileTime * 1000);
+        var date = time.calendar();
+        dateTip = xcTimeHelper.getDateTip(time);
+        return '<div class="fileDate ' + type + '">' +
+                    '<span ' + dateTip + '>' +
+                        date +
+                    '</span>' +
+                '</div>';
 
+    }
     function getHTMLFromFiles(files) {
         var html = '<div class="sizer"></div>';
             // used to keep file position when
             // files before it are hidden
-
+        var hasCtime = false;
         for (var i = 0, len = files.length; i < len; i++) {
             // fileObj: {name, attr{isDirectory, size}}
             var fileObj = files[i];
             var isDirectory = fileObj.attr.isDirectory;
             var name = fileObj.name;
+            var ctime = fileObj.attr.ctime;
             var mtime = fileObj.attr.mtime; // in untix time
 
             if (isDirectory && (name === '.' || name === '..')) {
@@ -1215,13 +1244,6 @@ window.FileBrowser = (function($, FileBrowser) {
             var iconClass = isDirectory ? "xi-folder" : "xi-documentation-paper";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var date = "";
-            var dateTip = "";
-            if (mtime) {
-                var time = moment(mtime * 1000);
-                date = time.calendar();
-                dateTip = xcTimeHelper.getDateTip(time);
-            }
             var escName = xcHelper.escapeDblQuoteForHTML(name);
 
             html +=
@@ -1231,10 +1253,16 @@ window.FileBrowser = (function($, FileBrowser) {
                     '<i class="gridIcon icon ' + iconClass + '"></i>' +
                     '<div class="label fileName" data-name="' + escName + '">' +
                         name +
-                    '</div>' +
-                    '<div class="fileDate"><span ' + dateTip + '>' + date + '</span></div>' +
-                    '<div class="fileSize">' + size + '</div>' +
-                '</div>';
+                    '</div>';
+            var time;
+            if (ctime) {
+                hasCtime = true;
+                html += genDateHtml(ctime, "ctime");
+            }
+            if (mtime) {
+                html += genDateHtml(mtime, "mtime");
+            }
+            html += '<div class="fileSize">' + size + '</div></div>';
         }
 
         // this is faster than $container.html
@@ -1245,6 +1273,15 @@ window.FileBrowser = (function($, FileBrowser) {
         document.getElementById('innerFileBrowserContainer').innerHTML = html;
         refreshEllipsis();
         refreshIcon();
+
+        if (!hasCtime) {
+            // Hide "Date Created" if the returned file obj has no such info
+            $fileBrowser.find(".cdate").addClass("hideCdate");
+            $("#fileBrowserSortMenu").find(".cdate").hide();
+        } else {
+            $fileBrowser.find(".cdate").removeClass("hideCdate");
+            $("#fileBrowserSortMenu").find(".cdate").show();
+        }
 
         if (len > lowerFileLimit) {
             $visibleFiles = $container.find('.visible');
@@ -1615,6 +1652,22 @@ window.FileBrowser = (function($, FileBrowser) {
             "size": size,
             "isFolder": isFolder
         });
+    }
+
+    function toggleSortIcon($icon, restoreDefault) {
+        if (restoreDefault) {
+            // If restore to non-sorted
+            $icon.removeClass("xi-arrow-up xi-arrow-down fa-8");
+            $icon.addClass("xi-sort fa-15");
+        } else if ($icon.hasClass("xi-arrow-up")) {
+            // ascending > descending
+            $icon.removeClass("xi-sort xi-arrow-up fa-15");
+            $icon.addClass("xi-arrow-down fa-8");
+        } else {
+            // Two cases: 1.first time sort & 2.descending > ascending
+            $icon.removeClass("xi-sort xi-arrow-down fa-15");
+            $icon.addClass("xi-arrow-up fa-8");
+        }
     }
 
     /* Unit Test Only */

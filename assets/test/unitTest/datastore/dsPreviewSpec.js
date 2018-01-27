@@ -197,6 +197,7 @@ describe("Dataset-DSPreview Test", function() {
                                     '</th>' +
                                     '<th>' +
                                         '<div class="header">' +
+                                            '<div class="colGrab" data-sizedtoheader="false"></div>' +
                                             '<div class="text">column0</div>' +
                                         '</div>' +
                                     '</th>' +
@@ -534,8 +535,12 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
-        it("invalidHeaderDetection should handle valid case", function(done) {
-            DSPreview.__testOnly__.invalidHeaderDetection(["abc"])
+        it("invalidHeaderDetection should handle valid case 2", function(done) {
+            var def = DSPreview.__testOnly__.invalidHeaderDetection(["abc"]);
+            UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol, {
+                confirm: true
+            });
+            def
             .then(function() {
                 assert.isFalse($("#alertModal").is(":visible"));
                 done();
@@ -545,7 +550,7 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
-        it("invalidHeaderDetection should handle invalid case", function(done) {
+        it("invalidHeaderDetection should handle invalid case 3", function(done) {
             var def = DSPreview.__testOnly__.invalidHeaderDetection(["a.b"]);
             UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol);
             def
@@ -1239,7 +1244,7 @@ describe("Dataset-DSPreview Test", function() {
             assert.isFalse($skipInput.is(":visible"), "no skip rows");
             assert.isFalse($udfModuleList.is(":visible"), "no udf module");
             assert.isFalse($udfFuncList.is(":visible"), "no udf func");
-            assert.isTrue($("#dsForm-xPaths").is(":visible"),  "has xml paths");
+            assert.isTrue($("#dsForm-xPaths").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".matchedXPath").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".elementXPath").is(":visible"), "has xml paths");
         });

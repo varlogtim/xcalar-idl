@@ -1100,7 +1100,7 @@ table.datasetTable {
             }
 
             #fileBrowserSortMenu {
-                .size(@width: 120px);
+                .size(@width: 130px);
                 .position(absolute, @right: 25px);
 
                  li {
@@ -1237,6 +1237,7 @@ table.datasetTable {
                 .icon {
                     .size(@width: 20px, @height: 40px);
                     color: @color-font-greyish-brown;
+                    float: right;
 
                     &:before {
                         .vertical-align;
@@ -1321,6 +1322,10 @@ table.datasetTable {
             }
         }
 
+        .hideCdate {
+            display: none !important;
+        }
+
         &.listView {
             .mainSection {
                 .size(@height: ~"calc(100% - 40px)");
@@ -1367,6 +1372,9 @@ table.datasetTable {
                     &.fileSize {
                         max-width: 140px;
                     }
+                }
+                .title {
+                    cursor: pointer;
                 }
 
             }
