@@ -1702,13 +1702,15 @@ table.datasetTable {
 
 // Preview Table Section
 #dsPreviewWrap {
+    @size-title: 90px;
+
     .hidden {
         display: none !important;
     }
 
     .titleSection {
-        .size(@height: 70px);
-        padding: 10px 15px 0px 25px;
+        .size(@height: @size-title);
+        padding: 15px 20px;
 
         .info {
             .size(@height: 30px);
@@ -1788,16 +1790,51 @@ table.datasetTable {
     }
 
     .errorSection {
-        .size(@width: 100%, @height: ~"calc(100% - 75px)");
-        padding-top: 10px;
-        padding-left: 25px;
-        color: @color-table-red;
-        white-space: normal;
-        overflow: auto;
+        .size(@width: 100%, @height: ~"calc(100% - @{size-title})");
+        border-top: 1px solid @color-border-pinkish-grey2;
+        padding: 15px 20px;
+
+        .topSection {
+            .size(@max-height: ~"calc(100% - 51px)");
+            color: @color-table-red;
+            overflow: auto;
+        }
+
+        .bottomSection {
+            .size(@height: 51px);
+            padding-top: 15px;
+
+            button {
+                .size(@width: 289px);
+            }
+        }
+
+        .title {
+            font-weight: bold;
+            .size(@width: 50px);
+            float: left;
+        }
+
+        .content {
+            .size(@width: ~"calc(100% - 50px)");
+            float: left;
+            white-space: pre;
+
+            .suggest {
+                color: @color-font-select-blue;
+                font-weight: bold;
+                padding: 0 3px;
+                cursor: pointer;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
     }
 
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 75px)");
+        .size(@width: 100%, @height: ~"calc(100% - @{size-title})");
         overflow-y: hidden;
         overflow-x: auto;
     }
@@ -1857,8 +1894,7 @@ table.datasetTable {
 }
 
 #dsPreviewTableWrap {
-    margin-top: 10px;
-    height: ~"calc(100% - 10px)";
+    height: 100%;
     z-index: 0; // child element with z-index 10 causing problems
     .datasetTbodyWrap {
         width: ~"calc(100% + 17px)";

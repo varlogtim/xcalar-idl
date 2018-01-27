@@ -646,6 +646,7 @@ module.exports = {
         "PARSER": "VISUAL PARSER",
         "GenLineNum": "Generate Line Numbers",
         "WRITEPARSER": "WRITE PARSER USING JUPYTER",
+        "DEBUGPARSER": "DEBUG IMPORT UDF USING JUPYTER",
         "Module": "Module",
         "Function": "Function",
         "SeeMore": "See More",

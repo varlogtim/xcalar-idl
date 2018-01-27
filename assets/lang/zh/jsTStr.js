@@ -872,7 +872,6 @@ DSFormTStr = {
 'InvalidDelim': '无效分隔符。',
 'InvalidLineDelim': '行分隔符只能为1个字符，（\\r\\n）除外。',
 'InvalidQuote': '不能有超过1个引号',
-'NoParseJSON': '无法将数据解析为json',
 'GoBack': '请点击返回按钮重新输入有效的路径或使用有效的路径模式',
 'NoData': '没有数据',
 'NoFile': '找不到文件，请返回选择一个有效的文件/文件夹。',
@@ -881,7 +880,9 @@ DSFormTStr = {
 'WSColsMsg': '添加含有很多列的表至当前工作簿可能会影响系统性能, 您想创建一个新的工作表吗？',
 'NoQuoteWarn': '没有引用字符',
 'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？',
-'GeneratedTargetHint': '该目标的路径需为数字，代表要生成的行数'
+'GeneratedTargetHint': '该目标的路径需为数字，代表要生成的行数',
+'ParseError': '文件无法以<format>格式解析, 建议使用<suggest>格式。',
+'UDFError': 'UDF在解析文件时出错'
 };
 DSParserTStr = {
 "NotSupport": '不支持解析此数据格式',

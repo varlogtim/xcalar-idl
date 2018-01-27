@@ -459,6 +459,7 @@ module.exports = {
         "filePath": "数据源路径",
         "GenLineNum": "生成行号",
         "WRITEPARSER": "使用JUPYTER编写UDF",
+        "DEBUGPARSER": "使用JUPYTER调试UDF",
         "Module": "模块",
         "Function": "函数",
         "SeeMore": "展开",

@@ -762,9 +762,9 @@ XcalarLoad = function(datasetName, options, txId) {
                 });
 
                 if (thriftError.output.errorFile) {
-                    loadError += " " + xcHelper.replaceMsg(DSTStr.LoadErrFile, {
+                    loadError = xcHelper.replaceMsg(DSTStr.LoadErrFile, {
                         "file": thriftError.output.errorFile
-                    });
+                    }) + "\n" + loadError;
                 }
             }
             deferred.reject(thriftError, loadError);

@@ -730,7 +730,7 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
             var res = $("#dsPreviewWrap").find(".errorSection").text();
-            expect(res).to.equal(DSFormTStr.NoParseJSON);
+            expect(res).to.equal("You file cannot be parsed as JSON. We recommend you use the CSV format instead.");
 
             // valid json
             data = '{"a": "b"}';

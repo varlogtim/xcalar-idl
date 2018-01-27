@@ -355,7 +355,22 @@ window.DSPreview = (function($, DSPreview) {
                 });
             }
         });
+
+        setupPreviewErrorSection();
     };
+
+    function setupPreviewErrorSection() {
+        $previewCard.find(".errorSection").on("click", ".suggest", function() {
+            var format = $(this).data("format");
+            changeFormat(format);
+        });
+
+        $("#dsPreview-debugUDF").click(function() {
+            $(this).blur();
+            // XXX TODO: implement the function to guide user to write UDF
+            $("#jupyterTab").click();
+        });
+    }
 
     // restore: boolean, set to true if restoring after an error
     DSPreview.show = function(options, fromFormCard, dsId, restore) {
@@ -1680,7 +1695,7 @@ window.DSPreview = (function($, DSPreview) {
         return !isViewFolder;
     }
 
-    function errorHandler(error) {
+    function errorHandler(error, isUDFError) {
         if (typeof error === "object") {
             if (error.status === StatusT.StatusNoEnt ||
                 error.status === StatusT.StatusIsDir ||
@@ -1688,9 +1703,7 @@ window.DSPreview = (function($, DSPreview) {
             {
                 error = error.error + ", " + DSFormTStr.GoBack + ".";
             } else if (error.status === StatusT.StatusUdfExecuteFailed) {
-                error = error.log
-                        ? AlertTStr.Error + ": " + error.log
-                        : error.error;
+                error = error.log ? error.log : error.error;
             } else {
                 error = (error.error ? error.error : "") +
                         (error.log ? error.log : "");
@@ -1698,11 +1711,25 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
 
+        if (error.startsWith("Error:")) {
+            error = error.slice("Error:".length).trim();
+        }
+
         $previeWrap.find(".waitSection").addClass("hidden");
-        $previeWrap.find(".errorSection")
-                .html(error).removeClass("hidden");
         $previeWrap.find(".loadHidden").addClass("hidden");
         $previeWrap.find(".errorShow").removeClass("hidden");
+
+        var $errorSection = $previeWrap.find(".errorSection");
+        var $bottomSection = $errorSection.find(".bottomSection");
+        if (isUDFError) {
+            $bottomSection.removeClass("xc-hidden");
+            error = DSFormTStr.UDFError + "\n" + error;
+        } else {
+            $bottomSection.addClass("xc-hidden");
+        }
+
+        $errorSection.removeClass("hidden")
+                    .find(".content").html(error);
     }
 
     function clearPreviewTable() {
@@ -1771,6 +1798,7 @@ window.DSPreview = (function($, DSPreview) {
         var udfModule = options.udfModule || null;
         var udfFunc = options.udfFunc || null;
         var udfQuery = options.udfQuery || null;
+        var format;
 
         var targetName = loadArgs.getTargetName();
         var path = loadArgs.getPath();
@@ -1873,6 +1901,7 @@ window.DSPreview = (function($, DSPreview) {
                 recursive: recursive,
                 fileNamePattern: pattern
             };
+            format = loadArgs.getFormat();
             if (hasUDF) {
                 args.moduleName = udfModule;
                 args.funcName = udfFunc;
@@ -1929,10 +1958,18 @@ window.DSPreview = (function($, DSPreview) {
                 "sql": sql
             });
 
-            if (error.error === oldPreviewError) {
+            if (typeof error === "object" &&
+                error.error === oldPreviewError)
+            {
                 console.error(error);
             } else {
-                errorHandler(error);
+                error = xcHelper.escapeHTMLSpecialChar(error);
+                if (format === formatMap.UDF) {
+                    errorHandler(error, true);
+                } else {
+                    error = getParseError(format, detectArgs.format);
+                    errorHandler(error);
+                }
             }
 
             deferred.reject(error);
@@ -2726,7 +2763,7 @@ window.DSPreview = (function($, DSPreview) {
                         }
                     } else if (bracketCnt < 0) {
                         // error cse
-                        errorHandler(DSFormTStr.NoParseJSON);
+                        errorHandler(getParseJSONError());
                         return null;
                     }
                 }
@@ -2742,7 +2779,7 @@ window.DSPreview = (function($, DSPreview) {
     function parseJSONData(data) {
         var record = parseJSONByRow(data);
         if (record == null) {
-            errorHandler(DSFormTStr.NoParseJSON);
+            errorHandler(getParseJSONError());
             return null;
         }
 
@@ -2752,11 +2789,25 @@ window.DSPreview = (function($, DSPreview) {
         try {
             json = $.parseJSON(string);
         } catch (error) {
-            errorHandler(DSFormTStr.NoParseJSON + ": " + error);
+            console.error(error);
+            errorHandler(getParseJSONError());
             return null;
         }
 
         return json;
+    }
+
+    function getParseError(format, suggest) {
+        return xcHelper.replaceMsg(DSFormTStr.ParseError, {
+            format: format,
+            suggest: '<span class="suggest" data-format="CSV">' +
+                        suggest +
+                    '</span>'
+        });
+    }
+
+    function getParseJSONError() {
+        return getParseError(formatMap.JSON, formatMap.CSV);
     }
 
     function getJSONHeaders(json) {

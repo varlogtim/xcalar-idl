@@ -1041,7 +1041,6 @@ DSFormTStr = {
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidLineDelim': 'Line delimiter can only be 1 character except \\r\\n',
     'InvalidQuote': 'Cannot have more than 1 quote character',
-    'NoParseJSON': 'Cannot parse data as json',
     'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or use a valid path pattern',
     'NoData': 'No data',
     'NoFile': 'File not found. Please go back to select a valid file/folder.',
@@ -1052,7 +1051,9 @@ DSFormTStr = {
                 'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
-    'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset'
+    'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
+    'ParseError': 'You file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
+    'UDFError': 'UDF generated errors while running your file.'
 };
 
 DSParserTStr = {
