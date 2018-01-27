@@ -66,19 +66,3 @@
   // submit contact form
   $(".contact_form").attr('onsubmit','return submitForm(event);');
 </script>
-<script type="text/javascript">
-$(function(){
-  resizeYoutubeIframe();
-  // If you want to keep full screen on window resize
-  $(window).resize(function(){
-    resizeYoutubeIframe();
-  });
-
-  function resizeYoutubeIframe() {
-    if($("body").width() > 640) {
-      $('#xcalarIntroVideo').css({ width:'640px', height:'360px'});
-      $("#xcalarIntroVideoWrapper").css({ width:'640px', height:'360px'});
-    }
-  }
-});
-</script>
