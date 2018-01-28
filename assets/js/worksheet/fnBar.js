@@ -910,7 +910,8 @@ window.FnBar = (function(FnBar, $) {
 
         function getNames(args) {
             for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string" && !/[0-9.]/.test(args[i][0])) {
+                if (typeof args[i] === "string" && !/[0-9.]/.test(args[i][0]) &&
+                    isNaN(args[i])) {
                     if (args[i][0] !== "\"" &&
                         args[i][args.length - 1] !== "\"" &&
                         names.indexOf(args[i]) === -1) {
