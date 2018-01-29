@@ -17,6 +17,7 @@ window.DSTable = (function($, DSTable) {
     DSTable.setup = function() {
         $dsTableContainer = $("#dsTableContainer");
         $tableWrap = $("#dsTableWrap");
+        $dsInfoPath = $("#dsInfo-path");
         setupSampleTable();
     };
 
@@ -266,6 +267,7 @@ window.DSTable = (function($, DSTable) {
         });
         xcTooltip.changeText($path, target + "\n" + path);
         xcTooltip.enable($path);
+        $path.append("<i class='icon xi-copy-clipboard path-copy-clipboard'></i>");
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
@@ -408,6 +410,33 @@ window.DSTable = (function($, DSTable) {
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
             DSCart.removeCart(dsId);
+        });
+
+        $dsInfoPath.on("click", function() {
+            // copies filepath to clipboard
+            var $hiddenInput = $("<input>");
+            $("body").append($hiddenInput);
+            var value = $dsInfoPath.text();
+            $hiddenInput.val(value).select();
+            document.execCommand("copy");
+            $hiddenInput.remove();
+
+            // checks if animation ended
+            var $clipboardIcon = $dsInfoPath.find(".path-copy-clipboard");
+            if (!($clipboardIcon.length)) {
+                return;
+            }
+            var text = $dsInfoPath.text();
+            var oldhtml = $dsInfoPath.html();
+            $clipboardIcon.addClass("path-copy-clipboard-fade")
+                          .removeClass("path-copy-clipboard");
+            // timeouts set to wait for CSS animations to finish
+            setTimeout(function() {
+                $dsInfoPath.html(text + '<i class="icon xi-tick xi-tick-fade-in xi-tick-copy">');
+            }, 200);
+            setTimeout(function() {
+                $dsInfoPath.html(oldhtml);
+            }, 2100);
         });
 
         var $dsTableView = $("#dsTableView");
