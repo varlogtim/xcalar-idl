@@ -87,13 +87,13 @@ window.DataStore = (function($, DataStore) {
                 if (!isAdmin) {
                     $panel.addClass("noAdmin");
                     $menu.addClass("noAdmin");
-                    xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.AdminOnly);
-                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.AdminOnly);
+                    xcTooltip.changeText($("#dsTarget-create-tooltipWrap"), DSTargetTStr.AdminOnly);
+                    xcTooltip.changeText($("#exportTarget-create-tooltipWrap"), DSExportTStr.AdminOnly);
                 } else {
                     $panel.removeClass("noAdmin");
                     $menu.removeClass("noAdmin");
-                    xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.Create);
-                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.Create);
+                    xcTooltip.changeText($("#dsTarget-create-tooltipWrap"), DSTargetTStr.Create);
+                    xcTooltip.changeText($("#exportTarget-create-tooltipWrap"), DSExportTStr.Create);
                 }
                 return isAdmin;
             }

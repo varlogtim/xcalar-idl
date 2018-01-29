@@ -16,7 +16,7 @@
     <div id="dsTarget-form" target="_blank" autocomplete="off">
       <div class="formSection name">
         <div class="formRow">
-          <label for="dsTarget-name"><%= dicts.common.Name %>:</label>
+          <header class="formTitle"><%= dicts.common.Name %>:</header>
           <input id="dsTarget-name" class="xc-input" name="dsTarget-name" type="text" placeholder="" autocomplete="off" spellcheck="false" autofocus>
         </div>
       </div>
@@ -79,15 +79,17 @@
   <div class="cardMain">
     <form target="_blank" autocomplete="off">
       <!-- Top Form -->
-      <div class="formSection">
+      <div class="formSection name">
         <!-- target name -->
-        <div class="formRow name">
-          <label><%= dicts.common.Name %>:</label>
+        <div class="formRow">
+          <header class="formTitle"><%= dicts.common.Name %>:</header>
           <span class="text"></span>
         </div>
+      </div>
+      <div class="formSection type">
         <!-- target type -->
         <div class="formRow type">
-          <label><%= dicts.dsTarget.Type %>:</label>
+          <header class="formTitle"><%= dicts.dsTarget.Type %>:</header>
           <span class="text"></span>
         </div>
       </div>

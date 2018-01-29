@@ -3615,20 +3615,11 @@ table.datasetTable {
             .flex-display;
             .align-items(center);
             padding: 0px;
-            .formTitle {
-                font-weight: 400;
-            }
             .formRow {
                 margin-top: 0px;
                 margin-bottom: 0px;
             }
             margin-bottom: 36px;
-        }
-
-        &.type {
-            .formTitle {
-                .flex(0 0 130px);
-            }
         }
     }
     .formBottom {
@@ -3641,6 +3632,19 @@ table.datasetTable {
     #dsTarget-description {
         width: 100%;
         word-wrap: break-word;
+    }
+}
+
+#dsTarget-create-card, #dsTarget-info-card {
+    .formSection {
+        &.type, &.name {
+            .formTitle {
+                .flex(0 0 130px);
+            }
+            span {
+                font-weight: 400;
+            }
+        }
     }
 }
 
@@ -3914,9 +3918,14 @@ table.datasetTable {
 }
 
 #datastoreMenu {
+    #dsTarget-create-tooltipWrap, #exportTarget-create-tooltipWrap {
+        width: 35px;
+        height: 35px;
+    }
     &.noAdmin {
         #dsTarget-create, #createExportButton {
-            opacity: @opacity-disabled !important;
+            .xc-disabled;
+            opacity: 0.5 !important;
         }
         #dsTarget-menu, #expTargetGridMenu {
             li[data-action="create"], li[data-action="delete"] {

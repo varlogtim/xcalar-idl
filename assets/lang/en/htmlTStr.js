@@ -582,7 +582,7 @@ module.exports = {
         "Type": "Target Type",
         "TargetInfo": "Data Target Information",
         "TargetInfoInstr": "Details about the selected data target are provided below. To create a new target, click the button on the top left corner of the left panel.",
-        "TargetParams": "Target Parameter",
+        "TargetParams": "Target Parameters",
         "DELETETARGET": "DELETE TARGET"
     },
 
