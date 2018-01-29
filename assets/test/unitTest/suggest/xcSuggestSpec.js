@@ -661,6 +661,22 @@ describe("xcSuggest", function() {
             }, {
                 "data": "abcd\nabcd",
                 "expect": ""
+            }, {
+                "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
+                        "a\tb\tc\td,e\n" +
+                        "1\t2\t3\t4\t5,6",
+                "expect": "\t"
+            }, {
+                "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
+                        "a\tb\tc\td,e\n" +
+                        "1\t2\t3\t4|5,6",
+                "expect": "\t"
+            }, {
+                "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
+                        "a\tb\tc\td,e\n" +
+                        "1\t2\t3,4,5\n" +
+                        "h\ti,j,k,l\n",
+                "expect": "\t"
             }];
 
             tests.forEach(function(test) {

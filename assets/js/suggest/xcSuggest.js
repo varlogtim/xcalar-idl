@@ -607,6 +607,8 @@ window.xcSuggest = (function($, xcSuggest) {
         for (var i = 0; i < samples.length; i++) {
             // Only keep non-alphanumeric characters
             var line = samples[i].replace(/[a-zA-Z\d ]/g, "");
+            // Remove contents within quotes
+            line = line.replace(/(".*?")|('.*?')/g, "");
             if (line) {
                 // Ignore lines that have no potential delimiters, otherwise it
                 // will harm the accuracy when computing the variance.
@@ -660,22 +662,30 @@ window.xcSuggest = (function($, xcSuggest) {
     }
 
     function computeVariance(nums) {
+        var score;
         var len = nums.length;
+        // Weights can be changed
+        // e.g. header weighs a half, all other lines split the rest equally
+        var headerWeight = 0.5;
+        var otherWeight = 0.5 / (len - 1);
         var sum = nums.reduce(function(a, b) { return a + b; });
         var avg = sum / len;
         var res = 0;
         for (var i = 0; i < len; i++) {
             if (i === 0) {
-                res += Math.pow((nums[i] - avg), 2);
+                res += headerWeight * Math.pow((nums[i] - avg), 2);
             } else {
-                res += Math.pow((nums[i] - avg), 2);
+                res += otherWeight * Math.pow((nums[i] - avg), 2);
             }
         }
         if (len === 1) {
-            return res / len;
+            score = res / len;
+        } else {
+            // Otherwise compute the unbiased estimate of variance
+            score = res / (len - 1);
         }
-        // Otherwise return the unbiased estimate of variance
-        return res / (len - 1);
+        // To put some weight on the number of occurrences, divide by avg
+        return score / avg;
     }
 
     // parsedRows is a two dimension that represents a table's data
