@@ -1444,6 +1444,12 @@ html.edge {
                     .sortIcon:hover {
                         color: @color-font-greyish-brown;
                         opacity: @opacity-hover;
+                        .sortHalf {
+                            background: rgba(0, 0, 0, 0.03);
+                        }
+                    }
+                    .sortIcon .sortHalf:hover {
+                        background: rgba(0, 0, 0, 0.15);
                     }
                 }
             }
@@ -1500,6 +1506,18 @@ html.edge {
                 }
                 .xi-sort {
                     top: 1px;
+                    pointer-events: none;
+                }
+
+                .sortHalf {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    height: 50%;
+                    width: 100%;
+                    &.sortDesc {
+                        top: 50%;
+                    }
                 }
             }
 

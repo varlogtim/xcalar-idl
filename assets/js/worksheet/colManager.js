@@ -1618,7 +1618,6 @@ window.ColManager = (function($, ColManager) {
 
         var dataColNum = xcHelper.parseColNum($dataCol);
 
-
         var startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
         var endingIndex = parseInt($table.find("tbody tr:last")
@@ -1628,8 +1627,14 @@ window.ColManager = (function($, ColManager) {
         var nested = nestedInfo.nested;
         var nestedTypes = nestedInfo.types;
 
-        var indexed = (progCol.getBackColName() === table.getKeyName());
+        var keys = table.getKeys();
+        var backName = progCol.getBackColName();
+        var indexed = keys.find(function(k) {
+            return k.name === backName;
+        });
+
         var hasIndexStyle = table.showIndexStyle();
+        $table.find(".col" + colNum).removeClass("indexedColumn");
 
         for (var i = startingIndex; i < endingIndex; i++) {
             var $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
@@ -1648,6 +1653,53 @@ window.ColManager = (function($, ColManager) {
         }
 
         styleColHeadHelper(colNum, tableId);
+        if (indexed) {
+            var order = indexed.ordering;
+            var sorted = false;
+            var sortIcon = "";
+            if (order === 
+                XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
+                sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortDesc + '"' +
+                            '><i class="icon xi-arrow-up fa-12"></i>';
+                sorted = true;
+            } else if (order ===
+                XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
+                sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
+                            'data-container="body" ' +
+                            'data-placement="top" data-original-title="' +
+                            TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
+                            'xi-arrow-down fa-12"></i>';
+                sorted = true;
+            }
+            if (sorted) {
+                var keyNames = table.getKeyName();
+                if (keyNames.length > 1) {
+                    var sortNum = keyNames.indexOf(backName);
+                    sortIcon += '<span class="sortNum">' + (sortNum + 1) +
+                                '</span>';
+                }
+                sortIcon += '</div>';
+                $table.find("th.col" + colNum).find(".sortIcon")
+                      .replaceWith(sortIcon);
+            }
+        } else {
+            var sortIcon = '<div class="sortIcon">' +
+                        '<div class="sortAsc sortHalf" data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortAsc + '"></div>' +
+                        '<div class="sortDesc sortHalf" data-toggle="tooltip"' +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortDesc + '"></div>' +
+                        '<i class="icon xi-sort fa-12"></i>' +
+                        '</div>'; 
+            $table.find("th.col" + colNum).find(".sortIcon")
+                      .replaceWith(sortIcon);
+        }
     }
 
     function addColHelper(colNum, tableId, progCol, options) {

@@ -532,6 +532,7 @@ window.Undo = (function($, Undo) {
                 $table.find('td.col' + options.colNum).empty();
                 var $th = $table.find('th.col' + options.colNum);
                 $th.addClass('newColumn')
+                    .removeClass("sortable indexedColumn")
                     .find('.header').attr('class', 'header')
                     .find('.iconHelper').attr('title', '')
                     .end()

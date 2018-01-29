@@ -862,12 +862,17 @@ window.TblManager = (function($, TblManager) {
         }
 
         var sortIcon = '<div class="sortIcon">' +
-                        '<i class="icon xi-sort fa-12" ' + sortTip +
+                        '<div class="sortAsc sortHalf" data-toggle="tooltip" ' +
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
-                        TooltipTStr.ClickToSortAsc + '"></i></div>'; // placeholder
+                        TooltipTStr.ClickToSortAsc + '"></div>' +
+                        '<div class="sortDesc sortHalf" data-toggle="tooltip"' +
+                        'data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        TooltipTStr.ClickToSortDesc + '"></div>' +
+                        '<i class="icon xi-sort fa-12"></i>' +
+                        '</div>'; // placeholder
   
-
         if (indexed) {
             columnClass += " indexedColumn";
             if (!table.showIndexStyle()) {
@@ -876,18 +881,18 @@ window.TblManager = (function($, TblManager) {
             var order = indexed.ordering;
             var sorted = false;
             if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
-                sortIcon = '<div class="sortIcon"><i class="icon ' +
-                            'xi-arrow-up fa-12" '+ sortTip +
+                sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
-                        TooltipTStr.ClickToSortDesc + '"></i>';
+                        TooltipTStr.ClickToSortDesc + '"' +
+                            '><i class="icon xi-arrow-up fa-12"></i>';
                 sorted = true;
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                sortIcon = '<div class="sortIcon"><i class="icon ' +
-                            'xi-arrow-down fa-12" ' + sortTip +
+                sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
-                        TooltipTStr.ClickToSortAsc + '"></i>';
+                            TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
+                            'xi-arrow-down fa-12"></i>';
                 sorted = true;
             }
             if (sorted) {
@@ -2432,7 +2437,7 @@ window.TblManager = (function($, TblManager) {
             lastSelectedCell = $th;
         });
 
-        $thead.on("click", ".sortIcon", function() {
+        $thead.on("click", ".sortIcon", function(event) {
             var $th = $(this).closest("th");
             if (!$th.hasClass("sortable")) {
                 return;
@@ -2451,6 +2456,8 @@ window.TblManager = (function($, TblManager) {
                     XcalarOrderingT.XcalarOrderingAscending) {
                     order =  XcalarOrderingT.XcalarOrderingDescending;
                 }
+            } else if ($(event.target).closest(".sortDesc").length) {
+                order =  XcalarOrderingT.XcalarOrderingDescending;
             }
             TblMenu.sortColumn([colNum], tableId, order);
         });
