@@ -712,7 +712,8 @@ window.DagPanel = (function($, DagPanel) {
                         }
                     }
 
-                    if ($opWrap.closest(".dagTableWrap.hasEdit").length) {
+                    if ($opWrap.closest(".dagTableWrap.hasEdit").length &&
+                        DagEdit.isEditMode()) {
                         $menu.find(".undoEdit").removeClass("xc-hidden");
                     }
                 }

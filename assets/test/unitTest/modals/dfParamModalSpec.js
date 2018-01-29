@@ -473,58 +473,6 @@ describe("DFParamModal Test", function() {
                 }, 400);
             }, 400);
         });
-
-        it("save Export Options should work", function(done) {
-            var original = XcalarUpdateRetinaExport;
-            XcalarUpdateRetinaExport = function(retName, dagNodeId,
-                target, specInput, createRule, sorted) {
-                return PromiseHelper.resolve(retName, dagNodeId, target,
-                    specInput, createRule, sorted);
-            }
-            var retName = "retName1";
-            var dagNodeId = "1234";
-            var options = {};
-            options.targetType = ExTargetTypeT.ExTargetSFType;
-            options.targetName = "Default";
-            options.fileName = "file1.txt";
-            options.fieldDelim = "a";
-            options.recordDelim = "b";
-            options.quoteDelim = "c";
-            options.splitRule = "none";
-            options.headerType = "every";
-            options.createRule = "createOnly";
-            DFParamModal.__testOnly__.saveExportOptions(retName, dagNodeId, options)
-            .then(function(retName, dagNodeId, target, specInput, createRule, sorted) {
-                expect(retName).to.equal("retName1");
-                expect(dagNodeId).to.equal("1234");
-                expect(target.type).to.equal(ExTargetTypeT.ExTargetSFType);
-                expect(target.name).to.equal("Default");
-                expect(specInput.sfInput.fileName).to.equal("file1.txt");
-                expect(specInput.sfInput.format).to.equal(DfFormatTypeT.DfFormatCsv);
-                expect(specInput.sfInput.splitRule.type).to.equal(ExSFFileSplitTypeT.ExSFFileSplitNone);
-                expect(specInput.sfInput.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderEveryFile);
-
-                options.targetType = ExTargetTypeT.ExTargetUDFType;
-                options.headerType = "separate";
-                options.createRule = "createOrAppend";
-                return DFParamModal.__testOnly__.saveExportOptions(retName, dagNodeId, options);
-            })
-            .then(function(retName, dagNodeId, target, specInput, createRule, sorted) {
-                expect(retName).to.equal("retName1");
-                expect(dagNodeId).to.equal("1234");
-                expect(target.type).to.equal(ExTargetTypeT.ExTargetUDFType);
-                expect(target.name).to.equal("Default");
-                expect(specInput.udfInput.fileName).to.equal("file1.txt");
-                expect(specInput.udfInput.format).to.equal(DfFormatTypeT.DfFormatCsv);
-                expect(specInput.udfInput.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderSeparateFile);
-                XcalarUpdateRetinaExport = original;
-                done();
-            })
-            .fail(function() {
-                XcalarUpdateRetinaExport = original;
-                done("fail");
-            });
-        });
     });
 
     describe("DFParam Modal Submit Test", function() {

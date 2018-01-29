@@ -1338,6 +1338,9 @@ window.DagFunction = (function($, DagFunction) {
 
         var treeNode = new TreeNode(node);
         var parents = [];
+        if (node.numParents === 0) {
+            endPoints.push(treeNode);
+        }
 
         for (var i = 0; i < node.numParents; i++) {
             var parentId = node.parentIds[i];

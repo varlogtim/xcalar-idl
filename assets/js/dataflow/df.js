@@ -226,6 +226,10 @@ window.DF = (function($, DF) {
             hasRemoveSched = true;
             return XcalarDeleteRetina(dataflowName);
         })
+        .then(function () {
+            // may fail if hasn't been run, so just always resolve
+            PromiseHelper.alwaysResolve(XcalarQueryDelete(dataflowName));
+        })
         .then(function() {
             resolveDelete();
             deferred.resolve();

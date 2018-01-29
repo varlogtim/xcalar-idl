@@ -1238,6 +1238,7 @@ window.DagDraw = (function($, DagDraw) {
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var dagInfo = getDagNodeInfo(node, key);
         var tableName = node.value.name;
+        var altName = dagInfo.altName || tableName;
         var html = "";
         var outerClasses = "";
         var tableClasses = "";
@@ -1347,6 +1348,7 @@ window.DagDraw = (function($, DagDraw) {
 
         html += '<div class="dagTable ' + tableClasses + '" ' +
                     'data-tablename="' + tableName + '" ' +
+                    'data-altname="' + altName + '" ' +
                     'data-index="' + node.value.dagNodeId + '" ' +
                     'data-nodeid="' + node.value.dagNodeId + '" ' +
                     dataAttrs + '>' +
@@ -1884,6 +1886,7 @@ window.DagDraw = (function($, DagDraw) {
                     // XXX fix url
                     info.url = value.fileName || "";
                     info.opText = "";
+                    info.altName = value.dest;
                     break;
                 case ('unionInput'):
                     node.value.indexedFields = getUnionSrcCols(node);

@@ -3166,13 +3166,13 @@ XcalarGetRetina = function(retName) {
 // XcalarApisT.XcalarApiExport
 
 // paramValue is what the parameterized part is called
-// For example, in load, the datasetUrl is parameterizable, and your url can
+// For example, in load, the path is parameterizable, and your url can
 // be something like "file:///<directory>/<subDir>/file<number>.csv" <- paramValue
 // For eval string, you will pass in something like "filter(gt(column1, \"hello\""))"
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-XcalarUpdateRetina = function(retName, dagNodeId, paramType, paramValues, txId) {
+XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3182,34 +3182,50 @@ XcalarUpdateRetina = function(retName, dagNodeId, paramType, paramValues, txId) 
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    var paramStruct = {};
-    switch (paramType) {
-        case (XcalarApisT.XcalarApiBulkLoad):
-            paramStruct = new XcalarApiParamLoadT();
-            paramStruct.datasetUrl = paramValues.datasetUrl;
-            paramStruct.namePattern = paramValues.namePattern;
-            // XXX Handle name pattern
-            break;
-        case (XcalarApisT.XcalarApiFilter):
-            paramStruct = new XcalarApiParamFilterT();
-            paramStruct.filterStr = paramValues.filterStr;
-            break;
-        case (XcalarApisT.XcalarApiExport):
-            paramStruct = new XcalarApiParamExportT();
-            paramStruct.fileName = paramValues.fileName;
-            paramStruct.targetName = paramValues.targetName;
-            paramStruct.targetType = paramValues.targetType;
-            break;
-    }
+    xcalarGetRetinaJson(tHandle, retName)
+    .then(function(res) {
+        var retJson = JSON.parse(res.retinaJson);
+        var queries = retJson.query;
 
-    // var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
-    //                                           paramType, paramValue);
-    xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType, paramStruct)
+        for (var i = 0; i < queries.length; i++) {
+            var args = queries[i].args;
+            if (args.dest === tableName) {
+                switch (paramType) {
+                    case (XcalarApisT.XcalarApiBulkLoad):
+                        args.loadArgs.sourceArgs.fileNamePattern =
+                                                paramValues.fileNamePattern;
+                        args.loadArgs.sourceArgs.path = paramValues.path;
+                        break;
+                    case (XcalarApisT.XcalarApiFilter):
+                        args.eval[0].evalString = paramValues.filterStr;
+                        break;
+                    case (XcalarApisT.XcalarApiExport):
+                        args.createRule = paramValues.createRule;
+                        args.fieldDelim = paramValues.fieldDelim;
+                        args.fileName = paramValues.fileName;
+                        args.headerType = paramValues.headerType;
+                        args.quoteDelim = paramValues.quoteDelim;
+                        args.recordDelim = paramValues.recordDelim;
+                        args.sorted = paramValues.sorted;
+                        args.splitRule = paramValues.splitRule;
+                        args.targetName = paramValues.targetName;
+                        args.targetType = paramValues.targetType;
+                        break;
+                    default:
+                        deferred.reject({error: "Invalid param type"});
+                        return deferred.promise();
+                }
+                break;
+            }
+        }
+        return xcalarUpdateRetina(tHandle, retName, JSON.stringify(retJson));
+    })
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUpdateRetina", error);
         deferred.reject(thriftError);
     });
+
     return deferred.promise();
 };
 

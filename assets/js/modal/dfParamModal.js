@@ -12,6 +12,9 @@ window.DFParamModal = (function($, DFParamModal){
     var xdpMode;
     var hasChange = false;
     var isOpen = false;
+    var tableName; // stores current table name when modal gets opened
+    var altTableName; // alternative name for export,
+                // the name that includes .XcalarLRQExport
 
     var paramListTrLen = 3;
     var trTemplate =
@@ -247,8 +250,9 @@ window.DFParamModal = (function($, DFParamModal){
         }
         isOpen = true;
         type = $currentIcon.data('type');
-        var tableName = $currentIcon.data('table') || // For aliased tables
+        tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
+        altTableName = $currentIcon.data("altname");
         var dfName = DFCard.getCurrentDF();
         var df = DF.getDataflow(dfName);
         var id = df.getNodeId(tableName);
@@ -990,7 +994,7 @@ window.DFParamModal = (function($, DFParamModal){
             $(".exportSettingTable .innerEditableRow.headerType input").val("none");
             $(".exportSettingTable .innerEditableRow.headerType")
             .addClass("xc-disabled");
-        } else if (val === "Do not Overwrite" || val === "Overwrite Existing") {
+        } else if (val === "Do Not Overwrite" || val === "Overwrite Existing") {
             // $(".exportSettingTable .innerEditableRow.headerType").removeClass("xc-hidden");
             $(".exportSettingTable .innerEditableRow.headerType input").val("Every File");
             $(".exportSettingTable .innerEditableRow.headerType")
@@ -1012,7 +1016,7 @@ window.DFParamModal = (function($, DFParamModal){
             case "'":
                 return "&apos;";
             case "createOnly":
-                return "Do not Overwrite";
+                return "Do Not Overwrite";
             case "appendOnly":
                 return "Append to Existing";
             case "deleteAndReplace":
@@ -1048,7 +1052,7 @@ window.DFParamModal = (function($, DFParamModal){
                 return "\n";
             case "\\r":
                 return "\r";
-            case "Do not Overwrite":
+            case "Do Not Overwrite":
                 return "createOnly";
             case "Append to Existing":
                 return "appendOnly";
@@ -1104,99 +1108,6 @@ window.DFParamModal = (function($, DFParamModal){
         // }
         // exportOptions.maxSize = (exportOptions.splitRule === "size") ? Number(maxSize) : null;
         return exportOptions;
-    }
-
-    function saveExportOptions(retName, dagNodeId, options) {
-        var deferred = jQuery.Deferred();
-
-        var target = new ExExportTargetHdrT();
-        target.type = options.targetType;
-        target.name = options.targetName;
-
-        var specInput = new ExInitExportSpecificInputT();
-
-        if (target.type === ExTargetTypeT.ExTargetSFType) {
-            specInput.sfInput = new ExInitExportSFInputT();
-            specInput.sfInput.fileName = options.fileName;
-            // We only support CSV, json / sql is not supported, internal should not be exposed
-            specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
-            specInput.sfInput.formatArgs = getFormatArgs(options.fieldDelim,
-                                options.recordDelim, options.quoteDelim);
-            specInput.sfInput.splitRule = getSplitRule(options.splitRule, options.maxSize);
-            specInput.sfInput.headerType = getHeaderType();
-        } else if (target.type === ExTargetTypeT.ExTargetUDFType) {
-            specInput.udfInput = new ExInitExportUDFInputT();
-            specInput.udfInput.fileName = options.fileName;
-            specInput.udfInput.format = DfFormatTypeT.DfFormatCsv;
-            specInput.udfInput.formatArgs = getFormatArgs(options.fieldDelim,
-                                options.recordDelim, options.quoteDelim);
-            specInput.udfInput.headerType = getHeaderType();
-        }
-
-        function getFormatArgs(fieldDelim, recordDelim, quoteDelim) {
-            var formatArgs = new ExInitExportFormatSpecificArgsT();
-            formatArgs.csv = new ExInitExportCSVArgsT();
-            formatArgs.csv.fieldDelim = fieldDelim;
-            formatArgs.csv.recordDelim = recordDelim;
-            formatArgs.csv.quoteDelim = quoteDelim;
-            return formatArgs;
-        }
-
-        function getSplitRule(splitType, maxSize) {
-            var splitRule = new ExSFFileSplitRuleT();
-            switch (splitType) {
-                case "none":
-                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
-                    break;
-                case "single":
-                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitForceSingle;
-                    break;
-                // case "size":
-                //     splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitSize;
-                //     splitRule.spec = new ExSFFileSplitSpecificT();
-                //     splitRule.spec.maxSize = maxSize;
-                    break;
-                default:
-                    splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitUnknownType;
-                    break;
-            }
-            return splitRule;
-        }
-
-        function getHeaderType() {
-            switch (options.headerType) {
-                case "every":
-                    return ExSFHeaderTypeT.ExSFHeaderEveryFile;
-                case "separate":
-                    return ExSFHeaderTypeT.ExSFHeaderSeparateFile;
-                case "none":
-                    return ExSFHeaderTypeT.ExSFHeaderNone;
-                default:
-                    return ExSFHeaderTypeT.ExSFHeaderUnknownType;
-            }
-        }
-
-        var createRule = getCreateRule(options.createRule);
-        function getCreateRule(createRuleStr) {
-            switch (createRuleStr) {
-                case "createOnly":
-                    return ExExportCreateRuleT.ExExportCreateOnly;
-                case "appendOnly":
-                    return ExExportCreateRuleT.ExExportAppendOnly;
-                case "deleteAndReplace":
-                    return ExExportCreateRuleT.ExExportDeleteAndReplace;
-                default:
-                    return ExExportCreateRuleT.ExExportUnknownRule;
-            }
-        }
-
-        var sorted = options.sorted;
-
-        XcalarUpdateRetinaExport(retName, dagNodeId, target, specInput,
-                                  createRule, sorted)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-        return deferred.promise();
     }
 
     // returns true if exactly 1 open paren exists
@@ -1743,110 +1654,121 @@ window.DFParamModal = (function($, DFParamModal){
         // will close the modal if passes checks
         function updateRetina() {
             var deferred = jQuery.Deferred();
-            var paramType = null;
-            var paramValue;
-            var paramValues = {};
-            var paramQuery;
-            var error = false;
-            switch (type) {
-                case ("filter"):
-                    paramType = XcalarApisT.XcalarApiFilter;
-                    if ($editableDivs.length === 1) {
-                        paramValue = $.trim($editableDivs.eq(0).val());
-                    } else {
-                        var filterText = $.trim($editableDivs.eq(1).val());
-                        var str1 = $.trim($editableDivs.eq(0).val());
-                        var filterExists = checkIfValidFilter(filterText,
-                                                              $editableDivs.eq(1),
-                                                              params);
 
-                        if (!filterExists) {
-                            deferred.reject(ErrTStr.FilterTypeNoSupport);
-                            return (deferred.promise());
-                        }
-
-                        var additionalArgs = "";
-                        var arg;
-                        for (var i = 2; i < $editableDivs.length; i++) {
-                            arg = $.trim($editableDivs.eq(i).val());
-                            additionalArgs += arg + ",";
-                        }
-                        additionalArgs = additionalArgs.slice(0, -1);
-                        if (additionalArgs.length) {
-                            additionalArgs = "," + additionalArgs;
-                        }
-
-                        paramValue = filterText + "(" + str1 +
-                                                    additionalArgs + ")";
-                    }
-                    paramValues.filterStr = paramValue;
-                    paramQuery = [paramValue];
-                    break;
-                case ("dataStore"):
-                    paramType = XcalarApisT.XcalarApiBulkLoad;
-                    var url = $.trim($editableDivs.eq(0).val());
-                    var pattern = $.trim($editableDivs.eq(1).val());
-                    paramValues.datasetUrl = url;
-                    paramValues.namePattern = pattern;
-                    paramQuery = [url, pattern];
-                    break;
-                case ("export"):
-                    paramType = XcalarApisT.XcalarApiExport;
-                    var fileName = $.trim($editableDivs.eq(0).val());
-                    fileName += ".csv";
-                    var targetName = $.trim($editableDivs.eq(1).val());
-
-                    paramValues.fileName = fileName;
-                    paramValues.targetName = targetName;
-                    var paramTargetName = getTargetName(targetName, params);
-                    var target = DSExport.getTarget(paramTargetName);
-                    if (target) {
-                        paramValues.targetType = target.type;
-                        paramQuery = [fileName, targetName, paramValues.targetType];
-                    } else {
-                        error = "target not found";
-                    }
-                    break;
-                default:
-                    deferred.reject("currently not supported");
-                    break;
+            var updatedInfo = getUpdateInfo($editableDivs, params);
+            if (updatedInfo.error) {
+                return PromiseHelper.reject(updatedInfo.error);
             }
-            if (error) {
-                deferred.reject(error);
-            } else if (paramType == null) {
-                deferred.reject("currently not supported");
+
+            var paramType = updatedInfo.paramType;
+            var paramValues = updatedInfo.paramValues;
+            var paramQuery = updatedInfo.paramQuery;
+
+            closeDFParamModal(true);
+
+            if (paramType === XcalarApisT.XcalarApiExport) {
+                tName = altTableName;
             } else {
-                closeDFParamModal(true);
-                XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues)
-                .then(function() {
-                    if (type === "export") {
-                        var options = getExportOptions();
-                        options.fileName = paramValues.fileName;
-                        options.targetName = paramValues.targetName;
-                        options.targetType = paramValues.targetType;
-                        return saveExportOptions(retName, dagNodeId, options);
-                    } else {
-                        return PromiseHelper.resolve();
-                    }
-                })
-                .then(function() {
-                    return XcalarGetRetina(retName);
-                })
-                .then(function(retStruct) {
-                    DF.getDataflow(retName).retinaNodes =
-                                                retStruct.retina.retinaDag.node;
-                    var paramInfo = {
-                        "paramType": paramType,
-                        "paramValue": paramQuery
-                    };
-
-                    deferred.resolve(paramInfo);
-                })
-                .fail(deferred.reject);
+                tName = tableName;
             }
+            XcalarUpdateRetina(retName, tName, paramType, paramValues)
+            .then(function() {
+                return XcalarGetRetina(retName);
+            })
+            .then(function(retStruct) {
+                DF.getDataflow(retName).retinaNodes =
+                                            retStruct.retina.retinaDag.node;
+                var paramInfo = {
+                    "paramType": paramType,
+                    "paramValue": paramQuery
+                };
+
+                deferred.resolve(paramInfo);
+            })
+            .fail(deferred.reject);
 
             return (deferred.promise());
         }
+    }
+
+    function getUpdateInfo($editableDivs, params) {
+        var paramType = null;
+        var paramValues = {};
+        var paramQuery;
+        var error = false;
+        switch (type) {
+            case ("filter"):
+                paramType = XcalarApisT.XcalarApiFilter;
+                var filterStr;
+                if ($editableDivs.length === 1) {
+                    filterStr = $.trim($editableDivs.eq(0).val());
+                } else {
+                    var filterText = $.trim($editableDivs.eq(1).val());
+                    var str1 = $.trim($editableDivs.eq(0).val());
+                    var filterExists = checkIfValidFilter(filterText,
+                                                          $editableDivs.eq(1),
+                                                          params);
+
+                    if (!filterExists) {
+                        return {error: ErrTStr.FilterTypeNoSupport};
+                    } 
+
+                    var additionalArgs = "";
+                    var arg;
+                    for (var i = 2; i < $editableDivs.length; i++) {
+                        arg = $.trim($editableDivs.eq(i).val());
+                        additionalArgs += arg + ",";
+                    }
+                    additionalArgs = additionalArgs.slice(0, -1);
+                    if (additionalArgs.length) {
+                        additionalArgs = "," + additionalArgs;
+                    }
+
+                    filterStr = filterText + "(" + str1 +
+                                                additionalArgs + ")";
+                }
+                paramValues.filterStr = filterStr;
+                paramQuery = [filterStr];
+                break;
+            case ("dataStore"):
+                paramType = XcalarApisT.XcalarApiBulkLoad;
+                var url = $.trim($editableDivs.eq(0).val());
+                var pattern = $.trim($editableDivs.eq(1).val());
+                paramValues.path = url;
+                paramValues.fileNamePattern = pattern;
+                paramQuery = [url, pattern];
+                break;
+            case ("export"):
+                paramType = XcalarApisT.XcalarApiExport;
+                var fileName = $.trim($editableDivs.eq(0).val());
+                fileName += ".csv";
+                var targetName = $.trim($editableDivs.eq(1).val());
+
+                paramValues.fileName = fileName;
+                paramValues.targetName = targetName;
+                var paramTargetName = getTargetName(targetName, params);
+                var target = DSExport.getTarget(paramTargetName);
+                if (target) {
+                    paramValues.targetType = ExTargetTypeTStr[target.type];
+                    paramQuery = [fileName, targetName, target.type];
+                    var expOptions = getExportOptions();
+                    paramValues = $.extend(paramValues, expOptions);
+                } else {
+                    error = "target not found";
+                }
+                break;
+            default:
+                error = "currently not supported";
+                break;
+        }
+        var res = {
+            paramValues: paramValues,
+            paramQuery: paramQuery,
+            paramType: paramType,
+            error: error
+        };
+
+        return res;
     }
 
     function checkExistingTableName($input) {
@@ -2157,7 +2079,6 @@ window.DFParamModal = (function($, DFParamModal){
         DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
         DFParamModal.__testOnly__.suggest = suggest;
         DFParamModal.__testOnly__.checkInputForParam = checkInputForParam;
-        DFParamModal.__testOnly__.saveExportOptions = saveExportOptions;
         DFParamModal.__testOnly__.getExportOptions = getExportOptions;
         DFParamModal.__testOnly__.strToSpecialChar = strToSpecialChar;
         DFParamModal.__testOnly__.setDragElems = function(a, b) {
