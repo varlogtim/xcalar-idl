@@ -13,7 +13,7 @@ window.TestSuite = (function($, TestSuite) {
                             // internet
         this.testCases = [];
         this.testDS = [];
-        
+
         this.passes = 0;
         this.fails = 0;
         this.skips = 0;

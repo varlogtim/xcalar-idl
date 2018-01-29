@@ -43,8 +43,9 @@ window.FlightTest = (function(FlightTest, $) {
                       defaultTimeout, TestCaseDisabled); // disabled
         test.add(dfTest, "DFTest",
                       defaultTimeout, TestCaseEnabled);
+        // Temporarily disabled due to thrift change
         test.add(retinaTest, "RetinaTest",
-                      defaultTimeout, TestCaseEnabled);
+                      defaultTimeout, TestCaseDisabled);
         // interactive mode not run test
         var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Demo ||
                              XVM.getLicenseMode() === XcalarMode.Mod) ?
