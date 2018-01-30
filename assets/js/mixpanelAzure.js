@@ -61,6 +61,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
         var lastFocus;
         $(window).load(function() {
             var name = XcSupport.getUser();
+            var version = XVM.getVersion() || "No version info";
             if (name){
                 mixpanel.identify(name);
                 mixpanel.people.set({
@@ -69,7 +70,8 @@ window.xcMixpanel = (function($, xcMixpanel) {
             }
             mixpanel.track("LoginEvent", {
                 "Username": name,
-                "Timestamp": (new Date()).getTime()
+                "Timestamp": (new Date()).getTime(),
+                "XcalarVersion": version
             });
             emailNotification(name);
             lastFocus = (new Date()).getTime();

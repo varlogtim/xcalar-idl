@@ -17,9 +17,9 @@
     }
 
     var version = XVM.getVersion();
-    if (version && versionCheck(version.split("-")[0], "1.3.0")) {
-        // Make sure our patch only applies to certain versions
-        // Change the second argument above as we need
+    if (version && versionCheck(version.split("-")[0], "1.3.1")) {
+        // Make sure our patch only applies to certain versions below the second
+        // argument.
         // Just wrap our patches with functions and call them here
         try {
             patchMixpanel();
