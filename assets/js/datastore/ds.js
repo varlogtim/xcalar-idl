@@ -1803,7 +1803,7 @@ window.DS = (function ($, DS) {
                 }
             } else {
                 cleanDSSelect();
-
+                $gridMenu.find(".multiLock, .multiUnlock").hide();
                 if ($grid.length) {
                     $grid.addClass("selected");
                     var dsId = $grid.data("dsid");
