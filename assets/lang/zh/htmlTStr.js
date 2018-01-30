@@ -511,7 +511,9 @@ module.exports = {
         "Path": "路径",
         "Records": "行数",
         "SelectLater": "稍后选择列",
-        "SelectLaterHint": "创建一个表，而不选择任何列"
+        "SelectLaterHint": "创建一个表，而不选择任何列",
+        "DSName": "数据集名称",
+        "clickToView": "点击查看"
     },
     "dsTarget": {
         "Create": "添加数据目标",

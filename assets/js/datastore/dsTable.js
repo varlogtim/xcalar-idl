@@ -252,6 +252,7 @@ window.DSTable = (function($, DSTable) {
         var dsName = dsObj.getName();
         var numEntries = dsObj.getNumEntries();
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
+        var target = dsObj.getTargetName();
 
         $path.text(path);
         // XXX needs back end call
@@ -260,15 +261,15 @@ window.DSTable = (function($, DSTable) {
         //                 '<i class="icon xi-show"></i>' +
         //                 'View files / folders</button>';
         // $path.append(showFileHtml);
-        // $("#showFileListBtn").click(function() {
-        //     FileListModal.show();
-        // });
-        xcTooltip.changeText($path, path);
+        $("#showFileListBtn").click(function() {
+            FileListModal.show();
+        });
+        xcTooltip.changeText($path, target + "\n" + path);
         xcTooltip.enable($path);
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
-        $("#dsInfo-target").text(dsObj.getTargetName());
+        // $("#dsInfo-target").text(dsObj.getTargetName());
         // there is no fail case
         getDSSize(dsObj, isLoading)
         .then(function(size) {
@@ -460,10 +461,6 @@ window.DSTable = (function($, DSTable) {
             }
 
             rePointDS(dsId);
-        });
-
-        $dsTableView.on('mouseenter', '.tooltipOverflow', function() {
-            xcTooltip.auto(this);
         });
 
         // click to select a column

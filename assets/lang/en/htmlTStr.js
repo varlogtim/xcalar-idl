@@ -699,7 +699,9 @@ module.exports = {
         "Path": "Path",
         "Records": "Records",
         "SelectLater": "Select Columns Later",
-        "SelectLaterHint": "Create a table without selecting any columns"
+        "SelectLaterHint": "Create a table without selecting any columns",
+        "DSName": "Dataset Name",
+        "clickToView": "CLICK TO VIEW"
     },
 
     "dsCart": {

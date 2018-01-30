@@ -215,8 +215,11 @@
             }
 
             .flex-right {
-                .flex(1 1 190px);
-                min-width: 190px; // for IE
+                .flex(1 1 210px);
+                min-width: 210px; // for IE
+                .buttonGroup {
+                    min-width: 210px;
+                }
             }
         }
 
@@ -225,6 +228,8 @@
             .size(@height: 20px);
             font-size: 14px;
             margin-top: 10px;
+            height: 36px;
+            line-height: 36px;
             .textOverflowOneLine;
 
             &:last-child {
@@ -241,21 +246,33 @@
         }
 
         #showFileListBtn {
-            float: right;
-            margin-top: -10px;
             margin-left: 10px;
+            width: 183px;
+            padding-left: 16px;
 
             .icon {
                 color: @color-font-select-blue;
             }
-
+        }
+        #dsColsBtn {
+            .flex-display;
+            .flex-wrap(wrap);
+            justify-content: flex-end;
+        }
+        #dsInfo-path, #dsInfo-author, #dsInfo-records, #dsInfo-size, #dsInfo-format, #dsInfo-target {
+            font-weight: 400;
+        }
+        #dsInfo-error {
+            color: @color-error-border;
         }
 
         .buttonSection {
             .buttonGroup {
-                .size(@height: 20px);
+                .size(@height: 36px);
                 margin-top: 10px;
                 color: @color-font-select-blue;
+                .flex-display;
+                .align-items(center);
 
                 > div {
                     float: right;
@@ -294,6 +311,8 @@
                     .size(@width: 1px, @height: 20px);
                     margin: 0 10px;
                     background-color: @color-bg-select-blue;
+                    margin-left: 10px;
+                    margin-right: 10px;
                 }
             }
         }
