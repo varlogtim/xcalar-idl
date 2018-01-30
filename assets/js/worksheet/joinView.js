@@ -1202,7 +1202,9 @@ window.JoinView = (function($, JoinView) {
             };
         }
         var $invalidClause = null;
-
+        var lUsed = {};
+        var rUsed = {};
+        var hasDupNameError = false;
         // check validation
         $clauseContainer.find(".joinClause").each(function() {
             var $joinClause = $(this);
@@ -1212,6 +1214,21 @@ window.JoinView = (function($, JoinView) {
             if (lClause !== "" && rClause !== "") {
                 lCols.push(lClause);
                 rCols.push(rClause);
+
+                if (lUsed.hasOwnProperty(lClause)) {
+                    hasDupNameError = true;
+                    showErrorTooltip($joinClause.find(".leftClause"),
+                                    {title: ErrTStr.DuplicateColNames});
+                    return false; // stop loop
+                } else if (rUsed.hasOwnProperty(rClause)) {
+                    hasDupNameError = true;
+                    showErrorTooltip($joinClause.find(".rightClause"),
+                                    {title: ErrTStr.DuplicateColNames});
+                    return false; // stop loop
+                }
+                lUsed[lClause] = true;
+                rUsed[rClause] = true;
+
                 return true;
             } else if (!(lClause === "" && rClause === "")){
                 $invalidClause = $joinClause;
@@ -1219,13 +1236,15 @@ window.JoinView = (function($, JoinView) {
             }
         });
 
-        var error = ($invalidClause != null || lCols.length === 0);
+        var error = ($invalidClause != null || lCols.length === 0 || hasDupNameError);
         if (error) {
             if (toGoBack) {
                 // go back
                 toggleNextView();
             }
-            invalidMultiClauseTooltip($invalidClause);
+            if (!hasDupNameError) {
+                invalidMultiClauseTooltip($invalidClause);
+            }
             return null;
         }
 
