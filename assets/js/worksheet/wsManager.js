@@ -20,7 +20,7 @@ window.WSManager = (function($, WSManager) {
     var slideTime = 180;
 
     // Setup function for WSManager Module
-    WSManager.setup = function() {
+    WSManager.setup = function() { 
         $workSheetTabs = $("#worksheetTabs");
         $hiddenWorksheetTabs = $("#hiddenWorksheetTabs");
         addEventListeners();
@@ -698,7 +698,7 @@ window.WSManager = (function($, WSManager) {
                 } else {
                     promise = TableList.refreshOrphanList();
                 }
-                
+
                 promise
                 .then(function() {
                     $('#orphanedTablesList .tableInfo[data-id="' +

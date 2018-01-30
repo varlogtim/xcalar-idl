@@ -74,11 +74,8 @@
     </div>
   </section>
   <section class="cardMain">
-    <div id="fileBrowserPreview" class="leftMain xc-hidden">
-      include "filePreviewer.html"
-    </div>
     <!-- File Browser Main Section -->
-    <div id="fileBrowserMain" class="xc-grid rightMain gridView fileBrowserMain">
+    <div id="fileBrowserMain" class="xc-grid leftMain gridView fileBrowserMain">
         <!-- Loading Sectoin -->
         <section class="loadingSection">
           <div class="waitingIcon"></div>
@@ -112,10 +109,14 @@
           <div id="innerFileBrowserContainer" class="clearfix innerFileBrowserContainer"></div>
         </section>
     </div>
+    <div id="fileBrowserPreview" class="rightMain xc-hidden">
+      include "filePreviewer.html"
+    </div>
   </section>
   <section class="cardBorder"></section>
   <!-- Button Section -->
   <section class="cardBottom">
+    <button type="button" class="btn closePreview">EXIT RAW VIEW</button>
     <button type="button" class="btn confirm"><%= dicts.common.NEXT %></button>
     <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CLOSE %></button>
   </section>

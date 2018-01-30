@@ -994,6 +994,17 @@ table.datasetTable {
         }
     }
 
+    &.previewOpen {
+        .cardBottom {
+            .btn {
+                display: none;
+            }
+            .closePreview {
+                display: inline-block;
+            }
+        }
+    }
+
     .cardInstruction {
         text-transform: initial;
     }
@@ -1138,11 +1149,11 @@ table.datasetTable {
         .flex-display;
 
         .leftMain {
-            width: 25%;
+            width: 100%;
         }
 
         .rightMain {
-            width: 100%;
+            width: 25%;
         }
 
         &.hexMode {
@@ -1152,7 +1163,7 @@ table.datasetTable {
         }
 
         &.previewOpen {
-            .rightMain {
+            .leftMain {
                 width: 75%;
             }
             &:not(.noAnim):not(.hexMode) {
@@ -1173,24 +1184,24 @@ table.datasetTable {
         }
 
         &.full {
-
             width: 100%;
             #fileBrowserPreview {
                 .mainSection {
                     &.leftPart {
-                        .size(@width: 100%);
-                    }
-
-                    &.rightPart {
                         padding: 0px;
                         .contentSection, .topSection, .bottomSection {
                             display: none;
                         }
                         .size(@width: 0%);
                     }
+
+                    &.rightPart {
+                        .size(@width: 100%);
+                    }
+
                     .sliderPart {
                         .xi-next {
-                            .transform(rotate(180deg));
+                            .transform(rotate(0deg));
                         }
                     }
                 }
@@ -1198,11 +1209,11 @@ table.datasetTable {
             }
 
             .leftMain {
-                .size(@width: 100%);
+                .size(@width: 0%);
             }
 
             .rightMain {
-                .size(@width: 0%);
+                .size(@width: 100%);
             }
         }
     }
@@ -1405,12 +1416,13 @@ table.datasetTable {
         .size(@height: 100%);
         .position(relative);
         text-transform: none;
+        .flex-display;
 
         &.loading {
-            .rightPart, .errorSection, .leftPart > div{
+            .leftPart, .errorSection, .rightPart > div {
                 display: none !important;
             }
-            .leftPart > .sliderPart {
+            .rightPart > .sliderPart {
                 display: block !important;
                 opacity: 0.5;
                 pointer-events: none;
@@ -1438,13 +1450,13 @@ table.datasetTable {
             .mainSection {
 
                 &.leftPart {
-                    .size(@width: 25%);
-                    border-right: none;
+                    display: block;
+                    .size(@width: 75%);
                 }
 
                 &.rightPart {
-                    display: block;
-                    .size(@width: 75%);
+                    .size(@width: 25%);
+                    border-left: none;
                 }
 
                 .hexDump {
@@ -1473,35 +1485,23 @@ table.datasetTable {
             position: relative;
 
             &.leftPart {
-                .size(@width: 100%);
-                float: left;
-                padding-right: 31px;
-                border-right: 1px solid @color-border-pinkish-grey2;
-            }
-
-            &.rightPart {
                 display: none;
                 .size(@width: 0);
                 float: left;
             }
 
+            &.rightPart {
+                .size(@width: 100%);
+                float: left;
+                padding-left: 31px;
+                border-left: 1px solid @color-border-pinkish-grey2;
+            }
+
             .topSection {
                 .size(@width: 100%, @height: @top-h);
 
-                .icon, .btn {
+                .btn {
                     float: right;
-                }
-
-                .icon {
-                    color: @color-font-pinkish-grey;
-                    .size(@height: 30px);
-                    .position(relative);
-                    margin-left: 10px;
-
-                    &:before {
-                        display: block;
-                        .vertical-align;
-                    }
                 }
             }
 
@@ -1547,6 +1547,9 @@ table.datasetTable {
             .bottomSection {
                 .size(@width: 100%, @height: @bottom-h);
                 padding: 5px 0;
+                .flex-display;
+                .flex-wrap(wrap);
+                .justify-content(flex-end);
 
                 > div {
                     .size(@height: 30px);
@@ -1567,7 +1570,7 @@ table.datasetTable {
 
                     .offsetNum {
                         padding-left: 3px;
-                        .size(@width: 60px, @max-width: ~"calc(100% - 50px)");
+                        .size(@min-width: 60px, @max-width: ~"calc(100% - 50px)");
                     }
 
                     input {
@@ -1581,7 +1584,7 @@ table.datasetTable {
                 background: @color-bg-white-four;
                 width: 16px;
                 height: 100%;
-                .position(absolute, @top: 0px, @right: 0px);
+                .position(absolute, @top: 0px, @left: 0px);
                 cursor: pointer;
                 // display: none;
 
@@ -1591,12 +1594,13 @@ table.datasetTable {
                     width: 100%;
                     text-align: center;
                     .vertical-align;
+                    .transform(rotate(180deg));
                 }
             }
         }
 
         &.hexModeAnim {
-            .mainSection, .rightMain {
+            .mainSection {
                 .transition(width 0.5s);
             }
         }
@@ -1610,6 +1614,9 @@ table.datasetTable {
 
         .btn {
             margin-right: 15px;
+        }
+        .closePreview {
+            display: none;
         }
     }
 }
@@ -1872,7 +1879,7 @@ table.datasetTable {
             padding: 6px 5px;
             position: relative;
             height: 28px;
-            overflow: hidden; 
+            overflow: hidden;
             background-color: @color-bg-white-three;
         }
         .flexWrap.flex-right {
@@ -2051,7 +2058,7 @@ table.datasetTable {
                     }
                 }
             }
- 
+
             .dropdownBox {
                 width: 12px;
                 height: 5px;
