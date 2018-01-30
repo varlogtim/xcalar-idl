@@ -788,7 +788,7 @@ window.OperationsView = (function($, OperationsView) {
             if (table.getCol(colNum)) {
                  triggerColName = table.getCol(colNum).getBackColName();
             }
-           
+
             if (currColNums && currColNums.length) {
                 currentCol = table.getCol(colNum);
                 colName = currentCol.getFrontColName(true);
@@ -1892,10 +1892,13 @@ window.OperationsView = (function($, OperationsView) {
             $rows.eq(i).find('.description').text(description + ':');
 
             // automatically show empty checkbox if optional detected
-            if (description.indexOf('optional') > -1) {
+            if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.OptionalArg)
+            {
                 if (types.length === 1 && types[0] === ColumnType.boolean ||
-                    (types.length === 2 && types.indexOf(ColumnType.boolean) > -1 &&
+                    (types.length === 2 &&
+                        types.indexOf(ColumnType.boolean) > -1 &&
                         types.indexOf(ColumnType.undefined) > -1)) {
+                    // one case is the "contains" function
                     addBoolCheckbox($input);
                 } else {
                     showEmptyOptions($input);
@@ -2163,7 +2166,7 @@ window.OperationsView = (function($, OperationsView) {
         $input.data("colname", null);
         var $table = $("#xcTable-" + tableId);
         if (prevColName && !checkArgsHasCol(prevColName)) {
-            var colNum = getColNum(prevColName); 
+            var colNum = getColNum(prevColName);
             $table.find(".col" + colNum).removeClass("modalHighlighted");
         }
 
@@ -4840,7 +4843,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function isArgAColumn(arg) {
-        return (isNaN(arg) && 
+        return (isNaN(arg) &&
                 arg.indexOf("(") === -1 &&
                 arg !== "true" && arg !== "false" &&
                 arg !== "t" && arg !== "f");
