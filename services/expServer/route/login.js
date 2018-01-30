@@ -637,12 +637,12 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
                 var array = entryObject.memberOf;
                 for (var i = 0; i < array.length; i++) {
                     var element =  array[i];
-                    var admin_re = new RegExp("^CN=" + adAdminGroup + "*");
+                    var admin_re = new RegExp("^CN=" + adAdminGroup + ",*");
                     if (admin_re.test(element)) {
                         user.setIsADUser(true);
                         user.setEmployeeType("administrator");
                     }
-                    var user_re = new RegExp("^CN=" + adUserGroup + "*");
+                    var user_re = new RegExp("^CN=" + adUserGroup + ",*");
                     if (user_re.test(element)) {
                         user.setIsADUser(true);
                     }
