@@ -745,8 +745,13 @@
         .transition(transform 0.3s);
         pointer-events: auto;
 
+
         &.closed {
             .transform(translate3d(222px, 0, 0));
+            opacity: 0.9;
+        }
+        &:hover {
+            opacity: 1;
         }
 
         .searchIcon {

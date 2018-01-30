@@ -715,8 +715,11 @@ SearchBar.prototype = {
         } else {
             $searchBar.addClass('closed');
             searchBar.$searchInput.val("");
+
             if (searchBar.toggleSliderCallback) {
                 searchBar.toggleSliderCallback();
+            } else {
+                searchBar.clearSearch();
             }
         }
     }

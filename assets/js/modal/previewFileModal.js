@@ -89,7 +89,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
             "scrollMatchIntoView": scrollMatchIntoView,
             "$list": $modal.find(".contentSection"),
             "removeHighlight": true,
-            "toggleSlider": searchText,
+            "toggleSliderCallback": searchText,
             "onInput": function() {
                 searchText();
             }

@@ -177,7 +177,7 @@ window.JSONModal = (function($, JSONModal) {
             "scrollMatchIntoView": function($match) {
                 scrollMatchIntoView($match);
             },
-            "toggleSlider": searchText,
+            "toggleSliderCallback": searchText,
             "onInput": function() {
                 searchText();
             }

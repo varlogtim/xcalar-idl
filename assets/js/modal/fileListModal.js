@@ -1,9 +1,6 @@
 window.FileListModal = (function(FileListModal, $) {
     var $modal;    // $("#fileListModal")
     var modalHelper;
-    var $textArea;
-    var tableName;
-    var node;
     var nodesMap;
     var roots;
 
@@ -17,11 +14,7 @@ window.FileListModal = (function(FileListModal, $) {
         $modal.on("click", ".close, .cancel", closeModal);
 
         $modal.on("click", ".label.folder", function() {
-            if ($(this).parent().hasClass("collapsed")) {
-                $(this).parent().removeClass("collapsed");
-            } else {
-                $(this).parent().addClass("collapsed");
-            }
+            $(this).parent().toggleClass("collapsed");
         });
 
         setupSearch();
@@ -74,25 +67,18 @@ window.FileListModal = (function(FileListModal, $) {
                     type: type,
                     name: name,
                     fullPath: name,
-                    parent: null,
-                    children: [],
-                    parentName: ""
-                }
+                    children: []
+                };
                 nodesMap[fullPath] = node;
+                if (j === 0) {
+                    roots[fullPath] = node;
+                }
                 if (prev) {
                     node.children.push(prev);
                 }
                 prev = node;
-                if (j - 1 > -1) {
-                    nodesMap[fullPath].parentName = heirarchy[j - 1];
-                }
-                if (j === 0) {
-                    roots[fullPath] = node;
-                }
             }
         }
-        window.nodesMap = nodesMap;
-        console.log(window.nodesMap);
     }
 
     function drawAllTrees() {
@@ -106,10 +92,18 @@ window.FileListModal = (function(FileListModal, $) {
     }
 
     function drawTree(node) {
+        var collapsed = "";
+        if (node.children.length > 100) {
+            // collapse folder if it has too many files
+            collapsed = "collapsed";
+        }
         var icon = node.type === "folder" ? '<i class="icon folderIcon xi-folder"></i>' +
                                 '<i class="icon folderIcon xi-folder-opened"></i>' : '';
-        var html = '<li><div class="label ' + node.type + '">' + icon + 
-                    '<div class="name">' + node.name + '</div></div>';
+        var html = '<li class="' + collapsed + '">' +
+                    '<div class="label ' + node.type + '">' +
+                        icon +
+                        '<div class="name">' + node.name + '</div>' +
+                    '</div>';
         if (node.children.length) {
             html += '<ul>';
         }
@@ -135,6 +129,8 @@ window.FileListModal = (function(FileListModal, $) {
         modalHelper.clear();
         searchHelper.clearSearch();
         $modal.find(".searchbarArea").addClass("closed");
+        nodesMap = null;
+        roots = null;
     }
 
     function setupSearch() {
@@ -149,7 +145,7 @@ window.FileListModal = (function(FileListModal, $) {
             "scrollMatchIntoView": scrollMatchIntoView,
             "$list": $modal.find(".treeWrap"),
             "removeHighlight": true,
-            "toggleSlider": searchText,
+            "toggleSliderCallback": searchText,
             "onInput": function() {
                 searchText();
             }
@@ -201,6 +197,7 @@ window.FileListModal = (function(FileListModal, $) {
     }
 
     function scrollMatchIntoView($match) {
+        $match.parents("li.collapsed").removeClass("collapsed");
         var $container = $modal.find(".modalMain");
         var containerHeight = $container.outerHeight();
         var scrollTop = $container.scrollTop();
@@ -228,9 +225,8 @@ window.FileListModal = (function(FileListModal, $) {
             "b/c/f.txt"
         ];
 
-        // setTimeout(function() {
-            deferred.resolve(list);
-        // }, 5000);
+        deferred.resolve(list);
+
         return deferred.promise();
     }
 
