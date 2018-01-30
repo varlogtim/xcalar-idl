@@ -1966,6 +1966,8 @@ window.DSPreview = (function($, DSPreview) {
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
+                } else if (format == null) {
+                    errorHandler(error);
                 } else {
                     error = getParseError(format, detectArgs.format);
                     errorHandler(error);

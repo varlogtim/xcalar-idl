@@ -754,7 +754,7 @@ window.DS = (function ($, DS) {
                 isAlert = true;
             } else if (txId != null) {
                 // cancel case
-                title = DSTStr.CancalPoint;
+                title = DSTStr.CancelPoint;
                 msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {
                     "ds": dsName
                 });
