@@ -1817,7 +1817,7 @@ module.exports = function(grunt) {
 
             // write data for this file to the help hash tags struct
             content = content + "var " + structVar + " = ";
-            content = content + JSON.stringify(structVarsData[structVar], null, '\t');
+            content = content + JSON.stringify(structVarsData[structVar], null, '    ');
             content = content + ";\n";
 
         }
