@@ -898,7 +898,7 @@ module.exports = {
 
     "project": {
         "instr": "Projection enables you to eliminate unnecessary fields that Xcalar Design keeps in memory for a table.",
-        "colInstr": "Select columns to keep. Each set of prefixed columns act as a unit and can only be selected in their entirety.",
+        "colInstr": "Select columns to keep. Each set of prefixed columns acts as a unit and only uses the memory of one column.",
         "colsToProject": "Columns to project",
         "project": "Project",
         "derived": "Derived columns",
