@@ -299,6 +299,13 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 $("#importDataForm").find(".dsName").eq(0).val(dsName);
                 // auto detect should fill in the form
+                var empties = $("#previewTable .editableHead[value='']");
+                var rand = Math.floor(Math.random() * 10000);
+                console.log("here");
+                for (var i = 0; i < empties.length; i++) {
+                    empties.eq(i).val("Unused_" + rand + "_" + (i+1));
+                }
+
                 $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
                 if ($("#alertModal").is(":visible") &&
                     $("#alertHeader").text().trim() === DSTStr.DetectInvalidCol) {
