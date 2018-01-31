@@ -17,7 +17,7 @@ window.ExportView = (function($, ExportView) {
     var isOpen = false; // tracks if form is open
 
     // constant
-    var validTypes = ['string', 'integer', 'float', 'boolean'];
+    var validTypes = ['string', 'integer', 'float', 'boolean', 'mixed'];
 
     ExportView.setup = function() {
         $exportView = $("#exportView");

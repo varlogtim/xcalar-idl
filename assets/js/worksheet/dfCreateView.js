@@ -9,7 +9,7 @@ window.DFCreateView = (function($, DFCreateView) {
     var exportHelper;
 
     // constant
-    var validTypes = ['string', 'integer', 'float', 'boolean'];
+    var validTypes = ['string', 'integer', 'float', 'boolean', 'mixed'];
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
