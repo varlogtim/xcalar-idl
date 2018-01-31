@@ -15,7 +15,7 @@
   "private": true,
   "devDependencies": {
     "chai": "^3.5.0",
-    "cheerio" : "1.0.0-rc.2",
+    "cheerio": "1.0.0-rc.2",
     "grunt": "^1.0.1",
     "grunt-cleanempty": "^1.0.4",
     "grunt-chmod": "^1.1.1",
@@ -35,7 +35,7 @@
     "istanbul": "^0.4.5",
     "less": "^2.6.1",
     "mocha": "^3.2.0",
-    "shelljs":"^0.8.1",
+    "shelljs": "^0.8.1",
     "underscore": "^1.8.3",
     "uglify-js": "^2.6.2",
     "grunt-concurrent": "^2.3.0"
