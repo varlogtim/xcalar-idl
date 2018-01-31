@@ -406,7 +406,8 @@
             casts: array of cast types ["string", "boolean", null] etc
             pulledColumns: columns to pulled out (front col name)
             tableName: table's name
-            reaname: array of rename object
+            rename: array of rename object
+            allImmediates: array of all immediate names for collision resolution
 
         rename map: object generate by
         xcHelper.getJoinRenameMap(oldName, newName, type)
@@ -421,7 +422,8 @@
                         "new": "test2",
                         "orig": "test",
                         "type": DfFieldTypeT.DfFatptr
-                    }]
+                    }],
+                    "allImmediates": ["a", "b", "c"]
                 }
 
         options:
@@ -441,12 +443,14 @@
         var lCasts = lTableInfo.casts;
         var pulledLColNames = lTableInfo.pulledColumns;
         var lRename = lTableInfo.rename || [];
+        var lImm = lTableInfo.allImmediates || [];
 
         var rTableName = rTableInfo.tableName;
         var rColNames = rTableInfo.columns;
         var rCasts = rTableInfo.casts;
         var pulledRColNames = rTableInfo.pulledColumns;
         var rRename = rTableInfo.rename || [];
+        var rImm = rTableInfo.allImmediates || [];
 
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
@@ -514,7 +518,12 @@
         .then(function(lRes, rRes, tempTablesInIndex) {
             var lIndexedTable = lRes.tableName;
             var rIndexedTable = rRes.tableName;
-            resolveJoinIndexColRename(lRename, rRename, lRes, rRes);
+            var lImm = lTableInfo.allImmediates;
+            var rImm = rTableInfo.allImmediates;
+            var lOthers = getUnusedImmNames(lImm, lRes.newKeys, lRename);
+            var rOthers = getUnusedImmNames(rImm, rRes.newKeys, rRename);
+            resolveJoinIndexColRename(lRename, rRename, lRes, rRes, lOthers,
+                                      rOthers);
             tempTables = tempTables.concat(tempTablesInIndex);
 
             if (!isValidTableName(newTableName)) {
@@ -1359,9 +1368,7 @@
                     // XXX this is a hack util backend support auto cast when indexing
                     newType = "string";
                 }
-                newField = overWrite
-                           ? name
-                           : parsedCol.prefix + "--" + name;
+                newField = overWrite ? name : parsedCol.prefix + "--" + name;
                 // handle name conflict case
                 if (nameMap.hasOwnProperty(newField)) {
                     newField = parsedCol.prefix + "--" + name;
@@ -1475,7 +1482,28 @@
         return deferred.promise();
     }
 
-    function resolveJoinIndexColRename(lRename, rRename, lInfo, rInfo) {
+    function getUnusedImmNames(allImm, newKeys, renames) {
+        if (!allImm || allImm.length == 0) {
+            return [];
+        }
+        var unusedImm = allImm;
+        newKeys.forEach(function(ele) {
+            var idx = unusedImm.indexOf(ele);
+            if (idx > -1) {
+                unusedImm.splice(idx, 1);
+            }
+        });
+        renames.forEach(function(ele) {
+            var idx = unusedImm.indexOf(ele.new);
+            if (idx > -1) {
+                unusedImm.splice(idx, 1);
+            }
+        });
+        return unusedImm;
+    }
+
+    function resolveJoinIndexColRename(lRename, rRename, lInfo, rInfo, lOthers,
+                                       rOthers) {
         var getNewKeySet = function(keys) {
             var res = {};
             keys.forEach(function(key) {
@@ -1501,8 +1529,8 @@
 
         var lSuffix = xcHelper.randName("_l_index");
         var rSuffix = xcHelper.randName("_r_index");
-        var lKeySet = getNewKeySet(lInfo.newKeys);
-        var rKeySet = getNewKeySet(rInfo.newKeys);
+        var lKeySet = getNewKeySet(xcHelper.arrayUnion(lInfo.newKeys, lOthers));
+        var rKeySet = getNewKeySet(xcHelper.arrayUnion(rInfo.newKeys, rOthers));
 
         resolveDupName(lInfo, lRename, rKeySet, lSuffix);
         resolveDupName(rInfo, rRename, lKeySet, rSuffix);

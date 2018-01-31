@@ -434,6 +434,8 @@ window.xcFunction = (function($, xcFunction) {
             // pulledColumns: columns to pulled out (front col name)
             // tableId: table's hash id
             // rename: array of rename object, can be null or empty array
+            // allImmediates: list of all immediate names.
+            //                for use in xiapi for col name collision.
 
     // options:
     //          keepTables: boolean, if true will keep src tables in worksheet
@@ -522,7 +524,8 @@ window.xcFunction = (function($, xcFunction) {
             "columns": lColNames,
             "casts": lJoinInfo.casts,
             "pulledColumns": lJoinInfo.pulledColumns,
-            "rename": lJoinInfo.rename
+            "rename": lJoinInfo.rename,
+            "allImmediates": lJoinInfo.allImmediates
         };
 
         var rTableInfo = {
@@ -530,7 +533,8 @@ window.xcFunction = (function($, xcFunction) {
             "columns": rColNames,
             "casts": rJoinInfo.casts,
             "pulledColumns": rJoinInfo.pulledColumns,
-            "rename": rJoinInfo.rename
+            "rename": rJoinInfo.rename,
+            "allImmediates": rJoinInfo.allImmediates
         };
 
         var finalJoinTableName;

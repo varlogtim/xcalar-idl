@@ -1765,7 +1765,6 @@ window.JoinView = (function($, JoinView) {
                 indexFields: [lJoinInfo.colNames, rJoinInfo.colNames]
             });
         } else {
-
             xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
             .then(function(finalTableName) {
                 submitJoinKeyData(joinKeyDataToSubmit);
@@ -1777,7 +1776,6 @@ window.JoinView = (function($, JoinView) {
                 deferred.reject();
             });
         }
-
 
         return deferred.promise();
     }
@@ -1813,7 +1811,8 @@ window.JoinView = (function($, JoinView) {
             "colNames": lColNames,
             "casts": getCasts(0),
             "pulledColumns": lColsToKeep,
-            "rename": null
+            "rename": null,
+            "allImmediates": lTable.getImmediateNames()
         };
         var rJoinInfo = {
             "tableId": rTableId,
@@ -1821,7 +1820,8 @@ window.JoinView = (function($, JoinView) {
             "colNames": rColNames,
             "casts": getCasts(1),
             "pulledColumns": rColsToKeep,
-            "rename": null
+            "rename": null,
+            "allImmediates": rTable.getImmediateNames()
         };
 
         // 1) We check whether the column name resolution is already there
@@ -1908,6 +1908,7 @@ window.JoinView = (function($, JoinView) {
 
             lJoinInfo.rename = leftAutoRenames;
             rJoinInfo.rename = rightAutoRenames;
+
             return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
