@@ -13,7 +13,7 @@ window.DataflowPanel = (function($, DataflowPanel) {
         var activeDataflow = DFCard.getActiveDF();
         DFCard.refresh();
         if (activeDataflow !== dataflowName) {
-            // change is not on current dataflow
+            // The change is not on current dataflow
             return;
         }
 
