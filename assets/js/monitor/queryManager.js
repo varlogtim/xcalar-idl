@@ -118,9 +118,8 @@ window.QueryManager = (function(QueryManager, $) {
             } else {
                 // delay first check so we don't check too early before
                 // the operation has been started
-                setTimeout(function() {
-                    subQueryCheck(subQuery);
-                }, 10);
+                var delay = 10;
+                subQueryCheck(subQuery, delay);
             }
         }
         var $query = $queryList.find('.query[data-id="' + id + '"]');
@@ -1215,7 +1214,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function subQueryCheck(subQuery) {
+    function subQueryCheck(subQuery, delay) {
         var id = subQuery.getId();
         if (!queryLists[id]) {
             console.error("error case");
@@ -1230,14 +1229,27 @@ window.QueryManager = (function(QueryManager, $) {
         var doNotAnimate = false;
 
         var startTime = Date.now();
-        subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
-        .then(function() {
-            var elapsedTime = Date.now() - startTime;
-            checkCycle(function() {
-                return subQueryCheckHelper(subQuery, id, subQuery.index,
-                                           doNotAnimate);
-            }, id, elapsedTime);
-        });
+        if (delay) {
+            setTimeout(function() {
+                subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+                .then(function() {
+                    var elapsedTime = Date.now() - startTime;
+                    checkCycle(function() {
+                        return subQueryCheckHelper(subQuery, id, subQuery.index,
+                                                   doNotAnimate);
+                    }, id, elapsedTime);
+                });
+            }, delay);
+        } else {
+            subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+            .then(function() {
+                var elapsedTime = Date.now() - startTime;
+                checkCycle(function() {
+                    return subQueryCheckHelper(subQuery, id, subQuery.index,
+                                               doNotAnimate);
+                }, id, elapsedTime);
+            });
+        }
     }
 
     function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {
@@ -1290,7 +1302,7 @@ window.QueryManager = (function(QueryManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (queryLists[id] && error && 
+            if (queryLists[id] && error &&
                 error.status === StatusT.StatusDagNodeNotFound) {
                 var mainQuery = queryLists[id];
                 if (subQuery.name.indexOf("delete") > -1) {

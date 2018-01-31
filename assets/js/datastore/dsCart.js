@@ -447,7 +447,6 @@ window.DSCart = (function($, DSCart) {
     };
 
     DSCart.addQuery = function(mainQuery) {
-        // var id = mainQuery.getId();
         queryQueue.push(mainQuery);
         if (queryQueue.length === 1 && !$loadingBar.hasClass("inProgress") &&
             $("#dataStoresTab").hasClass("active")) {
@@ -561,7 +560,7 @@ window.DSCart = (function($, DSCart) {
         var mainQuery = queryQueue[0];
         var subQuery = mainQuery.subQueries[0];
         // if query is done, "pop" off from the beginning of the queue
-        while (queryQueue.length && subQuery.state === "done") {
+        while (queryQueue.length && subQuery.state === QueryStatus.Done) {
             queryQueue.shift();
             if (queryQueue.length) {
                 mainQuery = queryQueue[0];
@@ -577,7 +576,7 @@ window.DSCart = (function($, DSCart) {
         subQuery.getProgress()
         .then(function(res) {
             if (res === 100) {
-                mainQuery.subQueries[0].state = "done";
+                mainQuery.subQueries[0].state = QueryStatus.Done;
                 queryQueue.shift();
             }
             updateQueryBar(res);

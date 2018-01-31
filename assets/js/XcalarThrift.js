@@ -588,7 +588,7 @@ XcalarLoad = function(datasetName, options, txId) {
     var format = options.format;
     var fieldDelim = options.fieldDelim;
     var recordDelim = options.recordDelim;
-    var hasHeader = options.hasHeader;
+    var hasHeader = options.hasHeader === true ? true: false;
     var moduleName = options.moduleName;
     var funcName = options.funcName;
     var isRecur = options.isRecur;
@@ -599,6 +599,9 @@ XcalarLoad = function(datasetName, options, txId) {
     var schemaMode;
     if (format === "CSV" && typedColumns.length) {
         schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
+        if (hasHeader) {
+            skipRows++;
+        }
     } else if (options.hasOwnProperty("hasHeader")) {
         schemaMode = (options.hasHeader) ?
                      CsvSchemaModeT.CsvSchemaModeUseHeader :
@@ -606,7 +609,7 @@ XcalarLoad = function(datasetName, options, txId) {
     } else {
         schemaMode = options.schemaMode;
     }
-   
+
     schemaMode = CsvSchemaModeTStr[schemaMode];
 
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
@@ -696,7 +699,7 @@ XcalarLoad = function(datasetName, options, txId) {
                 parserArgJson.isCRLF = true;
                 parserArgJson.linesToSkip = skipRows;
                 parserArgJson.quoteDelim = quoteChar;
-                parserArgJson.hasHeader = (hasHeader === true) ? true : false;
+                parserArgJson.hasHeader = hasHeader;
                 parserArgJson.schemaFile = ""; // Not used yet. Wait for backend to implement;
                 parserArgJson.schemaMode = schemaMode;
                 parserArgJson.typedColumns = typedColumns;

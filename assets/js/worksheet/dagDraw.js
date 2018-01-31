@@ -1865,7 +1865,7 @@ window.DagDraw = (function($, DagDraw) {
                     fieldNames = fieldNames.slice(0, -2);
                     info.subType = "map" + evalStr.slice(0, evalStr.indexOf('('));
                     info.eval = evalStr;
-                    info.tooltip = "Map: " + xcHelper.escapeHTMLSpecialChar(evalStr) + ".<br>" + 
+                    info.tooltip = "Map: " + xcHelper.escapeHTMLSpecialChar(evalStr) + "<br>" +
                     xcHelper.escapeHTMLSpecialChar(fieldNames);
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
@@ -1912,24 +1912,24 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText += ", " + parentNames[i];
                 }
             }
-        }  
-      
+        }
+
         // if ((taggedInfo || key !== "mapInput") && (!taggedInfo || key === "groupByInput")) {
         if ((taggedInfo || key !== "mapInput") && !(taggedInfo && key === "groupByInput")) {
             // map and groupby already escaped once
             info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);
-          
+
         }
         if (!options.noTooltipEscape) {
-            info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);  
+            info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);
         }
-        
+
         info.tooltip =  xcHelper.escapeDblQuoteForHTML(info.tooltip);
-        
+
         info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
         info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
         info.eval =  xcHelper.escapeDblQuoteForHTML(info.eval);
-        
+
         return (info);
     }
 
