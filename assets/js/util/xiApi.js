@@ -2081,8 +2081,9 @@
         var newIndexTable;
 
         checkTableIndex(newGroupOnArray, origTableName, txId)
-        .then(function(indexedTableName, shouldIndex, tempTables) {
-            tempTableArray = tempTableArray.concat(tempTables);
+        .then(function(res) {
+            var indexedTableName = res.indexTable;
+            tempTableArray = tempTableArray.concat(res.tempTables);
             var newCountColName = "XC_COUNT_" + xcHelper.getTableId(gbTableName);
             tempCols.push(newCountColName);
             return XcalarGroupByWithEvalStrings([newCountColName],
