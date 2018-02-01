@@ -477,7 +477,8 @@ module.exports = {
         "ContinueOnError": "返回所有有效数据",
         "xPaths": "xPaths",
         "MatchedXPath": "匹配的XPath",
-        "ElementXPath": "元素XPath"
+        "ElementXPath": "元素XPath",
+        "SelectFile": "Select a file to preview from the dropdown."
     },
     "dsFormat": {
         "CSV": "分隔值(CSV, TSV...)",

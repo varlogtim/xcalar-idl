@@ -763,6 +763,7 @@ window.DS = (function ($, DS) {
         .always(function() {
             $("#dsTableContainer").find('.lockedTableIcon[data-txid="' +
                                         txId + '"]').remove();
+            xcTooltip.hideAll();
         });
 
         return deferred.promise();

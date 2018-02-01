@@ -3,7 +3,7 @@
  */
 window.DSPreview = (function($, DSPreview) {
     var $previewCard;   // $("#dsForm-preview");
-    var $previeWrap;    // $("#dsPreviewWrap")
+    var $previewWrap;    // $("#dsPreviewWrap")
     var $previewTable;  // $("#previewTable")
 
     var $highlightBtns; // $("#dsForm-highlighter");
@@ -61,7 +61,7 @@ window.DSPreview = (function($, DSPreview) {
 
     DSPreview.setup = function() {
         $previewCard = $("#dsForm-preview");
-        $previeWrap = $("#dsPreviewWrap");
+        $previewWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
         $highlightBtns = $("#dsForm-highlighter");
 
@@ -114,7 +114,7 @@ window.DSPreview = (function($, DSPreview) {
                             '" ' + ' style="width:' + width + 'px;top:' +
                             rect.top + 'px;left:' + rect.left + 'px;">';
 
-            $previeWrap.append(html);
+            $previewWrap.append(html);
             var $renameInput = $("#importColRename");
             $renameInput.data("$input", $input);
             var scrollWidth = $renameInput[0].scrollWidth;
@@ -161,7 +161,7 @@ window.DSPreview = (function($, DSPreview) {
                     }
                     if (nameErr) {
                         $renameInput.focus().addClass("error");
-                        
+
                         xcTooltip.transient($renameInput, {
                             "title": nameErr,
                             "template": xcTooltip.Template.Error
@@ -268,8 +268,9 @@ window.DSPreview = (function($, DSPreview) {
             });
         });
 
-        $previeWrap.on("mouseenter", ".tooltipOverflow", function() {
-            xcTooltip.add($(this), {"title": $(this).text()});
+        $previewWrap.on("mouseenter", ".tooltipOverflow", function() {
+            var text = $(this).is("input") ? $(this).val() : $(this).text();
+            xcTooltip.add($(this), {"title": text});
             xcTooltip.auto(this);
         });
 
@@ -278,6 +279,50 @@ window.DSPreview = (function($, DSPreview) {
             xcTooltip.hideAll();
             $previewCard.toggleClass("minimize");
         });
+
+        // set up format dropdownlist
+        new MenuHelper($("#preview-file"), {
+            "onSelect": function($li) {
+                var path = $li.data("path");
+                DSPreview.changePreviewFile(path);
+            },
+            beforeOpenAsync: function() {
+                var deferred = jQuery.Deferred();
+
+                $previewWrap.find(".inputWaitingBG").remove();
+
+                var waitingBg = '<div class="inputWaitingBG">' +
+                                 '<div class="waitingIcon"></div>' +
+                              '</div>';
+                $previewWrap.find(".url").append(waitingBg);
+                var $waitingBg = $previewWrap.find(".inputWaitingBG");
+
+                if (gMinModeOn) {
+                    $waitingBg.find(".waitingIcon").show();
+                } else {
+                    setTimeout(function() {
+                        $waitingBg.find(".waitingIcon").fadeIn();
+                    }, 200);
+                }
+
+                previewFileSelect()
+                .then(function() {
+                    deferred.resolve();
+                })
+                .fail(function() {
+                    deferred.reject();
+                })
+                .always(function() {
+                    $waitingBg.remove();
+                });
+
+                return deferred.promise();
+            },
+            "container": "#dsForm-preview",
+            "bounds": "#dsForm-preview",
+            "bottomPadding": 5
+        }).setupListeners();
+
 
         // change preview file
         $("#preview-changeFile").click(function() {
@@ -295,6 +340,11 @@ window.DSPreview = (function($, DSPreview) {
             }
         });
 
+        $previewWrap.on("click", ".cancelLoad", function() {
+            var txId = $(this).data("txid");
+            QueryManager.cancelQuery(txId);
+        });
+
         var contentScrollTimer;
         var contentIsScrolling = false;
         $("#importDataForm-content").scroll(function() {
@@ -309,7 +359,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // preview
-        var $previewBottom = $previeWrap.find(".previewBottom");
+        var $previewBottom = $previewWrap.find(".previewBottom");
         $previewBottom.on("click", ".action", function() {
             showMoreRows();
         });
@@ -329,8 +379,8 @@ window.DSPreview = (function($, DSPreview) {
                 $bottomCard.css('top', bottomCardTop);
                 ui.originalPosition.top = bottomCardTop;
                 ui.position.top = bottomCardTop;
-                $previeWrap.outerHeight('100%');
-                $previeWrap.addClass("dragging"); 
+                $previewWrap.outerHeight('100%');
+                $previewWrap.addClass("dragging");
                 // if resize is triggered, don't validate, just return to old
                 // value
                 if ($("#importColRename").length) {
@@ -349,9 +399,9 @@ window.DSPreview = (function($, DSPreview) {
 
                 $bottomCard.css('top', topPct + '%');
                 $bottomCard.outerHeight((100 - topPct) + '%');
-                $previeWrap.outerHeight(topPct + '%');
+                $previewWrap.outerHeight(topPct + '%');
                 setTimeout(function() {
-                    $previeWrap.removeClass("dragging");
+                    $previewWrap.removeClass("dragging");
                 });
             }
         });
@@ -482,7 +532,7 @@ window.DSPreview = (function($, DSPreview) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
         } else {
-            return clearPreviewTable();
+            return clearPreviewTable(tableName);
         }
     };
 
@@ -603,9 +653,12 @@ window.DSPreview = (function($, DSPreview) {
         $form.on("click", ".cancel", function() {
             var path = loadArgs.getPath();
             var targetName = loadArgs.getTargetName();
-
+            if ($previewWrap.find(".cancelLoad").length) {
+                $previewWrap.find(".cancelLoad").click();
+                // cancels udf load
+            }
             resetForm();
-            clearPreviewTable();
+            clearPreviewTable(tableName);
             if (XVM.getLicenseMode() === XcalarMode.Demo) {
                 DSUploader.show();
             } else if (backToFormCard) {
@@ -874,6 +927,8 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-skipRows").val("0");
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
+        $previewWrap.find(".inputWaitingBG").remove();
+        $previewWrap.find(".url").removeClass("xc-disabled");
 
         var $advanceSection = $form.find(".advanceSection").removeClass("active");
         $advanceSection.find(".active").removeClass("active");
@@ -898,13 +953,14 @@ window.DSPreview = (function($, DSPreview) {
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
 
-        $previeWrap.find(".errorSection").addClass("hidden");
-        $previeWrap.find(".loadHidden").removeClass("hidden");
+        $previewWrap.find(".errorSection").addClass("hidden")
+                                          .removeClass("cancelState");
+        $previewWrap.find(".loadHidden").removeClass("hidden");
     }
 
     function resetPreviewRows() {
         resetRowsToPreview();
-        $previeWrap.find(".previewBottom")
+        $previewWrap.find(".previewBottom")
                    .removeClass("load")
                    .removeClass("end");
     }
@@ -1672,7 +1728,7 @@ window.DSPreview = (function($, DSPreview) {
         return !isViewFolder;
     }
 
-    function errorHandler(error, isUDFError) {
+    function errorHandler(error, isUDFError, isCancel) {
         if (typeof error === "object") {
             if (error.status === StatusT.StatusNoEnt ||
                 error.status === StatusT.StatusIsDir ||
@@ -1688,16 +1744,19 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
 
+        $previewWrap.find(".waitSection").addClass("hidden")
+                    .removeClass("hasUdf")
+                   .find(".progressSection").empty();
+        $previewWrap.find(".loadHidden").addClass("hidden");
+        $previewWrap.find(".url").removeClass("xc-disabled");
+        xcTooltip.hideAll();
+
+        var $errorSection = $previewWrap.find(".errorSection");
+        var $bottomSection = $errorSection.find(".bottomSection");
+
         if (error.startsWith("Error:")) {
             error = error.slice("Error:".length).trim();
         }
-
-        $previeWrap.find(".waitSection").addClass("hidden");
-        $previeWrap.find(".loadHidden").addClass("hidden");
-        $previeWrap.find(".errorShow").removeClass("hidden");
-
-        var $errorSection = $previeWrap.find(".errorSection");
-        var $bottomSection = $errorSection.find(".bottomSection");
         if (isUDFError) {
             $bottomSection.removeClass("xc-hidden");
             error = DSFormTStr.UDFError + "\n" + error;
@@ -1705,11 +1764,18 @@ window.DSPreview = (function($, DSPreview) {
             $bottomSection.addClass("xc-hidden");
         }
 
-        $errorSection.removeClass("hidden")
-                    .find(".content").html(error);
+        $errorSection.removeClass("hidden");
+
+        if (isCancel) {
+            $errorSection.addClass("cancelState");
+        } else {
+            $errorSection.find(".content").html(error);
+        }
     }
 
-    function clearPreviewTable() {
+    // prevTableName is optional, if not provided will default to tableName
+    // if provided, then will not reset tableName
+    function clearPreviewTable(prevTableName) {
         var deferred = jQuery.Deferred();
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
@@ -1717,9 +1783,12 @@ window.DSPreview = (function($, DSPreview) {
         resetPreviewRows();
         resetPreviewId();
 
-        if (tableName != null) {
-            var dsName = tableName;
-            tableName = null;
+        if (prevTableName) {
+            var dsName = prevTableName;
+            if (prevTableName === tableName) {
+                tableName = null;
+            }
+
             var sql = {
                 "operation": SQLOps.DestroyPreviewDS,
                 "dsName": dsName
@@ -1767,7 +1836,7 @@ window.DSPreview = (function($, DSPreview) {
         return (id === previewId);
     }
 
-    function previewData(options, noDetect) {
+    function previewData(options, noDetect, clearPreview) {
         var deferred = jQuery.Deferred();
 
         options = options || {};
@@ -1800,11 +1869,22 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var $loadHiddenSection = $previeWrap.find(".loadHidden")
+        var cachedTableName = tableName;
+        if (clearPreview && !hasUDF) {
+            clearPreviewTable(tableName); // async remove the old ds
+        }
+
+        // cache what was not hidden and only unhide these sections
+        // if operation canceled
+        var $visibleLoadHiddenSection = $previewWrap.find(".loadHidden:not('" +
+                                                  ".hidden')");
+        var $loadHiddenSection = $previewWrap.find(".loadHidden")
                                             .addClass("hidden");
-        var $waitSection = $previeWrap.find(".waitSection")
+        var $waitSection = $previewWrap.find(".waitSection")
                                     .removeClass("hidden");
-        $previeWrap.find(".errorSection").addClass("hidden");
+        $previewWrap.find(".url").addClass("xc-disabled");
+        $previewWrap.find(".errorSection").addClass("hidden")
+                                          .removeClass("cancelState");
 
         var sql = {
             "operation": SQLOps.PreviewDS,
@@ -1848,24 +1928,25 @@ window.DSPreview = (function($, DSPreview) {
         })
         .then(function(url) {
             urlToPreview = url;
-
-            if (isFirstTime && !hasUDF && isExcel(url)) {
-                hasUDF = true;
-                udfModule = excelModule;
-                udfFunc = excelFunc;
-                toggleFormat("EXCEL");
-                sql.moduleName = udfModule;
-                sql.funcName = udfFunc;
-            } else if (isFirstTime && !hasUDF && DSTargetManager.isGeneratedTarget(targetName)) {
-                // special case
-                hasUDF = true;
-                udfModule = "default";
-                udfFunc = "convertNewLineJsonToArrayJson";
-                toggleFormat("UDF");
-                selectUDFModule(udfModule);
-                selectUDFFunc(udfFunc);
-                sql.moduleName = udfModule;
-                sql.funcName = udfFunc;
+            if (isFirstTime && !hasUDF) {
+                if (isExcel(url)) {
+                    hasUDF = true;
+                    udfModule = excelModule;
+                    udfFunc = excelFunc;
+                    toggleFormat("EXCEL");
+                    sql.moduleName = udfModule;
+                    sql.funcName = udfFunc;
+                } else if (DSTargetManager.isGeneratedTarget(targetName)) {
+                    // special case
+                    hasUDF = true;
+                    udfModule = "default";
+                    udfFunc = "convertNewLineJsonToArrayJson";
+                    toggleFormat("UDF");
+                    selectUDFModule(udfModule);
+                    selectUDFFunc(udfFunc);
+                    sql.moduleName = udfModule;
+                    sql.funcName = udfFunc;
+                }
             }
 
             if (!noDetect) {
@@ -1879,7 +1960,9 @@ window.DSPreview = (function($, DSPreview) {
                 fileNamePattern: pattern
             };
             format = loadArgs.getFormat();
+
             if (hasUDF) {
+                showProgressCircle(txId);
                 args.moduleName = udfModule;
                 args.funcName = udfFunc;
                 args.udfQuery = udfQuery;
@@ -1895,13 +1978,20 @@ window.DSPreview = (function($, DSPreview) {
                 });
             }
 
+            if (clearPreview && hasUDF) {
+                clearPreviewTable(cachedTableName); // async remove the old ds
+            }
+
             if (!result) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
             }
 
             setPreviewFile(urlToPreview);
-            $waitSection.addClass("hidden");
+            $waitSection.addClass("hidden").removeClass("hasUdf")
+                        .find(".progressSection").empty();
+            $previewWrap.find(".url").removeClass("xc-disabled");
+            xcTooltip.hideAll();
             rawData = result;
 
             $loadHiddenSection.removeClass("hidden");
@@ -1925,9 +2015,6 @@ window.DSPreview = (function($, DSPreview) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (urlToPreview != null) {
-                setPreviewFile(urlToPreview);
-            }
 
             Transaction.fail(txId, {
                 "error": error,
@@ -1935,11 +2022,41 @@ window.DSPreview = (function($, DSPreview) {
                 "sql": sql
             });
 
+            if (Transaction.checkCanceled(txId)) {
+                if (isValidPreviewId(curPreviewId)) {
+                    $visibleLoadHiddenSection.removeClass("hidden");
+                    if (isFirstTime) {
+                        // if first time, show error message since there's no
+                        // previous table to show
+                        errorHandler(error, false, true);
+                        if (urlToPreview != null) {
+                            setPreviewFile(urlToPreview);
+                        }
+                    } else {
+                    // if canceled and still has valid preview id, restore state
+                    // and show previous table
+                        $waitSection.addClass("hidden").removeClass("hasUdf")
+                            .find(".progressSection").empty();
+                        $previewWrap.find(".url").removeClass("xc-disabled");
+                    }
+                }
+                deferred.reject(error);
+                return;
+            }
+
+            if (isValidPreviewId(curPreviewId) && clearPreview && hasUDF) {
+                clearPreviewTable(cachedTableName); // async remove the old ds
+            }
+
             if (typeof error === "object" &&
                 error.error === oldPreviewError)
             {
                 console.error(error);
             } else {
+                if (urlToPreview != null) {
+                    setPreviewFile(urlToPreview);
+                }
+
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
@@ -2085,8 +2202,10 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function setPreviewInfo(targetName, url, pattern) {
-        $("#preview-target").find(".text").text(targetName);
-        $("#preview-url").find(".text").text(url);
+        xcTooltip.add($previewWrap.find(".previewTitle"), {
+            title: targetName
+        });
+
         var $pattern = $("#preview-pattern");
         if (!pattern) {
             $pattern.addClass("xc-hidden");
@@ -2098,55 +2217,112 @@ window.DSPreview = (function($, DSPreview) {
 
     function setPreviewFile(path, forceHidden) {
         var $file = $("#preview-file");
-        var $ele = $("#preview-changeFile").add($file);
-        var fullURL = loadArgs.getPath();
-        var enable;
-
-        $file.find(".text").text(path);
+        $file.find(".text").val(path);
         if (!loadArgs.getPreviewFile()) {
             // set the path to be preview file if not set yet
             loadArgs.setPreviewFile(path);
-        }
-
-        if (fullURL.endsWith(path)) {
-            // when fullPath is part of the url,
-            // which means it's a single file
-            enable = false;
-        } else {
-            enable = true;
-        }
-
-        if (enable || forceHidden) {
-            $ele.removeClass("xc-hidden");
-        } else {
-             // when it's a single file or udf
-            $ele.addClass("xc-hidden");
         }
     }
 
     function resetPreviewFile() {
         var $file = $("#preview-file");
-        var $ele = $("#preview-changeFile").add($file);
         $file.find(".text").text();
-        $ele.addClass("xc-hidden");
         xcTooltip.remove($file.find(".text"));
     }
 
     function previewFileSelect(isParseMode) {
-        var previewFile = $("#preview-file").find(".text").text();
+        var deferred = jQuery.Deferred();
+
+        var previewFile = $("#preview-file").find(".text").val();
         var recursive = loadArgs.getRecur();
         var isRegex = loadArgs.getRegEx();
         var pattern = loadArgs.getPattern();
         pattern = xcHelper.getFileNamePattern(pattern, isRegex);
-
-        PreviewFileModal.show({
+        var options = {
             "targetName": loadArgs.getTargetName(),
             "path": loadArgs.getPath(),
             "previewFile": previewFile,
             "recursive": recursive,
             "fileNamePattern": pattern,
             "isParseMode": isParseMode
+        };
+
+        if (isParseMode) {
+            PreviewFileModal.show(options);
+            return PromiseHelper.resolve();
+        }
+
+        var path = options.path;
+
+        var curPreviewId = previewId;
+
+        if (isPreviewSingleFile()) {
+            // if single file, don't need to make backend call, just list
+            // the 1 file
+            loadFiles(loadArgs.getPath(), [{name: previewFile}]);
+            return PromiseHelper.resolve();
+        }
+
+        XcalarListFiles(options)
+        .then(function(res) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return deferred.reject();
+            }
+            loadFiles(path, res.files, options.previewFile);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            deferred.reject(error);
         });
+
+        function loadFiles(url, files, activeFilePath) {
+            var html = "";
+            var paths = [];
+            var nameMap = {};
+            var $ul = $("#preview-file").find("ul");
+
+            if (files.length === 1 && url.endsWith(files[0].name)) {
+                // when it's a single file
+                paths[0] = url;
+                nameMap[url] = files[0].name;
+            } else {
+                // when it's a folder
+                if (!url.endsWith("/")) {
+                    url += "/";
+                }
+                files.forEach(function(file) {
+                    // XXX temporary skip folder, later may enable it
+                    if (!file.attr.isDirectory) {
+                        var path = url + file.name;
+                        paths.push(path);
+                        nameMap[path] = file.name;
+                    }
+                });
+
+                paths.sort();
+            }
+
+            for (var i = 0, len = paths.length; i < len; i++) {
+                var path = paths[i];
+                var classes = (path === activeFilePath) ? " active" : "";
+                var fileName = nameMap[path];
+                html +=
+                    '<li class="' + classes + '"' +
+                    'data-path="' + path + '">' +
+                        '<div class="label tooltipOverflow"' +
+                        ' data-toggle="tooltip"' +
+                        ' data-container="body"' +
+                        ' data-placement="top"' +
+                        ' title="' + fileName + '">' +
+                            path +
+                        '</div>' +
+                    '</li>';
+            }
+
+            $ul.html(html);
+        }
+
+        return deferred.promise();
     }
 
     function loadData(args) {
@@ -2423,8 +2599,8 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
         formOptions.changePattern = changePattern;
-        clearPreviewTable(); // async remove the old ds
-        return previewData(formOptions, noDetect);
+        var clearPreview = true;
+        return previewData(formOptions, noDetect, clearPreview);
     }
 
     function getPreviewTable() {
@@ -2433,11 +2609,12 @@ window.DSPreview = (function($, DSPreview) {
             errorHandler(DSFormTStr.NoData);
             return;
         }
-        
+
         cleanupColRename();
         $previewCard.find(".previewSection").off("scroll");
-        $previeWrap.find(".errorSection").addClass("hidden");
-        $previeWrap.find(".loadHidden").removeClass("hidden");
+        $previewWrap.find(".errorSection").addClass("hidden")
+                                          .removeClass("cancelState");
+        $previewWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
 
         var format = loadArgs.getFormat();
@@ -2909,7 +3086,7 @@ window.DSPreview = (function($, DSPreview) {
                             '</div>' +
                         '</th>';
                 }
-                
+
             }
         }
 
@@ -3049,7 +3226,7 @@ window.DSPreview = (function($, DSPreview) {
         var tdData = [];
         var val;
         var blankThCount = 0;
-        
+
         if (hasDelimiter) {
             // when has delimiter
             var columnCount = 0;
@@ -3072,7 +3249,7 @@ window.DSPreview = (function($, DSPreview) {
 
                 if (isDelimiter) {
                     tdData = stripQuote(tdData, quote);
-                   
+
                     val = tdData.join("");
                     if (isTh && !val) {
                         blankThCount++;
@@ -3176,7 +3353,7 @@ window.DSPreview = (function($, DSPreview) {
                         '</span>';
                 }
 
-                
+
             }
             var lenDiff = data.length - dataLen;
             if (lenDiff > 0) {
@@ -3192,7 +3369,7 @@ window.DSPreview = (function($, DSPreview) {
             } else {
                 html += '</div></div></th>';
             }
-           
+
         } else {
             html += '</div></td>';
         }
@@ -3541,7 +3718,19 @@ window.DSPreview = (function($, DSPreview) {
         }
         return false;
     }
-   
+
+    function showProgressCircle(txId) {
+        var $waitSection = $previewWrap.find(".waitSection");
+        $waitSection.addClass("hasUdf");;
+        var withText = true;
+        var progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
+        $waitSection.find(".progressSection").html(progressAreaHtml);
+        var progressCircle = new ProgressCircle(txId, 0, withText);
+        $waitSection.find(".cancelLoad").data("progresscircle",
+                                                progressCircle);
+    }
+
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSPreview.__testOnly__ = {};
@@ -3589,7 +3778,8 @@ window.DSPreview = (function($, DSPreview) {
                 "highlighter": highlighter,
                 "detectArgs": detectArgs,
                 "isViewFolder": isViewFolder,
-                "id": previewId
+                "id": previewId,
+                "tableName": tableName
             };
         };
 

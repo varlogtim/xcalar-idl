@@ -440,6 +440,7 @@ window.DagDraw = (function($, DagDraw) {
         var origNode = node;
         var maxDepth = 0;
         var depth;
+
         getDepthHelper(node, 0);
 
         function getDepthHelper(node) {
@@ -1068,7 +1069,7 @@ window.DagDraw = (function($, DagDraw) {
 
     // this function allows separate branches to share the same y coor as long
     // as none of the nodes overlap. We check to see if the left side of a
-    // branch overlaps with the right side of an existing branch
+    // branch overlaps with the right side of an existing branch.
     // "coors" stores list of depths of branch nodes
     // [0, 3, 5] corresponds to these x,y coordinates: {0, 0}, {3, 1}, {5, 2}
     // where {0, 0} is the right-top corner of the image
@@ -1092,7 +1093,7 @@ window.DagDraw = (function($, DagDraw) {
                 var branchDepth = getDagDepthPostPositioning(parentNode, seen);
                 var leafDepth = branchDepth + node.value.display.depth;
                 for (var j = coors.length - 1; j >= 0; j--) {
-                    if (leafDepth >= coors[j]) {
+                    if (leafDepth + 1 >= coors[j]) {
                         nextYCoor = j + 1;
                         break;
                     }
@@ -1850,7 +1851,6 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     break;
                 case ('joinInput'):
-                console.log(JSON.stringify(info));
                     info = getJoinInfo(info, node, value, parentNames, isCollapsedTag);
                     break;
                 case ('mapInput'):

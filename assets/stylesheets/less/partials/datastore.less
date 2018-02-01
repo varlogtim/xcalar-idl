@@ -1700,9 +1700,11 @@ table.datasetTable {
         background: @color-white;
         border-top: 1px solid @color-border-pinkish-grey2;
         overflow: hidden;
+        z-index: 1;
 
         .ui-resizable-n {
-            top:0px;
+            top: 0px;
+            z-index: 2 !important;
         }
 
         .pulloutTab {
@@ -1726,7 +1728,7 @@ table.datasetTable {
         }
     }
 
-    #preview-target, #preview-url, #preview-pattern, #preview-file {
+    #preview-target, #preview-pattern {
         .flex-display;
         span {
             display: block;
@@ -1750,6 +1752,7 @@ table.datasetTable {
         .info {
             .size(@height: 30px);
             .font(@line-height: 30px);
+            .flex-display;
 
             &:last-child {
                 margin-top: 2px;
@@ -1758,8 +1761,8 @@ table.datasetTable {
 
         .title {
             .size(@width: 90px, @height: 30px);
-            .font(@size: 16px, @weight: 700, @color: @color-font-select-blue);
-            margin-right: 10px;
+            .font(@size: 14px, @weight: 700, @color: @color-font-select-blue);
+            margin-right: 8px;
             float: left;
 
             button {
@@ -1773,30 +1776,54 @@ table.datasetTable {
         }
 
         .url {
-            // .size(@width: ~"calc(100% - 340px)");
-            .size(@width: ~"calc(100% - 180px)");
+            .size(@width: ~"calc(100% - 102px)");
             float: left;
             .flex-display;
-            padding-right: 5px;
+            position: relative;
 
-            > div {
-                .flex(0 1 auto);
-                margin-left: 2px;
+            .dropDownList {
+                width: 100%;
+            }
 
-                &:first-child {
-                    margin-left: 0;
+            .text {
+                .size(@width: ~"calc(100% - 30px)");
+            }
+
+            ul {
+                &::-webkit-scrollbar {
+                    display: block;
+                }
+
+                .active {
+                    color: @color-bg-select-blue;
+                }
+            }
+
+            .inputWaitingBG {
+                .size(100%, 100%);
+                .position(absolute, @left: 0px, @right: 0px);
+                background: rgba(255, 255, 255, 0.3);
+
+                .waitingIcon {
+                    left: 50%;
+                    top: -4px;
+                    .transform(translate3d(-50%, 0%, 0));
                 }
             }
         }
 
         .buttonGroup {
-            // .size(@width: 160px);
             float: right;
 
             button {
                 float: right;
                 margin-left: 5px;
+                margin-top: 4px;
             }
+        }
+
+        #dsForm-highlighter {
+            width: 100%;
         }
 
         #preview-parser {
@@ -1811,8 +1838,9 @@ table.datasetTable {
         padding-top: 25px;
         .size(@width: 200px, @height: 110px);
         margin: 0 auto;
+        position: relative;
 
-        .icon {
+        .spinnyIcon {
             .size(@width: 50px, @height: 50px);
             .image("../../images/waiting-1.gif");
             .horizontal-align;
@@ -1822,12 +1850,38 @@ table.datasetTable {
             .font(@size: 12px);
             text-align: center;
         }
+
+        .progressSection {
+            display: none;
+        }
+
+        &.hasUdf {
+            .spinnySection {
+                display: none;
+            }
+            .progressSection {
+                display: block;
+                z-index: 0;
+                .lockedTableIcon {
+                    z-index: 1;
+                }
+            }
+        }
     }
 
     .errorSection {
         .size(@width: 100%, @height: ~"calc(100% - @{size-title})");
         border-top: 1px solid @color-border-pinkish-grey2;
         padding: 15px 20px;
+
+        &.cancelState {
+            .topSection, .bottomSection {
+                display: none;
+            }
+            .cancelSection {
+                display: block;
+            }
+        }
 
         .topSection {
             .size(@max-height: ~"calc(100% - 51px)");
@@ -1841,6 +1895,17 @@ table.datasetTable {
 
             button {
                 .size(@width: 289px);
+            }
+        }
+
+        .cancelSection {
+            display: none;
+            text-align: center;
+            padding: 20px 0px;
+            .icon {
+                font-size: 32px;
+                margin-bottom: 10px;
+                color: @color-bg-select-blue;
             }
         }
 

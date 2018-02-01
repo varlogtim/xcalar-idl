@@ -309,6 +309,8 @@ window.QueryManager = (function(QueryManager, $) {
             return deferred.promise();
         }
 
+        $('.lockedTableIcon[data-txid="' + id + '"]').remove();
+        xcTooltip.hideAll();
         Transaction.cancel(id);
         unlockSrcTables(mainQuery);
 

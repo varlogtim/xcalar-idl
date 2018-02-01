@@ -11,11 +11,22 @@
       <!-- Preview Section -->
       <header class="titleSection">
         <div class="info">
-          <div class="title"><%= dicts.dsPreview.Previewing %></div>
+          <div class="title previewTitle"><%= dicts.dsPreview.Previewing %>:</div>
           <div class="url">
-            <div id="preview-target" class="textOverflowOneLine"><%= dicts.ds.Target %>: <span class="text tooltipOverflow"></div>
+            <div id="preview-file" class="dropDownList rowContent">
+              <input class="text tooltipOverflow" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <div class="list">
+                <ul>
+                </ul>
+                include "../../util/menuScrollArea.html"
+              </div>
+            </div>
+        <!--     <div id="preview-target" class="textOverflowOneLine"><%= dicts.ds.Target %>: <span class="text tooltipOverflow"></div>
             <div id="preview-url" class="textOverflowOneLine">| <%= dicts.common.Path %>: <span class="text tooltipOverflow"></div>
-            <div id="preview-pattern" class="xc-hidden">| <%= dicts.dsForm.Pattern %>: <span class="text tooltipOverflow"></div>
+            <div id="preview-pattern" class="xc-hidden">| <%= dicts.dsForm.Pattern %>: <span class="text tooltipOverflow"></div> -->
           </div>
           <div class="buttonGroup">
             <button id="preview-parser" class="btn iconBtn loadHidden" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.common.InBeta %>">
@@ -24,13 +35,6 @@
           </div>
         </div>
         <div class="info">
-          <div class="title">
-            <button id="preview-changeFile" class="btn loadHidden errorShow"><%= dicts.common.Change %></button>
-          </div>
-          <div class="url loadHidden errorShow">
-            <!-- insert a space for alignment -->
-            <div id="preview-file"><%= dicts.common.File %>:&nbsp; <span class="text tooltipOverflow">N/A</div>
-          </div>
           <div id="dsForm-highlighter" class="buttonGroup loadHidden">
             <button class="rmHightLight btn btn-small" title="<%= dicts.dsPreview.RmHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
               <i class="icon xi-undo-highlight fa-15"></i>
@@ -43,8 +47,11 @@
       </header>
       <!-- Waiting Part -->
       <div class="waitSection hidden">
-        <div class="icon"></div>
-        <div class="text"><%= dicts.common.PleaseWait %>...</div>
+        <div class="spinnySection">
+          <div class="icon spinnyIcon"></div>
+          <div class="text"><%= dicts.common.PleaseWait %>...</div>
+        </div>
+        <div class="progressSection"></div>
       </div>
       <!-- Error Message Part -->
       <div class="errorSection hidden">
@@ -54,6 +61,10 @@
         </div>
         <div class="bottomSection">
           <button id="dsPreview-debugUDF" class="btn btn-transparent"><%= dicts.dsForm.DEBUGPARSER %></button>
+        </div>
+        <div class="cancelSection">
+          <i class="icon xi-warning"></i>
+          <div class="text"><%= dicts.dsForm.SelectFile %></div>
         </div>
       </div>
       <!-- Preview -->

@@ -2162,6 +2162,7 @@ RangeSlider.prototype = {
     onSelect: callback to trigger when select an item on list, $li will
               be passed into the callback
     onOpen: callback to trigger when list opens/shows
+    beforeOpenAsync: async callback to trigger when list opens/shows
     container: will hide all other list in the container when focus on
                this one. Default is $dropDownList.parent()
     bounds: restrain the dropdown list size to this element
@@ -2234,13 +2235,21 @@ MenuHelper.prototype = {
         if (options.onlyClickIcon) {
             self.$iconWrapper = $dropDownList.find('.iconWrapper');
             $dropDownList.on("click", ".iconWrapper", function() {
-                self.toggleList($(this).closest(".dropDownList"),
-                                $(this).closest(".dropDownList").hasClass("openUpwards"));
+                var $list = $(this).closest(".dropDownList");
+                if (!$list.hasClass("open") && self.options.beforeOpenAsync) {
+                    self.options.beforeOpenAsync()
+                    .then(function() {
+                        self.toggleList($list, $list.hasClass("openUpwards"));
+                    });
+                } else {
+                    self.toggleList($list, $list.hasClass("openUpwards"));
+                }
             });
         } else {
             $dropDownList.addClass('yesclickable');
 
             $dropDownList.on("click", function(event) {
+                var $list = $(this);
                 if ($(event.target).closest('.list').length) {
                     return;
                 }
@@ -2248,7 +2257,14 @@ MenuHelper.prototype = {
                     $(event.target).closest(self.exclude).length) {
                     return;
                 }
-                self.toggleList($(this), $(this).hasClass("openUpwards"));
+                if (!$list.hasClass("open") && self.options.beforeOpenAsync) {
+                    self.options.beforeOpenAsync()
+                    .then(function() {
+                        self.toggleList($list, $list.hasClass("openUpwards"));
+                    });
+                } else {
+                    self.toggleList($list, $list.hasClass("openUpwards"));
+                }
             });
         }
 

@@ -346,7 +346,7 @@ ErrTStr = {
                        'original value, please click the "Default value" icon.',
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
-    'DuplicateColNames': 'Duplicate column names were detected', 
+    'DuplicateColNames': 'Duplicate column names were detected',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1055,7 +1055,7 @@ DSFormTStr = {
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
-    'ParseError': 'You file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
+    'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.'
 };
 

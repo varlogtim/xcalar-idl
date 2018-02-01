@@ -272,6 +272,7 @@ window.XcSupport = (function(XcSupport, $) {
         var highestUsageText = "<br>" + CommonTxtTstr.HighXcalarMemUsage +
                                 ": " + highPercent;
         var usageText = "<br>" + CommonTxtTstr.XcalarMemUsage + ": " + percent;
+        var text;
         if (shouldAlert) {
             // we want user to drop table first and only when no tables
             // let them drop ds

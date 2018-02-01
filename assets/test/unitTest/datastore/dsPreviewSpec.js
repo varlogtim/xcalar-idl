@@ -423,7 +423,7 @@ describe("Dataset-DSPreview Test", function() {
                 "path": "/url",
             });
             DSPreview.__testOnly__.set(null, null, false);
-            
+
             DSPreview.__testOnly__.getURLToPreview({
                 "targetName": gDefaultSharedRoot,
                 "path": "/test"
@@ -729,8 +729,8 @@ describe("Dataset-DSPreview Test", function() {
             // error json
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
-            var res = $("#dsPreviewWrap").find(".errorSection").text();
-            expect(res).to.equal("You file cannot be parsed as JSON. We recommend you use the CSV format instead.");
+            var res = $("#dsPreviewWrap").find(".errorSection .topSection").text();
+            expect(res).to.equal("\nError:\nYour file cannot be parsed as JSON. We recommend you use the CSV format instead.\n");
 
             // valid json
             data = '{"a": "b"}';
@@ -780,8 +780,8 @@ describe("Dataset-DSPreview Test", function() {
             var data = "h,i";
             DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
-
-            DSPreview.__testOnly__.clearPreviewTable()
+            var tName = DSPreview.__testOnly__.get().tableName;
+            DSPreview.__testOnly__.clearPreviewTable(tName)
             .then(function(hasDestroyTable) {
                 expect(hasDestroyTable).to.be.false;
                 var res = DSPreview.__testOnly__.get();
@@ -935,7 +935,8 @@ describe("Dataset-DSPreview Test", function() {
             XcalarDestroyDataset = function() {
                 return PromiseHelper.resolve();
             };
-            DSPreview.__testOnly__.clearPreviewTable()
+            var tName = DSPreview.__testOnly__.get().tableName;
+            DSPreview.__testOnly__.clearPreviewTable(tName)
             .then(function(hasDestroyTable) {
                 expect(hasDestroyTable).to.be.true;
                 done();
@@ -969,14 +970,14 @@ describe("Dataset-DSPreview Test", function() {
 
         it("getNameFromPath should work", function() {
             var getNameFromPath = DSPreview.__testOnly__.getNameFromPath;
-        
+
             var testName = xcHelper.randName("testName");
             var oldhas = DS.has;
 
             // basic
             var res = getNameFromPath(testName);
             expect(res).to.equal(testName);
-                
+
             var test2 = testName + ".test";
             res = getNameFromPath(test2);
             expect(res).to.equal(testName);
@@ -1209,7 +1210,7 @@ describe("Dataset-DSPreview Test", function() {
             assert.isFalse($fieldText.is(":visible"), "no field delimiter");
             assert.isFalse($lineText.is(":visible"), "no line delimiter");
             assert.isFalse($quoteInput.is(":visible"), "no quote char");
-            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isTrue($skipInput.is(":visible"), "no skip rows");
             assert.isFalse($udfModuleList.is(":visible"), "no udf module");
             assert.isFalse($udfFuncList.is(":visible"), "no udf func");
             assert.isFalse($form.find(".matchedXPath").is(":visible"), "no xml paths");
@@ -1678,16 +1679,16 @@ describe("Dataset-DSPreview Test", function() {
             expect($previewCard.hasClass("minimize")).to.be.false;
         });
 
-        it("shuod click change file to trigger previewFileModal", function() {
-            var oldFunc = PreviewFileModal.show;
-            var test = false;
-            PreviewFileModal.show = function() {
-                test = true;
-            };
-            $("#preview-changeFile").click();
-            expect(test).to.be.true;
-            PreviewFileModal.show = oldFunc;
-        });
+        // it("shuod click change file to trigger previewFileModal", function() {
+        //     var oldFunc = PreviewFileModal.show;
+        //     var test = false;
+        //     PreviewFileModal.show = function() {
+        //         test = true;
+        //     };
+        //     $("#preview-changeFile").click();
+        //     expect(test).to.be.true;
+        //     PreviewFileModal.show = oldFunc;
+        // });
 
         it("should click parser to trigger parser", function() {
             var oldParser = DSParser.show;

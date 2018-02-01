@@ -665,7 +665,8 @@ module.exports = {
         "TerminateFile": "Import every file, stopping each file import on first error",
         "xPaths": "XPaths",
         "MatchedXPath": "Matched XPath",
-        "ElementXPath": "Element XPath"
+        "ElementXPath": "Element XPath",
+        "SelectFile": "Select a file to preview from the dropdown."
     },
 
     "fileBrowser": {
