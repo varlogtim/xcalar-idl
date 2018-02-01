@@ -2247,6 +2247,10 @@ table.datasetTable {
             @large-input: 473px;
             @take-width: @large-input + 22;
 
+            .inputPart {
+                .size(@max-width: ~"calc(100% - 300px)");
+            }
+
             input {
                 width: @large-input !important;
             }
@@ -3043,6 +3047,12 @@ table.datasetTable {
                   display: block;
                   z-index: 99;
                 }
+
+                .grid-unit.uneditable {
+                    &, &:hover {
+                        opacity: 0.5;
+                    }
+                }
             }
 
             &.drawing {
@@ -3163,6 +3173,10 @@ table.datasetTable {
                         display: block;
                         background-color: transparent;
                         text-align: center;
+
+                        b {
+                           color: @color-font-softGrayBlue;
+                        }
                     }
 
                     .gridIcon {
@@ -3261,7 +3275,7 @@ table.datasetTable {
 
                 .grid-unit {
                     &:hover {
-                        .edit {
+                        .edit, .share, .unshare {
                             display: inline-block;
                         }
 
@@ -3296,21 +3310,27 @@ table.datasetTable {
                     }
                 }
 
-                .grid-unit.ds > .dragWrap {
-                    .position(absolute);
-                    .size(@width: 100%, @height: 17.5px);
-                    background: transparent;
-
-                    &.leftTopDragWrap {
-                        &.active {
-                            box-shadow: inset 0px 2px 0px @color-bg-softBlue;
-                        }
+                .grid-unit.ds {
+                    > .label {
+                        .size(@width: ~"calc(100% - 110px)");
                     }
 
-                    &.rightBottomDragWrap {
-                        top: 17.5px;
-                        &.active {
-                            box-shadow: 0px 2px 0px @color-bg-softBlue;
+                    > .dragWrap {
+                        .position(absolute);
+                        .size(@width: 100%, @height: 17.5px);
+                        background: transparent;
+
+                        &.leftTopDragWrap {
+                            &.active {
+                                box-shadow: inset 0px 2px 0px @color-bg-softBlue;
+                            }
+                        }
+
+                        &.rightBottomDragWrap {
+                            top: 17.5px;
+                            &.active {
+                                box-shadow: 0px 2px 0px @color-bg-softBlue;
+                            }
                         }
                     }
                 }

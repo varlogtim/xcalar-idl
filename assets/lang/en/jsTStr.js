@@ -1014,6 +1014,8 @@ DSTStr = {
     'ShareDS': 'Share Dataset',
     'UnshareDS': 'Unshare Dataset',
     'UnshareFail': 'Unshare Dataset Failed',
+    'LockDS': 'Lock Dataset',
+    'UnlockDS': 'Unlock Dataset',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1035,8 +1037,9 @@ DSTStr = {
     'PointErr': 'Cannot import the dataset',
     'OffsetErr': 'Offset is larger than the dataset size',
     'DelUploadMsg': 'Are you sure you want to delete <filename>?',
-    'ShareDSMsg': 'Are you sure you want to share <name>? It will be renamed to <newName>.',
-    'UnshareDSMsg': 'Are you sure you want to unshare <name>? It will be renamed to <newName>.'
+    'ShareDSMsg': 'Are you sure you want to share <name>?',
+    'UnshareDSMsg': 'Are you sure you want to unshare <name>?',
+    'RenameMsg': 'It will be renamed to <newName>.'
 };
 
 DSFormTStr = {

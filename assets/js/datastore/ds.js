@@ -514,7 +514,60 @@ window.DS = (function ($, DS) {
         return (dirId === DSObjTerm.SharedFolderId);
     }
 
-    function shareAndUnshareDS(dsId, newName, isShare) {
+    function shareDS(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+        var name = dsObj.getName();
+        var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
+        var $sharedDS = $gridView.find('.grid-unit.shared[data-dsname="' +
+                                                         name + '"]');
+
+        if ($sharedDS.length) {
+            // in case this name is taken
+            var uniqueId = dsId.split(".")[1];
+            name = DS.getUniqueName(name + uniqueId);
+            msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
+        }
+
+        Alert.show({
+            title: DSTStr.ShareDS,
+            msg: msg,
+            onConfirm: function() {
+                shareAndUnshareHelper(dsId, name, true);
+            }
+        });
+    }
+
+    function unshareDS(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+        var name = dsObj.getName();
+        var msg = xcHelper.replaceMsg(DSTStr.UnshareDSMsg, {
+            name: name
+        });
+        var $unsharedDS = $gridView.find('.grid-unit:not(.shared)' +
+                                         '[data-dsname="' + name + '"]');
+        if ($unsharedDS.length) {
+            // in case this name is taken
+            name = DS.getUniqueName(name);
+            msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
+        }
+
+        Alert.show({
+            title: DSTStr.UnshareDS,
+            msg: msg,
+            onConfirm: function() {
+                // unshare case need to check if ds is locked by others
+                checkDSUse(dsObj.getFullName())
+                .then(function() {
+                    shareAndUnshareHelper(dsId, name, false);
+                })
+                .fail(function(error) {
+                    Alert.error(DSTStr.UnshareFail, error);
+                });
+            }
+        });
+    }
+
+    function shareAndUnshareHelper(dsId, newName, isShare) {
         var dirId = isShare ? DSObjTerm.SharedFolderId : DSObjTerm.homeDirId;
         var dsObj = DS.getDSObj(dsId);
         removeDS(dsId);
@@ -1293,6 +1346,10 @@ window.DS = (function ($, DS) {
         })
         .then(function(res) {
             var oldSharedDSInfo = res;
+            if (atStartUp && oldSharedDSInfo == null) {
+                // it's first time that upgrade from 1.30 to 1.3.1
+                oldSharedDSInfo = rebuildOldDSInfo(datasets, lockMeta);
+            }
             restoreHelper(oldHomeFolder, oldSharedDSInfo, datasets,
                           lockMeta, atStartUp);
             deferred.resolve();
@@ -1405,6 +1462,10 @@ window.DS = (function ($, DS) {
                 // restoreSharedDS
                 continue;
             }
+            if (obj.js === ".other") {
+                // old structure, not restore
+                continue;
+            }
 
             if (obj.isFolder) {
                 // restore a folder
@@ -1451,8 +1512,8 @@ window.DS = (function ($, DS) {
         var searchHash = res[0];
         var unlistableDS = res[1];
 
-        searchHash = restoreDir(oldHomeFolder, searchHash);
         searchHash = restoreSharedDS(oldSharedDSInfo, searchHash);
+        searchHash = restoreDir(oldHomeFolder, searchHash);
         // add ds that is not in oldHomeFolder
         for (var dsName in searchHash) {
             var ds = searchHash[dsName];
@@ -1490,6 +1551,47 @@ window.DS = (function ($, DS) {
         dsInfoMeta.updateDSInfo(sharedFolder);
         syncVersionId();
         return searchHash;
+    }
+
+    function rebuildOldDSInfo(datasets, lockMeta) {
+        var res = getDSBackendMeta(datasets, lockMeta);
+        var searchHash = res[0];
+        var tempDSInfoMeta = new DSInfoConstructor();
+        var sharedFolder = createSharedFolder();
+
+        for (var fullDSName in searchHash) {
+            var ds = searchHash[fullDSName];
+            if (ds != null) {
+                var format = xcHelper.parseDSFormat(ds);
+                var parsedRes = xcHelper.parseDSName(fullDSName);
+                var user = parsedRes.user;
+                var dsName = parsedRes.dsName;
+
+                var options = {
+                    "id": fullDSName, // user the fulldsname as a unique id
+                    "parentId": DSObjTerm.SharedFolderId,
+                    "name": dsName,
+                    "user": user,
+                    "fullName": fullDSName,
+                    "isFolder": false,
+                    "format": format,
+                    "path": ds.loadArgs.sourceArgs.path,
+                    "unlistable": !ds.isListable,
+                    "locked": ds.locked,
+                    "targetName": ds.loadArgs.sourceArgs.targetName
+                };
+
+                createDS(options);
+            }
+        }
+
+        tempDSInfoMeta.updateDSInfo(sharedFolder);
+        DS.clear();
+        KVStore.putWithMutex(KVStore.gSharedDSKey,
+                            JSON.stringify(dsInfoMeta),
+                            true,
+                            gKVScope.GLOB);
+        return tempDSInfoMeta;
     }
 
     function checkUnlistableDS(unlistableDS) {
@@ -1661,6 +1763,20 @@ window.DS = (function ($, DS) {
         $gridView.on("click", ".grid-unit .unlock", function() {
             var $grid = $(this).closest(".grid-unit");
             unlockDS($grid.data("dsid"));
+            // stop event propogation
+            return false;
+        });
+
+        $gridView.on("click", ".grid-unit .share", function() {
+            var $grid = $(this).closest(".grid-unit");
+            shareDS($grid.data("dsid"));
+            // stop event propogation
+            return false;
+        });
+
+        $gridView.on("click", ".grid-unit .unshare", function() {
+            var $grid = $(this).closest(".grid-unit");
+            unshareDS($grid.data("dsid"));
             // stop event propogation
             return false;
         });
@@ -1895,19 +2011,7 @@ window.DS = (function ($, DS) {
                 return;
             }
             var dsId = $gridMenu.data("dsid");
-            var dsObj = DS.getDSObj(dsId);
-            var newName = dsId;
-            var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {
-                name: dsObj.getName(),
-                newName: newName
-            });
-            Alert.show({
-                title: DSTStr.ShareDS,
-                msg: msg,
-                onConfirm: function() {
-                    shareAndUnshareDS(dsId, newName, true);
-                }
-            });
+            shareDS(dsId);
         });
 
         $gridMenu.on("mouseup", ".unshare", function(event) {
@@ -1915,28 +2019,7 @@ window.DS = (function ($, DS) {
                 return;
             }
             var dsId = $gridMenu.data("dsid");
-            var dsObj = DS.getDSObj(dsId);
-            var name = dsObj.getName();
-            var newName = DS.getUniqueName(name.split(".").slice(2).join(""));
-            var msg = xcHelper.replaceMsg(DSTStr.UnshareDSMsg, {
-                name: name,
-                newName: newName
-            });
-
-            Alert.show({
-                title: DSTStr.UnshareDS,
-                msg: msg,
-                onConfirm: function() {
-                    // unshare case need to check if ds is locked by others
-                    checkDSUse(dsObj.getFullName())
-                    .then(function() {
-                        shareAndUnshareDS(dsId, newName, false);
-                    })
-                    .fail(function(error) {
-                        Alert.error(DSTStr.UnshareFail, error);
-                    });
-                }
-            });
+            unshareDS(dsId);
         });
 
         $gridMenu.on("mouseup", ".getInfo", function(event) {
@@ -2243,8 +2326,13 @@ window.DS = (function ($, DS) {
         var parentId = dsObj.getParentId();
         var name = dsObj.getName();
         var html;
-
+        var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
+        var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
+                        tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
         if (dsObj.beFolder()) {
+            var editIcon = '<i class="action icon xi-edit edit fa-15" ' +
+                            tooltip + 'data-title="' + CommonTxtTstr.Rename +
+                            '"></i>';
             // when it's a folder
             html =
             '<div class="folder grid-unit" draggable="true"' +
@@ -2276,18 +2364,39 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="action icon xi-trash delete fa-15"></i>' +
-                '<i class="action icon xi-edit edit fa-15"></i>' +
+                deleteIcon +
+                editIcon +
             '</div>';
         } else {
+            var lockIcon = '<i class="action icon xi-lock lock fa-15" ' +
+                            tooltip + 'data-title="' + DSTStr.LockDS + '"></i>';
+            var unlockIcon = '<i class="action icon xi-unlock unlock fa-15" ' +
+                            tooltip + 'data-title="' + DSTStr.UnlockDS + '"></i>';
+            var shareIcon;
+            var user = dsObj.getUser();
+            var shared = isInSharedFolder(parentId);
+            var title = name;
+            if (shared) {
+                if (dsObj.getUser() === XcSupport.getUser()) {
+                    shareIcon = '<i class="action icon xi-disabled-share-icon unshare fa-15" ' +
+                                tooltip + 'data-title="' + DSTStr.UnshareDS + '"></i>';
+                } else {
+                    shareIcon = ""; // cannot unshare
+                }
+                title = name + "(" + user + ")";
+            } else {
+                shareIcon = '<i class="action icon xi-activated-share-icon share fa-15" ' +
+                              tooltip + 'data-title="' + DSTStr.ShareDS + '"></i>';
+            }
             // when it's a dataset
             html =
-            '<div class="ds grid-unit ' +
-            (dsObj.isLocked() ? 'locked' : "") + '" ' +
-                'draggable="true"' +
+            '<div class="ds grid-unit' +
+            (dsObj.isLocked() ? ' locked' : '') +
+            (shared ? ' shared' : '') + '"' +
+                ' draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
                 ' ondragend="DS.onDragEnd(event)"' +
-                ' data-user="' + dsObj.getUser() + '"' +
+                ' data-user="' + user + '"' +
                 ' data-dsname="' + name + '"' +
                 ' data-dsid="' + id + '"' +
                 ' data-dsparentid="' + parentId + '"">' +
@@ -2304,14 +2413,15 @@ window.DS = (function ($, DS) {
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
                 '<i class="gridIcon icon xi_data"></i>' +
-                '<div title="' + name + '" class="label"' +
+                '<div title="' + title + '" class="label"' +
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="action icon xi-trash delete fa-15"></i>' +
-                '<i class="action icon xi-lock lock fa-15"></i>' +
-                '<i class="action icon xi-unlock unlock fa-15"></i>' +
+                deleteIcon +
+                lockIcon +
+                unlockIcon +
                 (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
+                shareIcon +
             '</div>';
         }
 
@@ -2338,6 +2448,13 @@ window.DS = (function ($, DS) {
                 '</div>' +
             '</div>';
         } else {
+            var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
+            var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
+                            tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
+            var lockIcon = '<i class="action icon xi-lock lock fa-15" ' +
+                            tooltip + 'data-title="' + DSTStr.LockDS + '"></i>';
+            var unlockIcon = '<i class="action icon xi-unlock unlock fa-15" ' +
+                            tooltip + 'data-title="' + DSTStr.UnlockDS + '"></i>';
             // when it's a dataset
             html =
             '<div class="ds grid-unit uneditable ' +
@@ -2351,9 +2468,9 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                '<i class="action icon xi-trash delete fa-15"></i>' +
-                '<i class="action icon xi-lock lock fa-15"></i>' +
-                '<i class="action icon xi-unlock unlock fa-15"></i>' +
+                deleteIcon +
+                lockIcon +
+                unlockIcon +
                 (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
             '</div>';
         }
@@ -2373,11 +2490,19 @@ window.DS = (function ($, DS) {
 
         $labels.each(function() {
             var $label = $(this);
+            var $grid = $label.closest(".grid-unit");
             var name = $label.data("dsname");
+            var shared = $grid.hasClass("shared");
             var maxWidth = isListView ? Math.max(165, $label.width()) : 52;
+            var multiLine = !isListView && !shared;
 
             xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
-                                    !isListView, ctx);
+                                    multiLine, ctx);
+            if (shared) {
+                $label.html($label.text() +
+                            (isListView ? "" : "<br/>") +
+                            "<b>(" + $grid.data("user") + ")</b>");
+            }
         });
     }
 
@@ -2540,6 +2665,7 @@ window.DS = (function ($, DS) {
 
         $grid.find("> .dragWrap").addClass("xc-hidden");
         $gridView.addClass("drag");
+        $gridView.find(".grid-unit.active").removeClass("active");
 
         // when enter extra space in grid view
         $gridView.on("dragenter", function(){

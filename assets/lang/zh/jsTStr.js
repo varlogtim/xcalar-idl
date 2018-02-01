@@ -869,8 +869,11 @@ DSTStr = {
 'ShareDS': '共享数据集',
 'UnshareDS': '取消共享数据集',
 'UnshareFail': '取消共享数据集失败',
-'ShareDSMsg': '您确定要共享<name>吗？ 数据集会被命名为<newName>。',
-'UnshareDSMsg': '您确定要取消共享<name>吗？ 数据集会被命名为<newName>。'
+'ShareDSMsg': '您确定要共享<name>吗？',
+'UnshareDSMsg': '您确定要取消共享<name>吗？',
+'RenameMsg': '数据集会被命名为<newName>。'
+'LockDS': '上锁',
+'UnlockDS': '解锁',
 };
 DSFormTStr = {
 'Pattern': '模式',
