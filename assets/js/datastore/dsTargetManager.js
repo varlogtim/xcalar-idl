@@ -486,7 +486,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
             }
         };
         xcHelper.disableSubmit($submitBtn);
-        XcalarTargetCreate.apply(this, args)
+        checkMountPoint()
+        .then(function() {
+            return XcalarTargetCreate.apply(this, args);
+        })
         .then(function() {
             xcHelper.toggleBtnInProgress($submitBtn, true);
             xcHelper.showSuccess(SuccessTStr.Target);
@@ -497,15 +500,49 @@ window.DSTargetManager = (function($, DSTargetManager) {
         .fail(function(error) {
             // fail case being handled in submitForm
             xcHelper.toggleBtnInProgress($submitBtn, false);
-            StatusBox.show(FailTStr.Target, $submitBtn, false, {
-                detail: errorParser(error.log)
-            });
+            if (error.invalidMountPoint) {
+                var $mountpointInput =  $form.find("label[data-name=mountpoint]")
+                                        .closest(".formRow")
+                                        .find(".xc-input:visible");
+                StatusBox.show(FailTStr.Target, $mountpointInput, false, {
+                    detail: error.log
+                });
+            } else {
+                StatusBox.show(FailTStr.Target, $submitBtn, false, {
+                    detail: errorParser(error.log)
+                });
+            }
             deferred.reject(error);
         })
         .always(function() {
             xcHelper.enableSubmit($submitBtn);
         });
 
+        function checkMountPoint() {
+            var innerDeferred = jQuery.Deferred();
+            if ((!args) || (args[0] !== "shared")) {
+                innerDeferred.resolve();
+            } else {
+                var url = args[2].mountpoint;
+                XcalarListFiles({
+                    targetName: gDefaultSharedRoot,
+                    path: url
+                })
+                .then(function() {
+                    innerDeferred.resolve();
+                })
+                .fail(function() {
+                    var errorLog = xcHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
+                        mountpoint: url
+                    });
+                    innerDeferred.reject({
+                        log: errorLog,
+                        invalidMountPoint: true
+                    });
+                });
+            }
+            return innerDeferred.promise();
+        }
         return deferred.promise();
     }
 

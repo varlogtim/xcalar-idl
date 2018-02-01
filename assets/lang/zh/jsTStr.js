@@ -910,6 +910,7 @@ DSTargetTStr = {
 // with replace
 "DelConfirmMsg": "您确定要删除<target>吗?",
 "TargetExists": "目标<target>已存在",
+"MountpointNoExists": "挂载路径<mountpoint>不存在,请输入有效的挂载路径",
 };
 DSExportTStr = {
 "Create": "创建导出目标",
