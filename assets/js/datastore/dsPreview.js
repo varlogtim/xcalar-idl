@@ -139,21 +139,49 @@ window.DSPreview = (function($, DSPreview) {
                 $renameInput.css("left", $previewCard.offset().left);
             }
 
+            $previewCard.find(".previewSection").scroll(function() {
+                cleanupColRename();
+            });
+
+            $renameInput.on("keydown", function(event) {
+                if (event.which === keyCode.Enter) {
+                    $renameInput.trigger("blur");
+                }
+            });
+
+            var scrollTimeout;
+
+            $renameInput.on("input", function() {
+                $renameInput.removeClass("error");
+                $renameInput.tooltip("destroy");
+                clearTimeout(scrollTimeout);
+                var scrollWidth = $renameInput[0].scrollWidth;
+                if (scrollWidth < maxWidth &&
+                    scrollWidth > ($renameInput.outerWidth() - 2)) {
+                    $renameInput.outerWidth(scrollWidth + 80);
+                    rect = $renameInput[0].getBoundingClientRect();
+                    var winRight = $(window).width() - 5;
+                    var diff = rect.right - winRight;
+                    if (diff > 0) {
+                        var newLeft = rect.left - diff;
+                        $renameInput.css("left", newLeft);
+                    }
+                }
+            });
+
+            // if we don't use a timeout, editablehead blur is triggered and
+            // renameInput is removed immediately so we never see it
             setTimeout(function() {
                 $renameInput.focus();
                 $renameInput.selectAll();
-                var timeout;
+
 
                 // if scroll is triggered, don't validate, just return to old
                 // value
-                $previewCard.find(".previewSection").scroll(function() {
-                    cleanupColRename();
-                });
-
                 $renameInput.on("blur", function() {
                     var val = $renameInput.val();
                     $renameInput.tooltip("destroy");
-                    clearTimeout(timeout);
+                    clearTimeout(scrollTimeout);
                     var nameErr = xcHelper.validateColName(val);
                     if (!nameErr && checkIndividualDuplicateName(val,
                                     $input.closest("th").index())) {
@@ -167,7 +195,7 @@ window.DSPreview = (function($, DSPreview) {
                             "template": xcTooltip.Template.Error
                         });
 
-                        timeout = setTimeout(function() {
+                        scrollTimeout = setTimeout(function() {
                             $renameInput.tooltip('destroy');
                         }, 5000);
 
@@ -177,30 +205,6 @@ window.DSPreview = (function($, DSPreview) {
                     $input.val(val);
                     $renameInput.remove();
                     $previewCard.find(".previewSection").off("scroll");
-                });
-
-                $renameInput.on("keydown", function(event) {
-                    if (event.which === keyCode.Enter) {
-                        $renameInput.trigger("blur");
-                    }
-                });
-
-                $renameInput.on("input", function() {
-                    $renameInput.removeClass("error");
-                    $renameInput.tooltip("destroy");
-                    clearTimeout(timeout);
-                    var scrollWidth = $renameInput[0].scrollWidth;
-                    if (scrollWidth < maxWidth &&
-                        scrollWidth > ($renameInput.outerWidth() - 2)) {
-                        $renameInput.outerWidth(scrollWidth + 80);
-                        rect = $renameInput[0].getBoundingClientRect();
-                        var winRight = $(window).width() - 5;
-                        var diff = rect.right - winRight;
-                        if (diff > 0) {
-                            var newLeft = rect.left - diff;
-                            $renameInput.css("left", newLeft);
-                        }
-                    }
                 });
             });
         });
@@ -3647,22 +3651,22 @@ window.DSPreview = (function($, DSPreview) {
                 nameMap[headers[i].colName].push(i + 1);
             }
         }
-        var namesArray = [];
+        var errorNames = [];
         var $ths = $previewTable.find("th");
         for (var name in nameMap) {
             if (nameMap[name].length > 1) {
-                namesArray.push({colName: name, indices: nameMap[name]});
+                errorNames.push({colName: name, indices: nameMap[name]});
                 for (var i = 1; i < nameMap[name].length; i++) {
                     $ths.eq(nameMap[name][i]).find(".text").addClass("error");
                 }
             }
         }
-        if (!namesArray.length) {
+        if (!errorNames.length) {
             return PromiseHelper.resolve();
         }
         var deferred = jQuery.Deferred();
 
-        namesArray.sort(function(a, b) {
+        errorNames.sort(function(a, b) {
             if (a.indices[0] >= b.indices[0]) {
                 return 1;
             } else {
@@ -3674,7 +3678,7 @@ window.DSPreview = (function($, DSPreview) {
         ErrTStr.DuplicateColNames + ':</span><div class="row header">' +
         '<span class="colName">Name</span><span class="colNums">Column Nos.' +
         '</span></div>';
-        namesArray.forEach(function(name) {
+        errorNames.forEach(function(name) {
             table += '<div class="row">' +
                         '<span class="colName">' + name.colName +
                         '</span>' +
@@ -3751,6 +3755,8 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
         DSPreview.__testOnly__.invalidHeaderDetection = invalidHeaderDetection;
         DSPreview.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
+        DSPreview.__testOnly__.checkBulkDuplicateNames = checkBulkDuplicateNames;
+
 
         DSPreview.__testOnly__.resetForm = resetForm;
         DSPreview.__testOnly__.restoreForm = restoreForm;

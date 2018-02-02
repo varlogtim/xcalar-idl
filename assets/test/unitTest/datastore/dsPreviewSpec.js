@@ -1842,6 +1842,179 @@ describe("Dataset-DSPreview Test", function() {
         });
     });
 
+    describe("csv column renaming and type casting", function() {
+        before(function(done) {
+            DSPreview.show({
+                "targetName": testDatasets.sp500.targetName,
+                "path": testDatasets.sp500.path
+            }, true)
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("rename input should show", function(done) {
+            expect($previewTable.find(".editableHead").length).to.equal(2);
+            expect($("#importColRename").length).equal(0);
+
+            $previewTable.find(".editableHead").eq(0).trigger(fakeEvent.mousedown);
+            expect($("#importColRename").length).equal(1);
+            expect($("#importColRename").width()).to.be.gt(40);
+            expect($("#importColRename").width()).to.be.lt(140);
+            UnitTest.testFinish(function() {
+                return $(document.activeElement).is("#importColRename");
+            }, 10)
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("rename input should show error for if starts with number", function() {
+            var cachedFn = xcTooltip.transient;
+            var called = false;
+            xcTooltip.transient = function($el, options) {
+                expect(options.title).to.equal("Invalid name: a name cannot begin with a number.");
+                called = true;
+            };
+
+            $("#importColRename").val("5");
+            $("#importColRename").trigger("blur").blur();
+
+            expect($("#importColRename").length).equal(1);
+            expect(called).to.be.true;
+            expect($previewTable.find(".editableHead").eq(0).val()).to.equal("column0");
+
+            xcTooltip.transient = cachedFn;
+        });
+
+        it("rename input should show error for if duplicate name", function() {
+            var cachedFn = xcTooltip.transient;
+            var called = false;
+            xcTooltip.transient = function($el, options) {
+                expect(options.title).to.equal("A column with the same name already exists. Please choose another name.");
+                called = true;
+            };
+
+            $("#importColRename").val("column1");
+            $("#importColRename").trigger("blur").blur();
+
+            expect($("#importColRename").length).equal(1);
+            expect(called).to.be.true;
+            expect($previewTable.find(".editableHead").eq(0).val()).to.equal("column0");
+
+            xcTooltip.transient = cachedFn;
+        });
+
+        it("rename input blur with invalid should not change column name", function () {
+            $("#importColRename").val("5b");
+            expect($("#importColRename").length).equal(1);
+            $("#dsForm-preview").find(".previewSection").scrollLeft(1).scroll();
+            expect($("#importColRename").length).equal(0);
+            expect($previewTable.find(".editableHead").eq(0).val()).to.equal("column0");
+        });
+
+        it("rename input width should increase", function(done) {
+            $previewTable.find(".editableHead").eq(0).trigger(fakeEvent.mousedown);
+            expect($("#importColRename").length).equal(1);
+
+            UnitTest.testFinish(function() {
+                return $(document.activeElement).is("#importColRename");
+            }, 10)
+            .then(function() {
+                var width = $("#importColRename").width();
+                $("#importColRename").val("A".repeat(30)).trigger(fakeEvent.input);
+                expect($("#importColRename").width()).to.be.gt(width);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("rename input with valid name should change column name", function () {
+            expect($("#importColRename").length).equal(1);
+            expect($previewTable.find(".editableHead").eq(0).val()).to.equal("column0");
+            $("#importColRename").val("renamed");
+            expect($("#importColRename").length).equal(1);
+            $("#importColRename").trigger("blur").blur();
+            expect($("#importColRename").length).equal(0);
+            expect($previewTable.find(".editableHead").eq(0).val()).to.equal("renamed");
+            $previewTable.find(".editableHead").eq(0).val("column0");
+        });
+
+        it("cast dropdown should show on click", function() {
+            expect($("#dsForm-preview").find(".castDropdown").is(":visible")).to.be.false;
+            $previewTable.find(".editable").eq(0).find(".flex-left").click();
+            expect($("#dsForm-preview").find(".castDropdown").is(":visible")).to.be.true;
+        });
+
+        it("cast dropdown li should work", function() {
+            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.true;
+            expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
+            $("#dsForm-preview").find(".castDropdown").find(".type-boolean").trigger(fakeEvent.mouseup);
+            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.false;
+            expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.true;
+
+            $("#dsForm-preview").find(".castDropdown").find(".type-string").trigger(fakeEvent.mouseup);
+            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.true;
+            expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
+        });
+
+        it("check bulkduplicate names should work", function(done) {
+            var fn = DSPreview.__testOnly__.checkBulkDuplicateNames;
+            var headers = [{colName: "aa"}, {colName: "bb"}, {colName: "cc"}];
+            var firstPass = false;
+            fn(headers)
+            .then(function() {
+                firstPass = true;
+                var headers = [{colName: "aa"}, {colName: "bb"}, {colName: "bb"}];
+                setTimeout(function() {
+                    UnitTest.hasAlertWithText(ErrTStr.DuplicateColNames + ":NameColumn Nos.bb2,3", {confirm: true});
+                });
+                return fn(headers);
+            })
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(firstPass).to.be.true;
+                done();
+            })
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.set();
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("resizing bottomcard", function() {
+        it("should resize", function() {
+            var $bar = $("#dsForm-preview .cardBottom .ui-resizable-n").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY + 30});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY + 30 });
+
+            expect($bar.offset().top > pageY);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY + 30});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
+            expect($bar.offset().top === pageY);
+        });
+    });
+
     describe("Show Preview and Submit Test", function() {
         before(function() {
             DSPreview.__testOnly__.resetForm();

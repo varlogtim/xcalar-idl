@@ -314,6 +314,9 @@ window.UnitTest = (function(UnitTest, $) {
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
         title = title.toLowerCase();
+        if ($("#alertHeader .text").text().toLowerCase() != title) {
+            console.error($("#alertHeader .text").text().toLowerCase(), title);
+        }
         expect($("#alertHeader .text").text().toLowerCase()).to.equal(title);
         if (options.inputVal != null) {
             $alertModal.find('input').val(options.inputVal);
