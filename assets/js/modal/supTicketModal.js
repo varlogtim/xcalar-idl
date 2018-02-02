@@ -841,9 +841,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var xiLogs = Log.getAllLogs(true);
         var strLogs = JSON.stringify(xiLogs);
         var errorLimit = 50 * KB;
+        var totalLimit = 100 * KB;
 
-        if (strLogs.length > 100 * KB) {
+        // if more than 100kb, take 50kb worth of errors, then take
+        // 50kb worth of logs, and if there aren't 50kb worth of logs, take
+        // overwritten logs, and if space still remains, take the remaining
+        // error logs
+        if (strLogs.length > totalLimit) {
             var strErrors = "";
+            var strOverwrites = "";
             var numErrorsAdded = 0;
             for (var i = xiLogs.errors.length - 1; i >= 0; i--) {
                 var strError = JSON.stringify(xiLogs.errors[i]);
@@ -852,13 +858,14 @@ window.SupTicketModal = (function($, SupTicketModal) {
                         strErrors += ",";
                     }
                     strErrors += strError;
+                    numErrorsAdded = xiLogs.errors.length - i;
                 } else {
                     numErrorsAdded = xiLogs.errors.length - 1 - i;
                     break;
                 }
             }
 
-            var lenRemaining = (100 * KB) - strErrors.length;
+            var lenRemaining = totalLimit - strErrors.length;
             strLogs = "";
             for (var i = xiLogs.logs.length - 1; i >= 0; i--) {
                 var strLog = JSON.stringify(xiLogs.logs[i]);
@@ -868,6 +875,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
                         lenRemaining--;
                     }
                     strLogs += strLog;
+                    lenRemaining -= strLog.length;
+                } else {
+                    break;
+                }
+            }
+
+            for (var i = xiLogs.overwrittenLogs.length - 1; i >= 0; i--) {
+                var strLog = JSON.stringify(xiLogs.overwrittenLogs[i]);
+                if (strOverwrites.length + strLog.length < lenRemaining) {
+                    if (strOverwrites.length) {
+                        strOverwrites += ",";
+                        lenRemaining--;
+                    }
+                    strOverwrites += strLog;
                     lenRemaining -= strLog.length;
                 } else {
                     break;
@@ -890,6 +911,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             }
             strLogs = '{"version":"' + xiLogs.version + '",' +
                          '"logs":[' + strLogs + '],' +
+                         '"overwrittenLogs":[' + strOverwrites + '],' +
                          '"errors":[' + strErrors + ']}';
         }
         return strLogs;

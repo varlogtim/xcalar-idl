@@ -9,12 +9,15 @@ window.Log = (function($, Log) {
     var logCursor = -1;
     var logToCommit = "";
     var errToCommit = "";
+    var overwrittenToCommit = "";
     var logCache = {
         "logs": [],
-        "errors": []
+        "errors": [],
+        "overwrittenLogs": [] // stores logs overwritten after an undo
     };
     var logs = logCache.logs;
     var errors = logCache.errors;
+    var overwrittenLogs = logCache.overwrittenLogs;
     // mark if it's in a undo redo action
     var isUndo = false;
     var isRedo = false;
@@ -67,6 +70,9 @@ window.Log = (function($, Log) {
         restoreLogs(oldLogCursor)
         .then(function() {
             return restoreErrors();
+        })
+        .then(function() {
+            return restoreOverwrittenLogs();
         })
         .then(function() {
             // XXX FIXME change back to localCommit() if it's buggy
@@ -157,6 +163,9 @@ window.Log = (function($, Log) {
             lastSavedCursor = logCursor;
             return Log.commitErrors();
         })
+        .then(function() {
+            return commitOverwrittenLogs();
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -199,19 +208,16 @@ window.Log = (function($, Log) {
     };
 
     Log.getConsoleErrors = function() {
-        var consoleErrors = [];
-        for (var err in errors) {
-            if (errors[err].title === "Console error") {
-                consoleErrors.push(errors[err]);
-            }
-        }
-        return consoleErrors;
+        return errors.filter(function(err) {
+            return err.title === "Console error";
+        });
     };
 
     Log.getAllLogs = function(condensed) {
         if (condensed) {
             return {"logs": logs,
                     "errors": getCondensedErrors(),
+                    "overwrittenLogs": overwrittenLogs,
                     "version": XVM.getVersion()};
         } else {
             return logCache;
@@ -467,15 +473,18 @@ window.Log = (function($, Log) {
         logCursor = -1;
         logToCommit = "";
         errToCommit = "";
+        overwrittenToCommit = "";
         logCache = {
             "logs": [],
             "errors": [],
+            "overwrittenLogs": [],
             "version": XVM.getVersion()
         };
 
         // a quick reference
         logs = logCache.logs;
         errors = logCache.errors;
+        overwrittenLogs = logCache.overwrittenLogs;
 
         isUndo = false;
         isRedo = false;
@@ -661,11 +670,43 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
+    function restoreOverwrittenLogs() {
+        var deferred = jQuery.Deferred();
+        KVStore.get(KVStore.gOverwrittenLogKey, gKVScope.LOG)
+        .then(function(rawLog) {
+            var oldOverwrites = parseRawLog(rawLog);
+
+            if (oldOverwrites == null) {
+                return PromiseHelper.reject(logRestoreError);
+            }
+
+            if (overwrittenLogs.length > 0) {
+                console.warn(overwrittenLogs);
+            }
+
+            oldOverwrites.forEach(function(oldOverwrite) {
+                var overwriteLog = new XcLog(oldOverwrite);
+                overwrittenLogs.push(overwriteLog);
+            });
+
+            deferred.resolve();
+
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     // if restore, log is an array
     function addLog(log, isRestore, willCommit) {
         // normal log
         if (shouldOverWrite || logCursor !== logs.length - 1) {
             // when user do a undo before
+            for (var i = logCursor + 1; i < logs.length; i++) {
+                overwrittenLogs.push(logs[i]);
+                overwrittenToCommit += JSON.stringify(logs[i]) + ",";
+            }
+
             logCursor++;
             logs[logCursor] = log;
             logs.length = logCursor + 1;
@@ -1270,6 +1311,26 @@ window.Log = (function($, Log) {
                 return null;
         }
     }
+
+    function commitOverwrittenLogs() {
+        if (overwrittenToCommit === "") {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        var tmpLog = overwrittenToCommit;
+        overwrittenToCommit = "";
+
+        KVStore.append(KVStore.gOverwrittenLogKey, tmpLog, true, gKVScope.LOG)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            overwrittenToCommit = tmpLog;
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
 
     /* Unit Test Only */
     if (window.unitTestMode) {

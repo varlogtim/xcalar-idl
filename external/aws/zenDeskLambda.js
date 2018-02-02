@@ -38,6 +38,9 @@ function stripLogsAndKey(c) {
                 c.xiLog.errors = JSON.parse(strErrors);
             }
         }
+        if (c.xiLog.hasOwnProperty("overwrittenLogs")) {
+            c.xiLog.overwrittenLogs = ["Refer to email for full dump"];
+        }
     }
     if (c.hasOwnProperty("license") && c.license.hasOwnProperty("key")) {
         delete c.license.key;
