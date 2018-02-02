@@ -117,11 +117,11 @@ describe("Dataset-File Previewer Test", function() {
             expect($line.text().length).to.equal(8);
         });
 
-        it("should get char html", function() {
+        it("should get code html", function() {
             var html = FilePreviewer.__testOnly__.getCodeHtml("12345678", 8, 0);
             var $line = $(html);
             expect($line.find(".cell").length).to.equal(8);
-            expect($line.text().length).to.equal(24);
+            expect($line.text().length).to.equal(16);
         });
     });
 

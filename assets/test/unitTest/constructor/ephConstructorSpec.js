@@ -165,15 +165,16 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.getPreviewFile()).to.equal("testFile");
 
             controller.reset();
-            expect(Object.keys(controller).length).to.equal(6);
-            expect(controller.getTargetName()).to.equal("testTarget");
+
+            expect(Object.keys(controller).length).to.equal(5);
+            expect(controller.getTargetName()).to.be.undefined;
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
             expect(controller.useHeader()).to.be.false;
             expect(controller.getQuote()).to.equal("\"");
             expect(controller.getPreviewFile()).to.be.null;
             expect(controller.getArgStr())
-            .to.equal('{"targetName":"testTarget","hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
+            .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
         });
     });
 
@@ -1734,7 +1735,7 @@ describe("Ephemeral Constructor Test", function() {
                 });
             };
 
-            xcSubQuery.check()
+            xcSubQuery.getProgress()
             .then(function(res) {
                 expect(res).to.equal(100);
                 done();
@@ -1755,7 +1756,7 @@ describe("Ephemeral Constructor Test", function() {
                 });
             };
 
-            xcSubQuery.check()
+            xcSubQuery.getProgress()
             .then(function(res) {
                 expect(res).to.equal(0);
                 done();
@@ -1774,7 +1775,7 @@ describe("Ephemeral Constructor Test", function() {
                 return PromiseHelper.reject("testError");
             };
 
-            xcSubQuery.check()
+            xcSubQuery.getProgress()
             .then(function() {
                 done("fail");
             })
@@ -1790,7 +1791,7 @@ describe("Ephemeral Constructor Test", function() {
         it("check should handle no drop case", function(done) {
             xcSubQuery.name = "drop";
 
-            xcSubQuery.check()
+            xcSubQuery.getProgress()
             .then(function(res) {
                 expect(res).to.equal(50);
                 done();
@@ -1831,9 +1832,9 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("should have 8 attributes", function() {
-            circle = new ProgressCircle("test", 1);
+            circle = new ProgressCircle("test", 1, false);
             expect(circle).to.be.instanceof(ProgressCircle);
-            expect(Object.keys(circle).length).to.equal(8);
+            expect(Object.keys(circle).length).to.equal(9);
             expect(circle.txId).to.equal("test");
             expect(circle.iconNum).to.equal(1);
             expect(circle.status).to.equal("inProgress");
@@ -1842,6 +1843,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(circle.pie).not.to.be.null;
             expect(circle.arc).not.to.be.null;
             expect(circle.prevPct).to.equal(0);
+            expect(circle.hasText).to.be.false;
         });
 
         it("should update", function() {

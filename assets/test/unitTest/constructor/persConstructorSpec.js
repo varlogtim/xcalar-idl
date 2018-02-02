@@ -722,7 +722,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             var res = progCol.stringifyFunc();
-            expect(res).to.equal("pull");
+            expect(res).to.equal("pull()");
 
             // case 2
             progCol2 = new ProgCol({
