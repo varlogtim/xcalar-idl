@@ -2157,34 +2157,6 @@ describe("Persistent Constructor Test", function() {
             expect(dsObj.getSize()).to.equal("456B");
         });
 
-        it("Should get memory taken size", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId
-            });
-
-            var oldFunc = XcalarGetDatasetMeta;
-            XcalarGetDatasetMeta = function() {
-                return PromiseHelper.resolve({
-                    "metas": [{"size": 123}]
-                });
-            };
-
-            dsObj.getMemoryTakenSize()
-            .then(function(res) {
-                expect(res).to.equal("123B");
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            })
-            .always(function() {
-                XcalarGetDatasetMeta = oldFunc;
-            });
-        });
-
         it("getDisplayFormat should get Excel format", function(done) {
             var dsObj = new DSObj({
                 "id": "testId",

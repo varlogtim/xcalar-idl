@@ -1714,6 +1714,13 @@ XcalarGetUserDatasets = function(userName) {
     return xcalarListUserDatasets(tHandle, userName);
 };
 
+XcalarGetDatasetsInfo = function(datasetsNamePattern) {
+    if (tHandle == null) {
+        return PromiseHelper.reject();
+    }
+    return xcalarGetDatasetsInfo(tHandle, datasetsNamePattern);
+};
+
 XcalarGetConstants = function(constantName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

@@ -225,65 +225,6 @@ describe("Dataset-DSTable Test", function() {
         });
     });
 
-    describe("Get Memory Take Size Test", function() {
-        var oldFunc;
-        var getMemoryTakenSize;
-
-        before(function() {
-            oldFunc = DSObj.prototype.getMemoryTakenSize;
-            getMemoryTakenSize = DSTable.__testOnly__.getMemoryTakenSize;
-        });
-
-        it("Should get memory taken size", function(done) {
-            DSObj.prototype.getMemoryTakenSize = function() {
-                return PromiseHelper.resolve(1);
-            };
-
-            getMemoryTakenSize(testDSObj)
-            .then(function(size) {
-                expect(size).to.equal(1);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should get N/A for null size", function(done) {
-            DSObj.prototype.getMemoryTakenSize = function() {
-                return PromiseHelper.resolve(null);
-            };
-
-            getMemoryTakenSize(testDSObj)
-            .then(function(size) {
-                expect(size).to.equal(CommonTxtTstr.NA);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should get N/A in fail case", function(done) {
-            DSObj.prototype.getMemoryTakenSize = function() {
-                return PromiseHelper.reject();
-            };
-
-            getMemoryTakenSize(testDSObj)
-            .then(function(size) {
-                expect(size).to.equal(CommonTxtTstr.NA);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        after(function() {
-            DSObj.prototype.getMemoryTakenSize = oldFunc;
-        });
-    });
-
     describe("Error Case Test", function() {
         var cache;
         var $errorSection;

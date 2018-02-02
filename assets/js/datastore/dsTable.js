@@ -247,7 +247,7 @@ window.DSTable = (function($, DSTable) {
         });
     }
 
-    function updateTableInfo(dsObj, isLoading) {
+    function updateTableInfo(dsObj) {
         var $path = $("#dsInfo-path");
         var dsName = dsObj.getName();
         var numEntries = dsObj.getNumEntries();
@@ -271,16 +271,7 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-author").text(dsObj.getUser());
         // $("#dsInfo-target").text(dsObj.getTargetName());
         // there is no fail case
-        getDSSize(dsObj, isLoading)
-        .then(function(size) {
-            $("#dsInfo-size").text(size);
-        });
-
-        // getDSFormat(dsObj, isLoading)
-        // .then(function(format) {
-        //     format = format || CommonTxtTstr.NA;
-        //     $("#dsInfo-format").text(format);
-        // });
+        $("#dsInfo-size").text(dsObj.getDisplaySize());
 
         var format = dsObj.getFormat() || CommonTxtTstr.NA;
         $("#dsInfo-format").text(format);
@@ -296,19 +287,6 @@ window.DSTable = (function($, DSTable) {
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
     }
 
-    function getDSSize(dsObj, isLoading) {
-        if (isLoading) {
-            return PromiseHelper.resolve(CommonTxtTstr.NA);
-        }
-
-        var size = dsObj.getSize();
-        if (size != null) {
-            return PromiseHelper.resolve(size);
-        } else {
-            return getMemoryTakenSize(dsObj);
-        }
-    }
-
     // XXX not work as if it's other user's ds and no index on it
     // XcalarGetDag on ds not working
     // function getDSFormat(dsObj, isLoading) {
@@ -318,25 +296,6 @@ window.DSTable = (function($, DSTable) {
     //         return dsObj.getDisplayFormat();
     //     }
     // }
-
-    function getMemoryTakenSize(dsObj) {
-        // XXX issue here is memory taken size is a little
-        // different from the actual size
-        // (other user's ds do not get size)
-        var deferred = jQuery.Deferred();
-        dsObj.getMemoryTakenSize()
-        .then(function(size) {
-            if (size == null) {
-                size = CommonTxtTstr.NA;
-            }
-            deferred.resolve(size);
-        })
-        .fail(function() {
-            deferred.resolve(CommonTxtTstr.NA);
-        });
-
-        return deferred.promise();
-    }
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
@@ -841,7 +800,6 @@ window.DSTable = (function($, DSTable) {
     if (window.unitTestMode) {
         DSTable.__testOnly__ = {};
         DSTable.__testOnly__.scrollSampleAndParse = scrollSampleAndParse;
-        DSTable.__testOnly__.getMemoryTakenSize = getMemoryTakenSize;
         DSTable.__testOnly__.dataStoreTableScroll = dataStoreTableScroll;
     }
     /* End Of Unit Test Only */

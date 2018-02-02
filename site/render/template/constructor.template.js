@@ -2069,39 +2069,18 @@
                 return this.size;
             },
 
-            setSize: function(size) {
-                this.size = xcHelper.sizeTranslator(size);
+            getDisplaySize: function() {
+                var size;
+                if (this.size == null) {
+                    size = CommonTxtTstr.NA;
+                } else {
+                    size = xcHelper.sizeTranslator(this.size)
+                }
+                return size;
             },
 
-            // this calculte how much size the dataset actually taken
-            // should be bigger than the size return from load
-            getMemoryTakenSize: function() {
-                var self = this;
-                var deferred = jQuery.Deferred();
-                var dsName = self.fullName;
-
-                XcalarGetDatasetMeta(dsName)
-                .then(function(res) {
-                    var size;
-                    if (res != null && res.metas != null) {
-                        var metas = res.metas;
-                        size = 0;
-                        // sum up size from all nodes
-                        for (var i = 0, len = metas.length; i < len; i++) {
-                            size += metas[i].size;
-                        }
-                        size = xcHelper.sizeTranslator(size);
-                        if (self.size == null) {
-                            // when not get the size
-                            self.size = size;
-                        }
-                    }
-
-                    deferred.resolve(size);
-                })
-                .fail(deferred.reject);
-
-                return deferred.promise();
+            setSize: function(size) {
+                this.size = xcHelper.sizeTranslator(size);
             },
 
             getError: function() {

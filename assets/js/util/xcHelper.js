@@ -1121,7 +1121,7 @@
         }
 
         var start = 0;
-        var end   = unit.length - 1;
+        var end = unit.length - 1;
 
         if (convertTo && unit.indexOf(convertTo) > -1) {
             start = unit.indexOf(convertTo);

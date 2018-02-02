@@ -2260,8 +2260,8 @@ table.datasetTable {
             @large-input: 473px;
             @take-width: @large-input + 22;
 
-            .inputPart {
-                .size(@max-width: ~"calc(100% - 300px)");
+            .inputWrap {
+                .size(@max-width: ~"calc(100% - 320px)");
             }
 
             input {
@@ -3203,6 +3203,10 @@ table.datasetTable {
                     .waitingIcon {
                         left: 15px;
                     }
+
+                    .size {
+                        display: none;
+                    }
                 }
 
                 .grid-unit.ds > .dragWrap {
@@ -3288,6 +3292,10 @@ table.datasetTable {
 
                 .grid-unit {
                     &:hover {
+                        .size {
+                            display: none;
+                        }
+
                         .edit, .share, .unshare {
                             display: inline-block;
                         }
@@ -3326,6 +3334,16 @@ table.datasetTable {
                 .grid-unit.ds {
                     > .label {
                         .size(@width: ~"calc(100% - 110px)");
+                    }
+
+                    > .size {
+                        .textOverflowOneLine;
+                        float: right;
+                        .size(@width: 80px);
+                        padding-right: 5px;
+                        text-align: right;
+                        line-height: 35px;
+                        .font(@size: 11px);
                     }
 
                     > .dragWrap {

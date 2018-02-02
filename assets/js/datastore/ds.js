@@ -1063,53 +1063,56 @@ window.DS = (function ($, DS) {
 
     function sortOneFolder(folderObj) {
         var childFolders = [];
-        var dsObjMaps = {};
+        var childDatasets = [];
         var reorderEles = [];
-        var sortIds = [];
+        var sharedFolder = null;
 
         folderObj.eles.forEach(function(dsObj) {
             var dsId = dsObj.getId();
             if (dsId === DSObjTerm.SharedFolderId) {
-                reorderEles.push(dsObj);
+                sharedFolder = dsObj;
             } else {
-                dsObjMaps[dsId] = dsObj;
-                sortIds.push(dsId);
-            }
-
-            if (dsObj.beFolder()) {
-                childFolders.push(dsObj);
+                reorderEles.push(dsObj);
             }
         });
 
-        if (sortKey === "name" || sortKey === "type") {
-            sortIds.sort(function(id1, id2) {
-                var name1 = DS.getDSObj(id1).getName().toLowerCase();
-                var name2 = DS.getDSObj(id2).getName().toLowerCase();
-                return (name1 < name2 ? -1 : (name1 > name2 ? 1 : 0));
+        // sort by name first
+        reorderEles.sort(function(dsObj1, dsObj2) {
+            var name1 = dsObj1.getName().toLowerCase();
+            var name2 = dsObj2.getName().toLowerCase();
+            return (name1 < name2 ? -1 : (name1 > name2 ? 1 : 0));
+        });
+
+        if (sortKey === "type" || sortKey === "size") {
+            reorderEles.forEach(function(dsObj) {
+                if (dsObj.beFolder()) {
+                    childFolders.push(dsObj);
+                } else {
+                    childDatasets.push(dsObj);
+                }
             });
 
             if (sortKey === "type") {
-                var folderIds = [];
-                var dsIds = [];
-
-                sortIds.forEach(function(id) {
-                    if (DS.getDSObj(id).beFolder()) {
-                        folderIds.push(id);
-                    } else {
-                        dsIds.push(id);
-                    }
+                reorderEles = childFolders.concat(childDatasets);
+            } else if (sortKey === "size") {
+                childDatasets.sort(function(dsObj1, dsObj2) {
+                    var size1 = dsObj1.getSize();
+                    var size2 = dsObj2.getSize();
+                    return (size1 < size2 ? -1 : (size1 > size2 ? 1 : 0));
                 });
-
-                sortIds = folderIds.concat(dsIds);
+                reorderEles = childFolders.concat(childDatasets);
             }
+        }
 
+        if (sharedFolder != null) {
+            reorderEles.unshift(sharedFolder);
+            childFolders.unshift(sharedFolder);
         }
 
         // reorder the grids and ds meta
-        sortIds.forEach(function(dsId) {
-            var $grid = DS.getGrid(dsId);
+        reorderEles.forEach(function(dsObj) {
+            var $grid = DS.getGrid(dsObj.getId());
             $gridView.append($grid);
-            reorderEles.push(dsObjMaps[dsId]);
         });
         folderObj.eles = reorderEles;
         return childFolders;
@@ -1335,12 +1338,17 @@ window.DS = (function ($, DS) {
         var deferred = jQuery.Deferred();
         var datasets;
         var lockMeta;
+        var dsBasicInfo;
 
         DS.clear();
 
         XcalarGetDatasets()
         .then(function(res) {
             datasets = res;
+            return getDSBasicInfo();
+        })
+        .then(function(res) {
+            dsBasicInfo = res;
             return getDSLockMeta();
         })
         .then(function(res) {
@@ -1349,17 +1357,48 @@ window.DS = (function ($, DS) {
         })
         .then(function(res) {
             var oldSharedDSInfo = res;
+            var datasetsSet = getDSBackendMeta(datasets, lockMeta,
+                                                dsBasicInfo, atStartUp);
+
             if (atStartUp && oldSharedDSInfo == null) {
                 // it's first time that upgrade from 1.30 to 1.3.1
-                oldSharedDSInfo = rebuildOldDSInfo(datasets, lockMeta);
+                oldSharedDSInfo = rebuildOldDSInfo(datasetsSet);
             }
-            restoreHelper(oldHomeFolder, oldSharedDSInfo, datasets,
-                          lockMeta, atStartUp);
+            restoreHelper(oldHomeFolder, oldSharedDSInfo, datasetsSet);
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Restore DS fails!", error);
             deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function getDSBasicInfo() {
+        var deferred = jQuery.Deferred();
+        XcalarGetDatasetsInfo("*")
+        .then(function(res) {
+            try {
+                var dsInfos = {};
+                res.datasets.forEach(function(dataset) {
+                    var fullName = dataset.datasetName;
+                    if (fullName.startsWith(gDSPrefix)) {
+                        var name = fullName.substring(gDSPrefix.length);
+                        dsInfos[name] = {
+                            size: dataset.datasetSize
+                        };
+                    }
+                });
+                deferred.resolve(dsInfos);
+            } catch (e) {
+                console.error(e);
+                deferred.resolve({}); // still resolve
+            }
+        })
+        .fail(function(error) {
+            console.error(error);
+            deferred.resolve({}); // still resolve
         });
 
         return deferred.promise();
@@ -1391,14 +1430,14 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function getDSBackendMeta(datasets, lockMeta, atStartUp) {
+    function getDSBackendMeta(datasets, lockMeta, basicDSInfo, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var userPrefix = xcHelper.getUserPrefix();
-        var searchHash = {};
-        var unlistableDS = {};
+        var datasetsSet = {};
 
         for (var i = 0; i < numDatasets; i++) {
-            var dsName = datasets.datasets[i].name;
+            var dataset = datasets.datasets[i];
+            var dsName = dataset.name;
 
             if (dsName.endsWith("-xcalar-preview")) {
                 if (!atStartUp) {
@@ -1439,19 +1478,19 @@ window.DS = (function ($, DS) {
                 continue;
             }
 
-            if (!datasets.datasets[i].isListable) {
-                unlistableDS[dsName] = true;
-            }
             if (lockMeta.hasOwnProperty(dsName)) {
-                datasets.datasets[i].locked = lockMeta[dsName];
+                dataset.locked = lockMeta[dsName];
+            }
+            if (basicDSInfo.hasOwnProperty(dsName)) {
+                dataset.size = basicDSInfo[dsName].size;
             }
 
-            searchHash[dsName] = datasets.datasets[i];
+            datasetsSet[dsName] = dataset;
         }
-        return [searchHash, unlistableDS];
+        return datasetsSet;
     }
 
-    function restoreDir(oldFolder, searchHash) {
+    function restoreDir(oldFolder, datasetsSet) {
         var cache = $.isEmptyObject(oldFolder) ? [] : oldFolder.eles;
         // restore the ds and folder
         while (cache.length > 0) {
@@ -1477,21 +1516,22 @@ window.DS = (function ($, DS) {
                     $.merge(cache, obj.eles);
                 }
             } else {
-                if (searchHash.hasOwnProperty(obj.fullName)) {
+                if (datasetsSet.hasOwnProperty(obj.fullName)) {
                     // restore a ds
-                    var ds = searchHash[obj.fullName];
+                    var ds = datasetsSet[obj.fullName];
                     var format = xcHelper.parseDSFormat(ds);
                     obj = $.extend(obj, {
                         "format": format,
                         "path": ds.loadArgs.sourceArgs.path,
                         "unlistable": !ds.isListable,
                         "locked": ds.locked,
-                        "targetName": ds.loadArgs.sourceArgs.targetName
+                        "targetName": ds.loadArgs.sourceArgs.targetName,
+                        "size": ds.size
                     });
 
                     createDS(obj);
                     // mark the ds to be used
-                    delete searchHash[obj.fullName];
+                    delete datasetsSet[obj.fullName];
                 } else {
                     // when ds has front meta but no backend meta
                     // this is a case when front end meta not sync with
@@ -1501,21 +1541,29 @@ window.DS = (function ($, DS) {
             }
         }
 
-        return searchHash;
+        return datasetsSet;
     }
 
-    function restoreHelper(oldHomeFolder, oldSharedDSInfo, datasets,
-                            lockMeta, atStartUp) {
-        var userPrefix = xcHelper.getUserPrefix();
-        var res = getDSBackendMeta(datasets, lockMeta, atStartUp);
-        var searchHash = res[0];
-        var unlistableDS = res[1];
+    function getUnListableDS(datasetsSet) {
+        var unlistableDS = {};
+        for (var dsName in datasetsSet) {
+            var ds = datasetsSet[dsName];
+            if (!ds.isListable) {
+                unlistableDS[dsName] = true;
+            }
+        }
+        return unlistableDS;
+    }
 
-        searchHash = restoreSharedDS(oldSharedDSInfo, searchHash);
-        searchHash = restoreDir(oldHomeFolder, searchHash);
+    function restoreHelper(oldHomeFolder, oldSharedDSInfo, datasetsSet) {
+        var userPrefix = xcHelper.getUserPrefix();
+        var unlistableDS = getUnListableDS(datasetsSet);
+
+        datasetsSet = restoreSharedDS(oldSharedDSInfo, datasetsSet);
+        datasetsSet = restoreDir(oldHomeFolder, datasetsSet);
         // add ds that is not in oldHomeFolder
-        for (var dsName in searchHash) {
-            var ds = searchHash[dsName];
+        for (var dsName in datasetsSet) {
+            var ds = datasetsSet[dsName];
 
             if (ds != null) {
                 var format = xcHelper.parseDSFormat(ds);
@@ -1542,24 +1590,22 @@ window.DS = (function ($, DS) {
         checkUnlistableDS(unlistableDS);
     }
 
-    function restoreSharedDS(oldSharedDSInfo, searchHash, uneditableDS) {
+    function restoreSharedDS(oldSharedDSInfo, datasetsSet) {
         dsInfoMeta = new DSInfoConstructor(oldSharedDSInfo);
         var oldSharedFolder = dsInfoMeta.getDSInfo();
         var sharedFolder = createSharedFolder();
-        searchHash = restoreDir(oldSharedFolder, searchHash, uneditableDS);
+        datasetsSet = restoreDir(oldSharedFolder, datasetsSet);
         dsInfoMeta.updateDSInfo(sharedFolder);
         syncVersionId();
-        return searchHash;
+        return datasetsSet;
     }
 
-    function rebuildOldDSInfo(datasets, lockMeta) {
-        var res = getDSBackendMeta(datasets, lockMeta);
-        var searchHash = res[0];
+    function rebuildOldDSInfo(datasetsSet) {
         var tempDSInfoMeta = new DSInfoConstructor();
         var sharedFolder = createSharedFolder();
 
-        for (var fullDSName in searchHash) {
-            var ds = searchHash[fullDSName];
+        for (var fullDSName in datasetsSet) {
+            var ds = datasetsSet[fullDSName];
             if (ds != null) {
                 var format = xcHelper.parseDSFormat(ds);
                 var parsedRes = xcHelper.parseDSName(fullDSName);
@@ -1577,7 +1623,8 @@ window.DS = (function ($, DS) {
                     "path": ds.loadArgs.sourceArgs.path,
                     "unlistable": !ds.isListable,
                     "locked": ds.locked,
-                    "targetName": ds.loadArgs.sourceArgs.targetName
+                    "targetName": ds.loadArgs.sourceArgs.targetName,
+                    "size": ds.size
                 };
 
                 createDS(options);
@@ -2409,6 +2456,9 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
+                '<div class="size">' +
+                    dsObj.getDisplaySize() +
+                '</div>' +
                 deleteIcon +
                 lockIcon +
                 unlockIcon +
@@ -2459,6 +2509,9 @@ window.DS = (function ($, DS) {
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
                     name +
+                '</div>' +
+                '<div class="size">' +
+                    dsObj.getDisplaySize() +
                 '</div>' +
                 deleteIcon +
                 lockIcon +
