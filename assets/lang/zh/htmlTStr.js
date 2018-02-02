@@ -520,7 +520,7 @@ module.exports = {
     },
     "dsTarget": {
         "Create": "添加数据目标",
-        "CreateInstr": "请选择目标类型，填写目标名称，并填写相应的信息",
+        "CreateInstr": "请填写目标名称, 选择目标类型, 并填写其它相应的信息",
         "Type": "类型",
         "TargetInfo": "数据目标信息",
         "TargetInfoInstr": "以下是所选目标的详细信息。 要创建新目标, 请点击左边栏上方的创建按钮。",

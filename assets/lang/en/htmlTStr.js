@@ -580,7 +580,7 @@ module.exports = {
 
     "dsTarget": {
         "Create": "Create Data Target",
-        "CreateInstr": "Select a target type and choose a name for your data target. Provide any additional information as needed.",
+        "CreateInstr": "Enter your data target name and select a target type. Provide any additional information as needed.",
         "Type": "Target Type",
         "TargetInfo": "Data Target Information",
         "TargetInfoInstr": "Details about the selected data target are provided below. To create a new target, click the button on the top left corner of the left panel.",
