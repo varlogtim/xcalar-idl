@@ -5,7 +5,6 @@ window.DS = (function ($, DS) {
     var homeDirId; // DSObjTerm.homeDirId
 
     var curDirId;       // current folder id
-    var folderIdCount;  // counter
     var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
     var dsInfoMeta;
@@ -392,7 +391,6 @@ window.DS = (function ($, DS) {
         $gridMenu.find(".back, .moveUp").addClass("disabled");
         // reset home folder
         curDirId = homeDirId;
-        folderIdCount = 0;
         dsLookUpTable = {};
 
         homeFolder = createHomeFolder();
@@ -1293,6 +1291,11 @@ window.DS = (function ($, DS) {
         var count = 0;
         while (dirId !== homeDirId) {
             var dsObj = DS.getDSObj(dirId);
+            if (dsObj == null) {
+                // handle error case
+                console.error("error case");
+                return;
+            }
             // only the last two folder show the name
             var name;
             if (count < 2) {
@@ -1462,7 +1465,7 @@ window.DS = (function ($, DS) {
                 // restoreSharedDS
                 continue;
             }
-            if (obj.js === ".other") {
+            if (obj.id === ".other") {
                 // old structure, not restore
                 continue;
             }
@@ -1470,10 +1473,6 @@ window.DS = (function ($, DS) {
             if (obj.isFolder) {
                 // restore a folder
                 createDS(obj);
-
-                // update id count
-                updateFolderIdCount(obj.id);
-
                 if (obj.eles != null) {
                     $.merge(cache, obj.eles);
                 }
@@ -2309,15 +2308,8 @@ window.DS = (function ($, DS) {
         truncateDSName($labels, isListView);
     }
 
-    function updateFolderIdCount(folderId) {
-        var currentIdPointer = folderId.split("folder-")[1];
-        folderIdCount = Math.max(folderIdCount, Number(currentIdPointer) + 1);
-    }
-
     function getNewFolderId() {
-        var newId = XcSupport.getUser() + "-folder-" + folderIdCount;
-        folderIdCount++;
-        return newId;
+        return XcSupport.getUser() + "-folder-" + (new Date().getTime());
     }
 
     // Helper function for createDS()
