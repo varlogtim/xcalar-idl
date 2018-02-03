@@ -91,16 +91,21 @@
       include "partials/modal/errorMessageModal.html"
     </div>
     include "partials/installerScript.html"
+    <!-- testSuite.js and unitTest.js need variables gDefaultSharedRoot and gLongTestSuite from global.js, which requires LibApisCommon_types.js and thrift.js -->
+    <script src="assets/test/testSuite.js"></script>
     <script src="assets/test/testSuiteSetup.js"></script>
     <script src="3rd/mocha.js"></script>
     <script src="3rd/chai.js"></script>
     <script src="3rd/chai-string.js"></script>
-    <script src="3rd/blanket.min.js" data-cover-adapter="3rd/mocha-blanket.js"></script>
     <script src="3rd/ifvisible.js"></script>
+    <script src="assets/js/thrift/thrift.js"></script>
+    <script src="assets/js/thrift/LibApisCommon_types.js"></script>
+    <script src="assets/js/globals.js"></script>
+    <script src="assets/js/util/xcHelper.js"></script>
     <script src="assets/test/unitTest/unitTest.js"></script>
     include "partials/installerUnitTestScript.html"
     <script type="text/javascript">
-    UnitTest.setup();
+      UnitTest.setup();
     </script>
   </body>
 </html>

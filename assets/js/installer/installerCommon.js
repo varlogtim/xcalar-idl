@@ -154,9 +154,11 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     InstallerCommon.validateKey = function($form) {
         var deferred = jQuery.Deferred();
         var finalKey = $form.find(".licenseKey").val();
-        if ($form.find(".checkbox:visible").length > 0) {
-            var upgradeLicense = $form.find(".checkbox:visible").hasClass("checked");
-            if (!upgradeLicense) {
+        // only for upgrader
+        if ($form.hasClass("upgrade")) {
+            var needUpdate = $form.find(".checkbox:visible").hasClass("checked");
+            // update license key in upgrade process is optional
+            if (!needUpdate) {
                 deferred.resolve();
                 return (deferred.promise());
             }
@@ -215,13 +217,14 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         var deferred = jQuery.Deferred();
         var res = {};
         res.nfsOption = {};
-        if ($form.find(".checkbox").length > 0 && $form.find(".checkbox.checked").length === 0) {
+        if ($form.hasClass("upgrade") && $form.find(".checkbox.checked").length === 0) {
+            // upgrade choose to not change xcalar root
             res.nfsOption.option = "readyNfs";
             res.nfsOption.nfsReuse = discoverResult.xcalarRoot;
             deferred.resolve(res);
         } else {
             var copyOption = false;
-            if ($form.find(".copyChoice .radioButton.active").length > 0) {
+            if ($form.hasClass("upgrade")) {
                 copyOption = $form.find(".copyChoice .radioButton.active").data("option") === "xcalarCopy";
             }
             res.nfsOption.copy = copyOption;
@@ -265,7 +268,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.validateHosts = function($form, withoutPrivHost) {
-        var deferred = jQuery.Deferred();
         var res = {};
         var hostArray = $form.find(".row .hostname .publicName input");
         var hostPrivateArray = $form.find(".row .hostname .privateName input");
@@ -283,106 +285,116 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 }
             } else {
                 if (!withoutPrivHost && (privNameOrIp.length > 0)) {
-                    deferred.reject("No public name",
-                        "You must provide a public name for all private names");
-                    return (deferred.promise());
+                    return {
+                        "error":[
+                            "No public name",
+                            "You must provide a public name for all private names"
+                        ]
+                    };
                 }
             }
         }
 
         if (allHosts.length === 0) {
-            deferred.reject("No hosts","You must install on at least 1 host");
-            return (deferred.promise());
+            return {
+                "error":[
+                    "No hosts",
+                    "You must install on at least 1 host"
+                ]
+            };
         }
 
         if (allPrivHosts.length !== 0 &&
             allPrivHosts.length !== allHosts.length) {
-            deferred.reject("Private / Public Hostname Error",
-            "Either provide private hostnames / IPs for all or none of the hosts");
-            return (deferred.promise());
+            return {
+                "error":[
+                    "Private / Public Hostname Error",
+                    "Either provide private hostnames / IPs for all or none of the hosts"
+                ]
+            };
         }
 
         // Find dups
         for (i = 0; i < allHosts.length; i++) {
             if (allHosts.indexOf(allHosts[i], i+1) > -1) {
-                deferred.reject("Duplicate Hosts",
-                                "Public Hostname " + allHosts[i] +
-                                " is a duplicate");
-                return deferred.promise();
+                return {
+                    "error":[
+                        "Duplicate Hosts",
+                        "Public Hostname " + allHosts[i] + " is a duplicate"
+                    ]
+                };
             }
 
             if (!withoutPrivHost) {
                 if (allPrivHosts.indexOf(allPrivHosts[i], i+1) > -1) {
-                    deferred.reject("Duplicate Hosts",
-                                    "Private Hostname " + allPrivHosts[i] +
-                                    " is a duplicate");
-                    return deferred.promise();
+                    return {
+                        "error":[
+                            "Duplicate Hosts",
+                            "Private Hostname " + allPrivHosts[i] + " is a duplicate"
+                        ]
+                    };
                 }
             }
         }
 
         res.hostnames = allHosts;
         res.privHostNames = allPrivHosts;
-        deferred.resolve(res);
-        return deferred.promise();
+        return res;
     };
 
     InstallerCommon.validateInstallationDirectory = function($form) {
-        var deferred = jQuery.Deferred();
         var res = {};
         res.installationDirectory = null;
+        // only tarball - installer has installation directory option
         if ($form.find(".installationDirectorySection").length === 0) {
-            deferred.resolve(res);
-            return deferred.promise();
+            return res;
         }
         var installationDirectory = getVal($form.find(".installationDirectorySection input"));
         if (installationDirectory.length === 0) {
-            deferred.reject(
-                "Empty Installation Directory",
-                "Please assign a value to Installation Directory"
-            );
+            return {
+                "error":[
+                    "Empty Installation Directory",
+                    "Please assign a value to Installation Directory"
+                ]
+            };
         } else {
             res.installationDirectory = removeDuplicateSlash(installationDirectory);
-            deferred.resolve(res);
+            return res;
         }
-        return deferred.promise();
     };
 
     InstallerCommon.validateSerializationDirectory = function($form) {
-        var deferred = jQuery.Deferred();
         var res = {};
         res.serializationDirectory = null;
         var serializationDirectory = getVal($form.find(".serializationDirectorySection input"));
         if (serializationDirectory.length === 0) {
-            deferred.resolve(res);
+            return res;
         } else {
             res.serializationDirectory = removeDuplicateSlash(serializationDirectory);
-            deferred.resolve(res);
+            return res;
         }
-        return deferred.promise();
     };
 
     InstallerCommon.validateSupportBundles = function($form) {
-        var deferred = jQuery.Deferred();
         var res = {};
         res.supportBundles = $form.find(".checkbox.supportBundles")
             .hasClass("checked");
-        deferred.resolve(res);
-
-        return deferred.promise();
+        return res;
     };
 
     InstallerCommon.validateCredentials = function($form) {
-        var deferred = jQuery.Deferred();
         var res = {};
         res.credentials = {};
         var $hostInputs = $form.find(".hostUsername input:visible");
         var passOption = $form.find(".passwordChoice .active").data("option");
         for (var i = 0; i < $hostInputs.length; i++) {
             if ($hostInputs.eq(i).val().trim().length === 0) {
-                deferred.reject("Empty Username / Port",
-                                "Your SSH username / port cannot be empty.");
-                return deferred.promise();
+                return {
+                    "error":[
+                        "Empty Username / Port",
+                        "Your SSH username / port cannot be empty."
+                    ]
+                };
             }
         }
         res.username = getVal($hostInputs.eq(0));
@@ -391,31 +403,41 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         switch (passOption) {
             case ("password"):
                 if ($form.find(".hostPassword input").val().length === 0) {
-                    deferred.reject("Empty Password",
-                                    "For passwordless ssh, upload your ssh key");
+                    return {
+                        "error":[
+                            "Empty Password",
+                            "For passwordless ssh, upload your ssh key"
+                        ]
+                    };
                 } else {
                     res.credentials.password = $form.find(".hostPassword input").val();
-                    deferred.resolve(res);
+                    return res;
                 }
                 break;
             case ("sshKey"):
                 if (getVal($form.find(".hostSshKey textarea")).length === 0) {
-                    deferred.reject("Empty Ssh Key",
-                              "Your ssh key is generally located at ~/.ssh/id_rsa");
+                    return {
+                        "error":[
+                            "Empty Ssh Key",
+                            "Your ssh key is generally located at ~/.ssh/id_rsa"
+                        ]
+                    };
                 } else {
                     res.credentials.sshKey = getVal($form.find(".hostSshKey textarea"));
-                    deferred.resolve(res);
+                    return res;
                 }
                 break;
             case ("sshUserSettings"):
                 res.credentials.sshUserSettings = true;
-                deferred.resolve(res);
-                break;
+                return res;
             default:
-                deferred.reject("Illegal Password Option",
-                            "Not a legal password option");
+                return {
+                    "error":[
+                        "Illegal Password Option",
+                        "Not a legal password option"
+                    ]
+                };
         }
-        return deferred.promise();
     };
 
     InstallerCommon.validateLdap = function($form) {
@@ -503,32 +525,32 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     InstallerCommon.validateSettings = function($form) {
         var deferred = jQuery.Deferred();
         var result = {};
-        InstallerCommon.validateHosts($form)
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateInstallationDirectory($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateSerializationDirectory($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateCredentials($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateSupportBundles($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
+        var res = null;
+        var hasError = false;
+        var errorArg = null;
+        hasError = hasError
+                   || checkError(InstallerCommon.validateHosts($form))
+                   || checkError(InstallerCommon.validateInstallationDirectory($form))
+                   || checkError(InstallerCommon.validateSerializationDirectory($form))
+                   || checkError(InstallerCommon.validateSupportBundles($form))
+                   || checkError(InstallerCommon.validateCredentials($form));
+        if (hasError){
+            deferred.reject(errorArg[0], errorArg[1]);
+        } else {
             jQuery.extend(finalStruct, result);
             deferred.resolve();
-        })
-        .fail(function(arg1, arg2) {
-            deferred.reject(arg1, arg2);
-        });
+        }
         return deferred.promise();
+
+        function checkError(validateRes) {
+            if (validateRes.hasOwnProperty("error")) {
+                errorArg = validateRes.error;
+                return true;
+            } else {
+                jQuery.extend(result, validateRes);
+                return false;
+            }
+        }
     };
 
     function findStepId($form, $forms) {
@@ -869,20 +891,25 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         $form.find("input.back").addClass("inactive").hide();
         $form.find(".section:not(.buttonSection) input").prop("disabled", true);
         $form.find(".radioButtonGroup").addClass("unclickable");
-
+        var hasError = false;
         var result = {};
-        InstallerCommon.validateHosts($form, true)
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateInstallationDirectory($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
-            return InstallerCommon.validateCredentials($form);
-        })
-        .then(function(res) {
-            jQuery.extend(result, res);
-            jQuery.extend(finalStruct, result);
+        var errorArg = null;
+
+        function validateForm() {
+            var innerDeferred = jQuery.Deferred();
+            hasError = hasError || checkError(InstallerCommon.validateHosts($form, true))
+                       || checkError(InstallerCommon.validateInstallationDirectory($form))
+                       || checkError(InstallerCommon.validateCredentials($form));
+            if (hasError) {
+                innerDeferred.reject(errorArg[0] + ": " + errorArg[1]);
+            } else {
+                jQuery.extend(finalStruct, result);
+                innerDeferred.resolve();
+            }
+            return innerDeferred.promise();
+        }
+        validateForm()
+        .then(function() {
             return InstallerCommon.sendViaHttps("POST", discoverApi, JSON.stringify(finalStruct));
         })
         .then(function(hints, res) {
@@ -909,6 +936,16 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             $form.find(".radioButtonGroup").removeClass("unclickable");
         });
         return deferred.promise();
+
+        function checkError(validateRes) {
+            if (validateRes.hasOwnProperty("error")) {
+                errorArg = validateRes.error;
+                return true;
+            } else {
+                jQuery.extend(result, validateRes);
+                return false;
+            }
+        }
 
         function appendHostsHtml(hosts) {
             var html = "";
@@ -998,7 +1035,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.showErrorModal = function(ret) {
-        if (ret) {
+        if (ret && (typeof ret === "object")) {
             ErrorMessage.show({
                 "errorCode": ret.status,
                 "description": "Unknown",

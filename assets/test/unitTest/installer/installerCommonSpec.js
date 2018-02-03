@@ -5,9 +5,12 @@ describe("InstallerCommon Common Test", function() {
         "Running": 1,     // Installation is running in some steps
         "Done": 2       // Entire installation is sucessfully done
     };
+    var fakeRes = {
+        "error": [-1, -1]
+    };
 
     before(function() {
-        $forms = $("form.install");
+        $forms = $("form");
         for (var i = 0; i < $forms.length; i++) {
             $forms[i].reset();
         }
@@ -219,7 +222,7 @@ describe("InstallerCommon Common Test", function() {
         $form.removeClass("hidden");
         $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
         $form.find(".nfsServer").val("A");
-        $form.find(".nfsMountPoint").val("");
+        $form.find("input.nfsMountPoint").val("");
         InstallerCommon.validateNfs($form)
         .always(function(data1, data2) {
             expect(data1).to.equal("NFS MountPoint Invalid");
@@ -240,6 +243,32 @@ describe("InstallerCommon Common Test", function() {
         $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
         $form.find(".nfsServer").val("A");
         $form.find(".nfsMountPoint").val("B");
+        $form.find(".nfsUserName").val("C");
+        $form.find(".nfsUserGroup").val("D");
+        InstallerCommon.validateNfs($form)
+        .always(function(data) {
+            expect(data.nfsOption.option).to.equal("customerNfs");
+            expect(data.nfsOption.copy).to.equal(false);
+            expect(data.nfsOption.nfsServer).to.equal("A");
+            expect(data.nfsOption.nfsMountPoint).to.equal("/B");
+            expect(data.nfsOption.nfsUsername).to.equal("C");
+            expect(data.nfsOption.nfsGroup).to.equal("D");
+            $form.find(".nfsServer").val("");
+            $form.find(".nfsMountPoint").val("");
+            $form.find(".nfsUserName").val("");
+            $form.find(".nfsUserGroup").val("");
+            $form.find(".nfsMountPointReady").val("");
+            done();
+        });
+    });
+
+    it("Validate NFS should work - customerNfs - slash path", function(done) {
+        var $form = $("#sharedStorageForm");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+        $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
+        $form.find(".nfsServer").val("A");
+        $form.find(".nfsMountPoint").val("/B");
         $form.find(".nfsUserName").val("C");
         $form.find(".nfsUserGroup").val("D");
         InstallerCommon.validateNfs($form)
@@ -362,7 +391,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").removeClass("checked");
+        if ($form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         InstallerCommon.validateNfs($form)
         .always(function(data) {
             expect(data.nfsOption.option).to.equal("readyNfs");
@@ -381,8 +412,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".copyChoice .radioButton[data-option=xcalarCopy]").click();
         $form.find(".nfsChoice .radioButton[data-option=xcalarNfs]").click();
         InstallerCommon.validateNfs($form)
@@ -403,8 +435,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
         $form.find(".nfsServer").text("");
         InstallerCommon.validateNfs($form)
@@ -426,8 +459,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
         $form.find(".nfsServer").val("A");
         $form.find(".nfsMountPoint").val("");
@@ -449,8 +483,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".nfsChoice .radioButton[data-option=customerNfs]").click();
         $form.find(".nfsServer").val("A");
         $form.find(".nfsMountPoint").val("B");
@@ -478,8 +513,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".nfsChoice .radioButton[data-option=readyNfs]").click();
         $form.find(".nfsMountPointReady").text("");
         InstallerCommon.validateNfs($form)
@@ -500,8 +536,9 @@ describe("InstallerCommon Common Test", function() {
         var $form = $("#sharedStorageUpdateForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
-        $form.find(".checkbox").addClass("checked");
-        $form.find(".checkbox").click();
+        if (!$form.find(".checkbox").hasClass("checked")) {
+            $form.find(".checkbox").click();
+        }
         $form.find(".nfsChoice .radioButton[data-option=readyNfs]").click();
         $form.find(".nfsMountPointReady").val("E");
         InstallerCommon.validateNfs($form)
@@ -519,7 +556,7 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate validateInstallationDirectory should work - empty case", function(done) {
+    it("Validate validateInstallationDirectory should work - empty case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -529,17 +566,12 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".installationDirectorySection input").val("");
-        InstallerCommon.validateInstallationDirectory($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Empty Installation Directory");
-            expect(data2)
-            .to.equal("Please assign a value to Installation Directory");
-            done();
-        });
+        var res = InstallerCommon.validateInstallationDirectory($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Empty Installation Directory");
+        expect(res["error"][1]).to.equal("Please assign a value to Installation Directory");
     });
 
-    it("Validate validateInstallationDirectory should work slash before end", function(done) {
+    it("Validate validateInstallationDirectory should work slash before end", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -549,15 +581,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".installationDirectorySection input").val("/abcd/");
-        InstallerCommon.validateInstallationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"installationDirectory":"/abcd"}');
-            done();
-        });
+        var res = InstallerCommon.validateInstallationDirectory($form) || fakeRes;
+        expect(JSON.stringify(res)).to.equal('{"installationDirectory":"/abcd"}');
     });
 
-    it("Validate validateInstallationDirectory should work no slash", function(done) {
+    it("Validate validateInstallationDirectory should work no slash", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -567,15 +595,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".installationDirectorySection input").val("abcd");
-        InstallerCommon.validateInstallationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"installationDirectory":"/abcd"}');
-            done();
-        });
+        var res = InstallerCommon.validateInstallationDirectory($form) || fakeRes;
+        expect(JSON.stringify(res)).to.equal('{"installationDirectory":"/abcd"}');
     });
 
-    it("Validate validateInstallationDirectory should work slash before", function(done) {
+    it("Validate validateInstallationDirectory should work slash before", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -585,15 +609,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".installationDirectorySection input").val("/abcd");
-        InstallerCommon.validateInstallationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"installationDirectory":"/abcd"}');
-        });
-        done();
+        var res = InstallerCommon.validateInstallationDirectory($form) || fakeRes;
+        expect(JSON.stringify(res)).to.equal('{"installationDirectory":"/abcd"}');
     });
 
-    it("Validate validateInstallationDirectory should work slash end", function(done) {
+    it("Validate validateInstallationDirectory should work slash end", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -603,15 +623,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".installationDirectorySection input").val("abcd/");
-        InstallerCommon.validateInstallationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"installationDirectory":"/abcd"}');
-        });
-        done();
+        var res = InstallerCommon.validateInstallationDirectory($form) || fakeRes;
+        expect(JSON.stringify(res)).to.equal('{"installationDirectory":"/abcd"}');
     });
 
-    it("Validate validateSerializationDirectory should work - empty case", function(done) {
+    it("Validate validateSerializationDirectory should work - empty case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -621,16 +637,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".serializationDirectorySection input").val("");
-        InstallerCommon.validateSerializationDirectory($form)
-        .then(function() {
-            done();
-        })
-        .fail(function() {
-            done("fail");
-        });
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(res.serializationDirectory).to.equal(null);
     });
 
-    it("Validate validateSerializationDirectory should work slash before end", function(done) {
+    it("Validate validateSerializationDirectory should work slash before end", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -640,15 +651,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".serializationDirectorySection input").val("/abcd/");
-        InstallerCommon.validateSerializationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"serializationDirectory":"/abcd"}');
-        });
-        done();
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
 
-    it("Validate validateSerializationDirectory should work no slash", function(done) {
+    it("Validate validateSerializationDirectory should work no slash", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -658,15 +665,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".serializationDirectorySection input").val("abcd");
-        InstallerCommon.validateSerializationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"serializationDirectory":"/abcd"}');
-        });
-        done();
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
 
-    it("Validate validateSerializationDirectory should work slash before", function(done) {
+    it("Validate validateSerializationDirectory should work slash before", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -676,15 +679,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".serializationDirectorySection input").val("/abcd");
-        InstallerCommon.validateSerializationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"serializationDirectory":"/abcd"}');
-        });
-        done();
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
 
-    it("Validate validateSerializationDirectory should work slash end", function(done) {
+    it("Validate validateSerializationDirectory should work slash end", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -694,15 +693,11 @@ describe("InstallerCommon Common Test", function() {
         e.keyCode = 13;
         $("#numServers").trigger(e);
         $form.find(".serializationDirectorySection input").val("abcd/");
-        InstallerCommon.validateSerializationDirectory($form)
-        .always(function(data) {
-            expect(JSON.stringify(data))
-            .to.equal('{"serializationDirectory":"/abcd"}');
-        });
-        done();
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
 
-    it("Validate Credentials should work - empty username and port", function(done) {
+    it("Validate Credentials should work - empty username and port", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -711,21 +706,15 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-
-        InstallerCommon.validateCredentials($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Empty Username / Port");
-            expect(data2)
-            .to.equal("Your SSH username / port cannot be empty.");
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Empty Username / Port");
+        expect(res["error"][1]).to.equal("Your SSH username / port cannot be empty.");
+        $(".hostUsername .input").eq(0).removeAttr('value');
+        $(".hostPassword input").val("");
+        $(".hostSshKey textarea").val("");
     });
 
-    it("Validate Credentials should work - empty password case", function(done) {
+    it("Validate Credentials should work - empty password case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -734,24 +723,18 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-
         $form.find(".hostUsername input:visible").eq(0).val("username");
         $form.find(".hostUsername input:visible").eq(1).val("ssh port");
         $form.find('.radioButton[data-option="password"]').click();
-        InstallerCommon.validateCredentials($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Empty Password");
-            expect(data2)
-            .to.equal("For passwordless ssh, upload your ssh key");
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Empty Password");
+        expect(res["error"][1]).to.equal("For passwordless ssh, upload your ssh key");
+        $(".hostUsername .input").eq(0).removeAttr('value');
+        $(".hostPassword input").val("");
+        $(".hostSshKey textarea").val("");
     });
 
-    it("Validate Credentials should work - password case", function(done) {
+    it("Validate Credentials should work - password case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -765,18 +748,14 @@ describe("InstallerCommon Common Test", function() {
         $form.find(".hostUsername input:visible").eq(1).val("ssh port");
         $form.find('.radioButton[data-option="password"]').click();
         $form.find(".hostPassword input").val("12345");
-        InstallerCommon.validateCredentials($form)
-        .always(function(data) {
-            expect(data.credentials.password)
-            .to.equal("12345");
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res.credentials.password).to.equal("12345");
+        $(".hostUsername .input").eq(0).removeAttr('value');
+        $(".hostPassword input").val("");
+        $(".hostSshKey textarea").val("");
     });
 
-    it("Validate Credentials should work - empty ssh key case", function(done) {
+    it("Validate Credentials should work - empty ssh key case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -789,20 +768,15 @@ describe("InstallerCommon Common Test", function() {
         $form.find(".hostUsername input:visible").eq(0).val("username");
         $form.find(".hostUsername input:visible").eq(1).val("ssh port");
         $form.find('.radioButton[data-option="sshKey"]').click();
-        InstallerCommon.validateCredentials($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Empty Ssh Key");
-            expect(data2)
-            .to.equal("Your ssh key is generally located at ~/.ssh/id_rsa");
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Empty Ssh Key");
+        expect(res["error"][1]).to.equal("Your ssh key is generally located at ~/.ssh/id_rsa");
+        $(".hostUsername .input").eq(0).removeAttr('value');
+        $(".hostPassword input").val("");
+        $(".hostSshKey textarea").val("");
     });
 
-    it("Validate Credentials should work - ssh key case", function(done) {
+    it("Validate Credentials should work - ssh key case", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -816,18 +790,14 @@ describe("InstallerCommon Common Test", function() {
         $form.find(".hostUsername input:visible").eq(1).val("ssh port");
         $form.find('.radioButton[data-option="sshKey"]').click();
         $form.find(".hostSshKey textarea").val("6789");
-        InstallerCommon.validateCredentials($form)
-        .always(function(data) {
-            expect(data.credentials.sshKey)
-            .to.equal("6789");
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res.credentials.sshKey).to.equal("6789");
+        $(".hostUsername .input").eq(0).removeAttr('value');
+        $(".hostPassword input").val("");
+        $(".hostSshKey textarea").val("");
     });
 
-    it("Validate Credentials should work - ssh user Settings", function(done) {
+    it("Validate Credentials should work - ssh user Settings", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -840,18 +810,11 @@ describe("InstallerCommon Common Test", function() {
         $form.find(".hostUsername input:visible").eq(0).val("username");
         $form.find(".hostUsername input:visible").eq(1).val("ssh port");
         $form.find('.radioButton[data-option="sshUserSettings"]').click();
-        InstallerCommon.validateCredentials($form)
-        .always(function(data) {
-            expect(data.credentials.sshUserSettings)
-            .to.equal(true);
-            $(".hostUsername .input").eq(0).removeAttr('value');
-            $(".hostPassword input").val("");
-            $(".hostSshKey textarea").val("");
-            done();
-        });
+        var res = InstallerCommon.validateCredentials($form) || fakeRes;
+        expect(res.credentials.sshUserSettings).to.equal(true);
     });
 
-    it("Validate Hosts should work - empty hosts", function(done) {
+    it("Validate Hosts should work - empty hosts", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -860,18 +823,12 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("No hosts");
-            expect(data2)
-            .to.equal("You must install on at least 1 host");
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res["error"][0]).to.equal("No hosts");
+        expect(res["error"][1]).to.equal("You must install on at least 1 host");
     });
 
-    it("Validate Hosts should work - private hostname without public hostname", function(done) {
+    it("Validate Hosts should work - private hostname without public hostname", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -886,17 +843,12 @@ describe("InstallerCommon Common Test", function() {
 
         hostArray.val("");
         hostPrivateArray.eq(0).val("127.0.0.1");
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("No public name");
-            expect(data2)
-            .to.equal("You must provide a public name for all private names");
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res["error"][0]).to.equal("No public name");
+        expect(res["error"][1]).to.equal("You must provide a public name for all private names");
     });
 
-    it("Validate Hosts should work - not every node has privHosts", function(done) {
+    it("Validate Hosts should work - not every node has privHosts", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -912,43 +864,12 @@ describe("InstallerCommon Common Test", function() {
         hostPrivateArray.eq(0).val("127.0.0.1");
         hostArray.eq(0).val("127.0.0.1");
         hostArray.eq(1).val("127.0.0.1");
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Private / Public Hostname Error");
-            expect(data2)
-            .to.equal("Either provide private hostnames / IPs for all or none of the hosts");
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Private / Public Hostname Error");
+        expect(res["error"][1]).to.equal("Either provide private hostnames / IPs for all or none of the hosts");
     });
 
-    it("Validate Hosts should work - not every node has privHosts", function(done) {
-        var $form = $("#hostForm");
-        $forms.addClass("hidden");
-        $form.removeClass("hidden");
-        $("#hostForm .hint input").val(2);
-        var e = $.Event("keyup");
-        e.which = 13; //choose the one you want
-        e.keyCode = 13;
-        $("#numServers").trigger(e);
-
-        var hostArray = $(".row .hostname .publicName input");
-        var hostPrivateArray = $(".row .hostname .privateName input");
-
-        hostPrivateArray.eq(0).val("127.0.0.1");
-        hostArray.eq(0).val("127.0.0.1");
-        hostArray.eq(1).val("127.0.0.1");
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Private / Public Hostname Error");
-            expect(data2)
-            .to.equal("Either provide private hostnames / IPs for all or none of the hosts");
-            done();
-        });
-    });
-
-    it("Validate Hosts should work - duplicate public Hosts", function(done) {
+    it("Validate Hosts should work - duplicate public Hosts", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -965,18 +886,12 @@ describe("InstallerCommon Common Test", function() {
         hostPrivateArray.eq(1).val("127.0.0.1");
         hostArray.eq(0).val("127.0.0.1");
         hostArray.eq(1).val("127.0.0.1");
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Duplicate Hosts");
-            expect(data2)
-            .to.equal("Public Hostname 127.0.0.1" +
-                      " is a duplicate");
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Duplicate Hosts");
+        expect(res["error"][1]).to.equal("Public Hostname 127.0.0.1 is a duplicate");
     });
 
-    it("Validate Hosts should work - duplicate private Hosts", function(done) {
+    it("Validate Hosts should work - duplicate private Hosts", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -993,18 +908,12 @@ describe("InstallerCommon Common Test", function() {
         hostPrivateArray.eq(1).val("127.0.0.1");
         hostArray.eq(0).val("127.0.0.1");
         hostArray.eq(1).val("127.0.0.2");
-        InstallerCommon.validateHosts($form)
-        .always(function(data1, data2) {
-            expect(data1)
-            .to.equal("Duplicate Hosts");
-            expect(data2)
-            .to.equal("Private Hostname 127.0.0.1" +
-                      " is a duplicate");
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res["error"][0]).to.equal("Duplicate Hosts");
+        expect(res["error"][1]).to.equal("Private Hostname 127.0.0.1 is a duplicate");
     });
 
-    it("Validate Hosts should work", function(done) {
+    it("Validate Hosts should work", function() {
         var $form = $("#hostForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -1021,16 +930,9 @@ describe("InstallerCommon Common Test", function() {
         hostPrivateArray.eq(1).val("");
         hostArray.eq(0).val("127.0.0.1");
         hostArray.eq(1).val("127.0.0.2");
-        InstallerCommon.validateHosts($form)
-        .always(function(data) {
-            expect(data.hostnames[0])
-            .to.equal("127.0.0.1");
-            expect(data.hostnames[1])
-            .to.equal("127.0.0.2");
-            expect(data.privHostNames.length)
-            .to.equal(0);
-            done();
-        });
+        var res = InstallerCommon.validateHosts($form) || fakeRes;
+        expect(res.hostnames[0]).to.equal("127.0.0.1");
+        expect(res.hostnames[1]).to.equal("127.0.0.2");
     });
 
     it("Validate Settings should work", function(done) {
@@ -1038,19 +940,23 @@ describe("InstallerCommon Common Test", function() {
         var originValidateInstallationDirectory = InstallerCommon.validateInstallationDirectory;
         var originValidateSerializationDirectory = InstallerCommon.validateSerializationDirectory;
         var originValidateCredentials = InstallerCommon.validateCredentials;
+        var originSupportBundles = InstallerCommon.validateSupportBundles;
 
         InstallerCommon.validateHosts = function() {
-            return PromiseHelper.resolve({"a": "a"});
+            return {"a": "a"};
         };
         InstallerCommon.validateInstallationDirectory = function() {
-            return PromiseHelper.resolve({"b": "b"});
+            return {"b": "b"};
         };
         InstallerCommon.validateSerializationDirectory = function() {
-            return PromiseHelper.resolve({"c": "c"});
+            return {"c": "c"};
         };
         InstallerCommon.validateCredentials = function() {
-            return PromiseHelper.resolve({"d": "d"});
+            return {"d": "d"};
         };
+        InstallerCommon.validateSupportBundles = function() {
+            return {"e": "e"};
+        }
 
         InstallerCommon.validateSettings()
         .always(function() {
@@ -1058,14 +964,58 @@ describe("InstallerCommon Common Test", function() {
             expect(InstallerCommon.__testOnly__.finalStruct.b).to.equal("b");
             expect(InstallerCommon.__testOnly__.finalStruct.c).to.equal("c");
             expect(InstallerCommon.__testOnly__.finalStruct.d).to.equal("d");
+            expect(InstallerCommon.__testOnly__.finalStruct.e).to.equal("e");
             delete InstallerCommon.__testOnly__.finalStruct.a;
             delete InstallerCommon.__testOnly__.finalStruct.b;
             delete InstallerCommon.__testOnly__.finalStruct.c;
             delete InstallerCommon.__testOnly__.finalStruct.d;
+            delete InstallerCommon.__testOnly__.finalStruct.e;
             InstallerCommon.validateHosts = originValidateHosts;
             InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
             InstallerCommon.validateSerializationDirectory = originValidateSerializationDirectory;
             InstallerCommon.validateCredentials = originValidateCredentials;
+            InstallerCommon.validateSupportBundles = originSupportBundles;
+            done();
+        });
+    });
+
+    it("Validate Settings should work - width error", function(done) {
+        var originValidateHosts = InstallerCommon.validateHosts;
+        var originValidateInstallationDirectory = InstallerCommon.validateInstallationDirectory;
+        var originValidateSerializationDirectory = InstallerCommon.validateSerializationDirectory;
+        var originValidateCredentials = InstallerCommon.validateCredentials;
+        var originSupportBundles = InstallerCommon.validateSupportBundles;
+
+        InstallerCommon.validateHosts = function() {
+            return {"a": "a"};
+        };
+        InstallerCommon.validateInstallationDirectory = function() {
+            return {"b": "b"};
+        };
+        InstallerCommon.validateSerializationDirectory = function() {
+            return {"error": ["error-state-1", "error-state-2"]};
+        };
+        InstallerCommon.validateCredentials = function() {
+            return {"d": "d"};
+        };
+        InstallerCommon.validateSupportBundles = function() {
+            return {"e": "e"};
+        }
+
+        InstallerCommon.validateSettings()
+        .always(function(data1, data2) {
+            expect(data1).to.equal("error-state-1");
+            expect(data2).to.equal("error-state-2");
+            delete InstallerCommon.__testOnly__.finalStruct.a;
+            delete InstallerCommon.__testOnly__.finalStruct.b;
+            delete InstallerCommon.__testOnly__.finalStruct.c;
+            delete InstallerCommon.__testOnly__.finalStruct.d;
+            delete InstallerCommon.__testOnly__.finalStruct.e;
+            InstallerCommon.validateHosts = originValidateHosts;
+            InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
+            InstallerCommon.validateSerializationDirectory = originValidateSerializationDirectory;
+            InstallerCommon.validateCredentials = originValidateCredentials;
+            InstallerCommon.validateSupportBundles = originSupportBundles;
             done();
         });
     });
@@ -1137,60 +1087,6 @@ describe("InstallerCommon Common Test", function() {
             expect(data.ldap.domainName).to.equal("p0");
             expect(data.ldap.password).to.equal("AA");
             expect(data.ldap.companyName).to.equal("p3");
-            $params.find("input").each(function(idx, val) {
-                $(val).val("");
-            });
-            done();
-        });
-    });
-
-    it("Validate LDAP should work - customer Install not choosing ldap type", function(done) {
-        var $form = $("#ldapForm");
-        $forms.addClass("hidden");
-        $form.removeClass("hidden");
-        $params = $form.find(".ldapParams:not(.hidden)");
-        $params.find("input").each(function(idx, val) {
-            $(val).val("");
-        });
-
-        $forms.find(".radioButton[data-option=customerLdap]").click();
-        $params = $form.find(".ldapParams:not(.hidden)");
-        $params.find("input").eq(0).val("p0");
-        $params.find("input").eq(1).val("AA");
-        $params.find("input").eq(2).val("AA");
-        $params.find("input").eq(3).val("p3");
-        InstallerCommon.validateLdap($form)
-        .always(function(data1, data2) {
-            expect(data1).equal("AD or OpenLDAP");
-            expect(data2).equal("Please select AD or OpenLDAP");
-            $params.find("input").each(function(idx, val) {
-                $(val).val("");
-            });
-            done();
-        });
-    });
-
-    it("Validate LDAP should work - customer Install not choosing TLS", function(done) {
-        var $form = $("#ldapForm");
-        $forms.addClass("hidden");
-        $form.removeClass("hidden");
-        $params = $form.find(".ldapParams:not(.hidden)");
-        $params.find("input").each(function(idx, val) {
-            $(val).val("");
-        });
-
-        $forms.find(".radioButton[data-option=customerLdap]").click();
-        $params = $form.find(".ldapParams:not(.hidden)");
-        $params.find("input").eq(0).val("p0");
-        $params.find("input").eq(1).val("AA");
-        $params.find("input").eq(2).val("AA");
-        $params.find("input").eq(3).val("p3");
-        
-        $form.find("#ADChoice .radioButton[data-option=true]").click();
-        InstallerCommon.validateLdap($form)
-        .always(function(data1, data2) {
-            expect(data1).equal("TLS");
-            expect(data2).equal("Please select whether to use TLS");
             $params.find("input").each(function(idx, val) {
                 $(val).val("");
             });
@@ -1591,27 +1487,33 @@ describe("InstallerCommon Common Test", function() {
         $radioButton = $radioButtonGroup.find('.radioButton[data-option=true]');
         $radioButton.click();
         InstallerCommon.__testOnly__.radioAction($radioButtonGroup, $radioButton, $form);
-        expect($form.find(".fieldWrap .inputWrap input").eq(0).attr("placeholder"))
-        .equal("[ldap://pdc1.int.xcalar.com:389]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(1).attr("placeholder"))
-        .equal("[cn=users,dc=int,dc=xcalar,dc=net]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(2).attr("placeholder"))
+        expect(!$(".container").hasClass("preConfig"));
+        expect($form.find(".fieldWrap .inputWrap input").eq(4).attr("placeholder"))
+        .equal("[ldap://adserver.company.com:3268]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(5).attr("placeholder"))
+        .equal("[dc=company,dc=com]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(6).attr("placeholder"))
         .equal("[(&(objectclass=user)(userPrincipalName=%username%))]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(3).attr("placeholder"))
-        .equal("[/etc/ssl/certs/ca-certificates.crt]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(7).attr("placeholder"))
+        .equal("[/etc/pki/tls/cert.pem]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(8).attr("placeholder"))
+        .equal("[Active Directory User Group Name]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(9).attr("placeholder"))
+        .equal("[Active Directory Admin Group Name]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(10).attr("placeholder"))
+        .equal("[Active Directory Domain Name]");
 
         $radioButton = $radioButtonGroup.find('.radioButton[data-option=false]');
         $radioButton.click();
         InstallerCommon.__testOnly__.radioAction($radioButtonGroup, $radioButton, $form);
-        expect(!$(".container").hasClass("preConfig"));
-        expect($form.find(".fieldWrap .inputWrap input").eq(0).attr("placeholder"))
-        .equal("[ldap://openldap1-1.xcalar.net:389]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(1).attr("placeholder"))
-        .equal("[mail=%username%,ou=People,dc=int,dc=xcalar,dc=com]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(2).attr("placeholder"))
-        .equal("[(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)]");
-        expect($form.find(".fieldWrap .inputWrap input").eq(3).attr("placeholder"))
-        .equal("[/etc/ssl/certs/ca-certificates.crt]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(4).attr("placeholder"))
+        .equal("[ldap://ldapserver.company.com:389]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(5).attr("placeholder"))
+        .equal("[mail=%username%,ou=People,dc=company,dc=com]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(6).attr("placeholder"))
+        .equal("[(memberof=cn=users,ou=Groups,dc=company,dc=com)]");
+        expect($form.find(".fieldWrap .inputWrap input").eq(7).attr("placeholder"))
+        .equal("[/etc/pki/tls/cert.pem]");
     });
 
     it("Validate discover should work", function(done) {
@@ -1627,13 +1529,13 @@ describe("InstallerCommon Common Test", function() {
         $form.removeClass("hidden");
 
         InstallerCommon.validateHosts = function() {
-            return PromiseHelper.resolve({"a": "a"});
+            return {"a": "a"};
         };
         InstallerCommon.validateInstallationDirectory = function() {
-            return PromiseHelper.resolve({"b": "b"});
+            return {"b": "b"};
         };
         InstallerCommon.validateCredentials = function() {
-            return PromiseHelper.resolve({"c": "c"});
+            return {"c": "c"};
         };
         InstallerCommon.__testOnly__.setSendViaHttps(function() {
             return PromiseHelper.resolve(
@@ -1672,6 +1574,60 @@ describe("InstallerCommon Common Test", function() {
             delete InstallerCommon.__testOnly__.finalStruct.b;
             delete InstallerCommon.__testOnly__.finalStruct.c;
             InstallerCommon.__testOnly__.finalStruct.privHosts = [];
+            InstallerCommon.validateHosts = originValidateHosts;
+            InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
+            InstallerCommon.validateCredentials = originValidateCredentials;
+            InstallerCommon.__testOnly__.setSendViaHttps(originSendViaHttps);
+            done();
+        });
+    });
+
+    it("Validate discover should work - error case", function(done) {
+        var originValidateHosts = InstallerCommon.validateHosts;
+        var originValidateInstallationDirectory = InstallerCommon.validateInstallationDirectory;
+        var originValidateCredentials = InstallerCommon.validateCredentials;
+        var originSendViaHttps = InstallerCommon.sendViaHttps;
+        var $form = $("#upgradeDiscoveryForm");
+        var $sharedStorageUpdateForm = $("#sharedStorageUpdateForm");
+        var $upgradeHostsForm = $("#upgradeHostsForm");
+        var $forms = $("form.upgrade");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+
+        InstallerCommon.validateHosts = function() {
+            return {"a": "a"};
+        };
+        InstallerCommon.validateInstallationDirectory = function() {
+            return {"b": "b"};
+        };
+        InstallerCommon.validateCredentials = function() {
+            return {"error": ["error-state-1", "error-state-2"]};
+        };
+        InstallerCommon.__testOnly__.setSendViaHttps(function() {
+            return PromiseHelper.resolve(
+                "hint",
+                {
+                    "discoverResult":
+                    {
+                        "hosts": ["hostA", "hostB"],
+                        "xcalarMount": {
+                            "path": "fake-path",
+                            "server": "fake-server"
+                        },
+                        "privHosts": ["fake-privHost-1", "fake-privHost-2"],
+                        "ldapConfig": {}
+                    }
+                }
+            );
+        });
+
+        InstallerCommon.validateDiscover($form, $forms)
+        .always(function(data1, data2) {
+            expect(data1).to.equal("Failed to discover");
+            expect(data2).to.equal("error-state-1: error-state-2");
+            expect(InstallerCommon.__testOnly__.finalStruct.a).to.equal(undefined);
+            expect(InstallerCommon.__testOnly__.finalStruct.b).to.equal(undefined);
+            expect(InstallerCommon.__testOnly__.finalStruct.c).to.equal(undefined);
             InstallerCommon.validateHosts = originValidateHosts;
             InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
             InstallerCommon.validateCredentials = originValidateCredentials;
