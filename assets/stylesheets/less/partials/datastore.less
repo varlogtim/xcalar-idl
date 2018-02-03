@@ -188,6 +188,7 @@
 
     .cardTopMain {
         padding: 15px;
+        padding-bottom: 0px;
         .flex(0 0 auto);
 
         .titleSection {
@@ -224,10 +225,12 @@
         }
 
         .contentSection {
+            &:first-child {
+                width: 100%;
+            }
             .text-selection;
             .size(@height: 20px);
             font-size: 14px;
-            margin-top: 10px;
             height: 36px;
             line-height: 36px;
             .textOverflowOneLine;
@@ -240,6 +243,10 @@
             }
         }
 
+        #dsInfo-title {
+            color: @color-font-select-blue;
+        }
+
         #dsInfo-path {
             .flex(0 1 auto);
             .textOverflowOneLine;
@@ -247,8 +254,10 @@
 
         #showFileListBtn {
             margin-left: 10px;
-            width: 183px;
-            padding-left: 16px;
+            width: 144px;
+            padding: 0 0 0 1px;
+            height: 26px;
+            line-height: 26px;
 
             .icon {
                 color: @color-font-select-blue;
@@ -258,6 +267,7 @@
             .flex-display;
             .flex-wrap(wrap);
             justify-content: flex-end;
+            padding-top: 3px;
         }
         #dsInfo-path, #dsInfo-author, #dsInfo-records, #dsInfo-size, #dsInfo-format, #dsInfo-target {
             font-weight: 400;
@@ -268,8 +278,7 @@
 
         .buttonSection {
             .buttonGroup {
-                .size(@height: 36px);
-                margin-top: 10px;
+                .size(@height: 30px);
                 color: @color-font-select-blue;
                 .flex-display;
                 .align-items(center);
@@ -289,6 +298,10 @@
 
                 #noDScols {
                     .size(@max-width: ~"calc(100% - 20px)");
+                }
+
+                #selectDSCols {
+                    margin-left: 20px;
                 }
 
                 .xc-action {

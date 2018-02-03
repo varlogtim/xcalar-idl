@@ -73,17 +73,17 @@
    <div class="cardTopMain">
     <div class="infoSection flexContainer">
       <!-- left part -->
+      <div class="contentSection">
+        <span id="dsInfo-title"><%= dicts.ds.Datasets %></span>
+        <span class="divider">|</span>
+        <span><%= dicts.dsTable.Path %>:</span>
+        <span id="dsInfo-path" class="active" data-placement="top" data-container="body" data-toggle="tooltip">N/A</span>
+        <button id="showFileListBtn" class="btn btn-large btn-transparent iconBtn">
+          <i class="icon xi-show"></i>
+          <%= dicts.dsTable.clickToView %>
+        </button>
+      </div>
       <div class="flexWrap flex-left">
-        <div class="contentSection">
-          <span id="dsInfo-title"><%= dicts.ds.Datasets %></span>
-          <span class="divider">|</span>
-          <span><%= dicts.dsTable.Path %>:</span>
-          <span id="dsInfo-path" class="active" data-placement="top" data-container="body" data-toggle="tooltip">N/A</span>
-          <button id="showFileListBtn" class="btn btn-large btn-transparent iconBtn">
-            <i class="icon xi-show"></i>
-            <%= dicts.dsTable.clickToView %>
-          </button>
-        </div>
         <div class="contentSection">
           <span><%= dicts.dsTable.CreatedBy %>:</span>
           <span id="dsInfo-author"></span>
@@ -115,7 +115,6 @@
                <i class="icon xi-select-none"></i>
               <span><%= dicts.common.ClearAll %></span>
             </div>
-            <div class="divider"></div>
             <div id="selectDSCols" class="selectAll xc-action">
               <i class="icon xi-select-all"></i>
               <span><%= dicts.common.SelectAll %></span>
@@ -136,7 +135,6 @@
     <div id="dsTableContainer">
       <div class="loadSection clearfix">
         include "../../util/animatedEllipsis.html"
-        
       </div>
       <div class="errorSection">
         <div class="error"></div>
