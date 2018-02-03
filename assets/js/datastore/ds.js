@@ -1411,7 +1411,7 @@ window.DS = (function ($, DS) {
         .then(function(res) {
             try {
                 var lockMeta = {};
-                res.dataset.forEach(function(dsInfo) {
+                res.datasets.forEach(function(dsInfo) {
                     if (dsInfo.datasetName.startsWith(gDSPrefix)) {
                         var name = dsInfo.datasetName.substring(gDSPrefix.length);
                         lockMeta[name] = dsInfo.isLocked;
@@ -1634,7 +1634,7 @@ window.DS = (function ($, DS) {
         tempDSInfoMeta.updateDSInfo(sharedFolder);
         DS.clear();
         KVStore.putWithMutex(KVStore.gSharedDSKey,
-                            JSON.stringify(dsInfoMeta),
+                            JSON.stringify(tempDSInfoMeta),
                             true,
                             gKVScope.GLOB);
         return tempDSInfoMeta;
