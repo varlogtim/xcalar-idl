@@ -611,7 +611,8 @@ StatusT = {
   'StatusTableEmpty' : 602,
   'StatusUsrAddInProg' : 603,
   'StatusSessionNotActive' : 604,
-  'StatusUsrSessLoadFailed' : 605
+  'StatusUsrSessLoadFailed' : 605,
+  'StatusProtobufError' : 606
 };
 StatusTStr = {
   0 : 'Success',
@@ -1219,7 +1220,8 @@ StatusTStr = {
   602 : 'Table is empty',
   603 : 'User info inaccessible since user initialization still in progress',
   604 : 'Target session was not active',
-  605 : 'User failed to read sessions'
+  605 : 'User failed to read sessions',
+  606 : 'Generic protobuf error'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1827,5 +1829,6 @@ StatusTFromStr = {
   'Table is empty' : 602,
   'User info inaccessible since user initialization still in progress' : 603,
   'Target session was not active' : 604,
-  'User failed to read sessions' : 605
+  'User failed to read sessions' : 605,
+  'Generic protobuf error' : 606
 };

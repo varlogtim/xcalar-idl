@@ -928,6 +928,10 @@ window.Function.prototype.bind = function() {
                         datasetInfo.datasetName);
                     console.log("\tdataset[" + i.toString() + "].datasetSize = " +
                         datasetInfo.datasetSize);
+                    for (var k = 0; k < datasetInfo.numColumns; k++) {
+                        console.log("\tdataset[" + i.toString() + "].columnName[" +
+                            k.toString() + "] = " + datasetInfo.columnNames[k]);
+                    }
                 }
 
             test.pass();
@@ -964,9 +968,9 @@ window.Function.prototype.bind = function() {
             printResult(listUserDatasetsOutput);
 
             for (var i = 0, dataset = null;
-                i < listUserDatasetsOutput.datasetCount; i++) {
+                i < listUserDatasetsOutput.NumDatasets; i++) {
 
-                    dataset = listUserDatasetsOutput.dataset[i];
+                    dataset = listUserDatasetsOutput.datasets[i];
 
                     console.log("\tdataset[" + i.toString() + "].datasetName = " +
                                 dataset.datasetName);

@@ -1665,8 +1665,8 @@ xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandl
             if (status === StatusT.StatusNoDsUsers ||
                 status === StatusT.StatusDsNotFound) {
                 listUserDatasetsOutput = new XcalarApiListUserDatasetsOutputT();
-                listUserDatasetsOutput.dataset = [];
-                listUserDatasetsOutput.datasetCount = 0;
+                listUserDatasetsOutput.datasets = [];
+                listUserDatasetsOutput.numDatasets = 0;
                 deferred.resolve(listUserDatasetsOutput);
             } else {
                 deferred.reject({xcalarStatus: status, log: log});

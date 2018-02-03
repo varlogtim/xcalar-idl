@@ -165,6 +165,7 @@
 
     xcHelper.parseDSFormat = function(ds) {
         var isExcelUDF = function(udfName) {
+            // DEPRECATED as of 1.3.1. Kept for backwards compatibility
             return (udfName === "default:openExcelWithHeader")
                     || (udfName === "default:openExcel");
         };

@@ -1038,7 +1038,6 @@ window.DSPreview = (function($, DSPreview) {
 
 
     function submitForm(toCreateTable) {
-
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
@@ -1050,7 +1049,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var udfModule = res.udfModule;
         var udfFunc = res.udfFunc;
-        var udfQuery = null; // XXX currently it's not used
+        var udfQuery = res.udfQuery;
 
         var fieldDelim = res.fieldDelim;
         var lineDelim = res.lineDelim;
@@ -1091,8 +1090,14 @@ window.DSPreview = (function($, DSPreview) {
             }
             // XXX temp fix to preserve CSV header order
             typedColumns = (format !== formatMap.JSON) ? typedColumns : null;
-            if (format === "Excel" && header) {
-                udfFunc = "openExcelWithHeader";
+            if (format === "Excel") {
+                udfQuery = {};
+                if (skipRows > 0) {
+                    udfQuery.skipRows = skipRows;
+                }
+                if (header) {
+                    udfQuery.withHeader = true;
+                }
             }
             var pointArgs = {
                 "name": dsName,
@@ -1333,23 +1338,30 @@ window.DSPreview = (function($, DSPreview) {
 
     function validateXMLArgs() {
         var $xPaths = $("#dsForm-xPaths");
-        var isValid = xcHelper.validate([{
-            $ele: $xPaths
-        }]);
+        var xPaths = $("#dsForm-xPaths").val().trim();
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $xPaths,
+                "error": ErrTStr.NoEmpty,
+                "formMode": true,
+                "check": function() {
+                    return xPaths.length === 0;
+                }
+            }
+        ]);
 
         if (!isValid) {
             return null;
         }
 
-        var xPaths = $("#dsForm-xPaths").val().trim();
         var matchedXPath = $form.find(".matchedXPath")
                                 .find(".checkbox").hasClass("checked");
         var elementXPath = $form.find(".elementXPath")
                                 .find(".checkbox").hasClass("checked");
         return {
-            xPaths: xPaths,
-            matchedXPath: matchedXPath,
-            elementXPath: elementXPath
+            xPath: xPaths,
+            matchedPath: matchedXPath,
+            withPath: elementXPath
         };
     }
 
@@ -1432,9 +1444,11 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === "raw" &&
                    $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
             udfModule = "default";
-            udfFunc = loadArgs.useHeader()
-                      ? "genLineNumberWithHeader"
-                      : "genLineNumber";
+            udfFunc = "genLineNumber";
+            if (loadArgs.useHeader()) {
+                udfQuery = {};
+                udfQuery.header = true;
+            }
             // XXX TODO: don't change to JSON format and show it as TEXT format
             format = formatMap.JSON;
         } else if (format === "raw" || format === "CSV") {
@@ -1458,12 +1472,16 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
+            skipRows = getSkipRows();
         } else if (format === formatMap.XML) {
             xmlArgs = validateXMLArgs();
             if (xmlArgs == null) {
                 // error case
                 return null;
             }
+            udfModule = "default";
+            udfFunc = "xmlToJson";
+            udfQuery = xmlArgs;
         }
 
         var advanceArgs = validateAdvanceArgs();
@@ -1705,22 +1723,22 @@ window.DSPreview = (function($, DSPreview) {
         var oldFormat = loadArgs.getFormat();
         var useUDF = isUseUDFWithFunc();
         var hasChangeFormat = toggleFormat(format);
-        var changeWithExcel = function(fomratOld, formatNew) {
-            return fomratOld != null &&
-                    (fomratOld.toUpperCase() === "EXCEL" ||
+        var changeWithExcel = function(formatOld, formatNew) {
+            return formatOld != null &&
+                    (formatOld.toUpperCase() === "EXCEL" ||
                     formatNew.toUpperCase() === "EXCEL");
         };
 
-        var chanegFromUDF = function(wasUseUDF) {
+        var changeFromUDF = function(wasUsingUDF) {
             // auto refresh when use UDF before and now change to another format
-            return wasUseUDF && !isUseUDF();
+            return wasUsingUDF && !isUseUDF();
         };
 
         if (hasChangeFormat) {
             if (format === "UDF") {
                 // nothing to do now
             } else if (changeWithExcel(oldFormat, format) ||
-                chanegFromUDF(useUDF)) {
+                changeFromUDF(useUDF)) {
                 refreshPreview(true);
             } else {
                 getPreviewTable();
@@ -2639,7 +2657,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (format === formatMap.EXCEL) {
-            getJSONTable(rawData);
+            getJSONTable(rawData, getSkipRows());
             if (loadArgs.useHeader()) {
                 toggleHeader(true, true);
             }
@@ -2883,12 +2901,13 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getJSONTable(datas) {
+    function getJSONTable(datas, skipRows) {
         var json = parseJSONData(datas);
         if (json == null) {
             // error case
             return;
         }
+        json = json.splice(skipRows);
 
         $previewTable.html(getJSONTableHTML(json))
         .addClass("has-delimiter");
