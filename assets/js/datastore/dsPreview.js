@@ -2166,11 +2166,7 @@ window.DSPreview = (function($, DSPreview) {
             dsNames.push(dsName);
 
             html += '<div class="row">' +
-                        '<label class="tooltipOverflow"' +
-                        ' data-toggle="tooltip"' +
-                        ' data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + path + '">' +
+                        '<label>' +
                             path +
                         '</label>' +
                         '<div class="inputWrap">' +
@@ -2203,6 +2199,20 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $labels.width(width);
+
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        ctx.font = "600 14px Open Sans";
+        $labels.each(function() {
+            var $ele = $(this);
+            var originalText = $ele.text();
+            var ellipsis = xcHelper.leftEllipsis(originalText, $ele, maxWidth - 5, ctx);
+            if (ellipsis) {
+                xcTooltip.add($ele, {
+                    title: originalText
+                });
+            }
+        });
     }
 
     function setPreviewInfo(targetName, url, pattern) {
@@ -3725,7 +3735,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function showProgressCircle(txId) {
         var $waitSection = $previewWrap.find(".waitSection");
-        $waitSection.addClass("hasUdf");;
+        $waitSection.addClass("hasUdf");
         var withText = true;
         var progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
         $waitSection.find(".progressSection").html(progressAreaHtml);

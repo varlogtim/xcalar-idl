@@ -740,41 +740,7 @@
         text = String(text);
         var textWidth = ctx.measureText(text).width;
         var finalText;
-        if (isMultiLine) {
-            maxWidth *= 2;
-        }
-        if (textWidth < maxWidth) {
-            finalText = text;
-        } else {
-            var len = binarySearchEllipsisLen(checkLen, text.length, maxWidth);
-            finalText = ellispsiText(text, len);
-        }
-
-        if ($ele.is("input")) {
-            $ele.val(finalText);
-        } else {
-            $ele.text(finalText);
-        }
-
-        function binarySearchEllipsisLen(minLen, maxLen, desiredWidth) {
-            while (minLen < maxLen) {
-                var midLen = Math.floor((maxLen + minLen) / 2);
-                var str = ellispsiText(text, midLen);
-                var width = ctx.measureText(str).width;
-
-                if (width > desiredWidth) {
-                    maxLen = midLen - 1;
-                } else if (width < desiredWidth) {
-                    minLen = midLen + 1;
-                } else {
-                    return midLen;
-                }
-            }
-
-            return minLen;
-        }
-
-        function ellispsiText(str, ellpsisLen) {
+        var ellispsisFunc = function(str, ellpsisLen) {
             var strLen = str.length;
             // if strLen is 22 and ellpsisLen is 21
             // then the finalText may be longer if no this check
@@ -784,8 +750,79 @@
             var res = str.slice(0, ellpsisLen - 3) + "..." +
                       str.slice(str.length - 3);
             return res;
+        };
+
+        if (isMultiLine) {
+            maxWidth *= 2;
+        }
+        if (textWidth < maxWidth) {
+            finalText = text;
+        } else {
+            var len = binarySearchEllipsisLen(text, checkLen, maxWidth,
+                                               ctx, ellispsisFunc);
+            finalText = ellispsisFunc(text, len);
+        }
+
+        if ($ele.is("input")) {
+            $ele.val(finalText);
+        } else {
+            $ele.text(finalText);
         }
     };
+
+    xcHelper.leftEllipsis = function(text, $ele, maxWidth, ctx) {
+        // keep this because if pass in null, should change to string "null"
+        // (since text is come from $el.data(), text might be null)
+        text = String(text);
+        var textWidth = ctx.measureText(text).width;
+        var finalText;
+        var ellipsis = false;
+        var ellispsisFunc = function(str, ellpsisLen) {
+            var strLen = str.length;
+            // if strLen is 22 and ellpsisLen is 21
+            // then the finalText may be longer if no this check
+            if (strLen - 3 > 0 && ellpsisLen > strLen - 3) {
+                ellpsisLen = strLen - 3;
+            }
+            return ("..." + str.slice(strLen - ellpsisLen));
+        };
+
+        if (textWidth < maxWidth) {
+            finalText = text;
+        } else {
+            var len = binarySearchEllipsisLen(text, 3, maxWidth,
+                                              ctx, ellispsisFunc);
+            finalText = ellispsisFunc(text, len);
+            ellipsis = true;
+        }
+
+        if ($ele.is("input")) {
+            $ele.val(finalText);
+        } else {
+            $ele.text(finalText);
+        }
+
+        return ellipsis;
+    };
+
+    function binarySearchEllipsisLen(text, minLen, desiredWidth, ctx, ellipsisFunc) {
+        var maxLen = text.length;
+        while (minLen < maxLen) {
+            var midLen = Math.floor((maxLen + minLen) / 2);
+            var str = ellipsisFunc(text, midLen);
+            var width = ctx.measureText(str).width;
+
+            if (width > desiredWidth) {
+                maxLen = midLen - 1;
+            } else if (width < desiredWidth) {
+                minLen = midLen + 1;
+            } else {
+                return midLen;
+            }
+        }
+
+        return minLen;
+    }
 
     xcHelper.getMaxTextLen = function(ctx, text, desiredWidth, minLen, maxLen) {
         if (maxLen - minLen <= 1) {
@@ -1335,7 +1372,7 @@
                     $btn.html(oldHtml)
                         .removeData("oldhtml");
                 }, 2700);
-            } else{
+            } else {
                 $btn.html(oldHtml)
                     .removeData("oldhtml");
             }
@@ -2257,7 +2294,7 @@
         var firstrChar = columnName.charAt(0);
         if (firstrChar >= "0" && firstrChar <= "9") {
             error = ColTStr.RenameStartNum;
-        } else if (columnName.length > 
+        } else if (columnName.length >
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
             error = ColTStr.LongName;
         } else if (xcHelper.hasInvalidCharInCol(columnName, noSpace)) {
@@ -2285,6 +2322,9 @@
     };
 
     xcHelper.escapeHTMLSpecialChar = function(str, ignoreTab) {
+        if (typeof str !== "string") {
+            return str;
+        }
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
         str = str.replace(/\&/g, "&amp;")

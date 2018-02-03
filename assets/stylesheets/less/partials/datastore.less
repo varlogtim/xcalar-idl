@@ -1931,7 +1931,7 @@ table.datasetTable {
         .content {
             .size(@width: ~"calc(100% - 50px)");
             float: left;
-            white-space: pre;
+            white-space: pre-wrap;
 
             .suggest {
                 color: @color-font-select-blue;
@@ -2269,12 +2269,9 @@ table.datasetTable {
             }
 
             label {
-                .textOverflowOneLine;
                 text-align: right;
-                .size(@min-width: @row-width + 22, @max-width: 300px);
-                direction: rtl;
+                .size(@min-width: 20px, @max-width: 300px);
             }
-
         }
 
         .actionPart {
