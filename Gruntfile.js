@@ -3817,12 +3817,7 @@ module.exports = function(grunt) {
             generate a config file with local machine details.
             This will define these properties and allow for the communicatino between the front and backend.
         */
-        hostname = os.hostname();
-        contents = "var hostname='http://" + hostname + ":9090'; var expHost='http://" + hostname + ":12124';";
-        grunt.log.writeln(("\n6. Create a config file with developer's local details: "
-            + contents
-            + "\nto allow the communication between back and front end").cyan);
-        generateNewConfigFile(contents);
+        generateNewConfigFile(); // will create an empty config file
         grunt.log.ok();
 
     });
