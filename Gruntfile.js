@@ -1414,7 +1414,8 @@ module.exports = function(grunt) {
             options: {
                 nospawn: true,
                 spawn: false,
-                //livereload: true,
+                livereload: true, // even though this bool getting re-set on the fly each watch event,
+                    // livereload not working if its initialized to false
             },
             files: [], // generated dynamically based on user specified watch cmd args
             tasks: [], // set in watch on event based on which file changed
