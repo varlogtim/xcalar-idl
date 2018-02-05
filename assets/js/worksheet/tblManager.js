@@ -974,7 +974,7 @@ window.TblManager = (function($, TblManager) {
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" ' +
                                 'data-container="body" ' +
-                                'data-original-title="' + colName + '" ' +
+                                'data-original-title="' + xcTooltip.escapeHTML(colName) + '" ' +
                                 disabledProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +

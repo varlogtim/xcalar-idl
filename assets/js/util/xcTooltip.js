@@ -134,5 +134,19 @@ window.xcTooltip = (function(xcTooltip, $) {
         }
     };
 
+    xcTooltip.escapeHTML = function(str, ignoreTab){
+        str = str.replace(/\&/g, "&amp;")
+                 .replace(/\</g, "&lt;")
+                 .replace(/\>/g, "&gt;")
+                 .replace(/\&/g, "&amp;")
+                 .replace(/\</g, "&lt;")
+                 .replace(/\>/g, "&gt;")
+                 .replace(/\"/g, "&quot;");
+        if (!ignoreTab) {
+            str = str.replace(/\\t/g, "&emsp;");
+        }
+        return str;
+    };
+
     return (xcTooltip);
 }({}, jQuery));

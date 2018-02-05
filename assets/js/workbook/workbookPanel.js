@@ -447,7 +447,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         $workbookBox.find(".description").text(description);
         $workbookBox.find(".workbookName").text(name);
         if (description.trim().length > 0) {
-            xcTooltip.add($workbookBox.find(".description"), {title: description});
+            xcTooltip.add($workbookBox.find(".description"), {title: xcHelper.escapeHTMLSpecialChar(description)});
         } else {
             xcTooltip.remove($workbookBox.find(".description"));
         }
@@ -784,7 +784,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                     workbookName +
                                 '</div>' +
                                 '<div class="description textOverflowOneLine">' +
-                                    description +
+                                    xcHelper.escapeHTMLSpecialChar(description) +
                                 '</div>' +
                                 '<i class="preview icon xi-show xc-action" ' +
                                 ' data-toggle="tooltip" data-container="body"' +
@@ -855,6 +855,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                     '</div>' +
                 '</div>' +
             '</div>';
+
         return html;
     }
 
@@ -889,7 +890,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         var $descriptions = $workbookSection.find(".workbookBox .description");
         for (var i = 0; i < $descriptions.length; i++) {
             xcTooltip.add($descriptions.eq(i),
-                          {title: $descriptions.eq(i).text()});
+                          {title: xcHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
         }
     }
 

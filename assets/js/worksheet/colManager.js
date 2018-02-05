@@ -925,8 +925,9 @@ window.ColManager = (function($, ColManager) {
             widthDiff += (originalColWidth - gHiddenColumnWidth);
             progCol.minimize();
             colNames.push(columnName);
-            // change tooltip to show name
-            xcTooltip.changeText($th.find(".dropdownBox"), columnName);
+            // change tooltip to show name, and also need escape the columnName
+
+            xcTooltip.changeText($th.find(".dropdownBox"), xcHelper.escapeHTMLSpecialChar(columnName));
 
             var $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
             if (!gMinModeOn && !noAnim) {

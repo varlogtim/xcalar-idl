@@ -238,7 +238,7 @@ window.WSManager = (function($, WSManager) {
         wsNameToIdMap[name] = worksheetId;
 
         $text.val(name);
-        xcTooltip.changeText($text, name);
+        xcTooltip.changeText($text, xcHelper.escapeHTMLSpecialChar(name));
         xcTooltip.enable($text);
         // use worksheet class to find table lists in right side bar
         $("#tableListSections .worksheetInfo.worksheet-" + worksheetId)
@@ -889,7 +889,7 @@ window.WSManager = (function($, WSManager) {
             if (!isAll && (wsId === activeWorksheet)) {
                 continue;
             }
-            var wsName = worksheetGroup.get(wsId).getName();
+            var wsName = xcHelper.escapeHTMLSpecialChar(worksheetGroup.get(wsId).getName());
             if (wsId === activeWorksheet) {
                 html += '<li class="activeWS" data-ws="' + wsId + '">' +
                             wsName +
@@ -1602,7 +1602,9 @@ window.WSManager = (function($, WSManager) {
     // html of worksheet tab, helper function for makeWorksheet()
     function getWorksheetTabHtml(worksheetId) {
         var worksheet = worksheetGroup.get(worksheetId);
-        var worksheetName = worksheet.getName();
+        var worksheetName = xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(worksheet.getName()));
+        var tooltipName = xcTooltip.escapeHTML(worksheet.getName());
+
         var id = "worksheetTab-" + worksheetId;
         // need clickable class for .wsMenu to not trigger $(".menu").hide()
         var html =
@@ -1618,7 +1620,7 @@ window.WSManager = (function($, WSManager) {
                 '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 '></i>' +
-                '<input data-original-title="' + worksheetName +
+                '<input data-original-title="' + tooltipName +
                 '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
