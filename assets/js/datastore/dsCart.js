@@ -307,7 +307,6 @@ window.DSCart = (function($, DSCart) {
     };
 
     DSCart.addCart = function(dsId, tableName, isInBg) {
-        tableName = tableName || DS.getDSObj(dsId).getName();
         var cart = new Cart({
             "dsId": dsId,
             "tableName": tableName
@@ -390,12 +389,13 @@ window.DSCart = (function($, DSCart) {
 
     // add column to cart
     DSCart.addItem = function(dsId, items) {
-        if (dsId == null) {
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
             return;
         }
         var cart = filterCarts(dsId);
         if (cart == null) {
-            cart = DSCart.addCart(dsId);
+            cart = DSCart.addCart(dsId, dsObj.getName());
         }
 
         if (items == null) {

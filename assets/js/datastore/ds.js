@@ -368,6 +368,8 @@ window.DS = (function ($, DS) {
         }
 
         refreshDS();
+        var $labels = $gridView.find(".label:visible");
+        truncateDSName($labels);
     };
 
     DS.resize = function() {
