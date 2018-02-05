@@ -66,21 +66,52 @@ window.DS = (function ($, DS) {
     };
 
     // Get home folder
-    DS.getHomeDir = function () {
-        var copy = xcHelper.deepCopy(homeFolder);
-        for (var i = 0, len = copy.eles.length; i < len; i++) {
-            if (copy.eles[i].id === DSObjTerm.SharedFolderId) {
-                homeFolder.totalChildren -= copy.eles[i].totalChildren;
-                copy.eles.splice(i, 1);
-                break;
+    DS.getHomeDir = function(toPersist) {
+        if (toPersist) {
+            var copy = removeNonpersistDSObjAttributes(homeFolder);
+            for (var i = 0, len = copy.eles.length; i < len; i++) {
+                if (copy.eles[i].id === DSObjTerm.SharedFolderId) {
+                    copy.totalChildren -= copy.eles[i].totalChildren;
+                    copy.eles.splice(i, 1);
+                    break;
+                }
             }
+            return copy;
+        } else {
+            return homeFolder;
         }
-        return copy;
     };
 
-    DS.getSharedDir = function() {
-        return DS.getDSObj(DSObjTerm.SharedFolderId);
+    DS.getSharedDir = function(toPersist) {
+        var sharedFolder = DS.getDSObj(DSObjTerm.SharedFolderId);
+        if (toPersist) {
+            return removeNonpersistDSObjAttributes(sharedFolder);
+        } else {
+            return sharedFolder;
+        }
     };
+
+    function removeNonpersistDSObjAttributes(folder) {
+        var folderCopy = xcHelper.deepCopy(folder);
+        var cache = [folderCopy];
+        // restore the ds and folder
+        while (cache.length > 0) {
+            var obj = cache.shift();
+            if (obj == null) {
+                console.error("error case");
+                continue;
+            } else if (obj.isFolder) {
+                if (obj.eles != null) {
+                    $.merge(cache, obj.eles);
+                }
+            } else {
+                // remove non-persisted attr in dsObj
+                delete obj.locked;
+                delete obj.headers;
+            }
+        }
+        return folderCopy;
+    }
 
     // Get dsObj by dsId
     DS.getDSObj = function(dsId) {
@@ -434,7 +465,7 @@ window.DS = (function ($, DS) {
                                 xcHelper.wrapDSName(options.name);
             // for dataset, use it's full name as id
             options.id = options.id || options.fullName;
-            options.locked = options.locked;
+            options.locked = options.locked || false;
         }
         var dsObj = new DSObj(options);
         dsObj.addToParent();
@@ -665,7 +696,7 @@ window.DS = (function ($, DS) {
     function commitSharedFolderChange(arg) {
         var deferred = jQuery.Deferred();
         var versionId = dsInfoMeta.updateVersionId();
-        var sharedDir = DS.getSharedDir();
+        var sharedDir = DS.getSharedDir(true);
         var hasCommit = false;
         dsInfoMeta.updateDSInfo(sharedDir);
 
@@ -730,8 +761,15 @@ window.DS = (function ($, DS) {
     function pointToHelper(dsObj, createTabe, sql) {
         var deferred = jQuery.Deferred();
         var dsName = dsObj.getName();
-
         var $grid = DS.getGrid(dsObj.getId());
+        var updateDSMeta = function(dsMeta, ds, $ds) {
+            dsMeta = dsMeta || {};
+            ds.setSize(dsMeta.size);
+            ds.setHeaders(dsMeta.headers);
+            $ds.find(".size").text(ds.getDisplaySize());
+        };
+        var datasetName;
+
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
 
@@ -750,7 +788,7 @@ window.DS = (function ($, DS) {
         DS.focusOn($grid)
         .then(function() {
             var args = dsObj.getPointArgs();
-            var datasetName = args[2];
+            datasetName = args[2];
             var options = args[3];
 
             options.path = args[0];
@@ -758,14 +796,11 @@ window.DS = (function ($, DS) {
             options.targetName = dsObj.getTargetName();
             return XcalarLoad(datasetName, options, txId);
         })
-        .then(function(ret) {
-            // if ret.numBytes doesn't exist, size will be set later by calling
-            // XcalarGetDatasetMeta
-            var bytes = null;
-            if (ret != null) {
-                bytes = ret.numBytes;
-            }
-            dsObj.setSize(bytes);
+        .then(function() {
+            return getDSBasicInfo(datasetName);
+        })
+        .then(function(dsInfos) {
+            updateDSMeta(dsInfos[datasetName], dsObj, $grid);
             finishPoint();
 
             if (createTabe) {
@@ -1377,9 +1412,9 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function getDSBasicInfo() {
+    function getDSBasicInfo(datasetName) {
         var deferred = jQuery.Deferred();
-        XcalarGetDatasetsInfo("*")
+        XcalarGetDatasetsInfo(datasetName)
         .then(function(res) {
             try {
                 var dsInfos = {};
@@ -1388,7 +1423,8 @@ window.DS = (function ($, DS) {
                     if (fullName.startsWith(gDSPrefix)) {
                         var name = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
-                            size: dataset.datasetSize
+                            size: dataset.datasetSize,
+                            headers: dataset.columnNames
                         };
                     }
                 });
@@ -1485,6 +1521,7 @@ window.DS = (function ($, DS) {
             }
             if (basicDSInfo.hasOwnProperty(dsName)) {
                 dataset.size = basicDSInfo[dsName].size;
+                dataset.headers = basicDSInfo[dsName].headers;
             }
 
             datasetsSet[dsName] = dataset;
@@ -1521,16 +1558,7 @@ window.DS = (function ($, DS) {
                 if (datasetsSet.hasOwnProperty(obj.fullName)) {
                     // restore a ds
                     var ds = datasetsSet[obj.fullName];
-                    var format = xcHelper.parseDSFormat(ds);
-                    obj = $.extend(obj, {
-                        "format": format,
-                        "path": ds.loadArgs.sourceArgs.path,
-                        "unlistable": !ds.isListable,
-                        "locked": ds.locked,
-                        "targetName": ds.loadArgs.sourceArgs.targetName,
-                        "size": ds.size
-                    });
-
+                    obj = $.extend(obj, getDSOptions(ds));
                     createDS(obj);
                     // mark the ds to be used
                     delete datasetsSet[obj.fullName];
@@ -1544,6 +1572,18 @@ window.DS = (function ($, DS) {
         }
 
         return datasetsSet;
+    }
+
+    function getDSOptions(ds) {
+        return {
+            "format": xcHelper.parseDSFormat(ds),
+            "path": ds.loadArgs.sourceArgs.path,
+            "unlistable": !ds.isListable,
+            "locked": ds.locked,
+            "targetName": ds.loadArgs.sourceArgs.targetName,
+            "size": ds.size,
+            "headers": ds.headers
+        };
     }
 
     function getUnListableDS(datasetsSet) {
@@ -1568,14 +1608,7 @@ window.DS = (function ($, DS) {
             var ds = datasetsSet[dsName];
 
             if (ds != null) {
-                var format = xcHelper.parseDSFormat(ds);
-                var options = {
-                    "format": format,
-                    "path": ds.loadArgs.sourceArgs.path,
-                    "unlistable": !ds.isListable,
-                    "locked": ds.locked,
-                    "targetName": ds.loadArgs.sourceArgs.targetName
-                };
+                var options = getDSOptions(ds);
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
                     // and lose the folder meta
@@ -2232,7 +2265,7 @@ window.DS = (function ($, DS) {
 
     function refreshHelper() {
         xcHelper.showRefreshIcon($gridView);
-        DS.restore(DS.getHomeDir())
+        DS.restore(DS.getHomeDir(true))
         .then(function() {
             cleanFocusedDSIfNecessary();
             KVStore.commit();

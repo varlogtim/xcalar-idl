@@ -2149,12 +2149,17 @@ describe("Persistent Constructor Test", function() {
                 "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
-                "size": "123B"
+                "size": 123
             });
 
-            expect(dsObj.getSize()).to.equal("123B");
+            expect(dsObj.getSize()).to.equal(123);
+            expect(dsObj.getDisplaySize()).to.equal("123B")
             dsObj.setSize(456);
-            expect(dsObj.getSize()).to.equal("456B");
+            expect(dsObj.getSize()).to.equal(456);
+            expect(dsObj.getDisplaySize()).to.equal("456B")
+            dsObj.setSize(null);
+            expect(dsObj.getSize()).to.be.null;
+            expect(dsObj.getDisplaySize()).to.equal(CommonTxtTstr.NA);
         });
 
         it("getDisplayFormat should get Excel format", function(done) {

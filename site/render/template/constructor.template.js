@@ -189,7 +189,7 @@
         __extends(UserInfoConstructor<%= v %>, _super, {
             <% if (isCurCtor) {%>
             update: function() {
-                this[UserInfoKeys.DS] = DS.getHomeDir();
+                this[UserInfoKeys.DS] = DS.getHomeDir(true);
                 this[UserInfoKeys.PREF] = UserSettings.getAllPrefs();
             },
 
@@ -1912,14 +1912,15 @@
             quoteChar: (string) ds's quoteChar
             skipRows: (integer) how many rows to skip
             isRegex: (boolean) path is using regEx or not;
-            headers: (array, optional) XXX temp fix to preserve CSV header order
+            headers: (array, not persist) to preserve column header order
             error: (string, optional) ds's error
             displayFormat (string) displayed format in ds table(Excel...)
 
             new attr:
                 udfQuery: (object), extra udf args,
-                locked: (boolean), is dataset locked or not
-                targetName: (string), the src of targetName
+                locked: (boolean, not persisted), is dataset locked or not
+                targetName: (string), the src of targetName,
+                typedColumns: (array)
             removed attr:
                 previewSize
         */
@@ -2080,7 +2081,11 @@
             },
 
             setSize: function(size) {
-                this.size = xcHelper.sizeTranslator(size);
+                this.size = size;
+            },
+
+            setHeaders: function(headers) {
+                this.headers = headers;
             },
 
             getError: function() {
@@ -2235,7 +2240,6 @@
                 }
             },
 
-            // XXX temp fix to preserve CSV header order
             // Step 1. check if all headers exist in jsonKeys
             // Step 2. check if any extra headers in jsonKeys but not in headers
             _preserveHeaderOrder: function(jsonKeys) {

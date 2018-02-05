@@ -1602,7 +1602,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if ($grid.length) {
                     focusOnDSGrid($grid, dsId);
                 } else {
-                    DS.restore(DS.getHomeDir())
+                    DS.restore(DS.getHomeDir(true))
                     .then(function() {
                         $grid = DS.getGrid(dsId);
                         if ($grid.length) {

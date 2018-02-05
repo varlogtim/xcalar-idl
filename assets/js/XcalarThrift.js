@@ -1718,6 +1718,11 @@ XcalarGetDatasetsInfo = function(datasetsNamePattern) {
     if (tHandle == null) {
         return PromiseHelper.reject();
     }
+    if (datasetsNamePattern == null) {
+        datasetsNamePattern = "*";
+    } else {
+        datasetsNamePattern = parseDS(datasetsNamePattern);
+    }
     return xcalarGetDatasetsInfo(tHandle, datasetsNamePattern);
 };
 
