@@ -224,7 +224,7 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("should submit form", function() {
-            var sumbitForm = FileBrowser.__testOnly__.sumbitForm;
+            var submitForm = FileBrowser.__testOnly__.submitForm;
             var oldFunc = DSPreview.show;
             var test = null;
             DSPreview.show = function(options) {
@@ -233,14 +233,14 @@ describe("Dataset-File Browser Test", function() {
             // error case
             // use default path
             $pathLists.prepend("<li>/</li>");
-            sumbitForm();
+            submitForm();
             expect(test).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFile);
 
             // normal case 1
             $pathSection.find(".targetName").text(gDefaultSharedRoot);
             $pathLists.prepend("<li>/test/</li>");
-            sumbitForm();
+            submitForm();
             expect(test).to.be.an("object");
             expect(test.targetName).to.equal(gDefaultSharedRoot);
             expect(test.path).to.equal("/test/");
@@ -251,7 +251,7 @@ describe("Dataset-File Browser Test", function() {
             var $ds = $('<div>' +
                             '<div class="fileName" data-name="test.csv"></div>' +
                         '</div>');
-            sumbitForm($ds);
+            submitForm($ds);
             expect(test).to.be.an("object");
             expect(test.targetName).to.equal(gDefaultSharedRoot);
             expect(test.path).to.equal("/test.csv");
@@ -584,7 +584,7 @@ describe("Dataset-File Browser Test", function() {
             };
         });
 
-        it("Should click confirm to sumbitForm", function(done) {
+        it("Should click confirm to submitForm", function(done) {
             FileBrowser.show(gDefaultSharedRoot, "")
             .then(function() {
                 var $grid = findGrid("netstore");
@@ -599,7 +599,7 @@ describe("Dataset-File Browser Test", function() {
             });
         });
 
-        it("Should dblclick a dataset to sumbitForm", function(done) {
+        it("Should dblclick a dataset to submitForm", function(done) {
             var sp500 = testDatasets.sp500;
             FileBrowser.show(sp500.targetName, sp500.path)
             .then(function() {

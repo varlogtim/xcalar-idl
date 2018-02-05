@@ -1,6 +1,8 @@
 window.FilePreviewer = (function(FilePreviewer, $) {
     var previewArgs = null;
     var $fileBrowserPreview; // $("#fileBrowserPreview")
+    var $fileInfoContainer;
+    var $fileBrowserContainer;
     var $cardMain;
     var idCount = 0;
     var initialOffset = 0;
@@ -12,12 +14,16 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     FilePreviewer.setup = function() {
         $fileBrowserPreview = $("#fileBrowserPreview");
+        $fileInfoContainer = $("#fileInfoContainer");
+        $fileBrowserContainer = $("#fileBrowserContainer");
         $cardMain = $fileBrowserPreview.parent();
         FilePreviewer.close();
         addEventListener();
     };
 
     FilePreviewer.show = function(options) {
+        $fileInfoContainer.addClass("xc-hidden");
+        $fileBrowserContainer.css("width", "100%");
         cleanPreviewer();
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
@@ -32,6 +38,8 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     };
 
     FilePreviewer.close = function() {
+        $fileInfoContainer.removeClass("xc-hidden");
+        $fileBrowserContainer.css("width", "calc(100% - 360px");
         $fileBrowserPreview.addClass("xc-hidden");
         $cardMain.removeClass("previewOpen full");
         $("#fileBrowser").removeClass("previewOpen");

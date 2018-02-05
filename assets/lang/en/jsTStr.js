@@ -354,6 +354,8 @@ ErrTStr = {
     'InvalidColumn': 'Invalid column name: <name>',
     'LicenseExpire': 'Your license has expired on \"<date>\"',
     'ExtNotFound': 'Extension <module>::<fn> was not found.',
+    'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
+                  'recursively load the directory.',
 };
 
 ErrWRepTStr = {

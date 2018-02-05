@@ -324,7 +324,8 @@ ErrTStr = {
 'NoEmptyMustRevert': '请填写该栏. 如果您想使用默认值, 请点击"默认值"按钮。',
 'InUsedNoDelete': '该参数正在使用中，删除失败',
 'NoFolderPreview': '无法预览文件夹，请选择一个文件。',
-'DuplicateColNames': 'Duplicate column names were detected', 
+'DuplicateColNames': 'Duplicate column names were detected',
+'MaxPayload': '文件数量超出限制。请减少文件数量或者递归导入整个目录',
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',

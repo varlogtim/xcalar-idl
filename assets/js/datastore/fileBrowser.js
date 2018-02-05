@@ -1,8 +1,11 @@
 window.FileBrowser = (function($, FileBrowser) {
     var $fileBrowser;     // $("#fileBrowser")
     var $container;       // $("#fileBrowserContainer")
+    var $containerWrapper;// $("#fileBrowserContainer .wrapper")
     var $innerContainer;  // $("#innerFileBrowserContainer")
     var $fileBrowserMain; // $("#fileBrowserMain")
+    var $infoContainer;   // $("#fileInfoContainer")
+    var $selectedFileList; // $("#fileBrowserContainer .selectedFileList")
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
@@ -13,15 +16,45 @@ window.FileBrowser = (function($, FileBrowser) {
 
     /* Contants */
     var defaultSortKey  = "type"; // default is sort by type;
-    var dsIconHeight = 65;
-    var dsIconWidth = 65;
-    var dsListHeight = 30;
+    var dsIconHeight = 77;
+    var dsIconWidth = 70;
+    var dsListHeight = 29;
     var lowerFileLimit = 800; // when we start hiding files
     var upperFileLimit = 110000; // show error if over 110K
     var subUpperFileLimit = 25000; // file limit if not chrome
     var sortFileLimit = 25000; // do not allow sort if over 25k
     var oldBrowserError = "Deferred From Old Browser";
     var defaultPath = "/";
+    var listFormatMap = {
+        "JSON": "xi-json-big-file",
+        "CSV": "xi-csv-big-file",
+        "Excel": "xi-xls-big-file",
+        "TEXT": "xi-text-big-file",
+        "XML": "xi-xml-big-file",
+        "HTML": "xi-html-big-file",
+        "TAR": "xi-tar-big-file",
+        "ZIP": "xi-zip-big-file",
+        "PDF": "xi-pdf-big-file",
+        "JPG": "xi-jpg-big-file",
+        "PNG": "xi-png-big-file",
+        "GIF": "xi-gif-big-file",
+        "BMP": "xi-bmp-big-file"
+    };
+    var gridFormatMap = {
+        "JSON": "xi-json-file",
+        "CSV": "xi-csv-file",
+        "Excel": "xi-xls-file",
+        "TEXT": "xi-text-file",
+        "XML": "xi-xml-file",
+        "HTML": "xi-html-file",
+        "TAR": "xi-tar-file",
+        "ZIP": "xi-zip-file",
+        "PDF": "xi-pdf-file",
+        "JPG": "xi-jpg-file",
+        "PNG": "xi-png-file",
+        "GIF": "xi-gif-file",
+        "BMP": "xi-bmp-file-1"
+    };
     /* End Of Contants */
 
     var curFiles = [];
@@ -29,15 +62,19 @@ window.FileBrowser = (function($, FileBrowser) {
     var sortKey = defaultSortKey;
     var sortRegEx;
     var reverseSort = false;
+    var $anchor; // The anchor for selected files
 
     FileBrowser.setup = function() {
         $fileBrowser = $("#fileBrowser");
         $container = $("#fileBrowserContainer");
+        $containerWrapper = $("#fileBrowserContainer .wrapper").eq(0);
         $innerContainer = $("#innerFileBrowserContainer");
         $fileBrowserMain = $("#fileBrowserMain");
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
         $searchDropdown = $("#fileSearchDropdown");
+        $infoContainer = $("#fileInfoContainer");
+        $selectedFileList = $("#fileInfoContainer .selectedFileList").eq(0);
         $visibleFiles = $();
 
         FilePreviewer.setup();
@@ -52,6 +89,7 @@ window.FileBrowser = (function($, FileBrowser) {
         addPathSectionEvents();
         addSearchSectionEvents();
         addBrowserMenuEvents();
+        addInfoContainerEvents();
 
         fileBrowserScrolling();
     };
@@ -72,6 +110,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var deferred = jQuery.Deferred();
 
         clearAll();
+        updateActiveFileInfo();
         DSForm.switchView(DSForm.View.Browser);
 
         addKeyBoardEvent();
@@ -121,56 +160,94 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // click blank space to remove foucse on folder/dsds
-        $container.on("click", function() {
+        $innerContainer.on("click", function() {
             cleanContainer();
         });
 
-        $container.on({
+        $innerContainer.on({
             "click": function(event) {
                 // click to focus
                 var $grid = $(this);
-
                 event.stopPropagation();
-                cleanContainer();
 
-                if (isSystemMac && event.metaKey ||
-                !isSystemMac && event.ctrlKey) {
-                    return; // ctrl+click deselects via cleancontainer
-                }
+                if ((isSystemMac && event.metaKey) ||
+                    (!isSystemMac && event.ctrlKey)) {
+                    if ($grid.hasClass("selected")) {
+                        // If ctrl+click on a selected file, unselect and return
+                        unselectSingleFile($grid);
+                        var isRemove = true;
+                        updateSelectedFiles($grid, isRemove);
+                        return;
+                    }
+                    // Keep selected files
+                    cleanContainer(true);
+                    $anchor = $grid;
+                    selectSingleFile($grid);
+                    updateSelectedFiles($grid);
 
-                $grid.addClass("active");
-                if (FilePreviewer.isOpen()) {
-                    previewDS($grid);
+                } else if (event.shiftKey) {
+                    // ctrl + shift at same time = ctrl
+                    // This is only for shift-click
+                    cleanContainer(false, true);
+                    selectMultiFiles($grid);
+                    updateSelectedFiles();
+                } else {
+                    // Regular single click
+                    cleanContainer();
+                    $anchor = $grid;
+                    selectSingleFile($grid);
+                    updateSelectedFiles();
                 }
             },
             "dblclick": function() {
                 var $grid = $(this);
 
                 if (isDS($grid)) {
-                    // dblclick a dataset to import
-                    sumbitForm($grid);
-                } else {
-                    // dblclick a folder
-                    var path = getCurrentPath() + getGridUnitName($grid) + '/';
-
-                    listFiles(path)
-                    .then(function() {
-                        appendPath(path);
-                        checkIfCanGoUp();
-                    })
-                    .fail(function(error) {
-                        if (error.error !== oldBrowserError) {
-                            Alert.error(ThriftTStr.ListFileErr, error);
-                        }
-                    });
+                    // dblclick on a file does nothing
+                    return;
                 }
-            }
+                var path = getCurrentPath() + getGridUnitName($grid) + '/';
+
+                listFiles(path)
+                .then(function() {
+                    appendPath(path);
+                    checkIfCanGoUp();
+                })
+                .fail(function(error) {
+                    if (error.error !== oldBrowserError) {
+                        Alert.error(ThriftTStr.ListFileErr, error);
+                    }
+                });
+            },
+            "mouseenter": function() {
+                var $grid = $(this);
+                $grid.addClass("hovering");
+            },
+            "mouseleave": function() {
+                var $grid = $(this);
+                $grid.removeClass("hovering");
+            },
         }, ".grid-unit");
+
+        $innerContainer.on("click", ".checkBox .icon", function(event) {
+            // This behavior is in essence the same as a ctrl+click
+            event.stopPropagation();
+            var $grid = $(this).closest(".grid-unit");
+            var isRemove = false;
+            if ($grid.hasClass("selected")) {
+                unselectSingleFile($grid);
+                isRemove = true;
+            } else {
+                cleanContainer(true);
+                $anchor = $grid;
+                selectSingleFile($grid);
+            }
+            updateSelectedFiles($grid, isRemove);
+        });
 
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
-            var $grid = getFocusedGridEle();
-            sumbitForm($grid);
+            submitForm();
             return false;
         });
 
@@ -220,6 +297,66 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         });
     }
+
+    function addInfoContainerEvents() {
+        $infoContainer.find(".infoTitle .close").on("click", "span, i", function() {
+            cleanContainer();
+            $fileBrowser.find(".selectedFileList").empty();
+        });
+        $infoContainer.find(".selectedFiles .close").on("click", "span, i", function() {
+            uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
+        });
+        $infoContainer.on("click", ".selectAll", function() {
+            checkCkBox($infoContainer.find(".xi-ckbox-empty"));
+        })
+        $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
+            var $checkBox = $(this);
+            if ($checkBox.hasClass("xi-ckbox-selected")) {
+                uncheckCkBox($checkBox);
+            } else {
+                checkCkBox($checkBox);
+            }
+        });
+        $infoContainer.on("click", ".selectedFileList .close", function() {
+            var $li = $(this).closest("li");
+            var fileName = $li.data("name");
+            var $grid = $fileBrowser
+                        .find('.fileName[data-name="' + fileName + '"]')
+                        .closest(".grid-unit");
+            unselectSingleFile($grid);
+            // Just remove it, no need to call updateSelectedFiles
+            $li.remove();
+        });
+        $infoContainer.on("click", ".switch", function() {
+            var $switch = $(this);
+            if ($switch.hasClass("on")) {
+                $switch.removeClass("on");
+                $switch.next().removeClass("highlighted");
+                $switch.prev().addClass("highlighted");
+            } else {
+                $switch.addClass("on");
+                $switch.prev().removeClass("highlighted");
+                $switch.next().addClass("highlighted");
+            }
+        });
+        $infoContainer.on("click", ".switchLabel", function() {
+            var $label = $(this);
+            if (!$label.hasClass("highlighted")) {
+                var $switch = $label.siblings(".switch");
+                if ($label.is(":first-child")) {
+                    $switch.removeClass("on");
+                } else {
+                    $switch.addClass("on");
+                }
+                $label.siblings(".switchLabel").removeClass("highlighted");
+                $label.addClass("highlighted");
+            }
+        });
+        $infoContainer.on("click", ".fileRawData", function() {
+            var $grid = getFocusedGridEle();
+            previewDS($grid);
+        });
+    };
 
     function addSortMenuEvents() {
         // toggle sort menu, should use mousedown for toggle
@@ -466,7 +603,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function showScrolledFiles() {
         $innerContainer.height(getScrollHeight());
 
-        var scrollTop = $container.scrollTop();
+        var scrollTop = $containerWrapper.scrollTop();
         var rowNum;
         var startIndex;
         var endIndex;
@@ -502,32 +639,33 @@ window.FileBrowser = (function($, FileBrowser) {
         $visibleFiles = $container.find(".grid-unit")
                                   .slice(startIndex, endIndex)
                                   .addClass("visible");
-        $container.scrollTop(scrollTop);
+        $containerWrapper.scrollTop(scrollTop);
     }
 
     function getFilesPerRow() {
         var scrollBarWidth = 11;
-        return (Math.floor(($('#fileBrowserContainer').width() -
+        return (Math.floor(($containerWrapper.width() -
                             scrollBarWidth) / dsIconWidth));
     }
     function getScrollHeight() {
         var rowHeight = dsIconHeight;
         var scrollHeight;
         if ($fileBrowserMain.hasClass('listView')) {
-            rowHeight = dsListHeight;
+            rowHeight = dsListHeight; // because of -1px margin-top
             scrollHeight = Math.max(rowHeight *
                                     $container.find('.grid-unit').length,
-                                    $container.height() - 10);
+                                    $containerWrapper.height());
         } else {
             var iconsPerRow = getFilesPerRow();
             var rows = Math.ceil($container.find('.grid-unit').length /
                                 iconsPerRow);
-            scrollHeight = rows * dsIconHeight + 20;
+            scrollHeight = rows * dsIconHeight ;
             // don't know why the wrapper adds 20px in height; (line-height)
-            scrollHeight = Math.max(scrollHeight + 3, $container.height() - 10);
+            scrollHeight = Math.max(scrollHeight + 5,
+                                    $containerWrapper.height());
         }
 
-        return (scrollHeight + 3); // off by 3 pixels otherwise ¯\_(ツ)_/¯
+        return scrollHeight;
     }
 
     function toggleView(toListView, noRefreshTooltip) {
@@ -569,7 +707,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
                 var row = Math.floor(index / filesPerRow);
                 $container.addClass('noScrolling');
-                $container.scrollTop(row * unitHeight - (containerHeight / 2));
+                $containerWrapper.scrollTop(row * unitHeight - (containerHeight / 2));
                 showScrolledFiles();
                 // browser's auto scrolling will be triggered here but will
                 // return when it finds that $container has class noscrolling;
@@ -578,8 +716,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 });
             } else {
                 var unitOffSetTop = $unit.position().top;
-                var scrollTop = $container.scrollTop();
-                $container.scrollTop(scrollTop + unitOffSetTop -
+                var scrollTop = $containerWrapper.scrollTop();
+                $containerWrapper.scrollTop(scrollTop + unitOffSetTop -
                                     (containerHeight - unitHeight) / 2);
             }
         }
@@ -634,8 +772,20 @@ window.FileBrowser = (function($, FileBrowser) {
         FilePreviewer.close();
     }
 
-    function cleanContainer() {
+    function cleanContainer(keepSelected, keepAnchor) {
         $container.find(".active").removeClass("active");
+        updateActiveFileInfo();
+        if (!keepSelected) {
+            $innerContainer.find(".selected").each(function() {
+                var $grid = $(this);
+                $grid.removeClass("selected");
+                curFiles[$grid.data("index")].isSelected = false;
+            });
+        }
+        if (!keepAnchor) {
+            $anchor = null;
+        }
+        uncheckCkBox($container.find(".grid-unit:not(.selected) .checkBox .icon"));
     }
 
     function backToForm() {
@@ -698,6 +848,10 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathSection.find(".targetName").text(targetName);
     }
 
+    function getHistoryPath(targetName) {
+        return historyPathCache[targetName] || "/";
+    }
+
     function setHistoryPath() {
         var path = getCurrentPath();
         if (path !== defaultPath) {
@@ -739,6 +893,9 @@ window.FileBrowser = (function($, FileBrowser) {
             if (curBrowserId === fileBrowserId) {
                 cleanContainer();
                 clearSearch();
+                // Clear selected file list
+                $selectedFileList.empty();
+                FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
@@ -824,37 +981,81 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function sumbitForm($ds) {
-        // load dataset
-        var targetName = getCurrentTarget();
+    function submitForm() {
+        // XXX Now we're still using curDir. But ideally we should directly use
+        // filename, which is the relative path (to data target root) + actual
+        // filename
         var curDir = getCurrentPath();
-        if (($ds == null || $ds.length === 0) && curDir === defaultPath) {
-            var $confirmBtn = $fileBrowser.find(".confirm");
+        var targetName = getCurrentTarget();
+        var pathList = [];
+        var formatList = [];
+        var recursiveList = [];
+        var size = 0;
+        // load dataset
+        var $fileList = $fileBrowser.find(".selectedFileList li");
+        $fileList.each(function () {
+            var path = $(this).text();
+            var recursive = $(this).find("icon").eq(1)
+                                   .hasClass("xi-ckbox-selected");
+            var format = xcHelper.getFormat(path);
+            pathList.push(path);
+            formatList.push(format);
+            recursiveList.push(recursive);
+            // Estimate the size of payload to avoid exceeding limits
+            size += path.length * 2; // Each char takes 2 bytes
+            size += format ? format.length * 2 : 0; // Same as above
+            size += 4;  // Each boolean takes 4 bytes
+        });
+
+        var $confirmBtn = $fileBrowser.find(".confirm");
+        if (size > 4000000) {
+            // If it exceeds payload limits, display an error
+            StatusBox.show(ErrTStr.MaxPayload, $confirmBtn, false, {
+                "side": "left"
+            });
+            return;
+        }
+        if (pathList.length === 0) {
+            // If no file is selected
             StatusBox.show(ErrTStr.InvalidFile, $confirmBtn, false, {
                 "side": "left"
             });
             return;
         }
-
-        setHistoryPath();
-
-        var path = null;
-        var format = null;
-
-        if ($ds != null && $ds.length > 0) {
-            var fileName = $ds.find(".fileName").data("name");
-            path = curDir + fileName;
-            format = xcHelper.getFormat(fileName);
-        } else {
-            // load the whole folder
-            path = curDir;
-        }
-
+        // var multiDS = $("#fileInfoBottom").find(".switch").hasClass("on");
+        // var dsList = [];
+        // if (multiDS) {
+        //     // Import to multiple datasets
+        //     for (var i = 0; i < pathList.length; i++) {
+        //         var dsObj = {
+        //             "dsId": i,
+        //             "path": [pathList[i]],
+        //             "format": [formatList[i]],
+        //             "recursive": [recursiveList[i]]
+        //         }
+        //         dsList.push(dsObj);
+        //     }
+        // } else {
+        //     // Import to a single dataset
+        //     dsList.push({
+        //         "dsId": 0,
+        //         "path": pathList,
+        //         "format": formatList,
+        //         "recursive": recursiveList
+        //     });
+        // }
+        // var options = {
+        //     "targetName": targetName,
+        //     "dsList": dsList
+        // }
         var options = {
+            // XXX Later we will use the commented code above
             "targetName": targetName,
-            "path": path,
-            "format": format
+            "path": pathList[0],
+            "format": formatList[0],
+            "recursive": recursiveList[0]
         };
+        setHistoryPath();
 
         clearAll();
         DSPreview.show(options);
@@ -941,7 +1142,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     toggleSortIcon($icon);
                 } else {
                     $title.removeClass("select");
-                toggleSortIcon($icon, true);
+                    toggleSortIcon($icon, true);
                 }
             });
         } else {
@@ -1108,6 +1309,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function focusOn(grid, isAll, showError) {
         if (grid == null) {
+            $anchor = null;
             return;
         }
 
@@ -1137,7 +1339,9 @@ window.FileBrowser = (function($, FileBrowser) {
         $container.find(".grid-unit").removeClass("active");
         var $grid = $container.find(str).eq(0).closest('.grid-unit');
         if ($grid.length > 0) {
-            $grid.addClass('active');
+            selectSingleFile($grid);
+            updateSelectedFiles($grid);
+            $anchor = $grid;
 
             if ($fileBrowserMain.hasClass("listView")) {
                 scrollIconIntoView($grid);
@@ -1227,6 +1431,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var name = fileObj.name;
             var ctime = fileObj.attr.ctime;
             var mtime = fileObj.attr.mtime; // in untix time
+            var isSelected = fileObj.isSelected;
 
             if (isDirectory && (name === '.' || name === '..')) {
                 continue;
@@ -1243,15 +1448,20 @@ window.FileBrowser = (function($, FileBrowser) {
                         xcHelper.sizeTranslator(fileObj.attr.size);
             var escName = xcHelper.escapeDblQuoteForHTML(name);
 
+            var selectedClass = isSelected ? " selected" : "";
+            var ckBoxClass = isSelected ? "xi-ckbox-selected" : "xi-ckbox-empty";
+
             html +=
-                '<div title="' + escName + '" class="' +
-                    gridClass + visibilityClass + ' grid-unit" ' +
+                '<div title="' + escName + '" class="' + gridClass +
+                    visibilityClass + selectedClass + ' grid-unit" ' +
                     'data-index="' + i + '">' +
+                    '<div class="checkBox">' +
+                        '<i class="icon ' + ckBoxClass + '"></i>' +
+                    '</div>' +
                     '<i class="gridIcon icon ' + iconClass + '"></i>' +
                     '<div class="label fileName" data-name="' + escName + '">' +
                         name +
                     '</div>';
-            var time;
             if (ctime) {
                 hasCtime = true;
                 html += genDateHtml(ctime, "ctime");
@@ -1273,10 +1483,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (!hasCtime) {
             // Hide "Date Created" if the returned file obj has no such info
-            $fileBrowser.find(".cdate").addClass("hideCdate");
+            $fileBrowser.find(".cdate:not(.fileInfo)").addClass("hideCdate");
             $("#fileBrowserSortMenu").find(".cdate").hide();
         } else {
-            $fileBrowser.find(".cdate").removeClass("hideCdate");
+            $fileBrowser.find(".cdate:not(.fileInfo)").removeClass("hideCdate");
             $("#fileBrowserSortMenu").find(".cdate").show();
         }
 
@@ -1300,36 +1510,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function refreshIcon() {
-        var listFormatMap = {
-            "JSON": "xi-json-big-file",
-            "CSV": "xi-csv-big-file",
-            "Excel": "xi-xls-big-file",
-            "TEXT": "xi-text-big-file",
-            "XML": "xi-xml-big-file",
-            "HTML": "xi-html-big-file",
-            "TAR": "xi-tar-big-file",
-            "ZIP": "xi-zip-big-file",
-            "PDF": "xi-pdf-big-file",
-            "JPG": "xi-jpg-big-file",
-            "PNG": "xi-png-big-file",
-            "GIF": "xi-gif-big-file",
-            "BMP": "xi-bmp-big-file"
-        };
-        var gridFormatMap = {
-            "JSON": "xi-json-file",
-            "CSV": "xi-csv-file",
-            "Excel": "xi-xls-file",
-            "TEXT": "xi-text-file",
-            "XML": "xi-xml-file",
-            "HTML": "xi-html-file",
-            "TAR": "xi-tar-file",
-            "ZIP": "xi-zip-file",
-            "PDF": "xi-pdf-file",
-            "JPG": "xi-jpg-file",
-            "PNG": "xi-png-file",
-            "GIF": "xi-gif-file",
-            "BMP": "xi-bmp-file-1"
-        };
         var isListView = $fileBrowserMain.hasClass("listView");
         $container.find(".grid-unit.ds .icon").each(function() {
             var $icon = $(this);
@@ -1365,12 +1545,31 @@ window.FileBrowser = (function($, FileBrowser) {
         var ctx = canvas.getContext('2d');
         ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
 
-        $container.find(".label").each(function() {
+        $innerContainer.find(".label").each(function() {
             var $label = $(this);
             var name = $label.data("name");
             xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
                                      !isListView, ctx);
         });
+    }
+    function refreshFileListEllipsis($fileName) {
+        var maxChar = 38;
+        var maxWidth = 285;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.font = '700 13px Open Sans';
+        if ($fileName && $fileName.length > 0) {
+            var name = $fileName.text();
+            xcHelper.middleEllipsis(name, $fileName, maxChar, maxWidth,
+                                    false, ctx);
+        } else {
+            $selectedFileList.find("span").each(function() {
+                var $span = $(this);
+                var name = $span.text();
+                xcHelper.middleEllipsis(name, $span, maxChar, maxWidth,
+                                        false, ctx);
+            });
+        }
     }
 
     function addKeyBoardEvent() {
@@ -1432,6 +1631,9 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 var file = fileNavigator.navigate(code, curFiles);
                 if (file != null) {
+                    // Clean selected files in browser and the selectedFileList
+                    cleanContainer();
+                    $selectedFileList.empty();
                     focusOn(file, true);
                 }
             }
@@ -1559,8 +1761,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function scrollIconIntoView($icon, isGridView) {
         var iconHeight = isGridView ? dsIconHeight : dsListHeight;
-        var containerHeight = $container.height();
-        var scrollTop = $container.scrollTop();
+        var containerHeight = $containerWrapper.height();
+        var scrollTop = $containerWrapper.scrollTop();
 
         if ($container.hasClass('manyFiles')) {
             var index = $icon.index() - 1; // .sizer is at 0
@@ -1585,7 +1787,7 @@ window.FileBrowser = (function($, FileBrowser) {
             if (newScrollTop != null) {
                 $container.addClass('noScrolling');
 
-                $container.scrollTop(newScrollTop);
+                $containerWrapper.scrollTop(newScrollTop);
                 showScrolledFiles();
                 // browser's auto scrolling will be triggered here
                 // but will return when it finds that $container
@@ -1599,9 +1801,9 @@ window.FileBrowser = (function($, FileBrowser) {
             var iconBottom = iconOffsetTop + iconHeight;
 
             if (iconBottom > containerHeight) {
-                $container.scrollTop(scrollTop + (iconBottom - containerHeight));
+                $containerWrapper.scrollTop(scrollTop + (iconBottom - containerHeight));
             } else if (iconOffsetTop < 0) {
-                $container.scrollTop(scrollTop + iconOffsetTop);
+                $containerWrapper.scrollTop(scrollTop + iconOffsetTop);
             }
         }
 
@@ -1667,6 +1869,165 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
+    function updateActiveFileInfo($grid) {
+        if (!$grid) {
+            $infoContainer.find(".fileName").text("--");
+            $infoContainer.find(".fileType").text("--");
+            $infoContainer.find(".mdate .content").text("--");
+            $infoContainer.find(".cdate .content").text("--");
+            $infoContainer.find(".fileSize .content").text("--");
+            $infoContainer.find(".fileIcon").removeClass()
+                          .addClass("icon fileIcon xi-folder");
+            $container.find(".filePathBottom .content").text("");
+            return;
+        }
+        var index = Number($grid.data("index"));
+        var file = curFiles[index];
+        var name = file.name;
+        var path = getCurrentPath() + name;
+        var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
+        var cTime = file.attr.ctime ?
+                    moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
+                    "--";
+        var isFolder = file.attr.isDirectory;
+        var size = isFolder ? "--" : xcHelper.sizeTranslator(file.attr.size);
+        var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
+        var $fileIcon = $infoContainer.find(".fileIcon").eq(0);
+
+        // Update file name & type
+        if (name.length > 30) {
+            name = name.substring(0, 30) + "...";
+        }
+        $infoContainer.find(".fileName").text(name);
+        if (!fileType) {
+            // Unknown type
+            fileType = "File";
+        }
+        $infoContainer.find(".fileType").text(fileType);
+
+        // Update file icon
+        $fileIcon.removeClass();
+        if (isFolder) {
+            $fileIcon.addClass("xi-folder");
+        } else if (fileType && listFormatMap.hasOwnProperty(fileType) &&
+                gridFormatMap.hasOwnProperty(fileType)) {
+            $fileIcon.addClass(gridFormatMap[fileType]);
+        } else {
+            $fileIcon.addClass("xi-documentation-paper");
+        }
+        $fileIcon.addClass("icon fileIcon");
+
+        // Update file info
+        $infoContainer.find(".mdate .content").text(mTime);
+        $infoContainer.find(".cdate .content").text(cTime);
+        $infoContainer.find(".fileSize .content").text(size);
+        // Update bottom file path
+        $container.find(".filePathBottom .content").text(path);
+    }
+    function selectMultiFiles($curActiveGrid) {
+        var startIndex;
+        if (!$anchor) {
+            startIndex = 0;
+        } else {
+            startIndex = $anchor.data("index");
+        }
+        var endIndex = $curActiveGrid.data("index");
+        var $grids;
+        if (startIndex > endIndex) {
+            $grids = $container.find(".grid-unit")
+                               .slice(endIndex, startIndex + 1);
+        } else {
+            $grids = $container.find(".grid-unit").slice(startIndex, endIndex);
+        }
+        $grids.addClass("selected");
+        checkCkBox($grids.find(".checkBox .icon"));
+
+        $curActiveGrid.addClass('active selected');
+        updateActiveFileInfo($curActiveGrid);
+        checkCkBox($curActiveGrid.find(".checkBox .icon"));
+
+        if (FilePreviewer.isOpen()) {
+            previewDS($grid);
+        }
+    }
+    function createListElement($grid) {
+        var index = $grid.data("index");
+        var file = curFiles[index];
+        file.isSelected = true;
+        var name = file.name;
+        var escName = xcHelper.escapeDblQuoteForHTML(name);
+        var isFolder = file.attr.isDirectory;
+        var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
+        var fileIcon;
+        // XXX Need to be changed after search is implemented
+        var curDir = getCurrentPath();
+        var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
+
+        return '<li data-name="' + escName + '" data-path="' + escDir + '">' +
+                    '<i class="icon xi-close close"></i>' +
+                    '<i class="icon xi-ckbox-selected"></i>' +
+                    '<span>' + curDir + name + '</span>' +
+                '</li>';
+
+
+    }
+    function updateSelectedFiles($grid, isRemove) {
+        // Use cases:
+        // 1. Update based on selected class
+        // 2. Remove one file
+        // 3. Append one file
+        var html = "";
+        if (!$grid || $grid.length === 0) {
+            // No specific file passed in, update the entire list
+            $selectedFileList.empty();
+            $innerContainer.find(".selected").each(function() {
+                html += createListElement($(this));
+            });
+            $selectedFileList.append(html);
+            refreshFileListEllipsis();
+        } else {
+            var name = $grid.find(".fileName").data("name");
+            var path = getCurrentPath();
+            var escPath = xcHelper.escapeDblQuoteForHTML(path);
+            if (isRemove) {
+                $selectedFileList.find('li[data-name="' + name + '"]' +
+                                           '[data-path="' + escPath + '"]').remove();
+            } else if ($selectedFileList.find('li[data-name="' + name + '"]' +
+                                    '[data-path="' + escPath + '"]').length === 0) {
+                // If it doesn't exist, append the file
+                html += createListElement($grid);
+                var $span = $(html).appendTo($selectedFileList).find("span");
+                refreshFileListEllipsis($span);
+            }
+        }
+    }
+    function selectSingleFile($grid) {
+        $grid.addClass('active selected');
+        updateActiveFileInfo($grid);
+        checkCkBox($grid.find(".checkBox .icon"));
+
+        if (FilePreviewer.isOpen()) {
+            previewDS($grid);
+        }
+    }
+    function unselectSingleFile($grid) {
+        if ($grid.length > 0) {
+            curFiles[$grid.data("index")].isSelected = false;
+            if ($grid.hasClass("active")) {
+                // If it is an active file, remove file info
+                updateActiveFileInfo();
+            }
+            $grid.removeClass("selected active");
+            uncheckCkBox($grid.find(".checkBox .icon"));
+        }
+    }
+    function checkCkBox($checkBox) {
+        $checkBox.removeClass("xi-ckbox-empty").addClass("xi-ckbox-selected");
+    }
+    function uncheckCkBox($checkBox) {
+        $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         FileBrowser.__testOnly__ = {};
@@ -1689,7 +2050,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.findVerticalIcon = findVerticalIcon;
         FileBrowser.__testOnly__.redirectHandler = redirectHandler;
         FileBrowser.__testOnly__.oversizeHandler = oversizeHandler;
-        FileBrowser.__testOnly__.sumbitForm = sumbitForm;
+        FileBrowser.__testOnly__.submitForm = submitForm;
         FileBrowser.__testOnly__.showScrolledFiles = showScrolledFiles;
         FileBrowser.__testOnly__.applySearchPattern = applySearchPattern;
     }

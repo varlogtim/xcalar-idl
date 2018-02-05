@@ -1089,6 +1089,18 @@ table.datasetTable {
         }
     }
 
+    .cardHeader {
+        display: flex;
+        .headerClose {
+            margin-left: auto;
+            color: @color-white;
+            .cancel {
+                margin-top: 8px;
+                margin-right: 11px;
+            }
+        }
+    }
+
     .cardInstruction {
         text-transform: initial;
     }
@@ -1228,7 +1240,7 @@ table.datasetTable {
 
     .cardMain {
         .position(relative);
-        .size(@height: ~"calc(100% - 220px)");
+        .size(@height: ~"calc(100% - 150px)");
         padding-top: 0;
         .flex-display;
 
@@ -1341,7 +1353,6 @@ table.datasetTable {
                 .icon {
                     .size(@width: 20px, @height: 40px);
                     color: @color-font-greyish-brown;
-                    float: right;
 
                     &:before {
                         .vertical-align;
@@ -1352,10 +1363,10 @@ table.datasetTable {
         }
 
         .mainSection {
-            .size(@width: 100%, @height: 100%);
+            .size(@width: ~"calc(100% - 360px)", @height: 100%);
             .position(relative);
-            overflow-y: auto;
             text-transform: none;
+            float: left;
 
             .error {
                 color: @color-text-error;
@@ -1394,33 +1405,65 @@ table.datasetTable {
                         color: @color-font-softBlue;
                     }
                 }
+
+                .checkBox {
+                    height: 16px;
+                    width: 25px;
+                    color: @color-font-softBlue;
+                    visibility: hidden;
+                }
             }
         }
-
+        .wrapper {
+            overflow-y: scroll;
+            height: ~"calc(100% - 25px)";
+            position: relative;
+        }
         .innerFileBrowserContainer {
             overflow: hidden;
         }
 
         &.gridView {
-            .titleSection, .fileDate, .fileSize {
+            .titleSection, .fileDate:not(.fileInfo), .fileSize:not(.fileInfo) {
                 display: none;
             }
 
             .grid-unit {
+                margin-top: 5px;
+                margin-left: 5px;
+                border: transparent 1px;
+                height: 72px;
                 .gridIcon {
                     background: transparent !important;
                     .position(relative, @top: 5px);
                     .size(@width: 40px);
                     .font(@size: 30px);
+                    margin-top: -4px;
                 }
 
                 > .label {
                     color: @color-font-gray36;
                     word-break: break-all;
                 }
+                &.selected, &.hovering {
+                    border: solid 1px @color-font-softBlue;
+                    .checkBox {
+                        display: flex;
+                        visibility: visible;
+                        margin-left: -1px;
+                        margin-top: -1px;
+                        .icon {
+                            font-size: 14px;
+                        }
+                    }
+                    .label {
+                        top: -2px;
+                        left: -1px;
+                    }
+                }
             }
 
-            .mainSection {
+            .mainSection.wrapper {
                 padding-left: 3px;
                 padding-bottom: 4px;
             }
@@ -1433,7 +1476,6 @@ table.datasetTable {
         &.listView {
             .mainSection {
                 .size(@height: ~"calc(100% - 40px)");
-                overflow-y: scroll;
 
                 &.manyFiles {
                     .grid-unit {
@@ -1446,7 +1488,8 @@ table.datasetTable {
             }
 
             .titleSection {
-                padding-right: 10px;
+                padding-left: 5px;
+                padding-right: 11px;
                 .flex-display;
             }
 
@@ -1462,7 +1505,7 @@ table.datasetTable {
 
                     &.gridIcon {
                         .size(@width: 40px);
-                        margin-left: 12px;
+                        margin-left: 6px;
                     }
 
                     &:not(.gridIcon) {
@@ -1480,6 +1523,9 @@ table.datasetTable {
                 .title {
                     cursor: pointer;
                 }
+                .checkBox {
+                    width: 20px;
+                }
 
             }
 
@@ -1487,10 +1533,232 @@ table.datasetTable {
                 .size(@height: 30px);
                 .flex-display;
                 cursor: default;
-                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+                box-shadow: none;
+                align-items: center;
+                border-top: solid 1px rgba(0, 0, 0, 0.2);
+                border-bottom: solid 1px rgba(0, 0, 0, 0.2);
+                margin-top: -1px;
+                padding-left: 5px;
 
                 .gridIcon {
                     .font(@size: 16px);
+                }
+                &.selected, &.hovering {
+                    .checkBox {
+                        display: flex;
+                        visibility: visible;
+                        .icon {
+                            font-size: 14px;
+                        }
+                        align-items: center;
+                    }
+                    border-top: solid 1px @color-font-softBlue;
+                    border-bottom: solid 1px @color-font-softBlue;
+                    // background-color: @color-selectedCell-light;
+                    background-color: @color-selected-blue;
+                    z-index: 1;
+                }
+                &.active {
+                    // background-color: @color-active-blue;
+                    background-color: @color-selectedCell-light;
+                }
+            }
+        }
+        .filePathBottom {
+            height: 25px;
+            background-color: @color-mercury;
+            display: flex;
+            align-items: center;
+            .content {
+                margin-left: 11px;
+                font-size: 11px;
+            }
+        }
+        .fileInfoContainer {
+            .size(@width: 360px, @height: 100%);
+            .font(@size: 13px);
+            float: left;
+            border-left: solid 1px @color-border-pinkish-grey2;
+            span.content {
+                color: @color-content-grey;
+            }
+            .infoTitle {
+                font-weight: bold;
+                text-transform: none;
+            }
+            .fileInfoTop {
+                .size(@width: 100%, @height: 170px);
+                padding: 16px 20px;
+                background-color: @color-info-bg-grey;
+
+                .fileName {
+                    text-transform: none;
+                    font-size: 14px;
+                }
+
+                .fileInfoDetails {
+                    display: flex;
+                    > div {
+                        display: flex;
+                        align-items: flex-start;
+                        flex-direction: column;
+                    }
+                    .fileInfoText {
+                        margin-left: 20px;
+                        > div {
+                            margin-bottom: 6px;
+                        }
+                    }
+                    .size(@width: 100%, @height: 122px);
+                    padding: 8px 0;
+                    .icon {
+                        color: @color-font-greyish-brown;
+                        font-size: 16px;
+                    }
+                    .fileIcon {
+                        font-size: 65px;
+                        color: @color-bg-99-grey;
+                        align-self: center;
+                        &.xi-folder {
+                            color: @color-bg-cancel-gray;
+                        }
+                        margin-bottom: 11px;
+                    }
+                    span {
+                        display: inline-block;
+                        &.content {
+                            display: block;
+                        }
+                    }
+                    .contentWrapper {
+                        margin-left: 30px;
+                        margin-top: -21px;
+                    }
+                }
+                .fileRawData {
+                    text-align: center;
+                    button {
+                        .size(@width: 120px, @height: 35px);
+                        padding: 0 9px;
+                        background-color: @color-info-bg-grey;
+                        border: solid 1px @color-border-select-blue;
+                        &.btn, .icon {
+                            font-size: 18px;
+                            color: @color-border-select-blue;
+                            span {
+                                font-size: 13px;
+                                float: left;
+                                margin-top: -1px;
+                            }
+                        }
+                    }
+                }
+            }
+            .fileInfoMid {
+                .size(@width: 100%, @height: ~"calc(100% - 270px)");
+                min-height: 110px;
+                padding: 16px 20px;
+                border-top: solid 1px @color-border-pinkish-grey2;
+                border-bottom: solid 1px @color-border-pinkish-grey2;
+                div {
+                    display: flex;
+                    margin-bottom: 2px;
+                }
+                .close {
+                    margin-left: auto;
+                    display: flex;
+                    align-items: center;
+                    color: @color-content-grey;
+                    .icon {
+                        margin-left: 7px;
+                        font-size: 15px;
+                    }
+                    cursor: pointer;
+                }
+                .selectedFiles {
+                    &, .close {
+                        color: @color-font-softBlue;
+                    }
+                    .qMark {
+                        margin-top: 4px;
+                        margin-left: 8px;
+                        background: @color-font-softBlue;
+                        cursor: help;
+                    }
+                    .selectAll {
+                        cursor: pointer;
+                    }
+                }
+                .fileList {
+                    overflow: auto;
+                    height: ~"calc(100% - 40px)";
+                    width: ~"calc(100% + 25px)";
+                    li {
+                        display: flex;
+                        align-items: center;
+                        color: @color-bg-99-grey;
+                        margin-bottom: 8px;
+                        .icon {
+                            font-size: 14px;
+                            margin-right: 10px;
+                            margin-left: 0;
+                        }
+                        .xi-ckbox-selected {
+                            color: @color-font-softBlue;
+                        }
+                        span {
+                            color: @color-font-greyish-brown;
+                            text-transform: none;
+                        }
+                    }
+                }
+            }
+            .fileInfoBottom {
+                .size(@width: 100%, @height: 100px);
+                padding: 16px 20px;
+                .bottomWrapper {
+                    display: flex;
+                    margin-bottom: 15px;
+                    align-items: center;
+                }
+                .buttonSection {
+                    display: flex;
+                    .btn {
+                        width: 135px;
+                        margin-left: auto;
+                    }
+                }
+                .switchWrap{
+                    margin-left: auto;
+                    display: flex;
+                    align-items: center;
+                    > div {
+                        margin-left: 8px;
+                        display: flex;
+                        align-items: center;
+                        color: @color-bg-pinkish-grey;
+                        cursor: pointer;
+                    }
+                    .switch, .on {
+                        .size(@width: 26px, @height: 14px);
+                        border-radius: 8px;
+                        top: 0;
+                        background-color: @color-bg-pinkish-grey;
+                        margin-top: 1px;
+                    }
+                    .slider {
+                        .size(@width: 16px, @height: 16px);
+                        border-radius: 20px;
+                        top: 0;
+                        left: -2px;
+                        background-color: @color-bg-99-grey;
+                    }
+                    .on .slider {
+                        left: 14px;
+                    }
+                    .highlighted {
+                        color: @color-font-greyish-brown;
+                    }
                 }
             }
         }
