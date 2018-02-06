@@ -632,6 +632,7 @@ module.exports = {
         "Header": "Promote First Row As Header",
         "Format": "Format",
         "UDF": "Parse Data With UDF",
+        "UDFField": "UDF",
         "Pattern": "File Name Pattern",
         "Recursive": "Recursive",
         "Regex": "Regex",

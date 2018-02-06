@@ -277,7 +277,20 @@ window.DSTable = (function($, DSTable) {
 
         var format = dsObj.getFormat() || CommonTxtTstr.NA;
         $("#dsInfo-format").text(format);
-
+        var $dsInfoUdf = $("#dsInfo-udf");
+        if (dsObj.moduleName.trim() !== "") {
+            $dsInfoUdf.text(dsObj.moduleName + ":" + dsObj.funcName);
+            xcTooltip.add($dsInfoUdf, {title: JSON.stringify(dsObj.udfQuery)});
+            $dsInfoUdf.removeClass("xc-hidden");
+            $dsInfoUdf.prev("span").removeClass("xc-hidden")
+                      .prev("span").removeClass("xc-hidden");
+        } else {
+            xcTooltip.remove($dsInfoUdf);
+            $dsInfoUdf.addClass("xc-hidden");
+            $dsInfoUdf.prev("span").addClass("xc-hidden")
+                      .prev("span").addClass("xc-hidden");
+        }
+        // TODO tooltip with query
         if (typeof numEntries === "number") {
             numEntries = xcHelper.numToStr(numEntries);
         } else {
