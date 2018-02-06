@@ -709,6 +709,7 @@ module.exports = {
         "HelpDocs": "帮助文档",
         "LogOut": "登出",
         "ds": "数据集",
+        "discourse": "前往论坛",
         "exts": "插件",
         "monitor": "监控器",
         "tutorUser": "约翰·史密斯",

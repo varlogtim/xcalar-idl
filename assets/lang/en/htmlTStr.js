@@ -140,6 +140,7 @@ module.exports = {
         "ws": "Worksheets",
         "monitor": "Monitor",
         "ds": "Datasets",
+        "discourse": "Discourse",
         "exts": "Extensions",
         "user": "User",
         "tutorUser": "John Smith",

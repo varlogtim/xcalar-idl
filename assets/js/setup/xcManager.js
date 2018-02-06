@@ -575,6 +575,18 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
+        $menu.on("mouseup", ".discourse", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var win = window.open('https://discourse.xcalar.com/', '_blank');
+            if (win) {
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }
+        });
+
         $menu.on("mouseup", ".about", function(event) {
             if (event.which !== 1) {
                 return;
