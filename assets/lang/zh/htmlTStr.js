@@ -288,6 +288,7 @@ module.exports = {
         "Details": "细节",
         "DontShow": "不再显示",
         "DOWNLOAD": "DOWNLOAD",
+        "ErrorMessage": "Error Message",
         "Existing": "存在",
         "Exit": "退出",
         "File": "文件",
@@ -517,6 +518,12 @@ module.exports = {
         "SelectLaterHint": "创建一个表，而不选择任何列",
         "DSName": "数据集名称",
         "clickToView": "点击查看"
+    },
+    "dsImportError": {
+        "Header": "Dataset Import Error",
+        "NumFileErrors": "Files with errors",
+        "NumErrors": "Number of errors",
+        "SizeLimit": "SIZE LIMIT"
     },
     "dsTarget": {
         "Create": "添加数据目标",

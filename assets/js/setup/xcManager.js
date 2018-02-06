@@ -543,6 +543,7 @@ window.xcManager = (function(xcManager, $) {
         JupyterUDFModal.setup();
         DFCommentModal.setup();
         FileListModal.setup();
+        DSImportErrorModal.setup();
     }
 
     function setupUserArea() {

@@ -38,6 +38,7 @@ module.exports = {
         "DS": "Dataset",
         "DontShow": "Don't show again",
         "DOWNLOAD": "DOWNLOAD",
+        "ErrorMessage": "Error Message",
         "Existing": "Existing",
         "Exit": "Exit",
         "File": "File",
@@ -706,6 +707,13 @@ module.exports = {
         "SelectLaterHint": "Create a table without selecting any columns",
         "DSName": "Dataset Name",
         "clickToView": "CLICK TO VIEW"
+    },
+
+    "dsImportError": {
+        "Header": "Dataset Import Error",
+        "NumFileErrors": "Files with errors",
+        "NumErrors": "Number of errors",
+        "SizeLimit": "SIZE LIMIT"
     },
 
     "dsCart": {

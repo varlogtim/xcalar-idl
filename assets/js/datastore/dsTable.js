@@ -256,15 +256,7 @@ window.DSTable = (function($, DSTable) {
         var target = dsObj.getTargetName();
 
         $path.text(path);
-        // XXX needs back end call
-        // var showFileHtml = '<button id="showFileListBtn" ' +
-        //                 'class="btn btn-large btn-transparent iconBtn">' +
-        //                 '<i class="icon xi-show"></i>' +
-        //                 'View files / folders</button>';
-        // $path.append(showFileHtml);
-        $("#showFileListBtn").click(function() {
-            FileListModal.show();
-        });
+
         xcTooltip.changeText($path, target + "\n" + path);
         xcTooltip.enable($path);
         $path.append("<i class='icon xi-copy-clipboard path-copy-clipboard'></i>");
@@ -523,6 +515,14 @@ window.DSTable = (function($, DSTable) {
         $dsTableContainer.on("click", ".cancelLoad", function() {
             var txId = $(this).data("txid");
             QueryManager.cancelDS(txId);
+        });
+
+        $("#showFileListBtn").click(function() {
+            FileListModal.show();
+        });
+
+        $("#dsInfo-error").click(function() {
+            DSImportErrorModal.show();
         });
     }
 

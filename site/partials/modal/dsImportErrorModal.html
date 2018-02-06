@@ -1,0 +1,93 @@
+<div id="dsImportErrorModal" class="modalContainer">
+  <div class="modalHeader">
+    <header class="title"><%= dicts.dsImportError.Header %></header>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-tipclasses="highZindex" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </div>
+  <!-- cardMain -->
+  <div class="modalMain">
+    <section class="topSection">
+      <div class="topRow generalInfo">
+        <div class="infoPart">
+          <span class="label"><%= dicts.dsImportError.NumFileErrors %>:</span>
+          <span class="value">123</span>
+        </div>
+        <div class="infoPart">
+          <span class="label"><%= dicts.dsImportError.NumErrors %>:</span>
+          <span class="value">123</span>
+        </div>
+      </div>
+      <div class="topRow sizeInfo">
+        <div class="sizeInfoTitle">
+          <i class="icon xi-warning"></i>
+          <span><%= dicts.dsImportError.SizeLimit %>:</span>
+        </div>
+        <p class="text">Due to the dataset size limit imposed by your admin, you were only able to ingest xx / xxx of your files. To bump up the limit, contact your Xcalar Admin.</p>
+      </div>
+    </section>
+    <!-- cardMain -->
+    <section class="bottomSection">
+      <div class="fileListSection">
+        <div class="closeArea">
+          <!-- <i class="icon xi-close closeList"></i> -->
+        </div>
+        <div class="errorFileList">
+          <div class="row type-record active" data-path="a/b/c/d.txt">
+            <i class="icon xi-error"></i>
+            <span class="filePath">a/b/c/d.txt</span>
+          </div>
+          <div class="row type-file" data-path="a.txt">
+            <i class="icon xi-error"></i>
+            <span class="filePath">a.txt</span>
+          </div>
+        </div>
+      </div>
+      <div class="errorMsgSection">
+        <div class="recordErrorSection">
+          <div class="headerArea">
+            <div class="title recordNum"><%= dicts.dsForm.RowNum %></div>
+            <div class="title errorMsg"><%= dicts.common.ErrorMessage %></div>
+          </div>
+          <div class="recordMessageList">
+            <div class="row collapsed">
+              <div class="recordNum">
+                <i class="icon xi-arrow-down arrow"></i>
+                <span class="num">50</span>
+              </div>
+              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
+            </div>
+            <div class="row collapsed">
+              <div class="recordNum">
+                <i class="icon xi-arrow-down arrow"></i>
+                <span class="num">50</span>
+              </div>
+              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
+            </div>
+             <div class="row collapsed">
+              <div class="recordNum">
+                <i class="icon xi-arrow-down arrow"></i>
+                <span class="num">50</span>
+              </div>
+              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
+            </div>
+             <div class="row collapsed">
+              <div class="recordNum">
+                <i class="icon xi-arrow-down arrow"></i>
+                <span class="num">50</span>
+              </div>
+              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
+            </div>
+          </div>
+        </div>
+        <div class="fileErrorSection"></div>
+      </div>
+    </section>
+  </div>
+</div>
