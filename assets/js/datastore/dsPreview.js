@@ -175,7 +175,6 @@ window.DSPreview = (function($, DSPreview) {
                 $renameInput.focus();
                 $renameInput.selectAll();
 
-
                 // if scroll is triggered, don't validate, just return to old
                 // value
                 $renameInput.on("blur", function() {
@@ -1156,7 +1155,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function getColumnHeaders() {
         var headers = [];
-        if (loadArgs.format === formatMap.CSV) {
+        if (loadArgs.getFormat() === formatMap.CSV) {
             $previewTable.find("th:not(.rowNumHead)").each(function() {
                 var $th = $(this);
                 var type = $th.data("type") || "string";
@@ -2708,7 +2707,7 @@ window.DSPreview = (function($, DSPreview) {
         var ths = "";
 
         var thHtml;
-        if (loadArgs.format === formatMap.CSV) {
+        if (loadArgs.getFormat() === formatMap.CSV) {
             thHtml = '<th class="editable" data-type="string">' +
                         '<div class="header type-string">' +
                             colGrabTemplate +
@@ -2751,6 +2750,10 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.empty().append($tHead, $tbody);
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
         loadArgs.setOriginalTypedColumns(getColumnHeaders());
+
+        if (loadArgs.getFormat() === "CSV") {
+            initialSuggest();
+        }
 
         if (fieldDelim !== "") {
             $previewTable.addClass("has-delimiter");
@@ -3066,7 +3069,7 @@ window.DSPreview = (function($, DSPreview) {
         var thead = "<thead><tr>";
         var colGrab = colGrabTemplate;
         var isEditable = false;
-        if (loadArgs.format === formatMap.CSV) {
+        if (loadArgs.getFormat() === formatMap.CSV) {
             isEditable = true;
         }
         // when has header
@@ -3761,6 +3764,49 @@ window.DSPreview = (function($, DSPreview) {
         var progressCircle = new ProgressCircle(txId, 0, withText);
         $waitSection.find(".cancelLoad").data("progresscircle",
                                                 progressCircle);
+    }
+
+    // currently only being used for CSV
+    function initialSuggest() {
+        var $tbody = $previewTable.find("tbody").clone(true);
+        $tbody.find("tr:gt(17)").remove();
+        $tbody.find(".lineMarker").remove();
+        var recTypes = [];
+
+        $tbody.find("tr").eq(0).find("td").each(function(colNum) {
+            if (colNum >= gMaxDSColsSpec) {
+                return false;
+            }
+            recTypes[colNum] = suggestType($tbody, colNum + 1);
+        });
+
+        $previewTable.find("th:gt(0)").each(function(colNum) {
+            if (colNum >= gMaxDSColsSpec) {
+                return false;
+            }
+            var recType = recTypes[colNum];
+            if (recType && recType !== "string") {
+                var $th = $(this);
+                $th.find(".header").removeClass("type-string")
+                                       .addClass("type-" + recType);
+                $th.data("type", recType);
+                xcTooltip.changeText($th.find(".flex-left"),
+                                    xcHelper.capitalize(recType) +
+                                    '<br>' + DSTStr.ClickChange);
+            }
+        });
+    }
+
+    function suggestType($tbody, colNum) {
+        var datas = [];
+        var val;
+
+        $tbody.find("tr").find("td:nth-child(" + colNum + ")").each(function() {
+            val = $(this).text();
+            datas.push(val);
+        });
+
+        return xcSuggest.suggestType(datas);
     }
 
 

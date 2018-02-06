@@ -85,6 +85,8 @@ gDefaultFDelim = "\t";
 gDefaultRDelim = "\n";
 gDefaultQDelim = '"';
 gLongTestSuite = 1;
+gMaxDSColsSpec = 127; // Max num of columns that can be ordered, renamed, or
+                      // casted from a dataset
 gMaxColToPull = 200; // Max num of column can create directly from preview.
 gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want

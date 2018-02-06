@@ -1079,7 +1079,7 @@ window.TblMenu = (function(TblMenu, $) {
         var keys = table.backTableMeta.keyAttr;
         var keyNames = table.getKeyName();
         var keyIndex = keyNames.indexOf(colName);
-        if (keyIndex === -1 || 
+        if (keyIndex === -1 ||
             order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i].name === colName ||
@@ -1185,7 +1185,7 @@ window.TblMenu = (function(TblMenu, $) {
             e: "exportTable",
             j: "jupyterTable",
             m: "hideTable",
-            s: "multiCast",
+            // s: "multiCast", // XXX may remove smartcast
             t: "makeTempTable",
             u: "unhideTable",
             x: "exitOp"
