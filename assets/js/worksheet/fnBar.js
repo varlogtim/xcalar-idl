@@ -971,12 +971,12 @@ window.FnBar = (function(FnBar, $) {
         }
 
         for (var i = 0; i < funcs.length; i++) {
-            if (!xdfMap.hasOwnProperty(funcs[i]) &&
-                !udfMap.hasOwnProperty(funcs[i])) {
+            var fLower = funcs[i].toLowerCase();
+            if (!xdfMap.hasOwnProperty(fLower) &&
+                !udfMap.hasOwnProperty(fLower)) {
                 unknownFuncs.push(funcs[i]);
             }
         }
-
         return unknownFuncs;
     }
 
