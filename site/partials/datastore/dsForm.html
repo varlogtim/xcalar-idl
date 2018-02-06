@@ -37,7 +37,13 @@
       <% if (dicts.tutor.name == "datastoreTut1") { %>
       <input id="filePath" type="text" spellcheck="false" data-introstep="w2-dsPath">
       <% } else { %>
-      <input id="filePath" type="text" spellcheck="false">
+      <div class="dropDownList">
+        <input id="filePath" class="test" type="text" spellcheck="false">
+        <div class="list">
+          <ul></ul>
+          include "../../util/menuScrollArea.html"
+        </div>
+      </div>
       <% } %>
       <% if (dicts.tutor.name == "datastoreTut1") { %>
       <button class="btn browse" type="button" data-introstep="w2-browseDs"><%= dicts.common.BROWSE %></button>

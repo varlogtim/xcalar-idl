@@ -79,18 +79,6 @@ describe("Dataset-DSForm Test", function() {
                 assert.isTrue(test.$ele.is(":visible"));
             });
         });
-
-        it("should Use DSForm.clear() to reset", function(done) {
-            $filePath.val("test");
-            DSForm.clear()
-            .then(function() {
-                expect($filePath.val()).to.be.empty;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
     });
 
     describe("Inner getter and setter test", function() {

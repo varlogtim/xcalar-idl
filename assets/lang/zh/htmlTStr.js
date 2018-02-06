@@ -589,7 +589,7 @@ module.exports = {
         "SearchHint": "搜索",
         "SkipToOffset": "跳转至",
         "Up": "返回上层目录",
-        "filePathHint": "点击查看历史记录",
+        "filePathHint": "点击查看路径",
         "header": "浏览数据源",
         "instr": "选择数据源，然后单击“下一步”按钮。",
         "toggleHex": "切换浏览器/hex dump",

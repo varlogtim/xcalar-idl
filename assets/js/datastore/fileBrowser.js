@@ -24,7 +24,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var defaultPath = "/";
     /* End Of Contants */
 
-    var historyPathCache = {};
     var curFiles = [];
     var allFiles = [];
     var sortKey = defaultSortKey;
@@ -80,9 +79,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
 
         setTarget(targetName);
-        if (path === "/") {
-            path = getHistoryPath(targetName);
-        }
 
         var paths = parsePath(path);
         setPath(paths[paths.length - 1]);
@@ -643,6 +639,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function backToForm() {
+        setHistoryPath();
         clearAll();
         DSForm.show({"noReset": true});
     }
@@ -701,12 +698,12 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathSection.find(".targetName").text(targetName);
     }
 
-    function getHistoryPath(targetName) {
-        return historyPathCache[targetName] || "/";
-    }
-
-    function setHistoryPath(targetName, path) {
-        historyPathCache[targetName] = path;
+    function setHistoryPath() {
+        var path = getCurrentPath();
+        if (path !== defaultPath) {
+            var targetName = getCurrentTarget();
+            DSForm.addHisotryPath(targetName, path);
+        }
     }
 
     function dedupFiles(targetName, files) {
@@ -839,7 +836,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return;
         }
 
-        setHistoryPath(targetName, curDir);
+        setHistoryPath();
 
         var path = null;
         var format = null;
@@ -1679,8 +1676,6 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.setTarget = setTarget;
         FileBrowser.__testOnly__.getCurrentTarget = getCurrentTarget;
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
-        FileBrowser.__testOnly__.setHistoryPath = setHistoryPath;
-        FileBrowser.__testOnly__.getHistoryPath = getHistoryPath;
         FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
         FileBrowser.__testOnly__.appendPath = appendPath;
         FileBrowser.__testOnly__.filterFiles = filterFiles;

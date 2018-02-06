@@ -4,6 +4,7 @@
 window.DSForm = (function($, DSForm) {
     var $pathCard; // $("#dsForm-path");
     var $filePath;  // $("#filePath");
+    var historyPathsSet = {};
 
     DSForm.View = {
         "Path": "DSForm",
@@ -93,10 +94,21 @@ window.DSForm = (function($, DSForm) {
         FileBrowser.clear();
     };
 
-    DSForm.clear = function() {
-        DSForm.show();
-        resetForm();
-        return DSPreview.clear();
+    DSForm.addHisotryPath = function(targetName, path) {
+        historyPathsSet[targetName] = historyPathsSet[targetName] || [];
+        var historyPaths = historyPathsSet[targetName];
+        for (var i = 0, len = historyPaths.length; i < len; i++) {
+            if (historyPaths[i] === path) {
+                historyPaths.splice(i, 1);
+                break;
+            }
+        }
+
+        historyPaths.unshift(path);
+        if (historyPaths.length > 5) {
+            // remove the oldest path
+            historyPaths.pop();
+        }
     };
 
     function isValidPathToBrowse() {
@@ -144,6 +156,23 @@ window.DSForm = (function($, DSForm) {
         }
     }
 
+    function setPathMenu() {
+        var $list = $filePath.closest(".dropDownList").find(".list");
+        var $ul = $list.find("ul");
+        var target = getDataTarget();
+        var historyPaths = historyPathsSet[target];
+        if (historyPaths == null || historyPaths.length === 0) {
+            $ul.empty();
+            $list.addClass("empty");
+        } else {
+            var list = historyPaths.map(function(path) {
+                return "<li>" + path + "</li>";
+            }).join("");
+            $ul.html(list);
+            $list.removeClass("empty");
+        }
+    }
+
     function getFilePath() {
         var path = $filePath.val().trim();
         if (!path.startsWith("/")) {
@@ -155,13 +184,22 @@ window.DSForm = (function($, DSForm) {
     function setupPathCard() {
         //set up dropdown list for data target
         new MenuHelper($("#dsForm-target"), {
-            "onSelect": function($li) {
+            onSelect: function($li) {
                 setDataTarget($li.text());
             },
-            "container": "#dsFormView",
-            "bounds": "#dsFormView"
+            container: "#dsFormView",
+            bounds: "#dsFormView"
         }).setupListeners();
 
+        var $filePathDropDown = $filePath.closest(".dropDownList");
+        new MenuHelper($filePathDropDown, {
+            onOpen: setPathMenu,
+            onSelect: function($li) {
+                $filePathDropDown.find("input").val($li.text());
+            },
+            container: "#dsFormView",
+            bounds: "#dsFormView"
+        }).setupListeners();
 
         // open file browser
         $pathCard.on("click", ".browse", function() {
@@ -203,6 +241,9 @@ window.DSForm = (function($, DSForm) {
         }
         var targetName = getDataTarget();
         var path = getFilePath();
+        if (path !== "/") {
+            DSForm.addHisotryPath(targetName, path);
+        }
 
         DSPreview.show({
             targetName: targetName,

@@ -676,7 +676,7 @@ module.exports = {
         "header": "Browse Data Source",
         "instr": "Select the data source that you want to import and then click the \"NEXT\" button.",
         "Up": "Go to parent directory",
-        "filePathHint": "Click to see history",
+        "filePathHint": "Click to see file hierarchy",
         "SearchHint": "Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
         "Offset": "Offset",

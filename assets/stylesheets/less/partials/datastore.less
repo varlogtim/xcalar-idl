@@ -815,7 +815,7 @@ table.datasetTable {
 
             &.path {
                 .size(@height: 36px);
-                .input-box(~"calc(100% - 310px)", 30px);
+                .input-box(100%, 30px);
                 line-height: 36px;
 
                 input {
@@ -824,6 +824,17 @@ table.datasetTable {
 
                 .btn {
                     float: right;
+                }
+
+                .list {
+                    .size(@width: 100%);
+                    left: 0;
+                    top: 32px;
+                    border-top: 1px solid @color-border-softBlue;
+
+                    &.empty {
+                        box-shadow: none;
+                    }
                 }
             }
         }

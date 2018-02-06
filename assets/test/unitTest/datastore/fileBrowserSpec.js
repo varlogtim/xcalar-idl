@@ -77,17 +77,6 @@ describe("Dataset-File Browser Test", function() {
             $pathLists.find("li:first-of-type").remove();
         });
 
-        it("should get history path", function() {
-            var res = FileBrowser.__testOnly__.getHistoryPath("testTarget");
-            expect(res).to.equal("/"); // default value
-        });
-
-        it("should set history path", function() {
-            FileBrowser.__testOnly__.setHistoryPath("testTarget", "testPath");
-            var res = FileBrowser.__testOnly__.getHistoryPath("testTarget");
-            expect(res).to.equal("testPath"); // default value
-        });
-
         it("should get grid's name", function() {
             var res = FileBrowser.__testOnly__.getGridUnitName($testGrid);
             expect(res).to.equal("test");
