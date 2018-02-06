@@ -106,7 +106,7 @@ window.DSPreview = (function($, DSPreview) {
             var $input = $(this);
             $input.removeClass("error");
             var rect = this.getBoundingClientRect();
-            var val = $input.val();
+            var val = xcHelper.escapeDblQuoteForHTML($input.val());
             var maxWidth = 400;
             var width = rect.width;
             var html = '<input class="xc-input" id="importColRename" ' +
@@ -273,7 +273,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $previewWrap.on("mouseenter", ".tooltipOverflow", function() {
             var text = $(this).is("input") ? $(this).val() : $(this).text();
-            xcTooltip.add($(this), {"title": text});
+            xcTooltip.add($(this), {"title": xcHelper.escapeHTMLSpecialChar(text)});
             xcTooltip.auto(this);
         });
 
@@ -3353,7 +3353,7 @@ window.DSPreview = (function($, DSPreview) {
                     if (strLen > colStrLimit) {
                         hiddenStrLen++;
                     } else {
-                        tdData.push(xcHelper.escapeHTMLSpecialChar(d));
+                        tdData.push(xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(d)));
                     }
 
                     strLen++;
@@ -3384,7 +3384,7 @@ window.DSPreview = (function($, DSPreview) {
                     cellClass += " has-specialChar";
                 }
                 if (isEditable && isTh) {
-                    html += xcHelper.escapeHTMLSpecialChar(d);
+                    html += xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(d));
                 } else {
                     html += '<span class="' + cellClass + '">' +
                             xcHelper.escapeHTMLSpecialChar(d) +
