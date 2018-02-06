@@ -524,6 +524,16 @@
             var rOthers = getUnusedImmNames(rImm, rRes.newKeys, rRename);
             resolveJoinIndexColRename(lRename, rRename, lRes, rRes, lOthers,
                                       rOthers);
+            // If rIndexColNames has been renamed because of
+            // resolveJoinIndexColRename, we must make sure the rIndexColNames
+            // array is with the POST rename functions because semiJoinHelper
+            // will use this column to filter
+            for (var i = 0; i < rRename.length; i++) {
+                var idx = rIndexColNames.indexOf(rRename[i].orig);
+                if (idx > -1) {
+                    rIndexColNames[idx] = rRename[i].new;
+                }
+            }
             tempTables = tempTables.concat(tempTablesInIndex);
 
             if (!isValidTableName(newTableName)) {
