@@ -511,7 +511,6 @@ window.DF = (function($, DF) {
         if (df) {
             df.activeSession = activeSessionOptions.activeSession;
             df.newTableName = activeSessionOptions.newTableName;
-            df.nameWithHash = df.newTableName + Authentication.getHashId();
         }
     };
 
@@ -523,8 +522,10 @@ window.DF = (function($, DF) {
         };
         if (df) {
             if (df.activeSession) {
-                var newTableName = withoutHashId ? df.newTableName :
-                                                   df.nameWithHash;
+                var newTableName = df.newTableName;
+                if (!withoutHashId) {
+                    newTableName += Authentication.getHashId();
+                }
                 res.activeSession = df.activeSession;
                 res.newTableName = newTableName;
             }
@@ -540,7 +541,6 @@ window.DF = (function($, DF) {
         if (df) {
             delete df.activeSession;
             delete df.newTableName;
-            delete df.nameWithHash;
         }
     };
 
