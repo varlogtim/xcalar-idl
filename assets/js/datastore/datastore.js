@@ -38,6 +38,7 @@ window.DataStore = (function($, DataStore) {
             var $panel = $("#datastorePanel");
             var $title = $panel.find(".topBar .title");
             var $menu = $("#datastoreMenu");
+
             $panel.removeClass("in")
                   .removeClass("out")
                   .removeClass("target");
@@ -45,25 +46,54 @@ window.DataStore = (function($, DataStore) {
 
             var isAdmin = readOnlyForNoAdmin();
             var id = $button.attr("id");
-            if (id === "outButton") {
-                var $exportView = $("#datastore-out-view");
+
+            switch (id) {
+                case "outButton":
+                    switchToViewOut();
+                    break;
+                case "targetButton":
+                    switchToViewTarget();
+                    break;
+                case "inButton":
+                    switchToViewIn();
+                    break;
+                default:
+                    console.error("invalid view");
+                    return;
+            }
+
+            function switchToViewOut() {
                 $panel.addClass("out");
                 $title.text(DSTStr.OUT);
                 $menu.find(".out").removeClass("xc-hidden");
+
+                var $exportView = $("#datastore-out-view");
                 if ($exportView.hasClass("firstTouch")) {
                     DSExport.refresh(true)
                     .always(function() {
                         if (!isAdmin) {
                             DSExport.clickFirstGrid();
                         }
-                    })
+                    });
                     $exportView.removeClass("firstTouch");
                 }
-            } else if (id === "targetButton") {
-                var $targetView = $("#datastore-target-view");
+            }
+
+            function switchToViewIn() {
+                $panel.addClass("in");
+                $title.text(DSTStr.IN);
+                $menu.find(".in").removeClass("xc-hidden");
+
+                DSTable.refresh();
+                DSCart.refresh();
+            }
+
+            function switchToViewTarget() {
                 $panel.addClass("target");
                 $menu.find(".target").removeClass("xc-hidden");
                 $title.text(DSTStr.TARGET);
+
+                var $targetView = $("#datastore-target-view");
                 if ($targetView.hasClass("firstTouch")) {
                     DSTargetManager.getTargetTypeList()
                     .always(function() {
@@ -73,14 +103,8 @@ window.DataStore = (function($, DataStore) {
                     });
                     $targetView.removeClass("firstTouch");
                 }
-            } else {
-                // inButton
-                $panel.addClass("in");
-                $title.text(DSTStr.IN);
-                $menu.find(".in").removeClass("xc-hidden");
-                DSTable.refresh();
-                DSCart.refresh();
             }
+
             // button switch styling handled in mainMenu.js
             function readOnlyForNoAdmin() {
                 var isAdmin = Admin.isAdmin();
