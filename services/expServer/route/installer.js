@@ -39,7 +39,9 @@ function initStepArray() {
         "status": Status.Running,
     };
 }
-
+function clearErrorLog() {
+    errorLog = "";
+}
 
 function genExecString(hostnameLocation,
                        hasPrivHosts,
@@ -447,6 +449,7 @@ function discoverUtil(credArray, execCommand, script) {
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
     var retMsg = {};
+    clearErrorLog();
 
     function initialStep() {
         var deferred = jQuery.Deferred();
