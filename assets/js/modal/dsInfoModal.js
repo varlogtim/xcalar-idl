@@ -22,6 +22,12 @@ window.DSInfoModal = (function(DSInfoModal, $) {
         modalHelper.setup();
         positionModal(dsId);
         showDSInfo(dsId);
+        $(document).on("mouseup.dsInfoModal", function(event) {
+            if ($(event.target).closest("#dsInfoModal").length === 0) {
+                closeModal();
+                $(document).off("mouseup.dsInfoModal");
+            }
+        });
     };
 
     function positionModal(dsId) {

@@ -96,6 +96,18 @@ describe("DSInfoModal Test", function() {
         assert.isFalse($modal.is(":visible"));
     });
 
+    it("should close modal by click other place", function(done) {
+        showModal()
+        .then(function() {
+            $(document).mouseup();
+            assert.isFalse($modal.is(":visible"));
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
     after(function() {
         DS.__testOnly__.removeDS(dsId);
         XcalarGetDatasetUsers = oldGetDSUsers;
