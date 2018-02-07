@@ -548,6 +548,9 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
         }
     })
     .fail(function(error) {
+        if (error && error.log) {
+            error.log = error.log.replace(/\\n/g, "\n");
+        }
         var thriftError = thriftLog("XcalarPreview", error);
         deferred.reject(thriftError);
     });
@@ -746,6 +749,9 @@ XcalarLoad = function(datasetName, options, txId) {
         }
     })
     .fail(function(error) {
+        if (error && error.log) {
+            error.log = error.log.replace(/\\n/g, "\n");
+        }
         var thriftError = thriftLog("XcalarLoad", error);
         if (has_require) {
             deferred.reject(thriftError);
@@ -793,7 +799,7 @@ XcalarLoad = function(datasetName, options, txId) {
             match = res.match(/ValueError:(.+)/);
             if (match && match.length >= 2) {
                 res = match[1].trim();
-                res = res.split('\\n')[0]; // strip ending unuseful chars
+                res = res.split('\n')[0]; // strip ending unuseful chars
                 return res;
             }
         } catch (e) {

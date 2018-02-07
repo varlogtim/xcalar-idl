@@ -454,7 +454,8 @@
 
         .error {
             color: @color-table-red;
-            white-space: normal;
+            white-space: pre-wrap;
+            font-family: @font-code;
         }
 
         .suggest {
@@ -1983,6 +1984,8 @@ table.datasetTable {
             .size(@width: ~"calc(100% - 50px)");
             float: left;
             white-space: pre-wrap;
+            font-family: @font-code;
+            padding-top: 2px;
 
             .suggest {
                 color: @color-font-select-blue;
