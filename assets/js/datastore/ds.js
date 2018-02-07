@@ -738,6 +738,7 @@ window.DS = (function ($, DS) {
         switch (arg.action) {
             case "add":
                 createDS(arg.ds);
+                refreshDS();
                 break;
             case "rename":
                 DS.rename(arg.dsId, arg.newName);
@@ -1576,7 +1577,8 @@ window.DS = (function ($, DS) {
 
     function getDSOptions(ds) {
         return {
-            "format": xcHelper.parseDSFormat(ds),
+            // format should come from kvStore, not from backend
+            // "format": xcHelper.parseDSFormat(ds),
             "path": ds.loadArgs.sourceArgs.path,
             "unlistable": !ds.isListable,
             "locked": ds.locked,

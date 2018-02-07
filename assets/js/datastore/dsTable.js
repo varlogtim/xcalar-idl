@@ -677,7 +677,8 @@ window.DSTable = (function($, DSTable) {
             "hasHeader": dsObj.hasHeader,
             "fieldDelim": dsObj.fieldDelim,
             "lineDelim": dsObj.lineDelim,
-            "quoteChar": dsObj.quoteChar
+            "quoteChar": dsObj.quoteChar,
+            "typedColumns": dsObj.typedColumns
         }, false, dsId, true);
     }
 

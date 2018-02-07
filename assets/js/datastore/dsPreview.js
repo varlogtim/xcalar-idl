@@ -53,7 +53,7 @@ window.DSPreview = (function($, DSPreview) {
     var formatMap = {
         "JSON": "JSON",
         "CSV": "CSV",
-        "TEXT": "raw",
+        "TEXT": "TEXT",
         "EXCEL": "Excel",
         "UDF": "UDF",
         "XML": "XML"
@@ -456,9 +456,11 @@ window.DSPreview = (function($, DSPreview) {
 
         var module = null;
         var func = null;
+        var typedColumns = null;
         if (restore) {
             module = options.moduleName;
             func = options.funcName;
+            typedColumns = options.typedColumns;
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
@@ -468,7 +470,9 @@ window.DSPreview = (function($, DSPreview) {
         return previewData({
             "udfModule": module,
             "udfFunc": func,
-            "isFirstTime": true
+            "isFirstTime": true,
+            "typedColumns": typedColumns,
+            "isRestore": restore
         });
     };
 
@@ -991,22 +995,29 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function restoreForm(options) {
+        var isSpecialJSON = false;
         $form.find("input").not($formatText).val("");
         $form.find(".checkbox.checked").removeClass("checked");
 
         // dsName
         $form.find(".dsName").eq(0).val(options.dsName);
 
-        // udf section
-        var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
-        resetUdfSection();
         // format
         var format = options.format;
         if (format === formatMap.TEXT) {
-            format = "TEXT";
-        } else if (wasUDFCached) {
-            format = "UDF";
+            if (options.moduleName === "default" &&
+                options.funcName === "genLineNumber") {
+                toggleGenLineNum(true);
+            }
+        } else if (format === formatMap.UDF) {
+            cacheUDF(options.moduleName, options.funcName);
+            resetUdfSection();
+        } else if (format === formatMap.JSON &&
+                    options.moduleName === "default" &&
+                    options.funcName === "convertNewLineJsonToArrayJson") {
+            isSpecialJSON = true;
         }
+        options.format = format;
         toggleFormat(format);
 
         // header
@@ -1029,7 +1040,8 @@ window.DSPreview = (function($, DSPreview) {
             "lineDelim": options.lineDelim,
             "hasHeader": options.hasHeader,
             "skipRows": options.skipRows,
-            "quote": options.quoteChar
+            "quote": options.quoteChar,
+            "isSpecialJSON": isSpecialJSON
         };
 
         loadArgs.set(options);
@@ -1159,13 +1171,10 @@ window.DSPreview = (function($, DSPreview) {
             $previewTable.find("th:not(.rowNumHead)").each(function() {
                 var $th = $(this);
                 var type = $th.data("type") || "string";
-                type = xcHelper.convertColTypeToFeildType(type);
-                type = DfFieldTypeTStr[type];
                 var header = {
                     colType: type,
                     colName: $th.find(".text").val()
                 };
-
                 headers.push(header);
             });
         } else {
@@ -1423,7 +1432,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasUDF = isUseUDF();
         var udfModule = "";
         var udfFunc = "";
-        var udfQuery = null; // not used yet
+        var udfQuery = null;
         var fieldDelim = null;
         var lineDelim = null;
         var quote = null;
@@ -1438,9 +1447,7 @@ window.DSPreview = (function($, DSPreview) {
             }
             udfModule = udfArgs[0];
             udfFunc = udfArgs[1];
-            // XXX TODO: don't change to JSON format and show it as user defined format
-            format = formatMap.JSON;
-        } else if (format === "raw" &&
+        } else if (format === formatMap.TEXT &&
                    $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
             udfModule = "default";
             udfFunc = "genLineNumber";
@@ -1448,10 +1455,8 @@ window.DSPreview = (function($, DSPreview) {
                 udfQuery = {};
                 udfQuery.header = true;
             }
-            // XXX TODO: don't change to JSON format and show it as TEXT format
-            format = formatMap.JSON;
-        } else if (format === "raw" || format === "CSV") {
-            var isCSV = (format === "CSV");
+        } else if (format === formatMap.TEXT || format === formatMap.CSV) {
+            var isCSV = (format === formatMap.CSV);
             var csvArgs = validateCSVArgs(isCSV);
             if (csvArgs == null) {
                 // error case
@@ -1501,7 +1506,7 @@ window.DSPreview = (function($, DSPreview) {
             "skipRows": skipRows
         };
 
-        return $.extend(args, xmlArgs, advanceArgs);
+        return $.extend(args, advanceArgs);
     }
 
     function getNameFromPath(path) {
@@ -1770,6 +1775,7 @@ window.DSPreview = (function($, DSPreview) {
                    .find(".progressSection").empty();
         $previewWrap.find(".loadHidden").addClass("hidden");
         $previewWrap.find(".url").removeClass("xc-disabled");
+        $previewTable.empty();
         xcTooltip.hideAll();
 
         var $errorSection = $previewWrap.find(".errorSection");
@@ -1857,11 +1863,13 @@ window.DSPreview = (function($, DSPreview) {
         return (id === previewId);
     }
 
-    function previewData(options, noDetect, clearPreview) {
+    function previewData(options, clearPreview) {
         var deferred = jQuery.Deferred();
 
         options = options || {};
         var isFirstTime = options.isFirstTime || false;
+        var isRestore = options.isRestore || false;
+        var noDetect = isRestore || options.noDetect || false;
         var udfModule = options.udfModule || null;
         var udfFunc = options.udfFunc || null;
         var udfQuery = options.udfQuery || null;
@@ -1935,7 +1943,7 @@ window.DSPreview = (function($, DSPreview) {
         def
         .then(function() {
             var previewFile = loadArgs.getPreviewFile();
-            if (isFirstTime || previewFile == null || options.changePattern) {
+            if (isFirstTime || previewFile == null) {
                 var args = {
                     targetName: targetName,
                     path: path,
@@ -2017,14 +2025,17 @@ window.DSPreview = (function($, DSPreview) {
 
             $loadHiddenSection.removeClass("hidden");
 
-            getPreviewTable();
-
             if (!noDetect) {
                 var currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
                     smartDetect();
                 }
+            }
+
+            getPreviewTable();
+            if (isRestore) {
+                restoreTypedColumns(options.typedColumns);
             }
 
             // not cache to sql log, only show when fail
@@ -2081,7 +2092,7 @@ window.DSPreview = (function($, DSPreview) {
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
-                } else if (format == null) {
+                } else if (format == null || detectArgs.format == null) {
                     errorHandler(error);
                 } else {
                     error = getParseError(format, detectArgs.format);
@@ -2246,7 +2257,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function setPreviewFile(path, forceHidden) {
+    function setPreviewFile(path) {
         var $file = $("#preview-file");
         $file.find(".text").val(path);
         if (!loadArgs.getPreviewFile()) {
@@ -2614,30 +2625,21 @@ window.DSPreview = (function($, DSPreview) {
         return getDataFromPreview(args, buffer, rowsToShow);
     }
 
-    // function autoPreview() {
-    //     $("#dsForm-skipRows").val(0);
-    //     var oldFormat = loadArgs.getFormat();
-    //     smartDetect(true);
-    //     var newFormat = loadArgs.getFormat();
-    //     if (oldFormat !== formatMap.EXCEL && newFormat === formatMap.EXCEL) {
-    //         refreshPreview();
-    //     }
-    // }
-
-    function refreshPreview(noDetect, changePattern) {
+    function refreshPreview(noDetect) {
         var formOptions = validateForm();
         if (formOptions == null) {
             return null;
         }
-        formOptions.changePattern = changePattern;
-        var clearPreview = true;
-        return previewData(formOptions, noDetect, clearPreview);
+        formOptions.noDetect = noDetect;
+        return previewData(formOptions, true);
     }
 
     function getPreviewTable() {
         if (rawData == null) {
             // error case
-            errorHandler(DSFormTStr.NoData);
+            if (!$previewWrap.find(".errorSection").hasClass("hidden")) {
+                errorHandler(DSFormTStr.NoData);
+            }
             return;
         }
 
@@ -3493,9 +3495,6 @@ window.DSPreview = (function($, DSPreview) {
             toggleHeader(false);
         }
 
-        // step 5: update preview after detection
-        getPreviewTable();
-
         if (showMessage) {
             xcHelper.showSuccess(SuccessTStr.Detect);
         }
@@ -3766,6 +3765,17 @@ window.DSPreview = (function($, DSPreview) {
                                                 progressCircle);
     }
 
+    function restoreTypedColumns(typedColumns) {
+        typedColumns = typedColumns || [];
+        var types = [];
+        var colNames = [];
+        typedColumns.forEach(function(col) {
+            types.push(col.colType);
+            colNames.push(col.colName);
+        });
+        changeColumnHeaders(types, colNames);
+    }
+
     // currently only being used for CSV
     function initialSuggest() {
         var $tbody = $previewTable.find("tbody").clone(true);
@@ -3779,22 +3789,34 @@ window.DSPreview = (function($, DSPreview) {
         //     }
         //     recTypes[colNum] = suggestType($tbody, colNum + 1);
         // });
+        // changeColumnHeaders(recTypes);
+    }
 
-        // $previewTable.find("th:gt(0)").each(function(colNum) {
-        //     if (colNum >= gMaxDSColsSpec) {
-        //         return false;
-        //     }
-        //     var recType = recTypes[colNum];
-        //     if (recType && recType !== "string") {
-        //         var $th = $(this);
-        //         $th.find(".header").removeClass("type-string")
-        //                                .addClass("type-" + recType);
-        //         $th.data("type", recType);
-        //         xcTooltip.changeText($th.find(".flex-left"),
-        //                             xcHelper.capitalize(recType) +
-        //                             '<br>' + DSTStr.ClickChange);
-        //     }
-        // });
+    function changeColumnHeaders(types, colNames) {
+        types = types || [];
+        colNames = colNames || [];
+        $previewTable.find("th:gt(0)").each(function(colNum) {
+            if (colNum >= gMaxDSColsSpec) {
+                return false;
+            }
+            var type = types[colNum];
+            var name = colNames[colNum];
+            var $th = $(this);
+            var $header = $th.find(".header");
+            if (type) {
+                $header.removeClass()
+                        .addClass("header type-" + type);
+                $th.data("type", type);
+                xcTooltip.changeText($th.find(".flex-left"),
+                                    xcHelper.capitalize(type) +
+                                    '<br>' + DSTStr.ClickChange);
+            }
+            if (name) {
+                var $input = $header.find("input");
+                $input.val(name);
+                xcTooltip.changeText($input, name);
+            }
+        });
     }
 
     function suggestType($tbody, colNum) {

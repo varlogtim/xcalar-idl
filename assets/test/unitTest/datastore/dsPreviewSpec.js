@@ -729,8 +729,8 @@ describe("Dataset-DSPreview Test", function() {
             // error json
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
-            var res = $("#dsPreviewWrap").find(".errorSection .topSection").text();
-            expect(res).to.equal("\nError:\nYour file cannot be parsed as JSON. We recommend you use the CSV format instead.\n");
+            var res = $("#dsPreviewWrap").find(".errorSection .topSection .content").text()
+            expect(res).to.equal("Your file cannot be parsed as JSON. We recommend you use the CSV format instead.");
 
             // valid json
             data = '{"a": "b"}';
@@ -741,7 +741,7 @@ describe("Dataset-DSPreview Test", function() {
             expect($previewTable.find("tbody tr").length).to.equal(1);
 
             // valid json2
-            data = '{"a": "\\{b"}';
+            data = '{"a": "{b"}';
             DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
             // has 1 row and 2 columns(include lineMaker)
@@ -1420,7 +1420,7 @@ describe("Dataset-DSPreview Test", function() {
             $udfFuncList.find("input").val("openExcel");
             var res = validateForm();
             expect(res).to.be.an("object");
-            expect(res.format).to.equal("JSON");
+            expect(res.format).to.equal("UDF");
             expect(res.udfModule).to.equal("default");
             expect(res.udfFunc).to.equal("openExcel");
 
@@ -1464,22 +1464,24 @@ describe("Dataset-DSPreview Test", function() {
 
         it("shoud validate genLineNum case", function() {
             var $genLineNumCheckBox = $("#genLineNumbersCheckbox");
-            loadArgs.set({format: "raw"});
+            loadArgs.set({format: "TEXT"});
             loadArgs.setHeader(true);
             $genLineNumCheckBox.find(".checkbox").addClass("checked");
             var res = validateForm();
             expect(res).to.be.an("object");
-            expect(res.format).to.equal("JSON");
+            expect(res.format).to.equal("TEXT");
             expect(res.udfModule).to.equal("default");
-            expect(res.udfFunc).to.equal("genLineNumberWithHeader");
+            expect(res.udfFunc).to.equal("genLineNumber");
+            expect(res.udfQuery.header).to.equal(true);
 
             // case 2
             loadArgs.setHeader(false);
             res = validateForm();
             expect(res).to.be.an("object");
-            expect(res.format).to.equal("JSON");
+            expect(res.format).to.equal("TEXT");
             expect(res.udfModule).to.equal("default");
             expect(res.udfFunc).to.equal("genLineNumber");
+            expect(res.udfQuery).to.be.null;
 
             // clear up
             $genLineNumCheckBox.find(".checkbox").removeClass("checked");
@@ -1562,7 +1564,7 @@ describe("Dataset-DSPreview Test", function() {
                 "dsName": "test",
                 "moduleName": "default",
                 "funcName": "openExcel",
-                "format": "raw",
+                "format": "TEXT",
                 "hasHeader": true,
                 "fieldDelim": "",
                 "lineDelim": "\n",

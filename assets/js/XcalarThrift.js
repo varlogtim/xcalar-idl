@@ -602,6 +602,14 @@ XcalarLoad = function(datasetName, options, txId) {
     var schemaMode;
     if (format === "CSV" && typedColumns.length) {
         schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
+        typedColumns = typedColumns.map(function(col) {
+            var type = xcHelper.convertColTypeToFeildType(col.colType);
+            return {
+                colType: DfFieldTypeTStr[type],
+                colName: col.colName
+            };
+        });
+
         if (hasHeader) {
             skipRows++;
         }
@@ -686,7 +694,7 @@ XcalarLoad = function(datasetName, options, txId) {
             case ("JSON"):
                 parserFnName = "default:parseJson";
                 break;
-            case ("raw"):
+            case ("TEXT"):
                 // recordDelim = "\n";
                 // No field delim
                 fieldDelim = ""; // jshint ignore:line
