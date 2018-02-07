@@ -43,8 +43,8 @@
             } else {
                 numSubQueries = -1;
             }
-            if (options.functionName) {
-                operation += " " + options.functionName;
+            if (options.sql && options.sql.retName) {
+                operation += " " + options.sql.retName;
             }
             var queryOptions = {
                 numSteps: numSubQueries,

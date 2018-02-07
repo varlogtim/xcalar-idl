@@ -600,6 +600,9 @@ window.QueryManager = (function(QueryManager, $) {
                 name = xcLog.options.operation;
                 if (name === SQLOps.Ext && xcLog.options.func) {
                     name += " " + xcLog.options.func;
+                } else if (name === SQLOps.Retina &&
+                    xcLog.options.retName) {
+                    name += " " + xcLog.options.retName;
                 }
                 if (queries[i].state === QueryStatus.Error) {
                     cli = queries[i].queryStr;
