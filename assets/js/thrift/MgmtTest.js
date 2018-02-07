@@ -821,7 +821,7 @@ window.Function.prototype.bind = function() {
                 test.fail("Fail struct type is wrong");
             }
             var loadOutput = failStruct.output;
-            var errStr = "line: 2 column: 1 position: 10892 error: " +
+            var errStr = "record -1: line: 2 column: 1 position: 10892 error: " +
                          "end of file expected near '{'";
             var errFile = qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
@@ -968,7 +968,7 @@ window.Function.prototype.bind = function() {
             printResult(listUserDatasetsOutput);
 
             for (var i = 0, dataset = null;
-                i < listUserDatasetsOutput.NumDatasets; i++) {
+                i < listUserDatasetsOutput.numDatasets; i++) {
 
                     dataset = listUserDatasetsOutput.datasets[i];
 
