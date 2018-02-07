@@ -858,7 +858,7 @@ window.TblManager = (function($, TblManager) {
                       ColumnType.boolean, ColumnType.number].indexOf(type) > -1
             && !progCol.isEmptyCol()) {
             columnClass += " sortable ";
-            sortTip = ' data-toggle="tooltip" '; 
+            sortTip = ' data-toggle="tooltip" ';
         }
 
         var sortIcon = '<div class="sortIcon">' +
@@ -872,7 +872,7 @@ window.TblManager = (function($, TblManager) {
                         TooltipTStr.ClickToSortDesc + '"></div>' +
                         '<i class="icon xi-sort fa-12"></i>' +
                         '</div>'; // placeholder
-  
+
         if (indexed) {
             columnClass += " indexedColumn";
             if (!table.showIndexStyle()) {
@@ -903,7 +903,7 @@ window.TblManager = (function($, TblManager) {
                 }
                 sortIcon += '</div>';
             }
-            
+
         } else if (progCol.isEmptyCol()) {
             columnClass += " newColumn";
         }
@@ -2001,6 +2001,12 @@ window.TblManager = (function($, TblManager) {
                 $table.find('th.col' + options.selectCol +
                         ' .flexContainer').mousedown();
             }
+        } else if (tableId === gActiveTableId) {
+            if (table.resultSetCount === 0) {
+                $('#rowInput').val(0).data('val', 0);
+            } else {
+                RowScroller.genFirstVisibleRowNum();
+            }
         }
 
         autoSizeDataCol(tableId);
@@ -2443,16 +2449,16 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             var colNum = xcHelper.parseColNum($th);
-            var table = gTables[tableId];        
+            var table = gTables[tableId];
             var progCol = table.getCol(colNum);
             var colName = progCol.getBackColName();
-            
+
             var keyNames = table.getKeyName();
             var keyIndex = keyNames.indexOf(colName);
             var order = XcalarOrderingT.XcalarOrderingAscending;
             if (keyIndex > -1) {
                 var keys = table.backTableMeta.keyAttr;
-                if (XcalarOrderingTFromStr[keys[keyIndex].ordering] === 
+                if (XcalarOrderingTFromStr[keys[keyIndex].ordering] ===
                     XcalarOrderingT.XcalarOrderingAscending) {
                     order =  XcalarOrderingT.XcalarOrderingDescending;
                 }
