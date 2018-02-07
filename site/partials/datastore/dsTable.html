@@ -73,11 +73,16 @@
    <div class="cardTopMain">
     <div class="infoSection flexContainer">
       <!-- left part -->
-      <div class="contentSection">
+      <div class="contentSection flexContainer">
         <span id="dsInfo-title"><%= dicts.ds.Datasets %></span>
         <span class="divider">|</span>
         <span><%= dicts.dsTable.Path %>:</span>
-        <span id="dsInfo-path" class="active" data-placement="top" data-container="body" data-toggle="tooltip">N/A</span>
+        <div id="dsInfo-pathContainer">
+          <span id="dsInfo-path" class="dsValue active" data-placement="top" data-container="body" data-toggle="tooltip">
+          </span>
+          <i class="icon xi-copy-clipboard"></i>
+          <i class="icon xi-tick"></i>
+        </div>
         <button id="showFileListBtn" class="btn btn-large btn-transparent iconBtn">
           <i class="icon xi-show"></i>
           <%= dicts.dsTable.clickToView %>
@@ -86,20 +91,20 @@
       <div class="flexWrap flex-left">
         <div class="contentSection">
           <span><%= dicts.dsTable.CreatedBy %>:</span>
-          <span id="dsInfo-author"></span>
+          <span class="dsValue" id="dsInfo-author"></span>
           <span class="divider">|</span>
           <span><%= dicts.dsTable.Records %>:</span>
-          <span id="dsInfo-records">N/A</span>
+          <span class="dsValue" id="dsInfo-records">N/A</span>
           <i id="dsInfo-error" class="icon xi-error xc-hidden"></i>
           <span class="divider">|</span>
           <span><%= dicts.common.Size %>:</span>
-          <span id="dsInfo-size">N/A</span>
+          <span class="dsValue" id="dsInfo-size">N/A</span>
           <span class="divider">|</span>
           <span><%= dicts.dsForm.Format %>:</span>
-          <span id="dsInfo-format"></span>
+          <span class="dsValue" id="dsInfo-format"></span>
           <span class="divider">|</span>
           <span><%= dicts.dsForm.UDFField %>:</span>
-          <span id="dsInfo-udf"></span>
+          <span class="dsValue" id="dsInfo-udf"></span>
         </div>
       </div>
       <div class="flexWrap flex-right">

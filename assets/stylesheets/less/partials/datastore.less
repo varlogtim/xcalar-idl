@@ -227,6 +227,11 @@
         .contentSection {
             &:first-child {
                 width: 100%;
+                align-items: center;
+                flex-wrap: nowrap;
+                > * {
+                    .flex-display;
+                }
             }
             .text-selection;
             .size(@height: 20px);
@@ -235,11 +240,9 @@
             line-height: 36px;
             .textOverflowOneLine;
 
-            &:last-child {
-                .flex-display;
-                > span {
-                    margin-right: 4px;
-                }
+            .flex-display;
+            > span {
+                margin-right: 4px;
             }
         }
 
@@ -247,13 +250,58 @@
             color: @color-font-select-blue;
         }
 
-        #dsInfo-path {
-            .flex(0 1 auto);
-            .textOverflowOneLine;
+        #dsInfo-pathContainer {
+            position: relative;
+            min-width: 0px;
+            #dsInfo-path {
+                .flex(0 1 auto);
+                .textOverflowOneLine;
+                cursor: pointer;
+            }
+            &:hover > .xi-copy-clipboard {
+                    opacity: 0.8;
+            }
+            i {
+                float: right;
+                color: @color-font-select-blue;
+                background-color: @color-white;
+                position: absolute;
+                top: 6px;
+                right: 0px;
+                opacity: 0;
+            }
+
+            &.animate {
+                .xi-copy-clipboard {
+                    opacity: 0;
+                    transition: opacity 0.3s linear;
+                }
+                .xi-tick {
+                    opacity: 0;
+                    animation: fadeIn 0.5s, fadeOut 1s 0.5s;
+                    @keyframes fadeIn {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 0.8;
+                        }
+                    }
+                    @keyframes fadeOut {
+                        from {
+                            opacity: 0.8;
+                        }
+                        to {
+                            opacity: 0;
+                        }
+                    }
+                }
+            }
         }
 
         #showFileListBtn {
             margin-left: 10px;
+            min-width: 144px;
             width: 144px;
             padding: 0 0 0 1px;
             height: 26px;
@@ -269,7 +317,7 @@
             justify-content: flex-end;
             padding-top: 3px;
         }
-        #dsInfo-path, #dsInfo-author, #dsInfo-records, #dsInfo-size, #dsInfo-format, #dsInfo-target, #dsInfo-udf {
+        .dsValue {
             font-weight: 400;
         }
         #dsInfo-error {
@@ -318,14 +366,6 @@
                         margin-left: 5px;
                         .textOverflowOneLine;
                     }
-                }
-
-                .divider {
-                    .size(@width: 1px, @height: 20px);
-                    margin: 0 10px;
-                    background-color: @color-bg-select-blue;
-                    margin-left: 10px;
-                    margin-right: 10px;
                 }
             }
         }

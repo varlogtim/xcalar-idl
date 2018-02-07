@@ -249,17 +249,15 @@ window.DSTable = (function($, DSTable) {
     }
 
     function updateTableInfo(dsObj) {
-        var $path = $("#dsInfo-path");
         var dsName = dsObj.getName();
         var numEntries = dsObj.getNumEntries();
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
         var target = dsObj.getTargetName();
 
-        $path.text(path);
+        $dsInfoPath.text(path);
 
-        xcTooltip.changeText($path, target + "\n" + path);
-        xcTooltip.enable($path);
-        $path.append("<i class='icon xi-copy-clipboard path-copy-clipboard'></i>");
+        xcTooltip.changeText($dsInfoPath, target + "\n" + path);
+        xcTooltip.enable($dsInfoPath);
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
@@ -270,7 +268,7 @@ window.DSTable = (function($, DSTable) {
         var format = dsObj.getFormat() || CommonTxtTstr.NA;
         $("#dsInfo-format").text(format);
         var $dsInfoUdf = $("#dsInfo-udf");
-        if (dsObj.moduleName.trim() !== "") {
+        if (dsObj.moduleName && dsObj.moduleName.trim() !== "") {
             $dsInfoUdf.text(dsObj.moduleName + ":" + dsObj.funcName);
             xcTooltip.add($dsInfoUdf, {title: JSON.stringify(dsObj.udfQuery)});
             $dsInfoUdf.removeClass("xc-hidden");
@@ -426,22 +424,10 @@ window.DSTable = (function($, DSTable) {
             document.execCommand("copy");
             $hiddenInput.remove();
 
-            // checks if animation ended
-            var $clipboardIcon = $dsInfoPath.find(".path-copy-clipboard");
-            if (!($clipboardIcon.length)) {
-                return;
-            }
-            var text = $dsInfoPath.text();
-            var oldhtml = $dsInfoPath.html();
-            $clipboardIcon.addClass("path-copy-clipboard-fade")
-                          .removeClass("path-copy-clipboard");
-            // timeouts set to wait for CSS animations to finish
+            $dsInfoPath.parent().addClass("animate");
             setTimeout(function() {
-                $dsInfoPath.html(text + '<i class="icon xi-tick xi-tick-fade-in xi-tick-copy">');
-            }, 200);
-            setTimeout(function() {
-                $dsInfoPath.html(oldhtml);
-            }, 2100);
+                $dsInfoPath.parent().removeClass("animate");
+            }, 1800);
         });
 
         var $dsTableView = $("#dsTableView");

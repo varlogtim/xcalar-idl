@@ -1390,7 +1390,8 @@
             }
 
             if (newType != null) {
-                newField = overWrite ? newField : xcHelper.randName(newField);
+                newField = overWrite ? newField : xcHelper.randName(newField +
+                                                  "_");
                 mapStrs.push(xcHelper.castStrHelper(colName, newType, handleNull));
                 newFields.push(newField);
             }
@@ -1414,9 +1415,6 @@
         var rColNames = joinInfo.rColNames;
         var lTableName = joinInfo.lTableName;
         var rTableName = joinInfo.rTableName;
-
-        // XXX remove this when Eric's change to keep FNFs goes in
-        removeNulls = false;
 
         // for cross joins where no col names should be provided
         if (lColNames.length === 0) {
