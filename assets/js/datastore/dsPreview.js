@@ -3772,29 +3772,29 @@ window.DSPreview = (function($, DSPreview) {
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".lineMarker").remove();
         var recTypes = [];
+        // XXX temporary disable it becuase of backend bug
+        // $tbody.find("tr").eq(0).find("td").each(function(colNum) {
+        //     if (colNum >= gMaxDSColsSpec) {
+        //         return false;
+        //     }
+        //     recTypes[colNum] = suggestType($tbody, colNum + 1);
+        // });
 
-        $tbody.find("tr").eq(0).find("td").each(function(colNum) {
-            if (colNum >= gMaxDSColsSpec) {
-                return false;
-            }
-            recTypes[colNum] = suggestType($tbody, colNum + 1);
-        });
-
-        $previewTable.find("th:gt(0)").each(function(colNum) {
-            if (colNum >= gMaxDSColsSpec) {
-                return false;
-            }
-            var recType = recTypes[colNum];
-            if (recType && recType !== "string") {
-                var $th = $(this);
-                $th.find(".header").removeClass("type-string")
-                                       .addClass("type-" + recType);
-                $th.data("type", recType);
-                xcTooltip.changeText($th.find(".flex-left"),
-                                    xcHelper.capitalize(recType) +
-                                    '<br>' + DSTStr.ClickChange);
-            }
-        });
+        // $previewTable.find("th:gt(0)").each(function(colNum) {
+        //     if (colNum >= gMaxDSColsSpec) {
+        //         return false;
+        //     }
+        //     var recType = recTypes[colNum];
+        //     if (recType && recType !== "string") {
+        //         var $th = $(this);
+        //         $th.find(".header").removeClass("type-string")
+        //                                .addClass("type-" + recType);
+        //         $th.data("type", recType);
+        //         xcTooltip.changeText($th.find(".flex-left"),
+        //                             xcHelper.capitalize(recType) +
+        //                             '<br>' + DSTStr.ClickChange);
+        //     }
+        // });
     }
 
     function suggestType($tbody, colNum) {
