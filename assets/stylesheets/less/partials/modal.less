@@ -5589,7 +5589,7 @@ html.microsoft {
 }
 
 #fileListModal {
-    .size(400px, 250px, @min-width: 400px, @min-height: 250px);
+    .size(300px, 300px, @min-width: 300px, @min-height: 300px);
 
     &.load {
         .loadingSection {
@@ -5651,6 +5651,7 @@ html.microsoft {
         color: #898989;
         font-size: 13px;
         padding: 20px 40px 30px;
+        display: inline-block;
 
         .highlightedText {
             background-color: yellow;
@@ -5659,19 +5660,28 @@ html.microsoft {
             }
         }
 
-        .folderIcon {
-            color: @color-bg-cancel-gray;
+        .folderIcon, .datasetIcon {
+            // color: @color-bg-cancel-gray;
+            color: @color-bg-softBlue;
             float: left;
             font-size: 16px;
             margin-top: 5px;
-            // margin-right: 6px;
             position: absolute;
+            opacity: 0.8;
+
             &.xi-folder {
                 display: none;
             }
             &.xi-folder-opened {
                 font-size: 17px;
             }
+        }
+
+        .datasetIcon {
+            margin-left: -2px;
+        }
+        .datasetIcon + .name {
+             padding-left: 24px;
         }
 
         .folderIcon + .name {
@@ -5683,8 +5693,9 @@ html.microsoft {
             cursor: pointer;
             &:hover {
                 color: @color-bg-softBlue;
-                .folderIcon {
-                    color: @color-bg-softBlue;
+                .folderIcon, .datasetIcon {
+                    // color: @color-bg-softBlue;
+                    opacity: 1;
                 }
             }
         }

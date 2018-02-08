@@ -9,7 +9,10 @@ window.FileListModal = (function(FileListModal, $) {
         $textArea = $modal.find(".xc-textArea");
 
         modalHelper = new ModalHelper($modal, {
-            noEnter: true
+            noEnter: true,
+            sizeToDefault: true,
+            defaultWidth: 400,
+            defaultHeight: 400
         });
         $modal.on("click", ".close, .cancel", closeModal);
 
@@ -33,6 +36,7 @@ window.FileListModal = (function(FileListModal, $) {
         .then(function(list) {
             constructTree(list);
             drawAllTrees();
+            resizeModal();
         })
         .always(function() {
             $modal.removeClass("load");
@@ -44,6 +48,7 @@ window.FileListModal = (function(FileListModal, $) {
         roots = {};
         for (var i = 0; i < list.length; i++) {
             var heirarchy = list[i].split("/");
+            heirarchy.unshift("dataset");
             var prev = null;
 
             for (var j = heirarchy.length - 1; j >= 0; j--) {
@@ -71,6 +76,7 @@ window.FileListModal = (function(FileListModal, $) {
                 };
                 nodesMap[fullPath] = node;
                 if (j === 0) {
+                    node.isRoot = true;
                     roots[fullPath] = node;
                 }
                 if (prev) {
@@ -97,8 +103,13 @@ window.FileListModal = (function(FileListModal, $) {
             // collapse folder if it has too many files
             collapsed = "collapsed";
         }
-        var icon = node.type === "folder" ? '<i class="icon folderIcon xi-folder"></i>' +
-                                '<i class="icon folderIcon xi-folder-opened"></i>' : '';
+        var icon = "";
+        if (node.isRoot) {
+            icon = '<i class="icon datasetIcon xi_data"></i>';
+        } else if (node.type === "folder") {
+            icon = '<i class="icon folderIcon xi-folder"></i>' +
+                    '<i class="icon folderIcon xi-folder-opened"></i>';
+        }
         var html = '<li class="' + collapsed + '">' +
                     '<div class="label ' + node.type + '">' +
                         icon +
@@ -122,6 +133,42 @@ window.FileListModal = (function(FileListModal, $) {
         }
         html += '</li>';
         return html;
+    }
+
+    function resizeModal() {
+        var $treeWrap = $modal.find(".treeWrap");
+        var innerHeight = $treeWrap.outerHeight();
+        var wrapHeight = $modal.find(".modalMain").height();
+        var diff = innerHeight - wrapHeight;
+        var change = false;
+        if (diff > 0) {
+            var modalHeight = $modal.height();
+            var winHeight = $(window).height() - 10;
+            var winDiff = winHeight - modalHeight;
+            if (winDiff > 0) {
+                var heightToAdd = Math.min(winDiff, diff);
+                $modal.height(modalHeight + heightToAdd);
+                change = true;
+            }
+        }
+
+        var innerWidth = $treeWrap.outerWidth();
+        var wrapWidth = $modal.find(".modalMain").width();
+        var diff = innerWidth - wrapWidth;
+        if (diff > 0) {
+            var modalWidth = $modal.width();
+            var winWidth = $(window).width() - 10;
+            var winDiff = winWidth - modalWidth;
+            if (winDiff > 0) {
+                var widthToAdd = Math.min(winDiff, diff);
+                $modal.width(modalWidth + widthToAdd);
+                change = true;
+            }
+        }
+
+        if (change) {
+            modalHelper.center();
+        }
     }
 
     function closeModal() {

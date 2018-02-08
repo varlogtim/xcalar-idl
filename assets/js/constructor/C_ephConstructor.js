@@ -751,6 +751,8 @@ function ModalHelper($modal, options) {
     /* options include:
      * noResize: if set true, will not reszie the modal
      * sizeToDefault: if set true, will set to initial width and height when open
+     * defaultWidth: integer, optional
+     * defaultHeight: integer, optional
      * noCenter: if set true, will not center the modal
      * noTabFocus: if set true, press tab will use browser's default behavior
      * noEsc: if set true, no event listener on key esc,
@@ -764,8 +766,8 @@ function ModalHelper($modal, options) {
     this.$modal = $modal;
     this.options = options;
     this.id = $modal.attr("id");
-    this.defaultWidth = $modal.width();
-    this.defaultHeight = $modal.height();
+    this.defaultWidth = options.defaultWidth || $modal.width();
+    this.defaultHeight = options.defaultHeight || $modal.height();
     this.minWidth = options.minWidth ||
                     parseFloat($modal.css("min-width")) ||
                     this.defaultWidth;
