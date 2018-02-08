@@ -79,6 +79,14 @@ window.DSCart = (function($, DSCart) {
             },
             "focus": function() {
                 $(this).select();
+            },
+            "input": function() {
+                var $input = $(this);
+                var $prefix = $input.closest(".selectedTable")
+                                    .find(".prefixName");
+                if ($prefix.hasClass("clean")) {
+                    $prefix.val($input.val());
+                }
             }
         }, ".tableNameEdit");
 
@@ -92,6 +100,7 @@ window.DSCart = (function($, DSCart) {
                 var $input = $(this);
                 var dsId = $input.closest(".selectedTable").data("dsid");
                 var prefixName = $input.val().trim();
+                $input.removeClass("clean");
                 // update
                 var cart = filterCarts(dsId);
                 cart.setPrefix(prefixName);
@@ -346,7 +355,7 @@ window.DSCart = (function($, DSCart) {
                         ' title="' + TooltipTStr.ColPrefix + '"></i>' +
                     '</div>' +
                     '<div class="input">' +
-                        '<input class="prefixName textOverflow"' +
+                        '<input class="prefixName textOverflow clean"' +
                         ' type="text"' +
                         ' value="' + prefix + '"' +
                         ' placeholder="' + CommonTxtTstr.Optional + '"' +
