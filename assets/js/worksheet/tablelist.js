@@ -1186,7 +1186,7 @@ window.TableList = (function($, TableList) {
                     var wsName = WSManager.getWSName(wsId);
                     var groupHTML =
                     '<li class="clearfix tableGroup ws' + wsId + '">' +
-                        '<div class="timeStamp wsName" >' + wsName + '</div>' +
+                        '<div class="timeStamp wsName" >' + xcHelper.escapeHTMLSpecialChar(wsName) + '</div>' +
                         '<ul class="tableList"></ul>' +
                     '</li>';
                     $tableList.prepend(groupHTML);
@@ -1227,7 +1227,7 @@ window.TableList = (function($, TableList) {
                          '</div>';
             } else {
                 wsInfo = '<div class="worksheetInfo worksheet-' + wsId + '">' +
-                            WSManager.getWSName(wsId) +
+                            xcHelper.escapeHTMLSpecialChar(WSManager.getWSName(wsId)) +
                         '</div>';
             }
 

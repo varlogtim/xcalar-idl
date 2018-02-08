@@ -270,9 +270,9 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                         '<div class="worksheet tooltipOverflow"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
-                        ' data-title="' + tableInfo.worksheet + '"' +
+                        ' data-title="' + xcTooltip.escapeHTML(tableInfo.worksheet) + '"' +
                         '>' +
-                            tableInfo.worksheet +
+                            xcHelper.escapeHTMLSpecialChar(tableInfo.worksheet) +
                         '</div>' +
                         '<div class="action">' +
                             // '<i class="delete icon xc-action xi-trash fa-15"' +
