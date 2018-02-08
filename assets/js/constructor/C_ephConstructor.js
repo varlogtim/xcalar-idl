@@ -1789,7 +1789,10 @@ FormHelper.prototype = {
         }
         name = $.trim(name);
         DagPanel.updateExitMenu(name);
-
+        var tableMenuID = "#tableMenu";
+        var colMenuID = "#colMenu";
+        TblMenu.updateExitOptions(tableMenuID, name);
+        TblMenu.updateExitOptions(colMenuID, name);
         return wasMenuOpen;
     },
 
@@ -1805,7 +1808,10 @@ FormHelper.prototype = {
         $("#container").removeClass("formOpen");
         DagEdit.exitForm();
         DagPanel.updateExitMenu();
-
+        var tableMenuID = "#tableMenu";
+        var colMenuID = "#colMenu";
+        TblMenu.updateExitOptions(tableMenuID);
+        TblMenu.updateExitOptions(colMenuID);
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
             if (!this.mainMenuState.isTopOpen) {

@@ -67,6 +67,34 @@ window.TblMenu = (function(TblMenu, $) {
         }
     };
 
+    TblMenu.updateExitOptions = function(menuID, nameInput) {
+        var $menu = $(menuID).find(".exitOp:first");
+        $menu.attr('class', 'exitOp exitMainMenuOp');
+        if (!nameInput) {
+            return;
+        }
+        var name = nameInput;
+        var nameUpper = xcHelper.capitalize(name);
+        var label = nameUpper;
+        switch (nameInput) {
+            case ('dfcreate'):
+                nameUpper = 'Dataflow';
+                label = 'Batch Dataflow';
+                break;
+            case ('group by'):
+                label = 'Group By';
+                break;
+            case ('smartcast'):
+                nameUpper = 'SmartCast'
+                label = 'Smart Cast';
+                break;
+            default:
+                break;
+        }
+        $menu.html('<span class="label">Exit ' + label + '</span>');
+        $menu.addClass('exit' + nameUpper.replace(/ /g,''));
+    }
+
     function addTableMenuActions() {
         var $tableMenu = $('#tableMenu');
         var $subMenu = $('#tableSubMenu');
@@ -176,43 +204,12 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
-            var exitType = $(this).data('exittype');
-            switch (exitType) {
-                case ('aggregate'):
-                case ('filter'):
-                case ('groupby'):
-                case ('map'):
-                    OperationsView.close();
-                    break;
-                case ('export'):
-                    ExportView.close();
-                    break;
-                case ('smartCast'):
-                    SmartCastView.close();
-                    break;
-                case ('join'):
-                    JoinView.close();
-                    break;
-                case ('union'):
-                    UnionView.close();
-                    break;
-                case ('ext'):
-                    BottomMenu.close();
-                    break;
-                case ("dataflow"):
-                    DFCreateView.close();
-                    break;
-                case ("sort"):
-                    SortView.close();
-                    break;
-                case ("project"):
-                    ProjectView.close();
-                    break;
-                case ("dfEdit"):
-                    DagEdit.off();
-                    break;
-                default:
-                    break;
+            if ($li.hasClass("exitExt")) {
+                BottomMenu.close();
+            } else if ($li.hasClass("exitDFEdit")) {
+                DagEdit.off();
+            } else {
+                MainMenu.closeForms();
             }
         });
 
@@ -1000,43 +997,13 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var exitType = $(this).data('exittype');
-            switch (exitType) {
-                case ('export'):
-                    ExportView.close();
-                    break;
-                case ('aggregate'):
-                case ('filter'):
-                case ('groupby'):
-                case ('map'):
-                    OperationsView.close();
-                    break;
-                case ('smartCast'):
-                    SmartCastView.close();
-                    break;
-                case ('join'):
-                    JoinView.close();
-                    break;
-                case ('union'):
-                    UnionView.close();
-                    break;
-                case ('ext'):
-                    BottomMenu.close();
-                    break;
-                case ("dataflow"):
-                    DFCreateView.close();
-                    break;
-                case ("sort"):
-                    SortView.close();
-                    break;
-                case ("project"):
-                    ProjectView.close();
-                    break;
-                case ("dfEdit"):
-                    DagEdit.off();
-                    break;
-                default:
-                    break;
+            var $li = $(this);
+            if ($li.hasClass("exitExt")) {
+                BottomMenu.close();
+            } else if ($li.hasClass("exitDFEdit")) {
+                DagEdit.off();
+            } else {
+                MainMenu.closeForms();
             }
         });
     }

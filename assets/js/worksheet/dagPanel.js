@@ -239,6 +239,9 @@ window.DagPanel = (function($, DagPanel) {
             return;
         }
         var nameUpper = xcHelper.capitalize(name);
+        if (name == 'dfcreate') {
+            nameUpper = 'Batch Dataflow';
+        }
         $menu.prepend('<li class="exitFormOption" ' +
             'data-action="exitFormOption" data-formname="' + name +
             '">Exit ' + nameUpper + '</li>');
