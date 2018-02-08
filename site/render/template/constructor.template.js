@@ -1911,7 +1911,6 @@
             isRecur: (boolean) recursive or not
             quoteChar: (string) ds's quoteChar
             skipRows: (integer) how many rows to skip
-            isRegex: (boolean) path is using regEx or not;
             headers: (array, not persist) to preserve column header order
             error: (string, optional) ds's error
             displayFormat (string) displayed format in ds table(Excel...)
@@ -1923,6 +1922,7 @@
                 typedColumns: (array)
             removed attr:
                 previewSize
+                isRegex
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1943,6 +1943,7 @@
                     self.typedColumns = options.typedColumns;
                 }
                 delete self.previewSize;
+                delete self.isRegex;
             }
             return self;
         }
@@ -2021,15 +2022,8 @@
             getPathWithPattern: function() {
                 var path = this.path;
                 if (this.pattern) {
-                    path += " | " + DSFormTStr.Pattern + ": ";
-                    var pattern = this.pattern;
-                    if (this.isRegex) {
-                        pattern = "re:" + pattern;
-                    }
-
-                    path += pattern;
+                    path += " | " + DSFormTStr.Pattern + ": " + this.pattern;
                 }
-
                 return path;
             },
 
@@ -2043,8 +2037,6 @@
                 // moduleName, funcName, isRecur,
                 // quoteChar, skipRows, pattern, headers, typedColumns
                 var self = this;
-                var pattern = xcHelper.getFileNamePattern(self.pattern,
-                                                          self.isRegex);
                 var options = {
                     "fieldDelim": self.fieldDelim,
                     "recordDelim": self.lineDelim,
@@ -2054,7 +2046,7 @@
                     "isRecur": self.isRecur,
                     "quoteChar": self.quoteChar,
                     "skipRows": self.skipRows,
-                    "fileNamePattern": pattern,
+                    "fileNamePattern": self.pattern,
                     "udfQuery": self.udfQuery,
                     "headers": self.headers,
                     "typedColumns": self.typedColumns

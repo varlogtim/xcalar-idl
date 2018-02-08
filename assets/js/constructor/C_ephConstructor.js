@@ -137,13 +137,27 @@ function DSFormController() {
 DSFormController.prototype = {
     set: function(options) {
         options = options || {};
+        this.files = this.files || [];
 
         if (options.targetName != null) {
             this.targetName = options.targetName;
         }
 
-        if (options.path != null) {
-            this.path = options.path;
+        if (options.multiDS != null) {
+            this.multiDS = options.multiDS || false;
+        }
+
+        /*
+         * each ele of files:
+         *  {
+         *      path: path of the file.folder
+         *      recursive: recursive or not
+         *      dsToReplace: dsId that to replace
+         *      dsName: dsName to restore
+         *  }
+         */
+        if (options.files != null) {
+            this.files = options.files;
         }
 
         if (options.format != null) {
@@ -152,14 +166,6 @@ DSFormController.prototype = {
 
         if (options.pattern != null) {
             this.pattern = options.pattern;
-        }
-
-        if (options.isRecur != null) {
-            this.isRecur = options.isRecur;
-        }
-
-        if (options.isRegex != null) {
-            this.isRegex = options.isRegex;
         }
 
         if (options.typedColumns != null) {
@@ -173,13 +179,13 @@ DSFormController.prototype = {
         this.hasHeader = false;
         this.quote = "\"";
         this.previewFile = null;
+        this.files = [];
 
+        delete this.multiDS;
         delete this.targetName;
         delete this.path;
         delete this.format;
         delete this.pattern;
-        delete this.isRecur;
-        delete this.isRegex;
         delete this.udfModule;
         delete this.udfFunc;
         delete this.typedColumns;
@@ -196,6 +202,10 @@ DSFormController.prototype = {
             path = path.slice(1);
         }
         return path;
+    },
+
+    getFile: function(index) {
+        return this.files[index];
     },
 
     getFormat: function() {
@@ -254,18 +264,12 @@ DSFormController.prototype = {
         return this.pattern;
     },
 
-    getRecur: function() {
-        return this.isRecur || false;
-    },
-
-    getRegEx: function() {
-        return this.isRegex || false;
-    },
-
     getArgStr: function() {
         var args = $.extend({}, this);
         delete args.previewFile;
         delete args.typedColumns;
+        delete args.files;
+        delete args.multiDS;
         return JSON.stringify(args);
     },
 
@@ -275,7 +279,22 @@ DSFormController.prototype = {
 
     getOriginalTypedColumns: function() {
         return this.typedColumns;
-    }
+    },
+
+    isUniqueSingleFile: function() {
+        return (this.files.length === 1 && this.files[0].isFolder === false);
+    },
+
+    isAllSingleFile: function() {
+        var files = this.files;
+        for (var i = 0, len = files.length; i < len; i++) {
+            if (!(files[i].isFolder === false)) {
+                // null case or true case
+                return false;
+            }
+        }
+        return true;
+    },
 };
 
 // worksheet.js

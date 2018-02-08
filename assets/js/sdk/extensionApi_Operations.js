@@ -51,7 +51,7 @@ window.XcSDK.Extension.prototype = (function() {
             // the transformed name.
 
             // dsArgs is as follows:
-            // url, isRecur, maxSampleSize, skipRows, isRegex
+            // url, isRecur, maxSampleSize, skipRows,
             // formatArgs is as follows:
             // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
             // fieldDelim, recordDelim, hasHeader, quoteChar,

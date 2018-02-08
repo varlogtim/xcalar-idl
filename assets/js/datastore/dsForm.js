@@ -247,8 +247,7 @@ window.DSForm = (function($, DSForm) {
 
         DSPreview.show({
             targetName: targetName,
-            "path": path,
-            "format": xcHelper.getFormat(path),
+            files: [{path: path}]
         }, true);
     }
 

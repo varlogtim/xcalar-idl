@@ -231,8 +231,7 @@ window.UExtTF = (function(UExtTF) {
                 "url": "file://" + exposedLoc + "/",
                 "isRecur": false,
                 "maxSampleSize": 200000,
-                "skipRows": false,
-                "isRegex": false
+                "skipRows": false
             };
 
             var formatArgs = {
@@ -362,8 +361,7 @@ window.UExtTF = (function(UExtTF) {
                 "url": prefix + exposedLoc,
                 "isRecur": true,
                 "maxSampleSize": 200000,
-                "skipRows": false,
-                "isRegex": false
+                "skipRows": false
             };
 
             var formatArgs = {

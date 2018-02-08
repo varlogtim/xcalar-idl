@@ -202,7 +202,7 @@
 
     XIApi.load = function(dsArgs, formatArgs, dsName, txId) {
         // dsArgs is as follows:
-        // url, isRecur, maxSampleSize, skipRows, isRegex, pattern,
+        // url, isRecur, maxSampleSize, skipRows, pattern,
         // formatArgs is as follows:
         // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
         // fieldDelim, recordDelim, schemaMode, quoteChar
@@ -216,8 +216,7 @@
         var format = formatArgs.format;
         var maxSampleSize = dsArgs.maxSampleSize || 0;
         var skipRows = dsArgs.skipRows || 0;
-        var isRegex = dsArgs.isRegex || false;
-        var pattern = xcHelper.getFileNamePattern(dsArgs.pattern, isRegex);
+        var pattern = dsArgs.pattern;
 
         var fieldDelim;
         var recordDelim;

@@ -432,7 +432,8 @@ window.DS = (function ($, DS) {
 
     // Create dsObj for new dataset/folder
     function createDS(options, dsToReplace) {
-        options = options || {};
+        // this will make sure option is a diffent copy of old option
+        options = $.extend({}, options);
         // validation check
         xcAssert((options.name != null), "Invalid Parameters");
 

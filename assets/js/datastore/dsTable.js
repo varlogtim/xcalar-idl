@@ -665,11 +665,13 @@ window.DSTable = (function($, DSTable) {
         }
 
         DSPreview.show({
-            "path": dsObj.getPath(),
+            "files": [{
+                "path": dsObj.getPath(),
+                "recursive": dsObj.isRecur,
+                "dsToReplace": dsId
+            }],
             "format": dsObj.getFormat(),
             "pattern": dsObj.pattern,
-            "isRecur": dsObj.isRecur,
-            "isRegex": dsObj.isRegex,
             "dsName": dsObj.getName(),
             "skipRows": dsObj.skipRows,
             "moduleName": dsObj.moduleName,
@@ -679,7 +681,7 @@ window.DSTable = (function($, DSTable) {
             "lineDelim": dsObj.lineDelim,
             "quoteChar": dsObj.quoteChar,
             "typedColumns": dsObj.typedColumns
-        }, false, dsId, true);
+        }, false, true);
     }
 
     // sample table html

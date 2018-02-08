@@ -962,20 +962,24 @@ window.FileBrowser = (function($, FileBrowser) {
         // filename
         var curDir = getCurrentPath();
         var targetName = getCurrentTarget();
-        var pathList = [];
-        var formatList = [];
-        var recursiveList = [];
         var size = 0;
+        var files = [];
         // load dataset
         var $fileList = $fileBrowser.find(".selectedFileList li");
         $fileList.each(function () {
-            var path = $(this).data("path") + $(this).data("name");
-            var recursive = $(this).find("icon").eq(1)
+            var $li = $(this);
+            var fileName = $li.data("name");
+            var path = $li.data("path") + fileName;
+            var recursive = $li.find("icon").eq(1)
                                    .hasClass("xi-ckbox-selected");
-            var format = xcHelper.getFormat($(this).data("name"));
-            pathList.push(path);
-            formatList.push(format);
-            recursiveList.push(recursive);
+            var format = xcHelper.getFormat(fileName);
+            var isFolder = ($li.data("type") === "Folder");
+
+            files.push({
+                path: path,
+                recursive: recursive,
+                isFolder: isFolder
+            });
             // Estimate the size of payload to avoid exceeding limits
             size += path.length * 2; // Each char takes 2 bytes
             size += format ? format.length * 2 : 0; // Same as above
@@ -990,45 +994,18 @@ window.FileBrowser = (function($, FileBrowser) {
             });
             return;
         }
-        if (pathList.length === 0) {
+        if (files.length === 0) {
             // If no file is selected
             StatusBox.show(ErrTStr.InvalidFile, $confirmBtn, false, {
                 "side": "left"
             });
             return;
         }
-        // var multiDS = $("#fileInfoBottom").find(".switch").hasClass("on");
-        // var dsList = [];
-        // if (multiDS) {
-        //     // Import to multiple datasets
-        //     for (var i = 0; i < pathList.length; i++) {
-        //         var dsObj = {
-        //             "dsId": i,
-        //             "path": [pathList[i]],
-        //             "format": [formatList[i]],
-        //             "recursive": [recursiveList[i]]
-        //         }
-        //         dsList.push(dsObj);
-        //     }
-        // } else {
-        //     // Import to a single dataset
-        //     dsList.push({
-        //         "dsId": 0,
-        //         "path": pathList,
-        //         "format": formatList,
-        //         "recursive": recursiveList
-        //     });
-        // }
-        // var options = {
-        //     "targetName": targetName,
-        //     "dsList": dsList
-        // }
+        var multiDS = $("#fileInfoBottom").find(".switch").hasClass("on");
         var options = {
-            // XXX Later we will use the commented code above
             "targetName": targetName,
-            "path": pathList[0],
-            "format": formatList[0],
-            "recursive": recursiveList[0]
+            "files": files,
+            "multiDS": multiDS
         };
         setHistoryPath();
 
@@ -1930,7 +1907,9 @@ window.FileBrowser = (function($, FileBrowser) {
         var curDir = getCurrentPath();
         var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
 
-        return '<li data-name="' + escName + '" data-path="' + escDir + '">' +
+        return '<li data-name="' + escName + '"' +
+               ' data-path="' + escDir + '"' +
+               ' data-type="' + fileType + '">' +
                     '<i class="icon xi-close close"></i>' +
                     '<i class="icon xi-ckbox-selected"></i>' +
                     '<span>' + curDir + name + '</span>' +

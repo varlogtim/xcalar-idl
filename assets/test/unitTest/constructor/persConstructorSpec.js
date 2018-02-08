@@ -2075,7 +2075,7 @@ describe("Persistent Constructor Test", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
-                "pattern": "test",
+                "pattern": "re:test",
                 "user": "testUser",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
@@ -2084,7 +2084,6 @@ describe("Persistent Constructor Test", function() {
                 "path": "/netstore/datasets/gdelt/",
                 "format": "CSV",
                 "numEntries": 1000,
-                "isRegex": true
             });
 
             var res = dsObj.getPointArgs();
@@ -2108,8 +2107,7 @@ describe("Persistent Constructor Test", function() {
                 "targetName": "test target",
                 "path": "/netstore/datasets/gdelt/",
                 "format": "CSV",
-                "numEntries": 1000,
-                "isRegEx": false
+                "numEntries": 1000
             });
 
             res = dsObj.getPointArgs();
