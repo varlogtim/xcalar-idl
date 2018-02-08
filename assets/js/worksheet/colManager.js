@@ -1654,11 +1654,11 @@ window.ColManager = (function($, ColManager) {
         }
 
         styleColHeadHelper(colNum, tableId);
+        var sortIcon = "";
         if (indexed) {
             var order = indexed.ordering;
             var sorted = false;
-            var sortIcon = "";
-            if (order === 
+            if (order ===
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
                         'data-container="body" ' +
@@ -1687,7 +1687,7 @@ window.ColManager = (function($, ColManager) {
                       .replaceWith(sortIcon);
             }
         } else {
-            var sortIcon = '<div class="sortIcon">' +
+            sortIcon = '<div class="sortIcon">' +
                         '<div class="sortAsc sortHalf" data-toggle="tooltip" ' +
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
@@ -1697,7 +1697,7 @@ window.ColManager = (function($, ColManager) {
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"></div>' +
                         '<i class="icon xi-sort fa-12"></i>' +
-                        '</div>'; 
+                        '</div>';
             $table.find("th.col" + colNum).find(".sortIcon")
                       .replaceWith(sortIcon);
         }
@@ -2160,8 +2160,11 @@ window.ColManager = (function($, ColManager) {
         // round it first
         var pow;
         if (decimal > -1) {
-            // when no roundToFixed, only percent
-            pow = Math.pow(10, decimal);
+            if (format === ColFormat.Percent) {
+                pow = Math.pow(10, decimal + 2);
+            } else {
+                pow = Math.pow(10, decimal);
+            }
             val = Math.round(val * pow) / pow;
         }
 
@@ -2177,14 +2180,13 @@ window.ColManager = (function($, ColManager) {
                     var decimalPart = (val + "").split(".")[1];
                     if (decimalPart != null) {
                         decimalPartLen = decimalPart.length;
-                        decimalPartLen = Math.max(0, decimalPartLen - 2);
                         pow = Math.pow(10, decimalPartLen);
                     } else {
                         pow = 1;
                     }
                 } else {
                     // when has roundToFixed
-                    decimalPartLen = Math.max(0, decimal - 2);
+                    decimalPartLen = decimal;
                     pow = Math.pow(10, decimalPartLen);
                 }
 

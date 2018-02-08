@@ -289,17 +289,17 @@ describe('ColManager Test', function() {
             expect(fn('null', 'percent', 3)).to.equal('null');
 
             expect(fn('word234', 'percent', 3)).to.equal('word234');
-            expect(fn('234word', 'percent', 4)).to.equal('23400.00%');
+            expect(fn('234word', 'percent', 4)).to.equal('23400.0000%');
 
-            expect(fn('123', 'percent', 1)).to.equal('12300%');
+            expect(fn('123', 'percent', 1)).to.equal('12300.0%');
             expect(fn('123', 'percent', -1)).to.equal('12300%');
 
-            expect(fn('123.567', 'percent', 1)).to.equal('12360%');
+            expect(fn('123.567', 'percent', 1)).to.equal('12356.7%');
             expect(fn('123.567', 'percent', -1)).to.equal('12356.7%');
             expect(fn('1.23567', 'percent', -1)).to.equal('123.567%');
-            expect(fn('1.23567', 'percent', 2)).to.equal('124%');
-            expect(fn('1.23567', 'percent', 3)).to.equal('123.6%');
-            expect(fn('1.23567', 'percent', 0)).to.equal('100%');
+            expect(fn('1.23567', 'percent', 2)).to.equal('123.57%');
+            expect(fn('1.23567', 'percent', 3)).to.equal('123.567%');
+            expect(fn('1.23567', 'percent', 0)).to.equal('124%');
 
             expect(fn('123', 'default', -1)).to.equal('123');
             expect(fn('123', 'default', 0)).to.equal('123');
