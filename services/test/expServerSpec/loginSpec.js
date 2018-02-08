@@ -217,7 +217,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('Router should fail with setWaadConfig action and bogus waadConfig', function(done) {
+    it('Router should fail with setMsalConfig action and bogus msalConfig', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("/../../test").promise();
         };
@@ -229,10 +229,10 @@ describe('ExpServer Login Test', function() {
         var expectedRetMsg = {
             "status": 200,
             "success": false,
-            "error": "Invalid WaadConfig provided"
+            "error": "Invalid MsalConfig provided"
         };
 
-        postRequest("POST", "/login/waadConfig/set", credArray)
+        postRequest("POST", "/login/msalConfig/set", credArray)
         .then(function(ret) {
             expect(ret).to.deep.equal(expectedRetMsg);
             done();
@@ -242,18 +242,21 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('Router should fail with setWaadConfig action and invalid directory', function(done) {
+    it('Router should fail with setMsalConfig action and invalid directory', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
 
         var credArray = {
-            waadEnabled: true,
-            tenant: "legitLookingTenant",
-            clientId: "legitLookingClient"
+            msalEnabled: true,
+            msal: {
+                clientId: "legitLookingClient",
+                adminScope: "api%3A%2F%2FsomethingAdminReasonable",
+                userScope: "api%3A%2F%2FsomethingUserReasonable"
+            }
         };
 
-        postRequest("POST", "/login/waadConfig/set", credArray)
+        postRequest("POST", "/login/msalConfig/set", credArray)
         .then(function(ret) {
             expect(ret.error).to.have.string("Failed to write");
             done();
@@ -263,18 +266,21 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('Router should work with proper setWaadConfig action and getWaadConfig action', function(done) {
+    it('Router should work with proper setMsalConfig action and getMsalConfig action', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
         };
 
         var setArray = {
-            waadEnabled: true,
-            tenant: Math.floor(Math.random() * 1000).toString(),
-            clientId: Math.floor(Math.random() * 1000).toString()
+            msalEnabled: true,
+            msal: {
+                clientId: Math.floor(Math.random() * 1000).toString(),
+                adminScope: "api%3A%2F%2FsomethingAdminReasonable",
+                userScope: "api%3A%2F%2FsomethingUserReasonable"
+            }
         };
 
-        postRequest("POST", "/login/waadConfig/set", setArray)
+        postRequest("POST", "/login/msalConfig/set", setArray)
         .then(function(ret) {
             var expectedRetMsg = {
                 "success": true,
@@ -283,20 +289,23 @@ describe('ExpServer Login Test', function() {
 
             expect(ret).to.deep.equal(expectedRetMsg)
 
-            return (postRequest("POST", "/login/waadConfig/get"));
+            return (postRequest("POST", "/login/msalConfig/get"));
         })
         .then(function(ret) {
             var expectedRetMsg = {
-                "waadEnabled": true,
+                "msalEnabled": true,
                 "status": 200,
-                "tenant": setArray.tenant,
-                "clientId": setArray.clientId
+                "msal": {
+                    "clientId": setArray.clientId,
+                    "adminScope": setArray.adminScope,
+                    "userScope": setArray.userScope
+                }
             };
             expect(ret).to.deep.equal(expectedRetMsg);
 
-            // Now disable waad
-            setArray["waadEnabled"] = false;
-            return (postRequest("POST", "/login/waadConfig/set", setArray));
+            // Now disable msal
+            setArray["msalEnabled"] = false;
+            return (postRequest("POST", "/login/msalConfig/set", setArray));
         })
         .then(function(ret) {
             var expectedRetMsg = {
@@ -305,14 +314,17 @@ describe('ExpServer Login Test', function() {
             };
 
             expect(ret).to.deep.equal(expectedRetMsg)
-            return (postRequest("POST", "/login/waadConfig/get"));
+            return (postRequest("POST", "/login/msalConfig/get"));
         })
         .then(function(ret) {
             var expectedRetMsg = {
-                "waadEnabled": false,
+                "msalEnabled": false,
                 "status": 200,
-                "tenant": setArray["tenant"],
-                "clientId": setArray["clientId"]
+                "msal": {
+                    "clientId": setArray.clientId,
+                    "adminScope": setArray.adminScope,
+                    "userScope": setArray.userScope
+                }
             };
 
             expect(ret).to.deep.equal(expectedRetMsg)

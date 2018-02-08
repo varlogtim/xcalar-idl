@@ -19,8 +19,11 @@ var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var Status = ssf.Status;
 var strictSecurity = false;
 
-var waadConfigRelPath = "/config/waadConfig.json";
-var waadFieldsRequired = [ "tenant", "clientId", "waadEnabled" ];
+var msalConfigRelPath = "/config/msalConfig.json";
+var msalEnabledField = "msalEnabled";
+var msalFieldsRequired = [ "clientId", "userScope", "adminScope", "b2cEnabled" ];
+var msalFieldsOptional = [ "webApi", "authority", "azureEndpoint", "azureScopes" ];
+var msalFieldsOptionalTypes = [ "string", "string", "string", "array" ];
 
 var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
@@ -181,29 +184,45 @@ function getDefaultAdmin() {
     return deferred.promise();
 }
 
-function getWaadConfig() {
+function getMsalConfig() {
     var deferred = jQuery.Deferred();
-    var message = { "status": httpStatus.OK, "waadEnabled": false };
-    var waadConfig;
+    var message = { "status": httpStatus.OK, "msalEnabled": false };
+    var msalConfig;
 
     support.getXlrRoot()
     .then(function(xlrRoot) {
         try {
-            var waadConfigPath = path.join(xlrRoot, waadConfigRelPath);
-            delete require.cache[require.resolve(waadConfigPath)];
-            waadConfig = require(waadConfigPath);
+            var msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
+            delete require.cache[require.resolve(msalConfigPath)];
+            msalConfig = require(msalConfigPath);
         } catch (error) {
-            return jQuery.Deferred().reject("Error reading " + waadConfigPath + ": " + error).promise();
+            return jQuery.Deferred().reject("Error reading " + msalConfigPath + ": " + error).promise();
         }
 
-        for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
-            if (!(waadConfig.hasOwnProperty(waadFieldsRequired[ii]))) {
-                return jQuery.Deferred().reject(waadConfigPath + " is corrupted").promise();
+        if (!(msalConfig.hasOwnProperty(msalEnabledField))) {
+            return jQuery.Deferred().reject(msalConfigPath + " is corrupted").promise();
+        }
+
+        for (var idx in msalFieldsRequired) {
+            if (!(msalConfig.msal.hasOwnProperty(msalFieldsRequired[idx]))) {
+                return jQuery.Deferred().reject(msalConfigPath + " is corrupted").promise();
             }
         }
 
-        waadConfig.status = message.status;
-        deferred.resolve(waadConfig);
+        for (var idx in msalFieldsOptional) {
+            type = msalFieldsOptionalTypes[idx];
+
+            if (!(msalConfig.msal.hasOwnProperty(msalFieldsOptional[idx]))) {
+                if (type === "string") {
+                    msalConfig.msal[msalFieldsOptional[idx]] = "";
+                } else if (type === "array") {
+                    msalConfig.msal[msalFieldsOptional[idx]] = [];
+                }
+            }
+        }
+
+        msalConfig.status = message.status;
+        deferred.resolve(msalConfig);
     })
     .fail(function(errorMsg) {
         message.error = errorMsg;
@@ -213,37 +232,57 @@ function getWaadConfig() {
     return deferred.promise();
 }
 
-function setWaadConfig(waadConfigIn) {
+function setMsalConfig(msalConfigIn) {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "success": false }
-    var waadConfigPath;
-    var waadConfig = {};
+    var msalConfigPath;
+    var msalConfig = {
+        msalEnabled: null,
+        msal: {
+        }
+    };
 
     support.getXlrRoot()
     .then(function(xlrRoot) {
-        // Make a copy of existing waadConfig.json if it exists
-        waadConfigPath = path.join(xlrRoot, waadConfigRelPath);
-        return (support.makeFileCopy(waadConfigPath));
+        // Make a copy of existing msalConfig.json if it exists
+        msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
+        return (support.makeFileCopy(msalConfigPath));
     })
     .then(function() {
-        try {
-            for (var ii = 0; ii < waadFieldsRequired.length; ii++) {
-                if (!(waadConfigIn.hasOwnProperty(waadFieldsRequired[ii]))) {
-                    throw "Invalid WaadConfig provided"
-                }
-                waadConfig[waadFieldsRequired[ii]] = waadConfigIn[waadFieldsRequired[ii]];
-            }
-        } catch (error) {
-            return jQuery.Deferred().reject(error).promise();
+        if (!(msalConfigIn.hasOwnProperty(msalEnabledField))) {
+            deferred.reject("Invalid msalConfig provided");
         }
 
-        return (support.writeToFile(waadConfigPath, waadConfig, {"mode": 0600}));
+        for (var idx in msalFieldsRequired) {
+            if (!(msalConfigIn.msal.hasOwnProperty(msalFieldsRequired[idx]))) {
+                deferred.reject("Invalid msalConfig provided");
+            }
+        }
+
+        for (var key in msalConfigIn.msal) {
+            oIdx = msalFieldsOptional.indexOf(key);
+
+            if (oIdx !== -1) {
+                oType = msalFieldsOptionalTypes[oIdx];
+
+                if ((oType === "string" &&
+                     msalConfigIn.msal[msalFieldsOptional[oIdx]] === "") ||
+                    (oType === "array" &&
+                     msalConfigIn.msal[msalFieldsOptional[oIdx]].length === 0)) {
+                    delete msalConfigIn.msal[msalFieldsOptional[oIdx]];
+                }
+            }
+        }
+
+        jQuery.extend(msalConfig, msalConfigIn);
+
+        return (support.writeToFile(msalConfigPath, msalConfig, {"mode": 0600}));
     })
-    .then(function() {
+    .then(function () {
         message.success = true;
         deferred.resolve(message);
     })
-    .fail(function(errorMsg) {
+    .fail(function (errorMsg) {
         message.error = errorMsg;
         deferred.reject(message);
     });
@@ -754,16 +793,16 @@ router.post('/login', function(req, res) {
     });
 });
 
-router.post('/login/waadConfig/get', function(req, res) {
-    getWaadConfig()
+router.post('/login/msalConfig/get', function(req, res) {
+    getMsalConfig()
     .always(function(message) {
         res.status(message.status).send(message);
     });
 });
 
-router.post('/login/waadConfig/set', function(req, res) {
+router.post('/login/msalConfig/set', function(req, res) {
     var credArray = req.body;
-    setWaadConfig(credArray)
+    setMsalConfig(credArray)
     .always(function(message) {
         res.status(message.status).send(message);
     });

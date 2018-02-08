@@ -1134,7 +1134,7 @@ module.exports = {
         "usernameLower": "Username",
         "password": "PASSWORD",
         "login": "LOG IN",
-        "waadLogin": "Login with Azure AD",
+        "msalLogin": "Login with Azure AD",
         "signup": "SIGN UP",
         "firstName": "First Name",
         "lastName": "Last Name",
@@ -1188,20 +1188,15 @@ module.exports = {
         "adDomain": "AD Default Domain",
         "enableADGroupChain": "Enable Group Subtree Searching",
         "enableTLS": "Enable Transportation Layer Security (TLS)",
-        "enableWAAD": "Enable Azure Active Directory (AAD) Authentication",
-        "tenant": "Tenant",
+        "enableMSAL": "Enable Azure v2.0 Common Authentication",
         "clientId": "Client Id",
-        "waadInstructions": {
-            "title": "Here are the steps to enable AAD authentication with Xcalar:",
-            "step1": "Click on \"App Registrations\" in your AAD portal.",
-            "step2": "Click on \"New application registration\".",
-            "step3": "Under \"Name\", enter: Xcalar",
-            "step4": "Under \"Sign-on URL\", enter: ",
-            "step5": "Click on \"Create\". This will register Xcalar into your AAD.",
-            "step6": "Click on the newly registered app.",
-            "step7": "Copy the value under \"Application ID\" and enter it in <b>Client Id</b>.",
-            "step8": "Under <b>Tenant</b> enter the domain name of your AAD, e.g. contoso.com"
-        }
+        "webApi": "B2C Web API",
+        "authority": "B2C Authority",
+        "azureEndpoint": "Azure Endpoint",
+        "azureScopes": "Azure Scopes",
+        "userScope": "Xcalar User Scope",
+        "adminScope": "Xcalar Admin Scope",
+        "useB2C": "Enable Azure B2C"
     },
 
     "liveHelp": {

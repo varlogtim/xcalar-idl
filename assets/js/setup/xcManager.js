@@ -1403,22 +1403,42 @@ window.xcManager = (function(xcManager, $) {
 
     function logoutRedirect() {
         xcSessionStorage.removeItem("xcalar-username");
-        var waadUser = null;
-        var waadAuthContext;
-        var waadConfig = getWaadConfigFromLocalStorage();
-        if (waadConfig != null) {
-            try {
-                waadAuthContext = new AuthenticationContext(waadConfig);
-                waadUser = waadAuthContext.getCachedUser();
-            } catch (error) {
-                // Not via WAAD authentication.
-                // XXX We really should be remembering if we logged in via
-                // WAAD instead of relying on this hack
+        var msalUser = null;
+        var msalAgentApplication = null;
+        var config = getMsalConfigFromLocalStorage();
+
+        if (config != null &&
+            config.hasOwnProperty('msal') &&
+            config.msal.hasOwnProperty('enabled') &&
+            config.msal.enabled) {
+
+            var msalLogger = new Msal.Logger(
+                msalLoggerCallback,
+                { level: Msal.LogLevel.Verbose, correlationId: '12345' }
+            );
+
+            function msalLoggerCallback(logLevel, message, piiEnabled) {
+                console.log(message);
             }
+
+            function msalAuthCallback(errorDesc, token, error, tokenType) {
+                // this callback function provided to UserAgentApplication
+                // is intentionally empty because the logout callback does
+                // not need to do anything
+            }
+
+            msalAgentApplication = new Msal.UserAgentApplication(
+                config.msal.clientID,
+                null,
+                msalAuthCallback,
+                { cacheLocation: 'sessionStorage', logger: msalLogger }
+            );
+
+            msalUser = msalAgentApplication.getUser();
         }
 
-        if (waadUser != null) {
-            waadAuthContext.logOut();
+        if (msalUser != null) {
+            msalAgentApplication.logout();
         } else {
             window.location = paths.dologout;
         }

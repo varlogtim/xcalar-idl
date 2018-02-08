@@ -4933,6 +4933,7 @@ html.microsoft {
     .font(@size: 13px, @weight: 600);
     @rowHeight: 25px;
     @leftPadding: 20px;
+    @labelWidth: 187px;
     .clearfix;
     bottom: auto;
     z-index: @z-index-modal;
@@ -4972,6 +4973,7 @@ html.microsoft {
     .formRow {
         margin-bottom: 10px;
         margin-top: 10px;
+        padding-right: 40px;
         width: 100%;
         .label {
             float: left;
@@ -4983,7 +4985,7 @@ html.microsoft {
         }
 
         .xc-input {
-            .size(@width: ~"calc(100% - 187px)");
+            .size(@width: ~"calc(100% - @{labelWidth})");
             height: @rowHeight;
             line-height: @rowHeight;
         }
@@ -5000,10 +5002,21 @@ html.microsoft {
         .formRow;
         width: ~"calc(50% - 20px)";
         float: left;
+        padding-right: 0px;
+
         .label {
-            .size(@width: 187px);
+            .size(@width: @labelWidth);
+        }
+        .xc-input {
+            margin-right: 0px;
         }
         .clearfix;
+    }
+
+    .inputRow {
+        .label {
+            .size(@width: @labelWidth);
+        }
     }
 
     .radioGroup {
@@ -5022,7 +5035,7 @@ html.microsoft {
         padding: 10px;
     }
 
-    #loginConfigWAADSignOnUrl {
+    #loginConfigMSALSignOnUrl {
         user-select: all;
     }
 

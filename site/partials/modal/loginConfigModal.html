@@ -26,25 +26,25 @@
       </div>
       <div class="loginSectionBody optionSet xc-hidden">
         <div class="clearfix">
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminUsername %></div>
             <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminUsername" type="text" class="xc-input" autocomplete="off">
           </div>
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminEmail %></div>
             <input type="text" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminEmail" type="text" class="xc-input" autocomplete="off">
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminPassword %></div>
             <input type="password" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminPassword" type="password" class="xc-input" autocomplete="off">
             <div id="passwordStrengthHint"></div>
           </div>
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.adminConfirmPassword %></div>
             <input type="password" name="fake" style="display:none"> <!-- Stop autofill -->
             <input name="fake" id="loginConfigAdminConfirmPassword" type="password" class="xc-input" autocomplete="off">
@@ -83,37 +83,37 @@
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.ldapUrl %></div>
             <input id="loginConfigLdapUrl" type="text" class="xc-input">
           </div>
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.userDn %></div>
             <input id="loginConfigLdapUserDn" type="text" class="xc-input">
           </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.searchFilter %></div>
             <input id="loginConfigLdapSearchFilter" type="text" class="xc-input">
           </div>
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.serverKeyFile %></div>
             <input id="loginConfigLdapServerKeyFile" type="text" class="xc-input">
           </div>
         </div>
         <div class="clearfix adOnly">
-          <div class="formBiRow">
+          <div class="formBiRow inputRow">
             <div class="label"><%= dicts.loginConfig.adUserGroup %></div>
             <input id="loginConfigADUserGroup" type="text" class="xc-input">
           </div>
-          <div class="formBiRow adOnly">
+          <div class="formBiRow inputRow adOnly">
             <div class="label"><%= dicts.loginConfig.adAdminGroup %></div>
             <input id="loginConfigADAdminGroup" type="text" class="xc-input">
           </div>
         </div>
         <div class="clearfix adOnly">
-          <div class="formRow">
+          <div class="formRow inputRow">
             <div class="label"><%= dicts.loginConfig.adDomain %></div>
             <input id="loginConfigADDomain" type="text" class="xc-input">
           </div>
@@ -139,10 +139,10 @@
       </div>
     </section>
 
-    <!-- WAAD Authentication -->
+    <!-- MSAL Authentication -->
     <section class="modalMainSection">
-      <div class="loginSectionToggle optionSet formRow" id="loginConfigEnableWAAD">
-        <div class="label"><%= dicts.loginConfig.enableWAAD %></div>
+      <div class="loginSectionToggle optionSet formRow" id="loginConfigEnableMSAL">
+        <div class="label"><%= dicts.loginConfig.enableMSAL %></div>
         <div class="optionSelector">
           <div class="checkbox">
             <i class="icon xi-ckbox-empty fa-13"></i>
@@ -151,27 +151,53 @@
         </div>
       </div>
       <div class="loginSectionBody optionSet xc-hidden">
-        <div class="longDescription">
-          <%= dicts.loginConfig.waadInstructions.title %>
-          <ol>
-            <li><%= dicts.loginConfig.waadInstructions.step1 %> </li>
-            <li><%= dicts.loginConfig.waadInstructions.step2 %></li>
-            <li><%= dicts.loginConfig.waadInstructions.step3 %></li>
-            <li><%= dicts.loginConfig.waadInstructions.step4 %><span id="loginConfigWAADSignOnUrl"></span></li>
-            <li><%= dicts.loginConfig.waadInstructions.step5 %></li>
-            <li><%= dicts.loginConfig.waadInstructions.step6 %></li>
-            <li><%= dicts.loginConfig.waadInstructions.step7 %></li>
-            <li><%= dicts.loginConfig.waadInstructions.step8 %></li>
-          </ol>
+        <div class="clearfix">
+          <div class="formBiRow inputRow">
+            <div class="label"><%= dicts.loginConfig.clientId %></div>
+            <input id="loginConfigMSALClientId" type="text" class="xc-input">
+          </div>
+          <div class="formBiRow inputRow">
+            <div class="label"><%= dicts.loginConfig.webApi %></div>
+            <input id="loginConfigMSALWebApi" type="text" class="xc-input">
+          </div>
         </div>
         <div class="clearfix">
-          <div class="formBiRow">
-            <div class="label"><%= dicts.loginConfig.tenant %></div>
-            <input id="loginConfigWAADTenant" type="text" class="xc-input">
+          <div class="formBiRow inputRow">
+            <div class="label"><%= dicts.loginConfig.authority %></div>
+            <input id="loginConfigMSALAuthority" type="text" class="xc-input">
           </div>
-          <div class="formBiRow">
-            <div class="label"><%= dicts.loginConfig.clientId %></div>
-            <input id="loginConfigWAADClientId" type="text" class="xc-input">
+          <div class="formBiRow inputRow">
+            <div class="label"><%= dicts.loginConfig.azureEndpoint %></div>
+            <input id="loginConfigMSALAzureEndpoint" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
+            <div class="label"><%= dicts.loginConfig.azureScopes %></div>
+            <input id="loginConfigMSALAzureScopes" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
+            <div class="label"><%= dicts.loginConfig.userScope %></div>
+            <input id="loginConfigMSALUserScope" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
+            <div class="label"><%= dicts.loginConfig.adminScope %></div>
+            <input id="loginConfigMSALAdminScope" type="text" class="xc-input">
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="formRow inputRow">
+            <div class="label"><%= dicts.loginConfig.useB2C %></div>
+            <div class="optionSelector">
+              <div id="loginConfigMSALEnableB2C" class="checkbox">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+            </div>
           </div>
         </div>
       </div>

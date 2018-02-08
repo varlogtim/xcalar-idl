@@ -697,7 +697,7 @@ module.exports = {
         "firstName": "名",
         "lastName": "姓",
         "login": "登录",
-        "waadLogin": "使用Azure AD登录",
+        "msalLogin": "使用Azure AD登录",
         "loginHeader": "登录Xcalar Design!",
         "password": "密码",
         "passwordLower": "密码",
@@ -1089,10 +1089,9 @@ module.exports = {
         "adDomain": "",
         "enableADGroupChain": "",
         "enableTLS": "启用传输层安全协议 (TLS)",
-        "enableWAAD": "连接 Azure Active Directory (AAD)",
-        "tenant": "租用戶 (tenant)",
+        "enableMSAL": "连接 Azure Active Directory (AAD)",
         "clientId": "客户端 ID (client_id)",
-        "waadInstructions": {
+        "msalInstructions": {
             "title": "按照以下步骤将Xcalar应用程序注册到 Azure Active Directory 租户:",
             "step1": "登录到 Azure 门户. 在左侧导航窗格中, 依次选择\"更多服务\"和\"安全性 + 标识\"下的\"应用注册\".",
             "step2": "选择\"新应用注册\".",
@@ -1102,8 +1101,14 @@ module.exports = {
             "step6": "选择刚创建的Xcalar应用程序.",
             "step7": "此时，\"应用 ID\" 列为 GUID. 这就是Xcalar应用程序的客户端 ID. 回到此页, 并在<b>客户端 ID (client_id)</b>中输入该客户端 ID.",
             "step8": "请在<b>租用戶 (tenant)</b>中输入您的 Azure Active Directory 租户, 例如 contoso.com"
-        }
-
+        },
+        "webApi": "B2C Web API",
+        "authority": "B2C Authority",
+        "azureEndpoint": "Azure Endpoint",
+        "azureScopes": "Azure Scopes",
+        "userScope": "Xcalar User Scope",
+        "adminScope": "Xcalar Admin Scope",
+        "useB2C": "Enable Azure B2C"
     },
     "liveHelp": {
         "Title": "在线帮助",

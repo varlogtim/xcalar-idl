@@ -1,30 +1,27 @@
-var waadEnabled = false;
-var waadConfig;
+var msalEnabled = false;
+var msalConfig = { msalEnabled: "", msal: {} };
 var defaultAdminEnabled = false;
 var defaultAdminConfig;
 var ldapConfig;
 var ldapConfigEnabled = false;
 
-function setWaadConfig(hostname, waadEnabledIn, tenant, clientId) {
+function setMSALConfig(hostname, msalEnabledIn, msalIn) {
     var deferred = jQuery.Deferred();
-    var waadConfigOut = {
-        waadEnabled: waadEnabledIn,
-        tenant: tenant,
-        clientId: clientId
+    var msalConfigOut = {
+        msalEnabled: msalEnabledIn,
+        msal: msalIn
     };
 
     $.ajax({
         "type": "POST",
         "contentType": "application/json",
-        "url": hostname + "/app/login/waadConfig/set",
-        "data": JSON.stringify(waadConfigOut),
+        "url": hostname + "/app/login/msalConfig/set",
+        "data": JSON.stringify(msalConfigOut),
         "success": function (ret) {
             if (ret.success) {
-                if (waadEnabled) {
-                    waadEnabled = waadEnabledIn;
-                    waadConfig.tenant = waadConfigOut.tenant;
-                    waadConfig.waadEnabled = waadEnabled;
-                    waadConfig.clientId = waadConfigOut.clientId;
+                if (msalEnabled) {
+                    msalEnabled = msalConfigOut.msalEnabled;
+                    jQuery.extend(msalConfig, msalConfigOut);
                 }
                 deferred.resolve();
             } else {
@@ -32,7 +29,7 @@ function setWaadConfig(hostname, waadEnabledIn, tenant, clientId) {
             }
         },
         "error": function (errorMsg) {
-            console.log("Failed to set waadConfig: " + errorMsg.error);
+            console.log("Failed to set msalConfig: " + errorMsg.error);
             deferred.reject(errorMsg.error);
         }
     });
@@ -40,40 +37,34 @@ function setWaadConfig(hostname, waadEnabledIn, tenant, clientId) {
     return deferred.promise();
 }
 
-function getWaadConfig(hostname) {
+function getMSALConfig(hostname) {
     var deferred = jQuery.Deferred();
 
-    if (waadEnabled) {
-        return deferred.resolve(waadConfig).promise();
+    if (msalEnabled) {
+        return deferred.resolve(msalConfig).promise();
     }
 
     $.ajax({
         "type": "POST",
         "contentType": "application/json",
-        "url": hostname + "/app/login/waadConfig/get",
+        "url": hostname + "/app/login/msalConfig/get",
         "success": function (data) {
             if (data.hasOwnProperty("error")) {
-                console.log("Failed to retrieve waadConfig: " + data.error);
+                console.log("Failed to retrieve msalConfig: " + data.error);
                 deferred.reject(data.error);
                 return;
             }
 
-            waadConfig = {
-                instance: 'https://login.microsoftonline.com/',
-                tenant: data.tenant,
-                clientId: data.clientId,
-                postLogoutRedirectUri: window.location.origin,
-                waadEnabled: data.waadEnabled,
-                cacheLocation: 'sessionStorage'
-            };
-            waadEnabled = data.waadEnabled;
-            if (waadEnabled) {
-                xcLocalStorage.setItem("waadConfig", JSON.stringify(waadConfig));
+            jQuery.extend(msalConfig, data);
+            msalEnabled = data.msalEnabled;
+
+            if (msalEnabled) {
+                xcLocalStorage.setItem("msalConfig", JSON.stringify(msalConfig));
             }
-            deferred.resolve(waadConfig);
+            deferred.resolve(msalConfig);
         },
         "error": function (errorMsg) {
-            console.log("Failed to retrieve waadConfig: " + errorMsg.error);
+            console.log("Failed to retrieve msalConfig: " + errorMsg.error);
             deferred.reject(errorMsg.error);
         }
     });
@@ -81,16 +72,16 @@ function getWaadConfig(hostname) {
     return deferred.promise();
 }
 
-function getWaadConfigFromLocalStorage() {
-    var localWaadConfig = xcLocalStorage.getItem("waadConfig");
-    if (localWaadConfig === null) {
+function getMsalConfigFromLocalStorage() {
+    var localMsalConfig = xcLocalStorage.getItem("msalConfig");
+    if (localMsalConfig === null) {
         return null;
     }
 
     try {
-        return JSON.parse(localWaadConfig);
+        return JSON.parse(localMsalConfig);
     } catch (error) {
-        console.log("Error parsing waadConfig: " + error);
+        console.log("Error parsing msalConfig: " + error);
         return null;
     }
 }

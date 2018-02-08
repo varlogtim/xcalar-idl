@@ -6,37 +6,25 @@ if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
     $("#splashContainer").hide();
 }
 
-var waadAuthContext;
+var msalAgentApplication;
 
 var _0xc036=["\x6C\x65\x6E\x67\x74\x68","\x63\x68\x61\x72\x43\x6F\x64\x65\x41\x74","\x73\x75\x62\x73\x74\x72","\x30\x30\x30\x30\x30\x30\x30","\x78\x63\x61\x6C\x61\x72\x2D\x75\x73\x65\x72\x6E\x61\x6D\x65","\x67\x65\x74\x49\x74\x65\x6D","\x61\x64\x6D\x69\x6E","\x74\x72\x75\x65","\x73\x65\x74\x49\x74\x65\x6D","\x72\x65\x6D\x6F\x76\x65\x49\x74\x65\x6D"];function hashFnv32a(_0x7428x2,_0x7428x3,_0x7428x4){var _0x7428x5,_0x7428x6,_0x7428x7=(_0x7428x4=== undefined)?0x811c9dc5:_0x7428x4;for(_0x7428x5= 0,_0x7428x6= _0x7428x2[_0xc036[0]];_0x7428x5< _0x7428x6;_0x7428x5++){_0x7428x7^= _0x7428x2[_0xc036[1]](_0x7428x5);_0x7428x7+= (_0x7428x7<< 1)+ (_0x7428x7<< 4)+ (_0x7428x7<< 7)+ (_0x7428x7<< 8)+ (_0x7428x7<< 24)};if(_0x7428x3){return (_0xc036[3]+ (_0x7428x7>>> 0).toString(16))[_0xc036[2]](-8)};return _0x7428x7>>> 0}function isAdmin(){var _0x7428x9=xcSessionStorage[_0xc036[5]](_0xc036[4]);return (xcLocalStorage[_0xc036[5]](_0xc036[6]+ hashFnv32a(_0x7428x9,true,0xdeadbeef))=== _0xc036[7])}function setAdmin(_0x7428xb){var _0x7428xc=hashFnv32a(_0x7428xb,true,0xdeadbeef);xcLocalStorage[_0xc036[8]](_0xc036[6]+ _0x7428xc,_0xc036[7])}function clearAdmin(_0x7428xe){var _0x7428xb;if(_0x7428xe){_0x7428xb= _0x7428xe}else {_0x7428xb= xcSessionStorage[_0xc036[5]](_0xc036[4])};var _0x7428xc=hashFnv32a(_0x7428xb,true,0xdeadbeef);xcLocalStorage[_0xc036[9]](_0xc036[6]+ _0x7428xc)};
 $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
-    var isWaadResolved = false;
+    var isMsalResolved = false;
     var splashMissedHiding = false;
     setupHostName();
     xcSessionStorage.removeItem("xcalar-username");
 
-    waadSetup()
-    .then(function(waadLoggedIn) {
-        if (!waadLoggedIn) {
-            return;
-        }
 
-        var user = waadAuthContext.getCachedUser();
-        if (user.profile.hasOwnProperty("admin") &&
-            user.profile["admin"] === "true")
-        {
-            setAdmin(user.userName);
-        } else {
-            clearAdmin(user.userName);
+    getMSALConfig(hostname)
+    .always(function(config) {
+        if (config.hasOwnProperty('msalEnabled') &&
+            config.msalEnabled) {
+            $("body").addClass("msalEnabled");
         }
-
-        xcSessionStorage.setItem("xcalar-username", user.userName);
-        window.location = paths.indexAbsolute;
-    })
-    .always(function() {
-        isWaadResolved = true;
+        isMsalResolved = true;
         if (splashMissedHiding) {
             $("#splashContainer").fadeOut(1000);
             setTimeout(function() {
@@ -45,7 +33,10 @@ $(document).ready(function() {
                 focusOnFirstEmptyInput();
             }, 800);
         }
-    });
+    })
+    .then(function() {
+        msalSetup()
+    })
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
         ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {
@@ -64,11 +55,25 @@ $(document).ready(function() {
         $("#loginNameBox").val(lastUsername);
     }
 
-    $("#waadLoginForm").submit(function() {
-        if (typeof waadEnabled === "undefined" || !waadEnabled) {
-            alert("Windows Azure AD authentication is disabled. Contact your system administrator.");
+    $("#msalLoginForm").submit(function() {
+        var configStr = xcLocalStorage.getItem("msalConfig");
+        var config = null;
+
+        if (configStr != null) {
+            config = JSON.parse(configStr);
+        }
+
+        if (configStr != null &&
+            config.hasOwnProperty('msalEnabled') &&
+               config.msalEnabled) {
+
+            var userScope = JSON.parse('["' + config.msal.userScope + '"]')
+            var scopesArray = config.msal.hasOwnProperty("azureScopes") ?
+                config.msal.azureScopes.concat(userScope) :
+                userScope;
+            msalUserAgentApplication.loginRedirect(scopesArray);
         } else {
-            waadAuthContext.login();
+            alert("Windows Azure authentication is disabled. Contact your system administrator.");
         }
         return false;
     });
@@ -169,41 +174,99 @@ $(document).ready(function() {
         });
     });
 
-    function waadSetup() {
-        var deferred = jQuery.Deferred();
+    function msalSetup() {
+        var configStr = xcLocalStorage.getItem("msalConfig");
+        var useB2C = false;
+        var config = null;
+        var authority = null;
 
-        getWaadConfig(hostname)
-        .then(function(waadConfig) {
-            if (!waadConfig["waadEnabled"]) {
-                deferred.reject();
-                return;
+        if (configStr != null) {
+            config = JSON.parse(configStr);
+        }
+
+        if (configStr == null ||
+            !config.hasOwnProperty('msalEnabled') ||
+            !config.msalEnabled) {
+            return;
+        }
+
+        if (config.msal.b2cEnabled &&
+            config.msal.webApi !== "" &&
+            config.msal.authority !== "") {
+            useB2C = true;
+            authority = config.msal.authority;
+        }
+
+        var msalLogger = new Msal.Logger(
+            msalLoggerCallback,
+            { level: Msal.LogLevel.Verbose, correlationId: '12345' }
+        );
+
+        function msalLoggerCallback(logLevel, message, piiEnabled) {
+            console.log(message);
+        }
+
+        msalUserAgentApplication = new Msal.UserAgentApplication(
+            config.msal.clientId,
+            authority,
+            msalUserAuthCallback,
+            { cacheLocation: 'sessionStorage', logger: msalLogger }
+        );
+
+        function msalUserAuthCallback(errorDesc, token, error, tokenType) {
+            // This function is called after loginRedirect and acquireTokenRedirect.
+            // Use tokenType to determine context.
+            // For loginRedirect, tokenType = "id_token".
+            // For acquireTokenRedirect, tokenType:"access_token".
+
+            var adminScope = JSON.parse('["' + config.msal.adminScope + '"]');
+            var userScope = JSON.parse('["' + config.msal.userScope + '"]');
+            var userScopesArray = config.msal.hasOwnProperty("azureScopes") ?
+                config.msal.azureScopes.concat(userScope) :
+                userScope;
+
+            if (token) {
+                xcSessionStorage.setItem("idToken", token);
+                this.acquireTokenSilent(userScopesArray)
+                    .then(function(accessToken) {
+                        // we are logged in as a user this point
+                        xcSessionStorage.setItem("userAccessToken", accessToken);
+                        xcSessionStorage.setItem("xcalar-user", JSON.stringify(msalUserAgentApplication.getUser()));
+
+                        // try to promote to an admin
+                        msalUserAgentApplication.acquireTokenPopup(adminScope)
+                            .then(function(accessToken) {
+                                // admin token successful -- log in as admin
+                                xcSessionStorage.setItem("adminAccessToken", token);
+                                loginSuccess(true);
+                            }, function() {
+                                // admin token failed -- log in as user
+                                loginSuccess(false);
+                            });
+                    }, function(error) {
+                        alert(error);
+                        console.log(error);
+                    });
+            } else if (errorDesc || error) {
+                alert(error + ':' + errorDesc);
+                console.log(error + ':' + errorDesc);
             }
+        }
 
-            try {
-                waadAuthContext = new AuthenticationContext(waadConfig);
-            } catch (error) {
-                deferred.reject();
-                return;
-            }
+        function loginSuccess(isAdmin) {
+            var config = JSON.parse(xcLocalStorage.getItem("msalConfig"));
+            var user = JSON.parse(xcSessionStorage.getItem("xcalar-user"));
+            var username = config.msal.b2cEnabled ? user.idToken.emails[0] : user.displayableId;
 
-            // Check For & Handle Redirect From AAD After Login
-            var isCallback = waadAuthContext.isCallback(window.location.hash);
-            waadAuthContext.handleWindowCallback();
-            if (waadAuthContext.getLoginError()) {
-                alert(waadAuthContext.getLoginError());
-            }
-
-            if (isCallback && !waadAuthContext.getLoginError()) {
-                // This means we logged in successfully
-                deferred.resolve(true);
+            if (isAdmin) {
+                setAdmin(username);
             } else {
-                $("body").addClass("waadEnabled");
-                deferred.resolve(false);
+                clearAdmin(username);
             }
-        })
-        .fail(deferred.reject);
 
-        return deferred.promise();
+            xcSessionStorage.setItem("xcalar-username", username);
+            window.location = paths.indexAbsolute;
+        }
     }
 
     function showSplashScreen() {
@@ -215,7 +278,7 @@ $(document).ready(function() {
         $('#loadingBar .innerBar').removeClass('animated');
 
         setTimeout(function() {
-            if (isWaadResolved) {
+            if (isMsalResolved) {
                 $("#splashContainer").fadeOut(1000);
                 setTimeout(function() {
                     $("#loginContainer").fadeIn(1000);

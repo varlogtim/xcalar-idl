@@ -1,7 +1,7 @@
 window.LoginConfigModal = (function($, LoginConfigModal) {
     var $modal;  // $("#loginConfigModal");
     var modalHelper;
-    var waadConfig;
+    var msalConfig;
     var defaultAdminConfig;
     var ldapConfig;
     var ldapChoice = "ldap";
@@ -15,24 +15,34 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         setupListeners();
 
         var signOnUrl = hostname + "/assets/htmlFiles/login.html";
-        $("#loginConfigWAADSignOnUrl").text(signOnUrl);
+        $("#loginConfigMSALSignOnUrl").text(signOnUrl);
     };
 
-    LoginConfigModal.show = function(waadConfigIn, defaultAdminConfigIn, ldapConfigIn) {
-        waadConfig = waadConfigIn;
+    LoginConfigModal.show = function(msalConfigIn, defaultAdminConfigIn, ldapConfigIn) {
+        msalConfig = msalConfigIn;
         defaultAdminConfig = defaultAdminConfigIn;
         ldapConfig = ldapConfigIn;
 
         modalHelper.setup();
 
-        if (waadConfig !== null) {
-            if (waadConfig.waadEnabled) {
-                $("#loginConfigEnableWAAD").find(".checkbox").addClass("checked");
-                $("#loginConfigEnableWAAD").next().removeClass("xc-hidden");
+        if (msalConfig !== null) {
+            if (msalConfig.msalEnabled) {
+                $("#loginConfigEnableMSAL").find(".checkbox").addClass("checked");
+                $("#loginConfigEnableMSAL").next().removeClass("xc-hidden");
             }
 
-            $("#loginConfigWAADTenant").val(waadConfig.tenant);
-            $("#loginConfigWAADClientId").val(waadConfig.clientId);
+            $("#loginConfigMSALClientId").val(msalConfig.msal.clientId);
+            $("#loginConfigMSALUserScope").val(msalConfig.msal.userScope);
+            $("#loginConfigMSALAdminScope").val(msalConfig.msal.adminScope);
+
+            $("#loginConfigMSALWebApi").val( msalConfig.msal.webApi );
+            $("#loginConfigMSALAuthority").val( msalConfig.msal.authority );
+            $("#loginConfigMSALAzureEndpoint").val( msalConfig.msal.azureEndpoint );
+            $("#loginConfigMSALAzureScopes").val( msalConfig.msal.azureScopes !== [] ?
+                                                msalConfig.msal.azureScopes.join(',') : "");
+            if (msalConfig.msal.b2cEnabled) {
+                 $("#loginConfigMSALEnableB2C").addClass("checked");
+            }
         }
 
         if (defaultAdminConfig !== null) {
@@ -95,6 +105,10 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         });
 
         $("#loginConfigLdapEnableTLS").click(function() {
+            $(this).toggleClass("checked");
+        });
+
+        $("#loginConfigMSALEnableB2C").click(function() {
             $(this).toggleClass("checked");
         });
 
@@ -167,24 +181,41 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         return deferred.promise();
     }
 
-    function submitWaadConfig() {
+    function submitMSALConfig() {
         var deferred = jQuery.Deferred();
-        var waadEnabled = $("#loginConfigEnableWAAD").find(".checkbox").hasClass("checked");
-        var tenant = $("#loginConfigWAADTenant").val();
-        var clientId = $("#loginConfigWAADClientId").val();
+        var msalEnabled = $("#loginConfigEnableMSAL").find(".checkbox").hasClass("checked");
+        var azureScopes = $("#loginConfigMSALAzureScopes").val();
+        var msal = {
+            clientId: $("#loginConfigMSALClientId").val(),
+            userScope: $("#loginConfigMSALUserScope").val(),
+            adminScope: $("#loginConfigMSALAdminScope").val(),
+            b2cEnabled: $("#loginConfigMSALEnableB2C").hasClass("checked") ? true : false,
+            webApi: $("#loginConfigMSALWebApi").val(),
+            authority: $("#loginConfigMSALAuthority").val(),
+            azureEndpoint: $("#loginConfigMSALAzureEndpoint").val(),
+            azureScopes: azureScopes === "" ?
+                [] : azureScopes.replace(/\s+/g, '').split(',')
+        };
 
-        if (waadConfig == null) {
-            if (waadEnabled) {
-                waadConfig = {};
+
+        if (msalConfig == null) {
+            if (msalEnabled) {
+                msalConfig = {};
             } else {
                 return deferred.resolve().promise();
             }
         }
 
-        if (waadConfig.waadEnabled !== waadEnabled ||
-            waadConfig.tenant !== tenant ||
-            waadConfig.clientId !== clientId) {
-            setWaadConfig(hostname, waadEnabled, tenant, clientId)
+        if (msalConfig.msalEnabled !== msalEnabled ||
+            msalConfig.msal.clientId !== msal.clientId ||
+            msalConfig.msal.webApi !== msal.webApi ||
+            msalConfig.msal.authority !== msal.authority ||
+            msalConfig.msal.azureEndpoint !== msal.azureEndpoint ||
+            msalConfig.msal.azureScopes !== msal.azureScopes ||
+            msalConfig.msal.userScope !== msal.userScope ||
+            msalConfig.msal.adminScope !== msal.adminScope ||
+            msalConfig.msal.b2cEnabled !== msal.b2cEnabled) {
+            setMSALConfig(hostname, msalEnabled, msal)
             .then(deferred.resolve)
             .fail(function(errorMsg) {
                 deferred.reject(errorMsg, true);
@@ -244,7 +275,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
 
     function submitForm() {
         submitDefaultAdminConfig()
-        .then(submitWaadConfig)
+        .then(submitMSALConfig)
         .then(submitLdapConfig)
         .then(function() {
             xcHelper.showSuccess(LoginConfigTStr.LoginConfigSavedSuccess);
@@ -265,7 +296,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     }
 
     function closeModal() {
-        waadConfig = null;
+        msalConfig = null;
         defaultAdminConfig = null;
         ldapConfig = null;
         modalHelper.clear();

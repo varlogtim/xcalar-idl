@@ -925,15 +925,15 @@ window.Admin = (function($, Admin) {
     }
 
     function showLoginConfig() {
-        var waadConfig = null;
+        var msalConfig = null;
         var defaultAdminConfig = null;
         var ldapConfig = null;
 
         $('#loginConfig').addClass('unavailable');
-        getWaadConfig(hostname)
+        getMSALConfig(hostname)
         .then(
-            function(waadConfigIn) {
-                waadConfig = waadConfigIn;
+            function(msalConfigIn) {
+                msalConfig = msalConfigIn;
                 return (getDefaultAdminConfig(hostname));
             },
 
@@ -956,7 +956,7 @@ window.Admin = (function($, Admin) {
         })
         .always(function() {
             $('#loginConfig').removeClass('unavailable');
-            LoginConfigModal.show(waadConfig, defaultAdminConfig, ldapConfig);
+            LoginConfigModal.show(msalConfig, defaultAdminConfig, ldapConfig);
         });
     }
 
