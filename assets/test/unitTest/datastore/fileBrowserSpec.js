@@ -124,15 +124,16 @@ describe("Dataset-File Browser Test", function() {
 
             // test sort by date
             res = sortFiles(testFiles, "date");
-            expect(res[0].name).to.equal("test1.csv");
-            expect(res[1].name).to.equal("test2.json");
-            expect(res[2].name).to.equal("test3");
+            expect(res[0].name).to.equal("test3");
+            expect(res[1].name).to.equal("test1.csv");
+            expect(res[2].name).to.equal("test2.json");
 
             // test sort by name
             res = sortFiles(testFiles, "name");
-            expect(res[0].name).to.equal("test1.csv");
-            expect(res[1].name).to.equal("test2.json");
-            expect(res[2].name).to.equal("test3");
+            expect(res[0].name).to.equal("test3");
+            expect(res[1].name).to.equal("test1.csv");
+            expect(res[2].name).to.equal("test2.json");
+
 
             // test sort by type
             res = sortFiles(testFiles, "type");

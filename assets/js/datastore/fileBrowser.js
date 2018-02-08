@@ -15,7 +15,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var fileBrowserId;
 
     /* Contants */
-    var defaultSortKey  = "type"; // default is sort by type;
+    var defaultSortKey  = "name"; // default is sort by name;
     var dsIconHeight = 77;
     var dsIconWidth = 70;
     var dsListHeight = 29;
@@ -836,6 +836,20 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
+    function addFileExtensionAttr(files) {
+        files.forEach(function(file) {
+            if (!file.attr.isDirectory) {
+                var index = file.name.lastIndexOf(".");
+                if (index === -1) {
+                    file.attr.extension = "";
+                } else {
+                    file.attr.extension = file.name.slice(index + 1)
+                                          .toUpperCase();
+                }
+            }
+        });
+    }
+
     function listFiles(path) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
@@ -857,6 +871,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 $selectedFileList.empty();
                 FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
+                addFileExtensionAttr(allFiles);
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
             } else {
@@ -1173,86 +1188,78 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function sortFiles(files, key) {
+        var folders = [];
+        var datasets = [];
+
+        files.forEach(function(file) {
+            // folders sort by name
+            if (file.attr.isDirectory) {
+                folders.push(file);
+            } else {
+                datasets.push(file);
+            }
+        });
+
         if (key === "size") {
-            var folders = [];
-            var datasets = [];
-
-            files.forEach(function(file) {
-                // folders sort by name
-                if (file.attr.isDirectory) {
-                    folders.push(file);
-                } else {
-                    datasets.push(file);
-                }
-            });
-
-            // XXX this compare only work for english name
-            // but fast enough
-            // if want accurate sort, than do it and then
-            // another localeCompare sort
             folders.sort(function(a, b) {
                 return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
             });
-            // folders.sort(function(a, b) {
-            //     return (a.name.localeCompare(b.name));
-            // });
 
             datasets.sort(function(a, b) {
                 return (a.attr.size - b.attr.size);
             });
-
-            files = folders.concat(datasets);
         } else if (key === "cdate") {
             if (!(files.length > 0 && files[0].attr && files[0].attr.ctime)) {
                 // If files have no ctime
                 return;
             }
             // sort by ctime
-            files.sort(function(a, b) {
+            folders.sort(function(a, b) {
                 return (a.attr.ctime - b.attr.ctime);
             });
+            datasets.sort(function(a, b) {
+                return (a.attr.ctime - b.attr.ctime);
+            });
+
         } else if (key === "mdate") {
             // sort by mtime
-            files.sort(function(a, b) {
+            folders.sort(function(a, b) {
                 return (a.attr.mtime - b.attr.mtime);
             });
-        } else {
-            // not sort by size, first sort by name
-
-            // XXX this compare only work for english name
-            // but fast enough
-            // if want accurate sort, than do it and then
-            // another localeCompare sort
-            files.sort(function(a, b) {
+            datasets.sort(function(a, b) {
+                return (a.attr.mtime - b.attr.mtime);
+            });
+            files = folders.concat(datasets);
+        } else if (key === "type") {
+            folders.sort(function(a, b) {
                 var aName = a.name.toLowerCase();
                 var bName = b.name.toLowerCase();
                 return (aName < bName ? -1 : (aName > bName ? 1 : 0));
             });
-            // files.sort(function(a, b) {
-            //     return (a.name.localeCompare(b.name));
-            // });
-            if (key === "type") {
-                // if it's sort by type, then need another sort
-                var dirFile        = [];
-                var fileWithoutExt = [];  // file with on extention
-                var fileWithExt    = [];   // file with extention
-
-                files.forEach(function(file) {
-                    if (file.attr.isDirectory === true) {
-                        dirFile.push(file);
-                    } else {
-                        if (name.indexOf(".") >= 0) {
-                            fileWithExt.push(file);
-                        } else {
-                            fileWithoutExt.push(file);
-                        }
-                    }
-                });
-
-                files = dirFile.concat(fileWithoutExt)
-                                .concat(fileWithExt);
-            }
+            datasets.sort(function(a, b) {
+                if (a.attr.extension === b.attr.extension) {
+                    var aName = a.name.toLowerCase();
+                    var bName = b.name.toLowerCase();
+                    return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+                } else {
+                    return a.attr.extension < b.attr.extension ? -1 : 1;
+                }
+            });
+        } else {
+            // default is sort by name
+            folders.sort(function(a, b) {
+                var aName = a.name.toLowerCase();
+                var bName = b.name.toLowerCase();
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+            });
+            datasets.sort(function(a, b) {
+                var aName = a.name.toLowerCase();
+                var bName = b.name.toLowerCase();
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+            });
         }
+
+        files = folders.concat(datasets);
 
         return files;
     }
