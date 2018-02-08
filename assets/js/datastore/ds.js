@@ -750,6 +750,7 @@ window.DS = (function ($, DS) {
             case "delete":
                 var dsIds = arg.dsIds || [];
                 dsIds.forEach(removeDS);
+                cleanFocusedDSIfNecessary();
             default:
                 console.error("Unspported action!");
                 return;
@@ -2272,21 +2273,21 @@ window.DS = (function ($, DS) {
             cleanFocusedDSIfNecessary();
             KVStore.commit();
         });
+    }
 
-        function cleanFocusedDSIfNecessary() {
-            var dsId = DSTable.getId();
-            if (dsId == null) {
-                return;
-            }
+    function cleanFocusedDSIfNecessary() {
+        var dsId = DSTable.getId();
+        if (dsId == null) {
+            return;
+        }
 
-            var dsObj = DS.getDSObj(dsId);
-            if (dsObj == null) {
-                // when this ds is not there after refresh
-                DSCart.removeCart(dsId);
-                // clear data table
-                $("#dsTableWrap").empty();
-                focusOnForm();
-            }
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            // when this ds is not there after refresh
+            DSCart.removeCart(dsId);
+            // clear data table
+            $("#dsTableWrap").empty();
+            focusOnForm();
         }
     }
 
