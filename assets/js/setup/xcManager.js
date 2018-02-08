@@ -1140,7 +1140,6 @@ window.xcManager = (function(xcManager, $) {
 
         $(window).blur(function() {
             xcMenu.close();
-            StatusBox.forceHide();
         });
 
         setupMouseWheel();

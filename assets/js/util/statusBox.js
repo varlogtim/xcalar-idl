@@ -123,10 +123,6 @@ window.StatusBox = (function($, StatusBox){
             $statusBox.css({top: top, left: left, right: 'auto'});
         }
 
-        if (options.closeable) {
-            $(window).blur(hideStatusBox);
-        }
-
         if (options.preventImmediateHide) {
             setTimeout(function() {
                 open = true;
@@ -144,16 +140,14 @@ window.StatusBox = (function($, StatusBox){
             $statusBox.addClass("persist");
         } else {
             $statusBox.removeClass("persist");
+            $(window).on("blur.statusBoxBlur", hideStatusBox);
         }
     };
 
     StatusBox.forceHide = function() {
         if (open) {
-            $doc.off('mousedown', hideStatusBox);
-            $doc.off('keydown', hideStatusBox);
             $targetInput.off('keydown', hideStatusBox).removeClass('error');
             clear();
-            open = false;
         }
     };
 
@@ -180,15 +174,12 @@ window.StatusBox = (function($, StatusBox){
                 !$(event.target).is(event.data.target) ||
                 notPersist() && event.type === "keydown")
             {
-                $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
                                  .removeClass(event.data.type);
                 clear();
             }
 
         } else if (id === "statusBoxClose" || notPersist()) {
-            $doc.off('mousedown', hideStatusBox);
-            $doc.off('keydown', hideStatusBox);
             clear();
         }
     }
@@ -199,6 +190,9 @@ window.StatusBox = (function($, StatusBox){
 
     function clear() {
         open = false;
+        $doc.off('mousedown', hideStatusBox);
+        $doc.off('keydown', hideStatusBox);
+        $(window).off("blur.statusBoxBlur");
         $statusBox.removeClass();
         $statusBox.find('.titleText').text('');
         $statusBox.find('.message').text('');

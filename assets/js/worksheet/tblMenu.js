@@ -624,7 +624,6 @@ window.TblMenu = (function(TblMenu, $) {
 
                 if (delim === "") {
                     StatusBox.show(ErrTStr.NoEmpty, $delimInput, null, {
-                        "closeable": true,
                         "side": "left",
                     });
                     return;
