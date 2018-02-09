@@ -536,6 +536,8 @@ window.xcSuggest = (function($, xcSuggest) {
             return DSFormat.JSON;
         } else if (isSpecialJSON(rawRows)) {
             return DSFormat.SpecialJSON;
+        } else if (isXML(rawRows)) {
+            return DSFormat.XML;
         } else {
             return DSFormat.CSV;
         }
@@ -575,6 +577,20 @@ window.xcSuggest = (function($, xcSuggest) {
         return isValid;
     }
 
+    function isXML(rawRows) {
+        // Simple detection, just take up to ten lines
+        var len = 10;
+        if (rawRows.length < 10) {
+            len = rawRows.length;
+        }
+        for (var i = 0; i < len; i++) {
+            if (rawRows[i].replace(/\s/g, "").startsWith("<?xml")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     xcSuggest.detectLineDelimiter = function(rawStr) {
         var crlfCount = coutCharOccurrence(rawStr, "\r\n");
         var lfCount = coutCharOccurrence(rawStr, "\n");
@@ -609,35 +625,58 @@ window.xcSuggest = (function($, xcSuggest) {
             var line = samples[i].replace(/[a-zA-Z\d ]/g, "");
             // Remove contents within quotes
             line = line.replace(/(".*?")|('.*?')/g, "");
-            if (line) {
-                // Ignore lines that have no potential delimiters, otherwise it
-                // will harm the accuracy when computing the variance.
-                // Also increase validLineCounter
-                validLineCounter += 1;
-                Object.keys(occurences).map(function(key) {
-                    // Append 0 to each array in the obj
-                    // Occurence is per row
-                    occurences[key].push(0);
-                });
-                for (var j = 0; j < line.length; j++) {
-                    var char = line[j];
-                    if (!occurences.hasOwnProperty(char)) {
-                        delimiters.push(char);
-                        // Fill all missing 0s based on validLineCounter
-                        occurences[char] = new Array(validLineCounter).fill(0);
-                    }
-                    occurences[char][validLineCounter - 1] += 1;
+            // Also increase validLineCounter
+            validLineCounter += 1;
+            Object.keys(occurences).map(function(key) {
+                // Append 0 to each array in the obj bc occurence is per row
+                occurences[key].push(0);
+            });
+            for (var j = 0; j < line.length; j++) {
+                var char = line[j];
+                if (!occurences.hasOwnProperty(char)) {
+                    delimiters.push(char);
+                    // Fill all missing 0s based on validLineCounter
+                    occurences[char] = new Array(validLineCounter).fill(0);
                 }
+                occurences[char][validLineCounter - 1] += 1;
             }
         }
         if (delimiters.length === 0) {
             return "";
         }
+        // Priority:
+        // 1. Ideally, a delimiter will have a score of 0, which means it occurs
+        // same times across header and rows.
+        //
+        // 2. If not, check edge cases:
+        //      1) It's in potential header but not in any other rows.
+        //         e.g.[2,0,0,0,0...]
+        //      2) It occurs same times across rows but it's not in header.
+        //         e.g.[0,2,2,2,2...]
+        // Both indicate it's very likely to have only one field, i.e. no delim
+        //
+        // 3. If not perfect case nor fell within edges, we choose the one with
+        // lowest score (likely to be the delimiter)
+
+        var edgeCase = false;
         var bestDelim = delimiters[0];
         var minScore = computeVariance(occurences[bestDelim]);
+        if (minScore === -1) {
+            // Fell in edge cases
+            edgeCase = true;
+            // Give it a big value so that we can continue with score comparison
+            minScore = Number.MAX_VALUE;
+        }
         for (var i = 1; i < delimiters.length; i++) {
             var currDelim = delimiters[i];
             var currScore = computeVariance(occurences[currDelim]);
+
+            if (currScore === -1) {
+                // Fell in edge cases
+                edgeCase = true;
+                continue;
+            }
+
             if (currScore < minScore) {
                 bestDelim = currDelim;
                 minScore = currScore;
@@ -652,6 +691,9 @@ window.xcSuggest = (function($, xcSuggest) {
                     minScore = currScore;
                 }
             }
+        }
+        if (minScore !== 0 && edgeCase) {
+            return "";
         }
         return bestDelim;
     };
@@ -668,7 +710,31 @@ window.xcSuggest = (function($, xcSuggest) {
         // e.g. header weighs a half, all other lines split the rest equally
         var headerWeight = 0.5;
         var otherWeight = 0.5 / (len - 1);
-        var sum = nums.reduce(function(a, b) { return a + b; });
+        var edgeCase1 = false;
+        var edgeCase2 = false;
+        if (nums[0] === 0) {
+            edgeCase1 = true;
+        } else {
+            edgeCase2 = true;
+        }
+        var sum = nums[0];
+        for (var i = 1; i < nums.length - 1; i++) {
+            if (edgeCase1 && nums[i] !== nums[i+1]) {
+                // Breaks edgeCase1
+                edgeCase1 = false;
+            }
+            if (edgeCase2 && (nums[i] !== 0 || nums[i+1] !==0)) {
+                // Breaks edgeCase2
+                edgeCase2 = false;
+            }
+            sum += nums[i];
+        }
+        sum += nums[nums.length - 1];
+
+        if (edgeCase1 || edgeCase2) {
+            return -1;
+        }
+
         var avg = sum / len;
         var res = 0;
         for (var i = 0; i < len; i++) {

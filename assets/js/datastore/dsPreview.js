@@ -3577,7 +3577,7 @@ window.DSPreview = (function($, DSPreview) {
     function detectFormat(data, lineDelim) {
         var path = loadArgs.getPreviewFile();
         var format = xcHelper.getFormat(path);
-        if (format === formatMap.EXCEL) {
+        if (format === formatMap.EXCEL || format === formatMap.XML) {
             return format;
         } else {
             var rows = lineSplitHelper(data, lineDelim, 0);
@@ -3591,6 +3591,8 @@ window.DSPreview = (function($, DSPreview) {
                 // so if already use udf, cannot be speical json
                 detectArgs.isSpecialJSON = true;
                 return formatMap.JSON;
+            } else if (detectRes === DSFormat.XML) {
+                return formatMap.XML;
             } else {
                 return formatMap.CSV;
             }
