@@ -332,6 +332,7 @@ module.exports = {
         "SAVEEXIT": "保存并退出",
         "Save": "保存",
         "Saving": "保存",
+        "Search": "Search",
         "SearchKeyWord": "搜索关键词",
         "SelectAll": "全选",
         "SelectedFiles": "已选中的文件/文件夹:",
@@ -485,7 +486,12 @@ module.exports = {
         "xPaths": "xPaths",
         "MatchedXPath": "匹配的XPath",
         "ElementXPath": "元素XPath",
-        "SelectFile": "Select a file to preview from the dropdown."
+        "SelectFile": "Select a file to preview from the dropdown.",
+        "PartitionsAdvanced": "Partitions (Advanced)",
+        "SelectedColumns": "Selected Columns",
+        "AvailableColumns": "Available Columns",
+        "RemoveAll": "Remove All",
+        "AddAll": "Add All"
     },
     "dsFormat": {
         "CSV": "分隔值(CSV, TSV...)",
@@ -494,6 +500,7 @@ module.exports = {
         "TEXT": "Text",
         "XML": "XML",
         "PLAINTEXT": "PLAIN TEXT",
+        "PARQUET": "Parquet Dataset",
         "UDF": "自定义格式"
     },
     "dsParser": {

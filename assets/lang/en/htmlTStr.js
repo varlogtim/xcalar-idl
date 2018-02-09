@@ -84,6 +84,7 @@ module.exports = {
         "SAVEEXIT": "SAVE & EXIT",
         "Save": "Save",
         "Saving": "Saving",
+        "Search": "Search",
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
         "SelectAll": "Select All",
@@ -675,7 +676,12 @@ module.exports = {
         "xPaths": "XPaths",
         "MatchedXPath": "Matched XPath",
         "ElementXPath": "Element XPath",
-        "SelectFile": "Select a file to preview from the dropdown."
+        "SelectFile": "Select a file to preview from the dropdown.",
+        "PartitionsAdvanced": "Partitions (Advanced)",
+        "SelectedColumns": "Selected Columns",
+        "AvailableColumns": "Available Columns",
+        "RemoveAll": "Remove All",
+        "AddAll": "Add All"
     },
 
     "fileBrowser": {
@@ -701,6 +707,7 @@ module.exports = {
         "TEXT": "Text",
         "XML": "XML",
         "PLAINTEXT": "PLAIN TEXT",
+        "PARQUET": "Parquet Dataset",
         "UDF": "User Defined Format"
     },
 

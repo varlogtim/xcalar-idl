@@ -1990,6 +1990,7 @@ table.datasetTable {
 }
 /* End Of File Browser */
 
+
 /* Data Form Preview */
 #dsForm-preview {
     .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
@@ -2006,6 +2007,30 @@ table.datasetTable {
             #importDataForm {
                 display: none;
             }
+        }
+    }
+
+    &.format-parquet {
+        #dsPreviewWrap {
+            display: none;
+        }
+        .cardBottom {
+            top: 0% !important;
+            height: 100% !important;
+        }
+        #dsForm-minimize, .ui-resizable-n {
+            cursor: not-allowed;
+        }
+        .advanceSection {
+            display: none;
+        }
+        #importDataForm-content {
+            .flex-display;
+            .flex-direction(column);
+        }
+        .buttonSection {
+            width: 100%;
+            border-top: 1px solid @color-border-white-five;
         }
     }
 
@@ -2709,6 +2734,162 @@ table.datasetTable {
         }
     }
 
+    .parquetSection {
+        .flex-display;
+        .flex-direction(column);
+        .flex(1 0 auto);
+
+        &.active {
+            .partitionList {
+                display: block;
+            }
+        }
+
+        .partitionAdvanced {
+            background-color: @color-bg-white-seven;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid @color-border-white-five;
+
+            .listInfo {
+                padding-bottom: 10px;
+                cursor: pointer;
+            }
+
+            .expand {
+                width: 17px;
+                display: inline-block;
+                float: left;
+            }
+        }
+
+        .partitionList {
+            display: none;
+            .row {
+                padding-left: 37px;
+
+                .inputWrap {
+                    width: ~"calc(100% - 145px)";
+                    margin-right: 5px;
+                }
+
+                input {
+                    background-color: @color-white;
+                    width: 100%;
+                }
+            }
+        }
+
+        .partitionColumns {
+            .flex(1 0 auto);
+            .flex-display;
+            min-height: 100px;
+        }
+
+        .columnHalf {
+            width: 50%;
+            padding: 15px;
+
+            &.selectedColSection {
+                border-right: 1px solid @color-border-white-five;
+            }
+
+            .mainLabel {
+                font-weight: 700;
+                padding-bottom: 10px;
+                height: 28px;
+            }
+            .columnSearch {
+                width: 100%;
+                margin-top:  10px;
+                margin-bottom: 15px;
+                float: none;
+                position: relative;
+
+                &.hasVal {
+                    .clear {
+                        display: block;
+                    }
+                }
+
+                .iconWrapper {
+                    float: left;
+                    .icon {
+                        .size(16px, 16px);
+                        font-size: 16px;
+                        opacity: 1;
+                    }
+                }
+
+                .clear {
+                    display: none;
+                    .size(26px, 100%);
+                    .position(absolute, @top: 0, @right: 0);
+                    line-height: 30px;
+                    text-align: center;
+                    .icon {
+                        font-size: 14px;
+                        color: @color-font-greyish-brown;
+                    }
+                }
+
+                .text {
+                    padding-right: 26px;
+                }
+            }
+
+            .bulkColSelector {
+                font-size: 11px;
+                padding: 5px 5px 5px 0px;
+                font-weight: 500;
+                cursor: pointer;
+                display: inline-block;
+
+                .icon {
+                    font-size: 11px;
+                    margin-left: 1px;
+                    margin-right: 4px;
+                }
+
+                &.removeAllCols {
+                    color: @color-error-border;
+                }
+                &.addAllCols {
+                    color: @color-bg-apple-green;
+                }
+            }
+
+            .colList {
+                font-size: 12px;
+                border: 1px solid @color-border-white-five;
+                border-bottom: none;
+
+                &.empty {
+                    border: none;
+                }
+
+                li {
+                    border-top: 1px solid @color-border-white-five;
+                    border-bottom: 1px solid @color-border-white-five;
+                    line-height: 30px;
+                    padding: 0px 5px;
+                    margin-top: -1px; // hides top border
+                    .textOverflowOneLine;
+
+                    &.filteredOut {
+                        display: none;
+                    }
+
+                    .icon {
+                        font-size: 8px;
+                        margin-right: 4px;
+                        .position(relative, @top: -1px);
+                    }
+                }
+            }
+        }
+    }
+
     .buttonSection {
         padding: 7px 15px;
         .size(@height: 50px);
@@ -2839,7 +3020,7 @@ table.datasetTable {
 
     .divider {
         margin-top: 10px;
-        .size(@width: 100%, @height: 1px);
+        .size(@width: 100%, @height: 1px, @min-height: 1px);
         background-color: @color-font-pinkish-grey2;
     }
 

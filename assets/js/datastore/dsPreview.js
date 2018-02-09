@@ -56,7 +56,8 @@ window.DSPreview = (function($, DSPreview) {
         "TEXT": "TEXT",
         "EXCEL": "Excel",
         "UDF": "UDF",
-        "XML": "XML"
+        "XML": "XML",
+        "PARQUET": "PARQUET"
     };
 
     DSPreview.setup = function() {
@@ -587,6 +588,10 @@ window.DSPreview = (function($, DSPreview) {
                 var format = $li.attr("name");
                 changeFormat(format);
             },
+            "onOpen": function() {
+                // XXX check if multiple files and enable/disable parquet option
+                //$("#fileFormatMenu").find('li[name="PARQUET"]');
+            },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
         }).setupListeners();
@@ -692,6 +697,7 @@ window.DSPreview = (function($, DSPreview) {
         setupUDFSection();
         setupXMLSection();
         setupAdvanceSection();
+        setupParquetSection();
     }
 
     function setupUDFSection() {
@@ -765,6 +771,75 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         xcHelper.optionButtonEvent($advanceSection);
+    }
+
+    function setupParquetSection() {
+        // XXX temporarily disabling
+        $("#fileFormatMenu").find('li[name="PARQUET"]').addClass("xc-hidden");
+
+        var $parquetSection = $form.find(".parquetSection");
+        $parquetSection.on("click", ".listWrap", function() {
+            $parquetSection.toggleClass("active");
+            $(this).toggleClass("active");
+        });
+
+        $parquetSection.on("click", ".columnSearch .iconWrapper", function() {
+            $(this).closest(".columnSearch").find("input").focus();
+        });
+
+        $parquetSection.on("input", ".columnSearch input", function() {
+            var $input = $(this);
+            var keyword = $input.val();
+            var keywordClean = keyword.trim();
+            var index = $(this).closest(".columnHalf").index();
+            searchColumn(keywordClean, index);
+            if (keyword.length) {
+                $input.closest(".columnSearch").addClass("hasVal");
+            } else {
+                $input.closest(".columnSearch").removeClass("hasVal");
+            }
+        });
+
+        $parquetSection.on("blur", ".columnSearch input", function() {
+            var $input = $(this);
+            var keyword = $input.val();
+            if (keyword.length) {
+                $input.closest(".columnSearch").addClass("hasVal");
+            } else {
+                $input.closest(".columnSearch").removeClass("hasVal");
+            }
+        });
+
+        $parquetSection.on("mousedown", ".columnSearch .clear", function(event) {
+            var $input = $(this).closest(".columnSearch").find("input");
+            if ($input.val() !== "") {
+                $input.val("").trigger("input").focus(); // triggers search
+                event.preventDefault(); // prevent input from blurring
+            }
+        });
+
+        function searchColumn(keyword, index) {
+            var $colList = $parquetSection.find(".colList").eq(index);
+            var $lis = $colList.find("li");
+            $lis.removeClass("filteredOut");
+            if (!keyword) {
+                if (!$lis.length) {
+                    $colList.addClass("empty");
+                } else {
+                    $colList.removeClass("empty");
+                }
+                return;
+            }
+            $lis.filter(function() {
+                return !$(this).text().includes(keyword);
+            }).addClass("filteredOut");
+
+            if ($lis.length === $lis.filter(".filteredOut").length) {
+                $colList.addClass("empty");
+            } else {
+                $colList.removeClass("empty");
+            }
+        }
     }
 
     function listUDFSection(listXdfsObj) {
@@ -936,6 +1011,7 @@ window.DSPreview = (function($, DSPreview) {
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
         $previewWrap.find(".url").removeClass("xc-disabled");
+        $previewCard.removeClass("format-parquet");
 
         var $advanceSection = $form.find(".advanceSection").removeClass("active");
         $advanceSection.find(".active").removeClass("active");
@@ -1675,6 +1751,16 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         $form.find(".format").addClass("xc-hidden");
+        if ($previewCard.hasClass("format-parquet")) {
+            $previewCard.removeClass("format-parquet");
+            // restore height of bottom card as parquet sets it to 100%
+            var top = $previewCard.data("prevtop");
+            $previewCard.find(".cardBottom").css("top", top);
+            top = parseFloat(top);
+            $previewCard.find(".cardMain").css("top", 100 - top);
+        }
+
+        xcTooltip.remove($previewCard.find(".ui-resizable-n"));
 
         if (format == null) {
             // reset case
@@ -1708,6 +1794,16 @@ window.DSPreview = (function($, DSPreview) {
                 $form.find(".format.excel").removeClass("xc-hidden");
                 break;
             case "JSON":
+                break;
+            case "PARQUET":
+                var prevTop = $previewCard.find(".cardBottom")[0].style.top;
+                // store previous top % for if we switch back to other format
+                $previewCard.data("prevtop", prevTop);
+                $form.find(".format.parquet").removeClass("xc-hidden");
+                $previewCard.addClass("format-parquet");
+                xcTooltip.add($previewCard.find(".ui-resizable-n"), {
+                    title: "Dataset preview is not available"
+                });
                 break;
             case "UDF":
                 $form.find(".format.udf").removeClass("xc-hidden");

@@ -149,6 +149,7 @@
                     <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
                     <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
                     <li name="XML"><%= dicts.dsFormat.XML %></li>
+                    <li name="PARQUET"><%= dicts.dsFormat.PARQUET %></li>
                     <li name="UDF"><%= dicts.dsFormat.UDF %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
@@ -412,6 +413,81 @@
             </div>
           </section>
           <!-- end of advance section -->
+          <section class="parquetSection format parquet">
+            <div class="partitionAdvanced">
+              <div class="listWrap xc-expand-list">
+                <div class="listInfo no-selection">
+                  <span class="expand">
+                    <i class="icon xi-arrow-down fa-10"></i>
+                  </span>
+                  <span class="text"><%= dicts.dsForm.PartitionsAdvanced %></span>
+                </div>
+              </div>
+              <div class="partitionList">
+                <div class="row">
+                  <label>yelping-since:</label>
+                  <div class="inputWrap">
+                    <input class="large" type="text">
+                  </div>
+                </div>
+                <div class="row">
+                  <label>elite-member:</label>
+                  <div class="inputWrap">
+                    <input class="large" type="text">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="partitionColumns">
+              <div class="columnHalf selectedColSection">
+                <div class="mainLabel"><%= dicts.common.Columns %>:</div>
+                <div class="label"><%= dicts.dsForm.SelectedColumns %></div>
+                <div class="dropDownList columnSearch">
+                  <div class="iconWrapper">
+                    <i class="icon xi-search"></i>
+                  </div>
+                  <input type="text" class="text xc-input inputable" spellcheck="false" placeholder="<%= dicts.common.Search %>">
+                  <div class="clear">
+                    <i class="icon xi-close xc-action"></i>
+                  </div>
+                </div>
+                <div class="removeAllCols bulkColSelector">
+                  <i class="icon xi-close"></i>
+                  <%= dicts.dsForm.RemoveAll %>
+                </div>
+                <ul class="colList">
+                  <li><i class="icon xi-minus"></i>wat</li>
+                  <li><i class="icon xi-minus"></i>lytyjrt</li>
+                  <li><i class="icon xi-minus"></i>wet</li>
+                  <li><i class="icon xi-minus"></i>yujnrs</li>
+                  <li><i class="icon xi-minus"></i>nrtg</li>
+                  <li><i class="icon xi-minus"></i>nrstrhe wertwerf</li>
+                </ul>
+              </div>
+               <div class="columnHalf availableColSection">
+                <div class="mainLabel"></div>
+                <div class="label"><%= dicts.dsForm.AvailableColumns %></div>
+                <div class="dropDownList columnSearch">
+                  <div class="iconWrapper">
+                    <i class="icon xi-search"></i>
+                  </div>
+                  <input type="text" class="text xc-input inputable" spellcheck="false" placeholder="<%= dicts.common.Search %>">
+                  <div class="clear">
+                    <i class="icon xi-close xc-action"></i>
+                  </div>
+                </div>
+                <div class="addAllCols bulkColSelector">
+                  <i class="icon xi-close"></i>
+                  <%= dicts.dsForm.AddAll %>
+                </div>
+                <ul class="colList">
+                  <li><i class="icon xi-plus"></i> elite-member</li>
+                  <li><i class="icon xi-plus"></i> elite-member</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
         </div>
         <!-- buttons -->
         <div class="buttonSection">
