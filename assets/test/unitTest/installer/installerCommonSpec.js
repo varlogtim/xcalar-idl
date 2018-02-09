@@ -1020,7 +1020,7 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate LDAP should work - empty arguemnts", function(done) {
+    it("Validate Login Configuration should work - empty arguemnts", function(done) {
         var $form = $("#ldapForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -1029,7 +1029,7 @@ describe("InstallerCommon Common Test", function() {
         $params.find("input").each(function(idx, val) {
             $(val).val("");
         });
-        InstallerCommon.validateLdap($form)
+        InstallerCommon.setupLoginConfiguration($form)
         .always(function(data1, data2) {
             expect(data1).to.equal("Blank arguments");
             expect(data2).to.equal("Please populate all fields");
@@ -1040,7 +1040,7 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate LDAP should work - different password", function(done) {
+    it("Validate Login Configuration should work - different password", function(done) {
         var $form = $("#ldapForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -1055,7 +1055,7 @@ describe("InstallerCommon Common Test", function() {
         $params.find("input").eq(1).val("AA");
         $params.find("input").eq(2).val("BB");
         $params.find("input").eq(3).val("p3");
-        InstallerCommon.validateLdap($form)
+        InstallerCommon.setupLoginConfiguration($form)
         .always(function(data1, data2) {
             expect(data1).to.equal("Passwords different");
             expect(data2).to.equal("Passwords must be the same");
@@ -1066,7 +1066,7 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate LDAP should work - xcalar Install", function(done) {
+    it("Validate Login Configuration should work - xcalar Install", function(done) {
         var $form = $("#ldapForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -1081,12 +1081,24 @@ describe("InstallerCommon Common Test", function() {
         $params.find("input").eq(1).val("AA");
         $params.find("input").eq(2).val("AA");
         $params.find("input").eq(3).val("p3");
-        InstallerCommon.validateLdap($form)
-        .always(function(data) {
-            expect(data.ldap.xcalarInstall).to.equal(true);
-            expect(data.ldap.domainName).to.equal("p0");
-            expect(data.ldap.password).to.equal("AA");
-            expect(data.ldap.companyName).to.equal("p3");
+        if (!$form.find(".createDefaultAdmin.checkbox").hasClass("checked")) {
+            $form.find(".createDefaultAdmin.checkbox").click();
+        }
+        $("#defaultAdminUsername").val("admin");
+        $("#defaultAdminEmail").val("admin@gmail.com");
+        $("#defaultAdminPassword").val("1234");
+        $("#defaultAdminPasswordConfirm").val("1234");
+
+        InstallerCommon.setupLoginConfiguration($form)
+        .always(function() {
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.deployOption).to.equal("xcalarLdap");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.domainName).to.equal("p0");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.password).to.equal("AA");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.companyName).to.equal("p3");
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.defaultAdminEnabled).to.equal(true);
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.username).to.equal("admin");
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.email).to.equal("admin@gmail.com");
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.password).to.equal("1234");
             $params.find("input").each(function(idx, val) {
                 $(val).val("");
             });
@@ -1094,7 +1106,7 @@ describe("InstallerCommon Common Test", function() {
         });
     });
 
-    it("Validate LDAP should work - customer Install", function(done) {
+    it("Validate Login Configuration should work - customer Install", function(done) {
         var $form = $("#ldapForm");
         $forms.addClass("hidden");
         $form.removeClass("hidden");
@@ -1109,20 +1121,98 @@ describe("InstallerCommon Common Test", function() {
         $params.find("input").eq(1).val("AA");
         $params.find("input").eq(2).val("AA");
         $params.find("input").eq(3).val("p3");
-        
+
         $form.find("#ADChoice .radioButton[data-option=true]").click();
-        InstallerCommon.validateLdap($form)
-        .always(function(data) {
-            expect(data.ldap.xcalarInstall).to.equal(false);
-            expect(data.ldap.ldap_uri).to.equal("p0");
-            expect(data.ldap.userDN).to.equal("AA");
-            expect(data.ldap.searchFilter).to.equal("AA");
-            expect(data.ldap.serverKeyFile).to.equal("p3");
-            expect(data.ldap.activeDir).to.equal(true);
-            expect(data.ldap.useTLS).to.equal(false);
+        if ($form.find(".createDefaultAdmin.checkbox").hasClass("checked")) {
+            $form.find(".createDefaultAdmin.checkbox").click();
+        }
+        InstallerCommon.setupLoginConfiguration($form)
+        .always(function() {
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.deployOption).to.equal("customerLdap");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.ldap_uri).to.equal("p0");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.userDN).to.equal("AA");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.searchFilter).to.equal("AA");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.serverKeyFile).to.equal("p3");
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.activeDir).to.equal(true);
+            expect(InstallerCommon.__testOnly__.finalStruct.ldap.useTLS).to.equal(false);
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.defaultAdminEnabled).to.equal(false);
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.username).to.equal(undefined);
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.email).to.equal(undefined);
+            expect(InstallerCommon.__testOnly__.finalStruct.defaultAdminConfig.password).to.equal(undefined);
             $params.find("input").each(function(idx, val) {
                 $(val).val("");
             });
+            done();
+        });
+    });
+
+    it("Validate Login Configuration should work - configure ldap later without default admin", function(done) {
+        var $form = $("#ldapForm");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+        $params = $form.find(".ldapParams:not(.hidden)");
+        $params.find("input").each(function(idx, val) {
+            $(val).val("");
+        });
+
+        $forms.find(".radioButton[data-option=configLdapLater]").click();
+        if ($form.find(".createDefaultAdmin.checkbox").hasClass("checked")) {
+            $form.find(".createDefaultAdmin.checkbox").click();
+        }
+        InstallerCommon.setupLoginConfiguration($form)
+        .always(function(data1, data2) {
+            expect(data1).to.equal("Blank Login Configurations");
+            expect(data2).to.equal("Please either setup LDAP or enable default admin account");
+            done();
+        });
+    });
+
+    it("Validate Login Configuration should work - configure ldap later with default admin", function(done) {
+        var $form = $("#ldapForm");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+        $params = $form.find(".ldapParams:not(.hidden)");
+        $params.find("input").each(function(idx, val) {
+            $(val).val("");
+        });
+
+        $forms.find(".radioButton[data-option=configLdapLater]").click();
+        if (!$form.find(".createDefaultAdmin.checkbox").hasClass("checked")) {
+            $form.find(".createDefaultAdmin.checkbox").click();
+        }
+        $("#defaultAdminUsername").val("");
+        $("#defaultAdminPassword").val("");
+        $("#passwordStrength").val("");
+        $("#defaultAdminPasswordConfirm").val("");
+        InstallerCommon.setupLoginConfiguration($form)
+        .always(function(data1, data2) {
+            expect(data1).to.equal("Blank arguments");
+            expect(data2).to.equal("Please populate all fields");
+            done();
+        });
+    });
+
+    it("Validate Login Configuration should work - configure ldap later with default admin", function(done) {
+        var $form = $("#ldapForm");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+        $params = $form.find(".ldapParams:not(.hidden)");
+        $params.find("input").each(function(idx, val) {
+            $(val).val("");
+        });
+
+        $forms.find(".radioButton[data-option=configLdapLater]").click();
+        if (!$form.find(".createDefaultAdmin.checkbox").hasClass("checked")) {
+            $form.find(".createDefaultAdmin.checkbox").click();
+        }
+        $("#defaultAdminUsername").val("");
+        $("#defaultAdminPassword").val("");
+        $("#passwordStrength").val("");
+        $("#defaultAdminPasswordConfirm").val("");
+        InstallerCommon.setupLoginConfiguration($form)
+        .always(function(data1, data2) {
+            expect(data1).to.equal("Blank arguments");
+            expect(data2).to.equal("Please populate all fields");
             done();
         });
     });

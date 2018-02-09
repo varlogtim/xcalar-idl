@@ -637,7 +637,7 @@ input:-webkit-autofill:focus {
             margin-top: 20px;
             display: none;
         }
-        &.ldapSection {
+        &.ldapSection, &.defaultAdminSection {
             overflow: visible;
             .flex-direction(column);
             #ldapDep {
@@ -680,6 +680,62 @@ input:-webkit-autofill:focus {
                 &.checkboxLine {
                     padding-left: 30px;
                     margin-top: -30px;
+                }
+            }
+            .defaultAdminParams {
+                position: relative;
+                .fieldWrap {
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+                .defaultAdminParam {
+                    width: 50%;
+                    .input {
+                        width: auto;
+                        &.user {
+                            margin-left: 130px;
+                        }
+                        &.email {
+                            margin-left: 53px;
+                        }
+                        &.password {
+                            margin-left: 85px;
+                        }
+                        &.confirmPassword {
+                            margin-left: 145px;
+                        }
+                    }
+                }
+                .passwordStrength {
+                    margin-top: 15px;
+                    padding-left: 2.5%;
+                    width: 100%;
+                    .xi-info-circle {
+                        display: none;
+                    }
+                    span {
+                        padding-left: 5px;
+                    }
+                    &.invalid {
+                        color: @color-invalid;
+                    }
+                    &.veryWeak {
+                        color: @color-very-weak;
+                    }
+                    &.weak {
+                        color: @color-weak;
+                    }
+                    &.strong {
+                        color: @color-strong;
+                    }
+                    &.veryStrong {
+                        color: @color-very-strong;
+                    }
+                    &.invalid, &.veryWeak, &.weak, &.strong, &.veryStrong {
+                        .xi-info-circle {
+                            display: inline-block !important;
+                        }
+                    }
                 }
             }
         }

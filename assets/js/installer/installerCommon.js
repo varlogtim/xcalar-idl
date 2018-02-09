@@ -25,7 +25,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             "installationDirectory":"/opt/xcalar/",
             "serializationDirectory":"/SD",
             "ldap":{
-                "xcalarInstall": true,
+                "deployOption" : "xcalarLdap" | "customerLdap" | "configLdapLater"
                 "domainName":"a",         // only when xcalarInstall is true
                 "password":"b",           // only when xcalarInstall is true
                 "companyName":"d",        // only when xcalarInstall is true
@@ -40,6 +40,12 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "adAdminGroup: "m",       // only when xcalarInstall is false and activeDir is true
                 "adDomain": "n",          // only when xcalarInstall is false and activeDir is true
                 "adSubGroupTree": "o"     // only when xcalarInstall is false and activeDir is true
+            },
+            "defaultAdminConfig": {
+                "defaultAdminEnabled": true/false  // whether to set the default admin
+                "username": "a"
+                "email": "b"
+                "password": "c"
             },
             "supportBundles":false
         }
@@ -63,8 +69,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                            }
         }
      */
-
-    var finalStruct = {
+    var finalStructPrototype = {
         "preConfig": false,
         "nfsOption": {},
         "hostnames": [],
@@ -75,8 +80,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         "installationDirectory": null,
         "serializationDirectory": null,
         "ldap": {},
+        "defaultAdminConfig": {},
         "supportBundles": false
-    };
+    }
+    var finalStruct = Object.assign({}, finalStructPrototype);
     var installStatus = {
         "Error": -1,
         "Running": 1,
@@ -87,6 +94,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     var discoverApi = "/xdp/discover";
     var cancel = false;
     var done = false;
+    var strengthClasses = "veryWeak weak strong veryStrong invalid";
 
     InstallerCommon.setupForms = function($forms, validateStep, formClass) {
         $forms.find(".buttonSection").on("click", "input.next", function() {
@@ -146,6 +154,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             var $checkbox = $(this).closest(".checkboxLine").find(".checkbox");
             $checkbox.click();
             return false;
+        });
+
+        $forms.find("#defaultAdminPassword").on("keyup", function() {
+            calculatePasswordStrength($(this));
         });
 
         ErrorMessage.setup();
@@ -440,100 +452,34 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         }
     };
 
-    InstallerCommon.validateLdap = function($form) {
-        var deferred = jQuery.Deferred();
-        var res = {};
-        res.ldap = {};
+    InstallerCommon.setupLoginConfiguration = function($form) {
+        finalStruct.ldap = {};
+        finalStruct.defaultAdminConfig = {};
+        var funcs = [
+            InstallerCommon.validateLdap,
+            InstallerCommon.validateDefaultAdminUser
+        ];
+        return callSyncFunctions($form, funcs);
+    }
 
-        var $params = $form.find(".ldapParams:visible");
-        // Check that all fields are populated
-        var allPopulated = true;
-
-        // $params.find("input").each(function(idx, val) {
-        //     if ($.trim($(val).val()).length === 0) {
-        //         allPopulated = false;
-        //     }
-        // });
-
-        for (i = 0; i < 4; i += 1) {
-            if ($.trim($params.find("input").eq(i).val()).length === 0) {
-                allPopulated = false;
-            }
-        }
-
-        if (!allPopulated) {
-            return deferred.reject("Blank arguments",
-                                   "Please populate all fields").promise();
-        }
-
-        if ($params.hasClass("xcalarLdapOptions")) {
-            // Xcalar LDAP
-            // Check that passwords are the same
-            if ($params.find("input").eq(1).val() !==
-                $params.find("input").eq(2).val()) {
-                deferred.reject("Passwords different",
-                                       "Passwords must be the same");
-            } else {
-                res.ldap = {
-                    "xcalarInstall": true,
-                    "domainName": getVal($params.find("input").eq(0)),
-                    "password": getVal($params.find("input").eq(1)),
-                    "companyName": getVal($params.find("input").eq(3)),
-                };
-                deferred.resolve(res);
-            }
-        } else {
-            // Customer LDAP
-            // Check that all the radio buttons are selected
-            if (!$form.find("#ADChoice .active").length) {
-                deferred.reject("AD or OpenLDAP",
-                                      "Please select AD or OpenLDAP").promise();
-            } else {
-                res.ldap = {
-                    "xcalarInstall": false,
-                    "ldap_uri": getVal($params.find("input").eq(0)),
-                    "userDN": getVal($params.find("input").eq(1)),
-                    "searchFilter": getVal($params.find("input").eq(2)),
-                    "serverKeyFile": getVal($params.find("input").eq(3)),
-                    "activeDir": $form.find("#ADChoice .radioButton.active")
-                                       .data("option"),
-                    "useTLS": $form.find(".checkbox.TLSChoice")
-                        .hasClass("checked"),
-                    "ldapConfigEnabled": true
-                };
-                if (res.ldap.activeDir) {
-                    res.ldap.adUserGroup = getVal($params.find("input").eq(4));
-                    res.ldap.adAdminGroup = getVal($params.find("input").eq(5));
-                    res.ldap.adDomain = getVal($params.find("input").eq(6));
-                    res.ldap.adSubGroupTree = $form.find(".checkbox.adSubGroupTree")
-                        .hasClass("checked");
-
-                    var propArray = [ 'adUserGroup', 'adAdminGroup',
-                                      'adDomain', 'adSubGroupTree' ];
-                    for (var ii = 0; ii < propArray.length; ii++) {
-                        if (res.ldap[propArray[ii]].length === 0) {
-                            delete res.ldap[propArray[ii]];
-                        }
-                    }
-                }
-                deferred.resolve(res);
-            }
-        }
-        return deferred.promise();
-    };
-
-    InstallerCommon.validateSettings = function($form) {
+    function callSyncFunctions($form, funcs, inputArgs) {
         var deferred = jQuery.Deferred();
         var result = {};
         var res = null;
         var hasError = false;
         var errorArg = null;
-        hasError = hasError
-                   || checkError(InstallerCommon.validateHosts($form))
-                   || checkError(InstallerCommon.validateInstallationDirectory($form))
-                   || checkError(InstallerCommon.validateSerializationDirectory($form))
-                   || checkError(InstallerCommon.validateSupportBundles($form))
-                   || checkError(InstallerCommon.validateCredentials($form));
+        for (var i in funcs) {
+            var func = funcs[i];
+            if (hasError) {
+                break;
+            } else {
+                if (inputArgs && inputArgs[i]) {
+                    hasError = hasError || checkError(func($form, inputArgs[i]));
+                } else {
+                    hasError = hasError || checkError(func($form));
+                }
+            }
+        };
         if (hasError){
             deferred.reject(errorArg[0], errorArg[1]);
         } else {
@@ -551,6 +497,209 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 return false;
             }
         }
+    }
+
+    InstallerCommon.validateLdap = function($form) {
+        var res = {};
+        res.ldap = {};
+
+        var ldapType = $form.find(".radioButtonGroup .radioButton.ldapType.active")
+                       .data("option");
+        switch (ldapType) {
+            case ("xcalarLdap"):
+                return handleXcalarDeployLdap();
+            case ("customerLdap"):
+                return handleCustomerLdap();
+            case ("configLdapLater"):
+                return handleConfigLdapLater();
+            default:
+                return {
+                    "error":[
+                        "Illegal LDAP Option",
+                        "Not a legal ldap option"
+                    ]
+                };
+        }
+
+        function handleConfigLdapLater() {
+            res.ldap.deployOption = "configLdapLater";
+            return res;
+        }
+
+        function handleXcalarDeployLdap() {
+            var $params = $form.find(".ldapParams.xcalarLdapOptions input");
+            if (!checkPopulated($params)) {
+                return {
+                    "error":[
+                        "Blank arguments",
+                        "Please populate all fields"
+                    ]
+                };
+            }
+
+            if ($params.eq(1).val() !==
+                $params.eq(2).val()) {
+                return {
+                    "error":[
+                        "Passwords different",
+                        "Passwords must be the same"
+                    ]
+                };
+            }
+            res.ldap = {
+                "deployOption": "xcalarLdap",
+                "domainName": getVal($params.eq(0)),
+                "password": getVal($params.eq(1)),
+                "companyName": getVal($params.eq(3)),
+            };
+            return res;
+        }
+
+        function handleCustomerLdap() {
+            var $params = $form.find(".ldapParams.customerLdapOptions input");
+            if (!$form.find("#ADChoice .active").length) {
+                return {
+                    "error":[
+                        "AD or OpenLDAP",
+                        "Please select AD or OpenLDAP"
+                    ]
+                };
+            }
+            if (!checkPopulated($params.find(":not(.ADOnly)"))) {
+                return {
+                    "error":[
+                        "Blank arguments",
+                        "Please populate all fields"
+                    ]
+                };
+            }
+            res.ldap = {
+                "deployOption": "customerLdap",
+                "ldap_uri": getVal($params.eq(0)),
+                "userDN": getVal($params.eq(1)),
+                "searchFilter": getVal($params.eq(2)),
+                "serverKeyFile": getVal($params.eq(3)),
+                "activeDir": $form.find("#ADChoice .radioButton.active")
+                                   .data("option"),
+                "useTLS": $form.find(".checkbox.TLSChoice")
+                    .hasClass("checked"),
+                "ldapConfigEnabled": true
+            };
+            if (res.ldap.activeDir) {
+                res.ldap.adUserGroup = getVal($params.eq(4));
+                res.ldap.adAdminGroup = getVal($params.eq(5));
+                res.ldap.adDomain = getVal($params.eq(6));
+                res.ldap.adSubGroupTree = $form.find(".checkbox.adSubGroupTree")
+                    .hasClass("checked");
+
+                var propArray = [ 'adUserGroup', 'adAdminGroup',
+                                  'adDomain', 'adSubGroupTree' ];
+                for (var ii = 0; ii < propArray.length; ii++) {
+                    if (res.ldap[propArray[ii]].length === 0) {
+                        delete res.ldap[propArray[ii]];
+                    }
+                }
+            }
+            return res;
+        }
+
+        function checkPopulated($inputs) {
+            // Check that all fields are populated
+            var allPopulated = true;
+            for (i = 0; i < $inputs.length; i += 1) {
+                if ($.trim($inputs.eq(i).val()).length === 0) {
+                    allPopulated = false;
+                }
+            }
+            return allPopulated;
+        }
+    };
+
+    InstallerCommon.validateDefaultAdminUser = function($form) {
+        var res = {};
+        res.defaultAdminConfig = {};
+        res.defaultAdminConfig.defaultAdminEnabled = false;
+
+        if ($form.find(".createDefaultAdmin").hasClass("checked")) {
+            var userName = $("#defaultAdminUsername").val();
+            var email = $("#defaultAdminEmail").val();
+            var password = $("#defaultAdminPassword").val();
+            var passwordConfirm = $("#defaultAdminPasswordConfirm").val();
+
+            if (userName.length === 0 || email.length === 0 ||
+                password.length === 0 || passwordConfirm.length === 0) {
+                return {
+                    "error": [
+                        "Blank arguments",
+                        "Please populate all fields"
+                    ]
+                };
+            }
+            if (password !== passwordConfirm) {
+                return {
+                    "error": [
+                        "Passwords different",
+                        "Passwords must be the same"
+                    ]
+                };
+            }
+            var passwordStrength = getPasswordStrength(password, userName);
+            if (passwordStrength.strength === "invalid") {
+                return {
+                    "error":[
+                        LoginConfigTStr.invalid,
+                        "The password is invalid, try another password"
+                    ]
+                };
+            } else {
+                res.defaultAdminConfig.defaultAdminEnabled = true;
+                res.defaultAdminConfig.username = userName;
+                res.defaultAdminConfig.email = email;
+                res.defaultAdminConfig.password = password;
+                return res;
+            }
+        } else {
+            if ($form.find(".radioButton[data-option='configLdapLater']").hasClass("active")) {
+                return {
+                    "error": [
+                        "Blank Login Configurations",
+                        "Please either setup LDAP or enable default admin account"
+                    ]
+                };
+            }
+            return res;
+        }
+    };
+
+    function calculatePasswordStrength() {
+        var userName = $("#defaultAdminUsername").val();
+        var password = $("#defaultAdminPassword").val();
+        if (password === "") {
+            $("#passwordStrength").removeClass(strengthClasses);
+            $("#passwordStrength .strength").html("");
+            return;
+        }
+        var res = getPasswordStrength(password, userName);
+        var classToShow = res.strength;
+        var hintToShow = (res.strength === "invalid") ?
+                    (LoginConfigTStr.invalid + ":" + res.hint) : (res.hint);
+        if (!$("#passwordStrength").hasClass(classToShow)) {
+            $("#passwordStrength").removeClass(strengthClasses).addClass(classToShow);
+        }
+        if ($("#passwordStrength .strength").html() !== hintToShow) {
+            $("#passwordStrength .strength").html(hintToShow);
+        }
+    }
+
+    InstallerCommon.validateSettings = function($form) {
+        var funcs = [
+            InstallerCommon.validateHosts,
+            InstallerCommon.validateInstallationDirectory,
+            InstallerCommon.validateSerializationDirectory,
+            InstallerCommon.validateSupportBundles,
+            InstallerCommon.validateCredentials
+        ];
+        return callSyncFunctions($form, funcs);
     };
 
     function findStepId($form, $forms) {
@@ -666,6 +815,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if ($form.find("#numServers").length > 0) {
                 clearNumberServer($form);
             }
+            if ($form.find("#passwordStrength").length > 0) {
+                $("#passwordStrength").removeClass(strengthClasses);
+                $("#passwordStrength .strength").html("");
+            }
         }
         hideFailure($form);
         function clearNumberServer($form) {
@@ -770,6 +923,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                               .removeClass("uninstall")
                               .addClass(radioOption);
                 clearAllForms();
+                resetFinalStruct();
                 break;
             case ("preConfigChoice"):
             case ("preConfigUpgradeChoice"):
@@ -839,6 +993,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                         $form.find(".xcalarLdapOptions").removeClass("hidden");
                         $form.find(".customerLdapOptions").addClass("hidden");
                         break;
+                    case ("configLdapLater"):
+                        $form.find(".xcalarLdapOptions").addClass("hidden");
+                        $form.find(".customerLdapOptions").addClass("hidden");
+                        break;
                     default:
                         console.error("Unexpected option!");
                         break;
@@ -891,23 +1049,17 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         $form.find("input.back").addClass("inactive").hide();
         $form.find(".section:not(.buttonSection) input").prop("disabled", true);
         $form.find(".radioButtonGroup").addClass("unclickable");
-        var hasError = false;
-        var result = {};
-        var errorArg = null;
 
         function validateForm() {
-            var innerDeferred = jQuery.Deferred();
-            hasError = hasError || checkError(InstallerCommon.validateHosts($form, true))
-                       || checkError(InstallerCommon.validateInstallationDirectory($form))
-                       || checkError(InstallerCommon.validateCredentials($form));
-            if (hasError) {
-                innerDeferred.reject(errorArg[0] + ": " + errorArg[1]);
-            } else {
-                jQuery.extend(finalStruct, result);
-                innerDeferred.resolve();
-            }
-            return innerDeferred.promise();
+            var funcs = [
+                InstallerCommon.validateHosts,
+                InstallerCommon.validateInstallationDirectory,
+                InstallerCommon.validateCredentials
+            ];
+            var inputArgs = [true];
+            return callSyncFunctions($form, funcs, inputArgs);
         }
+
         validateForm()
         .then(function() {
             return InstallerCommon.sendViaHttps("POST", discoverApi, JSON.stringify(finalStruct));
@@ -927,7 +1079,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         })
         .fail(function(arg1, arg2) {
             InstallerCommon.showErrorModal(arg2);
-            deferred.reject("Failed to discover", arg1);
+            deferred.reject("Failed to discover", arg1 + ": " + arg2);
         })
         .always(function() {
             $form.find("input.next").val(prevString).removeClass("inactive");
@@ -1116,6 +1268,189 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             deferred.reject("Ajax Error");
         }
         return deferred.promise();
+    }
+
+    function resetFinalStruct() {
+        jQuery.extend(finalStruct, finalStructPrototype);
+    }
+
+    function getPasswordStrength(password, userName) {
+        // MIN Solutions space: (26 * 2 + 10 + 31) ^ 7 = 93 ^ 7 = 6.017e+13
+        // Single high-performance computer may attack 2 million keys per second
+        // Time taken = 6.017e+13 / 2,000,000,000 = 30085 seconds
+        // Do not consider minLength and maxLength currently
+        // var minLength = 7;
+        // var maxLength = 128;
+        var upperLetterCount = 0;
+        var lowerLetterCount = 0;
+        var middleDigitCount = 0;
+        var middleSymbolCount = 0;
+        var digitCount = 0;
+        var symbolCount = 0;
+        var showsUp = {};
+        var duplicateTimes = 0;
+        var symbols = "`~!@#$%^&*_-+=|\:;\"\',.?/[](){}<>\\";
+        var lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+        var upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var digits = "0123456789";
+        var orderSymbols = "!@#$%^&*()_+";
+        var scores = 0;
+        var weakThreshold = 20;
+        var strongThreshold = 60;
+        var veryStrongThreshold = 80;
+
+        // if (password.length < minLength) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.shortPassword
+        //     }
+        // }
+        // if (password.length > maxLength) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.longPassword
+        //     }
+        // }
+        var lowerCasePass = password.toLowerCase();
+        var lowerCaseUserName = userName.toLowerCase();
+        if ((lowerCaseUserName !== "") && (lowerCasePass === lowerCaseUserName ||
+            lowerCasePass.indexOf(lowerCaseUserName) !== - 1 ||
+            (lowerCaseUserName.indexOf(lowerCasePass) !== - 1) && lowerCasePass.length >= 3)) {
+            return {
+                "strength": "invalid",
+                "hint": LoginConfigTStr.duplicateUserName
+            };
+        }
+        for (var i = 0; i < password.length; i++) {
+            var curr = password.charAt(i);
+            if (curr >= "A" && curr <= "Z") {
+                upperLetterCount++;
+            } else if (curr >= "a" && curr <= "z") {
+                lowerLetterCount++;
+            } else if (curr >= "0" && curr <= "9") {
+                digitCount++;
+                if (i >= 1 && i < password.length - 1) {
+                    middleDigitCount++;
+                }
+            } else if (symbols.indexOf(curr) !== -1) {
+                symbolCount++;
+                if (i >= 1 && i < password.length - 1) {
+                    middleSymbolCount++;
+                }
+            } else {
+                return {
+                    "strength": "invalid",
+                    "hint": LoginConfigTStr.illegalCharacter
+                };
+            }
+            if (showsUp[curr]) {
+                showsUp[curr]++;
+            } else {
+                showsUp[curr] = 1;
+            }
+        }
+        // if (upperLetterCount == 0 || lowerLetterCount == 0 || digitCount == 0 || symbolCount == 0) {
+        //     return {
+        //         "strength": "invalid",
+        //         "hint": LoginConfigTStr.atLeastOne
+        //     }
+        // }
+        if (password.length < 3) {
+            return {
+                "strength": "veryWeak",
+                "hint": LoginConfigTStr.veryWeak
+            };
+        }
+
+        // scores += password.length * 5
+        //        + (digitCount > 3 ? 10 : 0)
+        //        + (symbolCount > 3 ? 10 : 0)
+        //        + ((Object.keys(showsUp).length / password.length) > 0.6 ? 15 : 0);
+
+        var consecutiveLowerCount = getConsecutive(password, lowerCaseLetters, 3);
+        var consecutiveUpperCount = getConsecutive(password, upperCaseLetters, 3);
+        var consecutiveDigitCount = getConsecutive(password, digits, 3);
+        var sequentialLetterCount = getSequential(password.toLowerCase(), lowerCaseLetters, 3);
+        var sequentialDigitcount = getSequential(password, digits, 3);
+        var sequentialSymbolCount = getSequential(password, orderSymbols, 3);
+        for (var key in showsUp) {
+            if (showsUp[key] > 0) {
+                duplicateTimes += showsUp[key];
+            }
+        }
+        scores += password.length * 4
+               + (password.length - upperLetterCount) * 2
+               + (password.length - lowerLetterCount) * 2
+               + digitCount * 4
+               + symbolCount * 6
+               + (middleSymbolCount + middleDigitCount) * 2
+               + ((password.length > 10) && ((Object.keys(showsUp).length / password.length) > 0.6) ? password.length * 2 : 0)
+               - ((symbolCount === 0 && digitCount === 0) ? password.length : 0)
+               - ((symbolCount === 0 && upperLetterCount === 0 && lowerLetterCount === 0) ? password.length : 0)
+               - (duplicateTimes / password.length ) * 10
+               - consecutiveLowerCount * 2
+               - consecutiveUpperCount * 2
+               - consecutiveDigitCount * 2
+               - sequentialLetterCount * 3
+               - sequentialDigitcount * 3
+               - sequentialSymbolCount * 3;
+
+        if (scores <= weakThreshold) {
+            return {
+                "strength": "veryWeak",
+                "hint": LoginConfigTStr.veryWeak
+            };
+        } else if (scores <= strongThreshold) {
+            return {
+                "strength": "weak",
+                "hint": LoginConfigTStr.weak
+            };
+        } else if (scores <= veryStrongThreshold) {
+            return {
+                "strength": "strong",
+                "hint": LoginConfigTStr.strong
+            };
+        } else {
+            return {
+                "strength": "veryStrong",
+                "hint": LoginConfigTStr.veryStrong
+            };
+        }
+
+        // consecutive with each other, like "aaaaab" is has a consecutive string of a
+        // with length 5
+        function getConsecutive(password, orderString, threshold) {
+            var count = 0;
+            var currLength = 0;
+            for (var i = 0; i < password.length; i++) {
+                var curr = password.charAt(i);
+                if (orderString.indexOf(curr) === -1) {
+                    if (currLength >= threshold) {
+                        count += currLength;
+                    }
+                    currLength = 0;
+                } else {
+                    currLength++;
+                }
+            }
+            if (currLength >= threshold) {
+                count += currLength;
+            }
+            return count;
+        }
+
+        // follow each other in order from smallest to largest, without gaps,
+        // like "abcde" is one sequential string
+        function getSequential(password, orderString, threshold) {
+            var count = 0;
+            for (var i = 0; i < orderString.length - (threshold - 1); i++) {
+                var str = orderString.substring(i, i + threshold);
+                if (password.indexOf(str) !== -1) {
+                    count++;
+                }
+            }
+            return count;
+        }
     }
 
     /* Unit Test Only */

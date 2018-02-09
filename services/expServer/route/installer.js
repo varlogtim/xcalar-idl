@@ -43,19 +43,19 @@ function clearErrorLog() {
     errorLog = "";
 }
 
-function genExecString(hostnameLocation,
-                       hasPrivHosts,
-                       privHostnameLocation,
-                       credentialLocation,
-                       credentialsOption,
-                       username,
-                       port,
-                       nfsOption,
-                       installationDirectory,
-                       ldapOption,
-                       serDes,
-                       preConfig,
-                       supportBundles) {
+function genExecString(input) {
+    var hasPrivHosts = input.hasPrivHosts;
+    var credentialsOption = input.credArray.credentials;
+    var username = input.credArray.username;
+    var port = input.credArray.port;
+    var nfsOption = input.credArray.nfsOption;
+    var installationDirectory = input.credArray.installationDirectory;
+    var ldapOption = input.credArray.ldap;
+    var defaultAdminOption = input.credArray.defaultAdminConfig;
+    var serDes = input.credArray.serializationDirectory;
+    var preConfig = input.credArray.preConfig;
+    var supportBundles = input.credArray.supportBundles;
+
     var execString = " -h " + hostnameLocation;
     execString += " -l " + username;
     if (hasPrivHosts) {
@@ -99,13 +99,21 @@ function genExecString(hostnameLocation,
         }
     }
     if (ldapOption) {
-        if (ldapOption.xcalarInstall) {
+        if (ldapOption.deployOption === "xcalarLdap") {
             execString += " --ldap-mode create";
             execString += " --ldap-domain " + ldapOption.domainName;
             execString += " --ldap-org " + '"' + ldapOption.companyName + '"';
             execString += " --ldap-password " + '"' + encryptPassword(ldapOption.password) + '"';
-        } else {
+        } else if (ldapOption.deployOption === "customerLdap") {
             execString += " --ldap-mode external";
+        }
+    }
+    if (defaultAdminOption) {
+        if (defaultAdminOption.defaultAdminEnabled) {
+            execString += " --default-admin";
+            execString += " --admin-username " + '"' + defaultAdminOption.username + '"';
+            execString += " --admin-email " + '"' + defaultAdminOption.email + '"';
+            execString += " --admin-password " + '"' + defaultAdminOption.password + '"';
         }
     }
     if (serDes) {
@@ -393,19 +401,11 @@ function installUpgradeUtil(credArray, execCommand, script) {
     .then(function() {
         var deferred = jQuery.Deferred();
         var execString = scriptDir + "/" + execCommand;
-        cliArguments = genExecString(hostnameLocation,
-                                     hasPrivHosts,
-                                     privHostnameLocation,
-                                     credentialLocation,
-                                     credArray.credentials,
-                                     credArray.username,
-                                     credArray.port,
-                                     credArray.nfsOption,
-                                     credArray.installationDirectory,
-                                     credArray.ldap,
-                                     credArray.serializationDirectory,
-                                     credArray.preConfig,
-                                     credArray.supportBundles);
+        cliArguments = genExecString({
+            "hasPrivHosts": hasPrivHosts,
+            "credArray": credArray
+        });
+
         execString += cliArguments;
         initStepArray();
         var out;
@@ -496,19 +496,10 @@ function discoverUtil(credArray, execCommand, script) {
     .then(function() {
         var deferred = jQuery.Deferred();
         var execString = scriptDir + "/" + execCommand;
-        cliArguments = genExecString(hostnameLocation,
-                                     hasPrivHosts,
-                                     privHostnameLocation,
-                                     credentialLocation,
-                                     credArray.credentials,
-                                     credArray.username,
-                                     credArray.port,
-                                     credArray.nfsOption,
-                                     credArray.installationDirectory,
-                                     credArray.ldap,
-                                     credArray.serializationDirectory,
-                                     credArray.preConfig,
-                                     credArray.supportBundles);
+        cliArguments = genExecString({
+            "hasPrivHosts": hasPrivHosts,
+            "credArray": credArray
+        });
         execString += cliArguments;
         initStepArray();
         var out;

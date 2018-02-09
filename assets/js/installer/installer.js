@@ -32,6 +32,18 @@ window.Installer = (function(Installer, $) {
             return false;
         });
 
+        $forms.find(".checkbox.createDefaultAdmin").click(function() {
+            // If option is the same as before, ignore and return
+            var $form = $(this).closest("form");
+            $(this).toggleClass("checked");
+            if ($(this).hasClass("checked")) {
+                $form.find(".defaultAdminParams").show();
+            } else {
+                $form.find(".defaultAdminParams").hide();
+            }
+            return false;
+        });
+
         $("#hostForm .btn.servers").on("click", function() {
             var $form = $(this).closest("form");
             generateHostFields($form);
@@ -144,7 +156,7 @@ window.Installer = (function(Installer, $) {
                 case (3):
                     return InstallerCommon.validateNfs($form);
                 case (4):
-                    return InstallerCommon.validateLdap($form);
+                    return InstallerCommon.setupLoginConfiguration($form);
                 case (5):
                     return validateInstall($form);
                 default:
@@ -160,7 +172,7 @@ window.Installer = (function(Installer, $) {
                 case (2):
                     return InstallerCommon.validateNfs($form);
                 case (3):
-                    return InstallerCommon.validateLdap($form);
+                    return InstallerCommon.setupLoginConfiguration($form);
                 case (4):
                     return validateInstall($form);
                 default:

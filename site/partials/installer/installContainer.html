@@ -243,9 +243,9 @@
         <div class="title">
           <div class="step">
             <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 4</span>
+              <span>STEP 4A</span>
             <% } else { %>
-              <span>STEP 3</span>
+              <span>STEP 3A</span>
             <% } %>
             <span>SET UP LDAP</span>
           </div>
@@ -255,7 +255,7 @@
           </div>
         </div>
         <div class="section ldapSection radioButtonGroup" id="ldapDeployChoice">
-          <div class="radioButton active noPreConfig" data-option="xcalarLdap">
+          <div class="radioButton active noPreConfig ldapType" data-option="xcalarLdap">
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
               <i class="icon xi-radio-empty"></i>
@@ -282,7 +282,7 @@
               </div>
             </div>
           </div>
-          <div class="radioButton" data-option="customerLdap">
+          <div class="radioButton ldapType" data-option="customerLdap">
             <div class="radio">
               <i class="icon xi-radio-selected"></i>
               <i class="icon xi-radio-empty"></i>
@@ -363,6 +363,64 @@
                     Enable LDAP TLS
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="radioButton ldapType" data-option="configLdapLater">
+            <div class="radio">
+              <i class="icon xi-radio-selected"></i>
+              <i class="icon xi-radio-empty"></i>
+            </div>
+            <div class="label">Configure External LDAP Post Install</div>
+          </div>
+        </div>
+        <div class="title">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 4B</span>
+            <% } else { %>
+              <span>STEP 3B</span>
+            <% } %>
+            <span>SET UP DEFAULT ADMIN USER</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Set up Default Admin User Account (Optional if LDAP is Configured)</span>
+          </div>
+        </div>
+        <div class="section defaultAdminSection">
+          <div class="checkboxLine">
+            <div class="checkbox checked createDefaultAdmin">
+              <i class="icon xi-ckbox-empty"></i>
+              <i class="icon xi-ckbox-selected"></i>
+            </div>
+            <div class="label">
+              <div class="name">
+                CREATE DEFAULT ADMIN USER
+              </div>
+            </div>
+          </div>
+          <div class="defaultAdminParams">
+            <div class="fieldWrap">
+              <div class="inputWrap defaultAdminParam">
+                <input id="defaultAdminUsername" class="input user" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <div class="bar">ADMIN USERNAME</div>
+              </div>
+              <div class="inputWrap defaultAdminParam">
+                <input id="defaultAdminEmail" class="input email" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <div class="bar">EMAIL</div>
+              </div>
+              <div class="inputWrap defaultAdminParam">
+                <input id="defaultAdminPassword" class="input password" name="useless" type="password" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <div class="bar">PASSWORD</div>
+              </div>
+              <div class="inputWrap defaultAdminParam">
+                <input id="defaultAdminPasswordConfirm" class="input confirmPassword" name="useless" type="password" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <div class="bar">CONFIRM PASSWORD</div>
+              </div>
+              <div id="passwordStrength" class="passwordStrength">
+                <i class="icon xi-info-circle fa-14"></i>
+                <span class="text strength"></span>
               </div>
             </div>
           </div>
