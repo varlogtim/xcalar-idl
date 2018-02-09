@@ -1,4 +1,4 @@
- html.safari {
+html.safari {
     #fileBrowserPath {
         display: block;
 
@@ -3690,6 +3690,12 @@ table.datasetTable {
                     .xc-disabled;
                 }
 
+                &.loading {
+                    border-style: dashed;
+                    border-width: 1px;
+                    .xc-disabled;
+                }
+
                 > .label {
                     textarea {
                         background-color: transparent;
@@ -3719,7 +3725,7 @@ table.datasetTable {
                 }
 
                 .lockIcon {
-                    .position(absolute, @top: 2px, @right: 8px);
+                    .position(absolute, @top: 3px, @right: 14px);
                     font-size: 16px;
                     z-index: 0;
 
@@ -3733,6 +3739,12 @@ table.datasetTable {
                         border-radius: 4px;
                     }
                 }
+                .xi-tick {
+                    .position(absolute, @top: 0px, @right: 0px);
+                    font-size: 16px;
+                    z-index: 0;
+                    display: none;
+                }
             }
 
             &.gridView {
@@ -3740,6 +3752,8 @@ table.datasetTable {
                 padding-bottom: 2px;
 
                 .grid-unit {
+                    border: 1px solid transparent;
+
                     > .label {
                         display: block;
                         background-color: transparent;
@@ -3748,6 +3762,11 @@ table.datasetTable {
                         b {
                            color: @color-font-softGrayBlue;
                         }
+                    }
+
+                    &.active {
+                        border: 1px solid @color-white;
+                        outline: none;
                     }
 
                     .gridIcon {
@@ -3764,6 +3783,19 @@ table.datasetTable {
 
                     .size {
                         display: none;
+                    }
+
+                    &.notSeen {
+                        .xi-dataset-checkmark {
+                            font-size: 39px;
+                            margin-top: -5px;
+                            margin-bottom: 5px;
+                            margin-left: 8px;
+
+                            .lockIcon {
+                                top: 4px;
+                            }
+                        }
                     }
                 }
 
@@ -3842,6 +3874,7 @@ table.datasetTable {
             }
 
             &.listView {
+
                 > .waitingIcon {
                     left: 98px;
                     top: -1px;
@@ -3884,8 +3917,13 @@ table.datasetTable {
 
                     .lockIcon {
                         .position(absolute, @top: 5px, @left: 20px);
+                        font-size: 12px;
                         .size(12px, 12px);
                         background-size: 12px 12px;
+
+                        &:after {
+                            .size(8px, 8px);
+                        }
                     }
                 }
 
@@ -3976,6 +4014,24 @@ table.datasetTable {
                             height: 15px;
                             top: 10px;
                         }
+                    }
+                }
+            }
+
+            .grid-unit {
+                .xi-dataset-checkmark {
+                    display: none;
+                }
+                &.notSeen {
+                    border-color: @color-bg-bright-light-blue;
+                    border-width: 1px;
+                    border-style: solid;
+                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+                    .xi_data {
+                        display: none;
+                    }
+                    .xi-dataset-checkmark {
+                        display: inline-block;
                     }
                 }
             }

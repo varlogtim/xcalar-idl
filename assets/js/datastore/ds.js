@@ -227,7 +227,7 @@ window.DS = (function ($, DS) {
         }
 
         var isLoading;
-        if ($grid.find('.waitingIcon').length !== 0) {
+        if ($grid.hasClass('loading')) {
             isLoading = true;
         } else {
             isLoading = false;
@@ -245,6 +245,9 @@ window.DS = (function ($, DS) {
         })
         .always(function() {
             $grid.removeClass("fetching");
+            if (!isLoading) {
+                $grid.removeClass("notSeen");
+            }
         });
 
         return deferred.promise();
@@ -826,6 +829,7 @@ window.DS = (function ($, DS) {
 
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
+        $grid.addClass('loading');
 
         DataStore.update();
 
@@ -913,6 +917,8 @@ window.DS = (function ($, DS) {
         function finishPoint() {
             $grid.removeData("txid");
             $grid.removeClass("inactive").find(".waitingIcon").remove();
+            $grid.removeClass("loading");
+            $grid.addClass("notSeen");
             // display new dataset
             refreshDS();
         }
@@ -2428,6 +2434,9 @@ window.DS = (function ($, DS) {
             !($grid.hasClass("unlistable") && $grid.hasClass("noAction")))
         {
             DS.focusOn($grid);
+            if ($grid.hasClass("notSeen")) {
+                $grid.removeClass("notSeen");
+            }
         }
     }
 
@@ -2506,6 +2515,7 @@ window.DS = (function ($, DS) {
                             tooltip + 'data-title="' + DSTStr.LockDS + '"></i>';
             var unlockIcon = '<i class="action icon xi-unlock unlock fa-15" ' +
                             tooltip + 'data-title="' + DSTStr.UnlockDS + '"></i>';
+            var checkMarkIcon = '<i class="gridIcon icon xi-dataset-checkmark"></i>';
             var shareIcon;
             var user = dsObj.getUser();
             var shared = isInSharedFolder(parentId);
@@ -2547,6 +2557,7 @@ window.DS = (function ($, DS) {
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
                 '<i class="gridIcon icon xi_data"></i>' +
+                checkMarkIcon +
                 '<div title="' + title + '" class="label"' +
                     ' data-dsname="' + name + '">' +
                     name +
