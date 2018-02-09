@@ -1301,7 +1301,6 @@ table.datasetTable {
                         }
                     }
                 }
-
             }
 
             .leftMain {
@@ -1769,6 +1768,7 @@ table.datasetTable {
         .position(relative);
         text-transform: none;
         .flex-display;
+        background: @color-white;
 
         &.loading {
             .leftPart, .errorSection, .rightPart > div {
@@ -1829,7 +1829,8 @@ table.datasetTable {
         .mainSection {
             @top-h: 30px;
             @bottom-h: 70px;
-            @topAndBottom-h: @top-h + @bottom-h;
+            @buttonArea-h: 36px;
+            @topAndBottom-h: @top-h + @bottom-h + @buttonArea-h;
 
             .size(@height: 100%);
             padding: 15px;
@@ -1932,6 +1933,10 @@ table.datasetTable {
                 }
             }
 
+            .closePreview {
+                float: right;
+            }
+
             .sliderPart {
                 background: @color-bg-white-four;
                 width: 16px;
@@ -1958,19 +1963,6 @@ table.datasetTable {
         }
     }
 
-
-
-    .cardBottom {
-        .size(@height: 70px);
-        padding: 17px 0;
-
-        .btn {
-            margin-right: 15px;
-        }
-        .closePreview {
-            display: none;
-        }
-    }
 }
 
 #fileBrowserMenu {

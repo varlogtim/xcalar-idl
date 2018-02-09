@@ -88,7 +88,6 @@ window.FileBrowser = (function($, FileBrowser) {
         addSortMenuEvents();
         addPathSectionEvents();
         addSearchSectionEvents();
-        addBrowserMenuEvents();
         addInfoContainerEvents();
 
         fileBrowserScrolling();
@@ -535,45 +534,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var type = $pattern.find("span").attr("class");
         var searchKey = $pattern.find("span").text();
         searchFiles(searchKey, type);
-    }
-
-    function addBrowserMenuEvents() {
-        var $fileBrowserMenu = $("#fileBrowserMenu");
-        xcMenu.add($fileBrowserMenu);
-
-        $fileBrowserMain[0].oncontextmenu = function(event) {
-            var $target = $(event.target);
-            var $grid = $target.closest(".grid-unit");
-
-            if ($grid.length ===0) {
-                return;
-            }
-            // focuse on grid
-            $grid.click();
-
-            var classes = "";
-            if (isDS($grid)) {
-                classes = "dsOpts";
-            } else {
-                classes = "folderOpts";
-            }
-
-            xcHelper.dropdownOpen($target, $fileBrowserMenu, {
-                "classes": classes,
-                "floating": true
-            });
-            return false;
-        };
-
-        $fileBrowserMenu.on("mouseup", ".preview", function() {
-            var $grid = getFocusedGridEle();
-            previewDS($grid);
-        });
-
-        $fileBrowserMenu.on("mouseup", ".getInfo", function() {
-            var $grid = getFocusedGridEle();
-            getFolderInfo($grid);
-        });
     }
 
     function hideBrowserMenu() {
