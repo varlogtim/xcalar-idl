@@ -22,6 +22,7 @@ define(function() {
 
             if (params.needsTemplate === "true") {
                 // brand new workbook
+
                 var publishTable = params.publishTable === "true";
                 var tableName;
                 var numRows = "0";
@@ -33,8 +34,24 @@ define(function() {
                                publishTable: publishTable,
                                tableName: tableName,
                                numRows: numRows};
+
+                if (params.autofillImportUdf) {
+                    request.noRename = true;
+                }
+
                 console.log("Telling parent new untitled notebook created");
                 parent.postMessage(JSON.stringify(request), "*");
+
+                // send an aditional message if we need the udf import modal
+                // to pop up
+                if (params.autofillImportUdf) {
+                    request = {
+                        action: "autofillImportUdf",
+                        target: decodeURIComponent(params.target),
+                        filePath: decodeURIComponent(params.filePath)
+                    };
+                    parent.postMessage(JSON.stringify(request), "*");
+                }
             } else {
                 // accessing an existing notebook
                 var request = {action: "resend"};
@@ -54,13 +71,14 @@ define(function() {
                         userid = struct.userid;
                         sessionName = struct.sessionname;
                         sessionId = struct.sessionid;
-                        var notebookName = Jupyter.notebook.get_notebook_name();
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName);
                             if (struct.publishTable) {
                                 appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                             }
-                            Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
+                            if (!struct.noRenamePrompt) {
+                                Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
+                            }
                         } else {
                             validateSessionCells();
                         }

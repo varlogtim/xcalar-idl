@@ -30,7 +30,7 @@ define(['base/js/namespace'], function(Jupyter) {
         $("#kernel-python3 a").click(function() {
             Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
             .then(function(data) {
-                var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
+                var url = Jupyter.session_list.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
                 window.location.href = url;
             });
         });
@@ -41,8 +41,11 @@ define(['base/js/namespace'], function(Jupyter) {
         var struct = JSON.parse(event.data);
         switch(struct.action) {
             case("publishTable"):
-               publishTable(struct.tableName, struct.numRows);
-               break;
+                publishTable(struct.tableName, struct.numRows);
+                break;
+            case ("autofillImportUdf"):
+                autofillImportUdf(struct.target, struct.filePath);
+                break;
             default:
                break;
         }
@@ -53,12 +56,25 @@ define(['base/js/namespace'], function(Jupyter) {
         Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
         .then(function(data) {
             var encodedTableName = encodeURIComponent(tableName);
-            var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&" +
+            var url = Jupyter.session_list.base_url + "notebooks/" + data.path + "?kernel_name=python3&" +
                         "needsTemplate=true&publishTable=true&" +
                         "tableName=" + encodedTableName + "&numRows=" + numRows;
             window.location.href = url;
         });
     }
+
+    function autofillImportUdf(target, filePath) {
+        Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
+        .then(function(data) {
+            var encodedTarget = encodeURIComponent(target);
+            var encodedFilePath = encodeURIComponent(filePath);
+            var url = Jupyter.session_list.base_url + "notebooks/" + data.path + "?kernel_name=python3&" +
+                        "needsTemplate=true&autofillImportUdf=true&" +
+                        "target=" + encodedTarget + "&filePath=" + encodedFilePath;
+            window.location.href = url;
+        });
+    }
+
     window.addEventListener("message", receiveMessage, false);
 
 });

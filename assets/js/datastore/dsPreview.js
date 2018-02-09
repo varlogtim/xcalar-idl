@@ -421,7 +421,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#dsPreview-debugUDF").click(function() {
             $(this).blur();
-            autofillJupyterImportUdfModal(loadArgs.targetName,
+            JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                           loadArgs.previewFile);
         });
     }
@@ -700,13 +700,6 @@ window.DSPreview = (function($, DSPreview) {
         setupParquetSection();
     }
 
-    function autofillJupyterImportUdfModal(target, filePath) {
-        $("#jupyterTab").click();
-        JupyterUDFModal.show("newImport");
-        $(".newImportForm .target").val(target);
-        $(".newImportForm .url").val(filePath);
-    }
-
     function setupUDFSection() {
         $("#dsForm-applyUDF").click(function() {
             $(this).blur();
@@ -715,7 +708,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#dsForm-writeUDF").click(function() {
             $(this).blur();
-            autofillJupyterImportUdfModal(loadArgs.targetName,
+            JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                           loadArgs.previewFile);
         });
         // dropdown list for udf modules and function names

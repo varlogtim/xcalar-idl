@@ -38,10 +38,15 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         JupyterPanel.sendInit();
                         break;
                     case ("newUntitled"):
-                        JupyterPanel.sendInit(true, s.publishTable, s.tableName, s.numRows);
+                        JupyterPanel.sendInit(true, s.publishTable, s.tableName,
+                                              s.numRows,
+                                              {noRenamePrompt: s.noRename});
                         break;
                     case ("updateLocation"):
                         storeLocation(s);
+                        break;
+                    case ("autofillImportUdf"):
+                        showImportUdfModal(s.target, s.filePath);
                         break;
                     case ("mixpanel"):
                         try {
@@ -73,13 +78,17 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     };
 
-    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName, numRows) {
+    JupyterPanel.sendInit = function(newUntitled, publishTable, tableName, numRows,
+        options) {
         var colNames = [];
         if (publishTable && tableName) {
             colNames = getCols(tableName);
         }
+        options = options || {};
+        noRenamePrompt = options.noRenamePrompt || false;
         var workbookStruct = {action: "init",
                 newUntitled: newUntitled,
+                noRenamePrompt: noRenamePrompt,
                 publishTable: publishTable,
                 tableName: tableName,
                 colNames: colNames,
@@ -110,10 +119,42 @@ window.JupyterPanel = (function($, JupyterPanel) {
                           tableName: tableName,
                           colNames: colNames,
                           numRows: numRows};
+            // this message gets sent to either the notebook or list view
+            // (which every is currently active)
+            // if list view receives it, it will create a new notebook and
+            // redirect to it and xcalar.js will send a message back to this
+            // file with a "newUntitled" action, which prompts
+            // JupyterPanel.sendInit to send a message back to the notebook
+            // with session information
             $("#jupyterNotebook")[0].contentWindow.postMessage(
                                       JSON.stringify(tableStruct), "*");
         }
     };
+
+    JupyterPanel.autofillImportUdfModal = function(target, filePath) {
+        $("#jupyterTab").click();
+
+        if (!currNotebook) {
+            var msgStruct = {
+                action: "autofillImportUdf",
+                target: target,
+                filePath: filePath
+            };
+            $("#jupyterNotebook")[0].contentWindow.postMessage(
+                                      JSON.stringify(msgStruct), "*");
+            // custom.js will create a new notebook and xcalar.js will
+            // send a message back to here with an autofillImportUdf action
+        } else {
+            showImportUdfModal(target, filePath);
+        }
+    };
+
+    function showImportUdfModal(target, filePath) {
+        JupyterUDFModal.show("newImport");
+        $("#jupyterUDFTemplateModal .newImportForm .target").val(target);
+        $("#jupyterUDFTemplateModal .newImportForm .url").val(filePath);
+        $("#jupyterUDFTemplateModal .newImportForm .moduleName").focus();
+    }
 
     function getCols(tableName) {
         var tableId = xcHelper.getTableId(tableName);
