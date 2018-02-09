@@ -28,7 +28,6 @@ window.UDF = (function($, UDF) {
         initializeUDFList(true)
         .then(function(listXdfsObj) {
             DSExport.refreshUDF(listXdfsObj);
-            JupyterUDFModal.refreshUDF(listXdfsObj);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -423,7 +422,6 @@ window.UDF = (function($, UDF) {
             DSPreview.update(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             DSExport.refreshUDF(listXdfsObj);
-            JupyterUDFModal.refreshUDF(listXdfsObj);
             deferred.resolve();
         })
         .fail(deferred.reject)

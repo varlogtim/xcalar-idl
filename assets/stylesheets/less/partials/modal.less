@@ -1901,7 +1901,7 @@ html.microsoft {
         display: none;
     }
     .modalInstruction {
-        .altText, .altText2 {
+        .text-map, .text-import {
             display: none;
         }
     }
@@ -1911,43 +1911,42 @@ html.microsoft {
         }
         .modalInstruction .text {
             display: none;
-            &.altText {
+            &.text-map {
                 .flex-display;
                 .justify-content(center);
                 .flex-direction(column);
                 white-space: normal;
                 line-height: 15px;
 
+            }
+        }
+        .modalHeader .text {
+            display: none;
+            &.text-map {
+                display: inline;
             }
         }
     }
     &.type-newImport {
+        .size(@width: 460px, @height: 310px, @min-height: 310px);
+
         .newImportForm {
             display: block;
         }
-
+        .modalHeader .text {
+            display: none;
+            &.text-import {
+                display: inline;
+            }
+        }
         .modalInstruction .text {
             display: none;
-            &.altText2 {
+            &.text-import {
                 .flex-display;
                 .justify-content(center);
                 .flex-direction(column);
                 white-space: normal;
                 line-height: 15px;
-
-            }
-        }
-    }
-    &.type-testImport {
-        .size(@width: 460px, @height: 310px, @min-height: 310px);
-
-        .testImportForm {
-            display: block;
-        }
-        .modalHeader .text {
-            display: none;
-            &.altText2 {
-                display: inline;
             }
         }
 

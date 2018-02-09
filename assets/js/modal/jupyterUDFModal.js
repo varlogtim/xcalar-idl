@@ -88,33 +88,6 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         });
         columnsList.setupListeners();
 
-        $udfModuleList = $modal.find(".udfModuleList");
-        new MenuHelper($udfModuleList, {
-            "onSelect": function($li) {
-                var module = $li.text();
-                $udfModuleList.find(".moduleName").val(module);
-                $udfFnList.find(".fnName").val("");
-                StatusBox.forceHide();
-            }
-        }).setupListeners();
-
-        $udfFnList = $modal.find(".udfFnList");
-        new MenuHelper($udfFnList, {
-            "onOpen": function() {
-                var moduleName = $udfModuleList.find(".moduleName").val();
-                $udfFnList.find("li").hide();
-                if (moduleName) {
-                    $udfFnList.find('li[data-module="' + moduleName + '"]').show();
-                } else {
-                    StatusBox.show(ErrTStr.NoEmpty, $udfModuleList.find(".moduleName"), true);
-                }
-            },
-            "onSelect": function($li) {
-                var fn = $li.text();
-                $udfFnList.find(".fnName").val(fn);
-            }
-        }).setupListeners();
-
         $targetList = $modal.find(".targetList");
         new MenuHelper($targetList, {
             "onSelect": function($li) {
@@ -130,10 +103,10 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             // it's already open
             return;
         }
-        $modal.removeClass("type-map type-newImport type-testImport");
+        $modal.removeClass("type-map type-newImport");
         $modal.addClass("type-" + type);
         modalHelper.setup();
-        if (type === "testImport") {
+        if (type === "newImport") {
             $modal.css({"minHeight": 310});
         } else {
             $modal.css({"minHeight": 290});
@@ -142,12 +115,6 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
 
     JupyterUDFModal.refreshTarget = function(targetList) {
         $targetList.find("ul").html(targetList);
-    };
-
-    JupyterUDFModal.refreshUDF = function(listXdfsObj) {
-        var udfObj = xcHelper.getUDFList(listXdfsObj);
-        $udfModuleList.find("ul").html(udfObj.moduleLis);
-        $udfFnList.find("ul").html(udfObj.fnLis);
     };
 
     function closeModal() {
@@ -200,14 +167,10 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             });
         } else if ($modal.hasClass("type-newImport")) {
             JupyterPanel.appendStub("importUDF", {
-                fnName: $modal.find(".fnName:visible").val()
-            });
-        } else if ($modal.hasClass("type-testImport")) {
-            JupyterPanel.appendStub("testImportUDF", {
-                target: $modal.find(".target:visible").val(),
+                fnName: $modal.find(".fnName:visible").val(),
+                 target: $modal.find(".target:visible").val(),
                 url: $modal.find(".url:visible").val(),
-                moduleName: $modal.find(".moduleName:visible").val(),
-                fnName: $modal.find(".fnName:visible").val()
+                moduleName: $modal.find(".moduleName:visible").val()
             });
         }
 

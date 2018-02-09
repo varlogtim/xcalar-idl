@@ -25,16 +25,13 @@
       <li data-action="importUDF">
         <%= dicts.jupyter.CreateImportUDF %>
       </li>
-      <li data-action="testImportUDF">
-        <%= dicts.jupyter.TestImportUDF %>
-      </li>
     </ul>
   </div>
   <div id="jupyterUDFTemplateModal" class="modalContainer shadow">
     <!-- Header -->
     <header class="modalHeader">
-      <span class="text"><%= dicts.jupyter.UDFTemplate %></span>
-      <span class="text altText2"><%= dicts.jupyter.TestUDF %></span>
+      <span class="text text-map"><%= dicts.jupyter.UDFTemplate %></span>
+      <span class="text text-import"><%= dicts.jupyter.CreateImportUDF %></span>
       <div class="close">
         <i class="icon xi-close"></i>
       </div>
@@ -42,9 +39,8 @@
     <!-- Instruction -->
     <section class="modalInstruction">
       <i class="icon xi-info-circle"></i>
-      <div class="text"><%= dicts.jupyter.TemplateInstr %></div>
-      <div class="text altText"><%= dicts.jupyter.TemplateInstrMapUDF %></div>
-      <div class="text altText2"><%= dicts.jupyter.TemplateInstrImportUDF %></div>
+      <div class="text text-map"><%= dicts.jupyter.TemplateInstrMapUDF %></div>
+      <div class="text text-import"><%= dicts.jupyter.TemplateInstrImportUDF %></div>
     </section>
     <!-- Main Section -->
     <section class="modalMain">
@@ -85,12 +81,6 @@
       </div>
       <div class="newImportForm form">
         <div class="row">
-          <span class="label"><%= dicts.common.FunctionName %>:</span>
-          <input class="xc-input arg fnName" type="text" spellcheck="false">
-        </div>
-      </div>
-      <div class="testImportForm form">
-        <div class="row">
            <span class="label"><%= dicts.ds.Target %>:</span>
            <div class="dropDownList targetList">
             <input type="text" class="text arg target readonly" readonly spellcheck="false">
@@ -107,33 +97,13 @@
           <span class="label"><%= dicts.dsForm.filePath %>:</span>
           <input class="xc-input arg url" type="text" spellcheck="false" placeholder="/mystoragecontainer1234/myfolder/">
         </div>
-         <div class="row">
+        <div class="row">
           <span class="label"><%= dicts.UDF.ModuleName %>:</span>
-          <div class="dropDownList udfModuleList">
-            <input type="text" class="text arg moduleName readonly" readonly spellcheck="false">
-            <div class="iconWrapper">
-              <i class="icon xi-arrow-down"></i>
-            </div>
-            <div class="list">
-              <ul>
-              </ul>
-              include "../util/menuScrollArea.html"
-            </div>
-          </div>
+          <input type="text" class="xc-input arg moduleName" spellcheck="false" placeholder="module_name">
         </div>
-         <div class="row">
+        <div class="row">
           <span class="label"><%= dicts.common.FunctionName %>:</span>
-          <div class="dropDownList udfFnList">
-            <input type="text" class="text arg fnName readonly" readonly spellcheck="false">
-            <div class="iconWrapper">
-              <i class="icon xi-arrow-down"></i>
-            </div>
-            <div class="list">
-              <ul>
-              </ul>
-              include "../util/menuScrollArea.html"
-            </div>
-          </div>
+          <input type="text" class="xc-input arg fnName" spellcheck="false" placeholder="function_name">
         </div>
       </div>
     </section>

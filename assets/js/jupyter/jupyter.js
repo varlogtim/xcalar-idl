@@ -212,8 +212,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 JupyterUDFModal.show("map");
             } else if (stubName === "importUDF") {
                 JupyterUDFModal.show("newImport");
-            } else if (stubName === "testImportUDF") {
-                JupyterUDFModal.show("testImport");
             } else {
                 JupyterPanel.appendStub(stubName);
             }

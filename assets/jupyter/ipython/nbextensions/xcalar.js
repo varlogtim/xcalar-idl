@@ -224,59 +224,27 @@ define(function() {
                                 '# functions will be considered private functions and will not be directly \n' +
                                 '# invokable from Xcalar Design.\n' +
                                 '#\n' +
-                                '# The sample Python code below does nothing. \n' +
+                                '# The sample Python code below does reads your file and prints it out with a line \n' +
+                                '# number \n' +
                                 '\n' +
                                 '# Function definition for your Import UDF.\n' +
-                                'from codecs import getreader\n\n' +
-                                'def ' + args.fnName + '(inp, ins):\n' +
-                                '    # FILL IN YOUR FUNCTION HERE\n' +
-                                '    pass\n';
-                        texts.push(text);
-
-                        text =  '# Xcalar Import UDF Test\n' +
-                                '# \n' +
-                                '# This sample UDF is a working generator function which:\n' +
-                                '# 1) Creates column headers named column1, column2, ..., columnX \n' +
-                                '# 2) Splits data into arrays of values, using the configured delimiter \n' +
-                                '# 3) Yields rows as a 2-dimensional array pairing the column header with the \n' +
-                                '#    appropriate parsed value. \n' +
-                                '# \n' +
-                                '# To test whether your UDF <' + args.fnName +'> is a Python generator function, run \n' +
-                                '# the cell containing your import UDF and then run this cell. \n' +
+                                'def ' + args.fnName + '(fullPath, inStream):\n' +
+                                '    # Edit only within this function.\n' +
+                                '    # Please do not modify this function\'s name, or the first 2 arguments.\n' +
                                 '\n' +
-                                '# Sample generator function.\n' +
-                                'from codecs import getreader\n' +
-                                'def __sampleCsvReader(inp, ins):\n' +
-                                '    hasHeader = False\n' +
-                                '    fieldDelim = ","\n' +
-                                '    headers = None\n' +
-                                '    Utf8Reader = getreader("utf-8")\n' +
-                                '    utf8Stream = Utf8Reader(ins)\n' +
+                                '    # The following sample code reads your file and prints it out with a line\n' +
+                                '    # number\n' +
+                                '    import codecs\n' +
+                                '    Utf8Reader = codecs.getreader("utf-8")\n' +
+                                '    utf8Stream = Utf8Reader(inStream)\n' +
+                                '    lineNumber = 1\n' +
                                 '    for line in utf8Stream:\n' +
-                                '        line = line.rstrip("\\n") #Remove new line character\n' +
-                                '        record = {}\n' +
-                                '        if hasHeader:\n' +
-                                '            headers = line.split(fieldDelim)\n' +
-                                '            hasHeader = False\n' +
-                                '            continue\n' +
-                                '        vals = line.split(fieldDelim)\n' +
-                                '        if not headers:\n' +
-                                '            headers = ["column" + str(i + 1) for i in range(len(vals))]\n' +
-                                '        for i in range(len(headers)):\n' +
-                                '            record[headers[i]] = vals[i]\n' +
-                                '        yield record\n' +
+                                '        yield {"lineNumber": lineNumber, "contents": line}\n' +
+                                '        lineNumber += 1\n' +
                                 '\n' +
-                                '# Function to test if your Import UDF named <' + args.fnName + '> is a Python \n' +
-                                '# generator.\n' +
-                                'import inspect\n' +
-                                'if inspect.isgeneratorfunction(' + args.fnName + '):\n' +
-                                '    print("Your generator function looks good. Try it on a file!")\n' +
-                                'else:\n' +
-                                '    print("You must return a generator. Please try again")';
-                        texts.push(text);
-                        break;
-                    case("testImportUDF"):
-                        text = '# Xcalar Import UDF Test\n' +
+                                '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
+
+                                '# Xcalar Import UDF Test\n' +
                                 '#\n' +
                                 '# This Python code tests whether your UDF <' + args.fnName + '> will function on \n' +
                                 '# external data source file <' + args.target + ":" + args.url + '>\n' +
@@ -288,25 +256,67 @@ define(function() {
                                 '# source file, because this Python code will output all of the results inline.\n\n' +
                                 'from xcalar.compute.api.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
+                                'from xcalar.compute.api.Udf import Udf\n' +
+                                'from xcalar.compute.coretypes.LibApisCommon.ttypes import XcalarApiException\n' +
                                 'import random\n' +
                                 '\n' +
-                                'userName = "' + username + '"\n' +
-                                'tempDatasetName = userName + "." + str(random.randint(10000,99999)) + "jupyterDS" + str(random.randint(10000,99999))\n' +
-                                'dataset = UdfDataset(xcalarApi,\n' +
-                                '    "' + args.target + '",\n' +
-                                '    "' + args.url + '",\n' +
-                                '    tempDatasetName,\n' +
-                                '    "' + args.moduleName + ':' + args.fnName + '")\n' +
+                                'def uploadUDF():\n' +
+                                '    import inspect\n' +
+                                '    sourceCode = "".join(inspect.getsourcelines(' + args.fnName + ')[0])\n' +
+                                '    try:\n' +
+                                '        Udf(xcalarApi).add("'+ args.moduleName + '", sourceCode)\n' +
+                                '    except XcalarApiException as e:\n' +
+                                '        if e.status == StatusT.StatusUdfModuleAlreadyExists:\n' +
+                                '            Udf(xcalarApi).update("'+ args.moduleName + '", sourceCode)\n' +
                                 '\n' +
-                                'dataset.load()\n' +
+                                'def testImportUDF():\n' +
+                                '    from IPython.core.display import display, HTML\n' +
+                                '    userName = "'+ username + '"\n' +
+                                '    tempDatasetName = userName + "." + str(random.randint(10000,99999)) + "jupyterDS" + str(random.randint(10000,99999))\n' +
+                                '    dataset = UdfDataset(xcalarApi,\n' +
+                                '        "'+ args.target + '",\n' +
+                                '        "'+ args.url + '",\n' +
+                                '        tempDatasetName,\n' +
+                                '        "'+ args.moduleName + ':'+ args.fnName + '")\n' +
                                 '\n' +
-                                'resultSet = ResultSet(xcalarApi, datasetName=dataset.name, maxRecords=100)\n' +
+                                '    dataset.load()\n' +
                                 '\n' +
-                                'for row in resultSet:\n' +
-                                '    print(row)\n' +
+                                '    resultSet = ResultSet(xcalarApi, datasetName=dataset.name, maxRecords=100)\n' +
                                 '\n' +
-                                'dataset.delete()\n' +
-                                'print("End of UDF")';
+                                '    NUMROWS = 100\n' +
+                                '    rowN = 0\n' +
+                                '    numCols = 0\n' +
+                                '    headers = []\n' +
+                                '    data = []\n' +
+                                '    for row in resultSet:\n' +
+                                '        if rowN >= NUMROWS:\n' +
+                                '            break\n' +
+                                '        newRow = [""] * numCols\n' +
+                                '        for key in row:\n' +
+                                '            idx = headers.index(key) if key in headers else -1\n' +
+                                '            if idx > -1:\n' +
+                                '                newRow[idx] = row[key]\n' +
+                                '            else:\n' +
+                                '                numCols += 1\n' +
+                                '                newRow.append(row[key])\n' +
+                                '                headers.append(key)\n' +
+                                '        data.append(newRow)\n' +
+                                '        rowN += 1\n' +
+                                '    data = [row + [""] * (numCols - len(row)) for row in data]\n' +
+                                '\n' +
+                                '    print("The following should look like a proper table with headings.")\n' +
+                                '    display(HTML(\n' +
+                                '            \'<table><tr><th>{}</th></tr><tr>{}</tr></table>\'.format(\n' +
+                                '            \'</th><th>\'.join(headers),\n' +
+                                '            \'</tr><tr>\'.join(\'<td>{}</td>\'.format(\'</td><td>\'.join(str(_) for _ in row)) for row in data)\n' +
+                                '            )))\n' +
+                                '\n' +
+                                '    dataset.delete()\n' +
+                                '    print("End of UDF")\n' +
+                                '\n' +
+                                '# Test import UDF on file\n' +
+                                'uploadUDF()\n' +
+                                'testImportUDF()';
                         texts.push(text);
                         break;
                     default:
