@@ -994,10 +994,10 @@ window.FileBrowser = (function($, FileBrowser) {
         // load dataset
         var $fileList = $fileBrowser.find(".selectedFileList li");
         $fileList.each(function () {
-            var path = $(this).text();
+            var path = $(this).data("path") + $(this).data("name");
             var recursive = $(this).find("icon").eq(1)
                                    .hasClass("xi-ckbox-selected");
-            var format = xcHelper.getFormat(path);
+            var format = xcHelper.getFormat($(this).data("name"));
             pathList.push(path);
             formatList.push(format);
             recursiveList.push(recursive);
@@ -1554,7 +1554,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
     function refreshFileListEllipsis($fileName) {
         var maxChar = 38;
-        var maxWidth = 285;
+        var maxWidth = 280;
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
