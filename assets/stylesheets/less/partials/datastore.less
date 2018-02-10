@@ -1033,6 +1033,8 @@ table.datasetTable {
     text-transform: capitalize;
     overflow: visible;
 
+    @fileInfoWidth: 360px;
+
     &.loadMode {
         pointer-events: none;
 
@@ -1074,7 +1076,7 @@ table.datasetTable {
         .size(@height: ~"calc(100% - 5px)");
 
         .cardMain {
-            .size(@height: ~"calc(100% - 360px)");
+            .size(@height: ~"calc(100% - @{fileInfoWidth})");
         }
     }
 
@@ -1249,7 +1251,7 @@ table.datasetTable {
         }
 
         .rightMain {
-            width: 25%;
+            width: @fileInfoWidth;
         }
 
         &.hexMode {
@@ -1260,7 +1262,7 @@ table.datasetTable {
 
         &.previewOpen {
             .leftMain {
-                width: 75%;
+                width: ~"calc(100% - @{fileInfoWidth})";
             }
             &:not(.noAnim):not(.hexMode) {
                 .leftMain, .rightMain {
@@ -1362,7 +1364,7 @@ table.datasetTable {
         }
 
         .mainSection {
-            .size(@width: ~"calc(100% - 360px)", @height: 100%);
+            .size(@width: ~"calc(100% - @{fileInfoWidth})", @height: 100%);
             .position(relative);
             text-transform: none;
             float: left;
@@ -1574,7 +1576,7 @@ table.datasetTable {
             }
         }
         .fileInfoContainer {
-            .size(@width: 360px, @height: 100%);
+            .size(@width: @fileInfoWidth, @height: 100%);
             .font(@size: 13px);
             float: left;
             border-left: solid 1px @color-border-pinkish-grey2;
@@ -1803,11 +1805,11 @@ table.datasetTable {
 
                 &.leftPart {
                     display: block;
-                    .size(@width: 75%);
+                    .size(@width: ~"calc(100% - @{fileInfoWidth})");
                 }
 
                 &.rightPart {
-                    .size(@width: 25%);
+                    .size(@width: @fileInfoWidth);
                     border-left: none;
                 }
 
@@ -2856,18 +2858,40 @@ table.datasetTable {
                     border-top: 1px solid @color-border-white-five;
                     border-bottom: 1px solid @color-border-white-five;
                     line-height: 30px;
-                    padding: 0px 5px;
+                    height: 30px;
+                    padding: 0px 5px 0px 0px;
                     margin-top: -1px; // hides top border
-                    .textOverflowOneLine;
+                    overflow: hidden;
+
 
                     &.filteredOut {
                         display: none;
                     }
 
-                    .icon {
+                    .iconWrap {
+                        float: left;
+                        text-align: center;
+                        line-height: 32px;
+                        .size(@width: 28px, @height: 30px);
+                        background: @color-bg-white-seven;
+
+                        .icon {
+                            font-size: 16px;
+                        }
+                    }
+
+                    .colName  {
+                        display: inline-block;
+                        padding: 0px 10px;
+                        width: ~"calc(100% - 40px)";
+                        .textOverflowOneLine;
+                    }
+
+                    .xi-minus, .xi-plus {
+                        width: 10px;
                         font-size: 8px;
-                        margin-right: 4px;
-                        .position(relative, @top: -1px);
+                        float: right;
+                        .position(relative, @top: 10px);
                     }
                 }
             }
