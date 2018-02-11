@@ -285,42 +285,64 @@ window.DSPreview = (function($, DSPreview) {
 
         // set up format dropdownlist
         new MenuHelper($("#preview-file"), {
-            "onSelect": function($li) {
-                var path = $li.data("path");
-                DSPreview.changePreviewFile(path);
-            },
-            beforeOpenAsync: function() {
-                var deferred = jQuery.Deferred();
-
-                $previewWrap.find(".inputWaitingBG").remove();
-
-                var waitingBg = '<div class="inputWaitingBG">' +
-                                 '<div class="waitingIcon"></div>' +
-                              '</div>';
-                $previewWrap.find(".url").append(waitingBg);
-                var $waitingBg = $previewWrap.find(".inputWaitingBG");
-
-                if (gMinModeOn) {
-                    $waitingBg.find(".waitingIcon").show();
+            onSelect: function($li) {
+                if ($li.hasClass("mainPath") && !$li.hasClass("singlePath")) {
+                    var index = Number($li.data("index"));
+                    if ($li.hasClass("collapse")) {
+                        // expand case
+                        previewFileSelect(index);
+                        $li.removeClass("collapse");
+                    } else {
+                        $("#preview-file").find('.subPathList[data-index="' + index + '"]').empty();
+                        $li.addClass("collapse");
+                    }
+                    return true; // keep the menu open
                 } else {
-                    setTimeout(function() {
-                        $waitingBg.find(".waitingIcon").fadeIn();
-                    }, 200);
+                    $("#preview-file").find("li.active").removeClass("active");
+                    $li.addClass("active");
+                    var path = $li.data("path");
+                    DSPreview.changePreviewFile(path);
                 }
-
-                previewFileSelect()
-                .then(function() {
-                    deferred.resolve();
-                })
-                .fail(function() {
-                    deferred.reject();
-                })
-                .always(function() {
-                    $waitingBg.remove();
-                });
-
-                return deferred.promise();
             },
+            onOpen: function() {
+                var previewFile = loadArgs.getPreviewFile();
+                var $previewFile = $("#preview-file");
+                $previewFile.find("li.active").removeClass("active");
+                $previewFile.find('li[data-path="' + previewFile + '"]')
+                            .addClass("active");
+            },
+            // beforeOpenAsync: function() {
+                // var deferred = jQuery.Deferred();
+
+                // $previewWrap.find(".inputWaitingBG").remove();
+
+                // var waitingBg = '<div class="inputWaitingBG">' +
+                //                  '<div class="waitingIcon"></div>' +
+                //               '</div>';
+                // $previewWrap.find(".url").append(waitingBg);
+                // var $waitingBg = $previewWrap.find(".inputWaitingBG");
+
+                // if (gMinModeOn) {
+                //     $waitingBg.find(".waitingIcon").show();
+                // } else {
+                //     setTimeout(function() {
+                //         $waitingBg.find(".waitingIcon").fadeIn();
+                //     }, 200);
+                // }
+
+                // previewFileSelect()
+                // .then(function() {
+                //     deferred.resolve();
+                // })
+                // .fail(function() {
+                //     deferred.reject();
+                // })
+                // .always(function() {
+                //     $waitingBg.remove();
+                // });
+
+                // return deferred.promise();
+            // },
             "container": "#dsForm-preview",
             "bounds": "#dsForm-preview",
             "bottomPadding": 5
@@ -458,6 +480,8 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         setTargetInfo(loadArgs.getTargetName());
+        setPreviewPaths();
+
         return previewData({
             "udfModule": module,
             "udfFunc": func,
@@ -468,6 +492,9 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.changePreviewFile = function(path, noDetect) {
+        if (path === loadArgs.getPreviewFile()) {
+            return;
+        }
         loadArgs.setPreviewFile(path);
         refreshPreview(noDetect);
     };
@@ -2291,52 +2318,6 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getURLToPreview(curPreviewId) {
-        var previewFile = loadArgs.getPreviewFile();
-        if (previewFile != null) {
-            return PromiseHelper.resolve(previewFile);
-        }
-
-        var firstFile = loadArgs.files[0];
-        var targetName = loadArgs.getTargetName();
-        // XXX this need to use list file later?
-        if (firstFile.isFolder === false) {
-            // single file case
-            return PromiseHelper.resolve(firstFile.path);
-        }
-
-        if (DSTargetManager.isGeneratedTarget(targetName)) {
-            // target of type Generated is a special case
-            return PromiseHelper.resolve(firstFile.path);
-        }
-
-        var deferred = jQuery.Deferred();
-        var args = {
-            targetName: targetName,
-            path: firstFile.path,
-            recursive: firstFile.recursive,
-            fileNamePattern: loadArgs.getPattern(),
-        };
-
-        XcalarPreview(args, 1, 0)
-        .then(function(res) {
-            if (!isValidPreviewId(curPreviewId)) {
-                return PromiseHelper.reject({
-                    "error": oldPreviewError
-                });
-            }
-
-            var path = firstFile.path.endsWith("/")
-                        ? firstFile.path
-                        : firstFile.path + "/";
-            path += res.relPath;
-            deferred.resolve(path);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function setDefaultDSName() {
         var files = loadArgs.files;
         if (!loadArgs.multiDS) {
@@ -2423,88 +2404,148 @@ window.DSPreview = (function($, DSPreview) {
         xcTooltip.remove($file.find(".text"));
     }
 
-    function previewFileSelect() {
-        var deferred = jQuery.Deferred();
-
-        var previewFile = $("#preview-file").find(".text").val();
-        // XXX temporay use firstFile's path
-        var firstFile = loadArgs.files[0];
-        var pattern = loadArgs.getPattern();
-        var options = {
-            "targetName": loadArgs.getTargetName(),
-            "path": firstFile.path,
-            "previewFile": previewFile,
-            "recursive": firstFile.recursive,
-            "fileNamePattern": pattern
-        };
-        var path = options.path;
-        var curPreviewId = previewId;
-
-        if (loadArgs.isUniqueSingleFile()) {
-            // if single file, don't need to make backend call, just list
-            // the 1 file
-            loadFiles(firstFile.path, [{name: previewFile}]);
-            return PromiseHelper.resolve();
+    function getURLToPreview() {
+        var previewFile = loadArgs.getPreviewFile();
+        if (previewFile != null) {
+            return PromiseHelper.resolve(previewFile);
+        } else if (DSTargetManager.isGeneratedTarget(targetName)) {
+            // target of type Generated is a special case
+            return PromiseHelper.resolve(firstFile.path);
         }
 
-        XcalarListFiles(options)
-        .then(function(res) {
-            if (!isValidPreviewId(curPreviewId)) {
-                return deferred.reject();
-            }
-            loadFiles(path, res.files, options.previewFile);
-            deferred.resolve();
+        var deferred = jQuery.Deferred();
+
+        previewFileSelect(0)
+        .then(function(paths) {
+            deferred.resolve(paths[0]);
         })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
-        function loadFiles(url, files, activeFilePath) {
-            var html = "";
-            var paths = [];
-            var nameMap = {};
-            var $ul = $("#preview-file").find("ul");
+        return deferred.promise();
+    }
 
-            if (files.length === 1 && url.endsWith(files[0].name)) {
-                // when it's a single file
-                paths[0] = url;
-                nameMap[url] = files[0].name;
-            } else {
-                // when it's a folder
-                if (!url.endsWith("/")) {
-                    url += "/";
-                }
-                files.forEach(function(file) {
-                    // XXX temporary skip folder, later may enable it
-                    if (!file.attr.isDirectory) {
-                        var path = url + file.name;
-                        paths.push(path);
-                        nameMap[path] = file.name;
-                    }
-                });
+    function setPreviewPaths() {
+        var html = "";
+        loadArgs.files.forEach(function(file, index) {
+            var classes = "mainPath";
+            var icons = '<i class="icon xi-arrow-down"></i>' +
+                        '<i class="icon xi-arrow-right"></i>';
+            var data = 'data-index="' + index + '"';
 
-                paths.sort();
+            if (index !== 0) {
+                classes += " collapse";
             }
+            if (file.isFolder === false) {
+                classes += " singlePath";
+                icons = '<i class="icon xi-radio-empty"></i>' +
+                        '<i class="icon xi-radio-selected"></i>';
+                data += ' data-path="' + file.path + '"';
+            }
+            html += '<li class="' + classes + '" ' + data + '>' +
+                        '<div class="label tooltipOverflow"' +
+                        ' data-toggle="tooltip"' +
+                        ' data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + file.path + '">' +
+                            icons +
+                            file.path +
+                        '</div>' +
+                    '</li>' +
+                    '<div class="subPathList" data-index="' + index + '"' + '>' +
+                    '</div>';
+        });
+        $("#preview-file").find("ul").html(html);
+    }
+
+    function loadFiles(url, index, files) {
+        var paths = [];
+        if (files.length === 1 && url.endsWith(files[0].name)) {
+            // when it's a single file
+            paths[0] = url;
+            var $mainPath = $("#preview-file").find('.mainPath[data-index="' + index + '"]');
+            $mainPath.addClass("singlePath")
+                     .data("path", url)
+                     .attr("data-path", url);
+            $mainPath.find(".icon").remove();
+            $mainPath.find(".label").prepend('<i class="icon xi-radio-empty"></i>' +
+                                            '<i class="icon xi-radio-selected"></i>');
+        } else {
+            var html = "";
+            var nameMap = {};
+            // when it's a folder
+            if (!url.endsWith("/")) {
+                url += "/";
+            }
+            files.forEach(function(file) {
+                // XXX temporary skip folder, later may enable it
+                if (!file.attr.isDirectory) {
+                    var path = url + file.name;
+                    paths.push(path);
+                    nameMap[path] = file.name;
+                }
+            });
+
+            paths.sort();
 
             for (var i = 0, len = paths.length; i < len; i++) {
                 var path = paths[i];
-                var classes = (path === activeFilePath) ? " active" : "";
                 var fileName = nameMap[path];
                 html +=
-                    '<li class="' + classes + '"' +
+                    '<li class="subPath"' +
                     'data-path="' + path + '">' +
                         '<div class="label tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
                         ' data-placement="top"' +
-                        ' title="' + fileName + '">' +
+                        ' data-title="' + fileName + '">' +
+                        '<i class="icon xi-radio-empty"></i>' +
+                        '<i class="icon xi-radio-selected"></i>' +
                             path +
                         '</div>' +
                     '</li>';
             }
 
-            $ul.html(html);
+            var $subPathList = $("#preview-file").find('.subPathList[data-index="' + index + '"]');
+            $subPathList.html(html);
         }
+
+        return paths;
+    }
+
+    function previewFileSelect(fileIndex) {
+        var deferred = jQuery.Deferred();
+
+        $previewWrap.find(".inputWaitingBG").remove();
+        var waitingBg = '<div class="inputWaitingBG">' +
+                         '<div class="waitingIcon"></div>' +
+                      '</div>';
+        $previewWrap.find(".url").append(waitingBg);
+        var $waitingBg = $previewWrap.find(".inputWaitingBG");
+
+        if (gMinModeOn) {
+            $waitingBg.find(".waitingIcon").show();
+        } else {
+            setTimeout(function() {
+                $waitingBg.find(".waitingIcon").fadeIn();
+            }, 200);
+        }
+
+        var file = loadArgs.files[fileIndex];
+        var path = file.path;
+        var curPreviewId = previewId;
+
+        loadArgs.listFileInPath(path, file.recursive)
+        .then(function(res) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return deferred.reject();
+            }
+            var paths = loadFiles(path, fileIndex, res.files);
+            deferred.resolve(paths);
+        })
+        .fail(deferred.reject)
+        .always(function() {
+            $waitingBg.remove();
+        });
 
         return deferred.promise();
     }

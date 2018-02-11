@@ -2127,6 +2127,53 @@ table.datasetTable {
 
             .dropDownList {
                 width: 100%;
+
+                .icon {
+                    .size(@width: 12px);
+
+                    &.xi-arrow-down, &.xi-arrow-right {
+                        font-size: 8px;
+                        .position(relative, @top: -2px, @left: 3px);
+                        margin-right: 5px;
+                    }
+
+                    &.xi-radio-empty, &.xi-radio-selected {
+                        font-size: 12px;
+                        margin-right: 5px;
+                    }
+                }
+
+                .mainPath {
+                    &.collapse {
+                        .icon.xi-arrow-down {
+                            display: none;
+                        }
+                    }
+
+                    &:not(.collapse) {
+                        .icon.xi-arrow-right {
+                            display: none;
+                        }
+                    }
+                }
+
+                .subPath {
+                    padding-left: 25px;
+                }
+
+                .subPath, .singlePath {
+                    &.active {
+                        .xi-radio-empty {
+                            display: none;
+                        }
+                    }
+
+                    &:not(.active) {
+                        .xi-radio-selected {
+                            display: none;
+                        }
+                    }
+                }
             }
 
             .text {

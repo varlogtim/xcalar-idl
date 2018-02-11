@@ -137,6 +137,7 @@ function DSFormController() {
 DSFormController.prototype = {
     set: function(options) {
         options = options || {};
+        this.previewSet = {};
         this.files = this.files || [];
 
         if (options.targetName != null) {
@@ -179,6 +180,7 @@ DSFormController.prototype = {
         this.hasHeader = false;
         this.quote = "\"";
         this.previewFile = null;
+        this.previewSet = {};
         this.files = [];
 
         delete this.multiDS;
@@ -193,15 +195,6 @@ DSFormController.prototype = {
 
     getTargetName: function() {
         return this.targetName;
-    },
-
-    getPath: function() {
-        var path = this.path;
-        if (DSTargetManager.isGeneratedTarget(this.targetName) &&
-            path.startsWith("/")) {
-            path = path.slice(1);
-        }
-        return path;
     },
 
     getFile: function(index) {
@@ -294,6 +287,30 @@ DSFormController.prototype = {
             }
         }
         return true;
+    },
+
+    listFileInPath: function(path, recursive) {
+        // set local variable at first in case
+        // in the middle of async call this.previewSet get reset
+        var previewSet = this.previewSet;
+        if (previewSet.hasOwnProperty(path)) {
+            return PromiseHelper.resolve(previewSet[path]);
+        } else {
+            var deferred = jQuery.Deferred();
+            var options = {
+                "targetName": this.getTargetName(),
+                "path": path,
+                "recursive": recursive
+            };
+            XcalarListFiles(options)
+            .then(function(res) {
+                previewSet[path] = res;
+                deferred.resolve(res);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        }
     },
 };
 
