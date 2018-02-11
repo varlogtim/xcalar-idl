@@ -2127,9 +2127,6 @@ window.DSPreview = (function($, DSPreview) {
                         // if first time, show error message since there's no
                         // previous table to show
                         errorHandler(error, false, true);
-                        if (urlToPreview != null) {
-                            setPreviewFile(urlToPreview);
-                        }
                     } else {
                     // if canceled and still has valid preview id, restore state
                     // and show previous table
@@ -2151,10 +2148,6 @@ window.DSPreview = (function($, DSPreview) {
             {
                 console.error(error);
             } else {
-                if (urlToPreview != null) {
-                    setPreviewFile(urlToPreview);
-                }
-
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
