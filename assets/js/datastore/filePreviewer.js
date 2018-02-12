@@ -292,13 +292,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     function calculateCharsPerLine() {
         var sectionWidth;
-        var padding = 50;
-        var rightPanelPct = .25;
+        var padding = 57;
         if ($cardMain.hasClass("full")) {
             sectionWidth = $cardMain.width() - padding;
         } else {
-            sectionWidth = ($cardMain.width() *
-                            rightPanelPct) - (padding + 7);
+            sectionWidth = 360 - padding;
         }
 
         var charWidth = calculateCharWidth();

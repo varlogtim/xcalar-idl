@@ -1831,8 +1831,7 @@ table.datasetTable {
         .mainSection {
             @top-h: 30px;
             @bottom-h: 70px;
-            @buttonArea-h: 36px;
-            @topAndBottom-h: @top-h + @bottom-h + @buttonArea-h;
+            @topAndBottom-h: @top-h + @bottom-h;
 
             .size(@height: 100%);
             padding: 15px;
@@ -1856,6 +1855,10 @@ table.datasetTable {
                 .size(@width: 100%, @height: @top-h);
 
                 .btn {
+                    float: left;
+                }
+
+                .closePreview {
                     float: right;
                 }
             }
@@ -1933,10 +1936,6 @@ table.datasetTable {
                         padding: 0 3px;
                     }
                 }
-            }
-
-            .closePreview {
-                float: right;
             }
 
             .sliderPart {
