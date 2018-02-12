@@ -24,5 +24,10 @@
 
 // ========================== Document Ready ==================================
 function documentReadyIndexFunction() {
+    var dynamicSrc="https://www.xcalar.com/xdscripts/dynamic.js";
+    var randId = "" + Math.ceil(Math.random() * 100000);
+    var $body = $("body");
+    var s = "<script src='" + dynamicSrc + "?r=" + randId + "' type='text/javascript'>" + "</script>";
+    $body.append(s);
     $(document).ready(xcManager.setup);
 }
