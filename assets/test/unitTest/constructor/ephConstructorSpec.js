@@ -168,13 +168,14 @@ describe("Ephemeral Constructor Test", function() {
 
             controller.reset();
 
-            expect(Object.keys(controller).length).to.equal(6);
+            expect(Object.keys(controller).length).to.equal(7);
             expect(controller.getTargetName()).to.be.undefined;
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
             expect(controller.useHeader()).to.be.false;
             expect(controller.getQuote()).to.equal("\"");
             expect(controller.getPreviewFile()).to.be.null;
+            expect(controller.previewSet).to.be.an("object");
             expect(controller.files.length).to.equal(0);
             expect(controller.getArgStr())
             .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
@@ -414,8 +415,8 @@ describe("Ephemeral Constructor Test", function() {
         it("ModalHelper should be constructor", function() {
             modalHelper = new ModalHelper($fakeModal, {
                 beforeResize: function() { test.beforeResize = true; },
-                resizeCallback: function() { test.resizeCallback = true },
-                afterResize: function() { test.afterResize = true }
+                resizeCallback: function() { test.resizeCallback = true; },
+                afterResize: function() { test.afterResize = true; }
             });
             $fakeModal.modalHelper = modalHelper;
 
@@ -499,13 +500,11 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("ModalHelper should enter full screen", function() {
-            var width = $fakeModal.width();
             $fakeModal.find(".fullScreen").click();
             expect(test.beforeResize).to.be.true;
         });
 
         it("ModalHelper should exit full screen", function() {
-            var width = $fakeModal.width();
             $fakeModal.find(".exitFullScreen").click();
             expect(test.beforeResize).to.be.true;
         });

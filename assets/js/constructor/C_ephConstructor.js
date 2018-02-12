@@ -263,6 +263,7 @@ DSFormController.prototype = {
         delete args.typedColumns;
         delete args.files;
         delete args.multiDS;
+        delete args.previewSet;
         return JSON.stringify(args);
     },
 

@@ -386,117 +386,37 @@ describe("Dataset-DSPreview Test", function() {
 
         it("getURLToPreview should work", function(done) {
             var meta = DSPreview.__testOnly__.get();
-            var isViewFolder = meta.isViewFolder;
             meta.loadArgs.set({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url",
+                targetName: gDefaultSharedRoot,
+                files: [{
+                    path: "/url",
+                }]
             });
-            DSPreview.__testOnly__.set(null, null, true);
-            var id = DSPreview.__testOnly__.get().id;
-            var oldPreview = XcalarPreview;
-            XcalarPreview = function() {
-                return PromiseHelper.resolve({"relPath": "file/test"});
+            DSPreview.__testOnly__.set(null, null);
+            var oldList = XcalarListFiles;
+            XcalarListFiles = function() {
+                return PromiseHelper.resolve({
+                    numFiles: 1,
+                    files: [{
+                        name: "test",
+                        attr: {
+                            isDirectory: false
+                        }
+                    }]
+                });
             };
 
-            DSPreview.__testOnly__.getURLToPreview({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url"
-            }, id)
+            DSPreview.__testOnly__.getURLToPreview()
             .then(function(path) {
-                expect(path).equal("/url/file/test");
+                expect(path).equal("/url/test");
                 done();
             })
             .fail(function() {
                 done("fail");
             })
             .always(function() {
-                XcalarPreview = oldPreview;
-                DSPreview.__testOnly__.set(null, null, isViewFolder);
-            });
-        });
-
-        it("getURLToPreview should return single file url", function(done) {
-            var meta = DSPreview.__testOnly__.get();
-            var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url",
-            });
-            DSPreview.__testOnly__.set(null, null, false);
-
-            DSPreview.__testOnly__.getURLToPreview({
-                "targetName": gDefaultSharedRoot,
-                "path": "/test"
-            })
-            .then(function(path) {
-                expect(path).equal("/test");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                DSPreview.__testOnly__.set(null, null, isViewFolder);
-            });
-        });
-
-        it("getURLToPreview should fail with wrong id", function(done) {
-            var meta = DSPreview.__testOnly__.get();
-            var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url",
-            });
-            DSPreview.__testOnly__.set(null, null, true);
-            var oldPreview = XcalarPreview;
-            XcalarPreview = function() {
-                return PromiseHelper.resolve({"relPath": "/test"});
-            };
-
-            DSPreview.__testOnly__.getURLToPreview({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url"
-            }, "wrongId")
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.be.an("object");
-                expect(error.error).to.equal("old preview error");
-                done();
-            })
-            .always(function() {
-                XcalarPreview = oldPreview;
-                DSPreview.__testOnly__.set(null, null, isViewFolder);
-            });
-        });
-
-        it("getURLToPreview should handle fail case", function(done) {
-            var meta = DSPreview.__testOnly__.get();
-            var isViewFolder = meta.isViewFolder;
-            meta.loadArgs.set({
-                "targetName": gDefaultSharedRoot,
-                "path": "/url",
-            });
-            DSPreview.__testOnly__.set(null, null, true);
-            var oldPreview = XcalarPreview;
-            XcalarPreview = function() {
-                return PromiseHelper.reject("test");
-            };
-
-            DSPreview.__testOnly__.getURLToPreview({
-                "targetName": gDefaultSharedRoot,
-            })
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test");
-                done();
-            })
-            .always(function() {
-                XcalarPreview = oldPreview;
-                DSPreview.__testOnly__.set(null, null, isViewFolder);
+                XcalarListFiles = oldList;
+                DSPreview.__testOnly__.set(null, null);
             });
         });
 
@@ -572,26 +492,26 @@ describe("Dataset-DSPreview Test", function() {
             loadArgs.setPreviewFile(oldPreviewFile);
         });
 
-        it("DSPreview.backFromParser should work", function() {
-            var oldFunc = DSPreview.changePreviewFile;
-            DSPreview.changePreviewFile = function() {
-                return;
-            };
-            // case 1
-            DSPreview.backFromParser("test", {
-                "moduleName": "udf"
-            });
-            var useUDF = DSPreview.__testOnly__.isUseUDF();
-            expect(useUDF).to.be.true;
-            // case 2
-            DSPreview.backFromParser("test", {
-                "moduleName": "udf",
-                "delimiter": ","
-            });
-            expect(loadArgs.getLineDelim()).to.be.equal(",");
+        // it("DSPreview.backFromParser should work", function() {
+        //     var oldFunc = DSPreview.changePreviewFile;
+        //     DSPreview.changePreviewFile = function() {
+        //         return;
+        //     };
+        //     // case 1
+        //     DSPreview.backFromParser("test", {
+        //         "moduleName": "udf"
+        //     });
+        //     var useUDF = DSPreview.__testOnly__.isUseUDF();
+        //     expect(useUDF).to.be.true;
+        //     // case 2
+        //     DSPreview.backFromParser("test", {
+        //         "moduleName": "udf",
+        //         "delimiter": ","
+        //     });
+        //     expect(loadArgs.getLineDelim()).to.be.equal(",");
 
-            DSPreview.changePreviewFile = oldFunc;
-        });
+        //     DSPreview.changePreviewFile = oldFunc;
+        // });
 
         it("DSPreview.toggleXcUDFs should work", function() {
             var isHide = UserSettings.getPref("hideXcUDF") || false;
@@ -637,9 +557,9 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
-            loadArgs.set({"path": "test.xlsx"});
+            loadArgs.setPreviewFile("test.xlsx");
             expect(detectFormat()).to.equal("Excel");
-            loadArgs.set({"path": "test"});
+            loadArgs.setPreviewFile("test");
             var data = "[{\"test\"}";
             expect(detectFormat(data, "\n")).to.equal("JSON");
 
@@ -729,7 +649,7 @@ describe("Dataset-DSPreview Test", function() {
             // error json
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
-            var res = $("#dsPreviewWrap").find(".errorSection .topSection .content").text()
+            var res = $("#dsPreviewWrap").find(".errorSection .topSection .content").text();
             expect(res).to.equal("Your file cannot be parsed as JSON. We recommend you use the CSV format instead.");
 
             // valid json
@@ -1342,6 +1262,9 @@ describe("Dataset-DSPreview Test", function() {
 
         before(function() {
             validateForm = DSPreview.__testOnly__.validateForm;
+
+            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.set({files: [{}]});
         });
 
         it("Should validate name", function() {
@@ -1692,36 +1615,36 @@ describe("Dataset-DSPreview Test", function() {
         //     PreviewFileModal.show = oldFunc;
         // });
 
-        it("should click parser to trigger parser", function() {
-            var oldParser = DSParser.show;
-            var oldSelect = PreviewFileModal.show;
-            var test1 = false;
-            var test2 = false;
+        // it("should click parser to trigger parser", function() {
+        //     var oldParser = DSParser.show;
+        //     var oldSelect = PreviewFileModal.show;
+        //     var test1 = false;
+        //     var test2 = false;
 
-            DSParser.show = function() {
-                test1 = true;
-            };
-            PreviewFileModal.show = function() {
-                test2 = true;
-            };
+        //     DSParser.show = function() {
+        //         test1 = true;
+        //     };
+        //     PreviewFileModal.show = function() {
+        //         test2 = true;
+        //     };
 
-            var isFolder = DSPreview.__testOnly__.get().isViewFolder;
-            DSPreview.__testOnly__.set(null, null, false);
-            $("#preview-parser").click();
-            expect(test1).to.be.true;
-            expect(test2).to.be.false;
+        //     var isFolder = DSPreview.__testOnly__.get().isViewFolder;
+        //     DSPreview.__testOnly__.set(null, null, false);
+        //     $("#preview-parser").click();
+        //     expect(test1).to.be.true;
+        //     expect(test2).to.be.false;
 
-            DSPreview.__testOnly__.set(null, null, true);
-            $("#preview-parser").click();
-            expect(test1).to.be.true;
-            expect(test2).to.be.true;
+        //     DSPreview.__testOnly__.set(null, null, true);
+        //     $("#preview-parser").click();
+        //     expect(test1).to.be.true;
+        //     expect(test2).to.be.true;
 
-            if (isFolder) {
-                DSPreview.__testOnly__.set(null, null, true);
-            }
-            DSParser.show = oldParser;
-            PreviewFileModal.show = oldSelect;
-        });
+        //     if (isFolder) {
+        //         DSPreview.__testOnly__.set(null, null, true);
+        //     }
+        //     DSParser.show = oldParser;
+        //     PreviewFileModal.show = oldSelect;
+        // });
 
         it("should click to toggle advanced option", function() {
             var $advanceSection = $form.find(".advanceSection");
@@ -1787,7 +1710,7 @@ describe("Dataset-DSPreview Test", function() {
         it("should click cancel to back to form", function() {
             loadArgs.set({
                 targetName: gDefaultSharedRoot,
-                path: "/abc"
+                files: [{path: "/abc"}]
             });
             var $button = $form.find(".cancel");
             var oldGetLicense = XVM.getLicenseMode;
@@ -1811,7 +1734,7 @@ describe("Dataset-DSPreview Test", function() {
             // case 2
             loadArgs.set({
                 targetName: gDefaultSharedRoot,
-                path: "/abc"
+                files: [{path: "/abc"}]
             });
             XVM.getLicenseMode = function() { return XcalarMode.Oper; };
             DSPreview.__testOnly__.setBackToFormCard(true);
@@ -1824,7 +1747,7 @@ describe("Dataset-DSPreview Test", function() {
             // case 3
             loadArgs.set({
                 targetName: gDefaultSharedRoot,
-                path: "/abc"
+                files: [{path: "/abc"}]
             });
             DSPreview.__testOnly__.setBackToFormCard(false);
             $button.click();
@@ -1848,7 +1771,7 @@ describe("Dataset-DSPreview Test", function() {
         before(function(done) {
             DSPreview.show({
                 "targetName": testDatasets.sp500.targetName,
-                "path": testDatasets.sp500.path
+                "files": [{path: testDatasets.sp500.path}]
             }, true)
             .then(function() {
                 done();
@@ -1987,7 +1910,7 @@ describe("Dataset-DSPreview Test", function() {
             .fail(function() {
                 expect(firstPass).to.be.true;
                 done();
-            })
+            });
         });
 
         after(function() {
@@ -2026,7 +1949,7 @@ describe("Dataset-DSPreview Test", function() {
         it("DSPreview.show() should work", function(done) {
             DSPreview.show({
                 "targetName": testDatasets.sp500.targetName,
-                "path": testDatasets.sp500.path
+                "files": [{path: testDatasets.sp500.path}]
             }, true)
             .then(function() {
                 expect($previewTable.html()).not.to.equal("");

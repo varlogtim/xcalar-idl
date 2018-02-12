@@ -284,7 +284,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // set up format dropdownlist
-        new MenuHelper($("#preview-file"), {
+        var menuHepler = new MenuHelper($("#preview-file"), {
             onSelect: function($li) {
                 if ($li.hasClass("mainPath") && !$li.hasClass("singlePath")) {
                     var index = Number($li.data("index"));
@@ -296,6 +296,7 @@ window.DSPreview = (function($, DSPreview) {
                         $("#preview-file").find('.subPathList[data-index="' + index + '"]').empty();
                         $li.addClass("collapse");
                     }
+                    menuHepler.showOrHideScrollers();
                     return true; // keep the menu open
                 } else {
                     $("#preview-file").find("li.active").removeClass("active");
@@ -304,13 +305,7 @@ window.DSPreview = (function($, DSPreview) {
                     DSPreview.changePreviewFile(path);
                 }
             },
-            onOpen: function() {
-                var previewFile = loadArgs.getPreviewFile();
-                var $previewFile = $("#preview-file");
-                $previewFile.find("li.active").removeClass("active");
-                $previewFile.find('li[data-path="' + previewFile + '"]')
-                            .addClass("active");
-            },
+            onOpen: setActivePreviewFile,
             // beforeOpenAsync: function() {
                 // var deferred = jQuery.Deferred();
 
@@ -2116,10 +2111,7 @@ window.DSPreview = (function($, DSPreview) {
         var curPreviewId = updatePreviewId();
         var initialLoadArgStr;
 
-        checkIsFolder()
-        .then(function() {
-            return getURLToPreview(curPreviewId);
-        })
+        getURLToPreview(curPreviewId)
         .then(function(url) {
             setPreviewFile(url);
 
@@ -2132,6 +2124,7 @@ window.DSPreview = (function($, DSPreview) {
                 } else if (DSTargetManager.isGeneratedTarget(targetName)) {
                     // special case
                     hasUDF = true;
+                    noDetect = true;
                     udfModule = "default";
                     udfFunc = "convertNewLineJsonToArrayJson";
                     toggleFormat("UDF");
@@ -2260,55 +2253,6 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function checkIsFolder() {
-        var files = loadArgs.files;
-        // only enter from dsForm or restore from dsTqble need to check
-        // which will only have one file/folder
-        if (files.length > 1 || files[0].isFolder != null) {
-            return PromiseHelper.resolve();
-        }
-
-        var deferred = jQuery.Deferred();
-        var targetName = loadArgs.getTargetName();
-        var url = files[0].path;
-
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length - 1);
-        }
-
-        var lastIndex = url.lastIndexOf("/");
-        if (lastIndex < 0) {
-            console.error("error case");
-            files.isFolder = null;
-            // still resolve
-            return PromiseHelper.resolve();
-        }
-
-        var path = url.substring(0, lastIndex + 1);
-        var fileName = url.substring(lastIndex + 1, url.length);
-        XcalarListFiles({targetName: targetName, path: path})
-        .then(function(res) {
-            var numFiles = res.numFiles;
-            var isFolder = false;
-            for (var i = 0; i < numFiles; i++) {
-                var file = res.files[i];
-                if (file.name === fileName) {
-                    isFolder = file.attr.isDirectory;
-                    break;
-                }
-            }
-            files[0].isFolder = isFolder;
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("list files failed", error);
-            // still resolve
-            deferred.resolve();
-        });
-
-        return deferred.promise();
-    }
-
     function isExcel(url) {
         if (loadArgs.getFormat() === formatMap.EXCEL ||
             xcHelper.getFormat(url) === formatMap.EXCEL) {
@@ -2406,11 +2350,13 @@ window.DSPreview = (function($, DSPreview) {
 
     function getURLToPreview() {
         var previewFile = loadArgs.getPreviewFile();
+        var targetName = loadArgs.getTargetName();
+
         if (previewFile != null) {
             return PromiseHelper.resolve(previewFile);
         } else if (DSTargetManager.isGeneratedTarget(targetName)) {
             // target of type Generated is a special case
-            return PromiseHelper.resolve(firstFile.path);
+            return PromiseHelper.resolve(loadArgs.files[0].path);
         }
 
         var deferred = jQuery.Deferred();
@@ -2426,6 +2372,8 @@ window.DSPreview = (function($, DSPreview) {
 
     function setPreviewPaths() {
         var html = "";
+        var targetName = loadArgs.getTargetName();
+        var isGeneratedTarget = DSTargetManager.isGeneratedTarget(targetName);
         loadArgs.files.forEach(function(file, index) {
             var classes = "mainPath";
             var icons = '<i class="icon xi-arrow-down"></i>' +
@@ -2435,7 +2383,7 @@ window.DSPreview = (function($, DSPreview) {
             if (index !== 0) {
                 classes += " collapse";
             }
-            if (file.isFolder === false) {
+            if (file.isFolder === false || isGeneratedTarget) {
                 classes += " singlePath";
                 icons = '<i class="icon xi-radio-empty"></i>' +
                         '<i class="icon xi-radio-selected"></i>';
@@ -2457,12 +2405,27 @@ window.DSPreview = (function($, DSPreview) {
         $("#preview-file").find("ul").html(html);
     }
 
+    function setActivePreviewFile() {
+        var previewFile = loadArgs.getPreviewFile();
+        if (previewFile != null) {
+            var $previewFile = $("#preview-file");
+            $previewFile.find("li.active").removeClass("active");
+            $previewFile.find('li[data-path="' + previewFile + '"]')
+                        .addClass("active");
+        }
+    }
+
     function loadFiles(url, index, files) {
+        var file = loadArgs.files[index];
+        var $previewFile = $("#preview-file");
         var paths = [];
+        var isFolder = null;
+
         if (files.length === 1 && url.endsWith(files[0].name)) {
             // when it's a single file
+            isFolder = false;
             paths[0] = url;
-            var $mainPath = $("#preview-file").find('.mainPath[data-index="' + index + '"]');
+            var $mainPath = $previewFile.find('.mainPath[data-index="' + index + '"]');
             $mainPath.addClass("singlePath")
                      .data("path", url)
                      .attr("data-path", url);
@@ -2470,6 +2433,7 @@ window.DSPreview = (function($, DSPreview) {
             $mainPath.find(".label").prepend('<i class="icon xi-radio-empty"></i>' +
                                             '<i class="icon xi-radio-selected"></i>');
         } else {
+            isFolder = true;
             var html = "";
             var nameMap = {};
             // when it's a folder
@@ -2505,10 +2469,14 @@ window.DSPreview = (function($, DSPreview) {
                     '</li>';
             }
 
-            var $subPathList = $("#preview-file").find('.subPathList[data-index="' + index + '"]');
+            var $subPathList = $previewFile.find('.subPathList[data-index="' + index + '"]');
             $subPathList.html(html);
         }
 
+        if (file.isFolder == null) {
+            file.isFolder = isFolder;
+        }
+        setActivePreviewFile();
         return paths;
     }
 
