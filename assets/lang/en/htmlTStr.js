@@ -102,7 +102,7 @@ module.exports = {
         "URL": "URL",
         "UserName": "User name",
         "Val": "Value",
-        "ViewRawData": "VIEW RAW",
+        "ViewRawData": "VIEW RAW DATA",
         "InBeta": "In Beta",
         "WS": "Worksheet",
         "SEND": "SEND"

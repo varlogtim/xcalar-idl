@@ -5,7 +5,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var $innerContainer;  // $("#innerFileBrowserContainer")
     var $fileBrowserMain; // $("#fileBrowserMain")
     var $infoContainer;   // $("#fileInfoContainer")
-    var $selectedFileList; // $("#fileBrowserContainer .selectedFileList")
+    var $pickedFileList; // $("#fileBrowserContainer .pickedFileList")
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
@@ -80,7 +80,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $searchSection = $("#fileBrowserSearch");
         $searchDropdown = $("#fileSearchDropdown");
         $infoContainer = $("#fileInfoContainer");
-        $selectedFileList = $("#fileInfoContainer .selectedFileList").eq(0);
+        $pickedFileList = $("#fileInfoContainer .pickedFileList").eq(0);
         $visibleFiles = $();
 
         FilePreviewer.setup();
@@ -166,11 +166,11 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // click blank space to remove foucse on folder/dsds
-        $innerContainer.on("click", function() {
-            cleanContainer();
+        $fileBrowser.on("click", function() {
+            cleanContainer({keepPicked: true});
         });
 
-        $innerContainer.on({
+        $fileBrowser.on({
             "click": function(event) {
                 // click to focus
                 var $grid = $(this);
@@ -181,35 +181,34 @@ window.FileBrowser = (function($, FileBrowser) {
                     if ($grid.hasClass("selected")) {
                         // If ctrl+click on a selected file, unselect and return
                         unselectSingleFile($grid);
-                        var isRemove = true;
-                        updateSelectedFiles($grid, isRemove);
                         return;
                     }
-                    // Keep selected files
-                    cleanContainer(true);
+                    // Keep selected & picked files
+                    cleanContainer({keepSelected: true, keepPicked: true});
                     $anchor = $grid;
                     selectSingleFile($grid);
-                    updateSelectedFiles($grid);
 
                 } else if (event.shiftKey) {
                     // ctrl + shift at same time = ctrl
                     // This is only for shift-click
-                    cleanContainer(false, true);
+                    cleanContainer({keepAnchor: true, keepPicked: true});
                     selectMultiFiles($grid);
-                    updateSelectedFiles();
                 } else {
                     // Regular single click
-                    cleanContainer();
+                    // If there are picked files, we should keep them
+                    cleanContainer({keepPicked: true});
                     $anchor = $grid;
                     selectSingleFile($grid);
-                    updateSelectedFiles();
                 }
             },
             "dblclick": function() {
                 var $grid = $(this);
 
                 if (isDS($grid)) {
-                    // dblclick on a file does nothing
+                    if (!$grid.hasClass("picked")) {
+                        // dblclick on a non-picked file will import it
+                        submitForm($grid);
+                    }
                     return;
                 }
                 var path = getCurrentPath() + getGridUnitName($grid) + '/';
@@ -235,21 +234,36 @@ window.FileBrowser = (function($, FileBrowser) {
             },
         }, ".grid-unit");
 
-        $innerContainer.on("click", ".checkBox .icon", function(event) {
-            // This behavior is in essence the same as a ctrl+click
-            event.stopPropagation();
-            var $grid = $(this).closest(".grid-unit");
-            var isRemove = false;
-            if ($grid.hasClass("selected")) {
-                unselectSingleFile($grid);
-                isRemove = true;
-            } else {
-                cleanContainer(true);
-                $anchor = $grid;
+        $fileBrowser.on({
+            "click": function(event) {
+                // This behavior is in essence the same as a ctrl+click
+                event.stopPropagation();
+                var $grid = $(this).closest(".grid-unit");
+                if ($grid.hasClass("selected")) {
+                    cleanContainer({keepSelected: true, keepPicked: true});
+                } else if ($grid.hasClass("picked")) {
+                    // If uncheck on an unselected file, remove all selected
+                    cleanContainer({keepPicked: true});
+                } else {
+                    // If check on an unselected file, remove all
+                    // selected & unpicked files first
+                    cleanContainer({keepPicked: true, removeUnpicked: true});
+                }
                 selectSingleFile($grid);
-            }
-            updateSelectedFiles($grid, isRemove);
-        });
+                $anchor = $grid;
+                togglePickedFiles($grid);
+                if ($grid.hasClass("picked")) {
+                    updatePickedFilesList();
+                } else {
+                    updatePickedFilesList(null, {isRemove: true});
+                }
+            },
+            "dblclick": function(event) {
+                // dbclick on checkbox does nothing and should stopPropagation
+                event.stopPropagation();
+                return;
+            },
+        }, ".checkBox .icon");
 
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
@@ -306,16 +320,20 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function addInfoContainerEvents() {
         $infoContainer.find(".infoTitle .close").on("click", "span, i", function() {
+            // Clear all
             cleanContainer();
-            $fileBrowser.find(".selectedFileList").empty();
+            $fileBrowser.find(".pickedFileList").empty();
         });
-        $infoContainer.find(".selectedFiles .close").on("click", "span, i", function() {
+        $infoContainer.find(".pickedFiles .close").on("click", "span, i", function() {
+            // Uncheck all recursive flags
             uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
         });
         $infoContainer.on("click", ".selectAll", function() {
-            checkCkBox($infoContainer.find(".xi-ckbox-empty"));
+            // Check all recursive flags
+            checkCkBox($infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)"));
         })
         $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
+            // Uncheck single recursive flag
             var $checkBox = $(this);
             if ($checkBox.hasClass("xi-ckbox-selected")) {
                 uncheckCkBox($checkBox);
@@ -323,14 +341,15 @@ window.FileBrowser = (function($, FileBrowser) {
                 checkCkBox($checkBox);
             }
         });
-        $infoContainer.on("click", ".selectedFileList .close", function() {
+        $infoContainer.on("click", ".pickedFileList .close", function() {
+            // Unselect single file from pickedFileList
             var $li = $(this).closest("li");
             var fileName = $li.data("name");
             var $grid = $fileBrowser
                         .find('.fileName[data-name="' + fileName + '"]')
                         .closest(".grid-unit");
             unselectSingleFile($grid);
-            // Just remove it, no need to call updateSelectedFiles
+            // Just remove it, no need to call updatePickedFilesList
             $li.remove();
         });
         $infoContainer.on("click", ".switch", function() {
@@ -358,7 +377,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 $label.addClass("highlighted");
             }
         });
-        $infoContainer.on("click", ".fileRawData", function() {
+        $infoContainer.on("click", ".fileRawData .btn", function() {
             var $grid = getFocusedGridEle();
             previewDS($grid);
         });
@@ -721,6 +740,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $container.removeClass("manyFiles");
         $fileBrowser.removeClass("unsortable");
         clearSearch();
+        cleanContainer();
 
         $visibleFiles = $();
         curFiles = [];
@@ -737,20 +757,30 @@ window.FileBrowser = (function($, FileBrowser) {
         FilePreviewer.close();
     }
 
-    function cleanContainer(keepSelected, keepAnchor) {
+    function cleanContainer(options) {
         $container.find(".active").removeClass("active");
         updateActiveFileInfo();
-        if (!keepSelected) {
-            $innerContainer.find(".selected").each(function() {
+        if (!options || !options.keepSelected) {
+            var $allGrids;
+            if (options && options.removeUnpicked) {
+                $allGrids = $innerContainer.find(".selected:not(.picked)");
+            } else {
+                $allGrids = $innerContainer.find(".selected");
+            }
+            $allGrids.each(function() {
                 var $grid = $(this);
                 $grid.removeClass("selected");
                 curFiles[$grid.data("index")].isSelected = false;
             });
         }
-        if (!keepAnchor) {
+        if (!options || !options.keepAnchor) {
             $anchor = null;
         }
-        uncheckCkBox($container.find(".grid-unit:not(.selected) .checkBox .icon"));
+        if (!options || !options.keepPicked) {
+            togglePickedFiles();
+            // clearAll flag
+            updatePickedFilesList(null, {clearAll: true});
+        }
     }
 
     function backToForm() {
@@ -875,10 +905,10 @@ window.FileBrowser = (function($, FileBrowser) {
         XcalarListFiles(args)
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
-                cleanContainer();
-                $selectedFileList.empty();
+                cleanContainer({keepPicked: true});
                 FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
+                checkPicked(allFiles, path);
                 addFileExtensionAttr(allFiles);
                 if (!options) {
                     // If it is not a search, save all files under current path
@@ -888,14 +918,14 @@ window.FileBrowser = (function($, FileBrowser) {
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
             } else {
-                deferred.reject({"error": oldBrowserError});
+                deferred.reject({"error": oldBrowserError, "oldBrowser": true});
             }
         })
         .fail(function(error) {
             if (curBrowserId === fileBrowserId) {
                 deferred.reject(error);
             } else {
-                deferred.reject({"error": oldBrowserError});
+                deferred.reject({"error": oldBrowserError, "oldBrowser": true});
             }
         })
         .always(function() {
@@ -972,7 +1002,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function submitForm() {
+    function submitForm($ds) {
         // XXX Now we're still using curDir. But ideally we should directly use
         // filename, which is the relative path (to data target root) + actual
         // filename
@@ -981,26 +1011,34 @@ window.FileBrowser = (function($, FileBrowser) {
         var size = 0;
         var files = [];
         // load dataset
-        var $fileList = $fileBrowser.find(".selectedFileList li");
-        $fileList.each(function () {
-            var $li = $(this);
-            var fileName = $li.data("name");
-            var path = $li.data("path") + fileName;
-            var recursive = $li.find(".icon").eq(1)
-                                   .hasClass("xi-ckbox-selected");
-            var format = xcHelper.getFormat(fileName);
-            var isFolder = ($li.data("type") === "Folder");
-
+        if ($ds != null && $ds.length > 0) {
+            var fileName = $ds.find(".fileName").data("name");
+            var path = curDir + fileName;
             files.push({
                 path: path,
-                recursive: recursive,
-                isFolder: isFolder
+                recursive: false,
+                isFolder: false
             });
-            // Estimate the size of payload to avoid exceeding limits
-            size += path.length * 2; // Each char takes 2 bytes
-            size += format ? format.length * 2 : 0; // Same as above
-            size += 4;  // Each boolean takes 4 bytes
-        });
+        } else {
+            var $fileList = $fileBrowser.find(".pickedFileList li");
+            $fileList.each(function () {
+                var $li = $(this);
+                var fileName = $li.data("name");
+                var path = $li.data("fullpath");
+                var recursive = $li.find(".icon").eq(1)
+                                       .hasClass("xi-ckbox-selected");
+                var isFolder = ($li.data("type") === "Folder");
+
+                files.push({
+                    path: path,
+                    recursive: recursive,
+                    isFolder: isFolder
+                });
+                // Estimate the size of payload to avoid exceeding limits
+                size += path.length * 2; // Each char takes 2 bytes
+                size += 4 * 2;  // Each boolean takes 4 bytes
+            });
+        }
 
         var $confirmBtn = $fileBrowser.find(".confirm");
         if (size > 4000000) {
@@ -1075,16 +1113,23 @@ window.FileBrowser = (function($, FileBrowser) {
                 var path = getCurrentPath();
                 $("#fileBrowserSearch input").addClass("xc-disabled");
                 $innerContainer.hide();
+                var oldBrowser = false;
                 listFiles(path, {recursive: true, fileNamePattern: pattern})
-                .fail(function() {
-                    $input.addClass("error");
-                    handleSearchError(ErrTStr.MaxFiles);
+                .fail(function(error) {
+                    if (error && error.oldBrowser) {
+                        oldBrowser = true;
+                    } else {
+                        $input.addClass("error");
+                        handleSearchError(ErrTStr.MaxFiles);
+                    }
                 })
                 .always(function() {
-                    $("#fileBrowserSearch input").removeClass("xc-disabled");
-                    $innerContainer.show();
-                    if ($searchSection.hasClass("open")) {
-                        searchDropdownMenu.toggleList($searchSection);
+                    if (!oldBrowser) {
+                        $("#fileBrowserSearch input").removeClass("xc-disabled");
+                        $innerContainer.show();
+                        if ($searchSection.hasClass("open")) {
+                            searchDropdownMenu.toggleList($searchSection);
+                        }
                     }
                 });
             } else {
@@ -1100,11 +1145,15 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function clearSearch() {
-        $("#fileBrowserSearch input").removeClass("error").val("");
+        $("#fileBrowserSearch input").removeClass("error xc-disabled").val("");
         $searchDropdown.find("li").removeClass("selected");
         refreshSearchDropdown("");
         sortRegEx = undefined;
         searchInfo = "";
+        $innerContainer.show();
+        if ($searchSection.hasClass("open")) {
+            searchDropdownMenu.toggleList($searchSection);
+        }
     }
 
     function handleSearchError(error) {
@@ -1332,7 +1381,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var $grid = $container.find(str).eq(0).closest('.grid-unit');
         if ($grid.length > 0) {
             selectSingleFile($grid);
-            updateSelectedFiles($grid);
             $anchor = $grid;
 
             if ($fileBrowserMain.hasClass("listView")) {
@@ -1417,13 +1465,14 @@ window.FileBrowser = (function($, FileBrowser) {
             // files before it are hidden
         var hasCtime = false;
         for (var i = 0, len = files.length; i < len; i++) {
-            // fileObj: {name, attr{isDirectory, size}}
+            // fileObj: {name, isSelected, isPicked, attr{isDirectory, size}}
             var fileObj = files[i];
             var isDirectory = fileObj.attr.isDirectory;
             var name = fileObj.name;
             var ctime = fileObj.attr.ctime;
             var mtime = fileObj.attr.mtime; // in untix time
             var isSelected = fileObj.isSelected;
+            var isPicked = fileObj.isPicked;
 
             if (isDirectory && (name === '.' || name === '..')) {
                 continue;
@@ -1441,11 +1490,12 @@ window.FileBrowser = (function($, FileBrowser) {
             var escName = xcHelper.escapeDblQuoteForHTML(name);
 
             var selectedClass = isSelected ? " selected" : "";
-            var ckBoxClass = isSelected ? "xi-ckbox-selected" : "xi-ckbox-empty";
+            var pickedClass = isPicked ? " picked" : "";
+            var ckBoxClass = isPicked ? "xi-ckbox-selected" : "xi-ckbox-empty";
 
             html +=
                 '<div title="' + escName + '" class="' + gridClass +
-                    visibilityClass + selectedClass + ' grid-unit" ' +
+                    visibilityClass + selectedClass + pickedClass + ' grid-unit" ' +
                     'data-index="' + i + '">' +
                     '<div class="checkBox">' +
                         '<i class="icon ' + ckBoxClass + '"></i>' +
@@ -1549,18 +1599,30 @@ window.FileBrowser = (function($, FileBrowser) {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
+        var ellipsis = false;
+        var name = $fileName.text();
         if ($fileName && $fileName.length > 0) {
-            var name = $fileName.text();
-            xcHelper.middleEllipsis(name, $fileName, maxChar, maxWidth,
-                                    false, ctx);
+            ellipsis = xcHelper.middleEllipsis(name, $fileName, maxChar,
+                                               maxWidth, false, ctx);
+            if (ellipsis) {
+                addTooltip($fileName, name);
+            }
         } else {
-            $selectedFileList.find("span").each(function() {
+            $pickedFileList.find("span").each(function() {
                 var $span = $(this);
-                var name = $span.text();
-                xcHelper.middleEllipsis(name, $span, maxChar, maxWidth,
-                                        false, ctx);
+                name = $span.text();
+                ellipsis = xcHelper.middleEllipsis(name, $span, maxChar,
+                                                   maxWidth, false, ctx);
+                if (ellipsis) {
+                    addTooltip($fileName, name);
+                }
             });
         }
+    }
+    function addTooltip($span, name) {
+        $span.attr({"data-toggle": "tooltip", "data-container": "body",
+                    "data-title": name, "data-placement": "top",
+                    "data-original-title": "", "title":""});
     }
 
     function addKeyBoardEvent() {
@@ -1622,9 +1684,8 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 var file = fileNavigator.navigate(code, curFiles);
                 if (file != null) {
-                    // Clean selected files in browser and the selectedFileList
-                    cleanContainer();
-                    $selectedFileList.empty();
+                    // Clean selected files in browser
+                    cleanContainer({keepPicked: true});
                     focusOn(file, true);
                 }
             }
@@ -1896,7 +1957,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $infoContainer.find(".fileName").text("--");
             $infoContainer.find(".fileType").text("--");
             $infoContainer.find(".mdate .content").text("--");
-            $infoContainer.find(".cdate .content").text("--");
+            // $infoContainer.find(".cdate .content").text("--");
             $infoContainer.find(".fileSize .content").text("--");
             $infoContainer.find(".fileIcon").removeClass()
                           .addClass("icon fileIcon xi-folder");
@@ -1931,22 +1992,27 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileIcon.removeClass();
         if (isFolder) {
             $fileIcon.addClass("xi-folder");
-        } else if (fileType && listFormatMap.hasOwnProperty(fileType) &&
-                gridFormatMap.hasOwnProperty(fileType)) {
-            $fileIcon.addClass(gridFormatMap[fileType]);
+            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
         } else {
-            $fileIcon.addClass("xi-documentation-paper");
+            $infoContainer.find(".fileRawData .btn").removeClass("xc-disabled");
+            if (fileType && listFormatMap.hasOwnProperty(fileType) &&
+                    gridFormatMap.hasOwnProperty(fileType)) {
+                $fileIcon.addClass(gridFormatMap[fileType]);
+            } else {
+                $fileIcon.addClass("xi-documentation-paper");
+            }
         }
         $fileIcon.addClass("icon fileIcon");
 
         // Update file info
         $infoContainer.find(".mdate .content").text(mTime);
-        $infoContainer.find(".cdate .content").text(cTime);
+        // $infoContainer.find(".cdate .content").text(cTime);
         $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
     }
     function selectMultiFiles($curActiveGrid) {
+        // Selecet but not pick
         var startIndex;
         if (!$anchor) {
             startIndex = 0;
@@ -1961,74 +2027,95 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             $grids = $container.find(".grid-unit").slice(startIndex, endIndex);
         }
-        $grids.addClass("selected");
-        checkCkBox($grids.find(".checkBox .icon"));
+        $grids.each(function() {
+            var $cur = $(this);
+            $cur.addClass("selected");
+            curFiles[$cur.data("index")].isSelected = true;
+        });
 
         $curActiveGrid.addClass('active selected');
+        curFiles[$curActiveGrid.data("index")].isSelected = true;
         updateActiveFileInfo($curActiveGrid);
-        checkCkBox($curActiveGrid.find(".checkBox .icon"));
 
         if (FilePreviewer.isOpen()) {
             previewDS($grid);
         }
     }
-    function createListElement($grid) {
+    function createListElement($grid, preChecked) {
         var index = $grid.data("index");
         var file = curFiles[index];
-        file.isSelected = true;
+        file.isPicked = true;
         var name = file.name;
         var escName = xcHelper.escapeDblQuoteForHTML(name);
         var isFolder = file.attr.isDirectory;
         var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
         var fileIcon;
+        var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
+        if (preChecked) {
+            ckBoxClass = "xi-ckbox-selected";
+        }
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         var curDir = getCurrentPath();
         var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
 
         return '<li data-name="' + escName + '"' +
-               ' data-path="' + escDir + '"' +
+               ' data-fullpath="' + escDir + escName + '"' +
                ' data-type="' + fileType + '">' +
                     '<i class="icon xi-close close"></i>' +
-                    '<i class="icon xi-ckbox-empty"></i>' +
+                    '<i class="icon ' + ckBoxClass + '"></i>' +
                     '<span>' + curDir + name + '</span>' +
                 '</li>';
 
 
     }
-    function updateSelectedFiles($grid, isRemove) {
-        // Use cases:
-        // 1. Update based on selected class
-        // 2. Remove one file
-        // 3. Append one file
-        var html = "";
-        if (!$grid || $grid.length === 0) {
-            // No specific file passed in, update the entire list
-            $selectedFileList.empty();
+    function updatePickedFilesList($grid, options) {
+        // options: clearAll, isRemove
+        var path = getCurrentPath();
+        var escPath = xcHelper.escapeDblQuote(path);
+        if (options && options.clearAll) {
+            $pickedFileList.empty();
+        } else if (!$grid || $grid.length === 0) {
+            // Multiple files
             $innerContainer.find(".selected").each(function() {
-                html += createListElement($(this));
+                var name = $(this).find(".fileName").data("name");
+                var escName = xcHelper.escapeDblQuote(name);
+                if (options && options.isRemove) {
+                    $pickedFileList.find('li[data-fullpath="' + escPath + escName +
+                                     '"]').remove();
+                } else if ($pickedFileList.find('li[data-fullpath="' + escPath +
+                                         escName + '"]').length === 0) {
+                    // If it doesn't exist, append the file
+                    var html = createListElement($(this));
+                    var $span = $(html).appendTo($pickedFileList).find("span");
+                    refreshFileListEllipsis($span);
+                }
             });
-            $selectedFileList.append(html);
-            refreshFileListEllipsis();
         } else {
+            // Single file
             var name = $grid.find(".fileName").data("name");
-            var path = getCurrentPath();
-            var escPath = xcHelper.escapeDblQuoteForHTML(path);
-            if (isRemove) {
-                $selectedFileList.find('li[data-name="' + name + '"]' +
-                                           '[data-path="' + escPath + '"]').remove();
-            } else if ($selectedFileList.find('li[data-name="' + name + '"]' +
-                                    '[data-path="' + escPath + '"]').length === 0) {
+            var escName = xcHelper.escapeDblQuote(name);
+            if (options && options.isRemove) {
+                $pickedFileList.find('li[data-fullpath="' + escPath + escName +
+                                     '"]').remove();
+            } else if ($pickedFileList.find('li[data-fullpath="' + escPath +
+                                            escName + '"]').length === 0) {
                 // If it doesn't exist, append the file
-                html += createListElement($grid);
-                var $span = $(html).appendTo($selectedFileList).find("span");
+                var html = createListElement($grid);
+                var $span = $(html).appendTo($pickedFileList).find("span");
                 refreshFileListEllipsis($span);
             }
+        }
+        // enable / disable buttons
+        if ($pickedFileList.find("li").length === 0) {
+            $infoContainer.find(".fileInfoBottom .btn").addClass("xc-disabled");
+        } else {
+            $infoContainer.find(".fileInfoBottom .btn").removeClass("xc-disabled");
         }
     }
     function selectSingleFile($grid) {
         $grid.addClass('active selected');
+        curFiles[$grid.data("index")].isSelected = true;
         updateActiveFileInfo($grid);
-        checkCkBox($grid.find(".checkBox .icon"));
 
         if (FilePreviewer.isOpen()) {
             previewDS($grid);
@@ -2041,8 +2128,11 @@ window.FileBrowser = (function($, FileBrowser) {
                 // If it is an active file, remove file info
                 updateActiveFileInfo();
             }
-            $grid.removeClass("selected active");
+            $grid.removeClass("selected active picked");
+            // A picked file must be a selected file. So we unpick when unselect
+            curFiles[$grid.data("index")].isPicked = false;
             uncheckCkBox($grid.find(".checkBox .icon"));
+            updatePickedFilesList($grid, {isRemove: true});
         }
     }
     function checkCkBox($checkBox) {
@@ -2050,6 +2140,41 @@ window.FileBrowser = (function($, FileBrowser) {
     }
     function uncheckCkBox($checkBox) {
         $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
+    }
+    function togglePickedFiles($grid) {
+        var $allSelected = $innerContainer.find(".grid-unit.selected");
+        if (!$grid) {
+            // For the case when we clear all
+            $allSelected = $innerContainer.find(".grid-unit.picked");
+        }
+        if (!$grid || $grid.hasClass("picked")) {
+            $allSelected.each(function() {
+                var $cur = $(this);
+                $cur.removeClass("picked");
+                curFiles[$cur.data("index")].isPicked = false;
+            });
+            uncheckCkBox($allSelected.find(".checkBox .icon"));
+
+        } else {
+            $allSelected.each(function() {
+                var $cur = $(this);
+                $cur.addClass("picked");
+                curFiles[$cur.data("index")].isPicked = true;
+            });
+            checkCkBox($allSelected.find(".checkBox .icon"));
+        }
+    }
+    function checkPicked(files, path) {
+        // Can be optimized later
+        var escPath = xcHelper.escapeDblQuote(path);
+        for (var i = 0; i < files.length; i++) {
+            var name = files[i].name;
+            var escName = xcHelper.escapeDblQuote(name);
+            if ($pickedFileList.find('li[data-fullpath="' + escPath + escName +
+                                 '"]').length > 0) {
+                files[i].isPicked = true;
+            }
+        }
     }
 
     /* Unit Test Only */

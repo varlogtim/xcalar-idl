@@ -1409,7 +1409,6 @@ table.datasetTable {
                 }
 
                 &.active {
-                    background-color: @color-bg-light-blue-grey;
                     .gridIcon {
                         color: @color-font-softBlue;
                     }
@@ -1420,6 +1419,14 @@ table.datasetTable {
                     width: 25px;
                     color: @color-font-softBlue;
                     visibility: hidden;
+                    display: flex;
+                    .icon {
+                        font-size: 14px;
+                    }
+                }
+                
+                &.picked {
+                    background-color: @color-selectedCell-light;
                 }
             }
         }
@@ -1457,13 +1464,9 @@ table.datasetTable {
                 &.selected, &.hovering {
                     border: solid 1px @color-font-softBlue;
                     .checkBox {
-                        display: flex;
                         visibility: visible;
                         margin-left: -1px;
                         margin-top: -1px;
-                        .icon {
-                            font-size: 14px;
-                        }
                     }
                     .label {
                         top: -2px;
@@ -1554,22 +1557,12 @@ table.datasetTable {
                 }
                 &.selected, &.hovering {
                     .checkBox {
-                        display: flex;
                         visibility: visible;
-                        .icon {
-                            font-size: 14px;
-                        }
                         align-items: center;
                     }
                     border-top: solid 1px @color-font-softBlue;
                     border-bottom: solid 1px @color-font-softBlue;
-                    // background-color: @color-selectedCell-light;
-                    background-color: @color-selected-blue;
                     z-index: 1;
-                }
-                &.active {
-                    // background-color: @color-active-blue;
-                    background-color: @color-selectedCell-light;
                 }
             }
         }
@@ -1613,12 +1606,13 @@ table.datasetTable {
                         flex-direction: column;
                     }
                     .fileInfoText {
-                        margin-left: 20px;
+                        margin-left: 30px;
+                        margin-top: 3px;
                         > div {
-                            margin-bottom: 6px;
+                            margin-bottom: 2px;
                         }
                     }
-                    .size(@width: 100%, @height: 122px);
+                    .size(@width: 100%, @height: 88px);
                     padding: 8px 0;
                     .icon {
                         color: @color-font-greyish-brown;
@@ -1647,7 +1641,7 @@ table.datasetTable {
                 .fileRawData {
                     text-align: center;
                     button {
-                        .size(@width: 120px, @height: 35px);
+                        .size(@width: 160px, @height: 35px);
                         padding: 0 9px;
                         background-color: @color-info-bg-grey;
                         border: solid 1px @color-border-select-blue;
@@ -1684,7 +1678,7 @@ table.datasetTable {
                     }
                     cursor: pointer;
                 }
-                .selectedFiles {
+                .pickedFiles {
                     &, .close {
                         color: @color-font-softBlue;
                     }
@@ -1733,7 +1727,7 @@ table.datasetTable {
                 .buttonSection {
                     display: flex;
                     .btn {
-                        width: 135px;
+                        width: 155px;
                         margin-left: auto;
                     }
                 }

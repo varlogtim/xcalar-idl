@@ -4,7 +4,7 @@
   <header class="cardHeader">
     <div class="title"><%= dicts.fileBrowser.header %></div>
     <div class="headerClose">
-      <i class="icon xi-close cancel"></i>
+      <i class="icon xc-action xi-close cancel"></i>
     </div>
   </header>
   <!-- File Browser Instruction -->
@@ -134,12 +134,6 @@
             <div class="fileInfoDetails">
               <div class="fileInfoIcon">
                 <i class="icon fileIcon"></i>
-                <div class="fileRawData">
-                  <button id="fileRawData" class="btn iconBtn">
-                    <i class="icon xi-show"></i>
-                    <span><%= dicts.common.ViewRawData %></span>
-                  </button>
-                </div>
               </div>
               <div class="fileInfoText">
                 <div class="fileDate fileInfo mdate">
@@ -149,13 +143,13 @@
                     <span class="content"></span>
                   </div>
                 </div>
-                <div class="fileDate fileInfo cdate">
+                <!-- <div class="fileDate fileInfo cdate">
                   <i class="icon xi-menu-add-scheduler"></i>
                   <div class="contentWrapper">
                     <span><%= dicts.common.DateCreated %>:</span>
                     <span class="content"></span>
                   </div>
-                </div>
+                </div> -->
                 <div class="fileSize fileInfo">
                   <i class="icon xi-compare"></i>
                   <div class="contentWrapper">
@@ -164,6 +158,12 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="fileRawData">
+              <button id="fileRawData" class="btn iconBtn xc-disabled">
+                <i class="icon xi-show"></i>
+                <span><%= dicts.common.ViewRawData %></span>
+              </button>
             </div>
           </div>
           <div id="fileInfoMid" class="fileInfoMid">
@@ -174,7 +174,7 @@
                 <i class="icon xi-close"></i>
               </div>
             </div>
-            <div class="selectedFiles">
+            <div class="pickedFiles">
               <span class="selectAll"><%= dicts.dsForm.Recursive %></span>
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="Import all folders recursively" data-placement="top" data-original-title="" title="">
               </i>
@@ -184,7 +184,7 @@
               </div>
             </div>
             <div class="fileList">
-              <ul class="selectedFileList">
+              <ul class="pickedFileList">
               </ul>
             </div>
           </div>
@@ -206,7 +206,7 @@
               </div>
             </div>
             <div class="buttonSection">
-              <button type="button" class="btn confirm"><%= dicts.common.NEXT %></button>
+              <button type="button" class="btn confirm xc-disabled"><%= dicts.common.NEXT %></button>
             </div>
           </div>
         </section>

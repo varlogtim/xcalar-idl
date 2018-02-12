@@ -742,6 +742,7 @@
         text = String(text);
         var textWidth = ctx.measureText(text).width;
         var finalText;
+        var ellipsis = false;
         var ellispsisFunc = function(str, ellpsisLen) {
             var strLen = str.length;
             // if strLen is 22 and ellpsisLen is 21
@@ -763,6 +764,7 @@
             var len = binarySearchEllipsisLen(text, checkLen, maxWidth,
                                                ctx, ellispsisFunc);
             finalText = ellispsisFunc(text, len);
+            ellipsis = true;
         }
 
         if ($ele.is("input")) {
@@ -770,6 +772,7 @@
         } else {
             $ele.text(finalText);
         }
+        return ellipsis;
     };
 
     xcHelper.leftEllipsis = function(text, $ele, maxWidth, ctx) {
