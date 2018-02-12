@@ -5,6 +5,7 @@ window.DSPreview = (function($, DSPreview) {
     var $previewCard;   // $("#dsForm-preview");
     var $previewWrap;    // $("#dsPreviewWrap")
     var $previewTable;  // $("#previewTable")
+    var $previewTableWrap; //$("dsPreviewTableWrap")
 
     var $highlightBtns; // $("#dsForm-highlighter");
 
@@ -63,6 +64,7 @@ window.DSPreview = (function($, DSPreview) {
         $previewCard = $("#dsForm-preview");
         $previewWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
+        $previewTableWrap = $("#dsPreviewTableWrap");
         $highlightBtns = $("#dsForm-highlighter");
 
         $fieldText = $("#fieldText");
@@ -2857,8 +2859,10 @@ window.DSPreview = (function($, DSPreview) {
                                           .removeClass("cancelState");
         $previewWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
+        $previewTableWrap.removeClass("XMLTableFormat");
 
         var format = loadArgs.getFormat();
+
         if (isUseUDFWithFunc() || format === formatMap.JSON)
         {
             getJSONTable(rawData);
@@ -2870,6 +2874,12 @@ window.DSPreview = (function($, DSPreview) {
             if (loadArgs.useHeader()) {
                 toggleHeader(true, true);
             }
+            return;
+        }
+
+        if (format === formatMap.XML)
+        {
+            getXMLTable(rawData);
             return;
         }
 
@@ -3217,6 +3227,19 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
+    function getXMLTable(rawData) {
+        if(rawData == null){
+            return;
+        }
+
+        var data = lineSplitHelper(rawData, '\n');
+        var html = getXMLTbodyHTML(data);
+
+        $previewTableWrap.addClass("XMLTableFormat");
+        $previewTable.html(html);
+    }
+
+
     function getParseJSONError() {
         return getParseError(formatMap.JSON, formatMap.CSV);
     }
@@ -3366,6 +3389,21 @@ window.DSPreview = (function($, DSPreview) {
         tbody += "</tbody>";
 
         return (tbody);
+    }
+
+    function getXMLTbodyHTML(data) {
+        var tbody = "<tbody><tr><td>";
+        // not showing too much rows
+        var len = Math.min(data.length, rowsToFetch);
+
+        //get the html of table
+        for(var i = 0; i < len; i++) {
+            tbody += '<span class="XMLContentSpan">' + xcHelper.escapeHTMLSpecialChar(data[i]) + '</span>' + '<br>';
+        }
+
+        tbody += "</td></tr></tbody>";
+
+        return tbody;
     }
 
     function lineSplitHelper(data, delim, rowsToSkip) {
