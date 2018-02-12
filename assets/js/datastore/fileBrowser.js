@@ -970,7 +970,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var $li = $(this);
             var fileName = $li.data("name");
             var path = $li.data("path") + fileName;
-            var recursive = $li.find("icon").eq(1)
+            var recursive = $li.find(".icon").eq(1)
                                    .hasClass("xi-ckbox-selected");
             var format = xcHelper.getFormat(fileName);
             var isFolder = ($li.data("type") === "Folder");
@@ -1911,7 +1911,7 @@ window.FileBrowser = (function($, FileBrowser) {
                ' data-path="' + escDir + '"' +
                ' data-type="' + fileType + '">' +
                     '<i class="icon xi-close close"></i>' +
-                    '<i class="icon xi-ckbox-selected"></i>' +
+                    '<i class="icon xi-ckbox-empty"></i>' +
                     '<span>' + curDir + name + '</span>' +
                 '</li>';
 
