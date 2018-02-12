@@ -94,7 +94,7 @@ window.DSForm = (function($, DSForm) {
         FileBrowser.clear();
     };
 
-    DSForm.addHisotryPath = function(targetName, path) {
+    DSForm.addHistoryPath = function(targetName, path) {
         historyPathsSet[targetName] = historyPathsSet[targetName] || [];
         var historyPaths = historyPathsSet[targetName];
         for (var i = 0, len = historyPaths.length; i < len; i++) {
@@ -242,7 +242,7 @@ window.DSForm = (function($, DSForm) {
         var targetName = getDataTarget();
         var path = getFilePath();
         if (path !== "/") {
-            DSForm.addHisotryPath(targetName, path);
+            DSForm.addHistoryPath(targetName, path);
         }
 
         DSPreview.show({

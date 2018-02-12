@@ -680,7 +680,8 @@ window.DSTable = (function($, DSTable) {
             "fieldDelim": dsObj.fieldDelim,
             "lineDelim": dsObj.lineDelim,
             "quoteChar": dsObj.quoteChar,
-            "typedColumns": dsObj.typedColumns
+            "typedColumns": dsObj.typedColumns,
+            "udfQuery": dsObj.udfQuery,
         }, false, true);
     }
 

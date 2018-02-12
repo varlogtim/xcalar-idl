@@ -816,7 +816,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var path = getCurrentPath();
         if (path !== defaultPath) {
             var targetName = getCurrentTarget();
-            DSForm.addHisotryPath(targetName, path);
+            DSForm.addHistoryPath(targetName, path);
         }
     }
 

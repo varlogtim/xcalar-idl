@@ -998,6 +998,8 @@ window.DSPreview = (function($, DSPreview) {
     function resetForm() {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
+        $("#dsForm-excelIndex").val("0");
+        $("#dsForm-xPaths").val("");
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
@@ -1083,6 +1085,21 @@ window.DSPreview = (function($, DSPreview) {
                     options.moduleName === "default" &&
                     options.funcName === "convertNewLineJsonToArrayJson") {
             isSpecialJSON = true;
+        } else if (format === formatMap.EXCEL) {
+            $("#dsForm-excelIndex").val(0);
+            $("#dsForm-skipRows").val(0);
+            if (options.udfQuery) {
+                if (options.udfQuery.sheetIndex) {
+                    $("#dsForm-excelIndex").val(options.udfQuery.sheetIndex);
+                }
+                if (options.udfQuery.skipRows) {
+                    options.skipRows = options.udfQuery.skipRows;
+                    // This gets populated later
+                }
+            }
+        } else if (format === formatMap.XML) {
+            $("#dsForm-xPaths").val(options.udfQuery.xPath);
+            toggleXMLCheckboxes(options.udfQuery);
         }
         options.format = format;
         toggleFormat(format);
@@ -1101,6 +1118,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // skip rows
         $("#dsForm-skipRows").val(options.skipRows || 0);
+
 
         detectArgs = {
             "fieldDelim": options.fieldDelim,
@@ -1166,12 +1184,11 @@ window.DSPreview = (function($, DSPreview) {
             // XXX temp fix to preserve CSV header order
             typedColumns = (format !== formatMap.JSON) ? typedColumns : null;
             if (format === "Excel") {
-                udfQuery = {};
-                if (skipRows > 0) {
-                    udfQuery.skipRows = skipRows;
-                }
                 if (header) {
                     udfQuery.withHeader = true;
+                }
+                if (skipRows) {
+                    udfQuery.skipRows = skipRows;
                 }
             }
             var pointArgs = {
@@ -1432,6 +1449,54 @@ window.DSPreview = (function($, DSPreview) {
         return [fieldDelim, lineDelim, quote, skipRows];
     }
 
+    function validateExcelArgs() {
+        var excelIndex = parseInt($("#dsForm-excelIndex").val());
+        var skipRows = parseInt($("#dsForm-skipRows").val());
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $("#dsForm-skipRows"),
+                "error": ErrTStr.NoEmpty,
+                "formMode": true,
+                "check": function() {
+                    return $("#dsForm-skipRows").val().trim().length === 0;
+                }
+            },
+            {
+                "$ele": $("#dsForm-skipRows"),
+                "error": ErrTStr.NoNegativeNumber,
+                "formMode": true,
+                "check": function() {
+                    return skipRows < 0;
+                }
+            },
+            {
+                "$ele": $("#dsForm-excelIndex"),
+                "error": ErrTStr.NoEmpty,
+                "formMode": true,
+                "check": function() {
+                    return $("#dsForm-excelIndex").val().trim().length === 0;
+                }
+            },
+            {
+                "$ele": $("#dsForm-excelIndex"),
+                "error": ErrTStr.NoNegativeNumber,
+                "formMode": true,
+                "check": function() {
+                    return excelIndex < 0;
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        return {
+            skipRows: skipRows,
+            sheetIndex: excelIndex
+        };
+    }
+
     function validateXMLArgs() {
         var $xPaths = $("#dsForm-xPaths");
         var xPaths = $("#dsForm-xPaths").val().trim();
@@ -1564,7 +1629,10 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
-            skipRows = getSkipRows();
+            udfQuery = validateExcelArgs();
+            if (udfQuery == null) {
+                return null;
+            }
         } else if (format === formatMap.XML) {
             xmlArgs = validateXMLArgs();
             if (xmlArgs == null) {
@@ -2914,6 +2982,15 @@ window.DSPreview = (function($, DSPreview) {
             $quote.closest(".row").removeClass("xc-hidden");
             $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
             $form.find(".advanceSection").removeClass("xc-hidden");
+        }
+    }
+
+    function toggleXMLCheckboxes(xmlOptions) {
+        if (xmlOptions.matchedPath) {
+            $(".matchedXPath .checkbox").click();
+        }
+        if (xmlOptions.withPath) {
+            $(".elementXPath .checkbox").click();
         }
     }
 
