@@ -439,8 +439,11 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#dsPreview-debugUDF").click(function() {
             $(this).blur();
+            var moduleName = $("#udfArgs-moduleList input").val();
+            var funcName = $("#udfArgs-funcList input").val();
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
-                                          loadArgs.previewFile);
+                                                loadArgs.previewFile,
+                                                false, moduleName, funcName);
         });
     }
 
@@ -724,7 +727,7 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-writeUDF").click(function() {
             $(this).blur();
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
-                                          loadArgs.previewFile);
+                                                loadArgs.previewFile, true);
         });
         // dropdown list for udf modules and function names
         var moduleMenuHelper = new MenuHelper($udfModuleList, {

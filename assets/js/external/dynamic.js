@@ -2,7 +2,7 @@
     console.log("dynamic loaded");
     // Insert patch code here. Remembmer that all js files will be minified and
     // uglified
-    function versionCheck(v1str, v2str) {
+    function lowerVersion(v1str, v2str) {
         var v1 = v1str.split(".");
         var v2 = v2str.split(".");
         if (1 * v1[0] !== 1 * v2[0]) {
@@ -17,7 +17,7 @@
     }
 
     var version = XVM.getVersion();
-    if (version && versionCheck(version.split("-")[0], "1.3.1")) {
+    if (version && lowerVersion(version.split("-")[0], "1.3.1")) {
         // Make sure our patch only applies to certain versions below the second
         // argument.
         // Just wrap our patches with functions and call them here
@@ -27,7 +27,7 @@
             console.log("mixpanel patching fails");
         }
     }
-    if (version && versionCheck(version.split("-")[0], "1.3.1")) {
+    if (version && lowerVersion(version.split("-")[0], "1.3.1")) {
         try {
             patchDSPreview();
         } catch (error) {
@@ -118,7 +118,9 @@
                             console.log("patch preview!");
                             $("#previewTable tbody").addClass("patch");
                             $("#previewTable").removeClass("dataTable");
-                            setTimeout(function() {$("#previewTable").addClass("dataTable");}, 0);
+                            setTimeout(function() {
+                                $("#previewTable").addClass("dataTable");
+                            }, 0);
                             break;
                         }
                     }

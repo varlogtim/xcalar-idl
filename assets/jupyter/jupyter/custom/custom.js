@@ -44,7 +44,8 @@ define(['base/js/namespace'], function(Jupyter) {
                 publishTable(struct.tableName, struct.numRows);
                 break;
             case ("autofillImportUdf"):
-                autofillImportUdf(struct.target, struct.filePath);
+                autofillImportUdf(struct.target, struct.filePath, struct.includeStub,
+                                  struct.moduleName, struct.fnName);
                 break;
             default:
                break;
@@ -63,14 +64,18 @@ define(['base/js/namespace'], function(Jupyter) {
         });
     }
 
-    function autofillImportUdf(target, filePath) {
+    function autofillImportUdf(target, filePath, includeStub, moduleName,
+                               fnName) {
         Jupyter.new_notebook_widget.contents.new_untitled("", {type: "notebook"})
         .then(function(data) {
             var encodedTarget = encodeURIComponent(target);
             var encodedFilePath = encodeURIComponent(filePath);
             var url = Jupyter.session_list.base_url + "notebooks/" + data.path + "?kernel_name=python3&" +
                         "needsTemplate=true&autofillImportUdf=true&" +
-                        "target=" + encodedTarget + "&filePath=" + encodedFilePath;
+                        "target=" + encodedTarget + "&filePath=" + encodedFilePath +
+                        "&includeStub=" + includeStub +
+                        "&moduleName=" + moduleName +
+                        "&fnName=" + fnName;
             window.location.href = url;
         });
     }

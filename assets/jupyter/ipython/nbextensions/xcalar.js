@@ -48,7 +48,10 @@ define(function() {
                     request = {
                         action: "autofillImportUdf",
                         target: decodeURIComponent(params.target),
-                        filePath: decodeURIComponent(params.filePath)
+                        filePath: decodeURIComponent(params.filePath),
+                        includeStub: decodeURIComponent(params.includeStub),
+                        moduleName: decodeURIComponent(params.moduleName),
+                        fnName: decodeURIComponent(params.fnName)
                     };
                     parent.postMessage(JSON.stringify(request), "*");
                 }
@@ -106,7 +109,7 @@ define(function() {
                     if (i === 0) {
                         cell.focus_cell();
                     }
-                    if ((stubName == "basicUDF" || stubName == "importUDF") &&
+                    if ((stubName == "basicUDF") &&
                         i === 0) {
                         var button = '<input class="sendToUDF" type="button" ' +
                                     'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
@@ -245,6 +248,7 @@ define(function() {
                                 '# The sample Python code below does reads your file and prints it out with a line \n' +
                                 '# number \n' +
                                 '\n' +
+                                (args.includeStub ?
                                 '# Function definition for your Import UDF.\n' +
                                 'def ' + args.fnName + '(fullPath, inStream):\n' +
                                 '    # Edit only within this function.\n' +
@@ -259,7 +263,7 @@ define(function() {
                                 '    for line in utf8Stream:\n' +
                                 '        yield {"lineNumber": lineNumber, "contents": line}\n' +
                                 '        lineNumber += 1\n' +
-                                '\n' +
+                                '\n' : '') +
                                 '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
 
                                 '# Xcalar Import UDF Test\n' +
@@ -278,6 +282,7 @@ define(function() {
                                 'from xcalar.compute.coretypes.LibApisCommon.ttypes import XcalarApiException\n' +
                                 'import random\n' +
                                 '\n' +
+                                (args.includeStub ?
                                 'def uploadUDF():\n' +
                                 '    import inspect\n' +
                                 '    sourceCode = "".join(inspect.getsourcelines(' + args.fnName + ')[0])\n' +
@@ -286,7 +291,7 @@ define(function() {
                                 '    except XcalarApiException as e:\n' +
                                 '        if e.status == StatusT.StatusUdfModuleAlreadyExists:\n' +
                                 '            Udf(xcalarApi).update("'+ args.moduleName + '", sourceCode)\n' +
-                                '\n' +
+                                '\n' : '') +
                                 'def testImportUDF():\n' +
                                 '    from IPython.core.display import display, HTML\n' +
                                 '    userName = "'+ username + '"\n' +
@@ -333,7 +338,7 @@ define(function() {
                                 '    print("End of UDF")\n' +
                                 '\n' +
                                 '# Test import UDF on file\n' +
-                                'uploadUDF()\n' +
+                                (args.includeStub ? 'uploadUDF()\n' : '') +
                                 'testImportUDF()';
                         texts.push(text);
                         break;

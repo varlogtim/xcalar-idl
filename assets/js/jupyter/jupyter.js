@@ -46,7 +46,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         storeLocation(s);
                         break;
                     case ("autofillImportUdf"):
-                        showImportUdfModal(s.target, s.filePath);
+                        if (s.includeStub == "true") {
+                            s.includeStub = true;
+                        } else if (s.includeStub == "false") {
+                            s.includeStub = false;
+                        } else {
+                            console.error(s);
+                        }
+                        s.url = s.filePath;
+                        if (s.includeStub) {
+                            showImportUdfModal(s.target, s.filePath);
+                        } else {
+                            JupyterPanel.appendStub("importUDF", s);
+                        }
                         break;
                     case ("mixpanel"):
                         try {
@@ -131,21 +143,36 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
     };
 
-    JupyterPanel.autofillImportUdfModal = function(target, filePath) {
+    JupyterPanel.autofillImportUdfModal = function(target, filePath,
+                                                   includeStub, moduleName,
+                                                   functionName) {
         $("#jupyterTab").click();
 
         if (!currNotebook) {
             var msgStruct = {
                 action: "autofillImportUdf",
                 target: target,
-                filePath: filePath
+                filePath: filePath,
+                includeStub: includeStub,
+                moduleName: moduleName,
+                fnName: functionName
             };
             $("#jupyterNotebook")[0].contentWindow.postMessage(
                                       JSON.stringify(msgStruct), "*");
             // custom.js will create a new notebook and xcalar.js will
             // send a message back to here with an autofillImportUdf action
         } else {
-            showImportUdfModal(target, filePath);
+            if (!includeStub) {
+                JupyterPanel.appendStub("importUDF", {
+                    fnName: functionName,
+                    target: target,
+                    url: filePath,
+                    moduleName: moduleName,
+                    includeStub: false,
+                });
+            } else {
+                showImportUdfModal(target, filePath);
+            }
         }
     };
 

@@ -170,7 +170,8 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                 fnName: $modal.find(".fnName:visible").val(),
                  target: $modal.find(".target:visible").val(),
                 url: $modal.find(".url:visible").val(),
-                moduleName: $modal.find(".moduleName:visible").val()
+                moduleName: $modal.find(".moduleName:visible").val(),
+                includeStub: true,
             });
         }
 
