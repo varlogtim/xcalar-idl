@@ -728,8 +728,10 @@ window.Dag = (function($, Dag) {
 
         if (loadInfo.numEntries == null || loadInfo.size == null) {
             var dsObj = DS.getDSObj(tableName);
-            loadInfo.numEntries = dsObj.getNumEntries();
-            loadInfo.size = dsObj.getSize();
+            if (dsObj != null) {
+                loadInfo.numEntries = dsObj.getNumEntries();
+                loadInfo.size = dsObj.getSize();
+            }
         }
         if (loadInfo.numEntries == null || loadInfo.size == null) {
             // XXX todo, this may be cached in DSOBj, and if not we can

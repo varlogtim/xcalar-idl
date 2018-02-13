@@ -249,6 +249,10 @@ window.XVM = (function(XVM) {
         return deferred.promise();
     };
 
+    XVM.isVersion = function(version) {
+        return fullVersion && fullVersion.split("-")[0] === version;
+    };
+
     function firstUserCheck() {
         var isFreeTrail = false;
         var deferred = jQuery.Deferred();

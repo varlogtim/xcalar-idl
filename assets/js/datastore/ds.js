@@ -167,11 +167,42 @@ window.DS = (function ($, DS) {
             "name": dsName,
             "user": user,
             "fullName": fullDSName,
-            "uneditable": false,
             "isFolder": false
         });
 
         return createDS(options);
+    };
+
+    DS.addOtherUserDS = function(fullDSName, options) {
+        // 1. add as shared ds
+        // 3. notify the owner of the ds to refresh
+        var deferred = jQuery.Deferred();
+        var parsedRes = xcHelper.parseDSName(fullDSName);
+        var user = parsedRes.user;
+        var dsName = parsedRes.dsName;
+        options = $.extend({}, options, {
+            "id": fullDSName, // user the fulldsname as a unique id
+            "name": dsName,
+            "user": user,
+            "fullName": fullDSName,
+            "isFolder": false,
+            "parentId": DSObjTerm.SharedFolderId
+        });
+        var dsObj = createDS(options);
+        var arg = {
+            dir: DSObjTerm.SharedFolderId,
+            action: "add",
+            ds: dsObj
+        };
+
+        commitSharedFolderChange(arg, true)
+        .then(deferred.resolve)
+        .fail(function() {
+            // still resolve it
+            deferred.reolve();
+        });
+
+        return deferred.promise();
     };
 
     DS.focusOn = function($grid) {
@@ -600,6 +631,7 @@ window.DS = (function ($, DS) {
     }
 
     function shareAndUnshareHelper(dsId, newName, isShare) {
+        var deferred = jQuery.Deferred();
         var dirId = isShare ? DSObjTerm.SharedFolderId : DSObjTerm.homeDirId;
         var dsObj = DS.getDSObj(dsId);
         removeDS(dsId);
@@ -612,7 +644,6 @@ window.DS = (function ($, DS) {
         var arg;
 
         if (isShare) {
-            newDSObj.locked = false; // new shared ds will always be
             arg = {
                 dir: DSObjTerm.SharedFolderId,
                 action: "add",
@@ -637,7 +668,11 @@ window.DS = (function ($, DS) {
             var $grid = DS.getGrid(dsId);
             goToDirHelper(dirId);
             DS.focusOn($grid);
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function syncVersionId() {
@@ -694,7 +729,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function commitSharedFolderChange(arg) {
+    function commitSharedFolderChange(arg, noRefresh) {
         var deferred = jQuery.Deferred();
         var versionId = dsInfoMeta.updateVersionId();
         var sharedDir = DS.getSharedDir(true);
@@ -718,7 +753,10 @@ window.DS = (function ($, DS) {
             if (!hasCommit) {
                 errorChangeSharedDSInfo(versionId);
             }
-            refreshHelper(); // when fail, force to refresh
+            if (!noRefresh) {
+                // when fail, force to refresh
+                refreshHelper();
+            }
             deferred.reject(error);
         });
 
@@ -738,6 +776,19 @@ window.DS = (function ($, DS) {
     DS.updateDSInfo = function(arg) {
         switch (arg.action) {
             case "add":
+                var dsObj = DS.getDSObj(arg.ds.id);
+                if (dsObj != null) {
+                    var msg = xcHelper.replaceMsg(DSTStr.ForceShareMsg, {
+                        name: dsObj.getName()
+                    });
+                    removeDS(dsObj.getId());
+                    Alert.show({
+                        title: DSTStr.ShareDS,
+                        msg: msg,
+                        isAlert: true
+                    });
+                }
+                arg.ds.locked = false; // new shared ds will always be false
                 createDS(arg.ds);
                 refreshDS();
                 break;
@@ -1602,31 +1653,36 @@ window.DS = (function ($, DS) {
     }
 
     function restoreHelper(oldHomeFolder, oldSharedDSInfo, datasetsSet) {
-        var userPrefix = xcHelper.getUserPrefix();
         var unlistableDS = getUnListableDS(datasetsSet);
-
         datasetsSet = restoreSharedDS(oldSharedDSInfo, datasetsSet);
         datasetsSet = restoreDir(oldHomeFolder, datasetsSet);
         // add ds that is not in oldHomeFolder
-        for (var dsName in datasetsSet) {
-            var ds = datasetsSet[dsName];
-
-            if (ds != null) {
-                var options = getDSOptions(ds);
-                if (xcHelper.parseDSName(dsName).user === userPrefix) {
-                    // XXX this case appears when same use switch workbook
-                    // and lose the folder meta
-                    // should change when we support user scope session
-                    DS.addCurrentUserDS(ds.name, options);
-                }
-            }
-        }
+        restoreNoMetaDS(datasetsSet);
 
         // UI update
         sortDS();
         refreshDS();
         DataStore.update();
         checkUnlistableDS(unlistableDS);
+    }
+
+    function restoreNoMetaDS(datasetsSet) {
+        var userPrefix = xcHelper.getUserPrefix();
+        var promises = [];
+        for (var dsName in datasetsSet) {
+            var ds = datasetsSet[dsName];
+            if (ds != null) {
+                var options = getDSOptions(ds);
+                if (xcHelper.parseDSName(dsName).user === userPrefix) {
+                    DS.addCurrentUserDS(ds.name, options);
+                } else if (ds.locked) {
+                    // when no this user's ds but locked by this user,
+                    // should be a shared ds
+                    promises.push(DS.addOtherUserDS.bind(this, ds.name, options));
+                }
+            }
+        }
+        PromiseHelper.chain(promises);
     }
 
     function restoreSharedDS(oldSharedDSInfo, datasetsSet) {

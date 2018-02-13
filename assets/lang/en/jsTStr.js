@@ -1039,9 +1039,10 @@ DSTStr = {
     'PointErr': 'Cannot import the dataset',
     'OffsetErr': 'Offset is larger than the dataset size',
     'DelUploadMsg': 'Are you sure you want to delete <filename>?',
-    'ShareDSMsg': 'Are you sure you want to share <name>?',
-    'UnshareDSMsg': 'Are you sure you want to unshare <name>?',
-    'RenameMsg': 'It will be renamed to <newName>.'
+    'ShareDSMsg': 'Are you sure you want to share \"<name>\"?',
+    'UnshareDSMsg': 'Are you sure you want to unshare \"<name>\"?',
+    'ForceShareMsg': 'Dataset \"<name>\" is being used by other users and is moved to the shared folder.',
+    'RenameMsg': 'It will be renamed to \"<newName>\".'
 };
 
 DSFormTStr = {
