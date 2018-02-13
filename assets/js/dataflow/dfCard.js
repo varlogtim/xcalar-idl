@@ -1404,7 +1404,7 @@ window.DFCard = (function($, DFCard) {
 
         QueryManager.cancelQuery(txId);
 
-        XcalarQueryCancel(retName, null, true)
+        XcalarQueryCancel(retName)
         .then(deferred.resolve)
         .fail(function(error) {
             delete canceledRuns[retName];

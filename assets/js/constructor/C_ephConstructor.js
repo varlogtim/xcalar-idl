@@ -2754,6 +2754,8 @@ InputDropdownHint.prototype = {
         var $list = $lis.parent();
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
+            $list.scrollTop(0);
+            this.options.menuHelper.showOrHideScrollers();
             return;
         }
 
@@ -2791,6 +2793,9 @@ InputDropdownHint.prototype = {
                     '</li>';
             $dropdown.find("ul").append(li);
         }
+
+        $list.scrollTop(0);
+        this.options.menuHelper.showOrHideScrollers();
     },
 
     setInput: function(val) {
