@@ -86,6 +86,15 @@ describe("Dataset-DSForm Test", function() {
             $filePath.val("testPath");
             var val = DSForm.__testOnly__.getFilePath();
             expect(val).to.equal("/testPath");
+
+            // case to
+            var oldFunc = DSTargetManager.isGeneratedTarget;
+            DSTargetManager.isGeneratedTarget = function() {
+                return true;
+            };
+            val = DSForm.__testOnly__.getFilePath();
+            expect(val).to.equal("testPath");
+            DSTargetManager.isGeneratedTarget = oldFunc;
         });
 
         it("Should get and set protocol", function() {

@@ -749,7 +749,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function backToForm() {
-        setHistoryPath();
         clearAll();
         DSForm.show({"noReset": true});
     }

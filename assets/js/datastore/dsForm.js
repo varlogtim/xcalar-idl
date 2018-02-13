@@ -42,9 +42,9 @@ window.DSForm = (function($, DSForm) {
     DSForm.show = function(options) {
         options = options || {};
 
-        if (!options.noReset) {
-            resetForm();
-        }
+        // if (!options.noReset) {
+        //     resetForm();
+        // }
 
         if (XVM.getLicenseMode() === XcalarMode.Demo) {
             DSForm.switchView(DSForm.View.Uploader);
@@ -154,6 +154,13 @@ window.DSForm = (function($, DSForm) {
             $pathCard.removeClass("target-generated");
             $filePath.removeAttr("placeholder");
         }
+
+        var historyPaths = historyPathsSet[targetName];
+        var oldPath = "";
+        if (historyPaths != null) {
+            oldPath = historyPaths[0] || "";
+        }
+        $filePath.val(oldPath).focus();
     }
 
     function setPathMenu() {
@@ -173,9 +180,9 @@ window.DSForm = (function($, DSForm) {
         }
     }
 
-    function getFilePath() {
+    function getFilePath(targetName) {
         var path = $filePath.val().trim();
-        if (!path.startsWith("/")) {
+        if (!path.startsWith("/") && !DSTargetManager.isGeneratedTarget(targetName)) {
             path = "/" + path;
         }
         return path;
@@ -221,9 +228,9 @@ window.DSForm = (function($, DSForm) {
     }
 
     function resetForm() {
-        $filePath.val("").focus();
         var targetName = getDataTarget() || "";
         setDataTarget(targetName);
+        $filePath.val("").focus();
     }
 
     function goToBrowse() {
@@ -240,7 +247,7 @@ window.DSForm = (function($, DSForm) {
             return;
         }
         var targetName = getDataTarget();
-        var path = getFilePath();
+        var path = getFilePath(targetName);
         if (path !== "/") {
             DSForm.addHistoryPath(targetName, path);
         }
