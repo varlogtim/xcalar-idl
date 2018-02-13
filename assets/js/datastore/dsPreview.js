@@ -2423,7 +2423,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var deferred = jQuery.Deferred();
 
-        previewFileSelect(0)
+        previewFileSelect(0, true)
         .then(function(paths) {
             deferred.resolve(paths[0]);
         })
@@ -2542,7 +2542,7 @@ window.DSPreview = (function($, DSPreview) {
         return paths;
     }
 
-    function previewFileSelect(fileIndex) {
+    function previewFileSelect(fileIndex, noWaitBg) {
         var deferred = jQuery.Deferred();
 
         $previewWrap.find(".inputWaitingBG").remove();
@@ -2552,7 +2552,9 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".url").append(waitingBg);
         var $waitingBg = $previewWrap.find(".inputWaitingBG");
 
-        if (gMinModeOn) {
+        if (noWaitBg) {
+            $waitingBg.remove();
+        } else if (gMinModeOn) {
             $waitingBg.find(".waitingIcon").show();
         } else {
             setTimeout(function() {
