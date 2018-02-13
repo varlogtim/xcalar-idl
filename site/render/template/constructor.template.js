@@ -1912,6 +1912,7 @@
             quoteChar: (string) ds's quoteChar
             skipRows: (integer) how many rows to skip
             headers: (array, not persist) to preserve column header order
+            advancedArgs: (object, optional) termination condition + extra cols
             error: (string, optional) ds's error
             displayFormat (string) displayed format in ds table(Excel...)
 
@@ -1932,7 +1933,6 @@
                 if (options.udfQuery) {
                     self.udfQuery = options.udfQuery;
                 }
-
                 if (options.locked != null) {
                     self.locked = options.locked;
                 }
@@ -1941,6 +1941,9 @@
                 }
                 if (options.typedColumns != null) {
                     self.typedColumns = options.typedColumns;
+                }
+                if (options.advancedArgs != null) {
+                    self.advancedArgs = options.advancedArgs;
                 }
                 delete self.previewSize;
                 delete self.isRegex;
@@ -2049,7 +2052,8 @@
                     "fileNamePattern": self.pattern,
                     "udfQuery": self.udfQuery,
                     "headers": self.headers,
-                    "typedColumns": self.typedColumns
+                    "typedColumns": self.typedColumns,
+                    "advancedArgs": self.advancedArgs,
                 };
                 return [self.path, self.format, self.fullName, options];
             },

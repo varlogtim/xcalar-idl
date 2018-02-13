@@ -349,9 +349,10 @@ module.exports = {
         "RawDSAdvFile": "Add an extra field with the file name to each record",
         "RawDSAdvRow": "Add a field containing the record number to each record. Record number restarts at 1 for each file.",
         "RawDSAdvTerm": "When to stop processing records",
+        "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered.",
         "RawDSAdvTermAllow": "Skip records with errors and continue processing error-free records.",
-        "RawDSAdvTermStopError": "Stop processing records in a file when the first error in it is encountered but continue processing other files. Dataset will contain all error-free records up to the first error in each file.",
-        "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered, and the dataset is not created.",
+        "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
+        "RawDSAdvTermStopRecord": "Stop importing data as soon as the first record level error is encountered. File level errors are logged.",
     },
 
     "workspaceBar": {
@@ -674,7 +675,8 @@ module.exports = {
         "Termination": "Stop Import",
         "TerminateOnError": "Stop import on first error",
         "ContinueOnError": "Import every file, logging all errors",
-        "TerminateFile": "Import every file, stopping each file import on first error",
+        "StopFile": "Stop import on first file level error",
+        "StopRecord": "Stop import on first record level error",
         "xPaths": "XPaths",
         "MatchedXPath": "Matched XPath",
         "ElementXPath": "Element XPath",

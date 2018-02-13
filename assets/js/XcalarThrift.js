@@ -729,6 +729,12 @@ XcalarLoad = function(datasetName, options, txId) {
     var parseArgs = new ParseArgsT();
     parseArgs.parserFnName = parserFnName;
     parseArgs.parserArgJson = JSON.stringify(parserArgJson);
+    if (options.advancedArgs) {
+        parseArgs.allowRecordErrors = options.advancedArgs.allowRecordErrors;
+        parseArgs.allowFileErrors = options.advancedArgs.allowFileErrors;
+        parseArgs.fileNameFieldName = options.advancedArgs.fileName;
+        parseArgs.recordNumFieldName = options.advancedArgs.rowNumName;
+    }
 
     var maxSampleSize = gMaxSampleSize;
     if (maxSampleSize > 0) {

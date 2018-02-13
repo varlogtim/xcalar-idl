@@ -612,7 +612,8 @@ StatusT = {
   'StatusUsrAddInProg' : 603,
   'StatusSessionNotActive' : 604,
   'StatusUsrSessLoadFailed' : 605,
-  'StatusProtobufError' : 606
+  'StatusProtobufError' : 606,
+  'StatusRecordError' : 607
 };
 StatusTStr = {
   0 : 'Success',
@@ -1132,7 +1133,7 @@ StatusTStr = {
   514 : 'Fault injection set in 2 phase commit',
   515 : 'Export Application does not exist',
   516 : 'Session user currently in use',
-  517 : 'Out of resources (XdbPages)',
+  517 : 'Out of resources (Xcalar Managed Memory)',
   518 : 'App flags invalid',
   519 : 'Query job is already running',
   520 : 'Unknown Message for two PC barrier',
@@ -1221,7 +1222,8 @@ StatusTStr = {
   603 : 'User info inaccessible since user initialization still in progress',
   604 : 'Target session was not active',
   605 : 'User failed to read sessions',
-  606 : 'Generic protobuf error'
+  606 : 'Generic protobuf error',
+  607 : 'Record errors are disallowed'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1741,7 +1743,7 @@ StatusTFromStr = {
   'Fault injection set in 2 phase commit' : 514,
   'Export Application does not exist' : 515,
   'Session user currently in use' : 516,
-  'Out of resources (XdbPages)' : 517,
+  'Out of resources (Xcalar Managed Memory)' : 517,
   'App flags invalid' : 518,
   'Query job is already running' : 519,
   'Unknown Message for two PC barrier' : 520,
@@ -1830,5 +1832,6 @@ StatusTFromStr = {
   'User info inaccessible since user initialization still in progress' : 603,
   'Target session was not active' : 604,
   'User failed to read sessions' : 605,
-  'Generic protobuf error' : 606
+  'Generic protobuf error' : 606,
+  'Record errors are disallowed' : 607
 };

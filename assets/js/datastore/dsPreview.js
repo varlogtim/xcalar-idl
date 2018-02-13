@@ -1179,6 +1179,16 @@ window.DSPreview = (function($, DSPreview) {
         var targetName = loadArgs.getTargetName();
         var pattern = loadArgs.getPattern();
 
+        var rowNumName = res.rowNum || "";
+        var fileName = res.fileName || "";
+        var allowRecordErrors = res.allowRecordErrors || false;
+        var allowFileErrors = res.allowFileErrors || false;
+
+        var advancedArgs = {rowNumName: rowNumName,
+                            fileName: fileName,
+                            allowRecordErrors: allowRecordErrors,
+                            allowFileErrors: allowFileErrors};
+
         // console.log(dsNames, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, quote, skipRows);
 
@@ -1225,7 +1235,8 @@ window.DSPreview = (function($, DSPreview) {
                 "quoteChar": quote,
                 "skipRows": skipRows,
                 "typedColumns": typedColumns,
-                "udfQuery": udfQuery
+                "udfQuery": udfQuery,
+                "advancedArgs": advancedArgs,
             };
 
             return importDataHelper(dsNames, pointArgs, toCreateTable);
@@ -1548,20 +1559,49 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validateAdvanceArgs() {
+    function validateAdvancedArgs() {
         var $advanceSection = $form.find(".advanceSection");
+        var $colNames = $("#previewTable .editableHead");
+        var colNames = [];
+
+        for (var i = 0; i < $colNames.length; i++) {
+            colNames.push($colNames.eq(i).val());
+        }
+
         var validateExtraColumnArg = function($ele) {
             var isValid = true;
             if ($ele.find(".checkbox").hasClass("checked")) {
                 isValid = xcHelper.validate([{
                     $ele: $ele.find("input"),
+                    check: function(val) {
+                        return (xcHelper.validateColName(val) != null);
+                    },
                     onErr: function() {
                         if (!$advanceSection.hasClass("active")) {
                             $advanceSection.find(".listWrap").click();
                         }
                     },
+                    error: ErrTStr.InvalidColName,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
-                }]);
+                },
+                {
+                    $ele: $ele.find("input"),
+                    check: function(val) {
+                        if (colNames.indexOf(val) > -1) {
+                            return true;
+                        } else {
+                            colNames.push(val);
+                        }
+                    },
+                    onErr: function() {
+                        if (!$advanceSection.hasClass("active")) {
+                            $advanceSection.find(".listWrap").click();
+                        }
+                    },
+                    error: ErrTStr.ColumnConflict,
+                    delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
+                }
+                ]);
             }
             return isValid;
         };
@@ -1574,20 +1614,42 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        var metaFile = $("#dsForm-metadataFile").val().trim() || null;
-        var rowNum = $fileName.find("input").val().trim() || null;
+        //var metaFile = $("#dsForm-metadataFile").val().trim() || null;
+        var rowNum = $rowNum.find("input").val().trim() || null;
         var fileName = $fileName.find("input").val().trim() || null;
         var unsorted = $advanceSection.find(".performance .checkbox")
                                       .hasClass("checked");
         var termination = $advanceSection.find(".termination")
                                          .find(".radioButton.active")
                                          .data("option");
+        var allowRecordErrors = false;
+        var allowFileErrors = false;
+
+        switch (termination) {
+            case ("stop"):
+                allowRecordErrors = false;
+                allowFileErrors = false;
+                break;
+            case ("continue"):
+                allowRecordErrors = true;
+                allowFileErrors = true;
+                break;
+            case ("stopfile"):
+                allowRecordErrors = true;
+                allowFileErrors = false;
+                break;
+            case ("stoprecord"):
+                allowRecordErrors = false;
+                allowFileErrors = true;
+                break;
+        }
         return {
-            metaFile: metaFile,
+            //metaFile: metaFile,
             rowNum: rowNum,
             fileName: fileName,
             unsorted: unsorted,
-            termination: termination
+            allowRecordErrors: allowRecordErrors,
+            allowFileErrors: allowFileErrors
         };
     }
 
@@ -1666,7 +1728,7 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = xmlArgs;
         }
 
-        var advanceArgs = validateAdvanceArgs();
+        var advanceArgs = validateAdvancedArgs();
         if (advanceArgs == null) {
             // error case
             return null;

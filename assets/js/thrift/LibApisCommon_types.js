@@ -2051,12 +2051,28 @@ DataSourceArgsT.prototype.write = function(output) {
 ParseArgsT = function(args) {
   this.parserFnName = null;
   this.parserArgJson = null;
+  this.fileNameFieldName = null;
+  this.recordNumFieldName = null;
+  this.allowRecordErrors = null;
+  this.allowFileErrors = null;
   if (args) {
     if (args.parserFnName !== undefined && args.parserFnName !== null) {
       this.parserFnName = args.parserFnName;
     }
     if (args.parserArgJson !== undefined && args.parserArgJson !== null) {
       this.parserArgJson = args.parserArgJson;
+    }
+    if (args.fileNameFieldName !== undefined && args.fileNameFieldName !== null) {
+      this.fileNameFieldName = args.fileNameFieldName;
+    }
+    if (args.recordNumFieldName !== undefined && args.recordNumFieldName !== null) {
+      this.recordNumFieldName = args.recordNumFieldName;
+    }
+    if (args.allowRecordErrors !== undefined && args.allowRecordErrors !== null) {
+      this.allowRecordErrors = args.allowRecordErrors;
+    }
+    if (args.allowFileErrors !== undefined && args.allowFileErrors !== null) {
+      this.allowFileErrors = args.allowFileErrors;
     }
   }
 };
@@ -2088,6 +2104,34 @@ ParseArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.fileNameFieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.recordNumFieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.allowRecordErrors = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
+      if (ftype == Thrift.Type.BOOL) {
+        this.allowFileErrors = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -2107,6 +2151,26 @@ ParseArgsT.prototype.write = function(output) {
   if (this.parserArgJson !== null && this.parserArgJson !== undefined) {
     output.writeFieldBegin('parserArgJson', Thrift.Type.STRING, 2);
     output.writeString(this.parserArgJson);
+    output.writeFieldEnd();
+  }
+  if (this.fileNameFieldName !== null && this.fileNameFieldName !== undefined) {
+    output.writeFieldBegin('fileNameFieldName', Thrift.Type.STRING, 3);
+    output.writeString(this.fileNameFieldName);
+    output.writeFieldEnd();
+  }
+  if (this.recordNumFieldName !== null && this.recordNumFieldName !== undefined) {
+    output.writeFieldBegin('recordNumFieldName', Thrift.Type.STRING, 4);
+    output.writeString(this.recordNumFieldName);
+    output.writeFieldEnd();
+  }
+  if (this.allowRecordErrors !== null && this.allowRecordErrors !== undefined) {
+    output.writeFieldBegin('allowRecordErrors', Thrift.Type.BOOL, 5);
+    output.writeBool(this.allowRecordErrors);
+    output.writeFieldEnd();
+  }
+  if (this.allowFileErrors !== null && this.allowFileErrors !== undefined) {
+    output.writeFieldBegin('allowFileErrors', Thrift.Type.BOOL, 6);
+    output.writeBool(this.allowFileErrors);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

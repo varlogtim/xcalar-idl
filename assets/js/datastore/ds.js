@@ -761,7 +761,7 @@ window.DS = (function ($, DS) {
         dsInfoMeta.setVersionId(arg.id);
     };
 
-    function pointToHelper(dsObj, createTabe, sql) {
+    function pointToHelper(dsObj, createTable, sql) {
         var deferred = jQuery.Deferred();
         var dsName = dsObj.getName();
         var $grid = DS.getGrid(dsObj.getId());
@@ -806,7 +806,7 @@ window.DS = (function ($, DS) {
             updateDSMeta(dsInfos[datasetName], dsObj, $grid);
             finishPoint();
 
-            if (createTabe) {
+            if (createTable) {
                 createTableHelper($grid, dsObj);
             } else if ($grid.hasClass("active")) {
                 // re-focus to trigger DSTable.show()

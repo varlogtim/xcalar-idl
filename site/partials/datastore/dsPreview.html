@@ -319,14 +319,14 @@
                 <span class="text"><%= dicts.common.AdvancedOpts %></span>
               </div>
             </div>
-            <!-- metadata file -->
+            <!-- metadata file
             <div class="row metadata">
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvMeta %>" data-placement="top"></i>
               <label><%= dicts.dsForm.MetaDataFile %>:</label>
               <div class="inputWrap">
                 <input id="dsForm-metadataFile" class="large" type="text">
               </div>
-            </div>
+            </div> -->
             <!-- extra columns -->
             <div class="row extraCols">
               <label><%= dicts.dsForm.ExtraCols %>:</label>
@@ -386,7 +386,10 @@
                   <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
                 </div>
                 <div class="qMarkHeight">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopError %>" data-placement="top"></i>
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopFile %>" data-placement="top"></i>
+                </div>
+                <div class="qMarkHeight">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopRecord %>" data-placement="top"></i>
                 </div>
               </div>
               <div class="multiLine termOptions">
@@ -406,12 +409,19 @@
                     </div>
                     <span><%= dicts.dsForm.ContinueOnError %></span>
                   </div>
-                  <div class="radioButton xc-action" data-option="continuesome">
+                  <div class="radioButton xc-action" data-option="stopfile">
                     <div class="radio">
                       <i class="icon xi-radio-selected"></i>
                       <i class="icon xi-radio-empty"></i>
                     </div>
-                    <span><%= dicts.dsForm.TerminateFile %></span>
+                    <span><%= dicts.dsForm.StopFile %></span>
+                  </div>
+                  <div class="radioButton xc-action" data-option="stoprecord">
+                    <div class="radio">
+                      <i class="icon xi-radio-selected"></i>
+                      <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <span><%= dicts.dsForm.StopRecord %></span>
                   </div>
                 </div>
               </div>
