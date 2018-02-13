@@ -391,6 +391,8 @@ window.MainMenu = (function($, MainMenu) {
                     var $dfList = $("#dfMenu .dfList");
                     $dfList.addClass("disabled");
                     DSExport.refresh(true);
+                    DSTargetManager.refreTargets(true);
+
                     var promise = DF.restore();
                     xcHelper.showRefreshIcon($dfList, false, promise);
 
@@ -435,14 +437,14 @@ window.MainMenu = (function($, MainMenu) {
 
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
-        
+
         if (BottomMenu.isMenuOpen()) {
             var mainMenuOpening = true;
             BottomMenu.close(mainMenuOpening);
         }
         isMenuOpen = true;
         $("#container").addClass("mainMenuOpen");
-        
+
         $curTab.addClass("mainMenuOpen");
 
         // recenter table titles if on workspace panel
@@ -476,7 +478,7 @@ window.MainMenu = (function($, MainMenu) {
         if (!noAnim) {
             $curTab.removeClass("mainMenuOpen");
         }
-        
+
         isMenuOpen = false;
 
         setCloseClass(noAnim);

@@ -1282,6 +1282,7 @@ window.DagDraw = (function($, DagDraw) {
         // check for datasets
         if (dagOpHtml === "") {
             var pattern = "";
+            var targetName = "";
             var tId = node.value.dagNodeId;
             var originalTableName = tableName;
             var dsText = "";
@@ -1300,6 +1301,7 @@ window.DagDraw = (function($, DagDraw) {
                 dagInfo.dagNodeId = node.value.dagNodeId;
                 // pattern = dagInfo.loadInfo.fileNamePattern;
                 pattern = dagInfo.loadInfo.loadArgs.sourceArgs.fileNamePattern;
+                targetName = dagInfo.loadInfo.loadArgs.sourceArgs.targetName;
                 tableClasses += "dataStore ";
             }  else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
                 tId = xcHelper.getTableId(tableName);
@@ -1315,7 +1317,8 @@ window.DagDraw = (function($, DagDraw) {
             dataAttrs += 'data-table="' + originalTableName + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + tId + '" ' +
-                        'data-pattern="' + encodeURI(pattern) + '"';
+                        'data-pattern="' + encodeURI(pattern) + '" ' +
+                        'data-targetname="' + targetName + '"';
             tableTitle = dsText + tableName;
             tableTitleTip = tableName;
         } else {

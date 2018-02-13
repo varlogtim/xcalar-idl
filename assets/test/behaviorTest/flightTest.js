@@ -45,13 +45,13 @@ window.FlightTest = (function(FlightTest, $) {
                       defaultTimeout, TestCaseEnabled);
         // Temporarily disabled due to thrift change
         test.add(retinaTest, "RetinaTest",
-                      defaultTimeout, TestCaseDisabled);
+                      defaultTimeout, TestCaseEnabled);
         // interactive mode not run test
         var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Demo ||
                              XVM.getLicenseMode() === XcalarMode.Mod) ?
                             TestCaseDisabled : TestCaseEnabled;
         // XXX temporarily disable it because of the expotNode bug by json query change
-        retinaEnabled = TestCaseDisabled;
+
         test.add(runRetinaTest, "RunRetinaTest",
                       defaultTimeout, retinaEnabled);
         test.add(cancelRetinaTest, "CancelRetinaTest",

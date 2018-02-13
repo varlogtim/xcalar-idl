@@ -55,7 +55,7 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         $dfParamModal.find('.confirm').click(function() {
-            storeRetina();
+            submitForm();
         });
 
         $dfParamModal.on('focus', '.paramVal', function() {
@@ -182,7 +182,10 @@ window.DFParamModal = (function($, DFParamModal){
         var checkInputTimeout;
         $dfParamModal.on("input", ".editableParamDiv", function() {
             var $input = $(this);
-            suggest($input);
+            if ($input.closest(".targetName").length === 0) {
+                suggest($input);
+            }
+
             clearTimeout(checkInputTimeout);
             checkInputTimeout = setTimeout(function() {
                 checkInputForParam($input);
@@ -338,6 +341,8 @@ window.DFParamModal = (function($, DFParamModal){
                         $paramLists.empty();
                         fillUpRows();
                     }
+                } else if (type === "dataStore") {
+                    datasetSetup();
                 }
                 dropdownHelper = null;
                 deferred.resolve();
@@ -508,12 +513,48 @@ window.DFParamModal = (function($, DFParamModal){
         });
     }
 
+    function datasetSetup() {
+        $dfParamModal.find('.targetName .dropDownList').find('ul')
+                                                .html(getDatasetTargetList());
+        var $list = $dfParamModal.find('.tdWrapper.dropDownList');
+        var dropdownHelper = new MenuHelper($list, {
+            "onSelect": function($li) {
+                var val = $li.text();
+                var $input = $li.closest('.tdWrapper.dropDownList').find("input");
+                if (val === $.trim($input.val())) {
+                    return;
+                }
+                $input.val(val).data("val", val);
+            },
+            "onOpen": function() {
+                var $lis = $list.find('li').sort(sortHTML);
+                $lis.prependTo($list.find('ul'));
+            },
+            "container": "#dfParamModal",
+            "bounds": "#dfParamModal .modalTopMain",
+            "bottomPadding": 2,
+            "exclude": '.draggableDiv, .defaultParam'
+        });
+
+        var dropdownHint = new InputDropdownHint($list, {
+            "preventClearOnBlur": true,
+            "order": true,
+            "menuHelper": dropdownHelper,
+            "onEnter": function (val) {
+                var $input = $li.closest('.tdWrapper.dropDownList').find("input");
+                if (val === $.trim($input.val())) {
+                    return;
+                }
+                $input.val(val);
+            }
+        })
+    }
 
     function filterSetup() {
         var deferred = jQuery.Deferred();
         var $list = $dfParamModal.find('.tdWrapper.dropDownList');
 
-        dropdownHelper = new MenuHelper($list, {
+       dropdownHelper = new MenuHelper($list, {
             "onSelect": function($li) {
                 var func = $li.text();
                 var $input = $list.find("input.editableParamDiv");
@@ -640,8 +681,16 @@ window.DFParamModal = (function($, DFParamModal){
         var advancedOpts = "";
         options = options || {};
         if (type === "dataStore") {
-            var encodePath = paramValue[0];
-            defaultText += '<div class="templateRow">' +
+            var encodePath = paramValue[1];
+            defaultText +=  '<div class="templateRow">' +
+                                '<div>' +
+                                    'Target Name' + ':' +
+                                '</div>' +
+                                '<div class="boxed large">' +
+                                    xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
@@ -654,21 +703,27 @@ window.DFParamModal = (function($, DFParamModal){
                                     'Pattern' + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
+                                    xcHelper.escapeHTMLSpecialChar(paramValue[2]) +
                                 '</div>' +
                             '</div>';
 
-            editableText += '<div class="innerEditableRow filename">' +
+            editableText += '<div class="innerEditableRow targetName">' +
+                                '<div class="static">' +
+                                    'Target Name' + ':' +
+                                '</div>' +
+                                getParameterInputHTML(0, "large", {hasDropdown: true}) +
+                            '</div>' +
+                            '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
-                                getParameterInputHTML(0, "large") +
+                                getParameterInputHTML(1, "large") +
                             '</div>' +
                             '<div class="innerEditableRow">' +
                                 '<div class="static">' +
                                     'Pattern' + ':' +
                                 '</div>' +
-                                getParameterInputHTML(1, "large allowEmpty") +
+                                getParameterInputHTML(2, "large allowEmpty") +
                             '</div>';
             clearExportSettingTable();
         } else if (type === "export") {
@@ -707,7 +762,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 '<div class="static">' +
                                     'Target' + ':' +
                                 '</div>' +
-                                getParameterInputHTML(1, "medium-small", {export: true}) +
+                                getParameterInputHTML(1, "medium-small", {hasDropdown: true}) +
                             '</div>' +
                             '</div>';
             var tooltipCover = "";
@@ -784,7 +839,7 @@ window.DFParamModal = (function($, DFParamModal){
                     editableText +=
                             getParameterInputHTML(0, "medium") +
                             '<div class="static">by</div>' +
-                            getParameterInputHTML(1, "small", {filter: true});
+                            getParameterInputHTML(1, "small", {hasDropdown: true});
                     for (var i = 1; i < retStruct.args.length; i++) {
                         editableText +=
                                 getParameterInputHTML(1 + i, "medium allowEmpty");
@@ -1419,7 +1474,7 @@ window.DFParamModal = (function($, DFParamModal){
         }]);
     }
     // submit
-    function storeRetina() {
+    function submitForm() {
         //XX need to check if all default inputs are filled
         var deferred = jQuery.Deferred();
         var $paramPart = $dfParamModal.find(".editableTable");
@@ -1560,6 +1615,11 @@ window.DFParamModal = (function($, DFParamModal){
                 return;
             }
 
+            if (hasInvalidDatasetTarget(params)) {
+                deferred.reject();
+                return;
+            }
+
             var paramInfo;
             updateRetina()
             .then(function(paramInformation) {
@@ -1632,9 +1692,10 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
                 case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    var url = $.trim($oldVals.eq(0).text());
-                    var pattern =  $.trim($oldVals.eq(1).text());
-                    paramQuery = [url, pattern];
+                    var targetName = $.trim($oldVals.eq(0).text());
+                    var url = $.trim($oldVals.eq(1).text());
+                    var pattern =  $.trim($oldVals.eq(2).text());
+                    paramQuery = [targetName, url, pattern];
                     break;
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
@@ -1711,7 +1772,7 @@ window.DFParamModal = (function($, DFParamModal){
 
                     if (!filterExists) {
                         return {error: ErrTStr.FilterTypeNoSupport};
-                    } 
+                    }
 
                     var additionalArgs = "";
                     var arg;
@@ -1732,11 +1793,19 @@ window.DFParamModal = (function($, DFParamModal){
                 break;
             case ("dataStore"):
                 paramType = XcalarApisT.XcalarApiBulkLoad;
-                var url = $.trim($editableDivs.eq(0).val());
-                var pattern = $.trim($editableDivs.eq(1).val());
+
+                var url = $.trim($editableDivs.eq(1).val());
+                var pattern = $.trim($editableDivs.eq(2).val());
                 paramValues.path = url;
                 paramValues.fileNamePattern = pattern;
-                paramQuery = [url, pattern];
+                var targetName = $.trim($editableDivs.eq(0).val());
+                var target = DSTargetManager.getTarget(targetName);
+                if (target) {
+                    paramValues.targetName = targetName;
+                    paramQuery = [targetName, url, pattern];
+                } else {
+                    error = "target not found";
+                }
                 break;
             case ("export"):
                 paramType = XcalarApisT.XcalarApiExport;
@@ -1872,6 +1941,24 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
+    function hasInvalidDatasetTarget(params) {
+        if (type !== "dataStore") {
+            return false;
+        }
+
+        var $input = $dfParamModal.find(".editableTable")
+                                .find("input.editableParamDiv").eq(0);
+        var targetName =  $input.val();
+        var paramTargetName = getTargetName(targetName, params);
+        var target = DSTargetManager.getTarget(paramTargetName);
+        if (target) {
+            return false;
+        } else {
+            StatusBox.show(DFTStr.InvalidTarget, $input);
+            return true;
+        }
+    }
+
     function getParameterInputHTML(inputNum, extraClass, options) {
         var divClass = "editableParamDiv boxed";
         options = options || {};
@@ -1879,7 +1966,7 @@ window.DFParamModal = (function($, DFParamModal){
             divClass += " " + extraClass;
         }
         var td = '';
-        if (options.filter || options.export) {
+        if (options.hasDropdown) {
             td += '<div class="tdWrapper dropDownList boxed ' + extraClass + '">';
         } else {
             td += '<div class="tdWrapper boxed ' + extraClass + '">';
@@ -1893,7 +1980,7 @@ window.DFParamModal = (function($, DFParamModal){
                 'ondragover="DFParamModal.allowParamDrop(event)" ' +
                 'data-target="' + inputNum + '"></div></div>';
 
-        if (options.filter || options.export) {
+        if (options.hasDropdown) {
             td += '<div class="list">' +
                     '<ul><li>first item</li></ul>' +
                     '<div class="scrollArea top">' +
@@ -1930,6 +2017,16 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
         return res;
+    }
+
+    function getDatasetTargetList() {
+        var targets = DSTargetManager.getAllTargets();
+        var html = "";
+        for (var name in targets) {
+            html += '<li>' + name + '</li>';
+        }
+
+        return html;
     }
 
     function populateSavedFields(dagNodeId, retName) {
@@ -2074,7 +2171,7 @@ window.DFParamModal = (function($, DFParamModal){
     /* Unit Test Only */
     if (window.unitTestMode) {
         DFParamModal.__testOnly__ = {};
-        DFParamModal.__testOnly__.storeRetina = storeRetina;
+        DFParamModal.__testOnly__.storeRetina = submitForm;
         DFParamModal.__testOnly__.closeDFParamModal = closeDFParamModal;
         DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
         DFParamModal.__testOnly__.suggest = suggest;

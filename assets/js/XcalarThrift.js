@@ -3224,6 +3224,8 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
                         args.loadArgs.sourceArgs.fileNamePattern =
                                                 paramValues.fileNamePattern;
                         args.loadArgs.sourceArgs.path = paramValues.path;
+                        args.loadArgs.sourceArgs.targetName =
+                                                paramValues.targetName;
                         break;
                     case (XcalarApisT.XcalarApiFilter):
                         args.eval[0].evalString = paramValues.filterStr;

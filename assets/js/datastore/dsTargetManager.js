@@ -20,6 +20,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
         return targetSet[targetName];
     };
 
+    DSTargetManager.getAllTargets = function() {
+        return targetSet;
+    };
+
     DSTargetManager.isGeneratedTarget = function(targetName) {
         var target = DSTargetManager.getTarget(targetName);
         if (target && target.type_name === "Generated") {

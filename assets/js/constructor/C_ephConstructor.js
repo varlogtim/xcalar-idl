@@ -2670,6 +2670,10 @@ InputSuggest.prototype = {
     }
 };
 
+// options:
+// menuHelper: (required) instance of MenuHelper
+// preventClearOnBlur: boolean, if true will not reset the input on blur
+// reorder: boolean, if true will place "starts with" matches first
 function InputDropdownHint($dropdown, options) {
     this.$dropdown = $dropdown;
     this.options = options || {};
@@ -2712,7 +2716,7 @@ InputDropdownHint.prototype = {
         $input.on("blur", function() {
             var text = $input.val().trim();
             var oldVal = $input.data("val");
-            if (oldVal !== text) {
+            if (!options.preventClearOnBlur && oldVal !== text) {
                 $input.val(oldVal);
             }
             // reset
@@ -2747,6 +2751,7 @@ InputDropdownHint.prototype = {
         $dropdown.find(".noResultHint").remove();
 
         var $lis = $dropdown.find("li");
+        var $list = $lis.parent();
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
             return;
@@ -2764,6 +2769,20 @@ InputDropdownHint.prototype = {
                 $li.addClass("xc-hidden");
             }
         });
+
+        // put the li that starts with value at first,
+        // in asec order
+        if (this.options.order) {
+            $lis = $lis.filter(function() {
+                return !$(this).hasClass("xc-hidden");
+            });
+            for (var i = $lis.length - 1; i >= 0; i--) {
+                var $li = $lis.eq(i);
+                if ($li.text().toLowerCase().startsWith(searchKey)) {
+                    $list.prepend($li);
+                }
+            }
+        }
 
         if (count === 0) {
             var li = '<li class="hint noResultHint" ' +
