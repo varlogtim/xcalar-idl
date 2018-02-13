@@ -328,6 +328,7 @@ ErrTStr = {
 'NoFolderPreview': '无法预览文件夹，请选择一个文件。',
 'DuplicateColNames': 'Duplicate column names were detected',
 'MaxPayload': '文件数量超出限制。请减少文件数量或者递归导入整个目录',
+'MaxFiles': '文件数量超出限制。请尝试在子目录中进行搜索。',
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',

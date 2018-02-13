@@ -197,14 +197,15 @@
     };
 
     xcHelper.fullTextRegExKey = function(searchKey) {
-        // Make it a full-text regex search, i.e. prepend ^ and append $
-        if (!searchKey.startsWith("^")) {
-            searchKey = "^" + searchKey;
-        }
-        if (!searchKey.endsWith("$")) {
-            searchKey += "$";
-        }
-        return searchKey;
+        // Make it a full-text regex search
+        searchKey = searchKey.replace(/\./g, "[^\/]");
+        return "(.*\/)?" + searchKey + "$";
+    };
+
+    xcHelper.containRegExKey = function(searchKey) {
+        // Make it a "contain" regex search, i.e. prepend .* and append .*
+        searchKey = searchKey.replace(/\./g, "[^\/]");
+        return "(.*" + searchKey + "[^\/]*$)";
     };
 
     /*

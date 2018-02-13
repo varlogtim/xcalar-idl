@@ -145,6 +145,10 @@ module.exports = {
         "ExitEditMode": "Exit editing mode",
         "AddOperation": "Add an operation",
         "Unshare": "取消共享",
+        "RegexMatch": "正则(匹配): ",
+        "RegexContains": "正则(包含): ",
+        "GlobMatch": "glob(匹配): ",
+        "GlobContains": "glob(包含): ",
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",

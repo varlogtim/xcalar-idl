@@ -299,7 +299,11 @@ module.exports = {
         "Unshare": "Unshare",
         "CommentOp": "Add a comment",
         "ExitEditMode": "Exit editing mode",
-        "AddOperation": "Add new operation"
+        "AddOperation": "Add new operation",
+        "RegexMatch": "regex(match): ",
+        "RegexContains": "regex(contains): ",
+        "GlobMatch": "glob(match): ",
+        "GlobContains": "glob(contains): ",
     },
 
     "TooltipTStr": {

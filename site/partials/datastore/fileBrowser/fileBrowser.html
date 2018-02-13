@@ -36,7 +36,12 @@
       <div class="clear">
         <i class="icon fa-14 xi-close xc-action"></i>
       </div>
-      <ul id="fileSearchDropdown" class="list"></ul>
+      <ul id="fileSearchDropdown" class="list">
+        <li><%= dicts.MenuTStr.RegexMatch %><span class="regMatch"></span></li>
+        <li><%= dicts.MenuTStr.RegexContains %><span class="regContain"></span></li>
+        <li><%= dicts.MenuTStr.GlobMatch %><span class="globMatch"></span></li>
+        <li><%= dicts.MenuTStr.GlobContains %><span class="globContain"></span></li>
+      </ul>
     </div>
     <!-- Icon Options -->
     <div class="iconSection">

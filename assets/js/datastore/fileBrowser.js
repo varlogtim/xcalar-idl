@@ -9,6 +9,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
+    var $searchSection    // $("#fileBrowserSearch");
     var $searchDropdown;  // $("#fileSearchDropdown")
     var $visibleFiles;   // will hold nonhidden files
 
@@ -58,11 +59,15 @@ window.FileBrowser = (function($, FileBrowser) {
     /* End Of Contants */
 
     var curFiles = [];
+    var curPathFiles = [];
     var allFiles = [];
     var sortKey = defaultSortKey;
     var sortRegEx;
     var reverseSort = false;
     var $anchor; // The anchor for selected files
+    var pathDropdownMenu;
+    var searchDropdownMenu;
+    var searchInfo = "";
 
     FileBrowser.setup = function() {
         $fileBrowser = $("#fileBrowser");
@@ -72,6 +77,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowserMain = $("#fileBrowserMain");
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
+        $searchSection = $("#fileBrowserSearch");
         $searchDropdown = $("#fileSearchDropdown");
         $infoContainer = $("#fileInfoContainer");
         $selectedFileList = $("#fileInfoContainer .selectedFileList").eq(0);
@@ -397,7 +403,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         });
 
-        new MenuHelper($pathSection, {
+        pathDropdownMenu = new MenuHelper($pathSection, {
             "onlyClickIcon": true,
             "onSelect": goToPath,
             "container": "#fileBrowser"
@@ -481,58 +487,52 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function addSearchSectionEvents() {
-        // search bar
-        var $searchSection = $("#fileBrowserSearch");
-        var dropdown = new MenuHelper($searchSection, {
+        var timer;
+        searchDropdownMenu = new MenuHelper($searchSection, {
             "onlyClickIcon": false,
             "onSelect": applySearchPattern,
             "container": "#fileBrowser"
         }).setupListeners();
 
         $searchSection.on("input", "input", function() {
+            // Refreshing the dropdown options
             var searchKey = $(this).val();
             refreshSearchDropdown(searchKey);
             if ((searchKey.length > 0 && !$searchSection.hasClass("open")) ||
-                searchKey.length === 0) {
-                dropdown.toggleList($searchSection);
+                (searchKey.length === 0 && $searchSection.hasClass("open"))) {
+                searchDropdownMenu.toggleList($searchSection);
             }
-            searchFiles(searchKey);
+            if (searchKey.length === 0) {
+                searchFiles(null);
+            }
         });
 
+        $searchSection.on("keyup", "input", function(e) {
+            var keyCode = e.which;
+            if (keyCode === 13) {
+                // Do a regular search
+                var searchKey = $(this).val();
+                if (searchKey.length > 0) {
+                    searchFiles(searchKey);
+                }
+            }
+        });
         $searchSection.on("mousedown", ".clear", function() {
-            $(this).siblings("input").val("").focus();
-            searchFiles(null);
-            // stop event propogation
-            return false;
+            $(this).siblings("input").val("").trigger("input");
         });
     }
 
     function refreshSearchDropdown(key) {
-        $searchDropdown.empty();
-        if (key.length > 0) {
-            var html = '<li>' +
-                            'regex(match): ' +
-                            '<span class="regMatch">' + key + '</span>' +
-                       '</li>' +
-                       '<li>' +
-                            'regex(contains): ' +
-                            '<span class="regContain">' + key + '</span>' +
-                       '</li>' +
-                       '<li>' +
-                            'glob(match): ' +
-                            '<span class="globMatch">' + key + '</span>' +
-                       '</li>' +
-                       '<li>' +
-                            'glob(contains): ' +
-                            '<span class="globContain">' + key + '</span>' +
-                       '</li>';
-            $searchDropdown.prepend(html);
+        if (key != null) {
+            $searchDropdown.find("span").text(key);
         }
     }
 
     function applySearchPattern($pattern) {
+        $searchDropdown.find("li").removeClass("selected");
+        $pattern.addClass("selected");
         var type = $pattern.find("span").attr("class");
-        var searchKey = $pattern.find("span").text();
+        var searchKey = $pattern.find("span").text() || null;
         searchFiles(searchKey, type);
     }
 
@@ -721,6 +721,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $visibleFiles = $();
         curFiles = [];
+        curPathFiles = [];
         sortRegEx = undefined;
 
         document.getElementById("innerFileBrowserContainer").innerHTML = "";
@@ -849,7 +850,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function listFiles(path) {
+    function listFiles(path, options) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
         var targetName = getCurrentTarget();
@@ -861,16 +862,25 @@ window.FileBrowser = (function($, FileBrowser) {
 
         }, 500);
 
-        XcalarListFiles({targetName: targetName, path: path})
+        var args = {targetName: targetName, path: path};
+        if (options && options.hasOwnProperty("recursive") &&
+                       options.hasOwnProperty("fileNamePattern")) {
+            args.recursive = options.recursive;
+            args.fileNamePattern = options.fileNamePattern;
+        }
+        XcalarListFiles(args)
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
                 cleanContainer();
-                clearSearch();
-                // Clear selected file list
                 $selectedFileList.empty();
                 FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
                 addFileExtensionAttr(allFiles);
+                if (!options) {
+                    // If it is not a search, save all files under current path
+                    curPathFiles = allFiles;
+                    clearSearch();
+                }
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
             } else {
@@ -915,6 +925,9 @@ window.FileBrowser = (function($, FileBrowser) {
         if ($newPath == null || $newPath.length === 0) {
             deferred.resolve();
             return deferred.promise();
+        }
+        if ($pathSection.hasClass("open")) {
+            pathDropdownMenu.toggleList($pathSection);
         }
 
         FilePreviewer.close();
@@ -1015,55 +1028,84 @@ window.FileBrowser = (function($, FileBrowser) {
     function searchFiles(searchKey, type) {
         var $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
+        if (type == null) {
+            $searchDropdown.find("li").removeClass("selected");
+        }
         try {
             var regEx = null;
             if (searchKey != null) {
                 var fullTextMatch = false;
+                searchInfo = "Searching";
+                var origKey = searchKey;
                 if (type == null) {
                     // Do a regular text search
                     searchKey = xcHelper.escapeRegExp(searchKey);
                 } else {
+                    searchInfo += "(" + type + ")";
                     switch (type) {
                         case ("regMatch"):
                             fullTextMatch = true;
                             break;
                         case ("regContain"):
-                            // Do nothing as it is a "contain" already
                             break;
                         case ("globMatch"):
                             fullTextMatch = true;
                         case ("globContain"):
                             searchKey = xcHelper.escapeRegExp(searchKey);
-                            searchKey = searchKey.replace(/\\\*/g, ".*");
+                            searchKey = searchKey.replace(/\\\*/g, "[^\\\/]*")
+                                                 .replace(/\\\?/g, "[^\\\/]");
                             break;
                         default:
                             console.error("File search type not supported");
                             break;
                     }
                 }
+                searchInfo += ": " + getCurrentPath() + origKey;
+                $container.find(".filePathBottom .content").text(searchInfo);
                 if (fullTextMatch) {
-                    // Add ^ and $ for full text match
                     searchKey = xcHelper.fullTextRegExKey(searchKey);
+                } else {
+                    searchKey = xcHelper.containRegExKey(searchKey);
                 }
-                regEx = new RegExp(searchKey);
+                var pattern = xcHelper.getFileNamePattern(searchKey, true);
+                var path = getCurrentPath();
+                $("#fileBrowserSearch input").addClass("xc-disabled");
+                $innerContainer.hide();
+                listFiles(path, {recursive: true, fileNamePattern: pattern})
+                .fail(function() {
+                    $input.addClass("error");
+                    handleSearchError(ErrTStr.MaxFiles);
+                })
+                .always(function() {
+                    $("#fileBrowserSearch input").removeClass("xc-disabled");
+                    $innerContainer.show();
+                    if ($searchSection.hasClass("open")) {
+                        searchDropdownMenu.toggleList($searchSection);
+                    }
+                });
+            } else {
+                // isRestore = true
+                sortFilesBy(sortKey, sortRegEx, true);
+                searchInfo = "";
+                $container.find(".filePathBottom .content").text(searchInfo);
             }
-            var grid = getFocusGrid();
-            sortFilesBy(sortKey, regEx);
-            focusOn(grid);
         } catch (error) {
             $input.addClass("error");
-            handleSearchError();
+            handleSearchError(ErrTStr.InvalidRegEx);
         }
     }
 
     function clearSearch() {
         $("#fileBrowserSearch input").removeClass("error").val("");
+        $searchDropdown.find("li").removeClass("selected");
+        refreshSearchDropdown("");
         sortRegEx = undefined;
+        searchInfo = "";
     }
 
-    function handleSearchError() {
+    function handleSearchError(error) {
         var html = '<div class="error">' +
-                        '<div>' + ErrTStr.InvalidRegEx + '</div>' +
+                        '<div>' + error + '</div>' +
                     '</div>';
         $innerContainer.html(html);
     }
@@ -1113,13 +1155,16 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function sortFilesBy(key, regEx) {
+    function sortFilesBy(key, regEx, isRestore) {
         if (allFiles.length > upperFileLimit) {
             oversizeHandler();
             return;
         }
-
-        curFiles = allFiles;
+        if (isRestore) {
+            curFiles = curPathFiles;
+        } else {
+            curFiles = allFiles;
+        }
         if (regEx) {
             sortRegEx = regEx;
             curFiles = filterFiles(curFiles, regEx);
@@ -1821,7 +1866,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $infoContainer.find(".fileSize .content").text("--");
             $infoContainer.find(".fileIcon").removeClass()
                           .addClass("icon fileIcon xi-folder");
-            $container.find(".filePathBottom .content").text("");
+            $container.find(".filePathBottom .content").text(searchInfo);
             return;
         }
         var index = Number($grid.data("index"));
@@ -1902,7 +1947,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var isFolder = file.attr.isDirectory;
         var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
         var fileIcon;
-        // XXX Need to be changed after search is implemented
+        // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         var curDir = getCurrentPath();
         var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
 
