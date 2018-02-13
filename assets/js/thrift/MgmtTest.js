@@ -3157,6 +3157,21 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testArchiveTable(test) {
+        xcalarArchiveTables(thriftHandle, ["yelp/user-votes.funny-map"])
+        .then(function(status) {
+            printResult(status);
+            return (xcalarUnarchiveTables(thriftHandle, ["yelp/user-votes.funny-map"]));
+        })
+        .then(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
     function testDeleteTable(test) {
         xcalarDeleteDagNodes(thriftHandle, "yelp/user-votes.funny-map", SourceTypeT.SrcTable)
         .done(function(status) {
@@ -3908,6 +3923,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testArchiveTable, "archive table", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");

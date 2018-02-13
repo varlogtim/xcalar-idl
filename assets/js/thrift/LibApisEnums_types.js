@@ -130,7 +130,8 @@ XcalarApisT = {
   'XcalarApiSynthesize' : 121,
   'XcalarApiGetRetinaJson' : 122,
   'XcalarApiGetDatasetsInfo' : 123,
-  'XcalarApiFunctionInvalid' : 124
+  'XcalarApiArchiveTables' : 124,
+  'XcalarApiFunctionInvalid' : 125
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -257,7 +258,8 @@ XcalarApisTStr = {
   121 : 'XcalarApiSynthesize',
   122 : 'XcalarApiGetRetinaJson',
   123 : 'XcalarApiGetDatasetsInfo',
-  124 : 'XcalarApiFunctionInvalid'
+  124 : 'XcalarApiArchiveTables',
+  125 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -384,5 +386,6 @@ XcalarApisTFromStr = {
   'XcalarApiSynthesize' : 121,
   'XcalarApiGetRetinaJson' : 122,
   'XcalarApiGetDatasetsInfo' : 123,
-  'XcalarApiFunctionInvalid' : 124
+  'XcalarApiArchiveTables' : 124,
+  'XcalarApiFunctionInvalid' : 125
 };

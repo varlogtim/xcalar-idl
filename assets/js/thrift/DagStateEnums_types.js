@@ -13,7 +13,10 @@ DgDagStateT = {
   'DgDagStateCleaned' : 4,
   'DgDagStateReady' : 5,
   'DgDagStateDropped' : 6,
-  'DgDagStateError' : 7
+  'DgDagStateError' : 7,
+  'DgDagStateArchived' : 8,
+  'DgDagStateArchiving' : 9,
+  'DgDagStateArchiveError' : 10
 };
 DgDagStateTStr = {
   0 : 'Unknown state',
@@ -23,7 +26,10 @@ DgDagStateTStr = {
   4 : 'Cleaned',
   5 : 'Ready',
   6 : 'Dropped',
-  7 : 'Error'
+  7 : 'Error',
+  8 : 'Archived',
+  9 : 'Archiving',
+  10 : 'Error during Archiving'
 };
 DgDagStateTFromStr = {
   'Unknown state' : 0,
@@ -33,5 +39,8 @@ DgDagStateTFromStr = {
   'Cleaned' : 4,
   'Ready' : 5,
   'Dropped' : 6,
-  'Error' : 7
+  'Error' : 7,
+  'Archived' : 8,
+  'Archiving' : 9,
+  'Error during Archiving' : 10
 };
