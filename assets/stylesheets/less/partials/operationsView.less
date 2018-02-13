@@ -886,7 +886,7 @@ html.firefox {
             margin-top: 10px;
         }
         .argsSection {
-            .colNameRow:nth-child(3), .colNameRow:nth-child(4) {
+            .resultantColNameRow:nth-child(3), .resultantColNameRow:nth-child(4) {
                 .description {
                     display: none;
                 }
@@ -975,9 +975,26 @@ html.firefox {
             }
         }
 
-        .colNameSection .arg {
-            .size(@width: ~"calc(100% - @{commonMargin} * 2)");
-            margin-left: @commonMargin;
+        .colNameSection {
+            .iconWrapper {
+                left: 0px;
+                background-color: @color-bg-pinkish-grey;
+                .icon {
+                    font-size: 16px;
+                    opacity: 1;
+                    position: static;
+                    .transform(none);
+                    .size(@width: @listHeight, @height: @listHeight);
+                    line-height: @listHeight - 2px;
+                    text-align: center;
+                    cursor: initial;
+                }
+            }
+
+            .arg {
+                .size(@width: ~"calc(100% - @{listHeight})");
+                margin-left: @listHeight;
+            }
         }
 
 

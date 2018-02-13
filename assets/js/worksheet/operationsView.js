@@ -571,7 +571,7 @@ window.OperationsView = (function($, OperationsView) {
             var index = $group.find(".arg").index($arg);
             var $sibArgs = $group.find(".arg:gt(" + index + ")");
             $sibArgs = $sibArgs.filter(function() {
-                return !$(this).closest(".colNameRow").length;
+                return !$(this).closest(".resultantColNameRow").length;
             });
 
             if ($checkbox.hasClass('checked')) {
@@ -1115,7 +1115,8 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
             if (options.prefill.newFields) {
-                $group.find(".colNameRow .arg:visible").val(options.prefill.newFields[i]);
+                $group.find(".resultantColNameRow .arg:visible")
+                      .val(options.prefill.newFields[i]);
             }
         }
 
@@ -1950,13 +1951,19 @@ window.OperationsView = (function($, OperationsView) {
             autoGenColName = "";
         }
 
-        $rows.eq(numArgs).addClass('colNameRow')
-                        .find('.dropDownList')
-                        .addClass('colNameSection')
-                        .end()
-                        .find('.arg').val(autoGenColName)
-                        .end()
-                        .find('.description').text(description);
+        var $row = $rows.eq(numArgs).addClass('resultantColNameRow');
+        var icon = getResultColIcon(operObj.outputType);
+
+        $row.find('.dropDownList')
+            .addClass('colNameSection')
+            .prepend('<div class="iconWrapper"><i class="icon ' + icon +
+                       '"></i></div>')
+            .end()
+            .find('.arg').val(autoGenColName)
+            .end()
+            .find('.description').text(description)
+            .end()
+            .find(".inputWrap");
         var strPreview =  operatorName + '(<span class="descArgs">' +
                           operObj.fnName +
                             '(' + $rows.eq(0).find(".arg").val() +
@@ -2001,8 +2008,11 @@ window.OperationsView = (function($, OperationsView) {
         var description = OpFormTStr.NewColName + ":";
         // new col name field
         var $newColRow = $rows.eq(numArgs);
-        $newColRow.addClass("colNameRow")
+        var icon = getResultColIcon(operObj.outputType);
+        $newColRow.addClass("resultantColNameRow")
                 .find(".dropDownList").addClass("colNameSection")
+                .prepend('<div class="iconWrapper"><i class="icon ' + icon +
+                       '"></i></div>')
                 .end()
                 .find(".description").text(description);
 
@@ -2026,7 +2036,7 @@ window.OperationsView = (function($, OperationsView) {
             description = OpModalTStr.AggNameDesc;
         }
 
-        $rows.eq(numArgs).addClass('colNameRow')
+        $rows.eq(numArgs).addClass('resultantColNameRow')
                         .find('.dropDownList')
                         .addClass('colNameSection')
                         .end()
@@ -4218,7 +4228,8 @@ window.OperationsView = (function($, OperationsView) {
 
     function checkColNameUsedInInputs(name, $inputToIgnore) {
         name = xcHelper.stripColName(name);
-        var $inputs = $activeOpSection.find(".colNameRow").find("input");
+        var $inputs = $activeOpSection.find(".resultantColNameRow")
+                                      .find("input");
         var dupFound = false;
         $inputs.each(function() {
             if ($inputToIgnore && $(this).is($inputToIgnore)) {
@@ -4876,6 +4887,30 @@ window.OperationsView = (function($, OperationsView) {
             $activeOpSection.find('.selectAllWrap').find('.checkbox')
                                               .addClass('checked');
         }
+    }
+
+    function getResultColIcon(type) {
+        var icon = "xi-mixed";
+        switch (type) {
+            case (DfFieldTypeT.DfInt32):
+            case (DfFieldTypeT.DfInt64):
+            case (DfFieldTypeT.DfUInt32):
+            case (DfFieldTypeT.DfUInt64):
+            case (DfFieldTypeT.DfFloat32):
+            case (DfFieldTypeT.DfFloat64):
+                icon = "xi-integer";
+                break;
+            case (DfFieldTypeT.DfString):
+                icon = "xi-string";
+                break;
+            case (DfFieldTypeT.DfBoolean):
+                icon = "xi-boolean";
+                break;
+            default:
+                // DfScalarObj will be mixed
+                break;
+        }
+        return icon;
     }
 
     /* Unit Test Only */

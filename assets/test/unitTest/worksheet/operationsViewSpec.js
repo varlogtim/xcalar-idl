@@ -1061,7 +1061,7 @@ describe('OperationsView Test', function() {
                     firstPass = true;
                     $inputs.eq(3).val("test");
                     cachedFn = ColManager.checkColName;
-                    $operationsModal.find(".groupbyGroup").append('<div class="colNameRow testDiv"><input value="test"></div>');
+                    $operationsModal.find(".groupbyGroup").append('<div class="resultantColNameRow testDiv"><input value="test"></div>');
                     ColManager.checkColName = function() {return false;};
                     return OperationsView.__testOnly__.newColNameCheck();
                 })
