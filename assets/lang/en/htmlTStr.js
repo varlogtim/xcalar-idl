@@ -352,7 +352,7 @@ module.exports = {
         "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered.",
         "RawDSAdvTermAllow": "Skip records with errors and continue processing error-free records.",
         "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
-        "RawDSAdvTermStopRecord": "Stop importing data as soon as the first record level error is encountered. File level errors are logged.",
+        "RawDSAdvTermStopRecord": "Stop processing records in a file when the first error in it is encountered but continue processing other files. Dataset will contain all error-free records up to the first error in each file.",
     },
 
     "workspaceBar": {
@@ -676,7 +676,7 @@ module.exports = {
         "TerminateOnError": "Stop import on first error",
         "ContinueOnError": "Import every file, logging all errors",
         "StopFile": "Stop import on first file level error",
-        "StopRecord": "Stop import on first record level error",
+        "StopRecord": "Import every file, stopping each file on first erroneous record",
         "xPaths": "XPaths",
         "MatchedXPath": "Matched XPath",
         "ElementXPath": "Element XPath",
