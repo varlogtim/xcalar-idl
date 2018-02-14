@@ -199,6 +199,41 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
+        /*
+            tableInofs: array of table info, each table info object has
+                tableName: table's name
+                columns an array of column infos which contains:
+                   name: column's name
+                   rename: rename
+                   type: column's type
+                   cast: need a cast to the type or not
+
+            sample:
+                    var tableInfos = [{
+                        tableName: "test#ab123",
+                        columns: [{
+                            name: "test2",
+                            rename: "test",
+                            type: "string"
+                            cast: true
+                        }]
+                    }]
+        */
+        union: function(tableInfos, dedup, newTableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self.txId;
+
+            XIApi.union(txId, tableInfos, dedup, newTableName)
+            .then(function(dstTable, dstCols) {
+                self._addMeta(null, dstTable, dstCols);
+                deferred.resolve(dstTable);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
         getJoinRenameMap: function(oldName, newName, isPrefix) {
             var type = isPrefix
                        ? DfFieldTypeT.DfFatptr
