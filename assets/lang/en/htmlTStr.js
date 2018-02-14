@@ -659,7 +659,6 @@ module.exports = {
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
         "PARSER": "VISUAL PARSER",
-        "GenLineNum": "Generate Line Numbers",
         "WRITEPARSER": "WRITE PARSER USING JUPYTER",
         "DEBUGPARSER": "DEBUG IMPORT UDF USING JUPYTER",
         "Module": "Module",

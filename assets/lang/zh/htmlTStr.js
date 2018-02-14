@@ -467,7 +467,6 @@ module.exports = {
         "UDF": "使用UDF解析数据",
         "fileNameTitle": "请输入一个不含特殊字符文件名",
         "filePath": "数据源路径",
-        "GenLineNum": "生成行号",
         "WRITEPARSER": "使用JUPYTER编写UDF",
         "DEBUGPARSER": "使用JUPYTER调试UDF",
         "Module": "模块",

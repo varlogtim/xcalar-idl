@@ -13,7 +13,6 @@ describe("Dataset-DSPreview Test", function() {
     var $udfFuncList;
 
     var $headerCheckBox; // promote header checkbox
-    var $genLineNumCheckBox;
 
     var $skipInput;
     var $quoteInput;
@@ -36,7 +35,6 @@ describe("Dataset-DSPreview Test", function() {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox"); // promote header checkbox
-        $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         $skipInput = $("#dsForm-skipRows");
         $quoteInput = $("#dsForm-quote");
@@ -1385,31 +1383,6 @@ describe("Dataset-DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
         });
 
-        it("shoud validate genLineNum case", function() {
-            var $genLineNumCheckBox = $("#genLineNumbersCheckbox");
-            loadArgs.set({format: "TEXT"});
-            loadArgs.setHeader(true);
-            $genLineNumCheckBox.find(".checkbox").addClass("checked");
-            var res = validateForm();
-            expect(res).to.be.an("object");
-            expect(res.format).to.equal("TEXT");
-            expect(res.udfModule).to.equal("default");
-            expect(res.udfFunc).to.equal("genLineNumber");
-            expect(res.udfQuery.header).to.equal(true);
-
-            // case 2
-            loadArgs.setHeader(false);
-            res = validateForm();
-            expect(res).to.be.an("object");
-            expect(res.format).to.equal("TEXT");
-            expect(res.udfModule).to.equal("default");
-            expect(res.udfFunc).to.equal("genLineNumber");
-            expect(res.udfQuery).to.be.null;
-
-            // clear up
-            $genLineNumCheckBox.find(".checkbox").removeClass("checked");
-        });
-
         it("should validate special JSON case", function() {
             var detectArgs = DSPreview.__testOnly__.get().detectArgs;
             detectArgs.isSpecialJSON = true;
@@ -1560,18 +1533,6 @@ describe("Dataset-DSPreview Test", function() {
             $headerCheckBox.click();
             expect($checkbox.hasClass("checked")).to.equal(hasHeader);
             expect(loadArgs.useHeader()).to.equal(hasHeader);
-        });
-
-        it("should toggle gen line num", function() {
-            var $checkbox = $genLineNumCheckBox.find(".checkbox");
-            var checked = $checkbox.hasClass("checked");
-
-            $genLineNumCheckBox.click();
-            expect($checkbox.hasClass("checked")).to.equal(!checked);
-
-            // toggle back
-            $genLineNumCheckBox.click();
-            expect($checkbox.hasClass("checked")).to.equal(checked);
         });
 
         it("should click colGrab to trigger col resize", function() {

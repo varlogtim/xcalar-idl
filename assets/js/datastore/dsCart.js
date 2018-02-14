@@ -206,14 +206,7 @@ window.DSCart = (function($, DSCart) {
         var endTableName = startTableName;
         var cartId = cart.getId();
         var dsObj = DS.getDSObj(cartId);
-        var sortByLineNum = false;
         var numSteps = 1;
-        if (dsObj.moduleName === "default" &&
-            dsObj.funcName.indexOf("genLineNumber") === 0) {
-            sortByLineNum = true;
-            endTableName = srcName + Authentication.getHashId();
-            numSteps++;
-        }
 
         if (worksheet === "xc-new") {
             worksheet = WSManager.addWS(null, srcName);
@@ -227,7 +220,6 @@ window.DSCart = (function($, DSCart) {
             "tableName": endTableName,
             "columns": [],
             "worksheet": worksheet,
-            "sortedByLineNum": sortByLineNum,
             "htmlExclude": ["worksheet"]
         };
 
@@ -263,17 +255,6 @@ window.DSCart = (function($, DSCart) {
 
         XcalarIndexFromDataset(dsName, "xcalarRecordNum", startTableName, prefix, txId)
         .then(function() {
-            if (sortByLineNum) {
-                var indexCol = prefix + "::lineNumber";
-                return XIApi.sortAscending(txId, indexCol, startTableName, endTableName);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(function() {
-            if (sortByLineNum) {
-                TblManager.setOrphanTableMeta(startTableName, newTableCols);
-            }
             var options = {"focusWorkspace": !noFocus};
             return TblManager.refreshTable([endTableName], newTableCols,
                                             [], worksheet, txId, options);

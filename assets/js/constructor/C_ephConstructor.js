@@ -275,21 +275,6 @@ DSFormController.prototype = {
         return this.typedColumns;
     },
 
-    isUniqueSingleFile: function() {
-        return (this.files.length === 1 && this.files[0].isFolder === false);
-    },
-
-    isAllSingleFile: function() {
-        var files = this.files;
-        for (var i = 0, len = files.length; i < len; i++) {
-            if (!(files[i].isFolder === false)) {
-                // null case or true case
-                return false;
-            }
-        }
-        return true;
-    },
-
     listFileInPath: function(path, recursive) {
         // set local variable at first in case
         // in the middle of async call this.previewSet get reset

@@ -22,7 +22,6 @@ window.DSPreview = (function($, DSPreview) {
     var udfFuncHint;
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
-    var $genLineNumCheckBox; // $("#genLineNumbersCheckbox");
 
     var tableName = null;
     var rawData = null;
@@ -79,7 +78,6 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
-        $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -661,18 +659,6 @@ window.DSPreview = (function($, DSPreview) {
             getPreviewTable();
         });
 
-        $genLineNumCheckBox.on("click", function() {
-            var $checkbox = $genLineNumCheckBox.find(".checkbox");
-            if ($checkbox.hasClass("checked")) {
-                // remove header
-                $checkbox.removeClass("checked");
-                toggleGenLineNum(false);
-            } else {
-                $checkbox.addClass("checked");
-                toggleGenLineNum(true);
-            }
-        });
-
         // skip rows
         $("#dsForm-skipRows").on("input", function() {
             getPreviewTable();
@@ -1100,12 +1086,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // format
         var format = options.format;
-        if (format === formatMap.TEXT) {
-            if (options.moduleName === "default" &&
-                options.funcName === "genLineNumber") {
-                toggleGenLineNum(true);
-            }
-        } else if (format === formatMap.UDF) {
+        if (format === formatMap.UDF) {
             cacheUDF(options.moduleName, options.funcName);
             resetUdfSection();
         } else if (format === formatMap.JSON &&
@@ -1588,8 +1569,7 @@ window.DSPreview = (function($, DSPreview) {
                     },
                     error: ErrTStr.InvalidColName,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
-                },
-                {
+                }, {
                     $ele: $ele.find("input"),
                     check: function(val) {
                         if (colNames.indexOf(val) > -1) {
@@ -1605,8 +1585,7 @@ window.DSPreview = (function($, DSPreview) {
                     },
                     error: ErrTStr.ColumnConflict,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
-                }
-                ]);
+                }]);
             }
             return isValid;
         };
@@ -1689,14 +1668,6 @@ window.DSPreview = (function($, DSPreview) {
             }
             udfModule = udfArgs[0];
             udfFunc = udfArgs[1];
-        } else if (format === formatMap.TEXT &&
-                   $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
-            udfModule = "default";
-            udfFunc = "genLineNumber";
-            if (loadArgs.useHeader()) {
-                udfQuery = {};
-                udfQuery.header = true;
-            }
         } else if (format === formatMap.TEXT || format === formatMap.CSV) {
             var isCSV = (format === formatMap.CSV);
             var csvArgs = validateCSVArgs(isCSV);
@@ -1949,15 +1920,7 @@ window.DSPreview = (function($, DSPreview) {
                 break;
             case "TEXT":
                 $form.find(".format.text").removeClass("xc-hidden");
-                toggleGenLineNum(false);
                 loadArgs.setFieldDelim("");
-
-                var $genLineNums = $genLineNumCheckBox.parent();
-                if (loadArgs.isAllSingleFile()) {
-                    $genLineNums.removeClass("xc-hidden");
-                } else {
-                    $genLineNums.addClass("xc-hidden");
-                }
                 break;
             case "EXCEL":
                 $form.find(".format.excel").removeClass("xc-hidden");
@@ -3054,23 +3017,6 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function toggleGenLineNum(genLineNum) {
-        if (genLineNum) {
-            $genLineNumCheckBox.find(".checkbox").addClass("checked");
-            $("#lineDelim").parent().addClass("xc-hidden");
-            $quote.closest(".row").addClass("xc-hidden");
-            $("#dsForm-skipRows").closest(".row").addClass("xc-hidden");
-            $form.find(".advanceSection").addClass("xc-hidden");
-
-        } else {
-            $genLineNumCheckBox.find(".checkbox").removeClass("checked");
-            $("#lineDelim").parent().removeClass("xc-hidden");
-            $quote.closest(".row").removeClass("xc-hidden");
-            $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
-            $form.find(".advanceSection").removeClass("xc-hidden");
-        }
-    }
-
     function toggleXMLCheckboxes(xmlOptions) {
         if (xmlOptions.matchedPath) {
             $(".matchedXPath .checkbox").click();
@@ -3231,7 +3177,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getXMLTable(rawData) {
-        if(rawData == null){
+        if (rawData == null){
             return;
         }
 
@@ -3400,7 +3346,7 @@ window.DSPreview = (function($, DSPreview) {
         var len = Math.min(data.length, rowsToFetch);
 
         //get the html of table
-        for(var i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             tbody += '<span class="XMLContentSpan">' + xcHelper.escapeHTMLSpecialChar(data[i]) + '</span>' + '<br>';
         }
 
