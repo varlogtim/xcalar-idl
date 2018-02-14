@@ -50,6 +50,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
             }).join("");
             $("#dsForm-targetMenu ul").html(html);
             JupyterUDFModal.refreshTarget(html);
+
+            var $input = $("#dsForm-target input");
+            var targetName = $input.val();
+            if (DSTargetManager.getTarget(targetName) == null) {
+                $input.val("");
+            }
         };
         var updateNumTargets = function(num) {
             $(".numDSTargets").html(num);
@@ -109,8 +115,8 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.clickFirstGrid = function() {
-         $gridView.find(".target").eq(0).click();
-    }
+        $gridView.find(".target").eq(0).click();
+    };
 
     function addEventListeners() {
         $("#dsTarget-refresh").click(function() {
@@ -118,7 +124,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         $("#dsTarget-create").click(function() {
-            if(!$("#datastoreMenu").hasClass("noAdmin")) {
+            if (!$("#datastoreMenu").hasClass("noAdmin")) {
                 showTargetCreateView();
             }
         });
@@ -391,6 +397,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                         'spellcheck="false">' +
                         '<input id="' + labelName + '" ' +
                         'class="' + inputClass + '" ' +
+                        'type="' + type + '" ' +
                         'placeholder="' + descrp + '" ' +
                         'autocomplete="off" ' +
                         'spellcheck="false">' +
