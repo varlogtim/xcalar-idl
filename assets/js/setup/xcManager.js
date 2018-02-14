@@ -85,6 +85,9 @@ window.xcManager = (function(xcManager, $) {
             return extPromise;
         })
         .then(function() {
+            if (Authentication.getInfo().idCount === 0) {
+                WSManager.showDatasetHint();
+            }
             StatusMessage.updateLocation();
             if (!isBrowserFirefox && !isBrowserIE) {
                 gMinModeOn = false; // turn off min mode

@@ -127,6 +127,7 @@ TooltipTStr = {
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
     "ClickToSortAsc": "Click to sort ascending",
     "ClickToSortDesc": "Click to sort descending",
+    "ShowDatasetHint": "Begin by creating a new dataset here!",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",

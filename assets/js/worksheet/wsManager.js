@@ -20,7 +20,7 @@ window.WSManager = (function($, WSManager) {
     var slideTime = 180;
 
     // Setup function for WSManager Module
-    WSManager.setup = function() { 
+    WSManager.setup = function() {
         $workSheetTabs = $("#worksheetTabs");
         $hiddenWorksheetTabs = $("#hiddenWorksheetTabs");
         addEventListeners();
@@ -1017,6 +1017,44 @@ window.WSManager = (function($, WSManager) {
             wsCols += gTables[tableIds[i]].getNumCols();
         }
         return wsCols;
+    };
+
+    WSManager.showDatasetHint = function() {
+        if (xcSessionStorage.getItem("seenDatasetHint") === "true") {
+            return;
+        }
+
+        var $tab = $('#dataStoresTab');
+        var left = $tab.offset().left + $tab.outerWidth() + 7;
+        var top = $tab.offset().top + 2;
+        var $popup =
+                $('<div id="showDatasetHint" class="tableDonePopupWrap" ' +
+                    'style="top:' + top + 'px;left:' + left + 'px;">' +
+                    '<div class="tableDonePopup datastoreNotify">' +
+                    TooltipTStr.ShowDatasetHint +
+                    '<div class="close">+</div></div></div>');
+        setTimeout(function() {
+            if ($tab.hasClass("firstTouch") &&
+                $("#workspaceTab").hasClass("active")) {
+                showPopup();
+                xcSessionStorage.setItem("seenDatasetHint", true);
+            }
+        }, 1000);
+
+        function showPopup() {
+            $("body").append($popup);
+            $popup.find(".tableDonePopup").fadeIn(500);
+
+            $popup.click(function(event) {
+                if (!$(event.target).closest(".close").length) {
+                    $('#dataStoresTab').click();
+                    if (!$("#inButton").hasClass("active")) {
+                        $('#inButton').click();
+                    }
+                }
+                $("#showDatasetHint").remove();
+            });
+        }
     };
 
     // Add worksheet events, helper function for WSManager.setup()
