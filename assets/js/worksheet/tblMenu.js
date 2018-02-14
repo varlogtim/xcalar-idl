@@ -1048,8 +1048,15 @@ window.TblMenu = (function(TblMenu, $) {
         if (keyIndex === -1 ||
             order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
             for (var i = 0; i < keys.length; i++) {
+                // do not readd current column and
+                // do not include columns that are not sroted ascending or
+                // descending
                 if (keys[i].name === colName ||
-                    keys[i].name === "xcalarRecordNum") {
+                    keys[i].name === "xcalarRecordNum" ||
+                    (keys[i].ordering !==
+                        XcalarOrderingTStr[XcalarOrderingTFromStr.Ascending] &&
+                    keys[i].ordering !==
+                        XcalarOrderingTStr[XcalarOrderingTFromStr.Descending])) {
                     continue;
                 }
                 colInfo.push({
