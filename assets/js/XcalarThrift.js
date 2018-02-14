@@ -346,6 +346,7 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
 
     var getUnostedTableHelper = function(table) {
         var deferred = jQuery.Deferred();
+        var originalTableName = table;
         var srcTableName = table;
 
         XcalarGetDag(table)
@@ -369,14 +370,14 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
 
                     if (!hasReadyState) {
                         var newId = Authentication.getHashId().split("#")[1];
-                        srcTableName = tableName.split("#")[0] + "#" + newId;
+                        srcTableName = originalTableName.split("#")[0] + "#" + newId;
                         var keys = indexInput.key.map(function(keyAttr) {
                             return {
                                 name: keyAttr.name,
                                 ordering: XcalarOrderingT.XcalarOrderingUnordered
                             };
                         });
-                        return XcalarIndexFromTable(tableName, keys,
+                        return XcalarIndexFromTable(originalTableName, keys,
                                                     srcTableName, null, true);
                     } else {
                         return PromiseHelper.resolve(null);
