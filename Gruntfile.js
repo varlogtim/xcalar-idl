@@ -1,6 +1,6 @@
 /**
 
-    @GRUNTFILE
+a    @GRUNTFILE
         Uses:
             1. BUILD TOOL to generate build for xcalar-gui project,
             2. WATCH TOOL:
@@ -25,31 +25,34 @@
             for front end developers - will generate a working build
             but no javascript minification and config details remain
             Build output, unless otherwise specified via cmd params,
-            will be in <xlr src>
+            will be in <srcroot> (source of xcalar-gui proj)
 
         debug
             run by Jenkins - this is a regular default build that can
             be debugged, only developer config details are removed so
             the build doesn't get connected to developer server
-            Build output, unless otherwise specified via cmd params,
-            will be in <xlr src>/xcalar-gui/<product>
+            Build root, unless otherwise specified via cmd params:
+            <srcroot>/xcalar-gui (XD blds)
+            <srcroot>/xcalar-insight (XI blds)
 
         installer
             full shippable build.
             js is minified and developer config details removed
-            Build output, unless otherwise specified via cmd params,
-            will be in <xlr src>/xcalar-gui/<product>
+            Build root, unless otherwise specified via cmd params:
+            <srcroot>/xcalar-gui (XD blds)
+            <srcroot>/xcalar-insight (XI blds)
 
         trunk
             for backend developers - will generate a working build,
             but port in developer's own backend thrift changes, and
             sync back and front end for communication
-            Build output, unless otherwise specified via cmd params,
-            will be in <xlr src>/xcalar-gui/<product>
+            Build root, unless otherwise specified via cmd params:
+            <srcroot>/xcalar-gui (XD blds)
+            <srcroot>/xcalar-insight (XI blds)
 
     [options]:
 
-        --xcalarguiroot=<path>
+        --srcroot=<path>
 
             Root dir of xcalar-gui project to build from
             if not supplied, defaults to cwd of Gruntfile
@@ -64,30 +67,30 @@
             (Useful if you want to store builds in a central location, and for testing
             this Gruntfile out)
 
-        --buildrootdir=<path>
+        --buildroot=<path>
 
             Dir you want top-level build output to be rooted at
             (not necessarily where index.html begins)
             It relative, will be relative to xcalar-gui src
-            If not supplied, defaults to: <xcalarguiroot>
+            If not supplied, defaults to: <srcroot>
 
-        --buildstartdir=<path>
+        --buildstart=<path>
 
             Dir you want build output directory holding index.html
-            If relative, will be relative to <buildrootdir>
+            If relative, will be relative to <buildroot>
             If not supplied, defaults to:
-                <buildrootdir> (for all dev blds)
-                <buildrootdir>/xcalar-gui (for non-dev XD blds)
-                <buildrootdir>/xcalar-insight (for non-dev XI blds)
+                <buildroot> (for all dev blds)
+                <buildroot>/xcalar-gui (for non-dev XD blds)
+                <buildroot>/xcalar-insight (for non-dev XI blds)
 
-        --settopbldroottosrc
+        --setbuildroottosrc
 
-            sets <buildrootdir> to <xcalarguiroot>
+            sets <buildroot> to <srcroot>
 
-        --setdesttoroot
+        --setbuildstarttosrc
 
-            sets <buildstartdir> to <xcalarguiroot>
-            (and thus, also <buildrootdir> to <xcalarguiroot>)
+            sets <buildstart> to <srcroot>
+            (and thus, also <buildroot> to <srcroot>)
 
         --nooverwrite
 
@@ -108,13 +111,13 @@
             (If list begins with '-' will watch for chnages in all filetypes EXCEPT what is listed.)
 
             FILETYPES:
-                all                    any src or bld filel
-                less                   any less src file
-                css                    any css bld file
-                html                   any html src file
-                htmlbld                any html bld file
+                less                   any less file in project src
+                css                    any css file final build
+                html                   any html file in project src (+ htmlTStr.js files)
+                bldhtml                any html file in the final build
                 js                     any js src file
-                constructors           changes in site/render/template/constructor.template.js
+                ctor                      changes in site/render/template/constructor.template.js
+                all                    any of the valid file types in src or bld
 
             ex.:
                 grunt watch --type=less,css        (watches for changes in any files of FILETYPE less or css)
@@ -125,25 +128,12 @@
             ex.:
                 grunt watch --less --css        (watches for changes in any files of FILETYPE less or css)
 
-        --file=<a specific filepath>
-
         --files=<comma sep. list of specific filepaths to watch>
-
-        --dir=<a specific dir>
-
-            Watches for changes of ANY files nested anywehre within the dir
-
-        --dirs=<comma sep. list of specific dirs to watch>
 
         --common
 
             Flag to watch for some common files (grep for COMMON_WATCH_SRC_FILES and COMMON_WATCH_BLD_FILES
             at top of script to see which currently)
-
-        --commonDirs
-
-            Flag to watch for changes in files nested within some common dirs (grep for COMMON_WATCH_SRC_DIRS
-            and COMMON_WATCH_BLD_DIRS)
 
         --livereload
 
@@ -190,23 +180,23 @@
             except for css files.
             and livereload the browser after completing watch tasks, only if edited file was a less file.
 
-        grunt watch --xcalarguiroot=/home/jolsen/xcalar-gui --less --html --livereload=-less
+        grunt watch --srcroot=/home/jolsen/xcalar-gui --less --html --livereload=-less
 
-            In an existing gui build, with src root at --xcalarguiroot, and bld output at
-            default location (since no --buildoutput given; see --buildoutput description above
-            to see what default would be),
+            In an existing gui build, with src root at --srcroot, and bld output at
+            default location (since no --buildroot given; see --buildroot desc above
+            for default),
             Watch for chnages of any less or project src html files in an existing project.
             If changed, rebuild the file in to the build and livereload if it was a FILETYPE
             other than less
 
-        grunt watch --buildoutput=/home/jolsen/xcalar-gui/out --less --html --livereload=-less
+        grunt watch --buildroot=/home/jolsen/xcalar-gui/out --less --html --livereload=-less
 
-            Just as example above, only the existing project has its build at --buildoutput,
-            and the project src will be the location script running from (since no --xcalarguiroot given)
+            Just as example above, only the existing project has its build at --buildroot,
+            and the project src will be the location script running from (since no --srcroot given)
 
-        grunt --xcalarguiroot=/home/jolsen/cleanRepo/guiproj/ --buildoutput=/home/jolsen/xcalar-gui/bldGruntFile/dom5/ debug --v
+        grunt --srcroot=/home/jolsen/cleanRepo/guiproj/ --buildroot=/home/jolsen/xcalar-gui/bldGruntFile/dom5/ debug --v
 
-            bld debug build from project at --xcalarguiroot, bld destination is at --buildoutput and with verbosity
+            bld debug build from project at --srcroot, bld destination is at --buildroot and with verbose console output
 */
 
 /**
@@ -216,22 +206,42 @@ var fs = require('fs'); // for file system operations
 var os = require('os'); // for getting hostname for thrift sync
 var shell = require('shelljs');
 _ = require('underscore');
-const path = require('path');
+var path = require('path');
 var cheerio = require('cheerio');
+
+/**
+    the names of the env variables the rest of our build tools rely on.
+    We will default to these for project source and trunk source if no
+    cmd params given
+*/
+var XLRGUIDIR = 'XLRGUIDIR',
+    XLRDIR = 'XLRDIR';
 
 var XD = "XD";
 var XI = "XI";
 var XDprodName = "xcalar-gui";
 var XIprodName = "xcalar-insight";
+var INITIAL_GRUNT_PROCESS_TASKLIST = 'taskflag4context';
+var TOPLEVEL_GRUNT_PROCESS = false; // will get set true if we detect this is parent process
+var LR_ON = 'LIVERELOADON';
+var LR_OFF = 'LIVERELOADOFF';
+var WATCH_TMP_FILE = 'watchfileGeneratedByGruntPleaseDontDeleteWhileGruntIsRunning';
 
-// names of main bld tasks user can call from cmd line i.e., 'grunt debug'
+//its not working because complete_watch is happening in a child task.
+// you hit more events and nicely they are not being considered.
+// because they're triggered by something else.
+// but what you need is to know when those child processes complete.
+// that's the only way to know.
+
+// main bld tasks user can call from cmd line i.e., 'grunt debug'
 var TRUNK = "trunk",
     INSTALLER = "installer",
     DEV = "dev", // if they don't supply any task, default will get run automatically; but they can specify default to
     DEBUG = "debug";
 
-// the custom tasks in this Gruntfile used by build tasks
-var PREP_BUILD_DIRS = 'prepBuildDirs',
+// Other Tasks
+var INIT = 'init',
+    PREP_BUILD_DIRS = 'prepBuildDirs',
     BUILD = 'build',
     BUILD_CSS = 'buildCSS',
     CLEAN_CSS_SRC = 'cleanCssSrc',
@@ -257,13 +267,40 @@ var PREP_BUILD_DIRS = 'prepBuildDirs',
     NEW_CONFIG_FILE = 'newConfigFile',
     CLEAN_BUILD_SECTIONS = 'cleanBldSections',
     FINALIZE = 'finalize',
-    DISPLAY_SUMMARY = 'summary';
-// custom tasks for watch
-var COMPLETE_WATCH = 'completeWatch';
+    DISPLAY_SUMMARY = 'summary',
+    COMPLETE_WATCH = 'completeWatch',
+    WATCH_PLUGIN = 'customWatch', // what we'll rename the watch plugin to; can be anything
+    WATCH = 'watch'; // this will be our custom task. DO NOT CHANGE VALUE>,
+        // point is that this custom task will get hit when user gives 'watch' on cmd line
+
+// cli options for watch functionality
+var WATCH_FLAG_ALL = "all"; // watch all files
+    WATCH_TARGET_HTML_SRC = "html", // watch html src code (will need to rebld)
+    WATCH_TARGET_HTML_BLD = "bldhtml", // watch the bld html (wont need to rbld)
+    WATCH_TARGET_CSS = "css",
+    WATCH_TARGET_CTOR = 'ctor',
+    WATCH_TARGET_LESS = "less",
+    WATCH_TARGET_JS_SRC = "js",
+    WATCH_TARGET_JS_BLD = "bldJs",
+    WATCH_FLAG_COMMON_FILES = "common", // watch a list of common files
+    WATCH_OP_WATCH_TYPES = "types",
+    WATCH_OP_FILES = "files", // spec. a comma sep list of files
+    WATCH_OP_REL_TO = "relTo", // can be either 'SRC' or 'BLD' (if they  want to specify rel paths)
+    WATCH_OP_LIVE_RELOAD = "livereload";
 
 // Global booleans to indicate if current process is for bld task or 'watch' functionality (could be both)
 var IS_BLD_TASK = false;
 var IS_WATCH_TASK = false;
+
+var WATCH_FILETYPES = {
+    [WATCH_TARGET_HTML_SRC]: '',
+    [WATCH_TARGET_HTML_BLD]: '',
+    [WATCH_TARGET_CSS]: '',
+    [WATCH_TARGET_LESS]: '',
+    [WATCH_TARGET_JS_SRC]: '',
+    [WATCH_TARGET_JS_BLD]: '',
+    [WATCH_TARGET_CTOR]: '',
+};
 
 /**
     MAPPINGS FOR INIDVIDUAL FILE TYPES
@@ -318,55 +355,41 @@ var helpContentMapping = {
     required: []};
 
 // cli options for regular bld functionality
-var BLD_OP_SRC_REPO = 'xcalarguiroot',
-    BLD_OP_BLDROOT = 'buildrootdir',
-    BLD_OP_DESTDIR = 'buildstartdir',
+var BLD_OP_SRC_REPO = 'srcroot',
+    BLD_OP_BLDROOT = 'buildroot',
+    BLD_OP_DESTDIR = 'buildstart',
     BLD_OP_PRODUCT = 'product',
-    BLD_OP_BACKEND_SRC_REPO = "xcalar-bld",
+    BLD_OP_BACKEND_SRC_REPO = "xcalarroot",
     BLD_OP_JS_MINIFICATION_CONCAT_DEPTH = 'jsminificationdepth',
-    BLD_FLAG_SRC_DEST_SAME = 'setdesttoroot',
-    BLD_FLAG_SRC_BLD_SAME = 'settopbldroottosrc',
+    BLD_FLAG_SRC_DEST_SAME = 'setbuildstarttosrc',
+    BLD_FLAG_SRC_BLD_SAME = 'setbuildroottosrc',
     BLD_FLAG_TIMESTAMP_BLDDIR = 'timestampbld',
     BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS = 'nooverwrite',
     BLD_FLAG_RETAIN_FULL_SRC = 'keepsrc',
     BLD_FLAG_RC_SHORT = 'rc',
     BLD_FLAG_RC_LONG = 'removedebugcomments';
-// cli options for watch functionality
-var WATCH_FLAG_ALL = "all"; // watch all files
-    WATCH_FLAG_HTML_SRC = "html", // watch html src code (will need to rebld)
-    WATCH_FLAG_HTML_BLD = "bldhtml", // watch the bld html (wont need to rbld)
-    WATCH_FLAG_CSS = "css",
-    WATCH_FLAG_CONSTRUCTORS = 'constructors',
-    WATCH_FLAG_LESS = "less",
-    WATCH_FLAG_JS_SRC = "js",
-    WATCH_FLAG_JS_BLD = "bldJs",
-    WATCH_FLAG_COMMON_SRC_FILES = "common", // watch a list of common files
-    WATCH_FLAG_COMMON_SRC_DIRS = "commonDirs", // watch a list of common dirs
-    WATCH_OP_WATCH_TYPES = "types",
-    WATCH_OP_SINGLE_FILE = "file", // watch a single file
-    WATCH_OP_MULTIPLE_FILES = "files", // spec. a comma sep list of files
-    WATCH_OP_SINGLE_DIR = "dir", // single dir
-    WATCH_OP_MULTIPLE_DIRS = "dirs", // spec. a comma sep list
-    WATCH_OP_REL_TO = "relTo", // can be either 'SRC' or 'BLD' (if they  want to specify rel paths)
-    WATCH_OP_LIVE_RELOAD = "livereload";
-
 // delimeter user should use for cli options that can take lists
 var OPTIONS_DELIM = ",";
-
-// valid watch filetypes, and globs for collecting files of that type (globs set after reading cli options)
-var WATCH_FILE_TYPES = {
-    [WATCH_FLAG_HTML_SRC]: '',
-    [WATCH_FLAG_HTML_BLD]: '',
-    [WATCH_FLAG_CSS]: '',
-    [WATCH_FLAG_LESS]: '',
-    [WATCH_FLAG_JS_SRC]: '',
-    [WATCH_FLAG_JS_BLD]: '',
-    [WATCH_FLAG_CONSTRUCTORS]: '',
-};
 
 // the name of the constructor template file
 var CONSTRUCTOR_TEMPLATE_FILE = 'constructor.template.js';
 var CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD = 'site/render/template/' + CONSTRUCTOR_TEMPLATE_FILE;
+
+/**
+    A hash with keys for each watch filetype,
+    and value a boolean for if files of that type
+    should be reloaded. Dynamically configured based
+    on user params.
+    This will be used in the watch events!! (event.on('watch')
+    so livereload property can be turned on/off on the
+    fly, depending on the type of file that was edited.
+    Therfore, this hash needs to be configured prior to tasks running!
+    There is a function, getReloadTypes(), which will
+    return what this hash should be..
+    Please make sure it is being called, or hash configed,
+    somewhere in init!!
+*/
+var LIVE_RELOAD_BY_TYPE = {};
 
 /**
     comon files to watch
@@ -374,9 +397,7 @@ var CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD = 'site/render/template/' + CONSTRUCT
     that will get appended on during watch, so put here just rel part
 */
 var COMMON_WATCH_SRC_FILES = [htmlMapping.src + "index.html", htmlMapping.src + "login.html"];
-var COMMON_WATCH_SRC_DIRS = [];
-var COMMON_WATCH_BLD_FILES = [];
-var COMMON_WATCH_BLD_DIRS = [];
+var COMMON_WATCH_BLD_FILES = [htmlMapping.dest + 'index.html'];
 
 /**
 
@@ -413,29 +434,23 @@ var VALID_OPTIONS = {
     [BLD_OP_DESTDIR]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Directory path for dir in build where index.html should start (if does not exist will create for you)"},
     [BLD_OP_PRODUCT]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI], [DESC_KEY]: "Product type to build"},
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI], [DESC_KEY]: "Product type to build (Defaults to XD)"},
     [BLD_OP_BACKEND_SRC_REPO]:
         {[REQUIRES_VALUE_KEY]: true, [BLD_KEY]: true, [DESC_KEY]: "For trunk builds only: Path to xlr repo to copy in backend files from"},
     [BLD_OP_JS_MINIFICATION_CONCAT_DEPTH]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Depth to start minifying js files from within " + jsMapping.src},
-    [WATCH_OP_SINGLE_FILE]:
-        {[REQUIRES_VALUE_KEY]: true, [WATCH_KEY]: true, [DESC_KEY]: "Path to single file you'd like to watch"},
-    [WATCH_OP_MULTIPLE_FILES]:
+    [WATCH_OP_FILES]:
         {[REQUIRES_VALUE_KEY]: true, [WATCH_KEY]: true, [DESC_KEY]: "Comma sep list of filepaths of files you'd like to watch"},
-    [WATCH_OP_SINGLE_DIR]:
-        {[REQUIRES_VALUE_KEY]: true, [WATCH_KEY]: true, [DESC_KEY]: "Path to directory of files you'd like to watch"},
-    [WATCH_OP_MULTIPLE_DIRS]:
-        {[REQUIRES_VALUE_KEY]: true, [WATCH_KEY]: true, [DESC_KEY]: "Comma sep list of directory paths to watch files in"},
     [WATCH_OP_REL_TO]:
-        {[REQUIRES_VALUE_KEY]: true, [REQUIRES_ONE_KEY]: [WATCH_OP_SINGLE_FILE, WATCH_OP_MULTIPLE_FILES, WATCH_OP_SINGLE_DIR, WATCH_OP_MULTIPLE_DIRS], [WATCH_KEY]: true,
+        {[REQUIRES_VALUE_KEY]: true, [REQUIRES_ONE_KEY]: [WATCH_OP_FILES], [WATCH_KEY]: true,
         [DESC_KEY]: "If rel filepaths supplied for watch files, which dir to get them rel to (defaults to project source)"},
     [WATCH_OP_WATCH_TYPES]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: Object.keys(WATCH_FILE_TYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: Object.keys(WATCH_FILETYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
         [DESC_KEY]: "A single filetype, or comma sep list of filetypes you'd like to watch.  "
             + "\n\t\tIf list starts with -, will watch all types EXCEPT that/those specified.  "},
     [WATCH_OP_LIVE_RELOAD]: // can be used as a flag or an option
         {//[REQUIRES_VALUE_KEY]: true,
-        [VALUES_KEY]: Object.keys(WATCH_FILE_TYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
+        [VALUES_KEY]: Object.keys(WATCH_FILETYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
         [DESC_KEY]: "As flag: do live reload on all watched files."
             + "\n\t\tAs option: A single filetype, or comma sep list of filetypes you'd like to do live reload on. "
             + "\n\t\tIf list begins with -, will do livereload on all types EXCEPT that/those specififed."},
@@ -457,23 +472,21 @@ var VALID_OPTIONS = {
     // watch flags
     [WATCH_FLAG_ALL]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in files of all filetypes"},
-    [WATCH_FLAG_HTML_SRC]:
+    [WATCH_TARGET_HTML_SRC]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in html files in the project source @ " + htmlMapping.src + ", and regen in to bld"},
-    [WATCH_FLAG_HTML_BLD]:
+    [WATCH_TARGET_HTML_BLD]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in html in the build"},
-    [WATCH_FLAG_CSS]:
+    [WATCH_TARGET_CSS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in css files in the build (ignore this for now because livereload bug won't reload css)"},
-    [WATCH_FLAG_LESS]:
+    [WATCH_TARGET_LESS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in less files in the project source @ " + cssMapping.src},
-    [WATCH_FLAG_JS_SRC]:
+    [WATCH_TARGET_JS_SRC]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in javascript files in project source @ " + jsMapping.src},
-    //[WATCH_FLAG_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
-    [WATCH_FLAG_CONSTRUCTORS]:
+    //[WATCH_TARGET_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
+    [WATCH_TARGET_CTOR]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
-    [WATCH_FLAG_COMMON_SRC_FILES]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in some common files in the project source: " + COMMON_WATCH_SRC_FILES},
-    [WATCH_FLAG_COMMON_SRC_DIRS]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes for files in some common directories in the project source: " + COMMON_WATCH_SRC_DIRS},
+    [WATCH_FLAG_COMMON_FILES]:
+        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in some common files in the project source: " + COMMON_WATCH_SRC_FILES + ',' + COMMON_WATCH_BLD_FILES},
 };
 
 // add in grunt options/flags you want available to user (grunt --version works even if you don't add here)
@@ -481,7 +494,7 @@ var GRUNT_OPTIONS = [
     'gruntfile', 'debug', // even though --debug a boolean flag, grunt stores it internally as debug=1 (value taking)
 ];
 var GRUNT_FLAGS = [
-    'verbose', 'force', 'stack',
+    'verbose', 'force', 'stack', 'color', // color being sent to child processes of grunt-concurrent!
 ];
 var validOp;
 for ( validOp of GRUNT_OPTIONS ) {
@@ -523,6 +536,7 @@ for ( validOp of Object.keys(VALID_OPTIONS) ) {
     but also keep global hash so can pretty print with color in help menu
 */
 var OPTIONS_DESC_HASH = optionInfoString();
+
 
 // get for flags and ops
 var FLAGS_DESC_STR = '';
@@ -620,12 +634,8 @@ function optionInfoString() {
 }
 
 // if you run a watch task, must specify at least one some cmd option to specify what to watch. list options here, will validate
-var WATCH_TASK_REQUIRES_ONE = [
-    WATCH_OP_WATCH_TYPES, WATCH_FLAG_ALL,
-    WATCH_OP_SINGLE_FILE, WATCH_OP_MULTIPLE_FILES,
-    WATCH_OP_SINGLE_DIR, WATCH_OP_MULTIPLE_DIRS
-];
-WATCH_TASK_REQUIRES_ONE = WATCH_TASK_REQUIRES_ONE.concat(Object.keys(WATCH_FILE_TYPES)); // all the boolean flags
+var WATCH_TASK_REQUIRES_ONE = [ WATCH_OP_FILES ];
+WATCH_TASK_REQUIRES_ONE = WATCH_TASK_REQUIRES_ONE.concat(Object.keys(WATCH_FILETYPES)); // all the boolean flags
 
 /** tasks you want user to be able to schedule from cmd line when invoking grunt
     (any task registered in Gruntfile is callable from cmd; no way to privatize tasks)
@@ -638,33 +648,39 @@ var VALID_TASKS = {
             [DESC_KEY]:
                   "\n\t\tfor front end developers - will generate a working build "
                 + "\n\t\tbut no javascript minification and config details remain"
-                + "\n\t\tBuild output, unless otherwise specified via cmd params,"
-                + "\n\t\twill be <xlr src> (the project source you're using for bld)"
+                + "\n\t\tBuild root, unless otherwise specified via cmd params,"
+                + "\n\t\twill be <srcroot> (the project source you're using for bld)"
         },
         [INSTALLER]: {
             [BLD_TASK_KEY]:true,
             [DESC_KEY]:
                   "\n\t\tfull shippable build."
                 + "\n\t\tjs is minified and developer config details removed"
-                + "\n\t\tBuild output, unless otherwise specified via cmd params,"
-                + "\n\t\twill be in <xlr src>/xcalar-gui/<product>"},
+                + "\n\t\tBuild root, unless otherwise specified via cmd params:"
+                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
+                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+        },
         [TRUNK]: {
             [BLD_TASK_KEY]:true,
             [DESC_KEY]:
                   "\n\t\tFor backend developers - will generate a working build,"
                 + "\n\t\tbut port in developer's own backend thrift changes, and"
                 + "\n\t\tsync back and front end for communication"
-                + "\n\t\tBuild output, unless otherwise specified via cmd params,"
-                + "\n\t\twill be in <xlr src>/xcalar-gui/<product>"},
+                + "\n\t\tBuild root, unless otherwise specified via cmd params:"
+                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
+                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+        },
         [DEBUG]: {
             [BLD_TASK_KEY]:true,
             [DESC_KEY]:
                   "\n\t\tUsed by Jenkins - this is a regular default build that can"
                 + "\n\t\tbe debugged, only developer config details are removed so"
                 + "\n\t\tthe build doesn't get connected to developer server"
-                   + "\n\t\tBuild output, unless otherwise specified via cmd params,"
-                + "\n\t\twill be in <xlr src>/xcalar-gui/<product>"},
-        'watch': {
+                + "\n\t\tBuild root, unless otherwise specified via cmd params:"
+                + "\n\t\t\t<srcroot>/xcalar-gui/     (if XD bld)"
+                + "\n\t\t\t<srcroot>/xcalar-insight/ (if XI bld)"
+        },
+        [WATCH]: {
             [BLD_TASK_KEY]:false, [REQUIRES_ONE_KEY]: WATCH_TASK_REQUIRES_ONE,
             [DESC_KEY]:
                   "\n\t\tRuns a cron job, watching for edits in a set of files. "
@@ -673,6 +689,20 @@ var VALID_TASKS = {
                 + "\n\t\tA live-reload functionality is available to reload the "
                 + "\n\t\tbrowser upon completion, via option --"
                 + WATCH_OP_LIVE_RELOAD},
+        [INIT]: {
+            [BLD_TASK_KEY]:false,
+            [DESC_KEY]:
+                "\n\t\tSets up your cwd by running 'npm install', and installing"
+                + "\n\t\tlocal patches to grunt plugins."
+                + "\n\t\t(Run only once when you first set up your workspace!)"
+        },
+/**
+        [BUILD_CSS]: {
+            [BLD_TASK_KEY]:true,
+            [DESC_KEY]:
+                "\n\t\tBuild only the css portion of your build. (Developer use)"
+        },
+*/
 };
 /** form strings with the tasks and escriptions for logging purposes during param validation
     make some lists as doing this, so can go through in help and print with colorization.
@@ -836,9 +866,7 @@ var generatedDuringBuild = {}; // keep track of generated files/dirs you want to
 
         /** WATCH FUNCTIONALITY */
 
-var WATCH_CURR_PROCESSING = false, // a global boolean to indicate if a curr watch task processing, so won't trigger other watch processes from that one
-        // could happen if the watch tasks that result from editing the watched file, alter a file that is also being watched
-    RELOAD_DEFAULT = false,
+var RELOAD_DEFAULT = false,
     WATCH_LIVERELOAD_HASH_CONFIG_KEY = 'livereloadmap'; // a key for grunt.config to hold mapping of watch filetypes and if they should be reloaded
         // configed dynamically based on user params
 
@@ -893,6 +921,7 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datast
         fall in to a recursive loop (since it is rsyncing the dir as it's filling up...) however, might not know dest dir name
         until after user params, so can not add it in here yet...
     */
+    DONT_VALIDATE = [INITIAL_GRUNT_PROCESS_TASKLIST, 'pokacuka'], // dont do param validation on these grunt.options values
     DONT_RSYNC = [
         'assets/dev',
         '*.git*',
@@ -906,6 +935,7 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datast
         "'/package.json'",
         "'/prod'",
         'services/expServer/awsWriteConfig.json',
+        '3rd/microsoft-authentication-library-for-js/*',
         'assets/xu/themes/simple/css/xu.css',
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/help/XI/Content/B_CommonTasks/A_ManageDatasetRef.htm',
@@ -925,7 +955,6 @@ DONT_RSYNC = DONT_RSYNC.concat(cssMapping.remove.map(x => cssMapping.src + x));
 DONT_RSYNC = DONT_RSYNC.concat(htmlMapping.remove.map(x => htmlMapping.src + x));
 DONT_RSYNC = DONT_RSYNC.concat(jsMapping.remove.map(x => jsMapping.src + x));
 
-
 module.exports = function(grunt) {
 
     // if they requested help for this file, display that instead of Grunt's help
@@ -935,6 +964,15 @@ module.exports = function(grunt) {
     }
 
     pkg = grunt.file.readJSON('package.json');
+
+    /**
+        do initialization specific initial
+        Grunt run (top level process)
+        (see function documentation)
+    */
+    if ( !grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
+        parentInit();
+    }
 
     /**
         set up all config data, cmd option processing, etc.
@@ -950,7 +988,9 @@ module.exports = function(grunt) {
 
         (4) register plugin tasks with grunt (depends on (2))
 
-        (3 or 4 doesn't matter which comes first)
+            (3 or 4 doesn't matter which comes first)
+
+        (5) Configure watch plugin based on user params (depends on (3), (4))
     */
 
     /**
@@ -975,10 +1015,13 @@ module.exports = function(grunt) {
 
         init Part (2) : setup grunt initConfig
 
-            Some of the work in this build script (such as minification, HTML prettifying, etc.) will be accomplished using Grunt plugins.
-            Grunt plugins and custom multitasks require individual configuration, wtihin grunt.initConfig
+            Some work in this build script (minification, HTML prettifying, etc.)
+            will be accomplished using Grunt plugins.
+            Grunt plugins and custom multitasks require individual configuration,
+            wtihin grunt.initConfig
 
-            If you are new to grunt, read the following link, to understand the syntax being used here in case you need to modify it.
+            If you are new to grunt, read the following link, to understand
+            syntax being used here in case you need to modify it.
 
             https://gruntjs.com/configuring-tasks#compact-format
 
@@ -1109,6 +1152,16 @@ module.exports = function(grunt) {
             },
         },
 
+        concurrent: {
+            options: {
+                logConcurrentOutput: true,
+            },
+            watch: {
+                tasks: [],
+                // set which watch targets to run dynamically based on user params
+            },
+        },
+
         /** copy operations (using because grunt.file.copy api does not copy entire dir) */
         copy: {
 
@@ -1198,10 +1251,10 @@ module.exports = function(grunt) {
                         grunt.config('copy.resolveDependencies.dest'),
                         relportion
                     );
-                    grunt.log.debug("cwd: " + ccwd + ", dest: " + cdest + " rel: " + relportion);
-                    if ( grunt.file.exists(filedest) && !grunt.file.isDir(filedest) ) {
-                        grunt.log.debug("\tfile " + filedest + " exists and is not a dir; skip");
-                    }
+                    grunt.log.debug("cwd: " + ccwd
+                        + ", dest: " + cdest
+                        + " rel: " + relportion
+                        + " exists? " + grunt.file.exists(filedest));
                     // Return false if the file exists.
                     return !(grunt.file.exists(filedest));
                 },
@@ -1356,6 +1409,7 @@ module.exports = function(grunt) {
                 options: {
                     args: ['-a', '--update'/** --verbose */], // put rsync options you want here (-a will preserve symlinks, ownership, etc; see rsync man page
                     exclude: DONT_RSYNC,
+                    include: ['3rd/microsoft-authentication-library-for-js/dist'],
                     src: SRCROOT + '.', // will copy starting from SRCROOT
                     dest: DESTDIR,
                     recursive: true,
@@ -1399,26 +1453,81 @@ module.exports = function(grunt) {
         },
 
         /**
-            watch runs a chron job.
-            If any changes occur to any files within the 'files' attr list,
-            will execute the list of tasks in the 'tasks' attr.
+            Watch plugin:
+            Runs chron job, monitoring for changes in files specified in 'files' attr.
+            If any changes detected, a watch event is emitted, and then executes
+            list of tasks in the 'tasks' attr, and then plugin target restarted.
+            [[If 'livereload' enabled, then when plugin starts, a livereload server
+            spun up, and changed file sent to the livereload server]]
 
-            Keep blank except for global options -
-            . will set the 'files' attr when reading in cmd params (because there are options for
-            which files/filetypes to watch)
-            . and will set the 'tasks' attr in the watch on event -
-            because tasks to execute will depend on which file was changed
-            (i.e., if a less file chnaged, a different workflow than if an html src file changed)
+            *** PLEASE READ BELOW NOTES BEFORE YOU MODIFY THIS PLUGIN CONFIGURATION ***
+
+            - 1. Which files to watch, and which filetypes to livereload,
+                determined dynamically via user cmd options.
+
+            - 2. devs want option to be able to watch certain file types, and livereload
+                only subset of those filetypes
+                However, 'livereload' attr can NOT be configured dynamically after watch task begins..
+                Therefore, need more than one task, to support diff livereload configs
+                (the need for more than one task, is why we are running grunt-concurrent)
+
+            - 3. You can NOT run more than 1 watch target with livereload enabled,
+               because each one will spin up a livereload server, and either
+                (1) you'll need to give distinct ports in which case your browser can only
+                    connect to one of them, or
+                (2) the targets will go to the default port and you'll have a conflict and die.
+              Therefore, keep two targets, one for files you want to watch with lr disabled,
+              one with lrenabled.
+
+            - 4. since limited to only one target with livereload enabled, we will
+                include ALL files user wants livereload on in the files list, and
+                because of 1., will configure the '.files' attr dynamically.
+
+            - 5. Because of 4., no way to know before hand which tasks to run before Grunt begins.
+                Each time a watched file changes, it emits a watch event for that specific file.
+                Therefore, '.tasks' attr will be set in the watch event, and depending on
+                wchioh file was changed.
+
+            - 6. WHY SPAWN IS BEING SET FALSE::
+                ~ 'spawn' attr defaults to true.
+                ~ If true, then once a watch event occurs, a new Grunt process is spawned,
+                    with the list of Grunt tasks in '.tasks' passed to it as its task list.
+                    Any resulting watch events detected by the parent will be queued up,
+                    and only emitted in the parent after child process copmpletes.
+                ~ If 'spawn' false, then the tasks will be executed in the same
+                    process, and subsequent watch events will emit right away.
+                    Once task for that event concludes, watch plugin is re-run in the same proces.s
+                ~ If you need to catch changes triggered by a running sibling process,
+                    spawn false can create issue: since the plugin restarts, and can take
+                    some time to restart, during this restart time you can miss events.
+                ~ If the tasks you need to run for an event might trigger events in the same
+                    target that you DON'T watch to catch
+                    (i.e., html processing triggering changes in other html files),
+                    spawn true can create issue: since the events only get queued up and
+                    emit after child process completes (once tasklist done),
+                    no good way to distinguish between user change and internal change!
+                ~ Right now, we do NOT need to catch events triggered by siblings,
+                    but high probabliity of task list triggering events in the same target,
+                    wchih is why spawn is being set as false.
         */
-        watch: {
-            options: {
-                nospawn: true,
-                spawn: false,
-                livereload: true, // even though this bool getting re-set on the fly each watch event,
-                    // livereload not working if its initialized to false
+        [WATCH_PLUGIN]: {
+
+            [LR_ON]: {
+                files: [],
+                tasks: [],
+                options: {
+                    livereload: true,
+                    spawn: false,
+                },
             },
-            files: [], // generated dynamically based on user specified watch cmd args
-            tasks: [], // set in watch on event based on which file changed
+            [LR_OFF]: {
+                files: [],
+                tasks: [],
+                options: {
+                    livereload: false,
+                    spawn: false,
+                },
+            },
         },
 
     });
@@ -1449,6 +1558,7 @@ module.exports = function(grunt) {
     */
     grunt.loadNpmTasks('grunt-chmod');
     grunt.loadNpmTasks('grunt-cleanempty');
+    grunt.loadNpmTasks('grunt-concurrent');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-htmlmin');
@@ -1460,7 +1570,93 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-rsync');
     grunt.loadNpmTasks('grunt-scriptlinker');
 
+    /**
+        WATCH WORKFLOW INITIALIZATION:
+
+        rename the 'watch' 3rd party plugin to something else.
+        Context: want to deploy the watch processes concurrently,
+        via grunt-concurrent.
+        However, which targets to deploy depends on user params.
+        Therefore, rename so we can have a custom task called
+        'watch', which will get hit on the initial run of
+        Grunt if 'watch' is given, which will determine and fire off
+        appropriate watch plugin targets.
+    */
+    grunt.task.renameTask(WATCH, WATCH_PLUGIN);
+
+    /**
+        init Part (5)/WATCH WORKFLOW STEP 1
+
+        Configure the 'watch' plugin dynamically based on user params,
+        if 'watch' task requested.
+
+        - must be called after setDynamicGruntConfigAttrs,
+        because it relies on globs set in that function.
+        - call after the renaming of the watch plugin
+        - must be called before our internal watch task ever executes.
+        - must be called for EACH grunt process,
+          because, grunt.config data, which this function sets up,
+          is not passed to child processes.
+          and we are firing off the watch plugin tasks as concurrent
+          child processes.
+        Therefore, this can NOT be part of our internal 'watch' task
+        as that only executes once, in the parent process
+        (Note: an alternative to doing this each Grunt process,
+        is to figure out the watch plugin config data only once
+        in the parent, then add this as a cmd flag, as those are
+        inherited by the child processes.)
+    */
+    if ( IS_WATCH_TASK ) { // cant depend on grunt.options('watch' because could be child proc
+        configureWatchTasksBasedOnUserParams();
+    }
+
                                             /** END MAIN INITIALIZATION **/
+
+    /**
+        Init task - RUN ONLY ONCE WHEN YOU GET A NEW WORKSPACE
+        Will run 'npm install' at cwd, and copy in modified version of watch plugin
+    */
+    grunt.task.registerTask(INIT, "Run 'npm install' in cwd; copy in modified version of watch plugin", function() {
+
+        grunt.log.writeln(("\n=== ALERT:: ==="
+            + "\nThis task is about to run 'npm install'"
+            + "\nin your cwd, and will then apply a patch "
+            + "\nto grunt-contrib-watch\n\n").bold.yellow);
+
+        // save cwd
+        var currcwd = process.cwd();
+        var executePatchFrom = 'node_modules/grunt-contrib-watch/tasks/lib';
+        grunt.log.debug("Curr cwd: " + currcwd);
+
+        // run these cmds in order
+        var cmds = [
+            'rm -r node_modules/grunt-contrib-watch',
+            'npm install',
+            'cp assets/gruntpluginpatch/taskrunpatch.patch ' + executePatchFrom,
+        ];
+        runCmds();
+        // switch to dir where we need to apply the patch
+        grunt.file.setBase(executePatchFrom);
+
+        cmds = [
+            'patch < taskrunpatch.patch',
+            'rm taskrunpatch.patch',
+        ];
+        runCmds();
+        // go back to cwd
+        grunt.file.setBase(currcwd);
+
+        function runCmds() {
+            var cmd, shellStr;
+            for ( cmd of cmds ) {
+                grunt.log.writeln(("RUN::> ").red + (cmd).green.bold);
+                shellStr = shell.exec(cmd); // runs the cmd; shellJs runs cmds syncronously by default
+                shellStr = shellStr.stdout;
+                grunt.log.debug(("Output:: ").green + shellStr);
+            }
+        }
+
+    });
 
     /**
 
@@ -1757,7 +1953,6 @@ module.exports = function(grunt) {
         filecont = grunt.file.read(readFile);
         insertFileCont = grunt.file.read(insertFile);
 
-        grunt.log.writeln("here");
         /**
             Insert the custom style contents, right before the initial <style> tag
             'split', on <style> - will not save delimeter... so split,
@@ -1998,7 +2193,7 @@ module.exports = function(grunt) {
         // next constructor file is only to show info about the bld to users.
         // devs don't need in their build, and if you auto-gen it, it will
         // cause it to show up in their 'git status', so skip for dev blds
-        if ( BLDTYPE != DEV && !WATCH_CURR_PROCESSING ) {
+        if ( BLDTYPE != DEV && !isWatchEventProcessing() ) {
             grunt.task.run(GENERATE_GIT_VAR_DEC_FILE);
         }
         // copy all constructor files from the xcalar-idl/xd submodule, in to constructor dir used by bld
@@ -2172,6 +2367,13 @@ module.exports = function(grunt) {
                 grunt.log.debug("abs path have now: " + dependencyAbsPath);
                 // if dir, glob for entire thing
                 if ( grunt.file.isDir(dependencyAbsPath) ) {
+            /**
+                @TODO:
+                If it's a dir,
+                1. if that dir doesn't even exist ,add in dir to resolve
+                2. if that dir does exist, comp cont of both dirs and
+                    copy in only the missing files
+            */
                     dependencyAbsPath = dependencyAbsPath + "**/*";
 //                    srclist.push(dependencyRelSrc + "**/*");
 //                    srclist.push(dependencyRelPath + "**/*");
@@ -2203,7 +2405,8 @@ module.exports = function(grunt) {
         }
         // if any dependencies that need to be resolved, schedule this task
         if ( srclist.length > 0 ) {
-            grunt.log.warn("There are dependencies required to build files of this type that are missing from the bld.  Copy them in...");
+            grunt.log.warn("There are dependencies required to build files of this type. "
+                + " Copy in if they don't exist " + srclist);
             grunt.config('copy.resolveDependencies.src', srclist);
             grunt.task.run('copy:resolveDependencies');
         }
@@ -3512,11 +3715,13 @@ module.exports = function(grunt) {
         */
 
         if ( SRCROOT == DESTDIR ) {
-            grunt.log.warn("Output directory for build output is same"
+            grunt.log.warn("Dir for build output is same"
                 + " as project source."
-                + "\nWill bypass the final cleanup steps normally done on the final build product,"
-                + " such as cleaning empty bld dirs, changing permissions, "
-                + " and checking for XD strings if this is an XI bld)");
+                + "\nTherefore, will bypass final cleanup steps normally"
+                + " done on entire build output,"
+                + "\nsuch as cleaning empty dirs, changing file permissions, "
+                + "\nand checking for XD strings then replacing them with "
+                + " XI strings (in XI blds)");
         }
         else {
 
@@ -4313,101 +4518,142 @@ module.exports = function(grunt) {
 
                                                         /** WATCH FUNCTIONALITY TASKS AND FUNCTIONS */
 
+
     /**
-        WATCH WORKFLOW - SUMMARY::
+        Workflow:
 
-        'watch' is a plugin task, that if run, will run a chronjob, and watch for edits made to files
-        in the tasks 'files' attr.  If any changes made to those files, it will run the list of tasks
-        specified in the task's 'tasks' attr, and then restart the watch task again
-        It also has an option 'livereload',
-        which if true, will reload the browser once the current 'watch' task completes.
-
-        > Use case example: watch for changes in less files of project src.  If one of those files changes,
-        rather than regenerating the entire bld, only need to generate one new CSS file and put that
-        in the bld.
-
-        This Gruntfile provides list of options to specify which files/dirs, filetypes, etc. to watch
-        and what to livereload on, so will configue watch dynamically based on cmd args supplied by user,
-
-        There are some different ways you could do this: (1) have targets for every individual file/filetype,
-        based on common tasks that should be run (i.e., a target for less files, a target for html files,
-        when the 'tasks' attr for each of those targets is pre-determined before script starts),
-        and run all of those watch targets concurrently using grunt-concurrent, or, (2) have a single 'watch'
-        target that has 'files' set to every single file to be watched, but keep 'tasks' attr empty,
-        and when the watch process starts due to one of those files changing, only then determine
-        what tasks to run on the fly.
-        (1) is more readable, but doing the second option, because grunt-concurrent will spawn a new Grunt
-        task each time one of the targets invoked, and you can not    pass conatent to this child process
-        (the info gathered from cmd params).
-
-        - WORKFLOW STEP 1:
-            when Grunt process first begins, when setting up grunt config, will
-            determine initial list of files to watch based on cmd args, and set 'watch' 'files' attr
-            to that.  WIl also determine which filetypes should have livereload on.
-            This info will be set in grunt.config
-
-        - WORKFLOW STEP 2:
-            when watch is triggered (one of the files in 'files' attr is edited and saved),
-            starts 'on' event for watch, accessible via grunt.event.on
-            There, 1. determine what filetype is the file that was changed,
-            2.  what bld tasks to run as a result, and 3. queue the tasks from the on event.
-            If can not determine (not a common file, or its a common file but in an area
-            of the bld you don't have enough context on, i.e., a js file that could be being
-            used as a support file for generating bld), re-run the entire bld.
+            1. (each time new Grunt process starts):
+                Parse cmd options and configure the watch plugin dynamically
+        [[ ONLY ON INITIAL GRUNT PROCESS::]]
+            2.  Go through watch plugin, and for each plugin target
+                configured in 1. to have files to watch, add to
+                grunt-concurrent task list.
+                Fire off grunt-concurrent, spawning new process for
+                each target added.
+            3.  (each event.on('watch') event
+                (when a file being watched by the curr target process is edited):
+                Determine tasks to run and livereload,
+                based on which file was changed, and
+            4.  The Watch target tasklist runs
+                (i.e., the tasks in tasklist set in 3. begins)
+                [[[-> if 'spawn: false' in the target, the tasklist
+                will run in same process, else new child process will
+                spawn after this event completes. we are running with
+                spawn: false']]]
     */
 
     /**
+        WATCH WORKFLOW STEP 2:
 
-            WATCH WORKFLOW - STEP 2:
+        -- Called only ONCE - in parent Grunt process only!
 
-        When 'watch' task is running, when one of the watch files is changes,
-        This event will trigger, prior to the tasks for the target being executed.
-        This section will:
-            1. determine which tasks should be run depending on what file
-                chnaged
-            2. set format strings (the plugin tasks themselves, i.e., less, htmlmin, etc.,
-                gather their src using format strings.  These are normally set to general globs
-                for the purpose of generating the entire bld, but set them here to
-                only process a specific file)
-            3. queue the tasks found in 1.
+        Configure the grunt-concurrent plugin with the watch plugin
+        targets you want to run, then add the configured grunt-concurrent
+        to task queue.
+        It will add in any targets which have
+        files in their 'files' attribute.
+        (These attrs are configured in configureWatchTasksBasedOnUserParams())
+        - Hit only once, in initial parent Grunt process,
+            as task list is not passed to spawned child procceses!
     */
+    grunt.task.registerTask(WATCH, function() {
+        // go through each watch target.
+        // if it has files in its configuration, schedule it in the concurrent plugin
+
+        var watchTargets = Object.keys(grunt.config(WATCH_PLUGIN));
+
+        var deployTargets = [];
+        for ( target of watchTargets ) {
+            if ( grunt.config(WATCH_PLUGIN + '.' + target + '.files').length > 0 ) {
+                grunt.log.debug("Watch plugin-in target: " +target + " has files requested to watch!: "
+                    + grunt.config(WATCH_PLUGIN + '.' + target + '.files')
+                    + "\n--> schedule this target in concurrent plugin!");
+                deployTargets.push(WATCH_PLUGIN + ':' + target);
+            }
+            else {
+                grunt.log.debug("Watch plugin target did not find any files to watch :'("
+                    + "\n--> this target will NOT be deployed in the concurrent plugin!");
+            }
+        }
+        grunt.log.debug("\nConfigure concurrent plugin to run these watch plugin targets: " + deployTargets);
+        grunt.config('concurrent.watch.tasks', deployTargets);
+
+        grunt.log.debug("\nDeploy concurrent");
+        grunt.task.run('concurrent:watch');
+
+    });
+
+    /**
+        WATCH WORKFLOW STEP 3
+
+        -- Called in each watch process, each time a watched
+        file is changed!
+
+        Determine which tasks to run based on the file changed,
+        and set grunt.config template variables if required,
+        to control which files those tasks should do work on
+
+        Context:
+        Running only two watch plugin targets concurrently -
+        one with livereload potentially enabled and one with
+        livereload disabled.
+        (Can't run more than 1 watch plugin target with livereload eniabled
+        due to port conflict).
+        So the targets could hold mu ltiple filetypes,
+        and can't set task attr for the target before hand.
+        therefore, based on which file changed in this event,
+        figure out which tasks to run..
+    */
+
     grunt.event.on('watch', function(action, filepath, callingTarget) {
 
-        grunt.log.writeln("filepath: " + filepath);
+        // list of tasks will deploy depending on the file changed
+        var taskList = [];
 
         // resolve filepath; (comes in as rel. to grunt cwd)
         filepath = path.resolve(filepath);
-        grunt.log.writeln(("\n\nNEW WATCH EVENT:").bold.green
-            + " A file being watched, was modified: " + filepath
-            + "\nDetermine which build tasks to run.");
+        grunt.log.writeln(("\n\nNEW WATCH EVENT (pid " + process.pid + ") :").bold.green
+            + " A file being watched, was modified: " + filepath);
 
-        /**
-            Make sure work to complete a watch task, does not spawn additional, unecessary tasks.
-            Example:
-            Suppose you are watching all files in the src and bld.
-            Now, a less file in the src changes.
-            To handle only that one file, we still need to copy dependencies in to the bld.
-            And now, when it gets generated, it overwrites the css file there.
-            this now introduces a new watched change, and a new watch event spawns.
-            To handle situations like this, have a global boolean which indicates if a watch
-            task is current processing.  If so, terminate this new one which is being spawned.
-        */
-        if ( WATCH_CURR_PROCESSING ) {
-            grunt.log.writeln(("This watch event was trigered as a result of currently processing watch task..." + ("IGNORE").red).bold
-                + "\n(Watched file currently processing: "
-                + WATCH_CURR_PROCESSING
-                + ("\n\nIf you keep seeing this message, and ").yellow.bold
+        // if it sa dir skip it (its adding dirs to the waatch list!)
+        if ( grunt.file.isDir(filepath) ) {
+//        if ( filepath.endsWith('/') ) {
+            grunt.log.writeln("This is a dierectory; skip it");
+            return;
+        }
+
+        var trackingData = isWatchEventProcessing();
+        if ( trackingData ) {
+
+            grunt.log.writeln(("This watch event was trigered by another "
+                + " watch event that is currently running: "
+                + "\n(Watched file currently processing:\n"
+                + trackingData[0]
+                + " (From Target: " + trackingData[1] + ")"
+                + " Initiated from pid: " + trackingData[2]
+                + ("IGNORE").red).bold);
+            grunt.log.debug(("\n\nIf you keep seeing this message, and ").yellow.bold
+                + trackingData[0]
                 + (filepath).bold
                 + (" is an actual watched file you have edited,"
                 + " it is most likely:"
                 + "\n\t 1. One of the tasks triggered by a previous watch event failed").yellow.bold
-                + "\n\t    (Probably file: " + WATCH_CURR_PROCESSING
+                + "\n\t    (Probably file: "
+                + trackingData[0]
+                + "\n\t\tAND"
                 + ("\n\t 2. you are NOT running with the force option."
-                + "\n(Because of that, no 'cleanup' task could be run to reset for a new watch event,"
-                + " as all tasks - cleanup included - terminate after a single task failure, when --f not supplied.)"
-                + "\nTo Correct this issue, run Grunt again with the --f option.  However, this will force all tasks (not just cleanup),"
+                + "\n(Because of that, no 'cleanup' task could be run to"
+                + " reset for a new watch event,"
+                + " as all tasks - cleanup included - terminate after a "
+                + " single task failure, when --f not supplied.)"
+                + "\nTo Correct this issue, run Grunt again with the --f option. "
+                + "  However, this will force all tasks (not just cleanup),"
                 + " to continue, if you encounter a failure.\n").yellow.bold);
             return;
+
+        }
+        else {
+            watchEventStartTracking(filepath, callingTarget, process.pid);
         }
 
         if ( grunt.file.isPathAbsolute(filepath) && grunt.file.exists(filepath) ) {
@@ -4416,9 +4662,6 @@ module.exports = function(grunt) {
         else {
             grunt.fail.fatal("Filepath not abs. or doesn't exit");
         }
-        WATCH_CURR_PROCESSING = filepath;
-
-        var watchTaskList = [];
 
         filepathRelBld = getFilepathRelSrcOrBld(filepath);
         containingDirRelBld = path.dirname(filepathRelBld);
@@ -4429,19 +4672,21 @@ module.exports = function(grunt) {
             + " con. dir : " + containingDirRelBld
             + " rl bld: " + filepathRelBld);
 
-        var quick = false;
+        var determinedRebuildProcess = false;
         switch (filetype) {
-            case WATCH_FLAG_LESS:
+            case WATCH_TARGET_LESS:
                 /**
-                    less files at top level of less src - copy file to bld and run less on single file to generate csss
-                    If it's anywhere else, could be a support file that gets included in other less files,
-                    therefore re-generate entire css portion of the bld
+                    set template for the less task.
+                    if one of the main less files at the less src root,
+                    only need to do less on that file.
+                    If further down, like in /partials,
+                    need to regenerate all the css via less because it
+                    could be af ile included in multi. less files
                 */
-                quick = true;
-                if ( grunt.file.arePathsEquivalent(containingDirRelBld, cssMapping.src) ) { // mindful for dirs of one having trailing / chars and another not
-                    //1.  copy in only the change file.
-                    //2. set the less template string used by the less:dist to determine source files, to only pick up this file
-                    // (less target's cwd is the root of less files in the bld, so set the filepath rel to that)
+
+                if ( grunt.file.arePathsEquivalent(containingDirRelBld, cssMapping.src) ) { // please use instead of ==, considers diff like trailing /
+                    // copy in only the changed file and set template string
+                    // (cwd for the target is less root in bld, so need filepath rel to that)
                     grunt.log.writeln(("\nFile @ : "
                         + filepath
                         + " is one of the main less files; only need to re-generate single css file in to bld\n").bold.green);
@@ -4457,33 +4702,35 @@ module.exports = function(grunt) {
                         + " is NOT a main less file; will regen entire css portion of bld\n").bold.green);
                     resolveDependencies([cssMapping.src]); // this will also copy in the changed watch file
                 }
-                watchTaskList.push(BUILD_CSS);
+                taskList.push('less:dist');
+                determinedRebuildProcess = true;
                 break;
-            case WATCH_FLAG_JS_SRC:
+            case WATCH_TARGET_JS_SRC:
                 /**
-                    if js contained anywhere nested in site/js/, only need copy single file over; no processing.
-                    Any other js file - rebuild ENTIRE bld (it could be a support js for other bld processes)
+                    if js contained anywhere nested in site/js/,
+                    only need copy single file over; no processing.
+                    @TODO when time permits:
+                    - if not one of the main js files, rebld entire bld
+                    (it could be a support js for other bld processes)
+                    - if installer bld, do jsminification again!
                 */
                 if ( grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ) {
+                    determinedRebuildProcess = true;
                     grunt.log.writeln(("\nFile @ : "
                         + filepath
                         + " is one of the main js files to build - can skip length bld process\n").bold.green);
                     grunt.file.copy(filepath, DESTDIR + filepathRelBld);
-                    quick = true;
-                }
-                else {
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is NOT a main js file. Not enough context to know how to re-build quickly").bold.green);
                 }
                 break;
-            case WATCH_FLAG_HTML_SRC:
+            case WATCH_TARGET_HTML_SRC:
                 /**
-                    if html at top level of src for html files, only need copy over the single
-                    file and do processing on it.
+                    if @ top level of src for html files,
+                    only need copy over the single
+                    file and do processing that file,
+                    so set template key to indicate
                     Otherwise, need to re-generate entire html portion of bld
+                    (it could be a partial file included in other HTMLs)
                 */
-                quick = true;
                 var bldEntireHtml = true;
                 if ( grunt.file.arePathsEquivalent(containingDirRelBld, htmlMapping.src) ) {
                     // the templating will route it within dest, and so you need to set template key for processing to what that would end up as
@@ -4506,6 +4753,7 @@ module.exports = function(grunt) {
                             + " is one of the main html files to build, and templates to only one output.\n"
                             + "Will re-process this one file only").bold.green);
                         bldEntireHtml = false;
+
                         // copy in the watched file
                         // set the template key used by the html processing tasks for picking up their src, to only pick up this file
                         // note - their cwd is the root of html files being processed, so make template key value rel to that
@@ -4516,7 +4764,6 @@ module.exports = function(grunt) {
                         // but make sure all dependencies are within the html staging area too
                         resolveDependencies(htmlMapping.required, SRCROOT, HTML_STAGING_I_ABS, htmlMapping.src); // only maintain dir structure from htmlMapping.src
                         grunt.config(HTML_TEMPLATE_KEY, outputFilepaths[0]); // will process only your HTML file!
-                        srcProcessing = grunt.config(HTML_TEMPLATE_KEY);
                         //grunt.config(HTML_TEMPLATE_KEY, filepathRelFiletypeSrc); // will process only your HTML file!
                     }
                 }
@@ -4527,100 +4774,65 @@ module.exports = function(grunt) {
                         for case 1, could be file that
                         must be included in others, etc.
                         Rebuild entire html portion of the bld.
+                        (to do this, just don't change the template keys for HTML processes;
+                        default is to process entire html src)
                         Make sure entire html bld portion present
-                        Use the default src values (entire bld portion) so no n eed to set template key
                     */
                     grunt.log.writeln(("\nWatched file @ : "
                         + filepath
-                        + " is NOT a main html file, or, will template to multiple output files"
-                        + " (watch doesn't support this atm). regen entire html portion of bld").bold.green);
+                        + " NOT a main html file, or, will template to multiple output files"
+                        + " (watch doesn't support this atm). "
+                        + "\nRegen entire html portion of bld").bold.green);
                     resolveDependencies([htmlMapping.src]);
                 }
-                watchTaskList.push(BUILD_HTML);
+                taskList.push(BUILD_HTML);
+                determinedRebuildProcess = true;
                 break;
-            case WATCH_FLAG_CONSTRUCTORS:
-                watchTaskList.push(CONSTRUCTOR_FILES); // this custom task should take care of setting cwd attr templates depending if watch task or not
-            case WATCH_FLAG_CSS: // fall through on all the bld cases - you don't do anything but reload
-            case WATCH_FLAG_HTML_BLD:
-            case WATCH_FLAG_JS_BLD:
+            case WATCH_TARGET_CTOR:
+                taskList.push(CONSTRUCTOR_FILES);
+                determinedRebuildProcess = true;
+                break;
+            case WATCH_TARGET_CSS: // fall through on all the bld cases - you don't do anything but reload
+            case WATCH_TARGET_HTML_BLD:
+            case WATCH_TARGET_JS_BLD:
                 // nothing to do but reload (if they even want)
                 grunt.log.writeln(("\nWatch file @ : "
                     + filepath
-                    + " is a common build file, and no follow up tasks within the build need to be done.").bold.green);
-                quick = true;
+                    + " is a common build file;"
+                    + " no follow up tasks within the build need to be done.").bold.green);
+                determinedRebuildProcess = true;
                 break;
             default:
                 // cant determine
-                // if this is a bld file, not sure what to do with it
-                if ( !isSrcFile(filepath) ) {
-                    grunt.fail.fatal("Could not determine filetype, for trying to determine how to rebuild edited file.\n"
-                        + "However, this is also not a src file, so I can not even rebuild the entire project.\n"
-                        + "If bld file, need more context for how to proceed.");
-                }
-                grunt.log.writeln(("\nCan not determine filetype of "
-                    + filepath
-                    + "; rebuild everything").bold.green);
+                grunt.fail.fatal("Could not determine filetype, "
+                    + " of watched file "
+                    + filepath);
                 break;
         }
-        /**
-            if never found a quick bld process, re-build entire project.
-            If user has specified 'watch' alongside a main bld process,
-            use that bld process (ex. 'grunt trunk watch)
-            Else make a 'debug' bld
-        */
-        if ( !quick ) {
-            /** initial rsync uses no overwrite option,
-                so still copy in the changed file manually. */
-            grunt.log.writeln(("\nThere was not enough context for edited file: "
-                + filepath
-                + " to determine a quick re-build; will copy edited file over"
-                + " and re-run the entire build.").bold.green);
-            grunt.file.copy(filepath, DESTDIR + filepathRelBld);
-            var rebldFlavour = DEBUG;
-            if ( BLDTYPE ) { // if only running watch task, you wouldn't have this set to anythign
-                rebldFlavour = [BLDTYPE];
-            }
-            watchTaskList.push(rebldFlavour);
-        }
-        /**
-            set livereload option
-        */
-        reloadTypes = grunt.config(WATCH_LIVERELOAD_HASH_CONFIG_KEY);
-        grunt.log.debug("~~~~~~~~~~~~ GET RELOAD PROPERTIES FOR CURRENT WATCH TASK");
-        if ( reloadTypes.hasOwnProperty(filetype) ) {
-            /**
-                livereloading is not working on css files.
-                It appears this is a common bug with livereload.
-                For now I will disable it to prevent confusion.
-            */
-            if ( filetype == WATCH_FLAG_CSS ) {
-                grunt.log.debug("a css file, do not livereload it");
-            }
-            else {
-                grunt.config('watch.options.livereload', reloadTypes[filetype]);
-            }
+
+        if ( !determinedRebuildProcess ) {
+            grunt.fail.fatal(("I could not determine which build tasks to execute"
+                + " in response to edit of watched file:"
+                + filepath).bold.red);
         }
 
         // finalize
         grunt.log.debug("Schedule build finalize");
-        watchTaskList.push(FINALIZE);
+        taskList.push(FINALIZE);
 
         /**
             cleanup, even if no tasks scheduled..
         */
         grunt.log.debug("Schedule cleanup for next watch process...");
-        watchTaskList.push(COMPLETE_WATCH);
+        taskList.push(COMPLETE_WATCH);
 
         /**
-            queue all of the tasks determined to run
+            Set task list found
         */
-        grunt.log.debug("\n\n    ~~~~ DEPLOY TASKS\n\n");
-        for ( var atask of watchTaskList ) {
-            grunt.log.writeln("Queue task: " + atask);
-            grunt.task.run(atask);
-        }
+        grunt.log.debug("Set dynamic task list found (these tasks should no run): " + taskList);
+        var taskAccessStr = WATCH_PLUGIN + '.' + callingTarget + '.tasks';
+        grunt.config(taskAccessStr, taskList);
 
-        grunt.log.writeln("done");
     });
 
     /**
@@ -4636,135 +4848,286 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(COMPLETE_WATCH, function() {
 
-        grunt.log.debug("Reset config data for next watch task....");
+        grunt.log.debug("Stop tracking watch event");
+        var target = watchEventStopTracking();
 
-        /**
-        if ( WATCH_CURR_PROCESSING) {
-            grunt.log.writeln("working on a file, see if there's swp");
-            // get filename and see if there's a swp file for that
-            var filename = path.basename(WATCH_CURR_PROCESSING);
-            grunt.log.writeln("filename: " +filename);
-            var dirpath = path.dirname(WATCH_CURR_PROCESSING);
-            grunt.log.writeln("dirpath: " + dirpath);
-            var swpFile = dirpath + '/.' + filename;
-            grunt.log.writeln("sw " + swpFile);
-            if ( grunt.file.exists(swpFile) ) {
-                grunt.log.writeln("THERE IS A SWP FILE: " + swpFile);
-                grunt.file.delete(swpFile, {force:FORCE_DELETE_DANGEROUS});
-            }
-            else {
-                grunt.log.writeln("doesn't exist");
-            }
-        }
-        */
-
-        WATCH_CURR_PROCESSING = false;
-
-        /**
-            reset all template keys in the grunt config.
-            why needed - example: suppose yoiu change a single less file,
-            watch task will dynamically set the less src to indicate just that file.
-            Now suppose a non-standardf file gets changed next, and so an entire
-            bld gets kicked off.  if you have not set the template value back,
-            the full bld will not work as it will still only be gettingt ath single less file.
-        */
+        // set template keys back to defaults
         setTemplateKeyDefaults();
-        // livereload option
-        grunt.config('watch.options.livereload', RELOAD_DEFAULT);
+        grunt.log.debug("here2");
 
-        // check if all option specified, if so warn them it could take awhile (this will display before watch reloads..)
+        // set watch target's task list back to default
+        grunt.log.debug("Reset tasklist for watch plugin : " + target);
+        grunt.config(WATCH_PLUGIN + '.' + target + '.tasks', []);
+
+        // if all option specified, warn it could take awhile (this will display before watch reloads..)
         if ( grunt.option(WATCH_FLAG_ALL) ) {
             grunt.log.warn(("\nYou have chosen to watch all files in the source and build.\n"
                 + "This could take a minute or two to load...\n"
-                + "(You must run with --v option to know when watch is ready;"
-                + " without --v option it will say 'waiting...' both while loading and when loading complete)\n").bold.red);
+                + "(Run with --v option to know when watch is ready\n").bold.red);
         }
     });
 
     /**
-
-        Given an absolute filepath to a file, determine which, if any,
-        file type it is,
-        and return that corresponding attribute/key of the WATCH_fILE_TYPES dict
-        (these attributes are the filetype boolean flags available as cmd params)
-        if can not determine, returns undefined
-
-        Modularizing this because this needs to be determine in by a couple different methods,
-        and need to dmake sure handling case of if src and dest dirs are descendent of each other
+        Configure the watch plugin based on user supplied cmd params
+        about watch.
+        (Example, if they pass --less and --html, get globs for these
+        approrpaite filetypes, and add to the correct plugin target
+        based on if user wants to livereload those types or not.)
     */
-    function getWatchFileType(filepath) {
+    function configureWatchTasksBasedOnUserParams() {
 
-        var filetype;
-        var fileExt = path.extname(filepath);
+        /**
+            returns list of which files to watch per watch filetype
+            , based on user params supplied.
+        */
+        var watchFiles = getWatchFilesByType();
 
-        // standalone case: for constructor, only if they edit the file
-        if ( path.basename(filepath) == CONSTRUCTOR_TEMPLATE_FILE ) {
-            grunt.log.debug("It's a constructor");
-            filetype = WATCH_FLAG_CONSTRUCTORS;
-        }
-        else {
-
-            switch (fileExt) {
-
-                // path.extname returns '.' char followed by file extension
-                case '.html':
-                    // sep logic if bld or src
-                    if ( grunt.file.doesPathContain(SRCROOT + htmlMapping.src, filepath) ) {
-                        filetype = WATCH_FLAG_HTML_SRC;
-                    }
-                    else if ( grunt.file.doesPathContain(DESTDIR + htmlMapping.dest, filepath) ) {
-                        filetype = WATCH_FLAG_HTML_BLD;
-                    }
-                    else {
-                        grunt.fail.fatal("Can not determine if html file @ "
-                            + filepath
-                            + " is a src file or bld file");
-                    }
-                    break;
-                case '.js':
-                    // check for dest case first because it's nested in src
-                    if ( grunt.file.doesPathContain(DESTDIR + jsMapping.dest, filepath) ) {
-                        filetype = WATCH_FLAG_JS_BLD;
-                    }
-                    else if ( grunt.file.doesPathContain(SRCROOT + jsMapping.src, filepath) ) {
-                        filetype = WATCH_FLAG_JS_SRC;
-                    }
-                    else {
-                        grunt.fail.fatal("Can not determine if js file @ "
-                            + filepath
-                            + " is a src file or bld file");
-                    }
-                    break;
-                case '.css':
-                    filetype = WATCH_FLAG_CSS;
-                    break;
-                case '.less':
-                    filetype = WATCH_FLAG_LESS;
-                    break;
-                default:
-                    grunt.log.writeln(("Can not determine filetype of " + filepath).bold.red);
+        /**
+            if user wants to watch less and livereload requested,
+            then you must watch for css changes too
+        */
+        if ( watchFiles[WATCH_TARGET_LESS].length > 0 && LIVE_RELOAD_BY_TYPE[WATCH_TARGET_LESS] ) {
+            // if they are watching css but not the general flag for it
+            // but rather specific files, give warning that we are going to watch more
+            if ( watchFiles[WATCH_TARGET_CSS].length > 0 && !grunt.option(WATCH_TARGET_CSS) ) {
+                    grunt.log.writeln(("\n\tWARNING:: you specified to watch specific css files only."
+                        + "\n\tbut, you also want to watch less files and livereload them."
+                        + "\n\tDue to the way livereload works, am going to have to watch for"
+                        + "\n\tchanges in more than the css files you requested, and will be"
+                        + "\n\tlivereloading them!  Please be aware\n").bold.red);
             }
+            watchFiles[WATCH_TARGET_CSS] = WATCH_FILETYPES[WATCH_TARGET_CSS];
+            /**
+                You need to be watching the less and css within the same
+                target, because we are running with the spawn option false.
+                - If they are in sep targets, then you will be needing to
+                capture events (css changes)
+                triggered by sibling target (less target)
+                - since spawn false, watch target reloads each time
+                its current tasklist completes.
+                (So, as 'less' task is running
+                in one target, the first 'css' file that changes would
+                emit an event in the sibling, and reload immediately
+                since there are no tasks for it.)
+                - If you are watching
+                multiple files (even as much as just less and html),
+                then the reload takes a second or so,
+                and during this reload time, the target misses out on additional
+                css file event triggers that are being generated by the sibling.
+                Watch plugin does not catch these changes,
+                and so never sends to livereload server and browser doies not reload.
+
+                The plugin watch plugin has been modified inhouse
+                to not send any less files to the livereload server,
+                so doing it like this, you will still be able to
+                reload the browser without a refresh
+            */
+            LIVE_RELOAD_BY_TYPE[WATCH_TARGET_CSS] = true;
+            LIVE_RELOAD_BY_TYPE[WATCH_TARGET_LESS] = true;
         }
-        // dev check... make sure the filetype you set to is a valid key... otherwise you have changed logic and needdd to follow up
-        if ( filetype && !WATCH_FILE_TYPES.hasOwnProperty(filetype) ) {
-            grunt.fail.fatal("Error trying to determine file type for "
-                + filepath
-                + "\nShould return one of the keys of the 'WATCH_FILE_TYPES' dict.\n"
-                + "Filetype determined "
-                + filetype
-                + " is not a key\n"
-                + "(Keys are: "
-                + Object.keys(WATCH_FILE_TYPES)
-                + "\NThis indicates a logic error; contact jolsen@xcalar.com");
+
+        /**
+            For each watch filetype with files determined to watch,
+            add those files to the watch plugin target that those files
+            are meant to be watched in
+            (see doc above the plugin for explanation)
+        */
+        var filetype, pluginTarget, targetWatchFiles;
+        for ( filetype of Object.keys(watchFiles) ) {
+            // find out which target of the watch plugin files of this type should be watched by
+            if ( LIVE_RELOAD_BY_TYPE[filetype] ) {
+                pluginTarget = LR_ON;
+            }
+            else {
+                pluginTarget = LR_OFF;
+            }
+            targetWatchFiles = grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files');
+            targetWatchFiles = targetWatchFiles.concat(watchFiles[filetype]); // append the files found for this filetype
+            grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files', targetWatchFiles);
         }
-        return filetype;
+
     }
 
     /**
-        Returns a hash which has a key for each key of WATCH_FILE_TYPE,
-        and value of the key is boolean true/false indicating weather watches files of that type
+
+        Returns a hash, where there is a key for each possibel watch target,
+        and value is a list of what the .files attribute should be for that
+        target, based on user params.
+        So for example, if user gave --less --html,
+        put the globs for less and html in those targets,
+        and all the other targets should be empty lists (since you don't want to watch any of those files)
+
+    */
+    function getWatchFilesByType() {
+
+        grunt.log.writeln("Gather watch files...");
+
+        /**
+            keys: targets that should be run
+            value: file list for that target
+
+            Ex: if they just give --less, will want to run the less target,
+            and file list being the default for that (a glob that matches all less)
+            If they give files=<lessFile1>,<lessFile2> and no --less option, would still
+            want to run the less target, but the filelist should just be those two files
+        */
+        var filesToWatchByFiletype = {};
+
+        var watchFiletypes = Object.keys(WATCH_FILETYPES);
+
+        // Level HIGH: watch everything, on its default file setting
+        grunt.log.debug("HIGH LEVEL: Check if all files requested to watch");
+        if ( grunt.option(WATCH_FLAG_ALL) ) {
+            grunt.log.debug("\tUser requested all files!");
+            for ( target of watchFiletypes ) {
+                grunt.log.debug("\t\tAdding in : " + target  + " --> " + WATCH_FILETYPES[target]);
+                filesToWatchByFiletype[target] = WATCH_FILETYPES[target];
+                //filesToWatchByFiletype[target] = grunt.config(WATCH_PLUGIN + '.' + target + '.' + SUPERSET);
+            }
+            return filesToWatchByFiletype;
+        }
+
+        // Level MEDIUM: watch specific types of files
+        grunt.log.debug("MEDIUM: Get files by filetype flags");
+        var typecollection = {};
+        // check first if general 'types' option specified
+        // if so, gather which groups based on if excl. or incl. variety
+        var typesVal, type, remove;
+        var watchTypesDict = {};
+        if ( grunt.option(WATCH_OP_WATCH_TYPES) ) {
+            grunt.log.debug("\tGeneral " + WATCH_OP_WATCH_TYPES + " given; determine if exclusion mode");
+            typesVal = grunt.option(WATCH_OP_WATCH_TYPES);
+            remove = false; // this boolean will tell you, what the user specifies, to remove it from the target list or add it
+            if ( typesVal.charAt(0) == '-' ) {
+                grunt.log.debug("\tExclusion mode for param");
+                // will put every possible group in, and remove only ones found from the cmd option
+                for ( validType of Object.keys(watchFiletypes) ) {
+                    watchTypesDict[validType] = true;
+                }
+                remove = true;
+                // remove the first char for specifying exclusion
+                typesVal = typesVal.substring(1, typesVal.length); // gets all but first char
+            }
+            types = typesVal.split(OPTIONS_DELIM);
+            for ( type of types ) {
+                if ( remove ) {
+                    delete watchTypesDict[type];
+                }
+                else {
+                    watchTypesDict[type] = true;
+                }
+            }
+        }
+        // for each possible type, see if user specified via boolean flag,
+        // or as desired group via general 'type' option
+        // if so, add that glob pattern to the watchFileDict
+        for ( target of watchFiletypes ) {
+            grunt.log.debug("\tFiletype: " + target);
+            if ( grunt.option(target) || watchTypesDict.hasOwnProperty(target) ) {
+                typecollection[target] = WATCH_FILETYPES[target];
+                grunt.log.debug("\t\tADDED IN : " + typecollection[target]);
+            }
+        }
+
+        // LOW level: watch specific files and/or dirs, config based on each
+        // if a glob for that tyupe already given, skip over it as an entry; already accountaed for
+
+        // get specific files and/or dirs user has specified
+        // put initially in hash to avoid dupes, then go through and add to config
+        var fileDict = {},
+            fileList = [];
+        var file;
+
+        /** normalize values from the possible options */
+
+        // if common op specified - append those files in
+        if ( grunt.option(WATCH_FLAG_COMMON_FILES) ) {
+            grunt.log.debug("(Common files requested; add those files.  THEY SHOULD BE FILES ONLY!");
+            fileList = fileList.concat(COMMON_WATCH_SRC_FILES);
+            fileList = fileList.concat(COMMON_WATCH_BLD_FILES);
+        }
+        // list of files specified
+        if ( grunt.option(WATCH_OP_FILES) ) {
+            val = grunt.option(WATCH_OP_FILES).toString();
+            // if user specifies <param>= on cmd once - grunt.option(<param> returns a String of that value
+            // if they do more than once it returns a list.  doing toString() will put it as a comma sep list.
+            // so long as using OPTIONS_DELIM as comma sep...
+            fileList = fileList.concat(grunt.option(WATCH_OP_FILES).toString().split(OPTIONS_DELIM));
+        }
+        // put in hash to eliminate any dupes and retrieve for final unique list
+        for ( file of fileList ) {
+            fileDict[file] = true;
+        }
+
+        /**
+             go through the individual files.
+            if its in one that superscenes (i.e., an html src file standalone, when html full src already registered),
+            skip, else, make sure exists, etc., and add in for that filetype
+        */
+        var filecollection = {};
+        grunt.log.debug("LOW: get files specified by name");
+        for ( file of Object.keys(fileDict) ) {
+            // get filetype
+            grunt.log.debug("\tFile requested: " + file + " get filetype");
+            filetype = getWatchFileType(file);
+            grunt.log.debug("\t\tfiletype: " + filetype);
+            // if already an entry for thie filestype, skip; glob will include it
+            if ( !typecollection.hasOwnProperty(filetype) ) {
+
+                // if its an absolute path, determine if its a bld or src file
+                if ( !grunt.file.isPathAbsolute(file) ) {
+                    file = WATCH_FILES_REL_TO + file;
+                }
+
+                // now that path been normalized to abs; check it exists
+                if ( !grunt.file.isFile(file) || !grunt.file.exists(file) ) {
+                    grunt.log.warn("Either file " + file + " is not a file or is not accessible.  I will not watch this file.");
+                    grunt.fail.fatal("Doesn't exist!");
+                }
+
+                if ( !filecollection.hasOwnProperty(filetype) ) {
+                    filecollection[filetype] = [];
+                }
+                filecollection[filetype].push(file);
+            }
+        }
+
+        // go through all the available watch targets and fill in now
+        grunt.log.debug("populate final watch filetype categories");
+        for ( target of watchFiletypes ) {
+            grunt.log.debug("\tFiletype: " + target);
+            if ( typecollection.hasOwnProperty(target) ) {
+                grunt.log.debug("\t --> found files by type matching");
+                filesToWatchByFiletype[target] = typecollection[target];
+            }
+            else if ( filecollection.hasOwnProperty(target) ) {
+                grunt.log.debug("\t --> found individual files for this filetypee");
+                filesToWatchByFiletype[target] = filecollection[target];
+            }
+            else {
+                // nothing there
+                grunt.log.debug("\t --> nothing for this filetype");
+                filesToWatchByFiletype[target] = [];
+            }
+        }
+
+        var watchFilesList = Object.keys(filesToWatchByFiletype);
+        grunt.log.writeln("\nFiles to watch, by filetype::");
+        for ( target of Object.keys(filesToWatchByFiletype) ) {
+            if ( filesToWatchByFiletype[target].length > 0 ) {
+                grunt.log.writeln("\t>>: " + filesToWatchByFiletype[target]);
+            }
+        }
+
+        return filesToWatchByFiletype;
+    }
+
+    /**
+        Returns hash which has a key for each key filetype
+        in WATCH_FILETYPES, and value of the key is true or false
+        indicating weather watched files of that type
         should have liveReload done.
-        Determines based on 'livereload' cmd option
+        (Determined by on 'livereload' cmd option passed by user)
 
         context: when 'watch' plugin invoked, if liveReload option is true,
         then a browser refresh is done after all tasks for the watch have been completed.
@@ -4776,17 +5139,20 @@ module.exports = function(grunt) {
             --livereload=less        //liveReload on all less files
             --livereload=html,less    // liveReload on all html src files and less files
             --livereload=-less,js    // liveReload on all types EXCEPT less files and js src files
-
     */
     function getReloadTypes() {
 
-        grunt.log.writeln("Determine which types of files should be live reloaded, if they are being watched and change...");
+        grunt.log.writeln("Determine which types of files should be live reloaded, "
+                + "if they are being watched and change...");
 
         var reloadByType = {},
             reloadDefault = RELOAD_DEFAULT,
             reloadTypes = [],
             exclusionType = false;
         var reloadValStr, type;
+
+        var watchFiletypes = Object.keys(WATCH_FILETYPES);
+        //var watchFiletypes = grunt.config('watch');
 
         if ( grunt.option(WATCH_OP_LIVE_RELOAD) ) {
 
@@ -4820,30 +5186,20 @@ module.exports = function(grunt) {
         }
 
         // load in defaults
-        for ( type of Object.keys(WATCH_FILE_TYPES) ) {
-            if ( type == WATCH_FLAG_CSS ) {
-                reloadByType[type] = false;
-            }
-            else {
-                reloadByType[type] = reloadDefault;
-            }
+        var foundLess = false;
+        for ( type of watchFiletypes ) {
+            reloadByType[type] = reloadDefault;
         }
+
         // now all specific types
         for ( type of reloadTypes ) {
-            // make suree valid
-            if ( !WATCH_FILE_TYPES.hasOwnProperty(type) ) {
-                grunt.fail.fatal("You've supplied an invalid value for param --"
-                            + WATCH_OP_LIVE_RELOAD
-                            + ".  Valid values (comma sep. combinations): "
-                            + Object.keys(WATCH_FILE_TYPES)
-                            + "\nTo reload on change of any watchoed file, supply param as boolean flag "
-                            + "--" + WATCH_OP_LIVE_RELOAD);
-            }
-            if ( type == WATCH_FLAG_CSS && !exclusionType ) {
+            /**
+            if ( type == WATCH_TARGET_CSS && !exclusionType ) {
                 grunt.fail.fatal("Can not livereload css files due to a bug in livereload."
                     + " \nIf this is a valid use case, contact jolsen@xcalar.com and can try some"
                     + " workaround.");
             }
+            */
             reloadByType[type] = !reloadDefault;
         }
 
@@ -4854,189 +5210,90 @@ module.exports = function(grunt) {
     }
 
     /**
-        returns a list of full filepaths of each file or dir user wants to watch.
-        Globbing patterns used when possible (i.e., if they want to watch every html
-        file, glob string in list, rather than a list of filepath of eveory html file
+
+        Given an absolute filepath to a file, determine which, if any,
+        file type it is,
+        and return that corresponding attribute/key of the WATCH_FILETYPES dict
+        (these attributes are the filetype boolean flags available as cmd params)
+        if can not determine, returns undefined
+
+        (Can't determine just based on file ext because need to distinguish
+        between src and bld files)
     */
-    function getWatchFiles() {
+    function getWatchFileType(filepath) {
 
-        grunt.log.writeln("Gather watch files...");
+        var filetype;
+        var fileExt = path.extname(filepath);
+        var filename = path.basename(filepath);
 
-        // start high --> low on which files to match
-        var watchFilesDict = {}, // filepaths of files to watch (in dict to avoid dupes)
-            watchTypesDict = {}; // general types to watch (WATCH_FILE_TYPE keys),
-                // keep track so can compare individual files against types,
-                // and only add in if type isn't represented. as dict for quick check
+        // special case: the htmlTStr.js files for internationalization,
+        // consider as part of htmlsrc
+        if ( filename == 'htmlTStr.js' ) {
+            filetype = WATCH_TARGET_HTML_SRC;
+        }
+        // standalone case: for constructor, only if they edit the file
+        else if ( path.basename(filepath) == CONSTRUCTOR_TEMPLATE_FILE ) {
+            filetype = WATCH_TARGET_CTOR;
+        }
+        else {
 
-        // Level HIGH: watch everything
-        if ( grunt.option(WATCH_FLAG_ALL) ) {
-            grunt.log.writeln(("\nYou have chosen to watch all files in the source and build.\n"
-                + "This could take a minute or two to load...\n"
-                + "(You must run with --v option if you want to know when watch is ready;\n"
-                + " without --v option, Grunt will display 'waiting...'"
-                + " both while watch is still loading, and once loading complete)\n").bold.red
-                + ("(To watch all of just certain filetypes, you can specify any of the following boolean flags:\n"
-                + Object.keys(WATCH_FILE_TYPES)
-                + "\n").yellow.bold);
+            switch (fileExt) {
 
-            /**
-                add all the filetypes to the watchFilesDict
-                (if you glob on ALL files, it will take a really long time to load.
-                And I'm not sure how to glob on multiple file extensions in grunt; to-do
-            */
-            for ( validType of Object.keys(WATCH_FILE_TYPES) ) {
-                watchTypesDict[validType] = true;
+                // path.extname returns '.' char followed by file extension
+                case '.html':
+                    // if dest == src,
+                    // our src html will be desc of dest html
+                    if ( grunt.file.doesPathContain(SRCROOT + htmlMapping.src, filepath) ) {
+                        filetype = WATCH_TARGET_HTML_SRC;
+                    }
+                    else if ( grunt.file.doesPathContain(DESTDIR + htmlMapping.dest, filepath) ) {
+                        filetype = WATCH_TARGET_HTML_BLD;
+                    }
+                    else {
+                        grunt.fail.fatal("Can not determine if html file @ "
+                            + filepath
+                            + " is a src file or bld file");
+                    }
+                    break;
+                case '.js':
+                    // check for dest case first because it's nested in src
+                    if ( grunt.file.doesPathContain(DESTDIR + jsMapping.dest, filepath) ) {
+                        filetype = WATCH_TARGET_JS_BLD;
+                    }
+                    else if ( grunt.file.doesPathContain(SRCROOT + jsMapping.src, filepath) ) {
+                        filetype = WATCH_TARGET_JS_SRC;
+                    }
+                    else {
+                        grunt.fail.fatal("Can not determine if js file @ "
+                            + filepath
+                            + " is a src file or bld file");
+                    }
+                    break;
+                case '.css':
+                    filetype = WATCH_TARGET_CSS;
+                    break;
+                case '.less':
+                    filetype = WATCH_TARGET_LESS;
+                    break;
+                default:
+                    grunt.log.writeln(("Can not determine filetype of " + filepath).bold.red);
             }
         }
-
-        // Level MEDIUM: watch specific types of files
-
-        // check first if general 'types' option specified
-        // if so, gather which groups based on if excl. or incl. variety
-        var typesVal, type, remove;
-        var types = [];
-        if ( grunt.option(WATCH_OP_WATCH_TYPES) ) {
-            typesVal = grunt.option(WATCH_OP_WATCH_TYPES);
-            remove = false; // this boolean will tell you, what the user specifies, to remove it from the target list or add it
-            if ( typesVal.charAt(0) == '-' ) {
-                // will put every possible group in, and remove only ones found from the cmd option
-                for ( validType of Object.keys(WATCH_FILE_TYPES) ) {
-                    watchTypesDict[validType] = true;
-                }
-                remove = true;
-                // remove the first char for specifying exclusion
-                typesVal = typesVal.substring(1, typesVal.length); // gets all but first char
-            }
-            types = typesVal.split(OPTIONS_DELIM);
-            for ( type of types ) {
-                // make suree valid
-                if ( !WATCH_FILE_TYPES.hasOwnProperty(type) ) {
-                    grunt.fail.fatal("You've supplied an invalid value, "
-                                    + type
-                                    + ", for param --"
-                                    + WATCH_OP_WATCH_TYPES
-                                    + ".  Valid values (comma sep. combinations): "
-                                    + Object.keys(WATCH_FILE_TYPES)
-                                    + ".  To watch all files, supply boolean flag --all");
-                }
-                if ( remove ) {
-                    delete watchTypesDict[type];
-                }
-                else {
-                    watchTypesDict[type] = true;
-                }
-            }
+        // dev check... make sure the filetype you set to is a valid key... otherwise you have changed logic and needdd to follow up
+        if ( filetype && !WATCH_FILETYPES.hasOwnProperty(filetype) ) {
+            grunt.fail.fatal("Error trying to determine file type for "
+                + filepath
+                + "\nShould return one of the keys of the 'WATCH_FILETYPES' dict.\n"
+                + "Filetype determined "
+                + filetype
+                + " is not a key\n"
+                + "(Keys are: "
+                + Object.keys(WATCH_FILETYPES)
+                + "\NThis indicates a logic error; contact jolsen@xcalar.com");
         }
-        // for each possible type, see if user specified via boolean flag,
-        // or as desired group via general 'type' option
-        // if so, add that glob pattern to the watchFileDict
-        for ( type of Object.keys(WATCH_FILE_TYPES) ) {
-            if ( grunt.option(type) || watchTypesDict.hasOwnProperty(type) ) {
-                watchFilesDict[WATCH_FILE_TYPES[type]] = true; // keys  of this dict will be final list to send back
-                watchTypesDict[type] = true; // maintaining this so can check for individual files, if their type already represented
-            }
-        }
-
-        // LOW level: watch specific files and/or dirs, config based on each
-        // if a glob for that tyupe already given, skip over it as an entry; already accountaed for
-
-        // get specific files and/or dirs user has specified
-        // put initially in hash to avoid dupes, then go through and add to config
-
-        var fileDict = {},
-            fileList = [],
-            dirDict = {},
-            dirList = [];
-        var file, dir;
-
-        /** normalize values from the possible options */
-
-        // if common op specified - append those files in
-        if ( grunt.option(WATCH_FLAG_COMMON_SRC_FILES) ) {
-            fileList = fileList.concat(COMMON_WATCH_SRC_FILES);
-        }
-        // if one single file specified
-        if ( grunt.option(WATCH_OP_SINGLE_FILE) ) {
-            fileList.push(grunt.option(WATCH_OP_SINGLE_FILE));
-        }
-        // if m ulti , sep list of files specified
-        if ( grunt.option(WATCH_OP_MULTIPLE_FILES) ) {
-            val = grunt.option(WATCH_OP_MULTIPLE_FILES).toString();
-            // if user specifies <param>= on cmd once - grunt.option(<param> returns a String of that value
-            // if they do more than once it returns a list.  doing toString() will put it as a comma sep list.
-            // so long as using OPTIONS_DELIM as comma sep...
-            fileList = fileList.concat(grunt.option(WATCH_OP_MULTIPLE_FILES).toString().split(OPTIONS_DELIM));
-        }
-        // put in hash to eliminate any dupes and retrieve for final unique list
-        for ( file of fileList ) {
-            fileDict[file] = true;
-        }
-        fileList = Object.keys(fileDict);
-
-        // same process for dirs...
-        if ( grunt.option(WATCH_FLAG_COMMON_SRC_DIRS) ) {
-            dirList = dirList.concat(COMMON_WATCH_SRC_DIRS);
-        }
-        if ( grunt.option(WATCH_OP_SINGLE_DIR) ) {
-            dirList.push(grunt.option(WATCH_OP_SINGLE_DIR));
-        }
-        if ( grunt.option(WATCH_OP_MULTIPLE_DIRS) ) {
-            dirList = dirList.concat(grunt.option(WATCH_OP_MULTIPLE_DIRS).toString().split(OPTIONS_DELIM));
-        }
-        for ( dir of dirList ) {
-            dirDict[dir] = true;
-        }
-        dirList = Object.keys(dirDict);
-
-        /** process the values */
-
-        // DIRS:  go through all dirs make sure valid, put in array as glob patterns.
-        var dirVal;
-        for ( dirVal of Object.keys(dirDict) ) {
-            if ( !grunt.file.exists(dirVal) || !grunt.file.isDir(dirVal) ) {
-                grunt.log.warn("Either dir " + dir + " is not a dir or is not accessible.  I will not watch changes in this directory.");
-            }
-            else {
-                watchFilesDict[dirVal + "**/*"] = true;
-            }
-        }
-
-        /**
-             go through each gathered value, make sure exists, make an individual target for each.
-            if its in one that superscenes (i.e., an html src file standalone, when html full src already registered),
-            skip over to avoid blding more than once unecessarily
-        */
-        var filepath;
-        for ( filepath of Object.keys(fileDict) ) {
-
-            // if its an absolute path, determine if its a bld or src file
-            if ( !grunt.file.isPathAbsolute(filepath) ) {
-                filepath = WATCH_FILES_REL_TO + filepath;
-            }
-
-            // now that path been normalized to abs; check it exists
-            if ( !grunt.file.isFile(filepath) || !grunt.file.exists(filepath) ) {
-                grunt.log.warn("Either file " + filepath + " is not a file or is not accessible.  I will not watch this file.");
-                grunt.fail.fatal("Doesn't exist!");
-            }
-
-            // get filetype
-            filetype = getWatchFileType(filepath);
-            // is file of this type (html bld, html src, less, etc.) already accounted for via a specific type option?
-            if ( watchTypesDict.hasOwnProperty(filetype) ) {
-                continue;
-            }
-            else {
-                watchFilesDict[filepath] = true;
-            }
-        }
-
-        var watchFilesList = Object.keys(watchFilesDict);
-        for ( file of watchFilesList ) {
-            grunt.log.writeln("\t>>: " + file);
-        }
-        return watchFilesList;
+        return filetype;
     }
+
 
                                                     /** PARAM VALIDATION AND CONFIGURATION  */
 
@@ -5079,7 +5336,7 @@ module.exports = function(grunt) {
             + " --" + BLD_OP_SRC_REPO + "=" + dummysrc
             + " --" + BLD_OP_PRODUCT + "=XI"
             + " watch "
-            + WATCH_FLAG_LESS).yellow).bold);
+            + WATCH_TARGET_LESS).yellow).bold);
         grunt.log.writeln("\n\t(Generate a dev build of the XI flavor, from the xalar-gui src code at"
             + "\n\t" + dummysrc + ", then watch the src for changes in any less"
             + "\n\tfiles, and regen relevant css in to the created build, if any detected)");
@@ -5120,39 +5377,64 @@ module.exports = function(grunt) {
             Go through requested tasks;
             set bld type based on what task being deployed
             check if watch functinoality requested
+            If no tasks found, check if this context was set as env variables by a parent process
         */
-        var tasksRequested = grunt.cli.tasks;
-        // check if one of the tasks is one of the valid bld tasks
-        // if no task of ANY kind given, then grunt calls 'default'
-        // which is currently a bld task
-        var watchTask = false;
-        var task;
+        var tasksRequested = getTaskList();
+        grunt.log.debug("Tasks in hacky way: " + tasksRequested);
+        //var tasksRequested = grunt.cli.tasks;
         if ( tasksRequested.length == 0 ) {
-            grunt.fail.fatal("No tasks found!  This should not happen -"
-                + " (have you change Gruntfile to allow a 'default' task now?)"
-                + " If so, then you need to handle this by setting the BLDTYPE In this scenario to default"
-                + " since it is valid to run Gruntfile with no task if you have a default");
-        }
-        for ( task of tasksRequested ) {
-            if ( Object.keys(VALID_BLD_TASKS).indexOf(task) !== -1 ) {
-                grunt.log.writeln("Will run bld task..");
-                BLDTYPE = task;
+            // check if any env vars
+            var contextFound = false;
+            if ( process.env[BLDTYPE] ) {
+                BLDTYPE = process.env[BLDTYPE];
                 IS_BLD_TASK = true;
+                contextFound = true;
             }
-            if ( task == 'watch' ) {
-                grunt.log.writeln("Will run watch task...");
-                IS_WATCH_TASK = true;
+            if ( process.env[IS_WATCH_TASK] ) {
+                IS_WATCH_TASK = process.env[IS_WATCH_TASK];
+                contextFound = true;
+            }
+            if ( !contextFound ) {
+                grunt.fail.fatal("No tasks found!  This should not happen -"
+                    + " (have you change Gruntfile to allow a 'default' task now?)"
+                    + " If so, then you need to handle this by setting the BLDTYPE In this scenario to default"
+                    + " since it is valid to run Gruntfile with no task if you have a default"
+                    + "\nOr, is this failure coming from a child process; do you need to set more"
+                    + " context in the parent process for child to understand the situation?");
             }
         }
-
-                // SECTION: GET SRCROOT AND DESTDIR - many globals depend on this; do first
+        else {
+            var task;
+            for ( task of tasksRequested ) {
+                if ( Object.keys(VALID_BLD_TASKS).indexOf(task) !== -1 ) {
+                    grunt.log.writeln("Will run bld task..");
+                    BLDTYPE = task;
+                    IS_BLD_TASK = true;
+                    process.env[BLDTYPE] = BLDTYPE; // sufficient to figure out its bld type, dont need to set IS_BLD_TASK
+                }
+                if ( task == 'watch' ) {
+                    grunt.log.writeln("Will run watch task...");
+                    IS_WATCH_TASK = true;
+                    process.env[IS_WATCH_TASK] = IS_WATCH_TASK;
+                }
+            }
+        }
 
         /**
-            configure SRCROOT
-             --xcalarguiroot option:
-             workspace to generate build from (other than cwd)
+            Precedence:
+                1. passed as cmd arg
+                2. exists as env var
+                3. default value
         */
-        SRCROOT = grunt.option(BLD_OP_SRC_REPO) || process.cwd();
+
+        /**
+            SRCROOT
+            (git workspace to generate build from)
+        */
+        SRCROOT = grunt.option(BLD_OP_SRC_REPO) || process.env[XLRGUIDIR];
+        if ( !SRCROOT ) {
+            grunt.fail.fatal("You do not have your xlrguidir set");
+        }
         // put trailing / if it's not there, to keep things consistent
         if(!SRCROOT.endsWith(path.sep)) { SRCROOT = SRCROOT + path.sep; }
         if(!grunt.file.exists(SRCROOT)) {  // make sure this is a valid dir
@@ -5161,67 +5443,99 @@ module.exports = function(grunt) {
                 + SRCROOT
                 + ", but this dir does not exist.");
         }
+        // warning if going to build from project src diff from their XLRGUIDIR
+        if ( !grunt.file.arePathsEquivalent(SRCROOT, process.env[XLRGUIDIR]) ) {
+            grunt.log.writeln(("You are trying to build project src other than your $"
+                + XLRGUIDIR
+                + "\n\n\tYour xlrgui dir: " + process.env[XLRGUIDIR]
+                + "\n\n\tRequiested project src for bld: " + SRCROOT
+                + "\n\nPlease be careful!  If other build tools are called, I can't gaurantee they will work."
+                + "\nCrazy shit might be about to happen!").bold.red);
+        }
+        else {
+            // give them a warning if they are building from their xlrguidir, but its not their cwd
+            if ( !grunt.file.arePathsEquivalent(SRCROOT, process.cwd()) ) {
+                grunt.log.writeln(("You are trying to build from your $"
+                    + XLRGUIDIR
+                    + " (because you did not specify arg --"
+                    + BLD_OP_SRC_REPO
+                    + ")."
+                    + "\nHowever, $"
+                    + XLRGUIDIR
+                    + " is NOT the cwd!"
+                    + "\n\tYour xlrgui dir/proj src for this build: "
+                    + SRCROOT).bold.red);
+            }
+        }
+        // set env variable for this process so context passes to child processes
+        process.env[XLRGUIDIR] = SRCROOT;
 
         /**
-            --buildoutput option ::
-            where bld should be rooted at; defaults to SRCROOT
+            BUILDROOT
+            top level of build
+            defaults to SRCROOT
+
             if absolute path specified - will create that full path and int. dirs
             if relative path specified - will be rel. to SRCROOT.
-
-            This option is being used to determine final location of bld.
-            For DEV blds only, the final location should default to the SRCROOT
-            and for all the other blds, it should get its own directory just for bld output
-            (which can be customized by further options below)
         */
-        BLDROOT = grunt.option(BLD_OP_BLDROOT) || SRCROOT;
+        BLDROOT = grunt.option(BLD_OP_BLDROOT) || process.env[BLD_OP_BLDROOT] || SRCROOT;
         if(!BLDROOT.endsWith(path.sep)) { BLDROOT = BLDROOT + path.sep; }
         // if they gave a relative path, make it relative to the src dir
         if (!grunt.file.isPathAbsolute(BLDROOT)) { BLDROOT = SRCROOT + BLDROOT; }
-
-        // the default is for it to be src, but in case this default changes..
-        if ( grunt.option(BLD_FLAG_SRC_BLD_SAME) ) {
-
-            // if they specified a build root, and it's not the src root
-            if ( grunt.option(BLD_OP_BLDROOT) ) {
-
-                if ( BLDROOT != SRCROOT ) {
-                    grunt.fail.fatal("Specified flag --"
-                        + BLD_FLAG_SRC_BLD_SAME
-                        + " to set build dir where index.html begins, to be same as project source."
-                        + "\nHowever, option --"
-                        + BLD_OP_BLDROOT
-                        + " which sets the top-level buildroot, is not same as project source."
-                        + "\nProject source: "
-                        + SRCROOT
-                        + "\nTop level build root is stored as: "
-                        + BLDROOT);
-                }
-                else {
-                    BLDROOT = SRCROOT;
-                }
-            }
+        // if its not descendent of the project src, fail
+        if ( !(grunt.file.arePathsEquivalent(SRCROOT, BLDROOT) || grunt.file.doesPathContain(SRCROOT, BLDROOT)) ) {
+            grunt.fail.fatal("Your build root must be a descendent of your project root."
+                + "\nYour project root is: " + SRCROOT
+                + "\nBuild root was set to " + BLDROOT);
         }
+        // if flag for src and bld same and also bld root param but doesnt jive
+        if ( grunt.option(BLD_FLAG_SRC_BLD_SAME) && grunt.option(BLD_OP_BLDROOT) && BLDROOT != SRCROOT ) {
+            grunt.fail.fatal("Specified flag --"
+                + BLD_FLAG_SRC_BLD_SAME
+                + " to set build dir where index.html begins, to be same as project source."
+                + "\nHowever, option --"
+                + BLD_OP_BLDROOT
+                + " which sets the top-level buildroot, is not same as project source."
+                + "\nProject source: "
+                + SRCROOT
+                + "\nTop level build root is stored as: "
+                + BLDROOT);
+        }
+        process.env[BLD_OP_BLDROOT] = BLDROOT;
 
         // flag :: timestamp the build so it will be uniquely identified.  useful if you have a dedicated bld dir you want to congregate blds at
-        var timestampBld = grunt.option(BLD_FLAG_TIMESTAMP_BLDDIR) || false;
-        if ( timestampBld ) {
-            // if they gave this but also gave that dest dir should be same as src, this is a problem
-            if ( grunt.option(BLD_FLAG_BLD_DEST_SAME) ) {
-                grunt.fail.fatal("You specified boolean flag --"
-                    + BLD_FLAG_BLD_DEST_SAME
-                    + " which will set the build output where index.html begins to the project source,"
-                    + "\nbut also flag --"
-                    + BLD_FLAG_TIMESTAMP_BLDDIR
-                    + ", but this flag will take the top level build root, create a dir of the current timestamp,"
-                    + " and then root index.html there."
-                    + "\nSo this combination of flags is not possible.");
+        /**
+            if we set this as context in a parent process,
+            want to use timestamp generated at time of parent process.
+        */
+        var timestamped = false;
+        if ( process.env[BLD_FLAG_TIMESTAMP_BLDDIR] ) {
+            timestamped = true;
+            BLDROOT = process.env[BLD_FLAG_TIMESTAMP_BLDDIR];
+        }
+        else {
+            if ( grunt.option(BLD_FLAG_TIMESTAMP_BLDDIR) ) {
+                timestamped = true;
+                BLDROOT = BLDROOT + Date.now() + path.sep;
+                // set as env var for child context
+                process.env[BLD_FLAG_TIMESTAMP_BLDDIR] = BLDROOT;
             }
+        }
+        // if they timestamped but gave flag that dest same as src, problem
+        if ( timestamped && grunt.option(BLD_FLAG_DEST_SAME) ) {
 
-            BLDROOT = BLDROOT + Date.now() + path.sep;
+            grunt.fail.fatal("You specified boolean flag --"
+                + BLD_FLAG_BLD_DEST_SAME
+                + " which will set the build output where index.html begins to the project source,"
+                + "\nbut also flag --"
+                + BLD_FLAG_TIMESTAMP_BLDDIR
+                + ", but this flag will take the top level build root, create a dir of the current timestamp,"
+                + " and then root index.html there."
+                + "\nSo this combination of flags is not possible.");
         }
 
         // option :: product flavor
-        PRODUCT = grunt.option(BLD_OP_PRODUCT) || XD;
+        PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || XD;
         var prodNameMapping = {
             XD:XDprodName,
             XI:XIprodName
@@ -5238,6 +5552,7 @@ module.exports = function(grunt) {
                 + BLD_OP_PRODUCT
                 + " This indicates a logic error; contact jolsen@xcalar.com");
         }
+        process.env[BLD_OP_PRODUCT] = PRODUCT;
 
         /**
             destination directory - i.e, dir nested at or beneath top level build root,
@@ -5247,58 +5562,44 @@ module.exports = function(grunt) {
                 1. they specified directly via --destdir
                 2. no params about it, and this is a non-dev bld, defaults to BLDROOT/<product name>
                 3. no params about it, and this is a dev bld,d defaults to BLDROOT
-                4. they've specified --setdesttoroot, in which case should be product root
+                4. they've specified --setbuildstarttosrc, in which case should be product root
         */
-        if ( grunt.option(BLD_OP_DESTDIR) ) {
-            dest = grunt.option(BLD_OP_DESTDIR);
-            if ( grunt.option(BLD_FLAG_SRC_DEST_SAME) && dest != SRCROOT ) {
-                grunt.fail.fatal("Specified destdir for build with boolean flag --"
-                    + BLD_OP_DESTDIR
-                    + " as: "
-                    + dest
-                    + ", which is diff from the project root of "
-                    + SRCROOT
-                    + "\nBut, also specified boolean flag --"
-                    + BLD_FLAG_SRC_DEST_SAME
-                    + " to indicate dest should be same as project root!");
-            }
-            if ( timestampBld ) {
-                grunt.fail.fatal("Specified destdir for build with boolean flag --"
-                    + BLD_OP_DESTDIR
-                    + " but also boolean flag --"
-                    + BLD_FLAG_TIMESTAMP_BLDDIR);
-            }
-            DESTDIR = dest; // case 1
-            if(!DESTDIR.endsWith(path.sep)) { DESTDIR = DESTDIR + path.sep; }
-            if (!grunt.file.isPathAbsolute(DESTDIR)) { DESTDIR = BLDROOT + DESTDIR; }
+        if ( grunt.option(BLD_FLAG_SRC_DEST_SAME) ) {
+            defaultVal = SRCROOT;
         }
         else {
-
-            if ( grunt.option(BLD_FLAG_SRC_DEST_SAME) || (IS_BLD_TASK && BLDTYPE == DEV) || !IS_BLD_TASK ) { // case 3 & 4
-                // watch used mostly by devs who work with a dev bld,
-                // so also for this case default to same proj src
-                // siomilarly if they use for generating constructor file,
-                // which is standalone task once per project
-                DESTDIR = BLDROOT;
+            if ( BLDTYPE == DEV || (IS_WATCH_TASK && !IS_BLD_TASK) ) {
+                defaultVal = BLDROOT;
             }
-            else  { // case 2
-                DESTDIR = BLDROOT + PRODUCTNAME + path.sep;
+            else {
+                defaultVal = BLDROOT + PRODUCTNAME + path.sep;
             }
         }
-
+        DESTDIR = grunt.option(BLD_OP_DESTDIR) || process.env[BLD_OP_DESTDIR] || defaultVal;
+        if(!DESTDIR.endsWith(path.sep)) { DESTDIR = DESTDIR + path.sep; }
+        if (!grunt.file.isPathAbsolute(DESTDIR)) { DESTDIR = BLDROOT + DESTDIR; }
+        // make sure params jive
+        if ( grunt.option(BLD_FLAG_SRC_DEST_SAME) && !grunt.file.arePathsEquivalent(DESTDIR, SRCROOT) ) {
+            if ( grunt.option(BLD_FLAG_SRC_DEST_SAME) && dest != SRCROOT ) {
+                grunt.fail.fatal("Boolean flag given: --"
+                    + BLD_FLAG_SRC_DEST_SAME
+                    + " so start of build where index.html is, should be same as project root."
+                    + "\nBut this build start coming out as: "
+                    + DESTDIR);
+            }
+        }
         // make sure destdir rooted at or beneath bldroot
-        if ( BLDROOT != DESTDIR && !grunt.file.doesPathContain(BLDROOT, DESTDIR) ) {
+        if ( !grunt.file.arePathsEquivalent(BLDROOT, DESTDIR) && !grunt.file.doesPathContain(BLDROOT, DESTDIR) ) {
             grunt.fail.fatal("The destination directory where index.html should go: "
                 + DESTDIR
                 + "\nis NOT descendent of the top level build root!"
                 + BLDROOT);
         }
-
         if ( IS_WATCH_TASK && !IS_BLD_TASK && !grunt.file.exists(DESTDIR) ) {
             grunt.fail.fatal("You are running a watch task;"
                     + " your xcalar-gui project root is "
                     + SRCROOT
-                    + "\nand output for this project's bld is mapped as "
+                    + "\nand output for this project's bld should go to "
                     + DESTDIR
                     + "\nHowever, this bld directory does not exist"
                     + "\n(Note if you did not specify the --"
@@ -5312,9 +5613,11 @@ module.exports = function(grunt) {
                     + BLD_OP_TOP_LEVEL_BLDROOT
                     + "=<your bld location>");
         }
+        process.env[BLD_OP_DESTDIR] = DESTDIR;
 
                 // flag :: dont overwrite if build dir already exists
-        OVERWRITE = !(grunt.option(BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS) || false);
+        OVERWRITE = !(grunt.option(BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS)) || process.env[BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS] || false;
+        process.env[BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS] = OVERWRITE;
 
         /**
             this will alow you to force delete over files outside Grunt dir
@@ -5323,7 +5626,9 @@ module.exports = function(grunt) {
         FORCE_DELETE_DANGEROUS = grunt.option("pokacuka") || false;
 
         // flag :: retain src code used for bld generation (less files, HTML with templating code, etc.), in final bld
-        KEEPSRC = grunt.option(BLD_FLAG_RETAIN_FULL_SRC) || false;
+        KEEPSRC = grunt.option(BLD_FLAG_RETAIN_FULL_SRC) || process.env[BLD_FLAG_RETAIN_FULL_SRC] || false;
+        process.env[BLD_FLAG_RETAIN_FULL_SRC] = KEEPSRC;
+
         /**
             DANGER
 
@@ -5337,7 +5642,7 @@ module.exports = function(grunt) {
             Please keep this check in!!!!  Because so long as it is defaulting to false
             they would end up deleting their project source without realizing it
         */
-        if ( DESTDIR == SRCROOT || DESTDIR == process.cwd() ) {
+        if ( grunt.file.arePathsEquivalent(DESTDIR, SRCROOT) || DESTDIR == process.cwd() ) {
             KEEPSRC = true;
             OVERWRITE = false;
 
@@ -5374,8 +5679,7 @@ module.exports = function(grunt) {
         // option: (for trunk blds) , alt. roots for backend src and bld
         // get the list of tasks and see if trunk is in it
         if ( BLDTYPE == TRUNK ) {
-            xlrdirEnvVar = 'XLRDIR';
-            BACKENDBLDDIR = grunt.option(BLD_OP_BACKEND_SRC_REPO) || process.env[xlrdirEnvVar];
+            BACKENDBLDDIR = grunt.option(BLD_OP_BACKEND_SRC_REPO) || process.env[XLRDIR];
             if( !BACKENDBLDDIR.endsWith(path.sep) ) { BACKENDBLDDIR = BACKENDBLDDIR + path.sep; } // add path sep to end if not there
             if( !BACKENDBLDDIR || !grunt.file.exists(BACKENDBLDDIR) ) {
                 grunt.fail.fatal("Backend bld for trunk bld is : "
@@ -5389,17 +5693,19 @@ module.exports = function(grunt) {
                     + "\nIf not, rerun Grunt and specify a backend root for your project via option: "
                     + " --" + BLD_OP_BACKEND_SRC_REPO + "=<your proj root>");
             }
+            process.env[XLRDIR] = BACKENDBLDDIR;
         }
 
         // for js minification - what depth to start minification at?  defaulst to 1
         // (meaning, files at the js src get minified in to their own files,
         // and any dirs in that js src all their contents concatted together).  they want to do all in future so give 0
-        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || 1;
+        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] || 1;
         // make sure its a number
         if ( isNaN(JS_MINIFICATION_CONCAT_DEPTH) ) {
             grunt.fail.fatal("Value for js minification concat depth should be a number.  It is "
                 + JS_MINIFICATION_CONCAT_DEPTH);
         }
+        process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] = JS_MINIFICATION_CONCAT_DEPTH;
 
         /**
             WATCH FUNCTIONALITY
@@ -5425,7 +5731,11 @@ module.exports = function(grunt) {
                         + ", but this is not a directory, or does not exist");
                 }
             }
-            WATCH_FILES_REL_TO = grunt.option(WATCH_OP_REL_TO) || SRCROOT;
+            WATCH_FILES_REL_TO = grunt.option(WATCH_OP_REL_TO) || process.env[WATCH_OP_REL_TO] || SRCROOT;
+            process.env[WATCH_OP_REL_TO] = WATCH_FILES_REL_TO;
+
+            // determine the live reload types
+            LIVE_RELOAD_BY_TYPE = getReloadTypes();
         }
     }
 
@@ -5449,22 +5759,34 @@ module.exports = function(grunt) {
         for ( var i = 0; i < COMMON_WATCH_BLD_FILES.length; i++ ) {
             COMMON_WATCH_BLD_FILES[i] = DESTDIR + COMMON_WATCH_BLD_FILES[i];
         }
-        for ( var i = 0; i < COMMON_WATCH_SRC_DIRS.length; i++ ) {
-            COMMON_WATCH_SRC_DIRS[i] = SRCROOT + COMMON_WATCH_SRC_DIRS[i];
-        }
-        for ( var i = 0; i < COMMON_WATCH_BLD_DIRS.length; i++ ) {
-            COMMON_WATCH_BLD_DIRS[i] = DESTDIR + COMMON_WATCH_BLD_DIRS[i];
-        }
 
-        // globs for getting watch filetypes
-        WATCH_FILE_TYPES[WATCH_FLAG_HTML_SRC] =    SRCROOT + htmlMapping.src + "**/*.html";
-        WATCH_FILE_TYPES[WATCH_FLAG_HTML_BLD] = DESTDIR + htmlMapping.dest + "**/*.html";
-        WATCH_FILE_TYPES[WATCH_FLAG_CSS] = DESTDIR + cssMapping.dest + "**/*.css";
-        WATCH_FILE_TYPES[WATCH_FLAG_LESS] =    SRCROOT + cssMapping.src + "**/*.less";
-        WATCH_FILE_TYPES[WATCH_FLAG_JS_SRC] = SRCROOT + jsMapping.src + "**/*.js";
-        WATCH_FILE_TYPES[WATCH_FLAG_JS_BLD] = DESTDIR + "**/*.js";
-        WATCH_FILE_TYPES[WATCH_FLAG_CONSTRUCTORS] = DESTDIR + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD; // need to add in sep case for src!
+        WATCH_FILETYPES[WATCH_TARGET_HTML_SRC] = [
+            SRCROOT + 'site/**/*.html',
+            SRCROOT + '**/htmlTStr.js'
+        ];
+        //WATCH_FILETYPES[WATCH_TARGET_HTML_BLD][SUPERSET] = ['!' + DESTDIR + 'prod', DESTDIR + 'index.html'];
+        WATCH_FILETYPES[WATCH_TARGET_HTML_BLD] = [
+            DESTDIR + '**/*.html',
+            //'!' + DESTDIR + 'site/**',
+            '!' + DESTDIR + '3rd/**',
+            '!' + DESTDIR + 'demo/**',
+            '!' + DESTDIR + 'node_modules/**',
+            '!' + HTML_STAGING_I_ABS + '**',
+            '!' + DESTDIR + 'external/**',
+            '!' + DESTDIR + 'services/**'
+        ];
+        WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + 'assets/stylesheets/less/**/*.less'];
+        WATCH_FILETYPES[WATCH_TARGET_CSS] = [DESTDIR + 'assets/stylesheets/css/**/*.css'];
+        WATCH_FILETYPES[WATCH_TARGET_JS_SRC] = [SRCROOT + 'assets/js/**/*.js'];
+        WATCH_FILETYPES[WATCH_TARGET_JS_BLD] = [DESTDIR + 'assets/js/**/*.js'];
+        WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
 
+        /**
+            Put the tmp file we'll be looking for to determine
+            if watch events running, as an absolute path,
+            in case Grunt working dir changes mid script
+        */
+        WATCH_TMP_FILE = DESTDIR + WATCH_TMP_FILE;
     }
 
     /**
@@ -5483,21 +5805,6 @@ module.exports = function(grunt) {
             Set the defaults for template keys
         */
         setTemplateKeyDefaults();
-
-        if ( IS_WATCH_TASK ) {
-
-            // 2. list of files and glob patterns to watch
-            watchFilesList = getWatchFiles();
-            grunt.log.debug("watch files: "+ watchFilesList);
-            // register files list with actual 'watch' plugin
-            grunt.config('watch.files', watchFilesList);
-
-            // determine types of files to do live reload on
-            reloadTypes = getReloadTypes();
-            // set in global option
-            grunt.config(WATCH_LIVERELOAD_HASH_CONFIG_KEY, reloadTypes);
-
-        }
     }
 
     /**
@@ -5528,8 +5835,10 @@ module.exports = function(grunt) {
 
         // section :tasks
         // make sure only valid task requested.  but that they don't specify more than one bld task
-        var tasksRequested = grunt.cli.tasks;
-            bldTaskRequested = false; // to make sure only one bld task requested
+        //var tasksRequested = grunt.cli.tasks;
+        var tasksRequested = grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST).split(',');
+        grunt.log.debug("tasks requested: "+ tasksRequested);
+        var bldTaskRequested = false; // to make sure only one bld task requested
             watchTaskRequested = false;
         var task, requires, metRequirement;
 
@@ -5549,22 +5858,23 @@ module.exports = function(grunt) {
         }
 
         for ( task of tasksRequested ) {
-
             // make note if watch task so can verify later that watch flags specified only if watch task requested
-            if ( task == 'watch' ) {
+            if ( task == 'watch' || process.env[IS_WATCH_TASK] ) {
                 watchTaskRequested = true; // save for later in validation
             }
 
             if ( Object.keys(VALID_TASKS).indexOf(task) !== -1 ) {
-                if ( bldTaskRequested && VALID_TASKS[task][BLD_TASK_KEY] ) {
-                    grunt.fail.fatal("You have supplied more than one bld task: "
-                        + task + " and " + bldTaskRequested
-                        + ".  Please supply only one main bld task."
-                        + "\nThese are the main bld tasks, and their descriptions:\n"
-                        + BLD_TASKS_DESC_STR);
-                }
-                else {
-                    bldTaskRequested = task;
+                if ( VALID_TASKS[task][BLD_TASK_KEY] ) {
+                    if ( bldTaskRequested ) {
+                        grunt.fail.fatal("You have supplied more than one bld task: "
+                            + task + " and " + bldTaskRequested
+                            + ".  Please supply only one main bld task."
+                            + "\nThese are the main bld tasks, and their descriptions:\n"
+                            + BLD_TASKS_DESC_STR);
+                    }
+                    else {
+                        bldTaskRequested = task;
+                    }
                 }
 
                 // make sure any dependencies are present
@@ -5596,7 +5906,10 @@ module.exports = function(grunt) {
                 }
             }
             else {
-                grunt.fail.fatal("You have supplied an invalid task:  "
+                // take out the check for valid tasks right now because of watch child processes
+                grunt.log.debug("I hope this is a child process!!");
+                if ( TOPLEVEL_GRUNT_PROCESS ) {
+                    grunt.fail.fatal("You have supplied an invalid task:  "
                         + task
                         + "\nValid tasks:\n"
                         + "[Build tasks:] "
@@ -5608,6 +5921,7 @@ module.exports = function(grunt) {
                         + " make sure you are supplying your cli options with '=' syntax, i.e."
                         + "\n\t\t--<option>=<value> "
                         + "\nThis is required for the new version of Grunt)");
+                }
             }
 
         }
@@ -5633,7 +5947,7 @@ module.exports = function(grunt) {
             // check if a flag or param option. if values supplied, get the value String
             flagCheck = paramPlain.split('=');
             paramPlain = flagCheck[0]; // flagCheck has ['param', '=val1,val2,valN']
-            if ( paramPlain == 'pokacuka' ) {
+            if ( DONT_VALIDATE.indexOf(paramPlain) != -1 ) {
                 continue;
             }
             flag = false;
@@ -5853,4 +6167,163 @@ module.exports = function(grunt) {
         return listStr;
     }
 
+    /**
+        Returns the list of tasks requested when the parent
+        Grunt file was invoked.
+
+         Reason:
+        This gruntfile uses grunt-concurarent plugin,
+        and spwaning child processes.
+        - Child processes have access to grunt.options
+         (cmd flags), but not the task list.
+        - Therefore, the parent task is will get the task list,
+         and then pass as a flag, so that the future child
+         processes have access to it.
+        This function is looking for that special flag,
+        will parse and return it
+    */
+    function getTaskList() {
+
+        grunt.log.debug("GET TASKS: Tasks showing in standard way: "
+            + grunt.cli.tasks);
+
+        if ( grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
+            return grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST).split(',');
+        }
+        else {
+            grunt.fail.fatal("Special flag "
+                + INITIAL_GRUNT_PROCESS_TASKLIST
+                + " is not present in grunt options!"
+                + "\nThis flag should be being set in the parent"
+                + " Grunt process, and should hold the value of"
+                + " requested tasks passed to Grunt parent process,"
+                + " so child processes can have access to this info.");
+        }
+    }
+
+    /**
+        1. set tasks as option so it will be inherited by any
+            child processes.
+            (Grunt passes cmd flags to child processes, but not
+               task list.)
+        2. check for any watch tracker left over from a previous failed
+            Grunt run and if so clear it
+        3. set global boolean alerting that this is top level Grunt process
+            so can know this during param validation once
+            the special flag set
+
+    */
+    function parentInit() {
+
+        grunt.log.debug(" Tasks showing in this process: " + grunt.cli.tasks);
+
+        if ( !grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
+            /**
+                This is a parent process.
+                Set task list in special flag
+                so it will get inherited by children
+            */
+            TOPLEVEL_GRUNT_PROCESS = true;
+
+            var tasklist = grunt.cli.tasks;
+            grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST, tasklist.join(','));
+
+            // check if there's the watch tracking file left over
+            // from a previous failed run
+            // if it's there, delete it.
+            if ( isWatchEventProcessing() ) {
+                grunt.log.writeln(("This is a new run of Grunt;"
+                    + " found an old watch tracker:"
+                    + WATCH_TMP_FILE
+                    + "; deleting file"
+                    + "\nMost likely, a previous run of 'grunt watch'"
+                    + "failed.  If that is not the case, this might indicate a logic error").bold.red);
+                watchEventStopTracking();
+            }
+        }
+        else {
+            grunt.fail.fatal("Trying to do initialization for parent process,"
+                + " but already detecting flag to indicate this is child"
+                + "\nLogic error in Grunt please address");
+        }
+    }
+
+    /**
+        If a watch event is current processing,
+        send back the name of the file that triggered it.
+        If not, return false
+    */
+    function isWatchEventProcessing() {
+
+        // check if the tmp file is there
+        var content;
+        if ( grunt.file.exists(WATCH_TMP_FILE) ) {
+            // if there is a line, get name of file from it
+            content = grunt.file.read(WATCH_TMP_FILE);
+            // split on the newline and get the name of the file
+            content = content.split('\n');
+            //grunt.fail.fatal("Content: " + content);
+            return content;
+        }
+        else {
+            grunt.log.debug("There is no watch event currently processing."
+                + "\n(Checked for present of file: "
+                 + WATCH_TMP_FILE
+                + " but did not observe it.)");
+            return false;
+        }
+    }
+
+    /**
+        Generate a tmp file with the name of the file
+        that triggered the watch event
+    */
+    function watchEventStartTracking(watchEventFile, watchTarget, processPid) {
+
+        grunt.log.debug("Start tracking watch event of file "
+            + watchEventFile
+            + " | watch plugin target of origin: "
+            + watchTarget
+            + " | pid of origin: "
+            + processPid);
+
+        if ( grunt.file.exists(WATCH_TMP_FILE) ) {
+            grunt.fail.fatal("Trying to start tracking a watch "
+                + " event, but tmp file "
+                + WATCH_TMP_FILE
+                + " already exists!!!");
+        }
+        else {
+            var content = watchEventFile + "\n" + watchTarget + "\n" + processPid;
+            writeAutoGeneratedFile(WATCH_TMP_FILE, content, null, true)
+        }
+
+    }
+
+    /**
+        Delete the tmp file that we keep around
+        when watch even tprocessing
+        Return the name of the target that initiated
+        (so will have a way to know which target
+        to set tasklist back to empty)
+    */
+    function watchEventStopTracking() {
+
+        grunt.log.debug("Stop tracking currently processing watch event");
+
+        var trackingData = isWatchEventProcessing();
+        if ( trackingData ) {
+            grunt.log.debug("Curr Tracking data: " + trackingData + " length: " + trackingData.length);
+            var target = trackingData[1];
+            grunt.file.delete(WATCH_TMP_FILE);
+            return target;
+        }
+        else {
+            grunt.log.writeln(("\n\nYou have called to stop watch event, "
+                + " but no watch event is detected as running!!!"
+                + " (Did someone manually delete the file "
+                + WATCH_TMP_FILE
+                + "\n").red.bold);
+        }
+    }
 };
