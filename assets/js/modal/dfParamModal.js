@@ -540,8 +540,7 @@ window.DFParamModal = (function($, DFParamModal){
             "preventClearOnBlur": true,
             "order": true,
             "menuHelper": dropdownHelper,
-            "onEnter": function (val) {
-                var $input = $li.closest('.tdWrapper.dropDownList').find("input");
+            "onEnter": function (val, $input) {
                 if (val === $.trim($input.val())) {
                     return;
                 }
