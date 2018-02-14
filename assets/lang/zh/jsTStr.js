@@ -146,7 +146,8 @@ TooltipTStr = {
 "FocusOnCol": "点击查看列",
 "UnionDeleteTable": "从合并表中删除表",
 "UnionSearch": "在表中查找",
-"ShowDatasetHint": "Begin by creating a new dataset here!"
+"ShowDatasetHint": "Begin by creating a new dataset here!",
+"ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
 };
 CommonTxtTstr = {
 'ArrayVal': '数组值',

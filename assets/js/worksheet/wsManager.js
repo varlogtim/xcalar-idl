@@ -1020,8 +1020,13 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.showDatasetHint = function() {
-        if (xcSessionStorage.getItem("seenDatasetHint") === "true") {
-            return;
+        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
+        var numDatastores = parseInt($numDatastores.text());
+        var msg;
+        if (numDatastores === 0) {
+            msg = TooltipTStr.ShowDatasetHint;
+        } else {
+            msg = TooltipTStr.ShowDatasetTableHint
         }
 
         var $tab = $('#dataStoresTab');
@@ -1031,13 +1036,12 @@ window.WSManager = (function($, WSManager) {
                 $('<div id="showDatasetHint" class="tableDonePopupWrap" ' +
                     'style="top:' + top + 'px;left:' + left + 'px;">' +
                     '<div class="tableDonePopup datastoreNotify">' +
-                    TooltipTStr.ShowDatasetHint +
+                    msg +
                     '<div class="close">+</div></div></div>');
         setTimeout(function() {
             if ($tab.hasClass("firstTouch") &&
                 $("#workspaceTab").hasClass("active")) {
                 showPopup();
-                xcSessionStorage.setItem("seenDatasetHint", true);
             }
         }, 1000);
 

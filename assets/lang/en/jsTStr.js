@@ -128,6 +128,7 @@ TooltipTStr = {
     "ClickToSortAsc": "Click to sort ascending",
     "ClickToSortDesc": "Click to sort descending",
     "ShowDatasetHint": "Begin by creating a new dataset here!",
+    "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",

@@ -54,7 +54,7 @@ window.xcManager = (function(xcManager, $) {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
-        .then(setupSession)
+        .then(setupSession) // restores info from kvStore
         .then(setupConfigParams)
         .then(function() {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreTargets(true));
@@ -466,7 +466,7 @@ window.xcManager = (function(xcManager, $) {
         WorkbookManager.setup()
         .then(XcSupport.holdSession)
         .then(Authentication.setup)
-        .then(KVStore.restore)
+        .then(KVStore.restore) // restores table info, dataset info, settings etc
         .then(initializeTable)
         .then(deferred.resolve)
         .fail(deferred.reject);
