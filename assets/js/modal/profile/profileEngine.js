@@ -537,7 +537,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
         function getStats(tableOrder, tableKeys) {
             if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
-                tableKeys.length !== 1 ||
+                tableKeys.length < 1 ||
                 tableKeys[0].name !== profileInfo.statsInfo.key &&
                 tableKeys[0].name !== profileInfo.colName) {
                 // when table is unsorted
