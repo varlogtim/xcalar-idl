@@ -204,6 +204,7 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
+            var $li = $(this);
             if ($li.hasClass("exitExt")) {
                 BottomMenu.close();
             } else if ($li.hasClass("exitDFEdit")) {

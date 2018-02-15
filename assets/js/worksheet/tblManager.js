@@ -282,6 +282,7 @@ window.TblManager = (function($, TblManager) {
             tableCols = [ColManager.newDATACol()];
         }
 
+        // tableCols get deep copied in TableMeta constructor
         var tableId = xcHelper.getTableId(tableName);
         var table = new TableMeta({
             "tableId": tableId,
@@ -1830,7 +1831,7 @@ window.TblManager = (function($, TblManager) {
                  // at last have data col
                 tableCols = [ColManager.newDATACol()];
             }
-
+            // tableCols get deep copied in TableMeta constructor
             table = new TableMeta({
                 "tableId": tableId,
                 "tableName": tableName,

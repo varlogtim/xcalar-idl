@@ -106,11 +106,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         $modal.removeClass("type-map type-newImport");
         $modal.addClass("type-" + type);
         modalHelper.setup();
-        if (type === "newImport") {
-            $modal.css({"minHeight": 310});
-        } else {
-            $modal.css({"minHeight": 290});
-        }
+        $modal.find(".arg:visible").eq(0).focus();
     };
 
     JupyterUDFModal.refreshTarget = function(targetList) {
@@ -145,8 +141,15 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         if (!isValid) {
             return;
         }
-        var fnName = $modal.find(".fnName:visible").val();
 
+        var moduleName = $modal.find(".moduleName:visible").val();
+        var isModuleNameValid = xcHelper.checkNamePattern("udf", "check", moduleName);
+        if (!isModuleNameValid) {
+            StatusBox.show(UDFTStr.InValidName, $modal.find(".moduleName:visible"), true);
+            return;
+        }
+
+        var fnName = $modal.find(".fnName:visible").val();
         var isFnNameValid = xcHelper.checkNamePattern("udfFn", "check", fnName);
         if (!isFnNameValid) {
             StatusBox.show(UDFTStr.InValidFnName, $modal.find(".fnName:visible"), true);
@@ -160,15 +163,17 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             });
             var tableName = $modal.find(".tableName:visible").val();
             JupyterPanel.appendStub("basicUDF", {
-                fnName: $modal.find(".fnName:visible").val(),
+                moduleName: $modal.find(".moduleName:visible").val(),
+                fnName: fnName,
                 tableName: tableName,
                 columns: columns,
-                allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName))
+                allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName)),
+                includeStub: true
             });
         } else if ($modal.hasClass("type-newImport")) {
             JupyterPanel.appendStub("importUDF", {
-                fnName: $modal.find(".fnName:visible").val(),
-                 target: $modal.find(".target:visible").val(),
+                fnName: fnName,
+                target: $modal.find(".target:visible").val(),
                 url: $modal.find(".url:visible").val(),
                 moduleName: $modal.find(".moduleName:visible").val(),
                 includeStub: true,

@@ -265,7 +265,6 @@ window.BottomMenu = (function($, BottomMenu) {
         var $section = $menuSections.eq(sectionIndex);
         var hasAnim = true;
 
-
         var wasOpen = $menuPanel.hasClass("open");
         $sliderBtns.removeClass("active");
         $sliderBtns.eq(sectionIndex).addClass("active");

@@ -766,7 +766,8 @@ window.OperationsView = (function($, OperationsView) {
 
         formHelper.showView(operatorName);
 
-        isEditMode = options.prefill ? true : false;
+        isEditMode = DagEdit.isEditMode();
+        var hasPrefill = options.prefill ? true : false;
         if (options.prefill && options.prefill.isDroppedTable) {
             table = gDroppedTables[currTableId];
         } else if (currTableId) {
@@ -786,14 +787,14 @@ window.OperationsView = (function($, OperationsView) {
                 colNum = currColNums[0];
             }
             if (table.getCol(colNum)) {
-                 triggerColName = table.getCol(colNum).getBackColName();
+                triggerColName = table.getCol(colNum).getBackColName();
             }
 
             if (currColNums && currColNums.length) {
                 currentCol = table.getCol(colNum);
                 colName = currentCol.getFrontColName(true);
                 isNewCol = currentCol.isNewCol;
-            } else if (isEditMode) {
+            } else if (hasPrefill) {
                 if (options.prefill.args[0] &&
                     options.prefill.args[0][0] &&
                     options.prefill.args[0][0].indexOf("(") === -1) {
@@ -897,7 +898,7 @@ window.OperationsView = (function($, OperationsView) {
     function updateFormTitles(options) {
         var titleName = operatorName;
         var submitText;
-        if (options.prefill) {
+        if (isEditMode) {
             titleName = "EDIT " + titleName;
             submitText = "SAVE";
         } else {

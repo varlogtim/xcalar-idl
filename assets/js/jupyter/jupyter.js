@@ -75,11 +75,20 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             Alert.show(s.options);
                         }
                         break;
-                    case ("sendToUDFEditor"):
-                        BottomMenu.openSection(2);
-                        var editor = UDF.getEditor();
-                        UDF.clearEditor();
-                        editor.setValue(s.code);
+                    case ("udfToMapForm"):
+                        UDF.refresh()
+                        .then(function() {
+                            showMapForm(s.tableName, s.columns, s.moduleName,
+                                        s.fnName);
+                        })
+                        .fail(udfRefreshFail);
+                        break;
+                    case ("udfToDSPreview"):
+                        UDF.refresh()
+                        .then(function() {
+                            showDSForm(s.moduleName, s.fnName);
+                        })
+                        .fail(udfRefreshFail);
                         break;
                     default:
                         console.error("Unsupported action:" + s.action);
@@ -146,7 +155,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
     JupyterPanel.autofillImportUdfModal = function(target, filePath,
                                                    includeStub, moduleName,
                                                    functionName) {
-        $("#jupyterTab").click();
+
+        MainMenu.openPanel("jupyterPanel");
 
         if (!currNotebook) {
             var msgStruct = {
@@ -170,6 +180,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     moduleName: moduleName,
                     includeStub: false,
                 });
+
+                BottomMenu.openSection(2);
+                UDF.selectUDFFuncList(moduleName);
             } else {
                 showImportUdfModal(target, filePath);
             }
@@ -283,6 +296,68 @@ window.JupyterPanel = (function($, JupyterPanel) {
             } else {
                 JupyterPanel.appendStub(stubName);
             }
+        });
+    }
+
+    function showMapForm(tableName, columns, moduleName, fnName) {
+        var tableId = xcHelper.getTableId(tableName);
+        var table = gTables[tableId];
+        if (table && table.isActive()) {
+            var colNums = [];
+            for (var i = 0; i < columns.length; i++) {
+                var colNum = table.getColNumByBackName(columns[i]);
+                if (colNum > -1) {
+                    colNums.push(colNum);
+                }
+            }
+
+            MainMenu.openPanel("workspacePanel");
+            OperationsView.show(tableId, colNums, "map", {
+                prefill: {
+                    ops: [moduleName + ":" + fnName],
+                    args: [columns]
+                }
+            });
+        } else {
+            Alert.show({
+                title: "Error",
+                msg: "Table " + tableName + " is not present in any active worksheets.",
+                isAlert: true
+            });
+        }
+    }
+
+    function showDSForm(moduleName, fnName) {
+        var formatVal = $("#fileFormat .text").val();
+        if (!$("#dsForm-preview").hasClass("xc-hidden") &&
+            formatVal === $("#fileFormatMenu").find('li[name="UDF"]').text()) {
+
+            MainMenu.openPanel("datastorePanel", "inButton");
+            $("#udfArgs-moduleList").find("li").filter(function() {
+                return $(this).text() === moduleName;
+            }).trigger(fakeEvent.mouseup);
+
+            $("#udfArgs-funcList").find("li").filter(function() {
+                return $(this).text() === fnName;
+            }).trigger(fakeEvent.mouseup);
+
+            $("#dsForm-applyUDF").click();
+        } else {
+            Alert.show({
+                title: "Error",
+                msg: "Your previous dataset form has changed. Please select" +
+                " a dataset to import in the Dataset Panel and select 'User Defined Format' as the" +
+                " current format.",
+                isAlert: true
+            });
+        }
+    }
+
+    function udfRefreshFail() {
+        Alert.show({
+            title: "Error",
+            msg: "Could not update UDF list.",
+            isAlert: true
         });
     }
 

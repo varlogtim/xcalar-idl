@@ -100,6 +100,10 @@ window.UDF = (function($, UDF) {
         }
     };
 
+    UDF.selectUDFFuncList = function(module) {
+        inputUDFFuncList(module);
+    };
+
     function initializeUDFList(isSetup, doNotClear) {
         var deferred = jQuery.Deferred();
 

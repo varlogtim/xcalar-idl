@@ -13,12 +13,8 @@ define(function() {
             urlQuery = urlQuery.slice(urlQuery.indexOf("?") + 1);
             var params = parseQueryString(urlQuery);
             modifyElements();
-
-            $(document).on("click", ".sendToUDF", function () {
-                var code = Jupyter.notebook.get_selected_cell().get_text();
-                var request = {action: "sendToUDFEditor", code: code};
-                parent.postMessage(JSON.stringify(request), "*");
-            });
+            addListeners();
+            setupEvents();
 
             if (params.needsTemplate === "true") {
                 // brand new workbook
@@ -97,7 +93,7 @@ define(function() {
                         break;
                 }
             }
-            function insertCellToSelected(texts, stubName) {
+            function insertCellToSelected(texts, stubName, args) {
                 var index = Jupyter.notebook.get_selected_index();
                 if (!Jupyter.notebook.get_selected_cell().get_text()) {
                     index -= 1;
@@ -108,13 +104,21 @@ define(function() {
                     cell.set_text(texts[i]);
                     if (i === 0) {
                         cell.focus_cell();
-                    }
-                    if ((stubName == "basicUDF") &&
-                        i === 0) {
-                        var button = '<input class="sendToUDF" type="button" ' +
-                                    'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
-                                    'value="Copy to UDF Editor"/>';
-                        $(".cell").eq(index + 1).append(button);
+
+                        if ((stubName == "basicUDF")) {
+                            var $button = $('<input class="udfToMapForm" type="button" ' +
+                                            'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
+                                            'value="Use UDF on Table ' +
+                                            args.tableName + '"/>');
+                                $button.data("tablename", args.tableName)
+                                       .data("columns", args.columns);
+                            $(".cell").eq(index + 1).append($button);
+                        } else if (stubName === "importUDF" && args.includeStub) {
+                            var $button = $('<input class="udfToDSPreview" type="button" ' +
+                                            'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
+                                            'value="Apply UDF on Dataset Panel"/>');
+                            $(".cell").eq(index + 1).append($button);
+                        }
                     }
                     index++;
                 }
@@ -147,7 +151,8 @@ define(function() {
                         var colsArg = "";
                         var retStr = "";
                         var assertStr = "";
-                        var udfName;
+                        var moduleName;
+                        var fnName;
                         var dfName;
                         var tableStub = "";
                         if (args && args.columns) {
@@ -160,14 +165,17 @@ define(function() {
                             colsArg = colsArg.slice(0, -2);
                             retStr = retStr.slice(0, -3);
                             assertStr = assertStr.slice(0, -2);
-                            udfName = args.fnName;
+                            fnName = args.fnName;
+                            moduleName = args.moduleName;
+
                             dfName = args.tableName.replace(/[#-]/g, "_") + '_pd';
                             tableStub = getPublishTableStub(args.tableName, args.allCols, 100);
                         } else {
                             colsArg = "col1, col2, col3";
                             retStr = "str(col1) + str(col2) + str(col3)";
                             assertStr += 'row[colName1], row[colName2], row[colName3]';
-                            udfName = "yourUDF";
+                            fnName = "yourUDF";
+                            moduleName = "yourUDF";
                             dfName = "dataframeName";
                         }
                         text += '# Xcalar Map UDF Template\n' +
@@ -177,7 +185,7 @@ define(function() {
                                 '# string.\n' +
                                 '# \n' +
                                 '# To create your own map UDF, edit the function definition below, named \n' +
-                                '# <' + udfName +'>. \n' +
+                                '# <' + fnName +'>. \n' +
                                 '#\n' +
                                 '# To test your map UDF, run this cell to define your UDF \n' +
                                 '# and use the cell beneath this one. \n' +
@@ -191,13 +199,30 @@ define(function() {
                                 '# functions will be considered private functions and will not be directly \n' +
                                 '# invokable from Xcalar Design.\n' +
                                 '\n' +
-                                '# Map UDF function definition.\n';
-                        text += 'def ' + udfName + '(' + colsArg + '):\n' +
+                                '# Map UDF function definition.\n' +
+                                'def ' + fnName + '(' + colsArg + '):\n' +
                                '    # You can modify the function name.\n' +
                                '    # Your code starts from here. This is an example code.\n' +
-                               '    return ' + retStr + '\n';
-                        texts.push(text);
-                        text =  '# Test Map UDF Template \n' +
+                               '    return ' + retStr + '\n\n' +
+
+                                '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
+                                'from xcalar.compute.api.Dataset import *\n' +
+                                'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
+                                'from xcalar.compute.api.Udf import Udf\n' +
+                                'from xcalar.compute.coretypes.LibApisCommon.ttypes import XcalarApiException\n' +
+                                'import random\n' +
+                                '\n' +
+                                (args.includeStub ?
+                                'def uploadUDF():\n' +
+                                '    import inspect\n' +
+                                '    sourceCode = "".join(inspect.getsourcelines(' + fnName + ')[0])\n' +
+                                '    try:\n' +
+                                '        Udf(xcalarApi).add("'+ moduleName + '", sourceCode)\n' +
+                                '    except XcalarApiException as e:\n' +
+                                '        if e.status == StatusT.StatusUdfModuleAlreadyExists:\n' +
+                                '            Udf(xcalarApi).update("'+ moduleName + '", sourceCode)\n' +
+                                '\n' : '') +
+                                '# Test Map UDF Template \n' +
                                 '#\n' +
                                 '# Creates a pandas dataframe containing a sample of the \n' +
                                 '# selected table when you clicked CODE SNIPPETS --> Create Map UDF, and \n' +
@@ -210,8 +235,9 @@ define(function() {
                                 '# carefully make the same modifications at bottom.\n' +
                                tableStub +
                                'for index, row in ' + dfName + '.iterrows():\n' +
-                               '    assert(type(' + udfName + '(' + assertStr + ')).__name__ == \'str\')\n' +
-                               '    print(' + udfName + '(' + assertStr + '))';
+                               '    assert(type(' + fnName + '(' + assertStr + ')).__name__ == \'str\')\n' +
+                               '    print(' + fnName + '(' + assertStr + '))\n\n' +
+                                (args.includeStub ? 'uploadUDF()' : '');
                         texts.push(text);
                         break;
                     case ("importUDF"):
@@ -345,7 +371,7 @@ define(function() {
                     default:
                         return;
                 }
-                insertCellToSelected(texts, stubName);
+                insertCellToSelected(texts, stubName, args);
             }
             function prependSessionStub(username, userid, sessionName) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
@@ -397,34 +423,36 @@ define(function() {
                             '# 3) Click full table or enter a number of rows and click submit.\n' +
                             '\n' +
                             '# Imports data into a pandas dataframe.\n' +
-                            'from collections import OrderedDict\n';
+                            'def getDataFrameFromDict():\n' +
+                            '    from collections import OrderedDict\n';
                 var rowLimit = "";
                 if (numRows && numRows > 0) {
                     rowLimit = ", maxRecords=" + numRows;
                 }
                 var resultSetPtrName = 'resultSetPtr_' + tableName.split("#")[1];
-                var filterDict = 'col_list = [';
+                var filterDict = '    col_list = [';
                 for (var i = 0; i<colNames.length;i++) {
                     filterDict += '"' + colNames[i] + '",';
                 }
-                filterDict += ']\n    kv_list = []\n';
-                filterDict += '    for k in col_list:\n' +
-                              '        if k not in row:\n' +
-                              '            kv_list.append((k, None))\n' +
-                              '        else:\n' +
-                              '            kv_list.append((k, row[k]))\n' +
-                              '            if type(row[k]) is list:\n' +
-                              '                for i in range(len(row[k])):\n' +
-                              '                    subKey = k + "[" + str(i) + "]"\n' +
-                              '                    if subKey in col_list:\n' +
-                              '                        row[subKey] = row[k][i]\n' +
-                              '    filtered_row = OrderedDict(kv_list)\n';
-                text += resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '"' + rowLimit + ')\n';
+                filterDict += ']\n        kv_list = []\n';
+                filterDict += '        for k in col_list:\n' +
+                              '            if k not in row:\n' +
+                              '                kv_list.append((k, None))\n' +
+                              '            else:\n' +
+                              '                kv_list.append((k, row[k]))\n' +
+                              '                if type(row[k]) is list:\n' +
+                              '                    for i in range(len(row[k])):\n' +
+                              '                        subKey = k + "[" + str(i) + "]"\n' +
+                              '                        if subKey in col_list:\n' +
+                              '                            row[subKey] = row[k][i]\n' +
+                              '        filtered_row = OrderedDict(kv_list)\n';
+                text += '    ' + resultSetPtrName + ' = ResultSet(xcalarApi, tableName="' + tableName + '"' + rowLimit + ')\n';
                 tableName = tableName.replace(/[#-]/g, "_");
                 var dfName = tableName + '_pd';
-                text += tableName + ' = []\nfor row in ' + resultSetPtrName + ':\n';
-                text += '    ' + filterDict + '\n    ' + tableName + '.append(filtered_row)\n';
-                text += dfName + ' = pd.DataFrame.from_dict(' + tableName + ')\n';
+                text += '    ' + tableName + ' = []\n    for row in ' + resultSetPtrName + ':\n';
+                text += '    ' + filterDict + '\n        ' + tableName + '.append(filtered_row)\n';
+                text += '    return pd.DataFrame.from_dict(' + tableName + ')\n';
+                text += dfName + ' = getDataFrameFromDict()\n';
                 return text;
             }
 
@@ -533,6 +561,7 @@ define(function() {
                 }
                 return params;
             }
+
             window.addEventListener("message", receiveMessage, false);
 
             function showSessionWarning(errors) {
@@ -594,6 +623,122 @@ define(function() {
             }
             // Those codes end up here
 
+            // for new elements set up by XD
+            function addListeners() {
+                $(document).on("click", ".udfToMapForm", function () {
+                    var $btn = $(this);
+                    if ($btn.hasClass("needsUpload")) {
+                        return; // cell is executing
+                    }
+                    $btn.addClass("needsUpload");
+
+                    var cell = Jupyter.notebook.get_selected_cell();
+                    var originalText = cell.get_text();
+                    var lines = originalText.split("\n");
+                    lines.splice(-6, 6);
+                    var modifiedText = lines.join("\n");
+                    modifiedText += "\n" + "uploadUDF()";
+                    cell.set_text(modifiedText);
+                    cell.execute();
+                    cell.set_text(originalText);
+                });
+
+                $(document).on("click", ".udfToDSPreview", function () {
+                    var $btn = $(this);
+                    if ($btn.hasClass("needsUpload")) {
+                        return; // cell is executing
+                    }
+                    $btn.addClass("needsUpload");
+
+                    // remove call to testImportUDF, execute, and restore
+                    var cell = Jupyter.notebook.get_selected_cell();
+                    var originalText = cell.get_text();
+                    var lines = originalText.split("\n");
+                    lines.splice(-1, 1);
+                    var modifiedText = lines.join("\n");
+                    cell.set_text(modifiedText);
+                    cell.execute();
+                    cell.set_text(originalText);
+               });
+            }
+
+            // bind functions to jupyter events so that they get executed
+            // whenever Jupyter calls "events.trigger('action')"
+            function setupEvents() {
+                // when a cell finishes execution
+                Jupyter.notebook.events.on("finished_execute.CodeCell", function(evt, data){
+                    var cell = data.cell;
+                    var text = cell.get_text();
+                    var lines = text.split("\n");
+                    if (hasUploadUdf(lines)) {
+                        refreshUploadedUdf(lines, cell);
+                    }
+                });
+
+                function hasUploadUdf(lines) {
+                    for (var i = lines.length - 1; i >= 0; i--) {
+                        if (lines[i].indexOf("uploadUDF()") === 0) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                // find the name of the udf in the lines of cell code
+                // and send XD to refresh udf list and
+                function refreshUploadedUdf(lines, cell) {
+                    var modNameSearchKey = '        Udf(xcalarApi).add("';
+                    var fnNameSearchKey = '    sourceCode = "".join(inspect.getsourcelines(';
+                    var moduleName;
+                    var fnName;
+                    for (var i = 0; i < lines.length; i++) {
+                        if (lines[i].indexOf(modNameSearchKey) === 0) {
+                            moduleName = lines[i].slice(modNameSearchKey.length);
+                            moduleName = moduleName.slice(0, moduleName.indexOf("\""));
+                        }
+                        if (lines[i].indexOf(fnNameSearchKey) === 0) {
+                            fnName = lines[i].slice(fnNameSearchKey.length);
+                            fnName = fnName.slice(0, fnName.indexOf(")"));
+                        }
+
+                        if (moduleName && fnName) {
+                            break;
+                        }
+                    }
+
+                    if (fnName && moduleName) {
+                        var $dsFormBtn = $(cell.element).find(".udfToDSPreview");
+                        if ($dsFormBtn.length) {
+                            $dsFormBtn.data("modulename", moduleName);
+                            $dsFormBtn.data("fnname", fnName);
+                            if ($dsFormBtn.hasClass("needsUpload")) {
+                                $dsFormBtn.removeClass("needsUpload");
+                                var request = {action: "udfToDSPreview",
+                                    moduleName: moduleName,
+                                    fnName: fnName
+                                };
+                                parent.postMessage(JSON.stringify(request), "*");
+                            }
+                        }
+                        var $mapBtn = $(cell.element).find(".udfToMapForm");
+                        if ($mapBtn.length) {
+                            $mapBtn.data("modulename", moduleName);
+                            $mapBtn.data("fnname", fnName);
+                            if ($mapBtn.hasClass("needsUpload")) {
+                                $mapBtn.removeClass("needsUpload");
+                                var request = {action: "udfToMapForm",
+                                    tableName: $mapBtn.data("tablename"),
+                                    columns: $mapBtn.data("columns"),
+                                    moduleName: moduleName,
+                                    fnName: fnName
+                                };
+                                parent.postMessage(JSON.stringify(request), "*");
+                            }
+
+                        }
+                    }
+                }
+            }
 
             window.alert = function() {};
         }

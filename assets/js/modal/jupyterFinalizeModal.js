@@ -71,7 +71,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
         var inputAttr;
         var newColName;
         for (var i = 0; i < cols.length; i++) {
-            leftHtml += '<div class="column">' + 
+            leftHtml += '<div class="column">' +
                     xcHelper.escapeHTMLSpecialChar(cols[i].getBackColName()) +
                         '</div>';
             newColName = "";
@@ -243,12 +243,12 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 finalTableName = tableAfterMap;
                 finalTableId = xcHelper.getTableId(finalTableName);
                 Profile.copy(tableId, finalTableId);
-                var options = {};
-                return TblManager.refreshTable([finalTableName], newTableCols,
-                                               [tableName], worksheet, txId,
-                                               options);
-            })
-            .then(function() {
+                TblManager.setOrphanTableMeta(finalTableName, xcHelper.deepCopy(newTableCols));
+            //     return TblManager.refreshTable([finalTableName], newTableCols,
+            //                                    [tableName], worksheet, txId,
+            //                                    options);
+            // })
+            // .then(function() {
                 xcHelper.unlockTable(tableId);
                 sql.newTableName = finalTableName;
                 Transaction.done(txId, {
