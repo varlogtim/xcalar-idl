@@ -32,6 +32,7 @@ window.XcSupport = (function(XcSupport, $) {
             // set up session variables
             userIdName = username;
             userIdUnique = getUserIdUnique(username);
+            //userToken = "0000";
         } catch (error) {
             console.error(error);
         }

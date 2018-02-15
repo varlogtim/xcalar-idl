@@ -2941,7 +2941,6 @@ table.datasetTable {
         .partitionAdvanced {
             background-color: @color-bg-white-seven;
             padding-top: 15px;
-            padding-bottom: 15px;
             border-bottom: 1px solid @color-border-white-five;
 
             .listInfo {
@@ -2958,6 +2957,7 @@ table.datasetTable {
 
         .partitionList {
             display: none;
+            padding-bottom: 15px;
             .row {
                 padding-left: 37px;
 
@@ -3069,7 +3069,10 @@ table.datasetTable {
                     padding: 0px 5px 0px 0px;
                     margin-top: -1px; // hides top border
                     overflow: hidden;
-
+                    &.mustSelect {
+                        cursor: default;
+                    }
+                    cursor: pointer;
 
                     &.filteredOut {
                         display: none;

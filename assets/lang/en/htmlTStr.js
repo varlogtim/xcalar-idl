@@ -716,6 +716,7 @@ module.exports = {
         "XML": "XML",
         "PLAINTEXT": "PLAIN TEXT",
         "PARQUET": "Parquet Dataset",
+        "PARQUETFILE": "Parquet File",
         "UDF": "Custom Format"
     },
 

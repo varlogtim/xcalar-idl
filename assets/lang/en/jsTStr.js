@@ -129,6 +129,7 @@ TooltipTStr = {
     "ClickToSortDesc": "Click to sort in descending order",
     "ShowDatasetHint": "Begin by creating a new dataset here!",
     "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
+    "ParquetCannotRemovePartition": "Partition key must be added as part of the dataset",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
@@ -352,6 +353,7 @@ ErrTStr = {
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
     'DuplicateColNames': 'Duplicate column names were detected',
     'ColumnLimitExceeded': "Column Limit Exceeded",
+    'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

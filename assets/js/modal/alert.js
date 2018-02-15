@@ -34,7 +34,7 @@ window.Alert = (function($, Alert){
             instr: instruction information
             instrTemplate: instead of change instr text, change it's html
             msg: alert content
-            msgTemplate: instead of change alert text, change it's html
+            msgTemplate: instead of change alert text, change its html
             isAlert: if it is an alert or a confirm
             isCheckBox: if checkbox is enabled or disabled
             modal: an modal element that trigger the alert

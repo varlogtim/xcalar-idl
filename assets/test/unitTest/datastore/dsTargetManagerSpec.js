@@ -12,8 +12,8 @@ describe("Datastore-DSTargetManger Test", function() {
     });
 
     describe("Public API Test", function() {
-        it("DSTargetManager.refreTargets", function(done) {
-            DSTargetManager.refreTargets()
+        it("DSTargetManager.refreshTargets", function(done) {
+            DSTargetManager.refreshTargets()
             .then(function() {
                 var numTargets = getNumTargets();
                 // at least has 4 default targets
@@ -137,14 +137,14 @@ describe("Datastore-DSTargetManger Test", function() {
         });
 
         it("should click to refresh targets", function() {
-            var oldFunc = DSTargetManager.refreTargets;
+            var oldFunc = DSTargetManager.refreshTargets;
             var test = false;
-            DSTargetManager.refreTargets = function() {
+            DSTargetManager.refreshTargets = function() {
                 test = true;
             };
             $("#dsTarget-refresh").click();
             expect(test).to.be.true;
-            DSTargetManager.refreTargets = oldFunc;
+            DSTargetManager.refreshTargets = oldFunc;
         });
 
         it("should click to focus target", function() {
@@ -219,14 +219,14 @@ describe("Datastore-DSTargetManger Test", function() {
 
             it("should trigger refresh", function() {
                 var $li = $gridMenu.find('li[data-action="refresh"]');
-                var oldFunc = DSTargetManager.refreTargets;
+                var oldFunc = DSTargetManager.refreshTargets;
                 var test = false;
-                DSTargetManager.refreTargets = function() {
+                DSTargetManager.refreshTargets = function() {
                     test = true;
                 };
                 $li.trigger(fakeEvent.mouseup);
                 expect(test).to.be.true;
-                DSTargetManager.refreTargets = oldFunc;
+                DSTargetManager.refreshTargets = oldFunc;
             });
 
             it("should open menu on target", function() {

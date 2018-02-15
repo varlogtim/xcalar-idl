@@ -1982,7 +1982,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var $row = $rows.eq(numArgs).addClass('resultantColNameRow');
-        var icon = getResultColIcon(operObj.outputType);
+        var icon = xcHelper.getColTypeIcon(operObj.outputType);
 
         $row.find('.dropDownList')
             .addClass('colNameSection')
@@ -2038,7 +2038,7 @@ window.OperationsView = (function($, OperationsView) {
         var description = OpFormTStr.NewColName + ":";
         // new col name field
         var $newColRow = $rows.eq(numArgs);
-        var icon = getResultColIcon(operObj.outputType);
+        var icon = xcHelper.getColTypeIcon(operObj.outputType);
         $newColRow.addClass("resultantColNameRow")
                 .find(".dropDownList").addClass("colNameSection")
                 .prepend('<div class="iconWrapper"><i class="icon ' + icon +
@@ -4974,7 +4974,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function getResultColIcon(type) {
+    function getColTypeIcon(type) {
         var icon = "xi-mixed";
         switch (type) {
             case (DfFieldTypeT.DfInt32):

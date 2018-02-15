@@ -57,7 +57,7 @@ window.xcManager = (function(xcManager, $) {
         .then(setupSession) // restores info from kvStore
         .then(setupConfigParams)
         .then(function() {
-            return PromiseHelper.alwaysResolve(DSTargetManager.refreTargets(true));
+            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
         .then(function() {
             StatusMessage.updateLocation(true,

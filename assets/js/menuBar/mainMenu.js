@@ -391,7 +391,7 @@ window.MainMenu = (function($, MainMenu) {
                     var $dfList = $("#dfMenu .dfList");
                     $dfList.addClass("disabled");
                     DSExport.refresh(true);
-                    DSTargetManager.refreTargets(true);
+                    DSTargetManager.refreshTargets(true);
 
                     var promise = DF.restore();
                     xcHelper.showRefreshIcon($dfList, false, promise);

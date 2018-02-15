@@ -151,6 +151,7 @@
                     <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
                     <li name="XML"><%= dicts.dsFormat.XML %></li>
                     <li name="PARQUET"><%= dicts.dsFormat.PARQUET %></li>
+                    <li name="PARQUETFILE"><%= dicts.dsFormat.PARQUETFILE %></li>
                     <li name="UDF"><%= dicts.dsFormat.UDF %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
@@ -432,18 +433,12 @@
                 </div>
               </div>
               <div class="partitionList">
-                <div class="row">
-                  <label>yelping-since:</label>
-                  <div class="inputWrap">
-                    <input class="large" type="text">
-                  </div>
-                </div>
-                <div class="row">
+<!--                 <div class="row">
                   <label>elite-member:</label>
                   <div class="inputWrap">
                     <input class="large" type="text">
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
             <div class="partitionColumns">
@@ -464,48 +459,13 @@
                   <%= dicts.dsForm.RemoveAll %>
                 </div>
                 <ul class="colList">
-                  <li>
+                  <!-- <li>
                     <div class="iconWrap">
                       <i class="icon xi-integer"></i>
                     </div>
                     <span class="colName">wat</span>
                     <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-integer"></i>
-                    </div>
-                    <span class="colName">lytyjrt</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-integer"></i>
-                    </div>
-                    <span class="colName">wet</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-integer"></i>
-                    </div>
-                    <span class="colName">yujnrs</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-integer"></i>
-                    </div>
-                    <span class="colName">nrtg</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-integer"></i>
-                    </div>
-                    <span class="colName">nrstrhe wertwerf</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
+                  </li> -->
                 </ul>
               </div>
                <div class="columnHalf availableColSection">
@@ -525,20 +485,13 @@
                   <%= dicts.dsForm.AddAll %>
                 </div>
                 <ul class="colList">
-                   <li>
+                   <!-- <li>
                     <div class="iconWrap">
                       <i class="icon xi-string"></i>
                     </div>
                     <span class="colName">nrtg</span>
                     <i class="icon xi-minus"></i>
-                  </li>
-                  <li>
-                    <div class="iconWrap">
-                      <i class="icon xi-string"></i>
-                    </div>
-                    <span class="colName">nrstrhe wertwerf</span>
-                    <i class="icon xi-minus"></i>
-                  </li>
+                  </li> -->
                 </ul>
               </div>
             </div>

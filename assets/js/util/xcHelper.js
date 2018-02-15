@@ -1213,6 +1213,10 @@
         }
     };
 
+    xcHelper.isAscii = function(string) {
+        return /^[\x00-\x7F]*$/.test(string);
+    };
+
     xcHelper.textToBytesTranslator = function(numText, options) {
         // accepts parameters in the form of "23GB" or "56.2 mb"
         // and converts them to bytes
@@ -1237,6 +1241,30 @@
         var index = units.indexOf(text);
         var bytes = Math.round(num * Math.pow(1024, index));
         return (bytes);
+    };
+
+    xcHelper.getColTypeIcon = function(type) {
+        var icon = "xi-mixed";
+        switch (type) {
+            case (DfFieldTypeT.DfInt32):
+            case (DfFieldTypeT.DfInt64):
+            case (DfFieldTypeT.DfUInt32):
+            case (DfFieldTypeT.DfUInt64):
+            case (DfFieldTypeT.DfFloat32):
+            case (DfFieldTypeT.DfFloat64):
+                icon = "xi-integer";
+                break;
+            case (DfFieldTypeT.DfString):
+                icon = "xi-string";
+                break;
+            case (DfFieldTypeT.DfBoolean):
+                icon = "xi-boolean";
+                break;
+            default:
+                // DfScalarObj will be mixed
+                break;
+        }
+        return icon;
     };
 
     var successTimers = {};
@@ -2843,7 +2871,8 @@
             "JPG": "JPG",
             "PNG": "PNG",
             "GIF": "GIF",
-            "BMP": "BMP"
+            "BMP": "BMP",
+            "PARQUET": "PARQUETFILE",
         };
 
         if (formatMap.hasOwnProperty(ext)) {
@@ -3832,6 +3861,20 @@
         .fail(deferred.reject);
 
         return deferred.promise();
+    };
+
+    xcHelper.formatAsUrl = function(struct) {
+        var retStr = "";
+        for (var key in struct) {
+            if (retStr === "") {
+                retStr += "?";
+            } else {
+                retStr += "&";
+            }
+            retStr += encodeURIComponent(key) + "=" +
+                      encodeURIComponent(struct[key]);
+        }
+        return retStr;
     };
 
     function getColMetaHelper(tableName) {

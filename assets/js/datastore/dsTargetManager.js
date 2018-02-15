@@ -53,7 +53,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     };
 
-    DSTargetManager.refreTargets = function(noWaitIcon) {
+    DSTargetManager.refreshTargets = function(noWaitIcon) {
         var deferred = jQuery.Deferred();
         var updateTargetMenu = function(targets) {
             var html = targets.map(function(targetName) {
@@ -129,9 +129,13 @@ window.DSTargetManager = (function($, DSTargetManager) {
         $gridView.find(".target").eq(0).click();
     };
 
+    DSTargetManager.isSparkParquet = function(targetName) {
+        return DSTargetManager.getTarget(targetName).type_id === "sparkparquet";
+    };
+
     function addEventListeners() {
         $("#dsTarget-refresh").click(function() {
-            DSTargetManager.refreTargets();
+            DSTargetManager.refreshTargets();
         });
 
         $("#dsTarget-create").click(function() {
@@ -248,7 +252,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                     showTargetCreateView();
                     break;
                 case ("refresh"):
-                    DSTargetManager.refreTargets();
+                    DSTargetManager.refreshTargets();
                     break;
                 default:
                     console.warn("menu action not recognized:", action);
@@ -435,7 +439,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                         // when still focus on grid to delete
                         showTargetCreateView();
                     }
-                    DSTargetManager.refreTargets();
+                    DSTargetManager.refreshTargets();
                 })
                 .fail(function(error) {
                     Alert.error(DSTargetTStr.DelFail, error.error);
@@ -519,7 +523,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         .then(function() {
             xcHelper.toggleBtnInProgress($submitBtn, true);
             xcHelper.showSuccess(SuccessTStr.Target);
-            DSTargetManager.refreTargets(true);
+            DSTargetManager.refreshTargets(true);
             resetForm();
             deferred.resolve();
         })

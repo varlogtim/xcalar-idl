@@ -47,6 +47,8 @@ window.DSPreview = (function($, DSPreview) {
     var maxBytesRequest = 500000;
     var excelModule = "default";
     var excelFunc = "openExcel";
+    var parquetModule = "default";
+    var parquetFunc = "parseParquet";
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
     var oldPreviewError = "old preview error";
 
@@ -57,7 +59,8 @@ window.DSPreview = (function($, DSPreview) {
         "EXCEL": "Excel",
         "UDF": "UDF",
         "XML": "XML",
-        "PARQUET": "PARQUET"
+        "PARQUET": "PARQUET",
+        "PARQUETFILE": "PARQUETFILE",
     };
 
     DSPreview.setup = function() {
@@ -442,6 +445,8 @@ window.DSPreview = (function($, DSPreview) {
             loadArgs.setFormat(null);
         }
 
+        hideDataFormatsByTarget(loadArgs.getTargetName());
+
         setTargetInfo(loadArgs.getTargetName());
         setPreviewPaths();
 
@@ -754,11 +759,120 @@ window.DSPreview = (function($, DSPreview) {
         xcHelper.optionButtonEvent($advanceSection);
     }
 
+    function initParquetForm(path, targetName) {
+        var $parquetSection = $form.find(".parquetSection");
+        var $partitionList = $parquetSection.find(".partitionList");
+        var $availableColList = $parquetSection.find(".availableColSection " +
+                                  ".colList");
+        var $selectedColList = $parquetSection.find(".selectedColSection " +
+                                 ".colList");
+        $partitionList.empty();
+        $availableColList.empty();
+        $selectedColList.empty();
+        var deferred = jQuery.Deferred();
+        getParquetInfo(path, targetName)
+        .then(function(ret) {
+            for (var schemaKey in ret.schema) {
+                var dfType = DfFieldTypeTFromStr[ret.schema[schemaKey]
+                                                    .xcalarType];
+                var xcTypeIcon = "xi-unknown";
+                if (dfType) {
+                    xcTypeIcon = xcHelper.getColTypeIcon(dfType);
+                } else {
+                    switch (ret.schema[schemaKey].xcalarType){
+                        case("DfObject"):
+                            xcTypeIcon = "xi-object";
+                            break;
+                        case("DfArray"):
+                            xcTypeIcon = "xi-array";
+                            break;
+                    }
+                }
+                $availableColList.append(
+                  '<li>' +
+                  '  <div class="iconWrap">' +
+                  '    <i class="icon ' + xcTypeIcon + '"></i>' +
+                  '  </div>' +
+                  '  <span class="colName">' + schemaKey + '</span>' +
+                  '  <i class="icon xi-plus"></i>' +
+                  '</li>'
+                );
+            }
+            ret.partitionKeys.map(function(elem) {
+                $partitionList.append(
+                '<div class="row">' +
+                '  <label>' + elem + ':</label>' +
+                '  <div class="inputWrap">' +
+                '    <input class="large" type="text" value="*">' +
+                '  </div>' +
+                '</div>');
+                var li = $availableColList.find("li").filter(function() {
+                    return $(this).find(".colName").text() === elem;
+                })[0];
+                //var $li = $availableColList.find("li[value=\"" + elem + "\"]");
+                $(li).addClass("mustSelect").find(".xi-plus").click();
+                $(li).find(".xi-minus").remove();
+                xcTooltip.add($(li),
+                             {title: TooltipTStr.ParquetCannotRemovePartition});
+            });
+            deferred.resolve();
+
+        })
+        .fail(function(error) {
+            var errorS = {error: "The dataset that you have selected cannot be " +
+                             "parsed as a parquet dataset. Click the " +
+                             "BACK button and select another folder."};
+            try {
+                errorS.log = error.output.errStr;
+            } catch (e) {
+            }
+
+            Alert.error("Error Parsing Parquet Dataset",
+                        errorS,
+                        {buttons: [{
+                            name: "BACK",
+                            className: "confirm",
+                            func: function() {
+                                $form.find(".cancel").click();
+                            }
+                        }]
+                        });
+            deferred.reject();
+        });
+        return deferred.promise();
+    }
+
+    function getParquetInfo(path, targetName) {
+        var deferred = jQuery.Deferred();
+        var appName = "XcalarParquet";
+        var pathToParquetDataset = path;
+        var args = {func: "getInfo",
+                    targetName: targetName,
+                    path: pathToParquetDataset};
+        XcalarAppExecute(appName, false, JSON.stringify(args))
+        .then(function(result) {
+            var outStr = result.outStr;
+            var appResult = JSON.parse(JSON.parse(outStr)[0][0]);
+            if (!appResult.validParquet) {
+                // TODO handle error
+                deferred.reject();
+            } else {
+                deferred.resolve({partitionKeys: appResult.partitionKeys,
+                        schema: appResult.schema});
+            }
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function setupParquetSection() {
-        // XXX temporarily disabling
-        $("#fileFormatMenu").find('li[name="PARQUET"]').addClass("xc-hidden");
+        $("#fileFormatMenu").find('li[name="PARQUET"]');
 
         var $parquetSection = $form.find(".parquetSection");
+        var $availableColList = $parquetSection.find(".availableColSection " +
+                                  ".colList");
+        var $selectedColList = $parquetSection.find(".selectedColSection " +
+                                 ".colList");
         $parquetSection.on("click", ".listWrap", function() {
             $parquetSection.toggleClass("active");
             $(this).toggleClass("active");
@@ -798,6 +912,54 @@ window.DSPreview = (function($, DSPreview) {
                 event.preventDefault(); // prevent input from blurring
             }
         });
+
+        $availableColList.on("click", "li .colName", function() {
+            $(this).next(".xi-plus").click();
+        });
+
+        $availableColList.on("click", ".xi-plus", function() {
+            var $colPill = $(this).closest("li");
+            $colPill.remove();
+            $selectedColList.append($colPill);
+            $colPill.find(".xi-plus").removeClass("xi-plus")
+                                      .addClass("xi-minus");
+            resetSearch($selectedColList);
+        });
+
+        $selectedColList.on("click", "li .colName", function() {
+            $(this).next(".xi-minus").click();
+        });
+
+        $selectedColList.on("click", ".xi-minus", function() {
+            var $colPill = $(this).closest("li");
+            $colPill.remove();
+            $availableColList.append($colPill);
+            $colPill.find(".xi-minus").removeClass("xi-minus")
+                                      .addClass("xi-plus");
+            resetSearch($availableColList);
+        });
+
+        $parquetSection.on("click", ".removeAllCols", function() {
+            var $allPills = $selectedColList.find("li:not(.filteredOut)");
+            for (var i = 0; i<$allPills.length; i++) {
+                $allPills.eq(i).find(".xi-minus").click();
+            }
+            // TODO handle clearing search
+            // TODO only one can be searched at a time. Can't have both filters
+        });
+
+        $parquetSection.on("click", ".addAllCols", function() {
+            var $allPills = $availableColList.find("li:not(.filteredOut)");
+            for (var i = 0; i<$allPills.length; i++) {
+                $allPills.eq(i).find(".xi-plus").click();
+            }
+        });
+
+        function resetSearch($colList) {
+            var $lis = $colList.find("li");
+            $lis.removeClass("filteredOut");
+            $colList.closest(".columnHalf").find(".columnSearch input").val("");
+        }
 
         function searchColumn(keyword, index) {
             var $colList = $parquetSection.find(".colList").eq(index);
@@ -1088,7 +1250,17 @@ window.DSPreview = (function($, DSPreview) {
             // XML preview don't use UDF
             delete options.moduleName;
             delete options.funcName;
+        } else if (format === formatMap.PARQUET) {
+            // Restore partitions based on the url
+            var partitions = options.files[0].path.split("?")[1].split("&");
+            for (var i = 0; i < partitions.length; i++) {
+                var value = partitions[i].split("=")[1];
+                // partition keys must be in order
+                $(".partitionAdvanced .partitionList .row input").eq(i)
+                    .val(decodeURIComponent(value));
+            }
         }
+        // Nothing to do for PARQUET FILE since it's just one thing
         options.format = format;
         toggleFormat(format);
 
@@ -1119,7 +1291,6 @@ window.DSPreview = (function($, DSPreview) {
 
         loadArgs.set(options);
     }
-
 
     function submitForm(toCreateTable) {
         var res = validateForm();
@@ -1154,9 +1325,6 @@ window.DSPreview = (function($, DSPreview) {
             allowRecordErrors: allowRecordErrors,
             allowFileErrors: allowFileErrors
         };
-
-        // console.log(dsNames, format, udfModule, udfFunc, fieldDelim, lineDelim,
-        //     header, quote, skipRows);
 
         var typedColumns = getColumnHeaders();
         var colLen = toCreateTable
@@ -1193,7 +1361,9 @@ window.DSPreview = (function($, DSPreview) {
             if (isValidPreviewId(curPreviewId)) {
                 FileBrowser.clear();
             }
-            return importDataHelper(dsNames, dsArgs, typedColumnsList, toCreateTable);
+
+            return importDataHelper(dsNames, dsArgs, typedColumnsList,
+                                    toCreateTable);
         })
         .then(function() {
             cleanTempParser(true);
@@ -1419,6 +1589,18 @@ window.DSPreview = (function($, DSPreview) {
         var fileNamePatttern = loadArgs.getPattern();
         var promises = [];
         var getSource = function(file) {
+            if (DSTargetManager.isSparkParquet(targetName)) {
+                var partitionValues = {};
+                var partitions = $(".parquetSection .partitionAdvanced .row");
+                for (var i = 0; i < partitions.length; i++) {
+                    var label = partitions.eq(i).find("label").text();
+                    label = label.substring(0, label.length-1);
+                    partitionValues[label] = partitions.eq(i).find("input")
+                                                       .val();
+                }
+                file.path = file.path.split("?")[0] +
+                            xcHelper.formatAsUrl(partitionValues);
+            }
             return {
                 targetName: targetName,
                 path: file.path,
@@ -1734,6 +1916,56 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
+    function validateParquetArgs() {
+        var $selectedColList = $(".parquetSection .selectedColSection " +
+                                 ".colList");
+        var $cols = $selectedColList.find("li");
+        var names = [];
+        var hasNonPartition = false;
+        for (var i = 0; i < $cols.length; i++) {
+            if (!$cols.eq(i).hasClass("mustSelect")) {
+                hasNonPartition = true;
+            }
+            names.push($cols.eq(i).find(".colName").text());
+        }
+
+        if (!hasNonPartition) {
+            xcHelper.validate([
+            {
+                "$ele": $selectedColList,
+                "error": ErrTStr.ParquetMustSelectNonPartitionCol,
+                "formMode": true,
+                "check": function() {
+                    return true;
+                }
+            }
+            ]);
+            return null;
+        }
+
+        var isValid = true;
+
+        var $inputs = $(".parquetSection .partitionList input");
+        for (var i = 0; i < $inputs.length; i++) {
+            isValid = xcHelper.validate([
+            {
+                "$ele": $inputs.eq(i),
+                "error": ErrTStr.NoEmpty,
+                "formMode": true,
+                "check": function() {
+                    return $inputs.eq(i).val().trim().length === 0;
+                }
+            }
+            ]);
+            if (!isValid) {
+                return null;
+            }
+        }
+
+
+        return {columns: names};
+    }
+
     function validateAdvancedArgs() {
         var $advanceSection = $form.find(".advanceSection");
         var $colNames = $("#previewTable .editableHead");
@@ -1862,6 +2094,9 @@ window.DSPreview = (function($, DSPreview) {
             if (udfQuery == null) {
                 return null;
             }
+        } else if (format === formatMap.PARQUETFILE) {
+            udfModule = parquetModule;
+            udfFunc = parquetFunc;
         }
 
         terminationOptions = getTerminationOptions();
@@ -1898,6 +2133,7 @@ window.DSPreview = (function($, DSPreview) {
         var quote = null;
         var skipRows = null;
         var xmlArgs = {};
+        var parquetArgs = {};
 
         if (hasUDF) {
             var udfArgs = validateUDF();
@@ -1941,6 +2177,17 @@ window.DSPreview = (function($, DSPreview) {
             udfModule = "default";
             udfFunc = "xmlToJson";
             udfQuery = xmlArgs;
+        } else if (format === formatMap.PARQUET) {
+            parquetArgs = validateParquetArgs();
+            if (parquetArgs == null) {
+                return null;
+            }
+            udfModule = parquetModule;
+            udfFunc = parquetFunc;
+            udfQuery = parquetArgs;
+        } else if (format === formatMap.PARQUETFILE) {
+            udfModule = parquetModule;
+            udfFunc = parquetFunc;
         }
 
         var advanceArgs = validateAdvancedArgs();
@@ -2176,8 +2423,12 @@ window.DSPreview = (function($, DSPreview) {
                 $form.find(".format.excel").removeClass("xc-hidden");
                 break;
             case "JSON":
+            case "PARQUETFILE":
                 break;
             case "PARQUET":
+                // For parquet, there can only be one sourceArg
+                var filePath = loadArgs.files[0].path;
+                var targetName = loadArgs.targetName;
                 var prevTop = $previewCard.find(".cardBottom")[0].style.top;
                 // store previous top % for if we switch back to other format
                 $previewCard.data("prevtop", prevTop);
@@ -2186,6 +2437,7 @@ window.DSPreview = (function($, DSPreview) {
                 xcTooltip.add($previewCard.find(".ui-resizable-n"), {
                     title: "Dataset preview is not available"
                 });
+                initParquetForm(filePath, targetName);
                 break;
             case "UDF":
                 $form.find(".format.udf").removeClass("xc-hidden");
@@ -2206,8 +2458,14 @@ window.DSPreview = (function($, DSPreview) {
         var hasChangeFormat = toggleFormat(format);
         var changeWithExcel = function(formatOld, formatNew) {
             return formatOld != null &&
-                    (formatOld.toUpperCase() === "EXCEL" ||
+                   (formatOld.toUpperCase() === "EXCEL" ||
                     formatNew.toUpperCase() === "EXCEL");
+        };
+
+        var changeWithParquetFile = function(formatOld, formatNew) {
+            return formatOld != null &&
+                   (formatOld.toUpperCase() === "PARQUETFILE" ||
+                    formatNew.toUpperCase() === "PARQUETFILE");
         };
 
         if (hasChangeFormat) {
@@ -2220,6 +2478,7 @@ window.DSPreview = (function($, DSPreview) {
             if (format === formatMap.UDF) {
                 getPreviewTable(true);
             } else if (changeWithExcel(oldFormat, format) ||
+                changeWithParquetFile(oldFormat, format) ||
                 oldFormat === formatMap.UDF) {
                 refreshPreview(true, true);
             } else {
@@ -2406,6 +2665,11 @@ window.DSPreview = (function($, DSPreview) {
                     udfModule = excelModule;
                     udfFunc = excelFunc;
                     toggleFormat("EXCEL");
+                } else if (isParquetFile(url)) {
+                    hasUDF = true;
+                    udfModule = parquetModule;
+                    udfFunc = parquetFunc;
+                    toggleFormat("PARQUETFILE");
                 } else if (DSTargetManager.isGeneratedTarget(targetName)) {
                     // special case
                     hasUDF = true;
@@ -2552,6 +2816,15 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
+    function isParquetFile(url) {
+        if (loadArgs.getFormat() === formatMap.PARQUETFILE ||
+            xcHelper.getFormat(url) === formatMap.PARQUETFILE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function setDefaultDSName() {
         var files = loadArgs.files;
         if (!loadArgs.multiDS) {
@@ -2615,6 +2888,20 @@ window.DSPreview = (function($, DSPreview) {
                 });
             }
         });
+    }
+
+    function hideDataFormatsByTarget(targetName) {
+        var nonParquet = $("#fileFormatMenu li:not([name=PARQUET])");
+        var parquet = $("#fileFormatMenu li[name=PARQUET]");
+
+        if (DSTargetManager.isSparkParquet(targetName)) {
+            nonParquet.hide();
+            parquet.show();
+
+        } else {
+            nonParquet.show();
+            parquet.hide();
+        }
     }
 
     function setTargetInfo(targetName) {
@@ -3134,6 +3421,12 @@ window.DSPreview = (function($, DSPreview) {
 
         if (udfHint) {
             showUDFHint();
+            return;
+        }
+
+        if (isUseUDFWithFunc() || format === formatMap.JSON ||
+            format === formatMap.PARQUETFILE) {
+            getJSONTable(rawData);
             return;
         }
 
@@ -4059,6 +4352,7 @@ window.DSPreview = (function($, DSPreview) {
                 break;
             }
         }
+
         toggleFormat(formatText);
 
         // ste 2: detect line delimiter
@@ -4102,11 +4396,22 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function detectFormat(data, lineDelim) {
+        if (DSTargetManager.isSparkParquet(loadArgs.getTargetName())) {
+            return formatMap.PARQUET;
+        }
         var path = loadArgs.getPreviewFile();
         var format = xcHelper.getFormat(path);
-        if (format === formatMap.EXCEL || format === formatMap.XML) {
+        if (format === formatMap.EXCEL || format === formatMap.XML ||
+            format === formatMap.PARQUETFILE) {
             return format;
         } else {
+            // XXX this information doesn't really work because smartDetect
+            // is called after loadWithUdf been called. We need to add another
+            // step in the preview if we want to enable this
+            // if (data.substring(0, 4) == "PAR1" &&
+            //     !xcHelper.isAscii(data.substring(4, 100))) {
+            //     return formatMap.PARQUETFILE;
+            // }
             var rows = lineSplitHelper(data, lineDelim, 0);
             var detectRes = xcSuggest.detectFormat(rows);
 
@@ -4249,9 +4554,8 @@ window.DSPreview = (function($, DSPreview) {
             text += '<span class="empty">' + CommonTxtTstr.empty + '</span>';
         } else {
             text += Array.from(header.colName).map(function(ch) {
-                return xcHelper.hasInvalidCharInCol(ch)
-                       ? '<b class="highlight">' + ch + '</b>'
-                       : ch;
+                return xcHelper.hasInvalidCharInCol(ch) ?
+                       '<b class="highlight">' + ch + '</b>' : ch;
             }).join("");
         }
 
