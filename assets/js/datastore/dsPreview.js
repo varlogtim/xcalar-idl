@@ -299,6 +299,8 @@ window.DSPreview = (function($, DSPreview) {
                     }
                     menuHepler.showOrHideScrollers();
                     return true; // keep the menu open
+                } else if ($li.hasClass("hint")) {
+                    return true;
                 } else {
                     $("#preview-file").find("li.active").removeClass("active");
                     $li.addClass("active");
@@ -307,48 +309,10 @@ window.DSPreview = (function($, DSPreview) {
                 }
             },
             onOpen: setActivePreviewFile,
-            // beforeOpenAsync: function() {
-                // var deferred = jQuery.Deferred();
-
-                // $previewWrap.find(".inputWaitingBG").remove();
-
-                // var waitingBg = '<div class="inputWaitingBG">' +
-                //                  '<div class="waitingIcon"></div>' +
-                //               '</div>';
-                // $previewWrap.find(".url").append(waitingBg);
-                // var $waitingBg = $previewWrap.find(".inputWaitingBG");
-
-                // if (gMinModeOn) {
-                //     $waitingBg.find(".waitingIcon").show();
-                // } else {
-                //     setTimeout(function() {
-                //         $waitingBg.find(".waitingIcon").fadeIn();
-                //     }, 200);
-                // }
-
-                // previewFileSelect()
-                // .then(function() {
-                //     deferred.resolve();
-                // })
-                // .fail(function() {
-                //     deferred.reject();
-                // })
-                // .always(function() {
-                //     $waitingBg.remove();
-                // });
-
-                // return deferred.promise();
-            // },
             "container": "#dsForm-preview",
             "bounds": "#dsForm-preview",
             "bottomPadding": 5
         }).setupListeners();
-
-
-        // // change preview file
-        // $("#preview-changeFile").click(function() {
-        //     previewFileSelect();
-        // });
 
         // $("#preview-parser").click(function() {
         //     if (isPreviewSingleFile()) {
@@ -2392,10 +2356,18 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var deferred = jQuery.Deferred();
+        var firstFile = loadArgs.files[0];
 
         previewFileSelect(0, true)
         .then(function(paths) {
-            deferred.resolve(paths[0]);
+            var path = paths[0];
+            if (path == null) {
+                deferred.reject(xcHelper.replaceMsg(DSFormTStr.ResucriveErr, {
+                    path: firstFile.path
+                }));
+            } else {
+                deferred.resolve(path);
+            }
         })
         .fail(deferred.reject);
 
@@ -2501,6 +2473,13 @@ window.DSPreview = (function($, DSPreview) {
                     '</li>';
             }
 
+            if (!html) {
+                // when no path
+                html = '<li class="hint">' +
+                            DSFormTStr.NoFileInFolder +
+                        '</li>';
+            }
+
             var $subPathList = $previewFile.find('.subPathList[data-index="' + index + '"]');
             $subPathList.html(html);
         }
@@ -2587,23 +2566,7 @@ window.DSPreview = (function($, DSPreview) {
             }
             deferred.resolve(buffer);
         })
-        .fail(function(error) {
-            if (typeof error === "object" &&
-                error.status === StatusT.StatusUdfExecuteFailed)
-            {
-                XcalarListFiles(args)
-                .then(function() {
-                    // when it's not list error
-                    deferred.reject(error);
-                })
-                .fail(function() {
-                    // when it's not find file error
-                    deferred.reject(DSFormTStr.NoFile);
-                });
-            } else {
-                deferred.reject(error);
-            }
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

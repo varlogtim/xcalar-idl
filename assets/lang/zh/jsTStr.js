@@ -895,7 +895,9 @@ DSFormTStr = {
 'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？',
 'GeneratedTargetHint': '该目标的路径需为数字，代表要生成的行数',
 'ParseError': '文件无法以<format>格式解析, 建议使用<suggest>格式。',
-'UDFError': 'UDF在解析文件时出错'
+'UDFError': 'UDF在解析文件时出错',
+'NoFileInFolder': '文件夹中无文件',
+'ResucriveErr': '文件夹<path>下无可用文件。 请在导入时选择\"recursive\"选项以包含子文件夹中的文件。'
 };
 DSParserTStr = {
 "NotSupport": '不支持解析此数据格式',

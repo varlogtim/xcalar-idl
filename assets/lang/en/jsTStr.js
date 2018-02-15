@@ -1066,7 +1066,9 @@ DSFormTStr = {
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
-    'UDFError': 'UDF generated errors while running your file.'
+    'UDFError': 'UDF generated errors while running your file.',
+    'NoFileInFolder': 'No data source files in this directory',
+    'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.'
 };
 
 DSParserTStr = {

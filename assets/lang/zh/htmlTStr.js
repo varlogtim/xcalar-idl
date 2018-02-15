@@ -415,7 +415,7 @@ module.exports = {
     "ds": {
         "DSIn": "数据集",
         "Datasets": "数据集",
-        "Import": "Import Datasets",
+        "Import": "创建数据集",
         "Point": "导入数据源",
         "Target": "数据源",
         "Targets": "数据源",
