@@ -18,7 +18,7 @@ window.FileBrowser = (function($, FileBrowser) {
     /* Contants */
     var defaultSortKey  = "name"; // default is sort by name;
     var dsIconHeight = 77;
-    var dsIconWidth = 70;
+    var dsIconWidth = 70; // width height get calculated later but default to this
     var dsListHeight = 29;
     var lowerFileLimit = 800; // when we start hiding files
     var upperFileLimit = 110000; // show error if over 110K
@@ -113,12 +113,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
     FileBrowser.show = function(targetName, path) {
         var deferred = jQuery.Deferred();
-
         clearAll();
         updateActiveFileInfo();
         DSForm.switchView(DSForm.View.Browser);
 
         addKeyBoardEvent();
+        addResizeEvent();
         fileBrowserId = xcHelper.randName("browser");
 
 
@@ -129,7 +129,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         retrievePaths(path)
         .then(function() {
-            measureDSIconHeight();
+            measureDSIcon();
+            measureDSListHeight();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -543,7 +544,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function fileBrowserScrolling() {
         var scrollTimer;
-        $container.scroll(function() {
+        $containerWrapper.scroll(function() {
             hideBrowserMenu();
             if ($(this).hasClass('noScrolling') ||
                 (curFiles.length <= lowerFileLimit ||
@@ -608,21 +609,17 @@ window.FileBrowser = (function($, FileBrowser) {
                             scrollBarWidth) / dsIconWidth));
     }
     function getScrollHeight() {
-        var rowHeight = dsIconHeight;
         var scrollHeight;
         if ($fileBrowserMain.hasClass('listView')) {
-            rowHeight = dsListHeight; // because of -1px margin-top
-            scrollHeight = Math.max(rowHeight *
+            scrollHeight = Math.max(dsListHeight *
                                     $container.find('.grid-unit').length,
                                     $containerWrapper.height());
         } else {
             var iconsPerRow = getFilesPerRow();
             var rows = Math.ceil($container.find('.grid-unit').length /
                                 iconsPerRow);
-            scrollHeight = rows * dsIconHeight ;
-            // don't know why the wrapper adds 20px in height; (line-height)
-            scrollHeight = Math.max(scrollHeight + 5,
-                                    $containerWrapper.height());
+            scrollHeight = rows * dsIconHeight;
+            scrollHeight = Math.max(scrollHeight, $containerWrapper.height());
         }
 
         return scrollHeight;
@@ -638,14 +635,20 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (toListView) {
             $fileBrowserMain.removeClass("gridView").addClass("listView");
+            measureDSListHeight();
         } else {
             // change to grid view
             $fileBrowserMain.removeClass("listView").addClass("gridView");
-            measureDSIconHeight();
+            measureDSIcon();
         }
 
         xcHelper.toggleListGridBtn($btn, toListView, noRefreshTooltip);
-        $innerContainer.height(getScrollHeight());
+        if ($container.hasClass("manyFiles")) {
+            $innerContainer.height(getScrollHeight());
+        } else {
+            $innerContainer.height("auto");
+        }
+
         centerUnitIfHighlighted(toListView);
         refreshEllipsis();
         refreshIcon();
@@ -727,6 +730,7 @@ window.FileBrowser = (function($, FileBrowser) {
         document.getElementById("innerFileBrowserContainer").innerHTML = "";
 
         $(document).off(".fileBrowser");
+        $(window).off(".fileBrowserResize");
         $fileBrowser.removeClass("loadMode errorMode");
         fileBrowserId = null;
 
@@ -786,7 +790,7 @@ window.FileBrowser = (function($, FileBrowser) {
                         '<div>' + DSTStr.DSSourceHint + '</div>' +
                     '</div>';
         $innerContainer.html(html);
-        $innerContainer.height(getScrollHeight());
+        $innerContainer.height("auto");
         $container.removeClass('manyFiles');
         $fileBrowser.removeClass('unsortable').addClass("errorMode");
     }
@@ -1189,7 +1193,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     '<div>' + DSTStr.FileOversize + '</div>' +
                    '</div>';
         $innerContainer.html(html);
-        $innerContainer.height(getScrollHeight());
+        $innerContainer.height("auto");
         $container.removeClass('manyFiles');
         $fileBrowser.removeClass('unsortable');
     }
@@ -1481,15 +1485,14 @@ window.FileBrowser = (function($, FileBrowser) {
         if (len > lowerFileLimit) {
             $visibleFiles = $container.find('.visible');
             $container.addClass('manyFiles');
+            $innerContainer.height(getScrollHeight());
+            showScrolledFiles();
         } else {
             $visibleFiles = $();
             $container.removeClass('manyFiles');
+            $innerContainer.height("auto");
         }
 
-        $innerContainer.height(getScrollHeight());
-        if (len > lowerFileLimit) {
-            showScrolledFiles();
-        }
         if (len > sortFileLimit) {
             $fileBrowser.addClass('unsortable');
         } else {
@@ -1625,6 +1628,18 @@ window.FileBrowser = (function($, FileBrowser) {
                     focusOn(file, true);
                 }
             }
+        });
+    }
+
+    function addResizeEvent() {
+        var timeout;
+        $(window).on("resize.fileBrowserResize", function(event) {
+            clearTimeout(timeout);
+            setTimeout(function() {
+                if ($container.hasClass("manyFiles")) {
+                    showScrolledFiles();
+                }
+            }, 400);
         });
     }
 
@@ -1797,11 +1812,30 @@ window.FileBrowser = (function($, FileBrowser) {
 
     }
 
-    function measureDSIconHeight() {
-        var $grid = $container.children('.grid-unit').eq(0);
-        var iconHeight = $grid.height();
+    function measureDSIcon() {
+        if (!$fileBrowserMain.hasClass("gridView")) {
+            return;
+        }
+        var $grid = $container.find(".grid-unit").eq(0);
+        var iconHeight = $grid.outerHeight();
         if (iconHeight) {
             dsIconHeight = iconHeight +
+                           parseInt($grid.css('margin-top')) +
+                           parseInt($grid.css('margin-bottom'));
+            dsIconWidth = $grid.outerWidth() +
+                           parseInt($grid.css('margin-left')) +
+                           parseInt($grid.css('margin-right'));
+        }
+    }
+
+    function measureDSListHeight() {
+        if (!$fileBrowserMain.hasClass("listView")) {
+            return;
+        }
+        var $grid = $container.find(".grid-unit").eq(0);
+        var iconHeight = $grid.outerHeight();
+        if (iconHeight) {
+            dsListHeight = iconHeight +
                            parseInt($grid.css('margin-top')) +
                            parseInt($grid.css('margin-bottom'));
         }

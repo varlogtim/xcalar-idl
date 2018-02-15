@@ -35,7 +35,12 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     DSImportErrorModal.setup = function() {
         $modal = $("#dsImportErrorModal");
         $recordList = $modal.find(".recordMessageList");
-        modalHelper = new ModalHelper($modal);
+        modalHelper = new ModalHelper($modal, {
+        	afterResize: function() {
+        		setSizerHeight();
+            	alignScrollBarWithList();
+        	}
+        });
 
         setupScrollBar();
 
@@ -54,6 +59,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             } else {
                 $row.addClass("expanded").removeClass("collapsed");
             }
+            setSizerHeight();
+            alignScrollBarWithList();
         });
 
         $modal.on("click", ".errorFileList .row", function() {
@@ -117,7 +124,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 
     function setupScrollBar() {
     	var isMouseDown = false;
-
     	var $scrollBar = $modal.find(".errorMsgSection").find(".scrollBar");
     	$scrollBar.width(gScrollbarWidth + 1);
 
@@ -159,7 +165,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 }
 
                 var rowNum = Math.ceil(top / rowHeight);
-                var origRowNum = Math.round(rowNum);
+                var origRowNum = Math.min(scrollMeta.numRecords - 1,
+                						Math.round(rowNum));
 				rowNum = Math.min(origRowNum,
                 			scrollMeta.numRecords - scrollMeta.numVisibleRows);
 
@@ -183,24 +190,19 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     			scrollMeta.isBarScrolling = false;
     		} else {
     			scrollMeta.isListScrolling = true;
-    			var numRowsAbove = scrollMeta.currentRowNumber - scrollMeta.numVisibleRows;
-    			var rowsAboveHeight = getRowsAboveHeight(numRowsAbove);
-    			var scrollBarTop = scrollTop + rowsAboveHeight;
-    			scrollBarTop -= scrollMeta.base;
-    			$scrollBar.scrollTop(scrollBarTop);
+    			alignScrollBarWithList();
     		}
     		var info;
     		if ($recordList.hasClass("scrolling")) {
     			return;
     		} else if (scrollTop === 0) {
-    			var topRow = scrollMeta.currentRowNumber - scrollMeta.numVisibleRows;
+    			var topRow = scrollMeta.currentRowNumber -
+    						 scrollMeta.numVisibleRows;
     			if (topRow > 0) {
-
 	    			var numRowsToAdd = Math.min(numRecordsToFetch, topRow,
-	                                        scrollMeta.numRecords);
+	                                        	scrollMeta.numRecords);
 	    			var rowNumber = topRow - numRowsToAdd;
-	    			var info = {
-
+	    			info = {
 	    			};
 
 	    			goTo(rowNumber, numRowsToAdd, "top", info);
@@ -279,16 +281,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     		}
 
     		if (!info.bulk) {
-    			var $scrollBar = $modal.find(".errorMsgSection")
-    								   .find(".scrollBar");
-				var curTop = $scrollBar.scrollTop();
-				var numRowsAbove = scrollMeta.currentRowNumber - scrollMeta.numVisibleRows;
-				var rowsAboveHeight = getRowsAboveHeight(numRowsAbove);
-				var scrollBarTop = scrollTop + rowsAboveHeight - scrollMeta.base;
-				if (curTop !== scrollBarTop) {
-					scrollMeta.isTableScrolling = true;
-					$scrollBar.scrollTop(scrollBarTop);
-				}
+    			var onlyIfUnequal = true;
+    			alignScrollBarWithList(onlyIfUnequal);
     		}
 
     		$recordList.removeClass("scrolling");
@@ -310,7 +304,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     '<i class="icon xi-arrow-down arrow"></i>' +
                     '<span class="num">' + rowNum + '</span>' +
                 '</div>' +
-                '<div class="errorMsg">' + "text ".repeat(20) + '</div>' +
+                '<div class="errorMsg">' + "text ".repeat(100) + '</div>' +
             '</div>';
     	}
 
@@ -328,7 +322,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 	    		}
 
 	    		deferred.resolve();
-	    	}, 3000);
+	    	}, 1000);
     	} else {
     		$recordList.prepend(html);
     		$recordList.find(".tempRow").remove();
@@ -375,7 +369,9 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 
     function getSizerHeight() {
         var sizerHeight = scrollMeta.numRecords * rowHeight;
-        // XXX need to account for expanded items
+        $recordList.find(".row.expanded").each(function() {
+        	sizerHeight += $(this).outerHeight() - rowHeight;
+        });
         return sizerHeight;
     }
 
@@ -386,14 +382,24 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     function positionScrollBar(row) {
     	$recordList.addClass("scrolling");
     	var $row = $recordList.find('.row' + row);
-    	// if (!$row.length) {
-    	// 	debugger;
-    	// }
         var scrollPos = $row[0].offsetTop;
         $recordList.scrollTop(scrollPos);
         $recordList.removeClass("scrolling");
     }
 
+    function alignScrollBarWithList(onlyIfUnequal) {
+    	var scrollTop = $recordList.scrollTop()
+        var numRowsAbove = scrollMeta.currentRowNumber -
+        				   scrollMeta.numVisibleRows;
+		var rowsAboveHeight = getRowsAboveHeight(numRowsAbove);
+		var scrollBarTop = scrollTop + rowsAboveHeight;
+		scrollBarTop -= scrollMeta.base;
+		if (!onlyIfUnequal || scrollTop !== scrollBarTop) {
+			scrollMeta.isListScrolling = true;
+			$modal.find(".errorMsgSection").find(".scrollBar")
+									   	   .scrollTop(scrollBarTop);
+		}
+    }
 
     return DSImportErrorModal;
 }({}, jQuery));
