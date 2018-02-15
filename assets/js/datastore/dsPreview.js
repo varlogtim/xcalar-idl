@@ -25,6 +25,7 @@ window.DSPreview = (function($, DSPreview) {
 
     var tableName = null;
     var rawData = null;
+    var previewOffset = 0;
 
     var highlighter = "";
 
@@ -2031,6 +2032,7 @@ window.DSPreview = (function($, DSPreview) {
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
         rawData = null;
+        previewOffset = 0;
         resetPreviewRows();
         resetPreviewId();
 
@@ -2552,23 +2554,35 @@ window.DSPreview = (function($, DSPreview) {
 
     function loadData(args) {
         var deferred = jQuery.Deferred();
+        var curPreviewId = previewId;
         var buffer;
-        var totalDataSize;
+        var totalDataSize = null;
+
+        previewOffset = 0;
 
         XcalarPreview(args, numBytesRequest, 0)
         .then(function(res) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return PromiseHelper.reject();
+            }
+
             if (res && res.buffer) {
                 buffer = res.buffer;
                 totalDataSize = res.totalDataSize;
+                previewOffset = res.thisDataSize;
                 var rowsToShow = getRowsToPreivew();
                 return getDataFromPreview(args, buffer, rowsToShow);
             }
         })
         .then(function(extraBuffer) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return PromiseHelper.reject();
+            }
+
             if (extraBuffer) {
                 buffer += extraBuffer;
             }
-            if (!totalDataSize || totalDataSize <= buffer.length) {
+            if (!totalDataSize || totalDataSize <= previewOffset) {
                 disableShowMoreRows();
             }
             deferred.resolve(buffer);
@@ -2602,16 +2616,22 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var deferred = jQuery.Deferred();
-        var offSet = buffer.length;
+        var offSet = previewOffset;
+        var curPreviewId = previewId;
 
         console.info("too small rows, request", bytesNeed);
         XcalarPreview(args, bytesNeed, offSet)
         .then(function(res) {
-            var buffer = null;
-            if (res && res.buffer) {
-                buffer = res.buffer;
+            if (!isValidPreviewId(curPreviewId)) {
+                return PromiseHelper.reject();
             }
-            deferred.resolve(buffer);
+
+            var extraBuffer = null;
+            if (res && res.buffer) {
+                extraBuffer = res.buffer;
+                previewOffset += res.thisDataSize;
+            }
+            deferred.resolve(extraBuffer);
         })
         .fail(deferred.reject);
 
