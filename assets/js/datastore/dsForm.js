@@ -109,6 +109,7 @@ window.DSForm = (function($, DSForm) {
             // remove the oldest path
             historyPaths.pop();
         }
+        $filePath.val(path);
     };
 
     function isValidPathToBrowse() {
