@@ -71,7 +71,10 @@ window.DSTable = (function($, DSTable) {
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
 
-        dsObj.fetch(0, initialNumRowsToFetch)
+        dsObj.makeErrorInfo()
+        .then(function() {
+            return dsObj.fetch(0, initialNumRowsToFetch);
+        })
         .then(function(jsons, jsonKeys) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another
@@ -83,6 +86,11 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
+            if (dsObj.numErrorEntries) {
+                $("#dsInfo-error").removeClass("xc-hidden");
+            } else {
+                $("#dsInfo-error").addClass("xc-hidden");
+            }
             deferred.resolve();
         })
         .fail(function(error) {
@@ -258,7 +266,7 @@ window.DSTable = (function($, DSTable) {
 
         xcTooltip.changeText($dsInfoPath, target + "\n" + path);
         xcTooltip.enable($dsInfoPath);
-
+        $("#dsInfo-error").addClass("xc-hidden");
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
         // $("#dsInfo-target").text(dsObj.getTargetName());
@@ -508,7 +516,7 @@ window.DSTable = (function($, DSTable) {
         });
 
         $("#dsInfo-error").click(function() {
-            DSImportErrorModal.show();
+            DSImportErrorModal.show(DSTable.getId());
         });
     }
 

@@ -15,16 +15,16 @@
   <div class="modalMain">
     <section class="topSection">
       <div class="topRow generalInfo">
-        <div class="infoPart">
+        <div class="infoPart infoTotalFiles">
           <span class="label"><%= dicts.dsImportError.NumFileErrors %>:</span>
-          <span class="value">123</span>
+          <span class="value">0</span>
         </div>
-        <div class="infoPart">
+        <div class="infoPart infoTotalErrors">
           <span class="label"><%= dicts.dsImportError.NumErrors %>:</span>
-          <span class="value">123</span>
+          <span class="value">N/A</span>
         </div>
       </div>
-      <div class="topRow sizeInfo">
+      <div class="topRow sizeInfo xc-hidden">
         <div class="sizeInfoTitle">
           <i class="icon xi-warning"></i>
           <span><%= dicts.dsImportError.SizeLimit %>:</span>
@@ -38,15 +38,9 @@
         <div class="closeArea">
           <!-- <i class="icon xi-close closeList"></i> -->
         </div>
-        <div class="errorFileList">
-          <div class="row type-record active" data-path="a/b/c/d.txt">
-            <i class="icon xi-error"></i>
-            <span class="filePath">a/b/c/d.txt</span>
-          </div>
-          <div class="row type-file" data-path="a.txt">
-            <i class="icon xi-error"></i>
-            <span class="filePath">a.txt</span>
-          </div>
+        <div class="errorFileList"></div>
+        <div class="scrollBar">
+          <div class="sizer"></div>
         </div>
       </div>
       <div class="errorMsgSection">
@@ -55,36 +49,7 @@
             <div class="title recordNum"><%= dicts.dsForm.RowNum %></div>
             <div class="title errorMsg"><%= dicts.common.ErrorMessage %></div>
           </div>
-          <div class="recordMessageList">
-            <div class="row collapsed">
-              <div class="recordNum">
-                <i class="icon xi-arrow-down arrow"></i>
-                <span class="num">50</span>
-              </div>
-              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
-            </div>
-            <div class="row collapsed">
-              <div class="recordNum">
-                <i class="icon xi-arrow-down arrow"></i>
-                <span class="num">50</span>
-              </div>
-              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
-            </div>
-             <div class="row collapsed">
-              <div class="recordNum">
-                <i class="icon xi-arrow-down arrow"></i>
-                <span class="num">50</span>
-              </div>
-              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
-            </div>
-             <div class="row collapsed">
-              <div class="recordNum">
-                <i class="icon xi-arrow-down arrow"></i>
-                <span class="num">50</span>
-              </div>
-              <div class="errorMsg">Why is there a comma where a full stop should be? I am filling text here so it will overflow.</div>
-            </div>
-          </div>
+          <div class="recordMessageList"></div>
           <div class="scrollBar">
             <div class="sizer"></div>
           </div>

@@ -2137,22 +2137,50 @@
                 return deferred.promise();
             },
 
-            _release: function() {
+            makeErrorInfo: function() {
                 var self = this;
-                var resultSetId = self.resultSetId;
-                if (resultSetId == null) {
-                    return PromiseHelper.resolve();
-                }
-
                 var deferred = jQuery.Deferred();
-                XcalarSetFree(resultSetId)
-                .then(function() {
-                    self.resultSetId = null;
+
+                XcalarMakeResultSetFromDataset(self.fullName, true)
+                .then(function(result) {
+                    self.errorResultSetId = result.resultSetId;
+                    self.numErrorEntries = result.numEntries;
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
 
                 return deferred.promise();
+            },
+
+            _release: function() {
+                var self = this;
+                var resultSetId = self.resultSetId;
+                var errorResultSetId = self.errorResultSetId;
+                if (resultSetId == null && errorResultSetId == null) {
+                    return PromiseHelper.resolve();
+                }
+                var deferred = jQuery.Deferred();
+                freeError()
+                .then(function() {
+                    return XcalarSetFree(resultSetId)
+                })
+                .then(function() {
+                    self.resultSetId = null;
+
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+
+                return deferred.promise();
+
+                function freeError() {
+                    if (errorResultSetId) {
+                        return PromiseHelper.alwaysResolve(
+                                XcalarSetFree(errorResultSetId));
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
+                }
             },
 
             fetch: function(rowToGo, rowsToFetch) {

@@ -5847,9 +5847,11 @@ html.microsoft {
 
     // left tab
     .fileListSection {
-        .flex(1 1 25%);
-        min-width: 250px;
-        width: 250px;
+        .flex(1 1 35%);
+        min-width: 300px;
+        width: 300px;
+        height: 100%;
+        position: relative; // for .scrollbar
         float: left;
         border-right: 1px solid @color-border-pinkish-grey2;
 
@@ -5865,14 +5867,54 @@ html.microsoft {
             }
         }
 
+        .errorFileList {
+            .size(@height: ~"calc(100% - 36px)");
+            overflow: auto; // allow vert scrollbar
+            position: relative;
+            // width: 90%;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+            &.scrolling {
+                cursor: wait;
+            }
+        }
+
+        .scrollBar {
+            .position(absolute, @top: 36px, @right: 0px);
+            overflow: auto;
+            z-index: 1;
+            height: ~"calc(100% - 36px)";
+            &::-webkit-scrollbar-thumb {
+                min-height: 30px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            &.bulkFetch {
+                pointer-events: none;
+            }
+        }
+
         .row {
             padding-left: @left-main-padding;
+            padding-right: 4px;
             line-height: @rowHeight - 2px;
             cursor: pointer;
             .flex-display;
 
             &:hover {
                 background-color: rgba(221, 234, 242, 0.5);
+            }
+
+            &.tempRow {
+                cursor: progress;
+            }
+
+            &:nth-child(odd) {
+                background-color: @color-bg-white-seven;
             }
 
             &.type-record {
@@ -5907,12 +5949,13 @@ html.microsoft {
                 .textOverflowOneLine;
             }
         }
+
     }
 
     // larger right area
     .errorMsgSection {
-        .flex(1 1 75%);
-        min-width: 250px;
+        .flex(1 1 65%);
+        min-width: 300px;
         overflow: hidden;
     }
 
