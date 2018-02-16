@@ -1064,6 +1064,7 @@ DSFormTStr = {
                 'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
+    'UDFHint': 'Please select a UDF module and UDF function then click \"APPLY UDF\" button to apply the UDF.',
     'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.',

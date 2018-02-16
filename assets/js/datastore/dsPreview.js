@@ -1602,6 +1602,43 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
+    function validatePreview() {
+        var format = validateFormat();
+        if (format == null) {
+            // error case
+            return null;
+        }
+
+        var hasUDF = isUseUDF();
+        var udfModule = "";
+        var udfFunc = "";
+        var udfQuery = null;
+
+        if (hasUDF) {
+            var udfArgs = validateUDF();
+            if (udfArgs == null) {
+                // error case
+                return null;
+            }
+            udfModule = udfArgs[0];
+            udfFunc = udfArgs[1];
+        } else if (format === formatMap.EXCEL) {
+            udfModule = excelModule;
+            udfFunc = excelFunc;
+            udfQuery = validateExcelArgs();
+            if (udfQuery == null) {
+                return null;
+            }
+        }
+
+        return {
+            "format": format,
+            "udfModule": udfModule,
+            "udfFunc": udfFunc,
+            "udfQuery": udfQuery
+        };
+    }
+
     function validateForm() {
         var dsNames = validateDSNames();
         if (dsNames == null) {
@@ -1727,6 +1764,13 @@ window.DSPreview = (function($, DSPreview) {
             skipRows = 0;
         }
         return skipRows;
+    }
+
+    function autoFillNumberFields($input) {
+        var num = Number($input.val());
+        if (isNaN(num) || num < 0) {
+            $input.val(0);
+        }
     }
 
     function applyFieldDelim(strToDelimit) {
@@ -1882,12 +1926,15 @@ window.DSPreview = (function($, DSPreview) {
             case "CSV":
                 $form.find(".format.csv").removeClass("xc-hidden");
                 setFieldDelim();
+                autoFillNumberFields($("#dsForm-skipRows"));
                 break;
             case "TEXT":
                 $form.find(".format.text").removeClass("xc-hidden");
                 loadArgs.setFieldDelim("");
                 break;
             case "EXCEL":
+                autoFillNumberFields($("#dsForm-excelIndex"));
+                autoFillNumberFields($("#dsForm-skipRows"));
                 $form.find(".format.excel").removeClass("xc-hidden");
                 break;
             case "JSON":
@@ -1918,7 +1965,6 @@ window.DSPreview = (function($, DSPreview) {
 
     function changeFormat(format) {
         var oldFormat = loadArgs.getFormat();
-        var useUDF = isUseUDFWithFunc();
         var hasChangeFormat = toggleFormat(format);
         var changeWithExcel = function(formatOld, formatNew) {
             return formatOld != null &&
@@ -1926,17 +1972,12 @@ window.DSPreview = (function($, DSPreview) {
                     formatNew.toUpperCase() === "EXCEL");
         };
 
-        var changeFromUDF = function(wasUsingUDF) {
-            // auto refresh when use UDF before and now change to another format
-            return wasUsingUDF && !isUseUDF();
-        };
-
         if (hasChangeFormat) {
-            if (format === "UDF") {
-                // nothing to do now
+            if (format === formatMap.UDF) {
+                getPreviewTable(true);
             } else if (changeWithExcel(oldFormat, format) ||
-                changeFromUDF(useUDF)) {
-                refreshPreview(true);
+                oldFormat === formatMap.UDF) {
+                refreshPreview(true, true);
             } else {
                 getPreviewTable();
             }
@@ -2784,8 +2825,8 @@ window.DSPreview = (function($, DSPreview) {
         return getDataFromPreview(args, buffer, rowsToShow);
     }
 
-    function refreshPreview(noDetect) {
-        var formOptions = validateForm();
+    function refreshPreview(noDetect, isPreview) {
+        var formOptions = isPreview ? validatePreview() : validateForm();
         if (formOptions == null) {
             return null;
         }
@@ -2793,8 +2834,15 @@ window.DSPreview = (function($, DSPreview) {
         return previewData(formOptions, true);
     }
 
-    function getPreviewTable() {
-        if (rawData == null) {
+    function showUDFHint() {
+        $previewTableWrap.addClass("UDFHint");
+        $previewTable.html('<div class="hint">' +
+                                DSFormTStr.UDFHint +
+                            '</div>');
+    }
+
+    function getPreviewTable(udfHint) {
+        if (rawData == null && !udfHint) {
             // error case
             if (!$previewWrap.find(".errorSection").hasClass("hidden")) {
                 errorHandler(DSFormTStr.NoData);
@@ -2809,11 +2857,16 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
         $previewTableWrap.removeClass("XMLTableFormat");
+        $previewTableWrap.removeClass("UDFHint");
+        $previewTable.removeClass("has-delimiter");
 
         var format = loadArgs.getFormat();
 
-        if (isUseUDFWithFunc() || format === formatMap.JSON)
-        {
+        if (udfHint) {
+            showUDFHint();
+            return;
+        }
+        if (isUseUDFWithFunc() || format === formatMap.JSON) {
             getJSONTable(rawData);
             return;
         }
@@ -2927,8 +2980,6 @@ window.DSPreview = (function($, DSPreview) {
 
         if (fieldDelim !== "") {
             $previewTable.addClass("has-delimiter");
-        } else {
-            $previewTable.removeClass("has-delimiter");
         }
 
         if (window.isBrowserSafari) {

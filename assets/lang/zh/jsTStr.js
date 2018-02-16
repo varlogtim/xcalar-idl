@@ -897,7 +897,8 @@ DSFormTStr = {
 'ParseError': '文件无法以<format>格式解析, 建议使用<suggest>格式。',
 'UDFError': 'UDF在解析文件时出错',
 'NoFileInFolder': '文件夹中无文件',
-'ResucriveErr': '文件夹<path>下无可用文件。 请在导入时选择\"recursive\"选项以包含子文件夹中的文件。'
+'ResucriveErr': '文件夹<path>下无可用文件。 请在导入时选择\"recursive\"选项以包含子文件夹中的文件。',
+'UDFHint': '请选择UDF模块和函数，然后点击\"应用UDF\"按钮.',
 };
 DSParserTStr = {
 "NotSupport": '不支持解析此数据格式',
