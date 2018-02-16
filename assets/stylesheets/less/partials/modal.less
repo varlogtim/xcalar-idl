@@ -5766,7 +5766,7 @@ html.microsoft {
 #dsImportErrorModal {
     .size(750px, 400px, @min-width:750px, @min-height: 400px);
     @left-main-padding: 18px;
-    @rowHeight: 54px;
+    @rowHeight: 44px;
 
     .ui-resizable-e {
         right: -13px;
@@ -5788,15 +5788,15 @@ html.microsoft {
         .flex-display;
         .flex-direction(column);
         height: ~"calc(100% - 36px)";
-        font-size: 13px;
+        font-size: 12px;
     }
 
     p {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .topRow {
-        height: 60px;
+        height: 50px;
         .flex-display;
         background: @color-white;
         border-bottom: 1px solid @color-border-pinkish-grey2;
@@ -5811,7 +5811,7 @@ html.microsoft {
     }
 
     .generalInfo {
-        line-height: 60px;
+        line-height: 50px;
 
         .infoPart {
             margin-right: 30px;
@@ -5847,7 +5847,7 @@ html.microsoft {
 
     // left tab
     .fileListSection {
-        .flex(1 1 35%);
+        .flex(1 1 40%);
         min-width: 300px;
         width: 300px;
         height: 100%;
@@ -5947,6 +5947,15 @@ html.microsoft {
                 display: inline-block;
                 max-width: ~"calc(100% - 40px)";
                 .textOverflowOneLine;
+                direction: rtl;
+            }
+
+            .hiddenChar {
+                color: @color-white;
+                font-size: 0px;
+                width: 0px;
+                overflow: hidden;
+                visibility: hidden;
             }
         }
 
@@ -5954,7 +5963,7 @@ html.microsoft {
 
     // larger right area
     .errorMsgSection {
-        .flex(1 1 65%);
+        .flex(1 1 60%);
         min-width: 300px;
         overflow: hidden;
     }
@@ -5981,12 +5990,13 @@ html.microsoft {
         .recordNum {
             height: 100%;
             line-height: @rowHeight - 2px;
-            width: 140px;
+            width: 100px;
             padding-left: 12px;
 
             .arrow {
                 font-size: 12px;
                 padding: 3px;
+                color: @color-font-gray36;
             }
 
             .num {
@@ -5995,9 +6005,9 @@ html.microsoft {
         }
 
         .errorMsg {
-            width: ~"calc(100% - 140px)";
+            width: ~"calc(100% - 100px)";
             overflow: hidden;
-            padding-right: 30px;
+            padding-right: 20px;
             padding-left: 12px;
         }
 
@@ -6047,7 +6057,7 @@ html.microsoft {
                 }
 
                 .errorMsg {
-                    padding-top: 16px;
+                    padding-top: 14px;
                     font-family: @font-code;
                     .text-selection;
                 }

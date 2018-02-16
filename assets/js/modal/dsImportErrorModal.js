@@ -7,7 +7,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     var $fileList;
     var numRecordsToFetch = 10;
     var numRecordsToShow = 20;
-    var rowHeight = 54;
+    var rowHeight = 44;
     var curResultSetId;
     var dsName;
     var modalOpen = false;
@@ -371,7 +371,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             '<span class="filePath" data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body" ' +
                 'data-original-title="' + fileInfo.fullPath + '">' +
-                rowNum + " " + fileInfo.fullPath +
+                '<span class="hiddenChar">a</span>' +
+                fileInfo.fullPath +
             '</span>' +
           '</div>';
         return html;
@@ -486,8 +487,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 
         return (deferred.promise());
     }
-
-
 
     return DSImportErrorModal;
 }({}, jQuery));
