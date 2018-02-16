@@ -5444,7 +5444,16 @@ module.exports = function(grunt) {
         */
         SRCROOT = grunt.option(BLD_OP_SRC_REPO) || process.env[XLRGUIDIR];
         if ( !SRCROOT ) {
-            grunt.fail.fatal("You do not have your xlrguidir set");
+            grunt.fail.fatal("You do not have the environment variable $"
+                + XLRGUIDIR
+                + " set on your machine."
+                + "\nGrunt will default to the value of this env variable"
+                + " as the source directory of the xcalar-gui project to build from,"
+                + "\nif you do not supply the option --"
+                + BLD_OP_SRC_REPO
+                + "\n\nEither set this env variable, or re-run with the option --"
+                + BLD_OP_SRC_REPO
+                + "=<src dir to build from>");
         }
         // put trailing / if it's not there, to keep things consistent
         if(!SRCROOT.endsWith(path.sep)) { SRCROOT = SRCROOT + path.sep; }
