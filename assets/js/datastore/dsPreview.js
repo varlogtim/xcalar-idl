@@ -2920,7 +2920,8 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
         loadArgs.setOriginalTypedColumns(getColumnHeaders());
 
-        if (loadArgs.getFormat() === "CSV") {
+        // XXX disabling smart cast due to backend bug
+        if (loadArgs.getFormat() === "CSV" && DSPreview.smartCast) {
             initialSuggest();
         }
 
@@ -3971,14 +3972,14 @@ window.DSPreview = (function($, DSPreview) {
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".lineMarker").remove();
         var recTypes = [];
-        // XXX temporary disable it becuase of backend bug
-        // $tbody.find("tr").eq(0).find("td").each(function(colNum) {
-        //     if (colNum >= gMaxDSColsSpec) {
-        //         return false;
-        //     }
-        //     recTypes[colNum] = suggestType($tbody, colNum + 1);
-        // });
-        // changeColumnHeaders(recTypes);
+
+        $tbody.find("tr").eq(0).find("td").each(function(colNum) {
+            if (colNum >= gMaxDSColsSpec) {
+                return false;
+            }
+            recTypes[colNum] = suggestType($tbody, colNum + 1);
+        });
+        changeColumnHeaders(recTypes);
     }
 
     function changeColumnHeaders(types, colNames) {
