@@ -1,122 +1,24 @@
-.PHONY: all installer render build prod debug removeConfig alert generateHtml
+RC:=false
+PRODUCT:=XD
 
-export PATH:=$(PWD)/node_modules/.bin:$(PATH)
-NOW :=$(shell date +'%Y%m%d-%H%M%S')
-DESTDIR ?= .
-
-ifeq ($(XLRDIR),)
-$(error "XLRDIR is not set! Bailing...")
-endif
-ifeq ($(XLRGUIDIR),)
-$(error "XLRGUIDIR is not set! Bailing...")
+ifeq ($(RC),true)
+	GRUNT_EXTRA_FLAGS+=--rc
 endif
 
-product=XD
-PRODUCTNAME=xcalar-gui
-ifeq ($(product),XI)
-PRODUCTNAME=xcalar-insight
-endif
-#export PRODUCTNAME=$(PRODUCTNAME)
+GRUNT_EXTRA_FLAGS+= --product=$(PRODUCT)
 
-all: generateHtml build prod alert
+all: setup_npm
+	grunt installer $(GRUNT_EXTRA_FLAGS)
+dev: setup_npm
+	grunt dev $(GRUNT_EXTRA_FLAGS)
+installer: setup_npm
+	grunt installer $(GRUNT_EXTRA_FLAGS)
+trunk: setup_npm
+	grunt trunk $(GRUNT_EXTRA_FLAGS)
+debug: setup_npm
+	grunt debug $(GRUNT_EXTRA_FLAGS)
 
-installer: generateHtml build prod removeConfig
-
-installerrc: generateHtml build removeDebug prod removeConfig
-
-trunk: generateHtml thriftSync thriftAlert removeConfig
-
-debug debugrc: generateHtml build debug removeConfig
-
-render: generateHtml
-
-$(DESTDIR):
-	@mkdir -p $@
-
-build: $(DESTDIR) generateHtml
-	@echo "=== Removing old prod folder if any ==="
-	@rm -rf $(PRODUCTNAME)
-	@rm -rf prod
-	@echo "=== Creating new prod folder ==="
-	@mkdir -p $(DESTDIR)/$(PRODUCTNAME)
-	@rsync -a * $(DESTDIR)/$(PRODUCTNAME) --exclude prod --exclude xcalar-gui --exclude xcalar-design --exclude xcalar-insight --exclude node_modules --exclude internal --exclude assets/help/user --exclude assets/js/constructor/xcalar-idl
-	@echo "=== Removing unused files ==="
-	@rm -f $(DESTDIR)/$(PRODUCTNAME)/assets/js/thrift/mgmttestactual.js
-	@echo "=== Compile Less ==="
-	cd $(DESTDIR) && mkdir -p $(PRODUCTNAME)/assets/stylesheets/css
-	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/login.less > $(PRODUCTNAME)/assets/stylesheets/css/login.css
-	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/style.less > $(PRODUCTNAME)/assets/stylesheets/css/style.css
-	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/mcf.less > $(PRODUCTNAME)/assets/stylesheets/css/mcf.css
-	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/testSuite.less > $(PRODUCTNAME)/assets/stylesheets/css/testSuite.css
-	cd $(DESTDIR) && lessc $(PRODUCTNAME)/assets/stylesheets/less/installer.less > $(PRODUCTNAME)/assets/stylesheets/css/installer.css
-	@rm -rf $(DESTDIR)/$(PRODUCTNAME)/assets/stylesheets/less
-	mv $(DESTDIR)/$(PRODUCTNAME)/assets/help/$(product) $(DESTDIR)/$(PRODUCTNAME)/assets/help/user
-	@echo "=== Cleaning up non prod stuff ==="
-	@rm -rf $(DESTDIR)/$(PRODUCTNAME)/assets/dev
-	@rm -f $(DESTDIR)/$(PRODUCTNAME)/services/expServer/awsWriteConfig.json
-	@echo "=== Generating version files ==="
-	@echo "var gGitVersion = '"`git log --pretty=oneline --abbrev-commit -1 | cut -d' ' -f1`"';" >> $(PRODUCTNAME)/assets/js/constructor/A_constructorVersion.js
-	@cd $(DESTDIR)/$(PRODUCTNAME)/assets/python && python3.6 genHelpAnchors.py
-	export GIT_DIR=`pwd`/.git && cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/autoGenFiles.sh
-
-removeDebug: $(DESTDIR) generateHtml build
-	@echo "=== Removing DEBUG code from js files ==="
-	cd $(DESTDIR)/$(PRODUCTNAME) && grunt --gruntfile gruntMake.js removeDebug
-
-prod: $(DESTDIR) generateHtml build
-	@echo "=== Minifying ==="
-	cd $(DESTDIR)/$(PRODUCTNAME) && ./assets/bin/minify.sh
-	@echo "=== Running python build.py ==="
-	@cd $(DESTDIR)/$(PRODUCTNAME) && python3.6 assets/python/build.py
-	@echo "=== Finalizing ==="
-	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/$(PRODUCTNAME)/*
-	@echo "=== Done building ==="
-
-debug: $(DESTDIR) generateHtml build
-	@echo "=== Running python debug build.py ==="
-	@cd $(DESTDIR)/$(PRODUCTNAME) && python3.6 assets/python/build.py debug
-
-	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/$(PRODUCTNAME)/*
-	@echo "=== Done building ==="
-
-removeConfig: build
-	@echo "=== Autogenerating Files ==="
-	touch $(DESTDIR)/$(PRODUCTNAME)/assets/js/config.js
-	rm $(DESTDIR)/$(PRODUCTNAME)/assets/js/config.js
-	touch $(DESTDIR)/$(PRODUCTNAME)/assets/js/config.js
-
-alert:
-	@echo "=== ALERT! ==="
-	@echo "If you are part of the backend team, and you do not"
-	@echo "have a custom config.js file, please RERUN with"
-	@echo "make installer"
-
-node_modules:
-	mkdir -p $@
-
-node_modules/.bin: node_modules
-	mkdir -p $@
+setup_npm:
+	node -v
 	npm install --save-dev
-
-node_modules/.bin/grunt: node_modules/.bin
-	touch $@
-
-generateHtml: node_modules/.bin/grunt
-	@echo "=== Generating html ==="
-	@mkdir -p assets/htmlFiles/walk
-	grunt --gruntfile gruntMake.js render$(product)
-
-
-thriftSync: build $(XLRDIR)/buildOut/src/bin/thrift/js/XcalarApiService.js
-	@echo "=== Syncing with XLRDIR's .js files ==="
-	@./assets/bin/syncTrunk.sh
-	@echo "var hostname='http://`hostname`:9090'; var expHost='http://`hostname`:12124';" > $(DESTDIR)/$(PRODUCTNAME)/assets/js/config.js
-
-
-thriftAlert:
-	@echo "=== ALERT! ==="
-	@echo "You just forced the UI to talk to trunk."
-	@echo "This may cause features to break if there are thrift changes "
-	@echo "that are not yet incorporated into the front end. "
-	@echo "If something that you expect to work breaks, "
-	@echo "please send an email to fs-core@xcalar.com"
+	grunt init
