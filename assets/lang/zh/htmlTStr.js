@@ -854,7 +854,8 @@ module.exports = {
         "noFunc": "没有可以选择的函数",
         "or": "or",
         "keepTable": "Keep original table",
-        "keepTableHint": "Keep the original table and append the new table to the current worksheet"
+        "keepTableHint": "Keep the original table and append the new table to the current worksheet",
+        "cast": "Cast"
     },
     "paths": {
         "helpUserDocs": "assets/help/user/Content/Home.htm",

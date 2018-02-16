@@ -148,15 +148,26 @@
       </div>
       <div class="group groupbyGroup firstGroup">
         <div class="argsSection groupOnSection">
-          <div class="row gbOnRow clearfix">
-            <div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
-            <div class="inputWrap original">
+          <div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
+          <div class="row gbOnRow original clearfix">
+            <div class="inputWrap">
               <div class="dropDownList">
                 <input class="arg gbOnArg" type="text" tabindex="10" spellcheck="false" data-typeid="-1">
                 <div class="list hint new">
                   <ul></ul>
                   include "../../util/menuScrollArea.html"
                 </div>
+              </div>
+            </div>
+            <div class="cast new">
+              <span class="label"><%= dicts.opsView.cast %>: </span>
+              <div class="dropDownList hidden">
+                  <input class="text nonEditable" value="default"
+                       disabled>
+                  <div class="iconWrapper dropdown">
+                      <i class="icon xi-arrow-down"></i>
+                  </div>
+                  <ul class="list"></ul>
               </div>
             </div>
           </div>

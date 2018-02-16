@@ -866,7 +866,7 @@ describe('OperationsView Test', function() {
                     expect(gbArgs[0].operator).to.equal("count");
                     expect(tId).to.equal(tableId);
                     expect(groupByCols.length).to.equal(1);
-                    expect(groupByCols[0]).to.equal("a");
+                    expect(groupByCols[0].colName).to.equal("a");
                     expect(gbArgs[0].aggColName).to.equal("b");
                     expect(gbArgs[0].newColName).to.equal("c");
                     expect(options.icvMode).to.be.false;
@@ -1001,10 +1001,10 @@ describe('OperationsView Test', function() {
                 $argInputs = $operationsView.find('.arg[type=text]:visible');
                 $operationsView.find(".addGroupArg").click();
                 expect($operationsView.find('.arg[type=text]:visible').length).to.be.above($argInputs.length);
-                expect($operationsView.find(".extra .arg").is(document.activeElement)).to.equal(true);
+                expect($operationsView.find(".extraArg .arg").is(document.activeElement)).to.equal(true);
             });
             it('argument should be removable', function() {
-                $operationsView.find(".extra .xi-cancel").click();
+                $operationsView.find(".extraArg .xi-cancel").click();
                 expect($operationsModal.find('.arg[type=text]:visible').length).to.equal($argInputs.length);
             });
         });
@@ -1197,8 +1197,10 @@ describe('OperationsView Test', function() {
                     } else if (hasValidColPrefix(testArgs2[j]) &&
                                 !gTables[tableId].hasCol(testArgs2[j].slice(1))) {
                         hasValidTypes = false;
-                    } else if ((arg1ValidTypes.indexOf(arg1Types[i]) > -1 ||
-                        arg1Types[i] === "mixed") &&
+                    } else if (arg1Types[i] === "mixed") {
+                        // mixed not allowed for indexed cols
+                        hasValidTypes = false;
+                    } else if ((arg1ValidTypes.indexOf(arg1Types[i]) > -1) &&
                         (arg2ValidTypes.indexOf(arg2Types[j]) > -1 ||
                         arg2Types[j] === "mixed")) {
                         // if arg's type matches one of the input's types or is mixed
@@ -2574,6 +2576,13 @@ describe('OperationsView Test', function() {
     });
 
     describe("editing dataflow", function() {
+        var cachedDFFn;
+        before(function() {
+            cachedDFFn = DagEdit.isEditMode;
+            DagEdit.isEditMode = function() {
+                return true;
+            };
+        })
         describe("editing map", function() {
             var colName;
             var $functionsMenu;
@@ -2866,7 +2875,9 @@ describe('OperationsView Test', function() {
         });
 
         describe("using droppedTable", function() {
+
             it("dropped table should show error message", function(done) {
+                DagEdit.isEditMode = cachedDFFn;
                 OperationsView.show(tableId, [1], "map")
                 .then(function() {
                     var tableCache = gTables[tableId];
@@ -2892,6 +2903,10 @@ describe('OperationsView Test', function() {
                     done();
                 }, 500);
             });
+        });
+
+        after(function() {
+            DagEdit.isEditMode = cachedDFFn;
         });
     });
 

@@ -579,11 +579,14 @@ html.firefox {
             float: left;
             position: relative;
             .transition(all 0.3s);
-            // padding-top: 6px;
             margin-top: 0px;
 
             &.hidden {
                 display: none;
+            }
+
+            &.noAnim {
+                .transition(none);
             }
 
             .label {
@@ -775,6 +778,8 @@ html.firefox {
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;
+    @functionsListZindex: 10;
+
     .dropDownList {
         .textNoCap {
             text-transform: none !important;
@@ -832,14 +837,14 @@ html.firefox {
             float: none;
             input {
                 position: relative;
-                z-index:10;
+                z-index: @functionsListZindex;
                 text-transform: none;
             }
             .dropdown {
-                z-index: 11;
+                z-index: @functionsListZindex + 1;
             }
             .list {
-                z-index: 11;
+                z-index: @functionsListZindex + 1;
             }
         }
     }
@@ -954,7 +959,7 @@ html.firefox {
             }
         }
 
-        .extra .xi-cancel {
+        .extraArg .xi-cancel {
             z-index: 0 !important;
         }
     }
@@ -998,9 +1003,20 @@ html.firefox {
         }
 
 
-        .extra {
+        .extraArg {
             position: relative;
-            margin-top: 10px;
+
+           &.inputWrap { // for map
+                margin-top: 10px;
+            }
+
+            &.row { // for group by
+                margin-top: 10px;
+                .dropDownList ul {
+                    z-index: @functionsListZindex + 1;
+                }
+            }
+
             .xi-cancel {
                 position: absolute;
                 left: 4px;
@@ -1016,7 +1032,7 @@ html.firefox {
                 }
             }
 
-            input {
+            .arg {
                 padding-left: 22px;
             }
         }
@@ -1550,7 +1566,6 @@ html.firefox {
 
                 &:first-child {
                     border-right: 1px solid @color-border-pinkish-grey2;
-
                 }
             }
 

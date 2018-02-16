@@ -36,13 +36,17 @@ window.OperationsView = (function($, OperationsView) {
 
     // shows valid cast types
     var castMap = {
-        "string": ['boolean', 'integer', 'float'],
-        "integer": ['boolean', 'integer', 'float', 'string'],
-        "float": ['boolean', 'integer', 'float', 'string'],
-        "number": ['boolean', 'integer', 'float', 'string'],
-        "boolean": ['integer', 'float', 'string']
-        // no valid cast options for: undefined, array, objects,
-        // or mixed
+        "string": [ColumnType.boolean, ColumnType.integer, ColumnType.float],
+        "integer": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
+                    ColumnType.string],
+        "float": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
+                  ColumnType.string],
+        "number": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
+                    ColumnType.string],
+        "boolean": [ColumnType.integer, ColumnType.float, ColumnType.string],
+        "mixed": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
+                    ColumnType.string],
+        // no valid cast options for: undefined, array, objects
     };
 
     // XXX can it be removed?
@@ -479,13 +483,13 @@ window.OperationsView = (function($, OperationsView) {
             addGroupbyGroup();
         });
 
-        // dynamic button
+        // dynamic button - ex. default:multiJoin
         $operationsView.on('click', '.addMapArg', function() {
             addMapArg($(this));
         });
 
-        $operationsView.on('click', '.inputWrap.extra .xi-cancel', function() {
-            removeExtraArg($(this).closest('.inputWrap'));
+        $operationsView.on('click', '.extraArg .xi-cancel', function() {
+            removeExtraArg($(this).closest('.extraArg'));
         });
 
         // click on the hint list
@@ -2979,14 +2983,12 @@ window.OperationsView = (function($, OperationsView) {
                                 });
                             } else {
                                 allColTypes.push({});
-                                if (!isEditMode) {
-                                    errorText = xcHelper.replaceMsg(
+                                errorText = xcHelper.replaceMsg(
                                     ErrWRepTStr.InvalidCol, {
-                                        "name": frontColName
-                                    });
-                                    $errorInput = $input;
-                                    isPassing = false;
-                                }
+                                    "name": frontColName
+                                });
+                                $errorInput = $input;
+                                isPassing = false;
                             }
                         }
 
@@ -3089,9 +3091,9 @@ window.OperationsView = (function($, OperationsView) {
                 }
             });
             if (castIsVisible) {
-                var $castDropdown = $errorInput.closest('.inputWrap')
-                                                .siblings('.cast')
-                                                .find('.dropDownList:visible');
+                var $cast = $errorInput.closest(".inputWrap").siblings(".cast");
+                $cast.addClass("noAnim");
+                var $castDropdown = $cast.find('.dropDownList:visible');
                 if ($castDropdown.length) {
                     $errorInput = $castDropdown.find('input');
                 }
@@ -3107,6 +3109,7 @@ window.OperationsView = (function($, OperationsView) {
     function showCastRow(allColTypes, groupNum, inputsToCast) {
         var deferred = jQuery.Deferred();
         getProperCastOptions(allColTypes);
+
         var isCastAvailable = displayCastOptions(allColTypes, groupNum, inputsToCast);
         $activeOpSection.find('.cast .list li').show();
 
@@ -3118,7 +3121,6 @@ window.OperationsView = (function($, OperationsView) {
                             .find('.cast .dropDownList:not(.colNameSection)')
                             .removeClass('hidden');
 
-            $activeOpSection.find('.descCell').addClass('castShowing');
             setTimeout(function() {
                 if ($activeOpSection.find('.cast.showing').length) {
                     $castable.addClass('overflowVisible');
@@ -3179,7 +3181,7 @@ window.OperationsView = (function($, OperationsView) {
         var start = 0;
         if (operatorName === "group by") {
             // ignore "index on" args
-            start = allColTypes.length - 1;
+            // start = allColTypes.length - 1;
         }
         var inputNum;
         for (var i = start; i < allColTypes.length; i++) {
@@ -3189,11 +3191,11 @@ window.OperationsView = (function($, OperationsView) {
                 castAvailable = true;
                 lis = "<li class='default'>default</li>";
                 inputNum = allColTypes[i].inputNum;
-                if (operatorName === "group by") {
-                    // have to adjust because in groupby, cast dropdowns
-                    // and args indexes don't match up
-                    inputNum -= (allColTypes.length - 1);
-                }
+                // if (operatorName === "group by") {
+                //     // have to adjust because in groupby, cast dropdowns
+                //     // and args indexes don't match up
+                //     inputNum -= (allColTypes.length - 1);
+                // }
                 $castDropdowns.eq(inputNum).removeClass('hidden');
                 for (var j = 0; j < allColTypes[i].filteredTypes.length; j++) {
                     lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
@@ -3216,11 +3218,13 @@ window.OperationsView = (function($, OperationsView) {
         var $target;
         if (groupIndex != null) {
             $target = $activeOpSection.find('.group').eq(groupIndex);
+            if (operatorName === "group by") {
+                $target = $target.find(".argsSection").last();
+            }
         } else {
             $target = $operationsView;
         }
         $target.find('.cast').removeClass('showing overflowVisible');
-        $target.find('.descCell').removeClass('castShowing');
     }
 
     // function checkNoEmptyFields(args) {
@@ -3373,11 +3377,22 @@ window.OperationsView = (function($, OperationsView) {
         var gbArgs = [];
         var groupByCols = [];
         var gbCol;
+        var colTypeInfo;
         for (var i = 0; i < args[0].length - 2; i++) {
             gbCol = args[0][i].trim();
             if (groupByCols.indexOf(gbCol) === -1) {
-                groupByCols.push(gbCol);
+                groupByCols.push({
+                    colName: gbCol,
+                    cast: null
+                });
             }
+            colTypeInfo = colTypeInfos[0] || [];
+            colTypeInfo.forEach(function(colInfo) {
+                if (colInfo.argNum === i) {
+                    groupByCols[i].cast = colInfo.type
+                    return false;
+                }
+            });
         }
 
         var operatorsFound = {};
@@ -3402,7 +3417,7 @@ window.OperationsView = (function($, OperationsView) {
 
             colTypeInfo = colTypeInfos[i] || [];
 
-            jQuery.each(colTypeInfo, function(index, colInfo) {
+            colTypeInfo.forEach(function(colInfo) {
                 if (colInfo.argNum === aggColIndex) {
                     gbArgs[i].cast = colInfo.type;
                     // stop looping
@@ -3472,7 +3487,9 @@ window.OperationsView = (function($, OperationsView) {
                     "includeSample": isIncSample,
                     "newKeyField": ""
                 },
-                indexFields: groupByCols.slice()
+                indexFields: groupByCols.map(function(colInfo) {
+                    return colInfo.colName;
+                })
             });
             deferred.resolve();
         } else {
@@ -3760,7 +3777,14 @@ window.OperationsView = (function($, OperationsView) {
         if (inputType === "newColumn") {
             return ErrTStr.InvalidOpNewColumn;
         } else if (inputType === ColumnType.mixed) {
-            return null;
+            if ($input.hasClass("gbOnArg")) {
+                return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                    "type1": castMap[ColumnType.mixed].join("/"),
+                    "type2": inputType
+                });
+            } else {
+                return null;
+            }
         } else if (requiredTypes.includes(inputType)) {
             return null;
         } else if (inputType === ColumnType.number &&
@@ -4420,7 +4444,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.arg').val("");
 
         // remove "additional arguments" inputs
-        $operationsView.find('.inputWrap.extra').remove();
+        $operationsView.find('.extraArg').remove();
 
         // for filter, unminimize first argument box
         $operationsView.find('.group').removeClass('minimized fnInputEmpty');
@@ -4540,13 +4564,27 @@ window.OperationsView = (function($, OperationsView) {
 
     function addGroupOnArg(index) {
         var html = getArgInputHtml();
+        html = '<div class="row gbOnRow extraArg clearfix">' + html +
+                    '<div class="cast new">' +
+                        '<span class="label">Cast: </span>' +
+                        '<div class="dropDownList hidden">' +
+                            '<input class="text nonEditable" value="default"' +
+                                ' disabled>' +
+                            '<div class="iconWrapper dropdown">' +
+                                '<i class="icon xi-arrow-down"></i>' +
+                            '</div>' +
+                            '<ul class="list"></ul>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
         var $group = $activeOpSection.find(".group").eq(index);
-        $group.find('.gbOnRow').append(html);
+        $group.find('.gbOnRow').last().after(html);
         $group.find('.gbOnArg').last().focus();
         formHelper.refreshTabbing();
 
         var $ul = $group.find('.gbOnArg').last().siblings(".list");
         addSuggestListForExtraArg($ul);
+        addCastDropDownListener();
     }
 
     function getGroupbyGroupHtml(index) {
@@ -4636,12 +4674,14 @@ window.OperationsView = (function($, OperationsView) {
 
     function getArgInputHtml() {
         var inputClass = "";
+        var wrapClass = "";
         if (operatorName === "map") {
+            wrapClass = "extraArg";
             inputClass = "mapExtraArg";
         } else if (operatorName === "group by") {
             inputClass = "gbOnArg";
         }
-        var html = '<div class="inputWrap extra">' +
+        var html = '<div class="inputWrap ' + wrapClass + '">' +
                         '<div class="dropDownList">' +
                           '<input class="arg ' + inputClass +
                           '" type="text" tabindex="10" ' +

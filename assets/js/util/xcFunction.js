@@ -276,7 +276,7 @@ window.xcFunction = (function($, xcFunction) {
         if (colInfo.length > 1) {
             msg = StatusMessageTStr.Sort + " multiple columns";
         } else {
-            msg = StatusMessageTStr.Sort + " " + 
+            msg = StatusMessageTStr.Sort + " " +
             xcHelper.escapeHTMLSpecialChar(keys[0]);
         }
         var txId = Transaction.start({
@@ -692,6 +692,7 @@ window.xcFunction = (function($, xcFunction) {
 
     // gbArgs is array of {operator:str, aggColName:str, newColName:str,
     //                     cast:null or str} objects
+    //  groupByCols is array of {colName: str, cast: null or str} objects
     // options:  isIncSample: boolean, isJoin: boolean, icvMode: boolean,
     //           isKeepOriginal: boolean
     //           formOpenTime: int, columnsToKeep: array of colnums, casts
@@ -712,11 +713,12 @@ window.xcFunction = (function($, xcFunction) {
         var isJoin = options.isJoin || false;
         var isKeepOriginal = options.isKeepOriginal || false;
         var table = gTables[tableId];
-
         var tableName = table.getName();
-
         var finalTableName;
         var finalTableCols;
+        var groupByColNames = groupByCols.map(function(gbCol) {
+            return gbCol.colName;
+        });
 
         // current workshhet index
         var curWS = WSManager.getWSFromTable(tableId);
@@ -786,18 +788,24 @@ window.xcFunction = (function($, xcFunction) {
             });
         });
 
-        var castPromise;
-        if (groupByArgs.length === 1 && gbArgs[0].cast) {
+        var needsIndexCast = groupByCols.filter(function(colInfo) {
+            return colInfo.cast != null;
+        }).length > 0;
+
+        var castArgsPromise;
+        // XXX and groupByCols has no cast
+        if (groupByArgs.length === 1 && gbArgs[0].cast && !needsIndexCast) {
+            // if single group by
             groupByArgs[0].aggColName = xcHelper.castStrHelper(
                                         gbArgs[0].aggColName, gbArgs[0].cast);
-            castPromise = PromiseHelper.resolve(tableName);
+            castArgsPromise = PromiseHelper.resolve(tableName);
         } else {
-            castPromise = castCols();
+            castArgsPromise = castCols();
         }
 
-        castPromise
+        castArgsPromise
         .then(function(castTableName) {
-            return XIApi.groupBy(txId, groupByArgs, groupByCols, castTableName,
+            return XIApi.groupBy(txId, groupByArgs, groupByColNames, castTableName,
                                  groupByOpts);
         })
         .then(function(nTableName, nTableCols, renamedGBCols) {
@@ -889,6 +897,31 @@ window.xcFunction = (function($, xcFunction) {
                     groupByArgs[i].aggColName = newCastName;
                 }
             }
+            for (var i = 0; i < groupByCols.length; i++) {
+                var type = groupByCols[i].cast;
+                if (type) {
+                    var parsedName = xcHelper.parsePrefixColName(
+                                                groupByCols[i].colName).name;
+                    parsedName = xcHelper.stripColName(parsedName);
+                    var newCastName = xcHelper.getUniqColName(tableId,
+                                                parsedName, false, takenNames);
+                    takenNames[newCastName] = true;
+                    var mapStr = xcHelper.castStrHelper(groupByCols[i].colName,
+                                                        type);
+                    mapStrs.push(mapStr);
+                    newCastNames.push(newCastName);
+                    var colNum = table.getColNumByBackName(
+                                       groupByCols[i].colName);
+                    var mapOptions = {
+                        "replaceColumn": true,
+                        "resize": true,
+                        "type": type
+                    };
+                    castTableCols = xcHelper.mapColGenerate(colNum, newCastName,
+                                            mapStr, castTableCols, mapOptions);
+                    groupByColNames[i] = newCastName;
+                }
+            }
             if (mapStrs.length) {
                 var innerDeferred = jQuery.Deferred();
                 XIApi.map(txId, mapStrs, tableName, newCastNames)
@@ -919,7 +952,7 @@ window.xcFunction = (function($, xcFunction) {
             var lTName = gTables[tableId].getName();
 
             var rTName = nTable;
-            var lCols = groupByCols;
+            var lCols = groupByColNames;
             var rRename = [];
 
             var rCols = renamedGBCols.map(function(colName) {
@@ -1016,7 +1049,7 @@ window.xcFunction = (function($, xcFunction) {
             "htmlExclude": ["mapOptions"]
         };
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.Map + " " + 
+            "msg": StatusMessageTStr.Map + " " +
             xcHelper.escapeHTMLSpecialChar(fieldName),
             "operation": SQLOps.Map,
             "sql": sql,

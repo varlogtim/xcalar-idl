@@ -48,7 +48,7 @@ describe("DagEdit Test", function() {
                     operator: "count",
                     aggColName: "mapped",
                     newColName: "mapped_count"
-                }], ["mapped"], aggName);
+                }], [{colName: "mapped"}], aggName);
             })
             .then(function(tName) {
                 tableName = tName;

@@ -244,8 +244,8 @@ describe("Dag Panel Test", function() {
             // Now perform groupby
             var operator = "count";
             var tId = largeTableIds[largeTableIds.length - 1];
-            var groupByCols = [largePrefix + gPrefixSign + "four",
-                               largePrefix + gPrefixSign + "yelping_since"];
+            var groupByCols = [{colName: largePrefix + gPrefixSign + "four"},
+                               {colName: largePrefix + gPrefixSign + "yelping_since"}];
             var aggCol = largePrefix + gPrefixSign + "four";
             var newColName = "four_count";
             var gbArgs = [{
