@@ -2171,7 +2171,7 @@ XcalarMapWithInput = function(txId, inputStruct) {
 };
 
 XcalarMap = function(newFieldNames, evalStrs, srcTablename, dstTablename,
-                   txId, doNotUnsort, icvMode) {
+                     txId, doNotUnsort, icvMode) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
