@@ -5455,27 +5455,29 @@ module.exports = function(grunt) {
                 + ", but this dir does not exist.");
         }
         // warning if going to build from project src diff from their XLRGUIDIR
-        if ( !grunt.file.arePathsEquivalent(SRCROOT, process.env[XLRGUIDIR]) ) {
-            grunt.log.writeln(("You are trying to build project src other than your $"
-                + XLRGUIDIR
-                + "\n\n\tYour xlrgui dir: " + process.env[XLRGUIDIR]
-                + "\n\n\tRequiested project src for bld: " + SRCROOT
-                + "\n\nPlease be careful!  If other build tools are called, I can't gaurantee they will work."
-                + "\nCrazy shit might be about to happen!").bold.red);
-        }
-        else {
-            // give them a warning if they are building from their xlrguidir, but its not their cwd
-            if ( !grunt.file.arePathsEquivalent(SRCROOT, process.cwd()) ) {
-                grunt.log.writeln(("You are trying to build from your $"
+        if ( process.env[XLRGUIDIR] ) {
+            if (!grunt.file.arePathsEquivalent(SRCROOT, process.env[XLRGUIDIR]) ) {
+                grunt.log.writeln(("You are trying to build project src other than your $"
                     + XLRGUIDIR
-                    + " (because you did not specify arg --"
-                    + BLD_OP_SRC_REPO
-                    + ")."
-                    + "\nHowever, $"
-                    + XLRGUIDIR
-                    + " is NOT the cwd!"
-                    + "\n\tYour xlrgui dir/proj src for this build: "
-                    + SRCROOT).bold.red);
+                    + "\n\n\tYour xlrgui dir: " + process.env[XLRGUIDIR]
+                    + "\n\n\tRequiested project src for bld: " + SRCROOT
+                    + "\n\nPlease be careful!  If other build tools are called, I can't gaurantee they will work."
+                    + "\nCrazy shit might be about to happen!").bold.red);
+            }
+            else {
+                // give them a warning if they are building from their xlrguidir, but its not their cwd
+                if ( !grunt.file.arePathsEquivalent(SRCROOT, process.cwd()) ) {
+                    grunt.log.writeln(("You are trying to build from your $"
+                        + XLRGUIDIR
+                        + " (because you did not specify arg --"
+                        + BLD_OP_SRC_REPO
+                        + ")."
+                        + "\nHowever, $"
+                        + XLRGUIDIR
+                        + " is NOT the cwd!"
+                        + "\n\tYour xlrgui dir/proj src for this build: "
+                        + SRCROOT).bold.red);
+                }
             }
         }
         // set env variable for this process so context passes to child processes
