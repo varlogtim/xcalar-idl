@@ -296,15 +296,6 @@ if (!has_require) {
     };
 }
 
-// Jerene's debug function
-function atos(func, args) {
-    func.apply(this, args).then(
-        function(retObj) {
-            console.log(retObj);
-        }
-    );
-}
-
 // ======================== ERROR INJECTION TESTING =========================//
 function getFailPercentage(funcName) {
     if (funcFailPercentage.hasOwnProperty(funcName)) {
@@ -1945,7 +1936,7 @@ XcalarMakeResultSetFromTable = function(tableName) {
     return (deferred.promise());
 };
 
-XcalarMakeResultSetFromDataset = function(datasetName) {
+XcalarMakeResultSetFromDataset = function(datasetName, getErrorDataset) {
     if (tHandle == null) {
         return PromiseHelper.resolve(0);
     }
@@ -1956,7 +1947,7 @@ XcalarMakeResultSetFromDataset = function(datasetName) {
     }
 
     datasetName = parseDS(datasetName);
-    xcalarMakeResultSetFromDataset(tHandle, datasetName)
+    xcalarMakeResultSetFromDataset(tHandle, datasetName, getErrorDataset)
     .then(function(ret) {
         if (ret.numEntries < 0) {
             ret.numEntries = 0;
@@ -2666,6 +2657,30 @@ XcalarGenRowNum = function(srcTableName, dstTableName, newFieldName, txId) {
 
     return deferred.promise();
 };
+
+XcalarArchiveTable = function(srcTableNames) {
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+    var workItem = xcalarArchiveTablesWorkItem(srcTableNames, true);
+    xcalarArchiveTables(tHandle, srcTableNames)
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            // XXX This part doesn't work yet
+            //Transaction.log(txId, query, srcTableNames, ret.timeElapsed);
+            deferred.resolve(ret);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarArchiveTable", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
 
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery

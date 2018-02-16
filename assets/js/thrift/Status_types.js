@@ -613,7 +613,8 @@ StatusT = {
   'StatusSessionNotActive' : 604,
   'StatusUsrSessLoadFailed' : 605,
   'StatusProtobufError' : 606,
-  'StatusRecordError' : 607
+  'StatusRecordError' : 607,
+  'StatusCannotReplaceKey' : 608
 };
 StatusTStr = {
   0 : 'Success',
@@ -1223,7 +1224,8 @@ StatusTStr = {
   604 : 'Target session was not active',
   605 : 'User failed to read sessions',
   606 : 'Generic protobuf error',
-  607 : 'Record errors are disallowed'
+  607 : 'Record errors are disallowed',
+  608 : 'Cannot replace key field'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1833,5 +1835,6 @@ StatusTFromStr = {
   'Target session was not active' : 604,
   'User failed to read sessions' : 605,
   'Generic protobuf error' : 606,
-  'Record errors are disallowed' : 607
+  'Record errors are disallowed' : 607,
+  'Cannot replace key field' : 608
 };

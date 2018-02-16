@@ -5349,6 +5349,73 @@ XcalarApiRenameNodeInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiMakeResultSetInputT = function(args) {
+  this.errorDs = null;
+  this.dagNode = null;
+  if (args) {
+    if (args.errorDs !== undefined && args.errorDs !== null) {
+      this.errorDs = args.errorDs;
+    }
+    if (args.dagNode !== undefined && args.dagNode !== null) {
+      this.dagNode = new XcalarApiNamedInputT(args.dagNode);
+    }
+  }
+};
+XcalarApiMakeResultSetInputT.prototype = {};
+XcalarApiMakeResultSetInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.BOOL) {
+        this.errorDs = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.dagNode = new XcalarApiNamedInputT();
+        this.dagNode.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiMakeResultSetInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiMakeResultSetInputT');
+  if (this.errorDs !== null && this.errorDs !== undefined) {
+    output.writeFieldBegin('errorDs', Thrift.Type.BOOL, 1);
+    output.writeBool(this.errorDs);
+    output.writeFieldEnd();
+  }
+  if (this.dagNode !== null && this.dagNode !== undefined) {
+    output.writeFieldBegin('dagNode', Thrift.Type.STRUCT, 2);
+    this.dagNode.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiResultSetNextInputT = function(args) {
   this.resultSetId = null;
   this.numRecords = null;
@@ -14399,7 +14466,7 @@ XcalarApiInputT = function(args) {
       this.statByGroupIdInput = new XcalarApiStatByGroupIdInputT(args.statByGroupIdInput);
     }
     if (args.makeResultSetInput !== undefined && args.makeResultSetInput !== null) {
-      this.makeResultSetInput = new XcalarApiNamedInputT(args.makeResultSetInput);
+      this.makeResultSetInput = new XcalarApiMakeResultSetInputT(args.makeResultSetInput);
     }
     if (args.mapInput !== undefined && args.mapInput !== null) {
       this.mapInput = new XcalarApiMapInputT(args.mapInput);
@@ -14743,7 +14810,7 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 16:
       if (ftype == Thrift.Type.STRUCT) {
-        this.makeResultSetInput = new XcalarApiNamedInputT();
+        this.makeResultSetInput = new XcalarApiMakeResultSetInputT();
         this.makeResultSetInput.read(input);
       } else {
         input.skip(ftype);

@@ -300,7 +300,7 @@ window.Function.prototype.bind = function() {
     function getDatasetCount(datasetName) {
         var numRows = -1;
         var deferred = jQuery.Deferred();
-        xcalarMakeResultSetFromDataset(thriftHandle, datasetPrefix+datasetName)
+        xcalarMakeResultSetFromDataset(thriftHandle, datasetPrefix+datasetName, false)
         .then(function(ret) {
             numRows = ret.numEntries;
             console.log(JSON.stringify(ret));
@@ -1330,7 +1330,8 @@ window.Function.prototype.bind = function() {
 
     function testMakeResultSetFromDataset(test) {
         xcalarMakeResultSetFromDataset(thriftHandle,
-                                       loadOutput.dataset.name)
+                                       loadOutput.dataset.name,
+                                       false)
         .then(function(result) {
             printResult(result);
             makeResultSetOutput1 = result;
@@ -3158,10 +3159,10 @@ window.Function.prototype.bind = function() {
     }
 
     function testArchiveTable(test) {
-        xcalarArchiveTables(thriftHandle, ["yelp/user-votes.funny-map"])
+        xcalarArchiveTables(thriftHandle, ["yelp/user-name"])
         .then(function(status) {
             printResult(status);
-            return (xcalarUnarchiveTables(thriftHandle, ["yelp/user-votes.funny-map"]));
+            return (xcalarUnarchiveTables(thriftHandle, ["yelp/user-name"]));
         })
         .then(function(status) {
             printResult(status);
@@ -3655,7 +3656,7 @@ window.Function.prototype.bind = function() {
             printResult(result);
             csvLoadOutput = result;
             dsName = csvLoadOutput.dataset.name;
-            return (xcalarMakeResultSetFromDataset(thriftHandle, dsName))
+            return (xcalarMakeResultSetFromDataset(thriftHandle, dsName, false))
         })
         .then(function(result) {
             printResult(result);

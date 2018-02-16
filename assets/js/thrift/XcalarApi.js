@@ -1732,12 +1732,14 @@ xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, dataset
 xcalarMakeResultSetFromTableWorkItem = runEntity.xcalarMakeResultSetFromTableWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
+    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
+    workItem.input.makeResultSetInput.dagNode = new XcalarApiNamedInputT();
 
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
-    workItem.input.makeResultSetInput.isTable = true;
-    workItem.input.makeResultSetInput.name = tableName;
-    workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
+    workItem.input.makeResultSetInput.errorDs = false;
+    workItem.input.makeResultSetInput.dagNode.isTable = true;
+    workItem.input.makeResultSetInput.dagNode.name = tableName;
+    workItem.input.makeResultSetInput.dagNode.xid = XcalarApiXidInvalidT;
     return (workItem);
 };
 
@@ -1777,26 +1779,28 @@ xcalarMakeResultSetFromTable = runEntity.xcalarMakeResultSetFromTable = function
     return (deferred.promise());
 };
 
-xcalarMakeResultSetFromDatasetWorkItem = runEntity.xcalarMakeResultSetFromDatasetWorkItem = function(datasetName) {
+xcalarMakeResultSetFromDatasetWorkItem = runEntity.xcalarMakeResultSetFromDatasetWorkItem = function(datasetName, errorDs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
+    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
+    workItem.input.makeResultSetInput.dagNode = new XcalarApiNamedInputT();
 
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
-    workItem.input.makeResultSetInput.isTable = false;
-    workItem.input.makeResultSetInput.name = datasetName;
-    workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
+    workItem.input.makeResultSetInput.errorDs = errorDs;
+    workItem.input.makeResultSetInput.dagNode.isTable = false;
+    workItem.input.makeResultSetInput.dagNode.name = datasetName;
+    workItem.input.makeResultSetInput.dagNode.xid = XcalarApiXidInvalidT;
     return (workItem);
 };
 
-xcalarMakeResultSetFromDataset = runEntity.xcalarMakeResultSetFromDataset = function(thriftHandle, datasetName) {
+xcalarMakeResultSetFromDataset = runEntity.xcalarMakeResultSetFromDataset = function(thriftHandle, datasetName, errorDs) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeResultSetFromDataset(datasetName = " +
                     datasetName + ")");
     }
 
-    var workItem = xcalarMakeResultSetFromDatasetWorkItem(datasetName);
+    var workItem = xcalarMakeResultSetFromDatasetWorkItem(datasetName, errorDs);
 
     var makeResultSetOutput;
     thriftHandle.client.queueWorkAsync(workItem)
