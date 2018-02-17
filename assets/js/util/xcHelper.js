@@ -196,15 +196,19 @@
         return searchKey;
     };
 
-    xcHelper.fullTextRegExKey = function(searchKey) {
+    xcHelper.fullTextRegExKey = function(searchKey, glob) {
         // Make it a full-text regex search
-        searchKey = searchKey.replace(/\./g, "[^\/]");
+        if (!glob) {
+            searchKey = searchKey.replace(/\./g, "[^\/]");
+        }
         return "(.*\/)?" + searchKey + "$";
     };
 
-    xcHelper.containRegExKey = function(searchKey) {
+    xcHelper.containRegExKey = function(searchKey, glob) {
         // Make it a "contain" regex search, i.e. prepend .* and append .*
-        searchKey = searchKey.replace(/\./g, "[^\/]");
+        if (!glob) {
+            searchKey = searchKey.replace(/\./g, "[^\/]");
+        }
         return "(.*" + searchKey + "[^\/]*$)";
     };
 

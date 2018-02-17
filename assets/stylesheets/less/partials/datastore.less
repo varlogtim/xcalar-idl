@@ -1211,8 +1211,10 @@ table.datasetTable {
                 }
             }
             ul > li.selected {
-                background-color: @color-bg-select-blue;
-                color: @color-white !important;
+                &, span {
+                    background-color: @color-bg-select-blue;
+                    color: @color-white !important;
+                }
             }
         }
 
