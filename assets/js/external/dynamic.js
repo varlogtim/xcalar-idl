@@ -1,5 +1,6 @@
 (function($) {
     console.log("dynamic loaded");
+    gPatchVersion = 1;
     // Insert patch code here. Remembmer that all js files will be minified and
     // uglified
     function lowerVersion(v1str, v2str) {

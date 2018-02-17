@@ -1708,16 +1708,6 @@ window.DFParamModal = (function($, DFParamModal){
                 return;
             }
 
-            if (hasInvalidExportTarget(params)) {
-                deferred.reject();
-                return;
-            }
-
-            if (hasInvalidDatasetTarget(params)) {
-                deferred.reject();
-                return;
-            }
-
             var paramInfo;
             updateRetina()
             .then(function(paramInformation) {
@@ -1926,16 +1916,9 @@ window.DFParamModal = (function($, DFParamModal){
                     paramGroup.path = url;
                     paramGroup.fileNamePattern = pattern;
                     var targetName = $.trim($editableDivs.eq(0).val());
-                    var target = DSTargetManager.getTarget(targetName);
-                    if (target) {
-                        paramGroup.targetName = targetName;
-                        paramValues.push(paramGroup);
-                        paramQuery.push([targetName, url, pattern])
-                    } else {
-                        error = "target not found";
-                    }
+                    paramValues.targetName = targetName;
+                    paramQuery = [targetName, url, pattern];
                 });
-
                 break;
             case ("export"):
                 paramType = XcalarApisT.XcalarApiExport;
@@ -1946,6 +1929,7 @@ window.DFParamModal = (function($, DFParamModal){
                 paramValues.fileName = fileName;
                 paramValues.targetName = targetName;
                 var paramTargetName = getTargetName(targetName, params);
+                // XXX Fix this when exportTargets become real targets
                 var target = DSExport.getTarget(paramTargetName);
                 if (target) {
                     paramValues.targetType = ExTargetTypeTStr[target.type];
@@ -2050,42 +2034,6 @@ window.DFParamModal = (function($, DFParamModal){
             return true;
         } else {
             return false;
-        }
-    }
-
-    function hasInvalidExportTarget(params) {
-        if (type !== "export") {
-            return false;
-        }
-
-        var $input = $dfParamModal.find(".editableTable")
-                                .find("input.editableParamDiv").eq(1);
-        var targetName =  $input.val();
-        var paramTargetName = getTargetName(targetName, params);
-        var target = DSExport.getTarget(paramTargetName);
-        if (target) {
-            return false;
-        } else {
-            StatusBox.show(DFTStr.InvalidTarget, $input);
-            return true;
-        }
-    }
-
-    function hasInvalidDatasetTarget(params) {
-        if (type !== "dataStore") {
-            return false;
-        }
-
-        var $input = $dfParamModal.find(".editableTable")
-                                .find("input.editableParamDiv").eq(0);
-        var targetName =  $input.val();
-        var paramTargetName = getTargetName(targetName, params);
-        var target = DSTargetManager.getTarget(paramTargetName);
-        if (target) {
-            return false;
-        } else {
-            StatusBox.show(DFTStr.InvalidTarget, $input);
-            return true;
         }
     }
 
