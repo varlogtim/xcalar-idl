@@ -3473,7 +3473,8 @@ window.DSPreview = (function($, DSPreview) {
         var colGrab = hasDelimiter ? colGrabTemplate : "";
         var html;
         if (isEditable) {
-            html = isTh ? '<th class="editable" data-type="string">' +
+            if (isTh) {
+                html = '<th class="editable" data-type="string">' +
                     '<div class="header type-string">' +
                     colGrab +
                     '<div class="flexContainer flexRow">' +
@@ -3492,11 +3493,17 @@ window.DSPreview = (function($, DSPreview) {
                                         '<input spellcheck="false" ' +
                                         'class="text cell tooltipOverflow ' +
                                         'editableHead th' +
-                                        '" value="' : '<td class="cell"><div class="innerCell">';
+                                        '" value="';
+            } else {
+                html = '<td class="cell"><div class="innerCell">';
+            }
         } else {
-            html = isTh ? '<th><div class="header">' + colGrab +
-                            '<div class="text cell">'
-                            : '<td class="cell"><div class="innerCell">';
+            if (isTh) {
+                html = '<th><div class="header">' + colGrab +
+                            '<div class="text cell">';
+            } else {
+                html = '<td class="cell"><div class="innerCell">';
+            }
         }
 
         var dataLen = data.length;
@@ -3505,9 +3512,10 @@ window.DSPreview = (function($, DSPreview) {
         var colStrLimit = 250; // max number of characters in delimited column
         var i = 0;
         var d;
-        var tdData = [];
+        var tdData = []; // holds acculumated chars until delimiter is reached
+                        // and then these chars are added to html
         var val;
-        var blankThCount = 0;
+        var blankThCount = 0; // for appending to "colname" if blank th
 
         if (hasDelimiter) {
             // when has delimiter
@@ -3533,9 +3541,9 @@ window.DSPreview = (function($, DSPreview) {
                     tdData = stripQuote(tdData, quote);
 
                     val = tdData.join("");
-                    if (isTh && !val) {
-                        blankThCount++;
+                    if (isTh && !val) { // autoname if no value for header
                         val = "column" + blankThCount;
+                        blankThCount++;
                     }
                     html += val;
                     tdData = [];
@@ -3606,7 +3614,11 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             tdData = stripQuote(tdData, quote);
-            html += tdData.join("");
+            val = tdData.join("");
+            if (isTh && !val) { // autoname if no value for header
+                val = "column" + blankThCount;
+            }
+            html += val;
             tdData = [];
         } else {
             // when not apply delimiter
@@ -3634,8 +3646,6 @@ window.DSPreview = (function($, DSPreview) {
                             xcHelper.escapeHTMLSpecialChar(d) +
                         '</span>';
                 }
-
-
             }
             var lenDiff = data.length - dataLen;
             if (lenDiff > 0) {
