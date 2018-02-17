@@ -146,7 +146,6 @@ describe("Dataset-DSObj Test", function() {
             expect(ds).not.to.be.null;
             expect(ds.getName()).to.equal(dsName);
             expect(ds.getFormat()).to.equal("CSV");
-            expect(ds.getPath()).to.equal("testPath");
             expect(ds.isEditable()).to.be.true;
             var dsId = ds.getId();
             DS.__testOnly__.removeDS(dsId);
@@ -471,7 +470,7 @@ describe("Dataset-DSObj Test", function() {
     });
 
     describe("New Dataset Test", function() {
-        it("should handle DS.point error", function(done) {
+        it("should handle DS.import error", function(done) {
             var oldFocus = DS.focusOn;
             DS.focusOn = function() {
                 return PromiseHelper.reject("test");
@@ -479,8 +478,8 @@ describe("Dataset-DSObj Test", function() {
 
             var name = genUniqDSName("test");
             var dataset = testDatasets.sp500;
-            var pointArgs = $.extend({}, dataset, {"name": name});
-            DS.point(pointArgs)
+            var dsArgs = $.extend({}, dataset, {"name": name});
+            DS.import(dsArgs)
             .then(function() {
                 done("fail");
             })
@@ -497,8 +496,8 @@ describe("Dataset-DSObj Test", function() {
         it("Should import ds", function(done) {
             var name = genUniqDSName("testSuites-dsObj-sp500");
             var dataset = testDatasets.sp500;
-            var pointArgs = $.extend({}, dataset, {"name": name});
-            DS.point(pointArgs)
+            var dsArgs = $.extend({}, dataset, {"name": name});
+            DS.import(dsArgs)
             .then(function(dsObj) {
                 testDS = dsObj;
 

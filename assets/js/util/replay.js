@@ -390,8 +390,7 @@ window.Replay = (function($, Replay) {
 
     function createFuncArgsMap() {
         argsMap = {};
-        // DS.point()
-        argsMap[SQLOps.DSPoint] = ["pointArgs", "options"];
+        argsMap[SQLOps.DSPoint] = ["dsArgs", "options"];
         argsMap[SQLOps.Sort] = ["colNum", "colInfo"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
@@ -469,7 +468,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DSPoint] = function(options) {
         var args = getArgs(options);
-        return DS.point.apply(window, args);
+        return DS.import.apply(window, args);
     };
 
     replayFuncs[SQLOps.IndexDS] = function(options) {

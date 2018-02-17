@@ -269,7 +269,6 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-error").addClass("xc-hidden");
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
-        // $("#dsInfo-target").text(dsObj.getTargetName());
         // there is no fail case
         $("#dsInfo-size").text(dsObj.getDisplaySize());
 
@@ -299,16 +298,6 @@ window.DSTable = (function($, DSTable) {
 
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
     }
-
-    // XXX not work as if it's other user's ds and no index on it
-    // XcalarGetDag on ds not working
-    // function getDSFormat(dsObj, isLoading) {
-    //     if (isLoading) {
-    //         return PromiseHelper.resolve(dsObj.getFormat());
-    //     } else {
-    //         return dsObj.getDisplayFormat();
-    //     }
-    // }
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
@@ -672,14 +661,19 @@ window.DSTable = (function($, DSTable) {
             return;
         }
 
-        DSPreview.show({
-            "files": [{
-                "path": dsObj.getPath(),
-                "recursive": dsObj.isRecur,
+        var sources = dsObj.getSources();
+        var files = sources.map(function(source) {
+            return {
+                "path": source.path,
+                "recursive": source.recursive,
                 "dsToReplace": dsId
-            }],
+            };
+        });
+        DSPreview.show({
+            "targetName": dsObj.getTargetName(),
+            "files": files,
             "format": dsObj.getFormat(),
-            "pattern": dsObj.pattern,
+            "pattern": sources.fileNamePattern,
             "dsName": dsObj.getName(),
             "skipRows": dsObj.skipRows,
             "moduleName": dsObj.moduleName,

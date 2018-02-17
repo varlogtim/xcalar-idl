@@ -553,19 +553,21 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
 /*
  * options (example):
     {
-        "targetName": "Default Shared Root",
-        "path": "..",
+        "sources": [{
+            "targetName": "Default Shared Root",
+            "path": "..",
+            "recursive": false,
+            "fileNamePattern": "Default Shared Root"
+        }, ...],
         "format": "CSV",
         "fieldDelim": "",
         "recordDelim": "\n",
         "hasHeader": false, // Deprecated
-(future)"schemaMode": CsvSchemaModeT.[CsvSchemaModeNoneProvided|CsvSchemaModeUseHeader|CsvSchemaModeUseLoadInput]
+        "schemaMode": CsvSchemaModeT.[CsvSchemaModeNoneProvided|CsvSchemaModeUseHeader|CsvSchemaModeUseLoadInput]
         "moduleName": udfModule,
         "funcName": udfFunc,
-        "isRecur": isRecur,
         "quoteChar": gDefaultQDelim,
         "skipRows": 0,
-        "fileNamePattern": pattern,
         "udfQuery": udfQuery,
         "typedColumns": [
             {
@@ -578,18 +580,15 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
 XcalarLoad = function(datasetName, options, txId) {
     options = options || {};
 
-    var targetName = options.targetName;
-    var url = options.path;
+    var sources = options.sources;
     var format = options.format;
     var fieldDelim = options.fieldDelim;
     var recordDelim = options.recordDelim;
     var hasHeader = options.hasHeader === true ? true: false;
     var moduleName = options.moduleName;
     var funcName = options.funcName;
-    var isRecur = options.isRecur;
     var quoteChar = options.quoteChar;
     var skipRows = options.skipRows;
-    var fileNamePattern = options.fileNamePattern;
     var typedColumns = options.typedColumns || [];
     var schemaMode;
     if (format === "CSV" && typedColumns.length) {
@@ -712,11 +711,17 @@ XcalarLoad = function(datasetName, options, txId) {
         }
     }
 
-    var sourceArgs = new DataSourceArgsT();
-    sourceArgs.targetName = targetName;
-    sourceArgs.path = url;
-    sourceArgs.fileNamePattern = fileNamePattern;
-    sourceArgs.recursive = isRecur;
+    var sourceArgsList = sources.map(function(source) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = source.targetName;
+        sourceArgs.path = source.path;
+        sourceArgs.fileNamePattern = source.fileNamePattern;
+        sourceArgs.recursive = source.recursive;
+        return sourceArgs;
+    });
+
+    // XXX TODO: use sourceArgsList instead of sourceArgs
+    var sourceArgs = sourceArgsList[0];
 
     var parseArgs = new ParseArgsT();
     parseArgs.parserFnName = parserFnName;
@@ -2680,7 +2685,7 @@ XcalarArchiveTable = function(srcTableNames) {
     });
 
     return deferred.promise();
-}
+};
 
 // PSA!!! This place does not check for unsorted table. So the caller
 // must make sure that the first table that is being passed into XcalarQuery
@@ -3055,31 +3060,6 @@ XcalarListFiles = function(args) {
     });
 
     return (deferred.promise());
-
-    // function getNamePattern(userUrl, isRecur) {
-    //     // XXX Test: folder loading ending with / and without
-    //     // XXX test: single file
-    //     // XXX test: folder with *, file with *
-    //     // Find location of first *
-    //     var star = userUrl.indexOf("*");
-    //     if (star === -1 && !isRecur) {
-    //         return [userUrl, ""];
-    //     }
-
-    //     if (star === -1) {
-    //         star = userUrl.length - 1;
-    //     }
-
-    //     for (var i = star; i >= 0; i--) {
-    //         if (userUrl[i] === "/") {
-    //             return [userUrl.substring(0, i + 1),
-    //                     userUrl.substring(i + 1, userUrl.length)];
-    //         }
-    //     }
-    //     // if code goes here, error case
-    //     console.error("error case!");
-    //     return [userUrl, ""];
-    // }
 };
 
 XcalarSynthesize = function(srcTableName, dstTableName, columns, txId) {

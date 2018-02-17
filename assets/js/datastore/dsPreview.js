@@ -1127,8 +1127,6 @@ window.DSPreview = (function($, DSPreview) {
         var skipRows = res.skipRows;
 
         var header = loadArgs.useHeader();
-        var targetName = loadArgs.getTargetName();
-        var pattern = loadArgs.getPattern();
 
         var rowNumName = res.rowNum || "";
         var fileName = res.fileName || "";
@@ -1174,10 +1172,8 @@ window.DSPreview = (function($, DSPreview) {
                     udfQuery.skipRows = skipRows;
                 }
             }
-            var pointArgs = {
-                "targetName": targetName,
+            var dsArgs = {
                 "format": format,
-                "pattern": pattern,
                 "fieldDelim": fieldDelim,
                 "lineDelim": lineDelim,
                 "hasHeader": header,
@@ -1190,7 +1186,7 @@ window.DSPreview = (function($, DSPreview) {
                 "advancedArgs": advancedArgs,
             };
 
-            return importDataHelper(dsNames, pointArgs, toCreateTable);
+            return importDataHelper(dsNames, dsArgs, toCreateTable);
         })
         .then(function() {
             cleanTempParser(true);
@@ -1201,33 +1197,42 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function importDataHelper(dsNames, pointArgs, toCreateTable) {
+    function importDataHelper(dsNames, dsArgs, toCreateTable) {
         var multiDS = loadArgs.multiDS;
         var files = loadArgs.files;
+        var targetName = loadArgs.getTargetName();
+        var fileNamePatttern = loadArgs.getPattern();
         var promises = [];
+        var getSource = function(file) {
+            return {
+                targetName: targetName,
+                path: file.path,
+                recursive: file.recursive,
+                fileNamePatttern: fileNamePatttern
+            };
+        };
 
         if (multiDS) {
             files.forEach(function(file, index) {
                 // need {} to create a different copy than poinArgs
-                var args = $.extend({}, pointArgs, {
+                var source = getSource(file);
+                var args = $.extend({}, dsArgs, {
                     "name": dsNames[index],
-                    "path": file.path,
-                    "isRecur": file.recursive
+                    "sources": [source]
                 });
-                promises.push(DS.point(args, {
+                promises.push(DS.import(args, {
                     "createTable": toCreateTable
                 }));
             });
             return PromiseHelper.when.apply(this. promises);
         } else {
-            // XXX TODO: wire in multiple files load in one ds case
-            var singleLoadArgs = $.extend(pointArgs, {
+            var sources = files.map(getSource);
+            var multiLoadArgs = $.extend(dsArgs, {
                 "name": dsNames[0],
-                "path": files[0].path,
-                "isRecur": files[0].recursive
+                "sources": sources
             });
             var dsToReplace = files[0].dsToReplace || null;
-            return DS.point(singleLoadArgs, {
+            return DS.import(multiLoadArgs, {
                 "createTable": toCreateTable,
                 "dsToReplace": dsToReplace
             });

@@ -248,7 +248,7 @@
             },
 
             getVersionId: function() {
-                return this[DSInfoKeys.VersionId]
+                return this[DSInfoKeys.VersionId];
             },
 
             setVersionId: function(id) {
@@ -1920,10 +1920,14 @@
                 udfQuery: (object), extra udf args,
                 locked: (boolean, not persisted), is dataset locked or not
                 targetName: (string), the src of targetName,
-                typedColumns: (array)
+                typedColumns: (array),
+                sources: (array, not persist)
             removed attr:
                 previewSize
                 isRegex
+                path,
+                isRecur,
+                pattern
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1936,17 +1940,20 @@
                 if (options.locked != null) {
                     self.locked = options.locked;
                 }
-                if (options.targetName != null) {
-                    self.targetName = options.targetName;
-                }
                 if (options.typedColumns != null) {
                     self.typedColumns = options.typedColumns;
                 }
                 if (options.advancedArgs != null) {
                     self.advancedArgs = options.advancedArgs;
                 }
+                if (options.sources != null) {
+                    self.sources = options.sources;
+                }
                 delete self.previewSize;
                 delete self.isRegex;
+                delete self.path;
+                delete self.isRecur;
+                delete self.pattern;
             }
             return self;
         }
@@ -1986,67 +1993,38 @@
                 return this.format;
             },
 
-            getDisplayFormat: function() {
-                var self = this;
-                if (self.displayFormat != null) {
-                    return PromiseHelper.resolve(self.displayFormat);
-                }
-
-                var deferred = jQuery.Deferred();
-                var dsName = parseDS(self.fullName);
-                XcalarGetDag(dsName)
-                .then(function(res) {
-                    try {
-                        var udf = res.node[0].input.loadInput.loadArgs
-                                  .parseArgs.parserFnName;
-                        if (udf === "default:openExcel") {
-                            self.displayFormat = "Excel";
-                        } else {
-                            self.displayFormat = self.format;
-                        }
-                        deferred.resolve(self.displayFormat);
-                    } catch (e) {
-                        console.error(e);
-                        deferred.resolve(self.format);
-                    }
-                })
-                .fail(function(error) {
-                    console.error(error);
-                    deferred.resolve(self.format);
-                });
-
-                return deferred.promise();
-            },
-
-            getPath: function() {
-                return this.path;
-            },
-
             getPathWithPattern: function() {
-                var path = this.path;
-                if (this.pattern) {
-                    path += " | " + DSFormTStr.Pattern + ": " + this.pattern;
+                var firstSource = this.sources[0];
+                var path = firstSource.path;
+                if (firstSource.fileNamePattern) {
+                    path += " | " + DSFormTStr.Pattern + ": " +
+                            firstSource.fileNamePattern;
                 }
                 return path;
             },
 
             getTargetName: function() {
-                return this.targetName;
+                return this.sources[0].targetName;
             },
 
-            getPointArgs: function() {
+            getSources: function() {
+                return this.sources;
+            },
+
+            getImportOptions: function() {
                 // loadURL, format, fullName,
                 // fieldDelim, lineDelim, hasHeader,
                 // moduleName, funcName, isRecur,
                 // quoteChar, skipRows, pattern, headers, typedColumns
                 var self = this;
                 var options = {
+                    "sources": self.sources,
+                    "format": self.format,
                     "fieldDelim": self.fieldDelim,
                     "recordDelim": self.lineDelim,
                     "hasHeader": self.hasHeader,
                     "moduleName": self.moduleName,
                     "funcName": self.funcName,
-                    "isRecur": self.isRecur,
                     "quoteChar": self.quoteChar,
                     "skipRows": self.skipRows,
                     "fileNamePattern": self.pattern,
@@ -2055,7 +2033,7 @@
                     "typedColumns": self.typedColumns,
                     "advancedArgs": self.advancedArgs,
                 };
-                return [self.path, self.format, self.fullName, options];
+                return options;
             },
 
             getNumEntries: function() {
@@ -2071,7 +2049,7 @@
                 if (this.size == null) {
                     size = CommonTxtTstr.NA;
                 } else {
-                    size = xcHelper.sizeTranslator(this.size)
+                    size = xcHelper.sizeTranslator(this.size);
                 }
                 return size;
             },
@@ -2162,11 +2140,10 @@
                 var deferred = jQuery.Deferred();
                 freeError()
                 .then(function() {
-                    return XcalarSetFree(resultSetId)
+                    return XcalarSetFree(resultSetId);
                 })
                 .then(function() {
                     self.resultSetId = null;
-
                     deferred.resolve();
                 })
                 .fail(deferred.reject);

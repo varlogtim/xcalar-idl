@@ -258,7 +258,7 @@ window.DS = (function ($, DS) {
             createTable: if set true, will auto create the table
             dsToReplace: if set true, will replace the old ds
     */
-    DS.point = function(pointArgs, options) {
+    DS.import = function(dsArgs, options) {
         options = options || {};
         var createTable = options.createTable || false;
         var dsToReplace = options.dsToReplace || null;
@@ -270,10 +270,10 @@ window.DS = (function ($, DS) {
             clearDirStack();
         }
 
-        var dsObj = createDS(pointArgs, dsToReplace);
+        var dsObj = createDS(dsArgs, dsToReplace);
         var sql = {
             "operation": SQLOps.DSPoint,
-            "pointArgs": pointArgs,
+            "args": dsArgs,
             "options": options
         };
 
@@ -395,7 +395,7 @@ window.DS = (function ($, DS) {
         }
         $grid.removeClass("active").addClass("inactive deleting");
         var txId = $grid.data("txid");
-        // if cancel success, it will trigger fail in DS.point, so it's fine
+        // if cancel success, it will trigger fail in DS.import, so it's fine
         QueryManager.cancelQuery(txId)
         .then(deferred.resolve)
         .fail(function(error) {
@@ -551,8 +551,7 @@ window.DS = (function ($, DS) {
             "user": XcSupport.getUser(),
             "parentId": DSObjTerm.homeParentId,
             "uneditable": false,
-            "isFolder": true,
-            "isRecur": false
+            "isFolder": true
         });
     }
 
@@ -845,13 +844,8 @@ window.DS = (function ($, DS) {
         // focus on grid before load
         DS.focusOn($grid)
         .then(function() {
-            var args = dsObj.getPointArgs();
-            datasetName = args[2];
-            var options = args[3];
-
-            options.path = args[0];
-            options.format = args[1];
-            options.targetName = dsObj.getTargetName();
+            datasetName = dsObj.getFullName();
+            var options = dsObj.getImportOptions();
             return XcalarLoad(datasetName, options, txId);
         })
         .then(function() {
@@ -1638,10 +1632,10 @@ window.DS = (function ($, DS) {
         return {
             // format should come from kvStore, not from backend
             // "format": xcHelper.parseDSFormat(ds),
-            "path": ds.loadArgs.sourceArgs.path,
+            // XXX TODO: change to sourceArgsList
+            "sources": [ds.loadArgs.sourceArgs],
             "unlistable": !ds.isListable,
             "locked": ds.locked,
-            "targetName": ds.loadArgs.sourceArgs.targetName,
             "size": ds.size,
             "headers": ds.headers
         };
@@ -1713,20 +1707,15 @@ window.DS = (function ($, DS) {
                 var user = parsedRes.user;
                 var dsName = parsedRes.dsName;
 
-                var options = {
+                var options = $.extend({
                     "id": fullDSName, // user the fulldsname as a unique id
                     "parentId": DSObjTerm.SharedFolderId,
                     "name": dsName,
                     "user": user,
                     "fullName": fullDSName,
                     "isFolder": false,
-                    "format": format,
-                    "path": ds.loadArgs.sourceArgs.path,
-                    "unlistable": !ds.isListable,
-                    "locked": ds.locked,
-                    "targetName": ds.loadArgs.sourceArgs.targetName,
-                    "size": ds.size
-                };
+                    "format": format
+                }, getDSOptions(ds));
 
                 createDS(options);
             }

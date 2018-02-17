@@ -1957,19 +1957,6 @@ describe("Persistent Constructor Test", function() {
             expect(dsObj.getTargetName()).to.equal("test target");
         });
 
-        it("Should get path", function() {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "parentId": DSObjTerm.homeParentId,
-                "targetName": "test target",
-                "path": "/netstore/datasets/gdelt/"
-            });
-
-            expect(dsObj.getPath())
-            .to.equal("/netstore/datasets/gdelt/");
-        });
-
         it("Should get path with pattern", function() {
             var dsObj = new DSObj({
                 "id": "testId",
@@ -2086,7 +2073,7 @@ describe("Persistent Constructor Test", function() {
                 "numEntries": 1000,
             });
 
-            var res = dsObj.getPointArgs();
+            var res = dsObj.getImportOptions();
             expect(res).to.be.an("array");
             expect(res[0]).to.equal("/netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
@@ -2110,7 +2097,7 @@ describe("Persistent Constructor Test", function() {
                 "numEntries": 1000
             });
 
-            res = dsObj.getPointArgs();
+            res = dsObj.getImportOptions();
             expect(res).to.be.an("array");
             expect(res[0]).to.equal("/netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
@@ -2134,7 +2121,7 @@ describe("Persistent Constructor Test", function() {
                 "udfQuery": {"a": 1}
             });
 
-            res = dsObj.getPointArgs();
+            res = dsObj.getImportOptions();
             expect(res[3]).to.be.a("object")
             .and.to.have.property("udfQuery");
             expect(res[3].udfQuery).to.have.property("a")
@@ -2158,139 +2145,6 @@ describe("Persistent Constructor Test", function() {
             dsObj.setSize(null);
             expect(dsObj.getSize()).to.be.null;
             expect(dsObj.getDisplaySize()).to.equal(CommonTxtTstr.NA);
-        });
-
-        it("getDisplayFormat should get Excel format", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId
-            });
-
-            var oldFunc = XcalarGetDag;
-            XcalarGetDag = function() {
-                return PromiseHelper.resolve({
-                    "node": [{
-                        "input": {
-                            "loadInput": {
-                                "loadArgs": {
-                                    "parseArgs": {
-                                        "parserFnName": "default:openExcel"
-                                    }
-                                }
-                            }
-                        }
-                    }]
-                });
-            };
-
-            dsObj.getDisplayFormat()
-            .then(function(format) {
-                expect(format).to.equal("Excel");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarGetDag = oldFunc;
-            });
-        });
-
-        it("getDisplayFormat should get CSV format", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "format": "CSV"
-            });
-
-            var oldFunc = XcalarGetDag;
-            XcalarGetDag = function() {
-                return PromiseHelper.resolve({
-                    "node": [{
-                        "input": {
-                            "loadInput": {
-                                "loadArgs": {
-                                    "parseArgs": {
-                                        "parserFnName": "test"
-                                    }
-                                }
-                            }
-                        }
-                    }]
-                });
-            };
-
-            dsObj.getDisplayFormat()
-            .then(function(format) {
-                expect(format).to.equal("CSV");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarGetDag = oldFunc;
-            });
-        });
-
-        it("getDisplayFormat should handle cannot parse case", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "format": "JSON"
-            });
-
-            var oldFunc = XcalarGetDag;
-            XcalarGetDag = function() {
-                return PromiseHelper.resolve({
-                    "node": ["cannot parse case"]
-                });
-            };
-
-            dsObj.getDisplayFormat()
-            .then(function(format) {
-                expect(format).to.equal("JSON");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarGetDag = oldFunc;
-            });
-        });
-
-        it("getDisplayFormat should handle error case", function(done) {
-            var dsObj = new DSObj({
-                "id": "testId",
-                "name": "testName",
-                "fullName": "testFullName",
-                "parentId": DSObjTerm.homeParentId,
-                "format": "JSON"
-            });
-
-            var oldFunc = XcalarGetDag;
-            XcalarGetDag = function() {
-                return PromiseHelper.reject("test error");
-            };
-
-            dsObj.getDisplayFormat()
-            .then(function(format) {
-                expect(format).to.equal("JSON");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarGetDag = oldFunc;
-            });
         });
 
         it("Should get and set error", function() {
