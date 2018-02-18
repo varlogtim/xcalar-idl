@@ -23,6 +23,7 @@ window.ExportView = (function($, ExportView) {
         $exportView = $("#exportView");
         $exportName = $("#exportName");
         $exportPath = $("#exportPath");
+        $exportList = $("#exportLists");
         $advancedSection = $exportView.find('.advancedSection');
         $colList = $exportView.find('.cols');
 
@@ -47,6 +48,27 @@ window.ExportView = (function($, ExportView) {
         $exportView.on("click", ".confirm", function() {
             // error is handled in xcfunction.export
             submitForm();
+        });
+
+        var $list = $exportList;
+        var dropdownHelper = new MenuHelper($list, {
+            "onOpen": function() {
+                var $lis = $list.find('li').sort(xcHelper.sortHTML);
+                $lis.prependTo($list.find('ul'));
+            },
+            "container": "#exportLists"
+        });
+        dropdownHelper.setupListeners();
+        var dropdownHint = new InputDropdownHint($list, {
+            "preventClearOnBlur": true,
+            "order": true,
+            "menuHelper": dropdownHelper,
+            "onEnter": function (val, $input) {
+                if (val === $.trim($input.val())) {
+                    return;
+                }
+                $input.val(val);
+            }
         });
 
         $exportView.find('.keepOrderedCBWrap').click(function() {
@@ -548,7 +570,7 @@ window.ExportView = (function($, ExportView) {
         targets.sort(sortTargets);
 
         var $exportList = $('#exportLists').find('ul');
-        var lis = '<li class="hint">Choose a target</li>';
+        var lis = '';
         for (var i = 0; i < numTargets; i++) {
             lis += '<li data-type="' + targets[i].hdr.type + '">' + targets[i].hdr.name + '</li>';
         }

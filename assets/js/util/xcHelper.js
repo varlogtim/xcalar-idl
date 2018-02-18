@@ -2880,6 +2880,10 @@
         }
     };
 
+    xcHelper.sortHTML = function(a, b) {
+        return ($(b).text()) < ($(a).text()) ? 1 : -1;
+    }
+
     // used to split query into array of subqueries by semicolons
     // returns array of objects, objects contain query, name, and dstTable
     xcHelper.parseQuery = function(query) {

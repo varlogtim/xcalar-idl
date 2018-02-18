@@ -2658,7 +2658,7 @@ InputSuggest.prototype = {
 // options:
 // menuHelper: (required) instance of MenuHelper
 // preventClearOnBlur: boolean, if true will not reset the input on blur
-// reorder: boolean, if true will place "starts with" matches first
+// order: boolean, if true will place "starts with" matches first
 function InputDropdownHint($dropdown, options) {
     this.$dropdown = $dropdown;
     this.options = options || {};
@@ -2739,6 +2739,10 @@ InputDropdownHint.prototype = {
         var $list = $lis.parent();
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
+            if (this.options.order) {
+                $lis = $lis.sort(xcHelper.sortHTML);
+                $lis.prependTo($list);
+            }
             $list.scrollTop(0);
             this.options.menuHelper.showOrHideScrollers();
             return;

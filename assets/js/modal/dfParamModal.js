@@ -527,7 +527,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $input.val(val).data("val", val);
             },
             "onOpen": function() {
-                var $lis = $list.find('li').sort(sortHTML);
+                var $lis = $list.find('li').sort(xcHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
             "container": "#dfParamModal",
@@ -567,7 +567,7 @@ window.DFParamModal = (function($, DFParamModal){
             },
             "onOpen": function() {
                 var $lis = $list.find('li')
-                                .sort(sortHTML)
+                                .sort(xcHelper.sortHTML)
                                 .show();
                 $lis.prependTo($list.find('ul'));
                 $list.find('ul').width($list.width() - 1);
@@ -637,7 +637,7 @@ window.DFParamModal = (function($, DFParamModal){
                 },
                 "onOpen": function() {
                     var $lis = $list.find('li')
-                                    .sort(sortHTML)
+                                    .sort(xcHelper.sortHTML)
                                     .show();
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
@@ -1227,7 +1227,7 @@ window.DFParamModal = (function($, DFParamModal){
                     $(this).text().toLowerCase().indexOf(value) !== -1);
         }).show();
 
-        $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
+        $visibleLis.sort(xcHelper.sortHTML).prependTo($list.find('ul'));
 
         if (dropdownHelper) {
             dropdownHelper.showOrHideScrollers();
@@ -1249,10 +1249,6 @@ window.DFParamModal = (function($, DFParamModal){
         if ($list.find('li:visible').length === 0) {
             $list.hide();
         }
-    }
-
-    function sortHTML(a, b){
-        return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
 
     function updateNumArgs(func) {
