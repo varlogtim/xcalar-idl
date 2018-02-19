@@ -1302,7 +1302,7 @@ window.DagDraw = (function($, DagDraw) {
                 // pattern = dagInfo.loadInfo.fileNamePattern;
                 pattern = dagInfo.loadInfo.loadArgs.sourceArgs.fileNamePattern;
                 targetName = dagInfo.loadInfo.loadArgs.sourceArgs.targetName;
-                tableClasses += "dataStore ";
+                tableClasses += "dataStore dataset ";
             }  else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
                 tId = xcHelper.getTableId(tableName);
                 tableClasses += "synthesize ";

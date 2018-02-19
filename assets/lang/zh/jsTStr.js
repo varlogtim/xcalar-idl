@@ -123,6 +123,7 @@ TooltipTStr = {
 "CannotDropLocked": '表锁定时无法执行删除操作',
 "SystemGood": '系统运行正常',
 'CollapsedTables': '当前有 <number> 张表处于折叠状态',
+'DroppedDS': 'Dataset \'<datasetname>\' has been dropped',
 'DroppedTable': '表\'<tablename> \'已被删除',
 'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
 'NoExport': '不能导出类​​型为<type>的列',

@@ -2772,6 +2772,7 @@ window.DS = (function ($, DS) {
             dsObj.unlock();
             DS.getGrid(dsId).removeClass("locked");
             datasets.push(dsId);
+            Dag.makeInactive(fullDSName, true);
             deferred.resolve();
         })
         .fail(function(error) {

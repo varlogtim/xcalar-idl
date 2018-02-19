@@ -248,8 +248,15 @@ window.Dag = (function($, Dag) {
 
         $dags.removeClass('Ready')
              .addClass('Dropped');
-        var text = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+        var text;
+        if ($dags.hasClass("dataset")) {
+            text = xcHelper.replaceMsg(TooltipTStr.DroppedDS,
+                                        {"datasetname": tableName});
+        } else {
+            text = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                                         {"tablename": tableName});
+        }
+
         $dags.find(".dagTableIcon, .dataStoreIcon").each(function() {
             xcTooltip.changeText($(this), text);
         });
