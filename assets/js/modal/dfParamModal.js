@@ -536,7 +536,7 @@ window.DFParamModal = (function($, DFParamModal){
             "exclude": '.draggableDiv, .defaultParam'
         });
 
-        var dropdownHint = new InputDropdownHint($list, {
+        new InputDropdownHint($list, {
             "preventClearOnBlur": true,
             "order": true,
             "menuHelper": dropdownHelper,
@@ -546,14 +546,14 @@ window.DFParamModal = (function($, DFParamModal){
                 }
                 $input.val(val);
             }
-        })
+        });
     }
 
     function filterSetup() {
         var deferred = jQuery.Deferred();
         var $list = $dfParamModal.find('.tdWrapper.dropDownList');
 
-       dropdownHelper = new MenuHelper($list, {
+        dropdownHelper = new MenuHelper($list, {
             "onSelect": function($li) {
                 var func = $li.text();
                 var $input = $list.find("input.editableParamDiv");
@@ -681,7 +681,7 @@ window.DFParamModal = (function($, DFParamModal){
         options = options || {};
         if (type === "dataStore") {
             var encodePath = paramValue[1];
-            defaultText +=  '<div class="templateRow">' +
+            defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     'Target Name' + ':' +
                                 '</div>' +
@@ -916,8 +916,8 @@ window.DFParamModal = (function($, DFParamModal){
         };
 
         settingText += getExportSettingInput(2, 'Overwrite', 'createRule', createRule, true, createRuleOptions, true) +
-                        getExportSettingInput(3, 'Record Delimeter', 'recordDelim', recordDelim, false) +
-                        getExportSettingInput(4, 'Field Delimeter', 'fieldDelim', fieldDelim, false) +
+                        getExportSettingInput(3, 'Record Delimiter', 'recordDelim', recordDelim, false) +
+                        getExportSettingInput(4, 'Field Delimiter', 'fieldDelim', fieldDelim, false) +
                         getExportSettingInput(5, 'Quote Character', 'quoteDelim', quoteDelim, false) +
                         getExportSettingInput(6, 'Header', 'headerType', headerType, true, headerTypeOptions, true) +
                         getExportSettingInput(7, 'Preserve Order', 'sorted', sorted, true, sortedOptions, true) +
@@ -1012,8 +1012,8 @@ window.DFParamModal = (function($, DFParamModal){
         defaultText += '<div class="templateTable">' +
                         '<div class="template flexContainer">' +
                         getExportSettingDefault('Overwrite', createRule) +
-                        getExportSettingDefault('Record Delimeter', recordDelim) +
-                        getExportSettingDefault('Field Delimeter', fieldDelim) +
+                        getExportSettingDefault('Record Delimiter', recordDelim) +
+                        getExportSettingDefault('Field Delimiter', fieldDelim) +
                         getExportSettingDefault('Quote Character', quoteDelim) +
                         getExportSettingDefault('Header', headerType) +
                         getExportSettingDefault('Preserve Order', sorted) +

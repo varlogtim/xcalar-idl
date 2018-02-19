@@ -62,7 +62,7 @@ window.UExtNormalization = (function(UExtNormalization) {
     */
 
     function cutConcatCol(ext, cutConditionArgs, columns, columnNames,
-        concatColName, fieldDelimeter, groupName) {
+        concatColName, fieldDelimiter, groupName) {
 
         var deferred = XcSDK.Promise.deferred();
 
@@ -75,7 +75,7 @@ window.UExtNormalization = (function(UExtNormalization) {
         var index = cutConditionArgs.cnt + 1;
         // cut the string and get element at the current index
         var cutMapStr = "cut(" + concatColName + ', ' +
-            index + ', "' + fieldDelimeter + '")';
+            index + ', "' + fieldDelimiter + '")';
 
         switch (colType) {
             // cast back to original type
@@ -169,7 +169,7 @@ window.UExtNormalization = (function(UExtNormalization) {
         var concatMapStr = "";
         var lastIndex = colNamesCastToString.length - 1;
 
-        var fieldDelimeter = (Math.random() + Math.random() + 1000).toString(36);
+        var fieldDelimiter = (Math.random() + Math.random() + 1000).toString(36);
         if (lastIndex === 0) {
             // if the group only has one column, cast it to string to keep
             // consistent naming as this column is used for joins and groupbys
@@ -180,7 +180,7 @@ window.UExtNormalization = (function(UExtNormalization) {
             for (var i = 0; i < lastIndex; i++) {
                 var currName = colNamesCastToString[i];
                 concatMapStr += "concat(" + currName + ", " + 'concat("' +
-                    fieldDelimeter + '", ';
+                    fieldDelimiter + '", ';
             }
             var endStr = ")".repeat(2*lastIndex);
             concatMapStr += colNamesCastToString[lastIndex] + endStr;
@@ -226,7 +226,7 @@ window.UExtNormalization = (function(UExtNormalization) {
                     var tempColName;
                     var idColIndex = columnNames.indexOf(idCol.getName()) + 1;
                     var cutMapStr = "cut(" + concatColName + ', ' +
-                        idColIndex + ', "' + fieldDelimeter + '")';
+                        idColIndex + ', "' + fieldDelimiter + '")';
                     // get id column
                     ext.map(cutMapStr, inputTable, newColName,
                         ext.createTempTableName())
@@ -290,7 +290,7 @@ window.UExtNormalization = (function(UExtNormalization) {
             cutConditon = "args[1].cnt >= args[1].threshold";
             // extract each column one by one in this loop
             XcSDK.Promise.while(cutConcatCol, [ext, cutConditionArgs, columns,
-                columnNamesNew, concatColName, fieldDelimeter, groupName],
+                columnNamesNew, concatColName, fieldDelimiter, groupName],
                 cutConditon, cutConditionArgs)
             .then(function() {
                 // display all the newly created columns and remove the
