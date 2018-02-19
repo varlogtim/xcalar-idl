@@ -1003,9 +1003,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function submitForm($ds) {
-        // XXX Now we're still using curDir. But ideally we should directly use
-        // filename, which is the relative path (to data target root) + actual
-        // filename
         var curDir = getCurrentPath();
         var targetName = getCurrentTarget();
         var size = 0;
@@ -1591,8 +1588,9 @@ window.FileBrowser = (function($, FileBrowser) {
         $innerContainer.find(".label").each(function() {
             var $label = $(this);
             var name = $label.data("name");
-            xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
-                                     !isListView, ctx);
+            var ellipsis = xcHelper.middleEllipsis(name, $label, maxChar,
+                                                   maxWidth, !isListView, ctx);
+            toggleTooltip($label, name, ellipsis);
         });
     }
     function refreshFileListEllipsis($fileName) {
@@ -1606,25 +1604,27 @@ window.FileBrowser = (function($, FileBrowser) {
         if ($fileName && $fileName.length > 0) {
             ellipsis = xcHelper.middleEllipsis(name, $fileName, maxChar,
                                                maxWidth, false, ctx);
-            if (ellipsis) {
-                addTooltip($fileName, name);
-            }
+            toggleTooltip($fileName, name, ellipsis);
         } else {
             $pickedFileList.find("span").each(function() {
                 var $span = $(this);
                 name = $span.text();
                 ellipsis = xcHelper.middleEllipsis(name, $span, maxChar,
                                                    maxWidth, false, ctx);
-                if (ellipsis) {
-                    addTooltip($fileName, name);
-                }
+                toggleTooltip($span, name, ellipsis);
             });
         }
     }
-    function addTooltip($span, name) {
-        $span.attr({"data-toggle": "tooltip", "data-container": "body",
-                    "data-title": name, "data-placement": "top",
-                    "data-original-title": "", "title":""});
+    function toggleTooltip($text, name, isEllipsis) {
+        // GridView may have different ellipsis than listView
+        if (isEllipsis) {
+            $text.attr({"data-toggle": "tooltip", "data-container": "body",
+                        "data-title": name, "data-placement": "top",
+                        "data-original-title": "", "title":""});
+        } else {
+            $text.removeAttr("data-toggle data-container data-title " +
+                             "data-placement data-original-title title");
+        }
     }
 
     function addKeyBoardEvent() {
