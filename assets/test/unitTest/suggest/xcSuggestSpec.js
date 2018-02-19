@@ -663,26 +663,26 @@ describe("xcSuggest", function() {
                 "expect": ""
             }, {
                 "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
-                        "a\tb\tc\td,e\n" +
+                        "a\tb\tc\td\t,e\n" +
                         "1\t2\t3\t4\t5,6",
                 "expect": "\t"
             }, {
                 "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
-                        "a\tb\tc\td,e\n" +
-                        "1\t2\t3\t4|5,6",
+                        "a\tb\tc\td\t,e\n" +
+                        "1\t2\t3\t4\t|5,6",
                 "expect": "\t"
             }, {
-                "data": "col1\tcol2\tcol3\tcol4\tcol5\n" +
-                        "a\tb\tc\td,e\n" +
-                        "1\t2\t3,4,5\n" +
-                        "h\ti,j,k,l\n",
-                "expect": "\t"
+                "data": "col1,col2,col3,col4,col5\n" +
+                        "a,b,c,d,e\n" +
+                        "\"1,1\n1\",'2,2\n2',3,4,5\n" +
+                        "h,i,\tj\t,k,\tl\n",
+                "expect": ","
             }];
 
             tests.forEach(function(test) {
                 var rawStr = test.data;
-                expect(xcSuggest.detectFieldDelimiter(rawStr))
-                .to.equal(test.expect);
+                var res = xcSuggest.detectFieldDelimiter(rawStr);
+                expect(res).to.equal(test.expect);
             });
         });
 

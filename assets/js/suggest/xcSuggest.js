@@ -614,7 +614,10 @@ window.xcSuggest = (function($, xcSuggest) {
     xcSuggest.detectFieldDelimiter = function(rawStr) {
         // Number of samples can be changed
         var numOfSamples = 10;
-        var samples = rawStr.split(/\r\n|\r|\n/).slice(0, numOfSamples);
+        // remove stuff inside quote
+        // reference: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
+        var strippedStr = rawStr.replace(/(?=["'])(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
+        var samples = strippedStr.split(/\r\n|\r|\n/).slice(0, numOfSamples);
         // delimiters: [",", "\t", "|"]
         var delimiters = [];
         // occurences: {",": [1,1,1...], "\t": [2,2,2...], "|": [3,3,3...]}
@@ -624,7 +627,7 @@ window.xcSuggest = (function($, xcSuggest) {
             // Only keep non-alphanumeric characters
             var line = samples[i].replace(/[a-zA-Z\d ]/g, "");
             // Remove contents within quotes
-            line = line.replace(/(".*?")|('.*?')/g, "");
+            // line = line.replace(/(".*?")|('.*?')/g, "");
             // Also increase validLineCounter
             validLineCounter += 1;
             Object.keys(occurences).map(function(key) {
