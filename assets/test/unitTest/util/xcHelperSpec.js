@@ -2207,6 +2207,15 @@ describe("xcHelper Test", function() {
         expect(res.name).to.equal("test");
     });
 
+    it("xcHelper.stripPrefixInColName should work", function() {
+        // case 1
+        var res = xcHelper.stripPrefixInColName("a::b");
+        expect(res).to.equal("a--b");
+        // case 2
+        res = xcHelper.stripPrefixInColName("ab");
+        expect(res).to.equal("ab");
+    });
+
     it("xcHelper.normalizePrefix should work", function() {
         // case 1
         var res = xcHelper.normalizePrefix("abc");

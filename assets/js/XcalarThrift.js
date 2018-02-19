@@ -1107,7 +1107,7 @@ XcalarUnlockDataset = function(dsName, txId) {
 
     var query = XcalarGetQuery(workItem);
     if (txId != null) {
-        Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop", query);
+        Transaction.startSubQuery(txId, 'delete dataset', dsName, query);
     }
 
     def
@@ -1115,7 +1115,7 @@ XcalarUnlockDataset = function(dsName, txId) {
         // txId may be null if performing a
         // deletion not triggered by the user (i.e. clean up)
         if (txId != null) {
-            Transaction.log(txId, query, dsName + "drop", ret.timeElapsed);
+            Transaction.log(txId, query, dsName, ret.timeElapsed);
         }
         deferred.resolve();
     })

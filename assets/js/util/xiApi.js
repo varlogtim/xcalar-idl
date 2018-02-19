@@ -1694,17 +1694,18 @@
         }
 
         // XXX FIXME rIndexedColNames[0] is wrong in the cases where it is
-        // called a::b, and there's another immediate called b
-        // This is because a::b will becomes b.
+        // called a::b, and there's another immediate called a--b
+        // This is because a::b will becomes a--b.
+        var newKeyFieldName = xcHelper.stripPrefixInColName(rIndexedColNames[0]);
         XcalarGroupByWithEvalStrings([newColName], ["count(1)"], rIndexedTable,
-                      newGbTableName, false, false, rIndexedColNames[0], false,
+                      newGbTableName, false, false, newKeyFieldName, false,
                       txId)
         .then(doJoin)
         .then(function() {
             if (joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
                 joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin) {
                 tempTables.push(antiJoinTableName);
-                return XcalarFilter("not(exists(" + rIndexedColNames[0] + "))",
+                return XcalarFilter("not(exists(" + newKeyFieldName + "))",
                        antiJoinTableName, newTableName, txId);
             } else {
                 return PromiseHelper.resolve();
@@ -2096,6 +2097,9 @@
         return deferred.promise();
     }
 
+    // XXX FIXME: currently it can only triggered by sql which assumes all columns
+    // are derived fields. When this assumption breaks, must hand the case when
+    // newKeyFieldName in XcalarGroupByWithEvalStrings is a prefix
     function computeDistinctGroupby(origTableName, groupOnCols, distinctCol,
                                     aggEvalStrArray, tempTableArray, tempCols,
                                     distinctGbTableNames, txId) {
