@@ -5442,55 +5442,81 @@ module.exports = function(grunt) {
             SRCROOT
             (git workspace to generate build from)
         */
-        SRCROOT = grunt.option(BLD_OP_SRC_REPO) || process.env[XLRGUIDIR];
-        if ( !SRCROOT ) {
-            grunt.fail.fatal("You do not have the environment variable $"
-                + XLRGUIDIR
-                + " set on your machine."
-                + "\nGrunt will default to the value of this env variable"
-                + " as the source directory of the xcalar-gui project to build from,"
-                + "\nif you do not supply the option --"
-                + BLD_OP_SRC_REPO
-                + "\n\nEither set this env variable, or re-run with the option --"
-                + BLD_OP_SRC_REPO
-                + "=<src dir to build from>");
-        }
-        // put trailing / if it's not there, to keep things consistent
-        if(!SRCROOT.endsWith(path.sep)) { SRCROOT = SRCROOT + path.sep; }
-        if(!grunt.file.exists(SRCROOT)) {  // make sure this is a valid dir
-            grunt.fail.fatal("--" + BLD_OP_SRC_REPO + " Error:"
-                + " Repo to generate build from specified as "
-                + SRCROOT
-                + ", but this dir does not exist.");
-        }
-        // warning if going to build from project src diff from their XLRGUIDIR
-        if ( process.env[XLRGUIDIR] ) {
-            if (!grunt.file.arePathsEquivalent(SRCROOT, process.env[XLRGUIDIR]) ) {
-                grunt.log.writeln(("You are trying to build project src other than your $"
-                    + XLRGUIDIR
-                    + "\n\n\tYour xlrgui dir: " + process.env[XLRGUIDIR]
-                    + "\n\n\tRequiested project src for bld: " + SRCROOT
-                    + "\n\nPlease be careful!  If other build tools are called, I can't gaurantee they will work."
-                    + "\nCrazy shit might be about to happen!").bold.red);
+        SRCROOT = grunt.option(BLD_OP_SRC_REPO) || process.env[XLRGUIDIR] || process.cwd();
+        if ( SRCROOT ) {
+            // put trailing / if it's not there, to keep things consistent
+            if(!SRCROOT.endsWith(path.sep)) { SRCROOT = SRCROOT + path.sep; }
+            if(!grunt.file.exists(SRCROOT)) {  // make sure this is a valid dir
+                grunt.fail.fatal("--" + BLD_OP_SRC_REPO + " Error:"
+                    + " Repo to generate build from specified as "
+                    + SRCROOT
+                    + ", but this dir does not exist.");
             }
-            else {
-                // give them a warning if they are building from their xlrguidir, but its not their cwd
-                if ( !grunt.file.arePathsEquivalent(SRCROOT, process.cwd()) ) {
-                    grunt.log.writeln(("You are trying to build from your $"
+
+            // make sure this is a xcalar-gui project by looking for the icon at src
+            var xcalarGuiFileCheck = 'favicon.ico';
+            if ( !grunt.file.exists(SRCROOT + xcalarGuiFileCheck) ) {
+                grunt.fail.fatal("Project source you're trying to build from: "
+                    + SRCROOT
+                    + "\nbut could not find file: "
+                    + xcalarGuiFileCheck
+                    + " in this directory."
+                    + "\n\nThis file should be at the root of a xcalar-gui src dir -"
+                    + " has this changed?"
+                    + "\n\nNote - Grunt determined your project src by looking for"
+                    + " one of the following in this order:"
+                    + "\n\t1. option: --" + BLD_OP_SRC_REPO
+                    + "\n\t2. Env var: " + XLRGUIDIR
+                    + "\n\t3. cwd you are running from"
+                    + "\nSo, you can re-run script with option --"
+                    + BLD_OP_SRC_REPO + "=<abs path to proj src>"
+                    + " to specify a diff project source to build from.");
+            }
+
+            // warning if going to build from project src diff from their XLRGUIDIR
+            if ( process.env[XLRGUIDIR] ) {
+                if (!grunt.file.arePathsEquivalent(SRCROOT, process.env[XLRGUIDIR]) ) {
+                    grunt.log.writeln(("\n=================================="
+                        + "\nYour local machine has env variable set: "
                         + XLRGUIDIR
-                        + " (because you did not specify arg --"
-                        + BLD_OP_SRC_REPO
-                        + ")."
-                        + "\nHowever, $"
-                        + XLRGUIDIR
-                        + " is NOT the cwd!"
-                        + "\n\tYour xlrgui dir/proj src for this build: "
-                        + SRCROOT).bold.red);
+                        + "\nBut you are trying to build your project from"
+                        + " a different dir"
+                        + "\n\n\tValue of $" + XLRGUIDIR + " : " + process.env[XLRGUIDIR]
+                        + "\n\n\tRequested project src for bld: " + SRCROOT
+                        + "\n\nIs this what you wanted?  "
+                        + "If so, please be careful!"
+                        + "\nIf other build tools are called, "
+                        + "I can't gaurantee they will work."
+                        + "\n=================================\n").bold.red);
+                }
+                else {
+                    // give them a warning if they are building from their xlrguidir, but its not their cwd
+                    if ( !grunt.file.arePathsEquivalent(SRCROOT, process.cwd()) ) {
+                        grunt.log.writeln(("\n================================="
+                            + "\nYou are trying to build from project source: "
+                            + SRCROOT
+                            + "\nBut this is not your cwd."
+                            + "\nDid you intend this?"
+                            + "\n\nNote - Grunt determined your project src by looking for"
+                            + " one of the following in this order:\n"
+                            + "\n\t1. option: --" + BLD_OP_SRC_REPO
+                            + "\n\t2. Env var: " + XLRGUIDIR
+                            + "\n\t3. cwd you are running from"
+                            + "\n\nSo, if you don't want to build from the currently set proj source,"
+                            + "\nre-run script with option --"
+                            + BLD_OP_SRC_REPO + "=<abs path to proj src>"
+                            + "\nto specify a diff project source to build from."
+                            + "\n===============================\n").bold.red);
+                    }
                 }
             }
+            // set env variable for this process so context passes to child processes
+            process.env[XLRGUIDIR] = SRCROOT;
         }
-        // set env variable for this process so context passes to child processes
-        process.env[XLRGUIDIR] = SRCROOT;
+        else {
+            // shouldn't hit this now
+            grunt.fail.fatal("Grunt could not determine a project source to generate your build from!");
+        }
 
         /**
             BUILDROOT
