@@ -442,6 +442,7 @@ module.exports = {
         "ConstAbbr": "Aggr",
         "ConstList": "Aggregates",
         "active": "Add To Worksheet",
+        "inactive": "Send to Temporary List",
         "filterOrphan": "Filter Temporary Tables",
         "ActiveTableInstr": "To add a table to the current worksheet, from the <b>Datasets</b> panel import a dataset and select this dataset.",
         "HideTableInstr": "To hide a table, right click the title bar for an active table. Then select <b>Hide Table</b> from the dropdown menu.",

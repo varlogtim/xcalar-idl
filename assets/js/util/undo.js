@@ -790,6 +790,46 @@ window.Undo = (function($, Undo) {
         return TblManager.refreshTable([options.tableName], null, [], options.worksheetId, null, refreshOptions);
     };
 
+    undoFuncs[SQLOps.InActiveTables] = function(options) {
+        var deferred = jQuery.Deferred();
+
+        var promises = [];
+        var failures = [];
+        options.tableNames.forEach(function(tableName, index) {
+            promises.push((function() {
+                var innerDeferred = jQuery.Deferred();
+
+                var refreshOptions = {
+                    "isUndo": true,
+                    "position": options.tablePos[index]
+                };
+
+                TblManager.refreshTable([tableName], null, [], options.workSheets[index], null, refreshOptions)
+                .then(function(){
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    failures.push(tableName + ": {" + xcHelper.parseError(error) + "}");
+                    innerDeferred.resolve(error);
+                });
+
+                return innerDeferred.promise();
+            }).bind(this));
+        });
+
+        PromiseHelper.chain(promises)
+        .then(function() {
+            if (failures.length > 0) {
+                deferred.reject(failures.join("\n"));
+            } else {
+                deferred.resolve();
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     undoFuncs[SQLOps.DelWS] = function(options) {
         var delType = options.delType;
         var wsId = options.worksheetId;

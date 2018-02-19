@@ -306,6 +306,7 @@ SQLOps = {
     PullCol: "pullCol",
     PullMultipleCols: "pullMultipleCols",
     ActiveTables: 'activeTables',
+    InActiveTables: 'inActiveTables',
     SortTableCols: "sortTableCols",
     ResizeTableCols: "resizeTableCols",
     DragResizeTableCol: "dragResizeTableCol",

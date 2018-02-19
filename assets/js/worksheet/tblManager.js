@@ -1831,6 +1831,7 @@ window.TblManager = (function($, TblManager) {
                  // at last have data col
                 tableCols = [ColManager.newDATACol()];
             }
+
             // tableCols get deep copied in TableMeta constructor
             table = new TableMeta({
                 "tableId": tableId,

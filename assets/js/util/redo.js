@@ -327,6 +327,10 @@ window.Redo = (function($, Redo) {
         return TblManager.sendTableToTempList(options.tableId);
     };
 
+    redoFuncs[SQLOps.InActiveTables] = function(options) {
+        return TableList.moveTableToTempList(options.tableIds, options.workSheets);
+    };
+
     redoFuncs[SQLOps.ActiveTables] = function(options) {
         // redo sent to worksheet
         var deferred = jQuery.Deferred();

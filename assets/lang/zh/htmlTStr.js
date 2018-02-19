@@ -1075,6 +1075,7 @@ module.exports = {
         "WSList": "工作表",
         "WSName": "工作表名称",
         "active": "添加到工作表",
+        "inactive": "添加到临时表",
         "add": "添加工作表",
         "del": "删除工作表",
         "filterOrphan": "搜索临时表",
