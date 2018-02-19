@@ -669,7 +669,7 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseJson";
         parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "yelp", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "yelp", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             printResult(result);
             loadOutput = result;
@@ -683,7 +683,7 @@ window.Function.prototype.bind = function() {
             test.assert(count === 70817);
             // Reuse the last call's sourceArgs
             sourceArgs.path = qaTestDir + "/yelp/reviews";
-            return (xcalarLoad(thriftHandle, "yelpReviews", sourceArgs, parseArgs, 0));
+            return (xcalarLoad(thriftHandle, "yelpReviews", [sourceArgs], parseArgs, 0));
         })
         .then(function(result) {
             yelpReviewsDataset = result.dataset.name;
@@ -711,7 +711,7 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseJson";
         parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "yelpTip", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "yelpTip", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             printResult(result);
             yelpTipLoadOutput = result;
@@ -787,7 +787,7 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseCsv";
         parseArgs.parserArgJson = JSON.stringify({"recordDelim": "\r", "schemaMode": "header"});
 
-        xcalarLoad(thriftHandle, "dosFormat", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "dosFormat", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             return getDatasetCount("dosFormat");
         })
@@ -812,7 +812,7 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseJson";
         parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "bad", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "bad", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             test.fail("load succeeded when it should have failed");
         })
@@ -845,7 +845,7 @@ window.Function.prototype.bind = function() {
         parseArgs.parserFnName = "default:parseJson";
         parseArgs.parserArgJson = "{}";
 
-        xcalarLoad(thriftHandle, "review", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "review", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             var testloadOutput = result;
             return xcalarDeleteDagNodes(thriftHandle, "*",
@@ -3135,7 +3135,7 @@ window.Function.prototype.bind = function() {
                     parseArgs.parserFnName = "PyExecOnLoadTest:poorManCsvToJson";
                     parseArgs.parserArgJson = "{}";
 
-                    xcalarLoad(thriftHandle, "movies", sourceArgs, parseArgs, 0)
+                    xcalarLoad(thriftHandle, "movies", [sourceArgs], parseArgs, 0)
                     .done(function(result) {
                         printResult(result);
                         loadOutput = result;
@@ -3634,24 +3634,19 @@ window.Function.prototype.bind = function() {
             "fieldDelim":"|",
             "isCRLF": true,
             "schemaMode": "loadInput",
-            "typedColumns": [
-                {
-                    "colName": "R_REGIONKEY",
-                    "colType": "DfInt64"
-                },
-                {
-                    "colName": "R_NAME",
-                    "colType": "DfString"
-                },
-                {
-                    "colName": "R_COMMENT",
-                    "colType": "DfString"
-                }
-            ]
         };
         parseArgs.parserArgJson = JSON.stringify(csvArgs);
+        parseArgs.schema = [new XcalarApiColumnT({sourceColumn:"R_REGIONKEY",
+                                                  destColumn:"R_REGIONKEY",
+                                                  columnType:"DfInt64"}),
+                            new XcalarApiColumnT({sourceColumn:"R_NAME",
+                                                  destColumn:"R_NAME",
+                                                  columnType:"DfString"}),
+                            new XcalarApiColumnT({sourceColumn:"R_COMMENT",
+                                                  destColumn:"R_COMMENT",
+                                                  columnType:"DfString"})]
 
-        xcalarLoad(thriftHandle, "tpch-region", sourceArgs, parseArgs, 0)
+        xcalarLoad(thriftHandle, "tpch-region", [sourceArgs], parseArgs, 0)
         .then(function(result) {
             printResult(result);
             csvLoadOutput = result;
@@ -3688,11 +3683,7 @@ window.Function.prototype.bind = function() {
             test.assert(parseArgs.fieldDelim === csvArgs.fieldDelim);
             test.assert(parseArgs.isCRLF === csvArgs.isCRLF);
             test.assert(parseArgs.schemaMode === csvArgs.schemaMode);
-            test.assert(parseArgs.typedColumns.length === csvArgs.typedColumns.length);
-            for (var ii = 0; ii < csvArgs.typedColumns.length; ii++) {
-                test.assert(parseArgs.typedColumns[ii].colName === csvArgs.typedColumns[ii].colName);
-                test.assert(parseArgs.typedColumns[ii].colType === csvArgs.typedColumns[ii].colType);
-            }
+
             return (xcalarFreeResultSet(thriftHandle, dsResultSet.resultSetId))
         })
         .then(function(result) {
@@ -3735,6 +3726,77 @@ window.Function.prototype.bind = function() {
         .fail(function(reason) {
             test.fail("Run funtional tests failed with status: " + StatusTStr[reason.xcalarStatus] +
                       " (" + reason + ")");
+        });
+    }
+
+    function testParquetApp(test) {
+        var name = "XcalarParquet";
+        var pathToParquetDataset = qaTestDir + "/parquet/spark/yelp-users"
+        var expectedPartitionKeys = [ "type", "yelping_since" ]
+        var args = { "func": "getInfo", "targetName": "Default Shared Root", "path": pathToParquetDataset }
+        xcalarAppRun(thriftHandle, name,  false, JSON.stringify(args))
+        .then(function(result) {
+            var groupId = result.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.outStr;
+            console.log("Result from getInfo(): " + outStr)
+            var appResult = JSON.parse(JSON.parse(outStr)[0][0]);
+            var partitionKeys = appResult.partitionKeys
+            if (partitionKeys.length != expectedPartitionKeys.length) {
+                test.fail("Expected " + expectedPartitionKeys.length + " partitionKeys, got " + partitionKeys.length);
+                return;
+            }
+
+            for (var ii = 0; ii < expectedPartitionKeys.length; ii++) {
+                if (partitionKeys[ii] != expectedPartitionKeys[ii]) {
+                    test.fail("Expected partition key to be \"" + expectedPartitionKeys[ii] + "\", but got \"" + partitionKeys[ii] + "\"");
+                    return;
+                }
+            }
+
+            args["func"] = "getPossibleKeyValues";
+            args["key"] = expectedPartitionKeys[0];
+            return (xcalarAppRun(thriftHandle, name, false, JSON.stringify(args)))
+        })
+        .then(function(result) {
+            var groupId = result.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.outStr;
+            console.log("Result from getPossibleKeyValues(type): " + outStr);
+            var expectedValues = [ "user", "__HIVE_DEFAULT_PARTITION__" ];
+            var appResult = JSON.parse(JSON.parse(outStr)[0][0]);
+            if (appResult.length != expectedValues.length) {
+                test.fail("Expected " + expectedValues.length + " values, got " + appResult.length);
+                return;
+            }
+
+            for (var ii = 0; ii < expectedValues.length; ii++) {
+                if (appResult[ii] != expectedValues[ii]) {
+                    test.fail("Expected value[" + ii + "] == \"" + expectedValues[ii] + "\", got \"" + appResult[ii] + "\"");
+                    return;
+                }
+            }
+
+            args["key"] = expectedPartitionKeys[1];
+            args["givenKeys"] = { "type": [ "user" ] };
+            return (xcalarAppRun(thriftHandle, name, false, JSON.stringify(args)));
+        })
+        .then(function(result) {
+            var groupId = result.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.outStr;
+            console.log("Result from getPossibleKeyValues(yelping_since): " + outStr);
+
+            test.pass()
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -3954,6 +4016,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testLogLevelGet, "loglevelget", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCsvLoadWithSchema, "csvloadwithschema", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testParquetApp, "parquet", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 

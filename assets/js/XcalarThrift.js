@@ -591,14 +591,16 @@ XcalarLoad = function(datasetName, options, txId) {
     var skipRows = options.skipRows;
     var typedColumns = options.typedColumns || [];
     var schemaMode;
+
     if (format === "CSV" && typedColumns.length) {
         schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
         typedColumns = typedColumns.map(function(col) {
-            var type = xcHelper.convertColTypeToFeildType(col.colType);
-            return {
-                colType: DfFieldTypeTStr[type],
-                colName: col.colName
-            };
+            var type = xcHelper.convertColTypeToFieldType(col.colType);
+            return new XcalarApiColumnT({
+                columnType: DfFieldTypeTStr[type],
+                sourceColumn: col.colName,
+                destColumn: col.colName
+            });
         });
 
         if (hasHeader) {
@@ -704,7 +706,6 @@ XcalarLoad = function(datasetName, options, txId) {
                 parserArgJson.hasHeader = hasHeader;
                 parserArgJson.schemaFile = ""; // Not used yet. Wait for backend to implement;
                 parserArgJson.schemaMode = schemaMode;
-                parserArgJson.typedColumns = typedColumns;
                 break;
             default:
                 return PromiseHelper.reject("Error Format");
@@ -720,9 +721,6 @@ XcalarLoad = function(datasetName, options, txId) {
         return sourceArgs;
     });
 
-    // XXX TODO: use sourceArgsList instead of sourceArgs
-    var sourceArgs = sourceArgsList[0];
-
     var parseArgs = new ParseArgsT();
     parseArgs.parserFnName = parserFnName;
     parseArgs.parserArgJson = JSON.stringify(parserArgJson);
@@ -732,6 +730,7 @@ XcalarLoad = function(datasetName, options, txId) {
         parseArgs.fileNameFieldName = options.advancedArgs.fileName;
         parseArgs.recordNumFieldName = options.advancedArgs.rowNumName;
     }
+    parseArgs.schema = typedColumns;
 
     var maxSampleSize = gMaxSampleSize;
     if (maxSampleSize > 0) {
@@ -739,12 +738,12 @@ XcalarLoad = function(datasetName, options, txId) {
     }
 
     var def;
-    var workItem = xcalarLoadWorkItem(datasetName, sourceArgs,
+    var workItem = xcalarLoadWorkItem(datasetName, sourceArgsList,
                                       parseArgs, maxSampleSize);
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarLoad(tHandle, datasetName, sourceArgs,
+        def = xcalarLoad(tHandle, datasetName, sourceArgsList,
                             parseArgs, maxSampleSize);
     }
     var query = XcalarGetQuery(workItem);

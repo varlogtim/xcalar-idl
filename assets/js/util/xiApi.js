@@ -831,7 +831,7 @@
                 var renames = res.colNames.map(function(colName, i) {
                     var newName = columns[i].rename;
                     var type = res.types[i] ? res.types[i] : columns[i].type;
-                    var fieldType = xcHelper.convertColTypeToFeildType(type);
+                    var fieldType = xcHelper.convertColTypeToFieldType(type);
                     return xcHelper.getJoinRenameMap(colName, newName, fieldType);
                 });
 
@@ -933,7 +933,7 @@
         .then(function(finalTableName) {
             tempTables.push(curTableName);
             tableInfo.tableName = finalTableName;
-            var type = xcHelper.convertColTypeToFeildType(ColumnType.string);
+            var type = xcHelper.convertColTypeToFieldType(ColumnType.string);
             var rename = xcHelper.getJoinRenameMap(concatColName, indexColName, type);
             tableInfo.renames.push(rename);
             deferred.resolve();

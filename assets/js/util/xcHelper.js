@@ -284,7 +284,7 @@
         };
     };
 
-    xcHelper.convertColTypeToFeildType = function(colType) {
+    xcHelper.convertColTypeToFieldType = function(colType) {
         switch (colType) {
             case ColumnType.string:
                 return DfFieldTypeT.DfString;
@@ -3786,7 +3786,7 @@
 
                 if (hasTableMeta) {
                     if (parsedName.prefix !== "") {
-                        keyFieldName = getNewKeyFeildName(parsedName, colMeta);
+                        keyFieldName = getNewKeyFieldName(parsedName, colMeta);
                     } else {
                         keyFieldName = name;
                         type = colMeta[name];
@@ -3845,7 +3845,7 @@
         return res;
     }
 
-    function getNewKeyFeildName(parsedName, takenNames) {
+    function getNewKeyFieldName(parsedName, takenNames) {
         var name = xcHelper.stripColName(parsedName.name);
         if (!takenNames.hasOwnProperty(name)) {
             return name;

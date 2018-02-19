@@ -642,7 +642,7 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, sourceArgs, num
     return (deferred.promise());
 };
 
-xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, parseArgs, maxSize) {
+xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgsList, parseArgs, maxSize) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
@@ -650,7 +650,7 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, p
 
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
     workItem.input.loadInput.dest = name;
-    workItem.input.loadInput.loadArgs.sourceArgs = sourceArgs;
+    workItem.input.loadInput.loadArgs.sourceArgsList = sourceArgsList;
     workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
     workItem.input.loadInput.loadArgs.maxSize = maxSize;
@@ -659,16 +659,16 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgs, p
 };
 
 // The caller may pass in whatever values they want
-xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgs, parseArgs, maxSize) {
+xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgsList, parseArgs, maxSize) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
-        console.log("xcalarLoad(sourceArgs = " + JSON.stringify(sourceArgs) +
+        console.log("xcalarLoad(sourceArgsList = " + JSON.stringify(sourceArgsList) +
                     ", parseArgs = " + JSON.stringify(parseArgs) +
                     ", maxSize = " + maxSize + ")");
     }
 
-    var workItem = xcalarLoadWorkItem(name, sourceArgs, parseArgs, maxSize);
+    var workItem = xcalarLoadWorkItem(name, sourceArgsList, parseArgs, maxSize);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
