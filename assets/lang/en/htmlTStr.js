@@ -457,8 +457,6 @@ module.exports = {
         "numRowsPct": "Num Rows (percent)",
     },
 
-
-
     "monitor": {
         "AutoRefresh": "Auto Refresh",
         "CancelOperation": "Cancel operation",
@@ -590,7 +588,8 @@ module.exports = {
         "RetryPoint": "Please try to import data with different parameters.",
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE TABLE\" button. You can also click the \"Select Columns Later\" button and pull columns after the table is created.",
         "DSInfo": "Dataset Information",
-        "UsedBy": "Locked By"
+        "UsedBy": "Locked By",
+        "RowErrorTip": "Your dataset has errors. Click to view."
     },
 
     "dsTarget": {

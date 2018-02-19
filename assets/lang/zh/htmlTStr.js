@@ -423,7 +423,8 @@ module.exports = {
         "RetryPoint": "请修改数据导入参数，然后重试",
         "TableInstr": "从数据集创建表，请选择列，选择工作表，修改表名，然后单击“创建表”按钮。您也可以单击“稍后选择列”按钮。您也可以在创建表之后再选择列。",
         "DSInfo": "数据集信息",
-        "UsedBy": "使用者"
+        "UsedBy": "使用者",
+        "RowErrorTip": "Your dataset has errors. Click to view."
     },
     "dsCart": {
         "NoCartInstr": "要在新建表的时候选择列，请选择左侧的数据集，然后单击中间您感兴趣的列名。",

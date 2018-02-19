@@ -125,8 +125,8 @@ TooltipTStr = {
     "UnionSearch": "Search within this table",
     "UnlockTable": "Click to unlock table",
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
-    "ClickToSortAsc": "Click to sort ascending",
-    "ClickToSortDesc": "Click to sort descending",
+    "ClickToSortAsc": "Click to sort in ascending order",
+    "ClickToSortDesc": "Click to sort in descending order",
     "ShowDatasetHint": "Begin by creating a new dataset here!",
     "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
 

@@ -370,7 +370,7 @@ window.StatusMessage = (function($, StatusMessage) {
         }
         var popupNeeded = false;
         var popupWrapExists = false;
-        var popupNearTab = false;
+        var $popupNearTab = null;
 
         var pos = {
             left: 'auto',
@@ -402,7 +402,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     $popupWrap.append($tableDonePopup);
                     popupWrapExists = true;
                 } else {
-                    popupNearTab = $('#dataStoresTab');
+                    $popupNearTab = $('#dataStoresTab');
                 }
                 classes += ' datastoreNotify';
                 if (failed) {
@@ -417,7 +417,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 $popupWrap.append($tableDonePopup);
                 popupWrapExists = true;
             } else {
-                popupNearTab = $('#workspaceTab');
+                $popupNearTab = $('#workspaceTab');
             }
             classes += ' workspaceNotify';
             popupNeeded = true;
@@ -436,9 +436,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     $popupWrap.prepend($tableDonePopup);
                     popupWrapExists = true;
                 } else {
-                    // popupNearTab = $('#worksheetTab-' + wsNum);
-                    // xx no more workbook tabs to pop up next to
-                    popupNearTab = $('#workspaceTab');
+                    $popupNearTab = $('#workspaceTab');
                 }
                 classes += ' worksheetNotify';
                 classes += ' worksheetNotify' + wsNum;
@@ -500,10 +498,10 @@ window.StatusMessage = (function($, StatusMessage) {
                 // we need to create a new container div for the popup
                 // and position it, otherwise we would have just appeneded
                 // the popup to an already existing container
-                if (popupNearTab) {
-                    pos.left = popupNearTab.offset().left +
-                               popupNearTab.outerWidth() + 6;
-                    pos.top = popupNearTab.offset().top + 2;
+                if ($popupNearTab) {
+                    pos.left = $popupNearTab.offset().left +
+                               $popupNearTab.outerWidth() + 6;
+                    pos.top = $popupNearTab.offset().top + 2;
                 }
 
                 $popupWrap = $('<div class="tableDonePopupWrap"></div>');
