@@ -237,19 +237,21 @@
         var udfQuery = formatArgs.udfQuery;
 
         var options = {
-            "targetName": dsArgs.targetName,
-            "path": url,
+            "sources": [{
+                "targetName": dsArgs.targetName,
+                "path": url,
+                "recursive": isRecur,
+                "fileNamePattern": pattern
+            }],
             "format": format,
             "fieldDelim": fieldDelim,
             "recordDelim": recordDelim,
             "schemaMode": schemaMode,
             "moduleName": moduleName,
             "funcName": funcName,
-            "isRecur": isRecur,
             "maxSampleSize": maxSampleSize,
             "quoteChar": quoteChar,
             "skipRows": skipRows,
-            "fileNamePattern": pattern,
             "udfQuery": udfQuery,
             "typedColumns": typedColumns,
             "schemaFile": schemaFile
@@ -442,14 +444,12 @@
         var lCasts = lTableInfo.casts;
         var pulledLColNames = lTableInfo.pulledColumns;
         var lRename = lTableInfo.rename || [];
-        var lImm = lTableInfo.allImmediates || [];
 
         var rTableName = rTableInfo.tableName;
         var rColNames = rTableInfo.columns;
         var rCasts = rTableInfo.casts;
         var pulledRColNames = rTableInfo.pulledColumns;
         var rRename = rTableInfo.rename || [];
-        var rImm = rTableInfo.allImmediates || [];
 
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
@@ -517,8 +517,8 @@
         .then(function(lRes, rRes, tempTablesInIndex) {
             var lIndexedTable = lRes.tableName;
             var rIndexedTable = rRes.tableName;
-            var lImm = lTableInfo.allImmediates;
-            var rImm = rTableInfo.allImmediates;
+            var lImm = lTableInfo.allImmediates || [];
+            var rImm = rTableInfo.allImmediates || [];
             var lOthers = getUnusedImmNames(lImm, lRes.newKeys, lRename);
             var rOthers = getUnusedImmNames(rImm, rRes.newKeys, rRename);
             resolveJoinIndexColRename(lRename, rRename, lRes, rRes, lOthers,
@@ -1490,7 +1490,7 @@
     }
 
     function getUnusedImmNames(allImm, newKeys, renames) {
-        if (!allImm || allImm.length == 0) {
+        if (!allImm || allImm.length === 0) {
             return [];
         }
         var unusedImm = allImm;

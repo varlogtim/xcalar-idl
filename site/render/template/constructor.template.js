@@ -1922,6 +1922,7 @@
                 targetName: (string), the src of targetName,
                 typedColumns: (array),
                 sources: (array, not persist)
+                date: (number) created date timestamp
             removed attr:
                 previewSize
                 isRegex
@@ -1948,6 +1949,9 @@
                 }
                 if (options.sources != null) {
                     self.sources = options.sources;
+                }
+                if (options.date != null) {
+                    self.date = options.date;
                 }
                 delete self.previewSize;
                 delete self.isRegex;
@@ -2052,6 +2056,16 @@
                     size = xcHelper.sizeTranslator(this.size);
                 }
                 return size;
+            },
+
+
+            getDate: function() {
+                if (this.date == null) {
+                    return CommonTxtTstr.NA;
+                } else {
+                    var date = new Date(this.date);
+                    return moment(date).format('Y-M-D')
+                }
             },
 
             setSize: function(size) {

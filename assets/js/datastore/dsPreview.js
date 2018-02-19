@@ -2179,20 +2179,23 @@ window.DSPreview = (function($, DSPreview) {
                 initialLoadArgStr = loadArgs.getArgStr();
             }
 
-            var args = {
-                targetName: targetName,
-                path: url
-            };
+            var args = {};
             format = loadArgs.getFormat();
 
             if (hasUDF) {
                 showProgressCircle(txId);
+                args.sources = [{
+                    targetName: targetName,
+                    path: url
+                }];
                 args.moduleName = udfModule;
                 args.funcName = udfFunc;
                 args.udfQuery = udfQuery;
                 sql.args = args;
                 return loadDataWithUDF(txId, dsName, args);
             } else {
+                args.targetName = targetName;
+                args.path = url;
                 sql.args = args;
                 return loadData(args);
             }

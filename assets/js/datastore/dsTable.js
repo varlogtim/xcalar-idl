@@ -271,6 +271,7 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-author").text(dsObj.getUser());
         // there is no fail case
         $("#dsInfo-size").text(dsObj.getDisplaySize());
+        $("#dsInfo-date").text(dsObj.getDate());
 
         var format = dsObj.getFormat() || CommonTxtTstr.NA;
         $("#dsInfo-format").text(format);

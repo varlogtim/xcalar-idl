@@ -269,7 +269,7 @@ window.DS = (function ($, DS) {
             DS.goToDir(homeDirId);
             clearDirStack();
         }
-
+        dsArgs.date = new Date().getTime();
         var dsObj = createDS(dsArgs, dsToReplace);
         var sql = {
             "operation": SQLOps.DSPoint,
