@@ -341,6 +341,7 @@ ErrTStr = {
     'ExtDisableFailure': 'Extension failed to be disabled',
     'ExtRemovalFailure': 'Extension failed to be removed',
     'ExtDownloadFailure': 'Extension failed to be downloaded',
+    'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
     'CannotDropLocked': 'Cannot drop locked tables',
     'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
