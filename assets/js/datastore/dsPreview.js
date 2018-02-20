@@ -3734,7 +3734,8 @@ window.DSPreview = (function($, DSPreview) {
 
         // ste 2: detect line delimiter
         if (detectArgs.format === formatMap.CSV) {
-            detectArgs.lineDelim = xcSuggest.detectLineDelimiter(rawData);
+            detectArgs.lineDelim = xcSuggest.detectLineDelimiter(rawData,
+                                                        loadArgs.getQuote());
             applyLineDelim(detectArgs.lineDelim);
         } else {
             applyLineDelim("\n");
@@ -3742,7 +3743,9 @@ window.DSPreview = (function($, DSPreview) {
 
         // step 3: detect field delimiter
         if (detectArgs.format === formatMap.CSV) {
-            detectArgs.fieldDelim = xcSuggest.detectFieldDelimiter(rawData);
+            detectArgs.fieldDelim = xcSuggest.detectFieldDelimiter(rawData,
+                                                          detectArgs.lineDelim,
+                                                          loadArgs.getQuote());
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);

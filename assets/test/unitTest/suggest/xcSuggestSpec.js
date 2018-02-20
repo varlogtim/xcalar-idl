@@ -619,7 +619,7 @@ describe("xcSuggest", function() {
                 "expect": "\r"
             }, {
                 "data": "a\r\nb\nc\rd",
-                "expect": "\n"
+                "expect": "\r\n"
             }, {
                 "data": "a,b|c,d",
                 "expect": ""
@@ -627,7 +627,7 @@ describe("xcSuggest", function() {
 
             tests.forEach(function(test) {
                 var rawStr = test.data;
-                expect(xcSuggest.detectLineDelimiter(rawStr))
+                expect(xcSuggest.detectLineDelimiter(rawStr, "\""))
                 .to.equal(test.expect);
             });
         });
@@ -681,7 +681,7 @@ describe("xcSuggest", function() {
 
             tests.forEach(function(test) {
                 var rawStr = test.data;
-                var res = xcSuggest.detectFieldDelimiter(rawStr);
+                var res = xcSuggest.detectFieldDelimiter(rawStr, "\n", "\"");
                 expect(res).to.equal(test.expect);
             });
         });

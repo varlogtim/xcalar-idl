@@ -591,10 +591,13 @@ window.xcSuggest = (function($, xcSuggest) {
         return false;
     }
 
-    xcSuggest.detectLineDelimiter = function(rawStr) {
+    xcSuggest.detectLineDelimiter = function(rawStr, quote) {
+        rawStr = quote === "\"" ?
+            rawStr.replace(/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g, "") :
+            rawStr.replace(/(?=')(?:'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
         var crlfCount = coutCharOccurrence(rawStr, "\r\n");
-        var lfCount = coutCharOccurrence(rawStr, "\n");
-        var crCount = coutCharOccurrence(rawStr, "\r");
+        var lfCount = coutCharOccurrence(rawStr, "[^\r]\n");
+        var crCount = coutCharOccurrence(rawStr, "\r(?!\n)");
 
         if (crlfCount > 0 && crlfCount >= lfCount && crlfCount >= crCount) {
             // when \r\n
@@ -611,23 +614,26 @@ window.xcSuggest = (function($, xcSuggest) {
         }
     };
 
-    xcSuggest.detectFieldDelimiter = function(rawStr) {
+    xcSuggest.detectFieldDelimiter = function(rawStr, lineDelim, quote) {
         // Number of samples can be changed
         var numOfSamples = 10;
         // remove stuff inside quote
         // reference: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
-        var strippedStr = rawStr.replace(/(?=["'])(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
-        var samples = strippedStr.split(/\r\n|\r|\n/).slice(0, numOfSamples);
+        var strippedStr = quote === "\"" ?
+            rawStr.replace(/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g, "") :
+            rawStr.replace(/(?=')(?:'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
+        var samples = strippedStr.split(lineDelim).slice(0, numOfSamples);
         // delimiters: [",", "\t", "|"]
         var delimiters = [];
         // occurences: {",": [1,1,1...], "\t": [2,2,2...], "|": [3,3,3...]}
         var occurences = {};
         var validLineCounter = 0;
         for (var i = 0; i < samples.length; i++) {
+            if (samples[i].length === 0) {
+                continue;
+            }
             // Only keep non-alphanumeric characters
             var line = samples[i].replace(/[a-zA-Z\d ]/g, "");
-            // Remove contents within quotes
-            // line = line.replace(/(".*?")|('.*?')/g, "");
             // Also increase validLineCounter
             validLineCounter += 1;
             Object.keys(occurences).map(function(key) {
@@ -713,14 +719,16 @@ window.xcSuggest = (function($, xcSuggest) {
         // e.g. header weighs a half, all other lines split the rest equally
         var headerWeight = 0.5;
         var otherWeight = 0.5 / (len - 1);
-        var edgeCase1 = false;
-        var edgeCase2 = false;
-        if (nums[0] === 0) {
-            edgeCase1 = true;
-        } else {
-            edgeCase2 = true;
+        var edgeCase1 = true;
+        var edgeCase2 = true;
+        var sum = 0;
+        if (nums[0] !== 0) {
+            edgeCase1 = false;
         }
-        var sum = nums[0];
+        if (nums.length <= 2) {
+            edgeCase2 = false;
+        }
+        sum += nums[0];
         for (var i = 1; i < nums.length - 1; i++) {
             if (edgeCase1 && nums[i] !== nums[i+1]) {
                 // Breaks edgeCase1
@@ -732,7 +740,9 @@ window.xcSuggest = (function($, xcSuggest) {
             }
             sum += nums[i];
         }
-        sum += nums[nums.length - 1];
+        if (nums.length > 1) {
+            sum += nums[nums.length - 1];
+        }
 
         if (edgeCase1 || edgeCase2) {
             return -1;
@@ -765,6 +775,7 @@ window.xcSuggest = (function($, xcSuggest) {
         }
 
         var headers = parsedRows[0];
+        var firstRow = rowLen > 1 ? parsedRows[1] : null;
         var colLen = headers.length;
         var text;
         var score = 0;
@@ -776,12 +787,13 @@ window.xcSuggest = (function($, xcSuggest) {
                 // should not be header
                 return false;
             } else if (text === "" || text == null) {
-                // // ds may have case to have empty header
-                // score -= 100;
-                // Newly change to not promote when has empty row
-                // because excel with empty header will {"": "val"},
-                // which is invalid
-                return false;
+                // If it is empty header, check if it is consistent with rows
+                // If not, it can't be the header
+                if (firstRow != null && firstRow[i] === text) {
+                    score -= 100;
+                } else {
+                    return false;
+                }
             }
         }
 
