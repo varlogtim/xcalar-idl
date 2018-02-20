@@ -1386,7 +1386,7 @@
             var newType = null;
             var newField = colName;
 
-            if (typeToCast != null && castPrefix && parsedCol.prefix) {
+            if (typeToCast == null && castPrefix && parsedCol.prefix) {
                 // when it's a fatptr and no typeToCast specified
                 try {
                     newType = gTables[tableId].getColByBackName(colName).getType();
