@@ -253,7 +253,7 @@ window.DSCart = (function($, DSCart) {
             "steps": numSteps
         });
 
-        XcalarIndexFromDataset(dsName, "xcalarRecordNum", startTableName, prefix, txId)
+        XcalarIndexFromDataset(dsName, gXcalarRecordNum, startTableName, prefix, txId)
         .then(function() {
             var options = {"focusWorkspace": !noFocus};
             return TblManager.refreshTable([endTableName], newTableCols,

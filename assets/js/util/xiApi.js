@@ -396,7 +396,24 @@
         .then(function() {
             deferred.resolve(newTableName);
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            if (typeof error === "object" && error.status === StatusT.StatusCannotReplaceKey) {
+                // We assume if can only occur when the column is indexed but not sorted
+                // if later we break this assumption, need to fix sort issue
+                XIApi.index(txId, gXcalarRecordNum, tableName)
+                .then(function(indexTable) {
+                    var doNotUnSort = true;
+                    return XcalarMap(newColNames, mapStrs, indexTable,
+                                    newTableName, txId, doNotUnSort, icvMode);
+                })
+                .then(function() {
+                    deferred.resolve(newTableName);
+                })
+                .fail(deferred.reject);
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
     };
@@ -653,13 +670,14 @@
         var isMultiGroupby = (groupByCols.length !== 1);
         var renamedGroupByCols = [];
         var finalCols;
+
         // tableName is the original table name that started xiApi.groupby
-        getGroupbyIndexedTable(txId, tableName, groupByCols)
-        .then(function(resTable, resCols, tempTablesInIndex) {
+        checkTableIndex(groupByCols, tableName, txId)
+        .then(function(res) {
             // table name may have changed after sort!
-            indexedTable = resTable;
-            var indexedColName = xcHelper.stripColName(resCols[0]);
-            tempTables = tempTables.concat(tempTablesInIndex);
+            indexedTable = res.indexTable;
+            var indexedColName = xcHelper.stripColName(res.indexKeys[0]);
+            tempTables = tempTables.concat(res.tempTables);
 
             // get name from src table
             if (finalTableName == null) {
@@ -922,7 +940,7 @@
             concatColName = xcHelper.randName("XC_CONCAT");
             tempTables.push(curTableName);
             curTableName = tableAfterMap;
-
+            // concat all cols into one col
             return XIApi.map(txId, [mapStr], curTableName, [concatColName]);
         })
         .then(function(tableAfterMap) {
@@ -1306,8 +1324,10 @@
         var castInfo = getCastInfo(tableName, colNames, casts, options);
         var newColNames = castInfo.newColNames;
         var newTypes = castInfo.newTypes;
+        var mapStrs = castInfo.mapStrs;
+        var newFields = castInfo.newFields;
 
-        if (castInfo.mapStrs.length === 0) {
+        if (mapStrs.length === 0) {
             deferred.resolve({
                 tableName: tableName,
                 colNames: newColNames,
@@ -1318,8 +1338,7 @@
             // ok if null, only being used for setorphantablemeta
             var progCols = gTables[tableId] ? gTables[tableId].tableCols : null;
             var newTableName = getNewTableName(tableName);
-            XcalarMap(castInfo.newFields, castInfo.mapStrs,
-                      tableName, newTableName, txId)
+            XIApi.map(txId, mapStrs, tableName, newFields, newTableName)
             .then(function() {
                 TblManager.setOrphanTableMeta(newTableName, progCols);
 
@@ -1367,7 +1386,7 @@
             var newType = null;
             var newField = colName;
 
-            if (!typeToCast && castPrefix && parsedCol.prefix) {
+            if (typeToCast != null && castPrefix && parsedCol.prefix) {
                 // when it's a fatptr and no typeToCast specified
                 try {
                     newType = gTables[tableId].getColByBackName(colName).getType();
@@ -1375,7 +1394,7 @@
                     console.error(e);
                     // when fail to get the col type from meta, cast to string
                     // XXX this is a hack util backend support auto cast when indexing
-                    newType = "string";
+                    newType = ColumnType.string;
                 }
                 newField = overWrite ? name : parsedCol.prefix + "--" + name;
                 // handle name conflict case
@@ -1930,30 +1949,6 @@
         newTableCols.push(ColManager.newDATACol());
 
         return newTableCols;
-    }
-
-    function getGroupbyIndexedTable(txId, tableName, groupByCols) {
-        var deferred = jQuery.Deferred();
-        var groupByFields;
-        var tempTables = [];
-
-        // cast all keys into immediates first
-        var casts = new Array(groupByCols.length).fill(null);
-        castMap(txId, tableName, groupByCols, casts, {overWrite: true})
-        .then(function(res) {
-            if (res.newTable) {
-                tempTables.push(res.tableName);
-            }
-            groupByFields = res.colNames;
-            return checkTableIndex(groupByFields, res.tableName, txId);
-        })
-        .then(function(res) {
-            tempTables = tempTables.concat(res.tempTables);
-            deferred.resolve(res.indexTable, groupByFields, tempTables);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     function getFinalGroupByCols(tableName, finalTableName, groupByCols, gbArgs,

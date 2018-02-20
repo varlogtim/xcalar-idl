@@ -99,6 +99,7 @@ gXcSupport = false; // if xcalar support user
 gEnableLocalFiles = false;
 gDemoMemory = false;
 gCollab = false; // if strip / in username or not
+gXcalarRecordNum = "xcalarRecordNum";
 
 // Shut up the console logs
 verbose = false;

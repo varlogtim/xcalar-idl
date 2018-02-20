@@ -2758,7 +2758,7 @@ window.DSPreview = (function($, DSPreview) {
             for (var i = 0, len = data.length; i < len; i++) {
                 var value = data[i];
                 var row = $.parseJSON(value);
-                delete row.xcalarRecordNum;
+                delete row[gXcalarRecordNum];
                 rows.push(row);
             }
 
