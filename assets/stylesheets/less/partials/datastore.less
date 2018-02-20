@@ -1427,11 +1427,12 @@ table.datasetTable {
                     display: flex;
                     .icon {
                         font-size: 14px;
+                        cursor: pointer;
                     }
                 }
 
                 &.picked {
-                    background-color: @color-selectedCell-light;
+                    background: transparent;
                 }
             }
         }
@@ -1466,7 +1467,7 @@ table.datasetTable {
                     color: @color-font-gray36;
                     word-break: break-all;
                 }
-                &.selected, &.hovering {
+                &.selected, &.hovering, &.picked {
                     border: solid 1px @color-font-softBlue;
                     .checkBox {
                         visibility: visible;
@@ -1477,6 +1478,9 @@ table.datasetTable {
                         top: -2px;
                         left: -1px;
                     }
+                }
+                &.selected, &.hovering {
+                    background-color: @color-selectedCell-light !important;
                 }
             }
 
@@ -1560,14 +1564,17 @@ table.datasetTable {
                 .gridIcon {
                     .font(@size: 16px);
                 }
-                &.selected, &.hovering {
+                &.selected, &.hovering, &.picked {
                     .checkBox {
                         visibility: visible;
                         align-items: center;
                     }
                     border-top: solid 1px @color-font-softBlue;
                     border-bottom: solid 1px @color-font-softBlue;
+                }
+                &.selected, &.hovering {
                     z-index: 1;
+                    background-color: @color-selectedCell-light !important;
                 }
             }
         }

@@ -240,17 +240,21 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.stopPropagation();
                 var $grid = $(this).closest(".grid-unit");
                 if ($grid.hasClass("selected")) {
-                    cleanContainer({keepSelected: true, keepPicked: true});
+                    cleanContainer({keepSelected: true,
+                                    keepPicked: true,
+                                    keepAnchor: true});
                 } else if ($grid.hasClass("picked")) {
                     // If uncheck on an unselected file, remove all selected
-                    cleanContainer({keepPicked: true});
+                    cleanContainer({keepPicked: true,
+                                    keepAnchor: true});
                 } else {
                     // If check on an unselected file, remove all
                     // selected & unpicked files first
-                    cleanContainer({keepPicked: true, removeUnpicked: true});
+                    cleanContainer({keepPicked: true,
+                                    keepAnchor: true,
+                                    removeUnpicked: true});
                 }
                 selectSingleFile($grid);
-                $anchor = $grid;
                 togglePickedFiles($grid);
                 if ($grid.hasClass("picked")) {
                     updatePickedFilesList();
@@ -1963,6 +1967,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $infoContainer.find(".fileSize .content").text("--");
             $infoContainer.find(".fileIcon").removeClass()
                           .addClass("icon fileIcon xi-folder");
+            $infoContainer.find(".fileRawData .btn").addClass("xc-disabled");
             $container.find(".filePathBottom .content").text(searchInfo);
             return;
         }
