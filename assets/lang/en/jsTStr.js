@@ -698,6 +698,7 @@ UnionTStr = {
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns to union",
+    "NoMatch": "No Match",
     "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
     "UsedFor": "Used for <col>"
 };

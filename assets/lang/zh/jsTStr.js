@@ -570,6 +570,7 @@ UnionTStr = {
 "CandidateHint": "此处的列不会出现在合并后的表中。点击列名以添加列至合并表",
 "EmptyList": "无可选项",
 "SelectCol": "请选择用于合并的列",
+"NoMatch": "无匹配",
 "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
 "UsedFor": "用于<col>"
 };

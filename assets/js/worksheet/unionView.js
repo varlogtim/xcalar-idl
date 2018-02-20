@@ -125,10 +125,10 @@ window.UnionView = (function(UnionView, $) {
             xcTooltip.hideAll();
         });
 
-        $unionView.on("click", ".removeCol", function() {
+        $unionView.on("click", ".removeColInRow", function() {
             var $col = $(this).closest(".resultCol");
             var colIndex = Number($col.data("index"));
-            removeColumn(colIndex);
+            removeColumnInRow(colIndex);
         });
 
         var $modeList = $unionView.find(".modeList");
@@ -218,35 +218,43 @@ window.UnionView = (function(UnionView, $) {
             selectedCols: []
         };
 
+        var selectedCols = [];
         if (tableId != null) {
             var table = gTables[tableId] || gDroppedTables[tableId];
-            var selectedCols = [];
             if (colInfos) {
                 for (var i = 0; i < colInfos.length; i++) {
+                    var colName;
+                    var colType;
                     if (colNums[i] > 0) {
                         var progCol = table.getCol(colNums[i]);
-                        selectedCols.push({
-                            name: progCol.getBackColName(),
-                            type: progCol.getType()
-                        });
+                        colName = progCol.getBackColName();
+                        colType = progCol.getType();
                     } else {
-                        // from dag edit
+                        colName = colInfos[i].origName;
+                        colType = colInfos[i].type;
+                    }
+
+                    if (validTypes.includes(colType)) {
                         selectedCols.push({
-                            name: colInfos[i].origName,
-                            type: colInfos[i].type
+                            name: colName,
+                            type: colType
                         });
                     }
                 }
-                tableInfo.selectedCols = selectedCols;
             } else {
-                tableInfo.selectedCols = colNums.map(function(colNum) {
+                colNums.forEach(function(colNum) {
                     var progCol = table.getCol(colNum);
-                    return {
-                        name: progCol.getBackColName(),
-                        type: progCol.getType()
-                    };
+                    var colType = progCol.getType();
+                    var colName = progCol.getBackColName();
+                    if (validTypes.includes(colType)) {
+                        selectedCols.push({
+                            name: colName,
+                            type: colType
+                        });
+                    }
                 });
             }
+            tableInfo.selectedCols = selectedCols;
 
         }
         tableInfoLists.push(tableInfo);
@@ -255,11 +263,44 @@ window.UnionView = (function(UnionView, $) {
     }
 
     function selectTable(tableId, tableIndex) {
-        tableInfoLists[tableIndex] = {
+        var tableInfo = {
             tableId: tableId,
             selectedCols: []
         };
+        tableInfo.selectedCols = suggestSelectedCols(tableInfo, tableIndex);
+        tableInfoLists[tableIndex] = tableInfo;
+
         updateList();
+    }
+
+    function suggestSelectedCols(tableInfo, tableIndex) {
+        var suggestCols = [];
+        if (tableIndex === 0) {
+            // not suggest first table
+            return suggestCols;
+        }
+        var firstCols = tableInfoLists[0].selectedCols;
+        var candidateCols = getCandidateCols(tableInfo, true);
+        var candidateColInfos = candidateCols.map(function(col) {
+            var parsedName = xcHelper.parsePrefixColName(col.name).name;
+            return {
+                col: col,
+                parsedName: parsedName
+            };
+        });
+        suggestCols = firstCols.map(function(col) {
+            if (col == null) {
+                return null;
+            }
+            var colName = xcHelper.parsePrefixColName(col.name).name;
+            for (var i = 0; i < candidateColInfos.length; i++) {
+                if (colName === candidateColInfos[i].parsedName) {
+                    return candidateColInfos[i].col;
+                }
+            }
+            return null;
+        });
+        return suggestCols;
     }
 
     function removeTable(tableIndex) {
@@ -273,7 +314,32 @@ window.UnionView = (function(UnionView, $) {
         updateList();
     }
 
-    function removeColumn(colIndex) {
+    function selectColumn(colInfo, colIndex, tableIndex) {
+        tableInfoLists[tableIndex].selectedCols[colIndex] = colInfo;
+        if (colInfo.used != null) {
+            tableInfoLists[tableIndex].selectedCols[colInfo.used] = null;
+        }
+        updateList();
+    }
+
+    function removeColumn(colIndex, tableIndex) {
+        tableInfoLists[tableIndex].selectedCols[colIndex] = null;
+        var hasNotNullColInRow = false;
+        for (var i = 0; i < tableInfoLists.length; i++) {
+            if (tableInfoLists[i].selectedCols[colIndex] != null) {
+                hasNotNullColInRow = true;
+                break;
+            }
+        }
+
+        if (hasNotNullColInRow) {
+            updateList();
+        } else {
+            removeColumnInRow(colIndex);
+        }
+    }
+
+    function removeColumnInRow(colIndex) {
         var $result = $unionView.find(".resultSection .listSection");
         $result.find(".lists").each(function() {
             var $lists = $(this);
@@ -284,14 +350,6 @@ window.UnionView = (function(UnionView, $) {
         tableInfoLists.forEach(function(tableInfo) {
             tableInfo.selectedCols.splice(colIndex, 1);
         });
-        updateList();
-    }
-
-    function selectColumn(colInfo, colIndex, tableIndex) {
-        tableInfoLists[tableIndex].selectedCols[colIndex] = colInfo;
-        if (colInfo.used != null) {
-            tableInfoLists[tableIndex].selectedCols[colInfo.used] = null;
-        }
         updateList();
     }
 
@@ -409,7 +467,9 @@ window.UnionView = (function(UnionView, $) {
                     }
                     var colName = $li.find(".colName").text();
                     var $text = $dropDownList.find(".text");
-                    if (colName === $text.text()) {
+                    var text = $text.text();
+                    var isRemove = $li.hasClass("removeCol");
+                    if (colName === text || !text && isRemove) {
                         return;
                     }
                     var tableIndex = getListIndex($dropDownList);
@@ -421,7 +481,11 @@ window.UnionView = (function(UnionView, $) {
                         type: $li.data("type"),
                         used: used
                     };
-                    selectColumn(colInfo, colIndex, tableIndex);
+                    if (isRemove) {
+                        removeColumn(colIndex, tableIndex);
+                    } else {
+                        selectColumn(colInfo, colIndex, tableIndex);
+                    }
                     xcTooltip.hideAll();
                 },
                 container: "#unionView .middleSection",
@@ -516,7 +580,7 @@ window.UnionView = (function(UnionView, $) {
                     '<input class="resultInput" type="text"' +
                     ' value="' + colName + '"' +
                     ' placeholder="' + UnionTStr.NewColName + '">' +
-                    '<i class="removeCol icon xi-close-no-circle' +
+                    '<i class="removeColInRow icon xi-close-no-circle' +
                     ' xc-action fa-10"></i>' +
                     '<div class="dropDownList typeList">' +
                         '<input class="text" placeholder="' +
@@ -577,8 +641,8 @@ window.UnionView = (function(UnionView, $) {
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
                             ' data-placement="top"' +
-                            ' data-title="' +  xcHelper.escapeHTMLSpecialChar(
-                                xcHelper.escapeHTMLSpecialChar(inputColName)) + 
+                            ' data-title="' + xcHelper.escapeHTMLSpecialChar(
+                                xcHelper.escapeHTMLSpecialChar(inputColName)) +
                             '">' +
                                 xcHelper.escapeHTMLSpecialChar(inputColName) +
                             '</div>' +
@@ -636,7 +700,7 @@ window.UnionView = (function(UnionView, $) {
                             '<div class="colName text textOverflowOneLine tooltipOverflow"' +
                             ' data-toggle="tooltip" data-container="body"' +
                             ' data-placement="top"' +
-                            ' data-title="' + 
+                            ' data-title="' +
                             xcHelper.escapeHTMLSpecialChar(colName) + '">' +
                                 colName +
                             '</div>' +
@@ -733,7 +797,7 @@ window.UnionView = (function(UnionView, $) {
             editCols = editingInfo.tableCols[index];
         }
         var candidateCols = getCandidateCols(tableInfoLists[index], true, editCols);
-        var ul = candidateCols.map(function(col) {
+        var list = candidateCols.map(function(col) {
             var isUsed = (col.used != null);
             var extraClass;
             var title;
@@ -761,13 +825,18 @@ window.UnionView = (function(UnionView, $) {
                         ' data-title="' + TooltipTStr.FocusOnCol + '"' +
                         '></i>' +
                     '</li>';
-        });
+        }).join("");
         if (candidateCols.length === 0) {
-            ul = '<div class="hint">' +
+            list = '<div class="hint">' +
                     UnionTStr.EmptyList +
                 '</div>';
+        } else {
+            list = '<li class="removeCol">' +
+                        UnionTStr.NoMatch +
+                    '</li>' +
+                    list;
         }
-        $dropDownList.find("ul").html(ul);
+        $dropDownList.find("ul").html(list);
     }
 
     function reset() {

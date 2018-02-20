@@ -2219,7 +2219,7 @@ html.firefox {
         .size(@height: @instr-h);
     }
 
-    .searchArea .icon, .down .icon, .addCol, .editCol, .removeCol {
+    .searchArea .icon, .down .icon, .addCol, .editCol, .removeColInRow {
         .font(@color: @color-bg-unselect-gray);
     }
 
@@ -2419,7 +2419,7 @@ html.firefox {
                 }
             }
 
-            .removeCol {
+            .removeColInRow {
                 .position(absolute, @top: 9px, @right: 8px);
             }
         }
@@ -2445,7 +2445,7 @@ html.firefox {
                         }
                     }
 
-                    &.used .text {
+                    &.used .colName, &.removeCol {
                         color: @color-font-greyish-brown;
                         opacity: 0.8;
                     }
