@@ -798,7 +798,9 @@ DFTStr = {
 "NoColumnTypeCheck": "Column types will not be checked when editing a dataflow.",
 "EDITINGDATAFLOW": "EDITING DATAFLOW",
 "TableListNoEdit": "The tables list cannot be modified when editing a dataflow.",
-"NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory"
+"NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory",
+// with replace
+"EditOpDirectly": "Please edit the <op> operation directly"
 
 };
 DSTStr = {

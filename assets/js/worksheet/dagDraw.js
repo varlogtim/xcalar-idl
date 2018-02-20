@@ -2040,7 +2040,6 @@ window.DagDraw = (function($, DagDraw) {
                 }
                 info = getJoinInfo(info, node, value, parentNames, true,
                                     joinSubType);
-
                 break;
             case (SQLOps.Union):
                 node.value.indexedFields = getUnionSrcCols(node);
@@ -2071,6 +2070,13 @@ window.DagDraw = (function($, DagDraw) {
     function getJoinInfo(info, node, value, parentNames, isCollapsedTag,
                         joinSubType) {
         var srcCols = getJoinSrcCols(node, isCollapsedTag);
+        var taggedSrcCols;
+        if (isCollapsedTag) {
+            taggedSrcCols = srcCols;
+        } else {
+            taggedSrcCols = getJoinSrcCols(node, true);
+        }
+        node.value.indexedFields = taggedSrcCols;
         var lSrcCols = srcCols.left;
         var rSrcCols = srcCols.right;
         var joinText = "";

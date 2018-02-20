@@ -1752,16 +1752,18 @@
         var indexCache;
 
         if (Transaction.isSimulate(txId)) {
-            indexCache = SQLApi.getIndexTable(tableName, colNames);
-            if (indexCache != null) {
-                deferred.resolve({
-                    indexTable: indexCache.tableName,
-                    indexKeys: indexCache.keys,
-                    tempTables: [],
-                    hasIndexed: true,
-                    isCache: true
-                });
-                return deferred.promise();
+            if (!Transaction.isEdit(txId)) {
+                indexCache = SQLApi.getIndexTable(tableName, colNames);
+                if (indexCache != null) {
+                    deferred.resolve({
+                        indexTable: indexCache.tableName,
+                        indexKeys: indexCache.keys,
+                        tempTables: [],
+                        hasIndexed: true,
+                        isCache: true
+                    });
+                    return deferred.promise();
+                }
             }
         } else if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
@@ -1813,11 +1815,13 @@
                 XcalarIndexFromTable(unsortedTable, keyInfos, newTableName, txId)
                 .then(function(res) {
                     var newKeys = res.newKeys;
-                    if (!isApiCall) {
+                    if (!isApiCall && !Transaction.isEdit(txId)) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
-                    if (Transaction.isSimulate(txId)) {
+                    if (Transaction.isEdit(txId)) {
+                        // no caching
+                    } else if (Transaction.isSimulate(txId)) {
                         SQLApi.cacheIndexTable(tableName, colNames,
                                                newTableName, newKeys);
                     } else if (table != null) {
@@ -2154,7 +2158,7 @@
             }
             // This is to optimize the join later so that it doesn't have to
             // re-index
-            if (Transaction.isSimulate(txId)) {
+            if (Transaction.isSimulate(txId) && !Transaction.isEdit(txId)) {
                 SQLApi.cacheIndexTable(gbTableName, groupOnCols,
                                         newIndexTable, res.newKeys);
             }

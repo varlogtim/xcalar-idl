@@ -155,13 +155,6 @@ window.JoinView = (function($, JoinView) {
         var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
-                if (isEditMode && $li.hasClass("advanced") &&
-                    joinType !== "Cross Join") {
-                    $li.removeClass("selected");
-                    return true; // keeps menu open
-                }
-
-
                 var $input = $joinTypeSelect.find(".text");
                 var prevType = $input.text();
                 var tableIds;
@@ -237,9 +230,6 @@ window.JoinView = (function($, JoinView) {
                     $joinView.removeClass("crossJoin");
                     $clauseContainer.find(".colSelectInstr")
                                     .html(JoinTStr.ColSelectInstr);
-                }
-                if (isEditMode) {
-                    $joinView.find(".colSelectInstr").append('<span class="editDescWarning">' + DFTStr.NoColumnTypeCheck + '</span>');
                 }
             }
         });
@@ -1136,9 +1126,9 @@ window.JoinView = (function($, JoinView) {
             return false;
         }
 
-        if (isEditMode) {
-            return true;
-        }
+        // if (isEditMode) {
+        //     return true;
+        // }
 
         var lCols = joinKeys.lCols;
         var rCols = joinKeys.rCols;
@@ -1756,14 +1746,9 @@ window.JoinView = (function($, JoinView) {
 
         var origFormOpenTime = formHelper.getOpenTime();
 
-        if (isEditMode) {
-            DagEdit.store({
-                args: {
-                    joinType: joinType,
-                    evalString: fltString
-                },
-                indexFields: [lJoinInfo.colNames, rJoinInfo.colNames]
-            });
+        if (DagEdit.isEditMode()) {
+            DagEdit.storeJoin(joinType, lJoinInfo, rJoinInfo,
+                            newTableName + "#aa00", options)
         } else {
             xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
             .then(function(finalTableName) {
@@ -1876,7 +1861,7 @@ window.JoinView = (function($, JoinView) {
         // Now that we have all the columns that we want to rename, we
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
-        if (!gTurnOnPrefix || isEditMode) {
+        if (!gTurnOnPrefix) {
             return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
@@ -2123,9 +2108,9 @@ window.JoinView = (function($, JoinView) {
     }
 
     function getColNumsFromName(cols, table) {
-        if (isEditMode) {
-            return [];
-        }
+        // if (DagEdit.isEditMode()) {
+        //     return [];
+        // }
         var colNums = cols.map(function(colName) {
             var progCol = table.getColByFrontName(colName);
             return table.getColNumByBackName(progCol.getBackColName());
@@ -2181,9 +2166,9 @@ window.JoinView = (function($, JoinView) {
     }
 
     function prepJoinKeyDataSubmit(lCols, rCols) {
-        if (isEditMode) {
-            return null;
-        }
+        // if (isEditMode) {
+        //     return null;
+        // }
         var dataPerClause = [];
         // Iterate over each clause, treating every pair of left|right clause
         // as a completely independent data point.
@@ -2670,7 +2655,7 @@ window.JoinView = (function($, JoinView) {
                 leftColText = "\"\"";
             }
             if (columnPairs[i][1]) {
-                rightColText = '<span class="highlighted">' + 
+                rightColText = '<span class="highlighted">' +
                             xcHelper.escapeHTMLSpecialChar(columnPairs[i][1]) +
                               '</span>';
             } else {

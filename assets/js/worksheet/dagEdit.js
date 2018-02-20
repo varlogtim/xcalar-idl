@@ -9,7 +9,7 @@ window.DagEdit = (function($, DagEdit) {
         // and index are linked, so when  we undo a group by edit, we need to undo the
         // index edit as well
         this.newNodes = {};
-        this.insertNodes = {};
+        this.insertedNodes = {};
         this.editingTables = {}; // map of names of tables currently being edited
         this.descendantRefCounts = {}; // counts how many times a table is included as a descendant
         this.descendantMap = {}; // map of edited tables and their descendant
@@ -40,6 +40,7 @@ window.DagEdit = (function($, DagEdit) {
         $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
         $dagWrap.find(".tagHeader.union.expanded").find(".groupTagIcon").click();
+        $dagWrap.find(".tagHeader.join.expanded").find(".groupTagIcon").click();
 
         var tableId = $dagWrap.data("id");
         if (!$dagWrap.hasClass("selected")) {
@@ -150,7 +151,8 @@ window.DagEdit = (function($, DagEdit) {
         curEdit.editingNode = node;
         var api = node.value.api;
         var sourceTableNames;
-        if (api === XcalarApisT.XcalarApiUnion) {
+        if (api === XcalarApisT.XcalarApiUnion ||
+            api === XcalarApisT.XcalarApiJoin) {
             sourceTableNames = node.getTagSourceNames();
         } else {
             sourceTableNames = node.getNonIndexSourceNames(true);
@@ -251,61 +253,61 @@ window.DagEdit = (function($, DagEdit) {
         if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
             checkIndexNodes(info.indexFields, indexNodes, 0);
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiJoin) {
-            var joinType = info.args.joinType;
-            // XXX move this somewhere else
-            var joinLookUp = {
-                "Inner Join": JoinOperatorT.InnerJoin,
-                "Left Outer Join": JoinOperatorT.LeftOuterJoin,
-                "Right Outer Join": JoinOperatorT.RightOuterJoin,
-                "Full Outer Join": JoinOperatorT.FullOuterJoin,
-                "Cross Join": JoinOperatorT.CrossJoin
-            };
-            joinType = joinLookUp[joinType];
-            joinType = JoinOperatorTStr[joinType];
-            info.args.joinType = joinType;
+            // var joinType = info.args.joinType;
+            // // XXX move this somewhere else
+            // var joinLookUp = {
+            //     "Inner Join": JoinOperatorT.InnerJoin,
+            //     "Left Outer Join": JoinOperatorT.LeftOuterJoin,
+            //     "Right Outer Join": JoinOperatorT.RightOuterJoin,
+            //     "Full Outer Join": JoinOperatorT.FullOuterJoin,
+            //     "Cross Join": JoinOperatorT.CrossJoin
+            // };
+            // joinType = joinLookUp[joinType];
+            // joinType = JoinOperatorTStr[joinType];
+            // info.args.joinType = joinType;
 
-            if (joinType !== "crossJoin") {
-                var curIndex = 0;
-                checkIndexNodes(info.indexFields[0], indexNodes, 0);
-                if (indexNodes.length) {
-                    curIndex++;
-                }
-                checkIndexNodes(info.indexFields[1], indexNodes, 1);
-                // if self join, may need to do a rename of columns in join
-                // operation
-                if (curEdit.editingNode.parents[0].value.name === 
-                    curEdit.editingNode.parents[1].value.name &&
-                    indexNodes.length > curIndex) {
-                    var indexKeys = curEdit.structs[indexNodes[curIndex]
-                                                    .value.name].key;
-                    var allColumns = xcHelper.deepCopy(curEdit.editingNode
-                                                        .value.struct.columns);
-                    var colAdded = false;
-                    columns = allColumns[1];
-                    for (var i = 0; i < indexKeys.length; i++) {
-                        var colFound = false;
-                        for (var j = 0; j < columns.length; j++) {
-                            if (columns[j].sourceColumn === 
-                                indexKeys[i].keyFieldName) {
-                                colFound = true;
-                                break;
-                            }
-                        }
-                        if (!colFound) {
-                            colAdded = true;
-                            columns.push({
-                                columnType: indexKeys[i].type,
-                                sourceColumn: indexKeys[i].keyFieldName,
-                                destColumn: indexKeys[i].keyFieldName + 
-                                            Math.floor(Math.random() * 1000)
-                            });
-                        }
-                    }
-                    if (colAdded) {
-                        joinColumns = allColumns;
-                    }
-                }
-            }
+            // if (joinType !== "crossJoin") {
+            //     var curIndex = 0;
+            //     checkIndexNodes(info.indexFields[0], indexNodes, 0);
+            //     if (indexNodes.length) {
+            //         curIndex++;
+            //     }
+            //     checkIndexNodes(info.indexFields[1], indexNodes, 1);
+            //     // if self join, may need to do a rename of columns in join
+            //     // operation
+            //     if (curEdit.editingNode.parents[0].value.name ===
+            //         curEdit.editingNode.parents[1].value.name &&
+            //         indexNodes.length > curIndex) {
+            //         var indexKeys = curEdit.structs[indexNodes[curIndex]
+            //                                         .value.name].key;
+            //         var allColumns = xcHelper.deepCopy(curEdit.editingNode
+            //                                             .value.struct.columns);
+            //         var colAdded = false;
+            //         columns = allColumns[1];
+            //         for (var i = 0; i < indexKeys.length; i++) {
+            //             var colFound = false;
+            //             for (var j = 0; j < columns.length; j++) {
+            //                 if (columns[j].sourceColumn ===
+            //                     indexKeys[i].keyFieldName) {
+            //                     colFound = true;
+            //                     break;
+            //                 }
+            //             }
+            //             if (!colFound) {
+            //                 colAdded = true;
+            //                 columns.push({
+            //                     columnType: indexKeys[i].type,
+            //                     sourceColumn: indexKeys[i].keyFieldName,
+            //                     destColumn: indexKeys[i].keyFieldName +
+            //                                 Math.floor(Math.random() * 1000)
+            //                 });
+            //             }
+            //         }
+            //         if (colAdded) {
+            //             joinColumns = allColumns;
+            //         }
+            //     }
+            // }
         }
 
         if (indexNodes.length) {
@@ -324,12 +326,14 @@ window.DagEdit = (function($, DagEdit) {
             checkOpForAgg(curEdit.editingNode);
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiJoin) {
             curEdit.structs[curEdit.editingNode.value.name] = {
+                columns: info.args.columns,
                 joinType: info.args.joinType,
-                evalString: info.args.evalString
+                evalString: info.args.evalString,
+                source: info.args.source
             };
-            if (joinColumns) {
-                curEdit.structs[curEdit.editingNode.value.name].columns = joinColumns;
-            }
+            // if (joinColumns) {
+            //     curEdit.structs[curEdit.editingNode.value.name].columns = joinColumns;
+            // }
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiUnion) {
             // curEdit.structs[curEdit.editingNode.value.name] = {columns: info.args.columns};
             // don't include dest
@@ -375,8 +379,9 @@ window.DagEdit = (function($, DagEdit) {
 
     DagEdit.storeUnion = function(tableInfos, dedup, newTableName) {
         var txId = Transaction.start({
-            "operation": "SQL Simulate",
-            "simulate": true
+            "operation": "Edit Union",
+            "simulate": true,
+            "isEdit": true
         });
 
         XIApi.union(txId, tableInfos, dedup, newTableName)
@@ -391,22 +396,113 @@ window.DagEdit = (function($, DagEdit) {
             }
             query = JSON.parse("[" + query + "]");
 
-            // XXX may need to add linked nodes
             if (query.length > 1) {
-                if (!curEdit.insertNodes[curEdit.editingNode.value.name]) {
-                    curEdit.insertNodes[curEdit.editingNode.value.name] = [];
+                if (!curEdit.insertedNodes[curEdit.editingNode.value.name]) {
+                    curEdit.insertedNodes[curEdit.editingNode.value.name] = [];
                 }
                 for (var i = 0; i < query.length - 1; i++) {
-                    curEdit.insertNodes[curEdit.editingNode.value.name].push(query[i]);
+                    curEdit.insertedNodes[curEdit.editingNode.value.name].push(query[i]);
                 }
             }
-            
+
             DagEdit.store(query[query.length - 1]);
         })
         .fail(function(err) {
 
         });
-    }
+    };
+
+    DagEdit.storeJoin = function(joinType, lJoinInfo, rJoinInfo, newTableName, options) {
+        var txId = Transaction.start({
+            "operation": "Edit Join",
+            "simulate": true,
+            "isEdit": true
+        });
+
+        var joinLookUp = {
+            "Inner Join": JoinOperatorT.InnerJoin,
+            "Left Outer Join": JoinOperatorT.LeftOuterJoin,
+            "Right Outer Join": JoinOperatorT.RightOuterJoin,
+            "Full Outer Join": JoinOperatorT.FullOuterJoin,
+            "Cross Join": JoinOperatorT.CrossJoin,
+            "Left Semi Join": JoinCompoundOperatorTStr.LeftSemiJoin,
+            "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
+            "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
+            "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin
+        };
+
+        joinType = joinLookUp[joinType];
+
+        var lTableId = lJoinInfo.tableId;
+        var lColNums = lJoinInfo.colNums;
+        var lTable = gTables[lTableId] || gDroppedTables[lTableId];
+        var lTableName = lTable.getName();
+
+        var rTableId = rJoinInfo.tableId;
+        var rColNums = rJoinInfo.colNums;
+        var rTable = gTables[rTableId] || gDroppedTables[rTableId];
+        var rTableName = rTable.getName();
+
+        var lColNames = lColNums.map(function(colNum) {
+            return lTable.getCol(colNum).getBackColName();
+        });
+
+        var rColNames = rColNums.map(function(colNum) {
+            return rTable.getCol(colNum).getBackColName();
+        });
+
+        var lTableInfo = {
+            "tableName": lTableName,
+            "columns": lColNames,
+            "casts": lJoinInfo.casts,
+            "pulledColumns": lJoinInfo.pulledColumns,
+            "rename": lJoinInfo.rename
+        };
+
+        var rTableInfo = {
+            "tableName": rTableName,
+            "columns": rColNames,
+            "casts": rJoinInfo.casts,
+            "pulledColumns": rJoinInfo.pulledColumns,
+            "rename": rJoinInfo.rename
+        };
+
+        var joinOpts = {
+            "newTableName": newTableName
+        };
+
+        if (options.filterEvalString) {
+            joinOpts.evalString = options.filterEvalString;
+        }
+
+        XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
+        .then(function(nTableName, nTableCols) {
+
+            var query = Transaction.done(txId, {
+                "noNotification": true,
+                "noSql": true
+            });
+
+            if (query[query.length - 1] === ",") {
+                query = query.slice(0, -1);
+            }
+            query = JSON.parse("[" + query + "]");
+
+            if (query.length > 1) {
+                if (!curEdit.insertedNodes[curEdit.editingNode.value.name]) {
+                    curEdit.insertedNodes[curEdit.editingNode.value.name] = [];
+                }
+                for (var i = 0; i < query.length - 1; i++) {
+                    curEdit.insertedNodes[curEdit.editingNode.value.name].push(query[i]);
+                }
+            }
+
+            DagEdit.store(query[query.length - 1]);
+        })
+        .fail(function(err) {
+
+        });
+    };
 
     DagEdit.undoEdit = function(node) {
         var linkedNodes = curEdit.linkedNodes[node.value.name];
@@ -420,7 +516,7 @@ window.DagEdit = (function($, DagEdit) {
         }
         delete curEdit.structs[node.value.name];
         delete curEdit.newNodes[node.value.name];
-        delete curEdit.insertNodes[node.value.name];
+        delete curEdit.insertedNodes[node.value.name];
         delete curEdit.aggregates[node.value.name];
         var descendants = curEdit.descendantMap[node.value.name];
         for (var i = 0; i < descendants.length; i++) {
@@ -675,10 +771,10 @@ window.DagEdit = (function($, DagEdit) {
 
                 var indexedFields = node.value.indexedFields;
                 var colNumSets = [];
-                
+
                 for (var i = 0; i < indexedFields.length; i++) {
                     var tId = xcHelper.getTableId(sourceTableNames[i]);
-                    var table = gTables[tId] || gDroppedTables[tId]; 
+                    var table = gTables[tId] || gDroppedTables[tId];
                     var colNums = [];
                     if (table && table.getAllCols().length > 1) {
                         for (var j = 0; j < indexedFields[i].length; j++) {

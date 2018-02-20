@@ -31,7 +31,8 @@
         var txLog = new TXLog({
             "msgId": msgId,
             "operation": operation,
-            "sql": options.sql
+            "sql": options.sql,
+            "isEdit": options.isEdit
         });
 
         txCache[curId] = txLog;
@@ -217,6 +218,10 @@
         return (txId && !Number.isInteger(txId));
     };
 
+    Transaction.isEdit = function(txId) {
+        return (txId && txCache[txId] && txCache[txId].dagEdit);
+    };
+
     Transaction.cancel = function(txId, options) {
         if (!isValidTX(txId)) {
             return;
@@ -384,6 +389,7 @@
         this.operation = options.operation;
         this.cli = "";
         this.sql = options.sql || null;
+        this.isEdit = options.isEdit || false;
 
         return this;
     }

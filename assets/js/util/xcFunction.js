@@ -490,8 +490,7 @@ window.xcFunction = (function($, xcFunction) {
             "joinStr": joinStr,
             "worksheet": worksheet,
             "options": options,
-            "htmlExclude": ["lJoinInfo", "rJoinInfo", "worksheet",
-                             "options"]
+            "htmlExclude": ["lJoinInfo", "rJoinInfo", "worksheet", "options"]
         };
 
         // regular join on unsorted cols = 3, 1 if sorted (through groupby)
