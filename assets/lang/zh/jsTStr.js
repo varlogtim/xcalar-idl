@@ -880,6 +880,10 @@ DSTStr = {
 'RenameMsg': '数据集会被命名为\"<newName>\"。'
 'LockDS': '上锁',
 'UnlockDS': '解锁',
+"ContainsRecordErrors": "Your dataset contains record errors. Click to view.",
+"ContainsFileErrors": "Your dataset contains file errors. Click to view.",
+"RecordError": "Record error",
+"FileError": "File error"
 };
 DSFormTStr = {
 'Pattern': '模式',

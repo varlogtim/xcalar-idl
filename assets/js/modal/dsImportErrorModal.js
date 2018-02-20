@@ -13,6 +13,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     var modalOpen = false;
     var files = {};
     var activePath = null;
+    var hasRecordErrors = false;
 
     DSImportErrorModal.setup = function() {
         $modal = $("#dsImportErrorModal");
@@ -77,7 +78,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         });
     };
 
-    DSImportErrorModal.show = function(dsName, options) {
+    DSImportErrorModal.show = function(dsName, isRecordError, options) {
         if (modalId) { // already open
             return;
         }
@@ -86,7 +87,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         curResultSetId = null;
         modalHelper.setup();
         modalId = Date.now();
-        // $modal.find(".errorFileList .row").eq(0).removeClass("active").click();
+        hasRecordErrors = isRecordError;
 
         XcalarMakeResultSetFromDataset(dsName, true)
         .then(function (result) {
@@ -365,9 +366,20 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         if (activePath && fileInfo.fullPath === activePath) {
             activeClass += " active";
         }
-        var html = '<div class="row type-record row' + rowNum + activeClass +
+        var type;
+        var tooltip;
+        if (hasRecordErrors) {
+            type = "record";
+            tooltip = DSTStr.RecordError;
+        } else {
+            type = "file";
+            tooltip = DSTStr.FileError;
+        }
+        var html = '<div class="row type-' + type +
+            ' row' + rowNum + activeClass +
             '" data-path="' + fileInfo.fullPath + '">' +
-            '<i class="icon xi-error"></i>' +
+            '<i class="icon xi-error"'  + xcTooltip.Attrs +
+            ' data-original-title="' + tooltip + '"></i>' +
             '<span class="filePath" data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body" ' +
                 'data-original-title="' + fileInfo.fullPath + '">' +

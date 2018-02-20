@@ -86,10 +86,18 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
+            var $dsInfoError = $("#dsInfo-error");
             if (dsObj.numErrorEntries) {
-                $("#dsInfo-error").removeClass("xc-hidden");
+                $dsInfoError.removeClass("xc-hidden");
+                if (dsObj.advancedArgs.allowRecordErrors) {
+                    $dsInfoError.removeClass("type-file");
+                    xcTooltip.changeText($dsInfoError, DSTStr.ContainsRecordErrors);
+                } else {
+                    $dsInfoError.addClass("type-file");
+                    xcTooltip.changeText($dsInfoError, DSTStr.ContainsFileErrors);
+                }
             } else {
-                $("#dsInfo-error").addClass("xc-hidden");
+                $dsInfoError.addClass("xc-hidden");
             }
             deferred.resolve();
         })
@@ -502,7 +510,10 @@ window.DSTable = (function($, DSTable) {
         });
 
         $("#dsInfo-error").click(function() {
-            DSImportErrorModal.show(DSTable.getId());
+            var dsId = DSTable.getId();
+            var dsObj = DS.getDSObj(dsId);
+            var isRecordError = dsObj.advancedArgs.allowRecordErrors;
+            DSImportErrorModal.show(DSTable.getId(), isRecordError);
         });
     }
 

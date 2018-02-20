@@ -6,6 +6,9 @@ window.xcTooltip = (function(xcTooltip, $) {
                  '</div>'
     };
 
+    xcTooltip.Attrs = ' data-toggle="tooltip" data-container="body" ' +
+                      'data-placement="top" ';
+
     xcTooltip.setup = function() {
         $("body").tooltip({
             "selector": '[data-toggle="tooltip"]',

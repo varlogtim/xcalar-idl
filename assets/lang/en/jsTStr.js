@@ -1023,6 +1023,10 @@ DSTStr = {
     'UnshareFail': 'Unshare Dataset Failed',
     'LockDS': 'Lock Dataset',
     'UnlockDS': 'Unlock Dataset',
+    "ContainsRecordErrors": "Your dataset contains record errors.<br/>Click to view.",
+    "ContainsFileErrors": "Your dataset contains file errors.<br/>Click to view.",
+    "RecordError": "Record error",
+    "FileError": "File error",
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
