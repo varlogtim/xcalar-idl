@@ -1300,8 +1300,8 @@ window.DagDraw = (function($, DagDraw) {
                 storedInfo.datasets[tableName] = dagInfo;
                 dagInfo.dagNodeId = node.value.dagNodeId;
                 // pattern = dagInfo.loadInfo.fileNamePattern;
-                pattern = dagInfo.loadInfo.loadArgs.sourceArgs.fileNamePattern;
-                targetName = dagInfo.loadInfo.loadArgs.sourceArgs.targetName;
+                pattern = dagInfo.loadInfo.loadArgs.sourceArgsList[0].fileNamePattern;
+                targetName = dagInfo.loadInfo.loadArgs.sourceArgsList[0].targetName;
                 tableClasses += "dataStore dataset ";
             }  else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
                 tId = xcHelper.getTableId(tableName);
@@ -1767,10 +1767,10 @@ window.DagDraw = (function($, DagDraw) {
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('loadInput'):
-                    info.url = value.loadArgs.sourceArgs.path;
+                    info.url = value.loadArgs.sourceArgsList[0].path;
                     var loadInfo = xcHelper.deepCopy(value);
                     info.loadInfo = loadInfo;
-                    loadInfo.url = loadInfo.loadArgs.sourceArgs.path;
+                    loadInfo.url = loadInfo.loadArgs.sourceArgsList[0].path;
                     loadInfo.format = xcHelper.parseDSFormat(loadInfo);
                     loadInfo.name = loadInfo.datasetName;
                     if (loadInfo.loadArgs) {

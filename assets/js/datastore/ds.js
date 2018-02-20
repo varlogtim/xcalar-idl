@@ -1632,8 +1632,7 @@ window.DS = (function ($, DS) {
         return {
             // format should come from kvStore, not from backend
             // "format": xcHelper.parseDSFormat(ds),
-            // XXX TODO: change to sourceArgsList
-            "sources": [ds.loadArgs.sourceArgs],
+            "sources": ds.loadArgs.sourceArgsList,
             "unlistable": !ds.isListable,
             "locked": ds.locked,
             "size": ds.size,
