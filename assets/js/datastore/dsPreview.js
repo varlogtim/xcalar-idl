@@ -965,7 +965,7 @@ window.DSPreview = (function($, DSPreview) {
         rowsToFetch = defaultRowsToFech;
     }
 
-    function getRowsToPreivew() {
+    function getRowsToPreview() {
         return rowsToFetch;
     }
 
@@ -1573,6 +1573,19 @@ window.DSPreview = (function($, DSPreview) {
         var fileName = $fileName.find("input").val().trim() || null;
         var unsorted = $advanceSection.find(".performance .checkbox")
                                       .hasClass("checked");
+        terminationOptions = getTerminationOptions();
+        return {
+            //metaFile: metaFile,
+            rowNum: rowNum,
+            fileName: fileName,
+            unsorted: unsorted,
+            allowRecordErrors: terminationOptions.allowRecordErrors,
+            allowFileErrors: terminationOptions.allowFileErrors
+        };
+    }
+
+    function getTerminationOptions() {
+        var $advanceSection = $form.find(".advanceSection");
         var termination = $advanceSection.find(".termination")
                                          .find(".radioButton.active")
                                          .data("option");
@@ -1598,10 +1611,6 @@ window.DSPreview = (function($, DSPreview) {
                 break;
         }
         return {
-            //metaFile: metaFile,
-            rowNum: rowNum,
-            fileName: fileName,
-            unsorted: unsorted,
             allowRecordErrors: allowRecordErrors,
             allowFileErrors: allowFileErrors
         };
@@ -1636,11 +1645,15 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
 
+        terminationOptions = getTerminationOptions();
+
         return {
             "format": format,
             "udfModule": udfModule,
             "udfFunc": udfFunc,
-            "udfQuery": udfQuery
+            "udfQuery": udfQuery,
+            "allowRecordErrors": terminationOptions.allowRecordErrors,
+            "allowFileErrors": terminationOptions.allowFileErrors
         };
     }
 
@@ -2191,7 +2204,12 @@ window.DSPreview = (function($, DSPreview) {
                 args.moduleName = udfModule;
                 args.funcName = udfFunc;
                 args.udfQuery = udfQuery;
+                args.advancedArgs = {
+                    allowRecordErrors: options.allowRecordErrors,
+                    allowFileErrors: options.allowFileErrors,
+                }
                 sql.args = args;
+
                 return loadDataWithUDF(txId, dsName, args);
             } else {
                 args.targetName = targetName;
@@ -2598,7 +2616,7 @@ window.DSPreview = (function($, DSPreview) {
                 buffer = res.buffer;
                 totalDataSize = res.totalDataSize;
                 previewOffset = res.thisDataSize;
-                var rowsToShow = getRowsToPreivew();
+                var rowsToShow = getRowsToPreview();
                 return getDataFromPreview(args, buffer, rowsToShow);
             }
         })
@@ -2817,7 +2835,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function fetchMoreRowsFromLoadUDF(rowsToAdd) {
         var datasetName = tableName;
-        var startRow = getRowsToPreivew() + 1;
+        var startRow = getRowsToPreview() + 1;
         return getDataFromLoadUDF(datasetName, startRow, rowsToAdd);
     }
 
@@ -2825,7 +2843,7 @@ window.DSPreview = (function($, DSPreview) {
         var targetName = loadArgs.getTargetName();
         var path = loadArgs.getPreviewFile();
         var buffer = rawData;
-        var rowsToShow = getRowsToPreivew() + rowsToAdd;
+        var rowsToShow = getRowsToPreview() + rowsToAdd;
         var args = {
             targetName: targetName,
             path: path
