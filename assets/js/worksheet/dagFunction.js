@@ -756,6 +756,9 @@ window.DagFunction = (function($, DagFunction) {
             node.api === XcalarApisT.XcalarApiFilter) {
             var aggSources = DagFunction.getAggsFromEvalStrs(node.struct.eval);
             for (var i = 0; i < aggSources.length; i++) {
+                if (!node.aggSources) {
+                    break;
+                }
                 if (node.aggSources.indexOf(aggSources[i]) === -1) {
                     aggSources.splice(i, 1);
                     i--;
@@ -1387,6 +1390,13 @@ window.DagFunction = (function($, DagFunction) {
         var parents = [];
         if (node.numParents === 0) {
             endPoints.push(treeNode);
+        }
+
+        if (node.numParents > 1 && !node.aggSources) {
+            var parsedParents = DagFunction.getAggsFromEvalStrs(node.struct.eval);
+            if (parsedParents.length) {
+                node.aggSources = parsedParents;
+            }
         }
 
         for (var i = 0; i < node.numParents; i++) {
