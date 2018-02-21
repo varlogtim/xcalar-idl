@@ -170,6 +170,11 @@ window.FileBrowser = (function($, FileBrowser) {
             cleanContainer({keepPicked: true});
         });
 
+        $("#fileInfoContainer, #fileBrowserPreview").on("click", function(event) {
+            // Click on infoContainer or filePreviewer should not clean container
+            event.stopPropagation();
+        });
+
         $fileBrowser.on({
             "click": function(event) {
                 // click to focus
@@ -269,12 +274,6 @@ window.FileBrowser = (function($, FileBrowser) {
             },
         }, ".checkBox .icon");
 
-        // confirm to open a ds
-        $fileBrowser.on("click", ".confirm", function() {
-            submitForm();
-            return false;
-        });
-
         // close file browser
         $fileBrowser.on("click", ".cancel", function() {
             backToForm();
@@ -349,8 +348,9 @@ window.FileBrowser = (function($, FileBrowser) {
             // Unselect single file from pickedFileList
             var $li = $(this).closest("li");
             var fileName = $li.data("name");
+            var escName = xcHelper.escapeDblQuote(fileName);
             var $grid = $fileBrowser
-                        .find('.fileName[data-name="' + fileName + '"]')
+                        .find('.fileName[data-name="' + escName + '"]')
                         .closest(".grid-unit");
             unselectSingleFile($grid);
             // Just remove it, no need to call updatePickedFilesList
@@ -384,6 +384,11 @@ window.FileBrowser = (function($, FileBrowser) {
         $infoContainer.on("click", ".fileRawData .btn", function() {
             var $grid = getFocusedGridEle();
             previewDS($grid);
+        });
+
+        // confirm to open a ds
+        $infoContainer.on("click", ".confirm", function() {
+            submitForm();
         });
     };
 
