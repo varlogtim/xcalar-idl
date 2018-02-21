@@ -3206,12 +3206,45 @@ html.microsoft {
             .textOverflowOneLine;
             .text-selection;
         }
+
+        .toggleGroupRow {
+            .xi-close {
+                display: none;
+            }
+        }
+    }
+
+    .addParamGroupSection {
+        @sectionHeight: 24px;
+        line-height: @sectionHeight;
+        margin-top: 20px;
+        cursor: pointer;
+        display: none;
+
+        .addGroup {
+            .size(@sectionHeight, @sectionHeight);
+            line-height: @sectionHeight;
+            float: left;
+            margin-right: 10px;
+
+            .icon {
+                line-height: @sectionHeight;
+                margin-left: -2px;
+                font-size: 16px;
+            }
+        }
+    }
+
+    &.type-dataStore {
+        .addParamGroupSection {
+            display: inline-block;
+        }
     }
 
     &.type-dataStore, &.type-export {
-        .flexContainer {
+        .paramGroup, .flexContainer {
             display: block;
-            > div {
+            > div{
                 margin-left: 0px;
                 margin-right: 0px;
                 .flex-display;
@@ -3300,7 +3333,8 @@ html.microsoft {
         }
     }
 
-    .flexContainer {
+    .flexContainer, .paramGroup {
+        .flex-display;
         > div {
             text-align: left;
             padding: 0px;
@@ -3472,6 +3506,7 @@ html.microsoft {
         .tdWrapper {
             .position(relative);
             box-shadow: none;
+            padding-left: 0px;
 
             .iconWrap {
                 .position(absolute, @top: -1px, @right: 0px);
@@ -3511,7 +3546,7 @@ html.microsoft {
             }
             &.dummyWrap {
                 display: none;
-                padding: 4px 37px 4px 4px;
+                padding: 3px 37px 4px 4px;
                 overflow: hidden;
             }
             &.dummy {
@@ -3561,6 +3596,53 @@ html.microsoft {
                 margin-left: 0px;
                 margin-right: 0px;
             }
+        }
+    }
+
+    .toggleGroupRow {
+        margin: 10px 0px 10px -10px;
+        padding: 10px 0px 10px 10px;
+        cursor: pointer;
+
+        &.expanded {
+            + .paramGroup {
+                display: block;
+            }
+            .toggleText, .xi-plus {
+                display: none;
+            }
+            .xi-minus, .xi-close {
+                float: right;
+            }
+            .xi-close {
+                font-size: 14px;
+            }
+        }
+
+        &.collapsed {
+            margin-top: 20px;
+            background: @color-bg-white-three;
+            + .paramGroup {
+                display: none;
+            }
+            .xi-minus, .xi-close {
+                display: none;
+            }
+        }
+
+        &.firstGroup {
+            margin-top: -20px;
+            .xi-close {
+                display: none;
+            }
+            &.collapsed {
+                margin-top: 10px;
+            }
+        }
+
+        .icon {
+            font-size: 10px;
+            width: 20px;
         }
     }
 

@@ -598,7 +598,6 @@ window.DFCard = (function($, DFCard) {
         // It also adds extra classes to the dag that is needed for parameteri-
         // zation later.
 
-
         var dataflow = DF.getDataflow(dataflowName);
         var retNodes = dataflow.retinaNodes;
         var paramValue = '';
@@ -606,7 +605,6 @@ window.DFCard = (function($, DFCard) {
         var expRetNodes = retNodes.filter(function(node) {
             return node.api === XcalarApisT.XcalarApiExport;
         });
-
 
         $dagWrap.find(".export.dagTable").each(function() {
             var $exportTable = $(this);

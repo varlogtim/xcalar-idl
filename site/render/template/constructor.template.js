@@ -2198,7 +2198,7 @@
                         rowsToFetch = Math.min(self.numEntries, rowsToFetch);
                         return XcalarFetchData(self.resultSetId, rowToGo,
                                                 rowsToFetch,
-                                                self.numEntries, []);
+                                                self.numEntries, [], 0, 0);
                     })
                     .then(function(res) {
                         self._release()
@@ -2528,7 +2528,7 @@
 
             addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo, noParams) {
                 this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
-                this.updateParameterizedNode(dagNodeId, paramInfo, noParams);
+                this.updateParameterizedNode(dagNodeId, null, paramInfo, noParams);
             },
 
             colorNodes: function(dagNodeId, noParams) {
@@ -2563,7 +2563,17 @@
                 return $nodeOrAction;
             },
 
-            updateParameterizedNode: function(dagNodeId, paramInfo, noParams) {
+            updateParameterizedNode: function(oldNodeId, newDagNodeId, paramInfo, noParams) {
+                var dagNodeId;
+                if (newDagNodeId) {
+                    // update nodeId
+                    var paramValue = this.parameterizedNodes[oldNodeId];
+                    delete this.parameterizedNodes[oldNodeId];
+                    this.parameterizedNodes[newDagNodeId] = paramValue;
+                    dagNodeId = newDagNodeId;
+                } else {
+                    dagNodeId = oldNodeId;
+                }
                 var $tableNode = this.colorNodes(dagNodeId, noParams);
                 if ($tableNode == null) {
                     // error case

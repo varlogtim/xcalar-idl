@@ -243,6 +243,29 @@ window.DFParamModal = (function($, DFParamModal){
                 fillUpRows();
             }
         });
+
+        $dfParamModal.on("click", ".toggleGroupRow", function(event) {
+            var $toggle = $(this);
+            if ($(event.target).closest(".xi-close").length) {
+                $toggle.next().remove();
+                $toggle.remove();
+                $dfParamModal.find(".editableParamQuery .toggleGroupRow").each(function(index) {
+                    $(this).find(".toggleText").text("Source Arguments " + ( index + 1))
+                });
+                return;
+            }
+            if ($toggle.hasClass("expanded")) {
+                $toggle.removeClass("expanded");
+                $toggle.addClass("collapsed");
+            } else {
+                $toggle.removeClass("collapsed");
+                $toggle.addClass("expanded");
+            }
+        });
+
+        $dfParamModal.on("click", ".addParamGroupSection", function() {
+            addDataStoreGroup();
+        });
     };
 
     DFParamModal.show = function($currentIcon) {
@@ -280,8 +303,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
-        var paramValue = $currentIcon.data('paramValue');
-        defaultParam = paramValue;
+        defaultParam = getParamValues(df, id);
 
         getExportInfo(type, dfName)
         .always(function(info) {
@@ -292,7 +314,7 @@ window.DFParamModal = (function($, DFParamModal){
                 deferred.reject();
                 return;
             }
-            setupInputText(paramValue, info);
+            setupInputText(defaultParam, info);
             $("#dfParamModal .editableRow .defaultParam").click();
             var draggableInputs = "";
             DF.getDataflow(dfName).parameters.forEach(function(paramName) {
@@ -322,7 +344,7 @@ window.DFParamModal = (function($, DFParamModal){
                            .removeClass("hint")
                                 .html(draggableInputs);
             fillUpRows(); // parameterlist table
-            populateSavedFields(id, dfName);
+            populateSavedFields(id, dfName); // template section
 
             modalHelper.setup();
             setupDummyInputs();
@@ -513,40 +535,51 @@ window.DFParamModal = (function($, DFParamModal){
         });
     }
 
-    function datasetSetup() {
+    function datasetSetup(newGroup) {
         $dfParamModal.find('.targetName .dropDownList').find('ul')
                                                 .html(getDatasetTargetList());
-        var $list = $dfParamModal.find('.tdWrapper.dropDownList');
-        var dropdownHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                var val = $li.text();
-                var $input = $li.closest('.tdWrapper.dropDownList').find("input");
-                if (val === $.trim($input.val())) {
-                    return;
-                }
-                $input.val(val).data("val", val);
-            },
-            "onOpen": function() {
-                var $lis = $list.find('li').sort(xcHelper.sortHTML);
-                $lis.prependTo($list.find('ul'));
-            },
-            "container": "#dfParamModal",
-            "bounds": "#dfParamModal .modalTopMain",
-            "bottomPadding": 2,
-            "exclude": '.draggableDiv, .defaultParam'
-        });
+        var $lists;
+        if (newGroup) {
+            $lists = $dfParamModal.find('.tdWrapper.dropDownList').last();
+        } else {
+            $lists = $dfParamModal.find('.tdWrapper.dropDownList');
+        }
 
-        new InputDropdownHint($list, {
-            "preventClearOnBlur": true,
-            "order": true,
-            "menuHelper": dropdownHelper,
-            "onEnter": function (val, $input) {
-                if (val === $.trim($input.val())) {
-                    return;
+        $lists.each(function() {
+            var $list = $(this);
+            var dropdownHelper = new MenuHelper($list, {
+                "onSelect": function($li) {
+                    var val = $li.text();
+                    var $input = $li.closest('.tdWrapper.dropDownList').find("input");
+                    if (val === $.trim($input.val())) {
+                        return;
+                    }
+                    $input.val(val).data("val", val);
+                },
+                "onOpen": function() {
+                    var $lis = $list.find('li').sort(xcHelper.sortHTML);
+                    $lis.prependTo($list.find('ul'));
+                },
+                "container": "#dfParamModal",
+                "bounds": "#dfParamModal .modalTopMain",
+                "bottomPadding": 2,
+                "exclude": '.draggableDiv, .defaultParam'
+            });
+
+            new InputDropdownHint($list, {
+                "preventClearOnBlur": true,
+                "order": true,
+                "menuHelper": dropdownHelper,
+                "onEnter": function (val, $input) {
+                    if (val === $.trim($input.val())) {
+                        return;
+                    }
+                    $input.val(val);
                 }
-                $input.val(val);
-            }
-        });
+            });
+        })
+
+
     }
 
     function filterSetup() {
@@ -671,6 +704,41 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
+    function addDataStoreGroup() {
+        var numGroups = $editableRow.find(".paramGroup").length;
+
+        var editableText = '<div class="toggleGroupRow expanded ' +
+        ' xc-action">' +
+        '<i class="icon xi-plus"></i><span class="toggleText">Source Arguments ' +
+        (numGroups + 1) +
+        ' (Click to expand)</span>' +
+        '<i class="icon xi-close"></i>' +
+        '<i class="icon xi-minus"></i>' +
+        '</i></div>' +
+        '<div class="paramGroup">'+
+            '<div class="innerEditableRow targetName">' +
+                '<div class="static">' +
+                    'Target Name' + ':' +
+                '</div>' +
+                getParameterInputHTML(0, "large", {hasDropdown: true}) +
+            '</div>' +
+            '<div class="innerEditableRow filename">' +
+                '<div class="static">' +
+                    DFTStr.PointTo + ':' +
+                '</div>' +
+                getParameterInputHTML(1, "large") +
+            '</div>' +
+            '<div class="innerEditableRow">' +
+                '<div class="static">' +
+                    'Pattern' + ':' +
+                '</div>' +
+                getParameterInputHTML(2, "large allowEmpty") +
+            '</div>' +
+        '</div>';
+        $editableRow.append(editableText);
+        datasetSetup(true);
+    }
+
     // options:
     //      defaultPath: string, for export
     function setupInputText(paramValue, options) {
@@ -680,13 +748,34 @@ window.DFParamModal = (function($, DFParamModal){
         var advancedOpts = "";
         options = options || {};
         if (type === "dataStore") {
-            var encodePath = paramValue[1];
-            defaultText += '<div class="templateRow">' +
+            for (var i = 0; i < paramValue.length; i++) {
+                var collapsedState = i == 0 ? "expanded firstGroup" : "collapsed";
+                defaultText += '<div class="toggleGroupRow ' + collapsedState +
+                        ' xc-action">' +
+                        '<i class="icon xi-plus"></i><span class="toggleText">Source Arguments ' +
+                        (i + 1) +
+                        ' (Click to expand)</span>' +
+                        '<i class="icon xi-close"></i>' +
+                        '<i class="icon xi-minus"></i>' +
+                        '</div>';
+                editableText += '<div class="toggleGroupRow group' + i + ' ' + collapsedState +
+                        ' xc-action">' +
+                        '<i class="icon xi-plus"></i><span class="toggleText">Source Arguments ' +
+                        (i + 1) +
+                        ' (Click to expand)</span>' +
+                        '<i class="icon xi-close"></i>' +
+                        '<i class="icon xi-minus"></i>' +
+                        '</i></div>';
+                defaultText += '<div class="paramGroup">';
+                editableText += '<div class="paramGroup">';
+
+                var params = paramValue[i];
+                defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     'Target Name' + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
+                                    xcHelper.escapeHTMLSpecialChar(params[0]) +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
@@ -694,7 +783,7 @@ window.DFParamModal = (function($, DFParamModal){
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(encodePath) +
+                                    xcHelper.escapeHTMLSpecialChar(params[1]) +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
@@ -702,11 +791,11 @@ window.DFParamModal = (function($, DFParamModal){
                                     'Pattern' + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[2]) +
+                                    xcHelper.escapeHTMLSpecialChar(params[2]) +
                                 '</div>' +
                             '</div>';
 
-            editableText += '<div class="innerEditableRow targetName">' +
+                editableText += '<div class="innerEditableRow targetName">' +
                                 '<div class="static">' +
                                     'Target Name' + ':' +
                                 '</div>' +
@@ -724,9 +813,13 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                                 getParameterInputHTML(2, "large allowEmpty") +
                             '</div>';
+                defaultText += '</div>';
+                editableText += '</div>';
+            }
             clearExportSettingTable();
         } else if (type === "export") {
-
+            defaultText += '<div class="paramGroup">';
+            editableText += '<div class="paramGroup">';
             var path = options.defaultPath || "";
             if (path[path.length - 1] !== "/") {
                 path += "/";
@@ -794,8 +887,12 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                                 tooltipCover +
                             '</div>';
+            defaultText += '</div>';
+            editableText += '</div>';
             setUpExportSettingTable(options);
         } else { // not a datastore but a table
+            defaultText += '<div class="paramGroup">';
+            editableText += '<div class="paramGroup">';
             paramValue = paramValue[0];
             if (!checkForOneParen(paramValue)) {
                 defaultText += '<div>' +
@@ -849,6 +946,8 @@ window.DFParamModal = (function($, DFParamModal){
                 }
                 clearExportSettingTable();
             }
+            defaultText += '</div>';
+            editableText += '</div>';
         }
 
         $dfParamModal.find('.template').html(defaultText);
@@ -1306,10 +1405,14 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function setParamDivToDefault($paramDiv) {
+        var $group = $paramDiv.closest(".paramGroup");
+        var groupNum = $editableRow.find(".paramGroup").index($group);
         var target = $paramDiv.data("target");
         var paramNames = [];
-        var defaultVal = $dfParamModal.find(".templateTable .boxed")
-                                        .eq(target).text();
+        var defaultVal = $dfParamModal.find(".templateTable .paramGroup")
+                                      .eq(groupNum)
+                                      .find(".boxed")
+                                      .eq(target).text();
 
         paramNames = getParamsInInput($paramDiv);
 
@@ -1631,10 +1734,10 @@ window.DFParamModal = (function($, DFParamModal){
                 var noParams = params.length === 0;
                 if (!df.getParameterizedNode(dagNodeId)) {
                     var val = genOrigQueryStruct();
-                    df.addParameterizedNode(dagNodeId, val, paramInfo, noParams);
+                    df.addParameterizedNode(paramInfo.newNodeId, val, paramInfo, noParams);
                 } else {
                     // Only updates view. Doesn't change any stored information
-                    df.updateParameterizedNode(dagNodeId, paramInfo, noParams);
+                    df.updateParameterizedNode(dagNodeId, paramInfo.newNodeId, paramInfo, noParams);
                 }
 
                 if (DF.hasSchedule(retName)) {
@@ -1664,7 +1767,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         function genOrigQueryStruct() {
 
-            var $oldVals = $(".template .boxed");
+            var $oldVals = $dfParamModal.find(".template .boxed");
             var paramType;
             var paramValue;
             var paramQuery;
@@ -1687,10 +1790,16 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
                 case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    var targetName = $.trim($oldVals.eq(0).text());
-                    var url = $.trim($oldVals.eq(1).text());
-                    var pattern =  $.trim($oldVals.eq(2).text());
-                    paramQuery = [targetName, url, pattern];
+                    paramQuery = [];
+                    $dfParamModal.find(".template .paramGroup").each(function() {
+                        $oldVals = $(this).find(".boxed");
+                        var targetName = $.trim($oldVals.eq(0).text());
+                        var url = $.trim($oldVals.eq(1).text());
+                        var pattern =  $.trim($oldVals.eq(2).text());
+                        var args = [targetName, url, pattern];
+                        paramQuery.push(args);
+                    });
+
                     break;
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
@@ -1727,16 +1836,34 @@ window.DFParamModal = (function($, DFParamModal){
             } else {
                 tName = tableName;
             }
+            var oldNodes = DF.getDataflow(retName).retinaNodes;
             XcalarUpdateRetina(retName, tName, paramType, paramValues)
             .then(function() {
                 return XcalarGetRetina(retName);
             })
             .then(function(retStruct) {
-                DF.getDataflow(retName).retinaNodes =
-                                            retStruct.retina.retinaDag.node;
+                var dataflow = DF.getDataflow(retName)
+                dataflow.retinaNodes = retStruct.retina.retinaDag.node;
+                dataflow.nodeIds = {};
+                var curNodeId;
+                var newNodeId;
+                var $df = $("#dfViz").find('.dagWrap[data-dataflowName="' + retName + '"]');
+                for (var i = 0; i < dataflow.retinaNodes.length; i++) {
+                    var tName = dataflow.retinaNodes[i].name.name;
+                    var curNodeId = dataflow.retinaNodes[i].dagNodeId
+                    dataflow.addNodeId(tName, curNodeId);
+                    if (tName === tableName) {
+                        newNodeId = curNodeId;
+                    }
+
+                    $df.find('[data-nodeid="' + oldNodes[i].dagNodeId + '"]')
+                       .attr("data-nodeid", curNodeId)
+                       .data("nodeid", curNodeId);
+                }
                 var paramInfo = {
                     "paramType": paramType,
-                    "paramValue": paramQuery
+                    "paramValue": paramQuery,
+                    "newNodeId": newNodeId
                 };
 
                 deferred.resolve(paramInfo);
@@ -1788,19 +1915,27 @@ window.DFParamModal = (function($, DFParamModal){
                 break;
             case ("dataStore"):
                 paramType = XcalarApisT.XcalarApiBulkLoad;
+                var numGroups = $editableRow.find(".paramGroup");
+                paramQuery = [];
+                paramValues = [];
+                $editableRow.find(".paramGroup").each(function() {
+                    var paramGroup = {};
+                    $editableDivs = $(this).find("input.editableParamDiv");
+                    var url = $.trim($editableDivs.eq(1).val());
+                    var pattern = $.trim($editableDivs.eq(2).val());
+                    paramGroup.path = url;
+                    paramGroup.fileNamePattern = pattern;
+                    var targetName = $.trim($editableDivs.eq(0).val());
+                    var target = DSTargetManager.getTarget(targetName);
+                    if (target) {
+                        paramGroup.targetName = targetName;
+                        paramValues.push(paramGroup);
+                        paramQuery.push([targetName, url, pattern])
+                    } else {
+                        error = "target not found";
+                    }
+                });
 
-                var url = $.trim($editableDivs.eq(1).val());
-                var pattern = $.trim($editableDivs.eq(2).val());
-                paramValues.path = url;
-                paramValues.fileNamePattern = pattern;
-                var targetName = $.trim($editableDivs.eq(0).val());
-                var target = DSTargetManager.getTarget(targetName);
-                if (target) {
-                    paramValues.targetName = targetName;
-                    paramQuery = [targetName, url, pattern];
-                } else {
-                    error = "target not found";
-                }
                 break;
             case ("export"):
                 paramType = XcalarApisT.XcalarApiExport;
@@ -2066,7 +2201,14 @@ window.DFParamModal = (function($, DFParamModal){
                     i === 0) {
                     paramVal = xcHelper.stripCSVExt(paramVal);
                 }
-                $templateVals.eq(i).text(paramVal);
+                // datastores has nested arrays
+                if (typeof paramVal === "object") {
+                    for (var j = 0; j < paramVal.length; j++) {
+                        $templateVals.eq(i * paramVal.length + j).text(paramVal[j]);
+                    }
+                } else {
+                    $templateVals.eq(i).text(paramVal);
+                }
             }
             // $dfParamModal.find(".template .boxed:gt(" +
             //                 (retinaNode.paramValue.length - 1) + ")").remove();
@@ -2162,6 +2304,37 @@ window.DFParamModal = (function($, DFParamModal){
         defaultParam = null;
         isOpen = false;
     }
+
+    function getParamValues(df, nodeId) {
+        var paramValues = [];
+        var node = df.retinaNodes.find(function(node) {
+            return node.dagNodeId === nodeId;
+        });
+        var apiString = XcalarApisTStr[node.api];
+        var inputName = DagFunction.getInputType(apiString);
+        var struct = node.input[inputName];
+        switch (type) {
+            case ("filter"):
+                paramValues = [struct.eval[0].evalString];
+                break;
+            case ("dataStore"):
+                var sourceArgs;
+                for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
+                    sourceArgs = struct.loadArgs.sourceArgsList[i];
+                    paramValues.push([sourceArgs.targetName, sourceArgs.path,
+                                    sourceArgs.fileNamePattern]);
+                }
+                break;
+            case ("export"):
+                paramValues = [struct.fileName, struct.targetName,
+                               struct.targetType];
+                break;
+            default:
+                break;
+        }
+        return paramValues;
+    }
+
 
     /* Unit Test Only */
     if (window.unitTestMode) {

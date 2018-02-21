@@ -3222,11 +3222,19 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
             if (args.dest === tableName) {
                 switch (paramType) {
                     case (XcalarApisT.XcalarApiBulkLoad):
-                        args.loadArgs.sourceArgsList[0].fileNamePattern =
-                                                paramValues.fileNamePattern;
-                        args.loadArgs.sourceArgsList[0].path = paramValues.path;
-                        args.loadArgs.sourceArgsList[0].targetName =
-                                                paramValues.targetName;
+                        for (var i = 0; i < paramValues.length; i++) {
+                            if (!args.loadArgs.sourceArgsList[i]) {
+                                args.loadArgs.sourceArgsList[i] = new DataSourceArgsT();
+                                args.loadArgs.sourceArgsList[i].recursive = false;
+                            }
+                            args.loadArgs.sourceArgsList[i].fileNamePattern =
+                                                    paramValues[i].fileNamePattern;
+                            args.loadArgs.sourceArgsList[i].path = paramValues[i].path;
+                            args.loadArgs.sourceArgsList[i].targetName =
+                                                    paramValues[i].targetName;
+                        }
+                        args.loadArgs.sourceArgsList.length = paramValues.length;
+
                         break;
                     case (XcalarApisT.XcalarApiFilter):
                         args.eval[0].evalString = paramValues.filterStr;
