@@ -24,7 +24,7 @@ window.DagDraw = (function($, DagDraw) {
     */
     // options: {savable: boolean,
     //          refresH: boolean, used for tagging
-    // }
+    //
     DagDraw.createDagImage = function(nodes, $container, options) {
         options = options || {};
         var hasError = false;
@@ -2180,11 +2180,11 @@ window.DagDraw = (function($, DagDraw) {
                         rSrcCols.push(parents[i].value.struct.key[j].name);
                     }
                 }
-            } else if (parents[i].value.api === XcalarApisT.XcalarApiJoin) {
+            } else {// join, groupby
                 if (i === 0) {
-                    lSrcCols.push(getSrcIndex(parents[i].parents[i]));
+                    lSrcCols.push(getSrcIndex(parents[i].parents[0]));
                 } else {
-                    rSrcCols.push(getSrcIndex(parents[i].parents[i]));
+                    rSrcCols.push(getSrcIndex(parents[i].parents[0]));
                 }
             }
         }
@@ -2193,7 +2193,7 @@ window.DagDraw = (function($, DagDraw) {
 
         function getSrcIndex(node) {
             if (node.value.api === XcalarApisT.XcalarApiIndex) {
-                return node.value.struct.key[0].name;
+                return node.value.struct.key[0].keyFieldName;
             } else {
                 if (!node.parents.length) {
                     // one case is when we reach a retina project node

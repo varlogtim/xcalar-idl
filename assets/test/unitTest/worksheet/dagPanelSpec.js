@@ -964,7 +964,7 @@ describe("Dag Panel Test", function() {
 
                     var text = $("#dagSchema .content").text();
                     expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
-                    expect(text.indexOf('"size": "256KB"')).to.be.gt(-1);
+                    expect(text.indexOf('"size": 262144')).to.be.gt(-1);
                     expect(text.indexOf('"default:parseCsv"')).to.equal(-1);
                 });
             });
@@ -2180,7 +2180,7 @@ describe("Dag Panel Test", function() {
             fn(info, "not(x)", ["abc"]);
             expect(info.opText).to.equal("x");
             expect(info.eval).to.equal("not(x)");
-            expect(info.tooltip).to.equal("Filtered table &quot;abc&quot;: not(x)");
+            expect(info.tooltip).to.equal("Filtered table \"abc\": not(x)");
             expect(info.subType).to.equal("filternot");
         });
     });
@@ -2720,7 +2720,6 @@ describe("Dag Panel Test", function() {
             $("body").append($dagWrap);
             DagDraw.refreshDagImage("testDagWrap", "unitTestTag", [indexNode.name.name]);
             var indexInfo = $dagWrap.data("allDagInfo").nodeIdMap[indexNode.dagNodeId];
-
             expect(indexInfo.value.tags.indexOf("unitTestTag")).to.equal(1);
             $dagWrap.remove();
         });
