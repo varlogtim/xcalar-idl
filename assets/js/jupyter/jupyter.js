@@ -345,7 +345,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         } else {
             Alert.show({
                 title: "Error",
-                msg: "Your previous dataset form has changed. Please select" +
+                msg: "Please select" +
                 " a dataset to import in the Dataset Panel and select 'User Defined Format' as the" +
                 " current format.",
                 isAlert: true
