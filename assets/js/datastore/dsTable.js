@@ -86,19 +86,8 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
-            var $dsInfoError = $("#dsInfo-error");
-            if (dsObj.numErrorEntries) {
-                $dsInfoError.removeClass("xc-hidden");
-                if (dsObj.advancedArgs.allowRecordErrors) {
-                    $dsInfoError.removeClass("type-file");
-                    xcTooltip.changeText($dsInfoError, DSTStr.ContainsRecordErrors);
-                } else {
-                    $dsInfoError.addClass("type-file");
-                    xcTooltip.changeText($dsInfoError, DSTStr.ContainsFileErrors);
-                }
-            } else {
-                $dsInfoError.addClass("xc-hidden");
-            }
+            toggleErrorIcon(dsObj);
+
             deferred.resolve();
         })
         .fail(function(error) {
@@ -112,7 +101,7 @@ window.DSTable = (function($, DSTable) {
             }
 
             error = dsObj.getError() || error;
-
+            toggleErrorIcon(dsObj);
             var errorMsg;
             if (typeof error === "object" && error.error != null) {
                 errorMsg = error.error;
@@ -510,10 +499,15 @@ window.DSTable = (function($, DSTable) {
         });
 
         $("#dsInfo-error").click(function() {
-            var dsId = DSTable.getId();
+            var dsId = $("#dsTableContainer").data("id");
             var dsObj = DS.getDSObj(dsId);
-            var isRecordError = dsObj.advancedArgs.allowRecordErrors;
-            DSImportErrorModal.show(DSTable.getId(), isRecordError);
+            var isRecordError = false;
+            if (!dsObj) {
+                isRecordError = true;
+            } else {
+                isRecordError = dsObj.advancedArgs.allowRecordErrors;
+            }
+            DSImportErrorModal.show(dsId, isRecordError);
         });
     }
 
@@ -840,6 +834,22 @@ window.DSTable = (function($, DSTable) {
         });
 
         return (tr);
+    }
+
+    function toggleErrorIcon(dsObj) {
+        var $dsInfoError = $("#dsInfo-error");
+        if (dsObj.numErrorEntries) {
+            $dsInfoError.removeClass("xc-hidden");
+            if (dsObj.advancedArgs.allowRecordErrors) {
+                $dsInfoError.removeClass("type-file");
+                xcTooltip.changeText($dsInfoError, DSTStr.ContainsRecordErrors);
+            } else {
+                $dsInfoError.addClass("type-file");
+                xcTooltip.changeText($dsInfoError, DSTStr.ContainsFileErrors);
+            }
+        } else {
+            $dsInfoError.addClass("xc-hidden");
+        }
     }
 
     /* Unit Test Only */
