@@ -185,7 +185,8 @@ window.ProfileEngine = (function(ProfileEngine) {
         var deferred = jQuery.Deferred();
         var resultSetId = getProfileResultSetId();
 
-        XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRowNum, [])
+        XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRowNum, [],
+                        0, 0)
         .then(function(data) {
             var numRows = Math.min(rowsToFetch, data.length);
             var failed = false;
@@ -619,7 +620,8 @@ window.ProfileEngine = (function(ProfileEngine) {
 
             // row position start with 0
             var rowPosition = rowNum - 1;
-            XcalarFetchData(tableResultsetId, rowPosition, rowsToFetch, endRow)
+            XcalarFetchData(tableResultsetId, rowPosition, rowsToFetch, endRow,
+                            [], 0, 0)
             .then(function(data) {
                 var tableKey = tableKeys[0].name;
 

@@ -1469,16 +1469,9 @@ XcalarRenameTable = function(oldTableName, newTableName, txId) {
     return (deferred.promise());
 };
 
-XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, data, tryCnt) {
+function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, totalRows,
+                         data, tryCnt) {
     var deferred = jQuery.Deferred();
-    if (tryCnt == null) {
-        tryCnt = 0;
-    }
-
-    if (data == null) {
-        data = [];
-    }
-
     // row position start with 0
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function() {
@@ -1518,9 +1511,43 @@ XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, dat
             }
 
             return XcalarFetchData(resultSetId, newPosition, numStillNeeds,
-                                    totalRows, data, tryCnt + 1);
+                                totalRows, data, tryCnt + 1);
         }
     })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows,
+                           data, tryCnt, maxNumRowsPerCall) {
+    var deferred = jQuery.Deferred();
+    if (tryCnt == null) {
+        tryCnt = 0;
+    }
+
+    if (data == null) {
+        data = [];
+    }
+
+    if (maxNumRowsPerCall === 0) {
+        maxNumRowsPerCall = rowsToFetch;
+    }
+
+    var promiseArray = [];
+    for (var i = 0; i < Math.ceil(rowsToFetch / maxNumRowsPerCall); i++) {
+        var numRows = maxNumRowsPerCall;
+        if (i === Math.ceil(rowsToFetch / maxNumRowsPerCall) - 1) {
+            numRows = rowsToFetch - i * maxNumRowsPerCall;
+        }
+        promiseArray.push(fetchDataHelper.bind({}, resultSetId,
+                                            rowPosition + i * maxNumRowsPerCall,
+                                               numRows, totalRows,
+                                               data, tryCnt));
+    }
+
+    PromiseHelper.chain(promiseArray)
     .then(function() {
         deferred.resolve(data);
     })

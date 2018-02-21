@@ -1620,7 +1620,7 @@ exports.getRows = function(tableName, startRowNum, rowsToFetch) {
         }
         rowsToFetch = Math.min(rowsToFetch, totalRows);
         return XcalarFetchData(resultSetId, rowPosition, rowsToFetch,
-                               totalRows, [], 0);
+                               totalRows, [], 0, 0);
     })
     .then(function(result) {
         finalData = [];

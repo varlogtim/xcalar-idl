@@ -324,7 +324,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         var deferred = jQuery.Deferred();
         var curId = modalId;
 
-        XcalarFetchData(curResultSetId, startIndex, numRowsToAdd, scrollMeta.numRecords)
+        XcalarFetchData(curResultSetId, startIndex, numRowsToAdd,
+                        scrollMeta.numRecords, [], 0, 0)
         .then(function(msgs) {
             var html = "";
             var fileInfos = [];
@@ -355,8 +356,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         })
         .fail(function() {
             // XXX implement
-        })
-
+        });
 
         return deferred.promise();
     }

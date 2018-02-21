@@ -2713,7 +2713,7 @@ window.DSPreview = (function($, DSPreview) {
                     disableShowMoreRows();
                 }
                 return XcalarFetchData(resultSetId, rowPosition, rowsToShow,
-                                        totalEntries, []);
+                                        totalEntries, [], 0, 0);
             }
         })
         .then(function(res) {

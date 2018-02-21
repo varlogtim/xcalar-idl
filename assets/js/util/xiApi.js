@@ -1081,7 +1081,7 @@
             var rowPosition = startRowNum - 1;
             rowsToFetch = Math.min(rowsToFetch, totalRows);
             return XcalarFetchData(resultSetId, rowPosition, rowsToFetch,
-                                   totalRows, [], 0);
+                                   totalRows, [], 0, 0);
         })
         .then(function(result) {
             // Can clean up here
