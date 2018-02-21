@@ -146,6 +146,19 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
         return sendRequest(action, url, content);
     };
 
+    XFTSupportTools.getHotPatch = function() {
+        var action = "GET";
+        var url = "/service/hotPatch";
+        return sendRequest(action, url);
+    };
+
+    XFTSupportTools.setHotPatch = function(enableHotPatches) {
+        var action = "POST";
+        var url = "/service/hotPatch";
+        var content = {"enableHotPatches": enableHotPatches};
+        return sendRequest(action, url, content);
+    };
+
     function isHTTP() {
         if (window.location.protocol === "http:") {
             return "true";

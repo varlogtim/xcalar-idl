@@ -48,6 +48,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "password": "c"
             },
             "supportBundles":false
+            "enableHotPatches": true
         }
 
     discoverResult
@@ -65,7 +66,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                             "license": "AAAAAABAD92819321820BCAD...",
                             'xcalarMount': {'option': 'readyNfs', 'server': '123', 'path': 'xmount 1'},
                             'xcalarRoot': '/mnt/xcalar',
-                            'xcalarSerDes': '/serdes'
+                            'xcalarSerDes': '/serdes',
+                            'enableHotPatches': false
                            }
         }
      */
@@ -81,7 +83,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         "serializationDirectory": null,
         "ldap": {},
         "defaultAdminConfig": {},
-        "supportBundles": false
+        "supportBundles": false,
+        "enableHotPatches": false
     }
     var finalStruct = Object.assign({}, finalStructPrototype);
     var installStatus = {
@@ -394,6 +397,13 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         return res;
     };
 
+    InstallerCommon.validateEnableHotPatches = function($form) {
+        var res = {};
+        res.enableHotPatches = $form.find(".checkbox.selectHotPatch")
+            .hasClass("checked");
+        return res;
+    };
+
     InstallerCommon.validateCredentials = function($form) {
         var res = {};
         res.credentials = {};
@@ -697,6 +707,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             InstallerCommon.validateInstallationDirectory,
             InstallerCommon.validateSerializationDirectory,
             InstallerCommon.validateSupportBundles,
+            InstallerCommon.validateEnableHotPatches,
             InstallerCommon.validateCredentials
         ];
         return callSyncFunctions($form, funcs);
@@ -1075,6 +1086,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (discoverResult.xcalarSerDes) {
                 finalStruct.serializationDirectory = discoverResult.xcalarSerDes;
             }
+            finalStruct.enableHotPatches = discoverResult.enableHotPatches;
             deferred.resolve();
         })
         .fail(function(arg1, arg2) {

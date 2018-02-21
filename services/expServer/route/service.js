@@ -179,6 +179,28 @@ router.post("/service/gettickets", function(req, res) {
     });
 });
 
+router.get("/service/hotPatch", function(req, res) {
+    xcConsole.log("Find Hot Patch");
+    support.getHotPatch()
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
+});
+
+router.post("/service/hotPatch", function(req, res) {
+    xcConsole.log("Set Hot Patch");
+    var enableHotPatches = req.body.enableHotPatches;
+    support.setHotPatch(enableHotPatches)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
+});
 
 router.get("/service/matchedHosts", function(req, res) {
     xcConsole.log("Find matched Hosts");

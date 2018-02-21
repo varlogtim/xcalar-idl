@@ -12,6 +12,7 @@ var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
 var Status = ssf.Status;
 var httpStatus = require("../../assets/js/httpStatus.js").httpStatus;
+var hotPatchPath = "/config/hotPatch.json";
 
 var jQuery;
 require("jsdom").env("", function(err, window) {
@@ -782,6 +783,115 @@ function readInstallerLog(filePath) {
     return deferred.promise();
 }
 
+// Keep it incase the future admin Panel need to call it
+function setHotPatch(enableHotPatches) {
+    var deferred = jQuery.Deferred();
+    getXlrRoot()
+    .then(function(xlrRoot) {
+        var hotPatchFullPath = path.join(xlrRoot, hotPatchPath);
+        var hotPatchConfig = {"hotPatchEnabled":(enableHotPatches ? true : false)};
+        return (writeToFile(hotPatchFullPath, hotPatchConfig, {"mode": 0600}));
+    })
+    .then(function() {
+        var message = {"status": httpStatus.OK, "hotPatchWritten": true };
+        deferred.resolve(message);
+    })
+    .fail(function(errorMsg) {
+        var message = {"status": httpStatus.OK, "hotPatchWritten": false, "error": errorMsg };
+        deferred.reject(message);
+    });
+    return deferred.promise();
+}
+
+function getHotPatch() {
+    var deferred = jQuery.Deferred();
+    var message = {"status": httpStatus.OK, "hotPatchEnabled": true };
+
+    getXlrRoot()
+    .then(function(xlrRoot) {
+        var hotPatchFullPath = path.join(xlrRoot, hotPatchPath);
+        try {
+            delete require.cache[require.resolve(hotPatchFullPath)];
+            var hotPatchConfig = require(hotPatchFullPath);
+            message.hotPatchEnabled = hotPatchConfig.hotPatchEnabled;
+            deferred.resolve(message);
+        } catch (error) {
+            message.error = error;
+            deferred.resolve(message);
+        }
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.resolve(message);
+    });
+    return deferred.promise();
+}
+
+function writeToFile(filePath, fileContents, fileOptions) {
+    var deferred = jQuery.Deferred();
+
+    function callback(err) {
+        if (err) {
+            deferred.reject("Failed to write to " + filePath);
+            return deferred.promise();
+        }
+
+        xcConsole.log("Successfully wrote " + JSON.stringify(fileContents, null, 2) + " to " + filePath)
+        deferred.resolve();
+    }
+
+    if (fileOptions == null) {
+        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), callback);
+    } else {
+        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), fileOptions, callback);
+    }
+
+    return deferred.promise();
+}
+
+function makeFileCopy(filePath) {
+    var deferred = jQuery.Deferred();
+    var copyPath = filePath + ".bak";
+    var errorMsg;
+    var copyDoneCalled = false
+
+    function copyDone(isSuccess, errorMsg) {
+        if (!copyDoneCalled) {
+            copyDoneCalled = true;
+            if (isSuccess) {
+                deferred.resolve();
+            } else {
+                deferred.reject(errorMsg);
+            }
+        }
+    }
+
+    fs.access(filePath, fs.constants.F_OK, function (err) {
+        if (err) {
+            // File doesn't exist. Nothing to do
+            deferred.resolve();
+        } else {
+            var readStream = fs.createReadStream(filePath);
+            readStream.on("error", function (err) {
+                copyDone(false, "Error reading from " + filePath);
+            });
+
+            var writeStream = fs.createWriteStream(copyPath);
+            writeStream.on("error", function (err) {
+                copyDone(false, "Error writing to " + copyPath);
+            });
+            writeStream.on("close", function (ex) {
+                copyDone(true, "");
+            });
+
+            // Start the copy
+            readStream.pipe(writeStream);
+        }
+    });
+
+    return deferred.promise();
+}
+
 // Below part is only for unit test
 function fakeExecuteCommand() {
     executeCommand = function(command) {
@@ -830,3 +940,7 @@ exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
 exports.getMatchedHosts = getMatchedHosts;
+exports.setHotPatch = setHotPatch;
+exports.getHotPatch = getHotPatch;
+exports.writeToFile = writeToFile;
+exports.makeFileCopy = makeFileCopy;

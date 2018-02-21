@@ -41,6 +41,11 @@ window.Installer = (function(Installer, $) {
             } else {
                 $form.find(".defaultAdminParams").hide();
             }
+        });
+
+        $forms.find(".checkbox.selectHotPatch").click(function() {
+            // If option is the same as before, ignore and return
+            $(this).toggleClass("checked");
             return false;
         });
 
@@ -115,6 +120,7 @@ window.Installer = (function(Installer, $) {
         $form.find(".installationDirectorySection").removeClass("hidden");
         $form.find(".serializationDirectorySection").removeClass("hidden");
         $form.find(".supportBundleSection").removeClass("hidden");
+        $form.find(".hotPatchSection").removeClass("hidden");
         $form.find(".title").removeClass("hidden");
         $("#installButton").removeClass("hidden");
         $("#serversButton").addClass("hidden");

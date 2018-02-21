@@ -513,6 +513,38 @@
             <% } else { %>
               <span>STEP 4C</span>
             <% } %>
+            <span>Enable Hot Patches</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Allow Xcalar to dynamically patch bug fix without upgrading to a new version</span>
+          </div>
+        </div>
+        <div class="section hotPatchSection hidden">
+          <div class="checkboxLine">
+            <div class="inputWrap">
+              <div class="checkbox selectHotPatch checked">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+              <div class="label">
+                <div class="name">
+                  Turn on Hot Patches for critical updates to Xcalar Design (highly recommended)
+                </div>
+                <div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="Turn on Hot Patches for critical updates to Xcalar Design.">
+                  <i class="white icon xi-help fa-12"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="title hidden">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 5E</span>
+            <% } else { %>
+              <span>STEP 4D</span>
+            <% } %>
             <span>Support Bundle Generation</span>
           </div>
           <div class="hint">
@@ -538,9 +570,9 @@
         <div class="title hidden">
           <div class="step">
             <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 5E</span>
+              <span>STEP 5F</span>
             <% } else { %>
-              <span>STEP 4D</span>
+              <span>STEP 4E</span>
             <% } %>
             <span>Credentials</span>
           </div>

@@ -130,7 +130,7 @@ function setDefaultAdmin(defaultAdminConfigIn) {
         defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
         defaultAdminConfig.password = crypto.createHmac("sha256", "xcalar-salt").update(defaultAdminConfig.password).digest("hex");
 
-        return (writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0600}));
+        return (support.writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0600}));
     })
     .then(function() {
         message.success = true;
@@ -213,71 +213,6 @@ function getWaadConfig() {
     return deferred.promise();
 }
 
-function makeFileCopy(filePath) {
-    var deferred = jQuery.Deferred();
-    var copyPath = filePath + ".bak";
-    var errorMsg;
-    var copyDoneCalled = false
-
-    function copyDone(isSuccess, errorMsg) {
-        if (!copyDoneCalled) {
-            copyDoneCalled = true;
-            if (isSuccess) {
-                deferred.resolve();
-            } else {
-                deferred.reject(errorMsg);
-            }
-        }
-    }
-
-    fs.access(filePath, fs.constants.F_OK, function (err) {
-        if (err) {
-            // File doesn't exist. Nothing to do
-            deferred.resolve();
-        } else {
-            var readStream = fs.createReadStream(filePath);
-            readStream.on("error", function (err) {
-                copyDone(false, "Error reading from " + filePath);
-            });
-
-            var writeStream = fs.createWriteStream(copyPath);
-            writeStream.on("error", function (err) {
-                copyDone(false, "Error writing to " + copyPath);
-            });
-            writeStream.on("close", function (ex) {
-                copyDone(true, "");
-            });
-
-            // Start the copy
-            readStream.pipe(writeStream);
-        }
-    });
-
-    return deferred.promise();
-}
-
-function writeToFile(filePath, fileContents, fileOptions) {
-    var deferred = jQuery.Deferred();
-
-    function callback(err) {
-        if (err) {
-            deferred.reject("Failed to write to " + filePath);
-            return deferred.promise();
-        }
-
-        console.log("Successfully wrote " + JSON.stringify(fileContents, null, 2) + " to " + filePath)
-        deferred.resolve();
-    }
-
-    if (fileOptions == null) {
-        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), callback);
-    } else {
-        fs.writeFile(filePath, JSON.stringify(fileContents, null, 2), fileOptions, callback);
-    }
-
-    return deferred.promise();
-}
-
 function setWaadConfig(waadConfigIn) {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "success": false }
@@ -288,7 +223,7 @@ function setWaadConfig(waadConfigIn) {
     .then(function(xlrRoot) {
         // Make a copy of existing waadConfig.json if it exists
         waadConfigPath = path.join(xlrRoot, waadConfigRelPath);
-        return (makeFileCopy(waadConfigPath));
+        return (support.makeFileCopy(waadConfigPath));
     })
     .then(function() {
         try {
@@ -302,7 +237,7 @@ function setWaadConfig(waadConfigIn) {
             return jQuery.Deferred().reject(error).promise();
         }
 
-        return (writeToFile(waadConfigPath, waadConfig, {"mode": 0600}));
+        return (support.writeToFile(waadConfigPath, waadConfig, {"mode": 0600}));
     })
     .then(function() {
         message.success = true;
@@ -326,7 +261,7 @@ function setLdapConfig(ldapConfigIn) {
     .then(function(xlrRoot) {
         // Make a copy of existing ldapConfig.json if it exists
         ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
-        return (makeFileCopy(ldapConfigPath));
+        return (support.makeFileCopy(ldapConfigPath));
     })
     .then(function() {
         try {
@@ -346,7 +281,7 @@ function setLdapConfig(ldapConfigIn) {
             return jQuery.Deferred().reject(error).promise();
         }
 
-        return (writeToFile(ldapConfigPath, ldapConfigOut, {"mode": 0600}));
+        return (support.writeToFile(ldapConfigPath, ldapConfigOut, {"mode": 0600}));
     })
     .then(function() {
         message.success = true;

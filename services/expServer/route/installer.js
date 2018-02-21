@@ -55,6 +55,7 @@ function genExecString(input) {
     var serDes = input.credArray.serializationDirectory;
     var preConfig = input.credArray.preConfig;
     var supportBundles = input.credArray.supportBundles;
+    var enableHotPatches = input.credArray.enableHotPatches;
 
     var execString = " -h " + hostnameLocation;
     execString += " -l " + username;
@@ -127,6 +128,9 @@ function genExecString(input) {
     }
     if (supportBundles) {
         execString += " --support-bundles";
+    }
+    if (enableHotPatches) {
+        execString += " --enable-hotPatches";
     }
 
     return execString;
