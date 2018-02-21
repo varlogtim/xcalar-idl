@@ -1107,8 +1107,6 @@ window.DSPreview = (function($, DSPreview) {
 
 
     function submitForm(toCreateTable) {
-        // Clear fileBrowser first
-        FileBrowser.clear();
 
         var res = validateForm();
         if (res == null) {
@@ -1161,6 +1159,9 @@ window.DSPreview = (function($, DSPreview) {
             return tooManyColAlertHelper(colLen);
         })
         .then(function() {
+            // Clear fileBrowser after all validations pass
+            FileBrowser.clear();
+
             if (format !== formatMap.CSV ||
                 !hasTypedColumnChange(typedColumns)) {
                 typedColumns = null;

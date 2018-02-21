@@ -1823,11 +1823,13 @@ table.datasetTable {
         &.hexMode {
             overflow: hidden;
             width: 100%;
+            overflow-x: auto;
             .mainSection {
 
                 &.leftPart {
                     display: block;
                     .size(@width: ~"calc(100% - @{fileInfoWidth})");
+                    text-align: center;
                 }
 
                 &.rightPart {
@@ -1836,7 +1838,7 @@ table.datasetTable {
                 }
 
                 .hexDump {
-                    display: block !important;
+                    display: inline-block !important;
                 }
             }
         }
@@ -1864,6 +1866,13 @@ table.datasetTable {
                 display: none;
                 .size(@width: 0);
                 float: left;
+
+                .contentSection {
+                    height: ~"calc(100% - @{topAndBottom-h} + 60px)";
+                }
+                .bottomSection {
+                    height: 0px;
+                }
             }
 
             &.rightPart {
@@ -1889,7 +1898,7 @@ table.datasetTable {
                 .size(@width: 100%, @height: ~"calc(100% - @{topAndBottom-h})");
 
                 .preview {
-                    .size(@width: 100%, @height: 100%);
+                    .size(@width: auto, @height: 100%);
                     overflow: hidden;
                     padding: 0 5px;
 
