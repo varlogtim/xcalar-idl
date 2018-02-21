@@ -975,6 +975,7 @@ window.DS = (function ($, DS) {
             if (!noDeFocus) {
                 focusOnForm();
             }
+            Dag.makeInactive(dsId, true);
 
             Transaction.done(txId, {
                 "noSql": options.noSql,
@@ -2771,7 +2772,6 @@ window.DS = (function ($, DS) {
             dsObj.unlock();
             DS.getGrid(dsId).removeClass("locked");
             datasets.push(dsId);
-            Dag.makeInactive(fullDSName, true);
             deferred.resolve();
         })
         .fail(function(error) {

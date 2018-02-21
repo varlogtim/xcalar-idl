@@ -1236,10 +1236,6 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function drawDagTable(node, isChildHidden, storedInfo, top, right) {
-        var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
-        var dagInfo = getDagNodeInfo(node, key);
-        var tableName = node.value.name;
-        var altName = dagInfo.altName || tableName;
         var html = "";
         var outerClasses = "";
         var tableClasses = "";
@@ -1252,6 +1248,24 @@ window.DagDraw = (function($, DagDraw) {
         var extraIcon = "";
         var extraTitle = "";
         var tooltipTxt = "";
+        if (node.value.api === XcalarApisT.XcalarApiBulkLoad &&
+            node.value.state === DgDagStateT.DgDagStateDropped) {
+            var name = node.value.name;
+            var dsPrefixIndex = name.indexOf(gDSPrefix);
+            if (dsPrefixIndex > -1) {
+                name = name.substr(dsPrefixIndex + gDSPrefix.length);
+            }
+            if (DS.getDSObj(name)) {
+                // if dataset has dropped state but dataset exists then
+                // it's actually just unlocked and we can treat it as
+                // being in a ready state
+                node.value.state = DgDagStateT.DgDagStateReady;
+            }
+        }
+        var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
+        var dagInfo = getDagNodeInfo(node, key);
+        var tableName = node.value.name;
+        var altName = dagInfo.altName || tableName;
 
         if (node.value.display.isHidden) {
             outerClasses += "hidden ";
@@ -1271,8 +1285,14 @@ window.DagDraw = (function($, DagDraw) {
                         dagOpHtml;
 
         if (dagInfo.state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
-            tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+            if (node.value.api === XcalarApisT.XcalarApiBulkLoad) {
+                tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedDS,
+                        {"datasetname": tableName});
+            } else {
+                tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                         {"tablename": tableName});
+            }
+
         } else {
             tooltipTxt = CommonTxtTstr.ClickToOpts;
         }
