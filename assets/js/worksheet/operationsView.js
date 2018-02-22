@@ -1617,6 +1617,7 @@ window.OperationsView = (function($, OperationsView) {
 
     // scrolls to target before showing statusbox
     function statusBoxShowHelper(text, $input) {
+        $input.get(0).scrollIntoView();
         xcTooltip.hideAll();
         StatusBox.show(text, $input, false, {preventImmediateHide: true});
     }
