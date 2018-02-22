@@ -321,7 +321,7 @@ window.Log = (function($, Log) {
             isUndo = false;
             Log.unlockUndoRedo();
             updateUndoRedoState();
-            xcTooltip.refresh($undo);
+            xcTooltip.refresh($undo, 2000);
             if (passed) {
                 deferred.resolve();
             }
@@ -402,7 +402,7 @@ window.Log = (function($, Log) {
             isRedo = false;
             Log.unlockUndoRedo();
             updateUndoRedoState();
-            xcTooltip.refresh($redo);
+            xcTooltip.refresh($redo, 2000);
             if (passed) {
                 deferred.resolve();
             }

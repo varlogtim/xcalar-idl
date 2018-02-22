@@ -125,6 +125,12 @@ window.xcTooltip = (function(xcTooltip, $) {
             clearTimeout(oldTimer);
         }
 
+        // don't refresh tooltip if input is focused
+        var $focusedEl = $(document.activeElement);
+        if ($focusedEl.is("input") || $focusedEl.is("textarea")) {
+            return;
+        }
+
         $ele.tooltip("show");
 
         if (delay) {

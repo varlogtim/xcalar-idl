@@ -67,7 +67,7 @@ window.FnBar = (function(FnBar, $) {
                                             "window");
 
                 setTimeout(function() {
-                    var error = ErrTStr.BracketsMis + "<br/>" + 
+                    var error = ErrTStr.BracketsMis + "<br/>" +
                                 xcHelper.escapeHTMLSpecialChar(funcStr);
                     StatusBox.show(error, $fnBar.prev().prev(), null, {
                         "offsetX": pos.left - 178,
@@ -93,6 +93,7 @@ window.FnBar = (function(FnBar, $) {
         });
 
         editor.on("focus", function() {
+            xcTooltip.hideAll();
             FnBar.updateColNameCache();
         });
 
