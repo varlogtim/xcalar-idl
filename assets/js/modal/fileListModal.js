@@ -3,6 +3,13 @@ window.FileListModal = (function(FileListModal, $) {
     var modalHelper;
     var nodesMap;
     var roots;
+    var curResultSetId;
+    var modalId;
+
+    var TreeNode = function(value) {
+        this.value = value;
+        this.children = [];
+    };
 
     FileListModal.setup = function() {
         $modal = $("#fileListModal");
@@ -23,66 +30,89 @@ window.FileListModal = (function(FileListModal, $) {
         setupSearch();
     };
 
-    FileListModal.show = function(info) {
+    FileListModal.show = function(dsId, dsName, hasFileErrors) {
         if ($modal.is(":visible")) {
             return;
         }
-
+        modalId = Date.now();
+        var curModalId = modalId;
+        dsName = dsName || "Dataset";
         modalHelper.setup();
         $modal.addClass("load");
         $modal.find(".loadingSection .text").text(StatusMessageTStr.Loading);
 
-        getList()
+        getList(dsId, hasFileErrors)
         .then(function(list) {
-            constructTree(list);
+            if (modalId !== curModalId) {
+                return;
+            }
+            constructTree(list, dsId);
             drawAllTrees();
             resizeModal();
         })
+        .fail(function(error) {
+            if (modalId !== curModalId) {
+                return;
+            }
+            $modal.addClass("hasError");
+            var type = typeof error;
+            var msg;
+            var log = "";
+
+            if (type === "object") {
+                msg = error.error || AlertTStr.ErrorMsg;
+                log = error.log;
+            } else {
+                msg = error;
+            }
+
+            $modal.find(".errorSection").text(msg + ". " + log);
+        })
         .always(function() {
+            if (modalId !== curModalId) {
+                return;
+            }
             $modal.removeClass("load");
         });
     };
 
-    function constructTree(list) {
+    function constructTree(list, dsName) {
         nodesMap = {};
         roots = {};
+
         for (var i = 0; i < list.length; i++) {
             var heirarchy = list[i].split("/");
-            heirarchy.unshift("dataset");
-            var prev = null;
-
+            // first el in heirarchy is "" because fullpath starts with /
+            heirarchy[0] = dsName;
+            var prevNode = null;
             for (var j = heirarchy.length - 1; j >= 0; j--) {
                 var name = heirarchy[j];
                 var fullPath = heirarchy.slice(0, j + 1).join("/");
                 if (nodesMap.hasOwnProperty(fullPath)) {
                     // stop searching because we already stored this directory
                     // as well as it's parents directories
-                    if (prev) {
-                        nodesMap[fullPath].children.push(prev);
+                    if (prevNode) {
+                        nodesMap[fullPath].children.push(prevNode);
                     }
                     break;
                 }
-                var type;
-                if (j === heirarchy.length - 1) {
-                    type = "file";
-                } else {
-                    type = "folder";
-                }
-                var node = {
-                    type: type,
+
+                var node = new TreeNode({
+                    type: j === (heirarchy.length - 1) ? "file" : "folder",
                     name: name,
-                    fullPath: name,
-                    children: []
-                };
+                    fullPath: fullPath,
+                    isRoot: false
+                });
+
                 nodesMap[fullPath] = node;
                 if (j === 0) {
-                    node.isRoot = true;
+                    node.value.isRoot = true;
                     roots[fullPath] = node;
                 }
-                if (prev) {
-                    node.children.push(prev);
+                if (prevNode) {
+                    node.children.push(prevNode);
                 }
-                prev = node;
+                prevNode = node;
             }
         }
     }
@@ -104,16 +134,16 @@ window.FileListModal = (function(FileListModal, $) {
             collapsed = "collapsed";
         }
         var icon = "";
-        if (node.isRoot) {
+        if (node.value.isRoot) {
             icon = '<i class="icon datasetIcon xi_data"></i>';
-        } else if (node.type === "folder") {
+        } else if (node.value.type === "folder") {
             icon = '<i class="icon folderIcon xi-folder"></i>' +
                     '<i class="icon folderIcon xi-folder-opened"></i>';
         }
         var html = '<li class="' + collapsed + '">' +
-                    '<div class="label ' + node.type + '">' +
+                    '<div class="label ' + node.value.type + '">' +
                         icon +
-                        '<div class="name">' + node.name + '</div>' +
+                        '<div class="name">' + node.value.name + '</div>' +
                     '</div>';
         if (node.children.length) {
             html += '<ul>';
@@ -178,6 +208,12 @@ window.FileListModal = (function(FileListModal, $) {
         $modal.find(".searchbarArea").addClass("closed");
         nodesMap = null;
         roots = null;
+        modalId = null;
+        $modal.removeClass("hasError load");
+        if (curResultSetId) {
+            XcalarSetFree(curResultSetId);
+        }
+        curResultSetId = null;
     }
 
     function setupSearch() {
@@ -257,22 +293,28 @@ window.FileListModal = (function(FileListModal, $) {
         }
     }
 
-    // XXX placeholder function
-    function getList() {
-        var deferred = jQuery.Deferred();
-        var list = [
-            "a/file1.txt",
-            "a/b/c/h/blah.txt",
-            "a/b/c/x.txt",
-            "a/b/c/a.txt",
-            "a/b/c/c.txt",
-            "a/b/c/b.txt",
-            "a/b/c/g/blah.txt",
-            "a/b/d/file4.txt",
-            "b/c/f.txt"
-        ];
 
-        deferred.resolve(list);
+    function getList(dsName, hasFileErrors) {
+        var deferred = jQuery.Deferred();
+
+        XcalarMakeResultSetFromDataset(dsName, true)
+        .then(function (result) {
+            curResultSetId = result.resultSetId;
+            var numEntries = result.numEntries;
+            var maxPerCall = hasFileErrors ? 100 : 10;
+            return XcalarFetchData(curResultSetId, 0, numEntries, numEntries,
+                    null, null, maxPerCall)
+        })
+        .then(function(results) {
+            var files = [];
+            for (var i = 0; i < results.length; i++) {
+                files.push(JSON.parse(results[i]).fullPath);
+            }
+            deferred.resolve(files);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }

@@ -495,7 +495,16 @@ window.DSTable = (function($, DSTable) {
         });
 
         $("#showFileListBtn").click(function() {
-            FileListModal.show();
+            var dsId = $("#dsTableContainer").data("id");
+            var dsObj = DS.getDSObj(dsId);
+            var isFileError = false;
+            var dsName = "";
+            if (dsObj) {
+                isFIleError = dsObj.advancedArgs.allowFileErrors &&
+                             !dsObj.advancedArgs.allowRecordErrors;
+                dsName = dsObj.getName();
+            }
+            FileListModal.show(dsId, dsName, isFileError);
         });
 
         $("#dsInfo-error").click(function() {

@@ -5687,16 +5687,18 @@ html.microsoft {
 
     .loadingSection {
         display: none;
-        .position(absolute, @top: 0, @left: 0);
-        .size(100%, 100%);
+        .position(absolute, @top: 36px, @left: 0);
+        .size(100%, ~"calc(100% - 36px)");
         z-index: 10;
 
         .loadWrap {
-            .size(@width: 115px, @height: 30px);
+            .size(@width: 80px, @height: 30px);
             .center-align;
+
 
             .animatedEllipsisWrapper {
                 .size(@width: 100%, @height: 30px);
+                .flex-display;
 
                 .text {
                     .font(@size: 12px, @weight: bold, @line-height: 30px);
@@ -5710,6 +5712,24 @@ html.microsoft {
                 }
             }
         }
+    }
+
+    &.hasError {
+        .loadingSection, .treeWrap {
+            display: none;
+        }
+        .errorSection {
+            .flex-display;
+            .flex-direction(column);
+            .justify-content(center);
+            text-align: center;
+            height: 100%;
+            color: @color-error-border;
+            padding: 30px;
+        }
+    }
+    .errorSection {
+        display: none;
     }
 
     .modalHeader {
