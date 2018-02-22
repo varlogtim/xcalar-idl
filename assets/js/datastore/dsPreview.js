@@ -645,7 +645,7 @@ window.DSPreview = (function($, DSPreview) {
                 DSForm.show({"noReset": true});
             } else {
                 // XXX changet to support multiple of paths
-                FileBrowser.show(targetName, path);
+                FileBrowser.show(targetName, path, true);
             }
         });
 
@@ -1107,6 +1107,9 @@ window.DSPreview = (function($, DSPreview) {
 
 
     function submitForm(toCreateTable) {
+        // Clear fileBrowser first
+        FileBrowser.clear();
+
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");

@@ -111,9 +111,11 @@ window.FileBrowser = (function($, FileBrowser) {
         clearAll();
     };
 
-    FileBrowser.show = function(targetName, path) {
+    FileBrowser.show = function(targetName, path, restore) {
         var deferred = jQuery.Deferred();
-        clearAll();
+        if (!restore) {
+            clearAll();
+        }
         updateActiveFileInfo();
         DSForm.switchView(DSForm.View.Browser);
 
@@ -1069,7 +1071,6 @@ window.FileBrowser = (function($, FileBrowser) {
         };
         setHistoryPath();
 
-        clearAll();
         DSPreview.show(options);
     }
 
@@ -2117,8 +2118,21 @@ window.FileBrowser = (function($, FileBrowser) {
                 refreshFileListEllipsis($span);
             }
         }
-        // enable / disable buttons
-        if ($pickedFileList.find("li").length === 0) {
+        var len = $pickedFileList.find("li").length;
+        var $switch = $infoContainer.find(".switch").eq(0);
+        // Enable / disable switch
+        if (len === 0 || len === 1) {
+            if ($switch.hasClass("on")) {
+                $switch.removeClass("on");
+                $switch.next().removeClass("highlighted");
+                $switch.prev().addClass("highlighted");
+            }
+            $switch.closest(".switchWrap").addClass("xc-disabled");
+        } else {
+            $switch.closest(".switchWrap").removeClass("xc-disabled");
+        }
+        // Enable / disable buttons
+        if (len === 0) {
             $infoContainer.find(".fileInfoBottom .btn").addClass("xc-disabled");
         } else {
             $infoContainer.find(".fileInfoBottom .btn").removeClass("xc-disabled");

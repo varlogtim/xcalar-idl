@@ -1774,6 +1774,13 @@ table.datasetTable {
                     .highlighted {
                         color: @color-font-greyish-brown;
                     }
+                    &.xc-disabled{
+                        opacity: unset !important;
+                        .switch {
+                            // only set opacity for the switch, not the label
+                            opacity: 0.3 !important;
+                        }
+                    }
                 }
             }
         }
