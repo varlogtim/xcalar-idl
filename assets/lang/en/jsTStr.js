@@ -823,7 +823,7 @@ MonitorTStr = {
     'RestartNodes': 'Restart Cluster',
     'SavingSettingsFailed': 'Saving Settings Failed',
     'Settings': 'Settings',
-    'Setup': 'Setup',
+    'Setup': 'Administration',
     'StartNodeFailed': 'Start cluster failed',
     'StartNodes': 'Start Cluster',
     'StartStreamFail': 'Could not start stream',

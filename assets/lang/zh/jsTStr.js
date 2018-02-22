@@ -670,7 +670,7 @@ MonitorTStr = {
 'RestartNodes': '重启集群',
 'SavingSettingsFailed': '保存设置失败',
 'Settings': '设置',
-'Setup': '建立',
+'Setup': '管理',
 'StartNodeFailed': '启动集群失败',
 'StartNodes': '启动集群',
 'StartStreamFail': '无法启动流',

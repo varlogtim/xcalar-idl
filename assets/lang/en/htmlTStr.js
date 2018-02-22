@@ -461,7 +461,7 @@ module.exports = {
     "monitor": {
         "AutoRefresh": "Auto Refresh",
         "CancelOperation": "Cancel operation",
-        "Config": "Configuration",
+        "Config": "Cluster",
         "ConfigParam": "Configure Parameters",
         "ConfigParamName": "Config Parameter Name", // in jststr
         "CPU": "CPU",
@@ -510,8 +510,8 @@ module.exports = {
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
         "SettingsInstr": "You can customize your environment using the options to the right. Any changes made will be applied across all workbooks.",
-        "SETUP": "SETUP",
-        "Setup": "Setup",
+        "SETUP": "ADMINISTRATION",
+        "Setup": "Administration",
         "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
         "enableCreateTable": "ENABLE CREATE TABLE DIRECTLY FROM DATASET",
         "StartTime": "Start Time",
