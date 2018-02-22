@@ -78,39 +78,44 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         });
     };
 
-    DSImportErrorModal.show = function(dsName, isRecordError, options) {
+    DSImportErrorModal.show = function(dsName, numErrors, isRecordError) {
         if (modalId) { // already open
             return;
         }
-        options = options || {};
+
         modalOpen = true;
         curResultSetId = null;
         modalHelper.setup();
         modalId = Date.now();
         hasRecordErrors = isRecordError;
+        if (numErrors) {
+            $modal.find(".infoTotalErrors").find(".value").text(xcHelper.numToStr(numErrors));
+        }
 
         XcalarMakeResultSetFromDataset(dsName, true)
         .then(function (result) {
             curResultSetId = result.resultSetId;
             $modal.find(".infoTotalFiles").find(".value").text(result.numEntries);
             var numTotalErrors;
-
-
             var numRowsToFetch = Math.min(result.numEntries, numRecordsToShow);
 
             refreshScrollBar(result.numEntries, numRowsToFetch);
 
             fetchRows(0, numRowsToFetch, "bottom", {bulk: true})
             .then(function(ret) {
-                var numTotalErrors = 0;
-                for (var i = 0; i < ret.length; i++) {
-                    numTotalErrors += ret[i].errors.length;
-                }
-                if (result.numEntries > numRecordsToShow) {
-                    numTotalErrors += "+";
+                if (!numErrors) {
+                    var numTotalErrors = 0;
+                    for (var i = 0; i < ret.length; i++) {
+                        numTotalErrors += ret[i].errors.length;
+                    }
+                    numTotalErrors = xcHelper.numToStr(numTotalErrors);
+                    if (result.numEntries > numRecordsToShow) {
+                        numTotalErrors += "+";
+                    }
+
+                    $modal.find(".infoTotalErrors").find(".value").text(numTotalErrors);
                 }
 
-                $modal.find(".infoTotalErrors").find(".value").text(numTotalErrors);
                 $modal.find(".errorFileList .row").eq(0).removeClass("active").click();
             });
         });
@@ -192,7 +197,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 
                 var rowNum = Math.ceil(top / rowHeight);
                 var origRowNum = Math.min(scrollMeta.numRecords - 1,
-                                        Math.round(rowNum));
+                                        Math.floor(rowNum));
                 rowNum = Math.min(origRowNum,
                             scrollMeta.numRecords - scrollMeta.numVisibleRows);
 

@@ -466,6 +466,7 @@ window.DS = (function ($, DS) {
 
     // Create dsObj for new dataset/folder
     function createDS(options, dsToReplace) {
+        console.log(options);
         // this will make sure option is a diffent copy of old option
         options = $.extend({}, options);
         // validation check
@@ -822,6 +823,7 @@ window.DS = (function ($, DS) {
             dsMeta = dsMeta || {};
             ds.setSize(dsMeta.size);
             ds.setHeaders(dsMeta.headers);
+            ds.setNumErrors(dsMeta.totalNumErrors);
             $ds.find(".size").text(ds.getDisplaySize());
         };
         var datasetName;
@@ -1471,6 +1473,7 @@ window.DS = (function ($, DS) {
         var deferred = jQuery.Deferred();
         XcalarGetDatasetsInfo(datasetName)
         .then(function(res) {
+            console.log(res);
             try {
                 var dsInfos = {};
                 res.datasets.forEach(function(dataset) {
@@ -1479,7 +1482,8 @@ window.DS = (function ($, DS) {
                         var name = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
                             size: dataset.datasetSize,
-                            headers: dataset.columnNames
+                            headers: dataset.columnNames,
+                            totalNumErrors: dataset.totalNumErrors
                         };
                     }
                 });
@@ -1574,9 +1578,11 @@ window.DS = (function ($, DS) {
             if (lockMeta.hasOwnProperty(dsName)) {
                 dataset.locked = lockMeta[dsName];
             }
+
             if (basicDSInfo.hasOwnProperty(dsName)) {
                 dataset.size = basicDSInfo[dsName].size;
                 dataset.headers = basicDSInfo[dsName].headers;
+                dataset.numErrors = basicDSInfo[dsName].totalNumErrors;
             }
 
             datasetsSet[dsName] = dataset;
@@ -1637,7 +1643,8 @@ window.DS = (function ($, DS) {
             "unlistable": !ds.isListable,
             "locked": ds.locked,
             "size": ds.size,
-            "headers": ds.headers
+            "headers": ds.headers,
+            "numErrors": ds.numErrors
         };
     }
 

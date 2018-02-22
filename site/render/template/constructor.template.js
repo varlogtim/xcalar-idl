@@ -1923,6 +1923,7 @@
                 typedColumns: (array),
                 sources: (array, not persist)
                 date: (number) created date timestamp
+                numErrors: (number) number of record errors
             removed attr:
                 previewSize
                 isRegex
@@ -1952,6 +1953,9 @@
                 }
                 if (options.date != null) {
                     self.date = options.date;
+                }
+                if (options.numErrors != null) {
+                    self.numErrors = options.numErrors;
                 }
                 delete self.previewSize;
                 delete self.isRegex;
@@ -2076,6 +2080,10 @@
                 this.headers = headers;
             },
 
+            setNumErrors: function(numErrors) {
+                this.numErrors = numErrors;
+            },
+
             getError: function() {
                 return this.error;
             },
@@ -2129,33 +2137,14 @@
                 return deferred.promise();
             },
 
-            makeErrorInfo: function() {
-                var self = this;
-                var deferred = jQuery.Deferred();
-
-                XcalarMakeResultSetFromDataset(self.fullName, true)
-                .then(function(result) {
-                    self.errorResultSetId = result.resultSetId;
-                    self.numErrorEntries = result.numEntries;
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-
-                return deferred.promise();
-            },
-
             _release: function() {
                 var self = this;
                 var resultSetId = self.resultSetId;
-                var errorResultSetId = self.errorResultSetId;
-                if (resultSetId == null && errorResultSetId == null) {
+                if (resultSetId == null) {
                     return PromiseHelper.resolve();
                 }
                 var deferred = jQuery.Deferred();
-                freeError()
-                .then(function() {
-                    return XcalarSetFree(resultSetId);
-                })
+                XcalarSetFree(resultSetId)
                 .then(function() {
                     self.resultSetId = null;
                     deferred.resolve();
@@ -2163,15 +2152,6 @@
                 .fail(deferred.reject);
 
                 return deferred.promise();
-
-                function freeError() {
-                    if (errorResultSetId) {
-                        return PromiseHelper.alwaysResolve(
-                                XcalarSetFree(errorResultSetId));
-                    } else {
-                        return PromiseHelper.resolve();
-                    }
-                }
             },
 
             fetch: function(rowToGo, rowsToFetch) {

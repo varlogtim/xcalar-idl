@@ -71,10 +71,7 @@ window.DSTable = (function($, DSTable) {
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
 
-        dsObj.makeErrorInfo()
-        .then(function() {
-            return dsObj.fetch(0, initialNumRowsToFetch);
-        })
+        dsObj.fetch(0, initialNumRowsToFetch)
         .then(function(jsons, jsonKeys) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another
@@ -503,6 +500,7 @@ window.DSTable = (function($, DSTable) {
                 isFIleError = dsObj.advancedArgs.allowFileErrors &&
                              !dsObj.advancedArgs.allowRecordErrors;
                 dsName = dsObj.getName();
+                numTotalErrors = dsObj.numErrors;
             }
             FileListModal.show(dsId, dsName, isFileError);
         });
@@ -511,12 +509,14 @@ window.DSTable = (function($, DSTable) {
             var dsId = $("#dsTableContainer").data("id");
             var dsObj = DS.getDSObj(dsId);
             var isRecordError = false;
+            var numTotalErrors;
             if (!dsObj) {
                 isRecordError = true;
             } else {
                 isRecordError = dsObj.advancedArgs.allowRecordErrors;
+                numTotalErrors = dsObj.numErrors;
             }
-            DSImportErrorModal.show(dsId, isRecordError);
+            DSImportErrorModal.show(dsId, numTotalErrors, isRecordError);
         });
     }
 
@@ -847,15 +847,28 @@ window.DSTable = (function($, DSTable) {
 
     function toggleErrorIcon(dsObj) {
         var $dsInfoError = $("#dsInfo-error");
-        if (dsObj.numErrorEntries) {
+        if (dsObj.numErrors) {
             $dsInfoError.removeClass("xc-hidden");
+            var num = xcHelper.numToStr(dsObj.numErrors);
+            var text;
             if (dsObj.advancedArgs.allowRecordErrors) {
                 $dsInfoError.removeClass("type-file");
-                xcTooltip.changeText($dsInfoError, DSTStr.ContainsRecordErrors);
+                if (dsObj.numErrors === "1") {
+                    text = DSTStr.ContainsRecordError;
+                } else {
+                    text = xcHelper.replaceMsg(DSTStr.ContainsRecordErrors,
+                        {num: num});
+                }
             } else {
                 $dsInfoError.addClass("type-file");
-                xcTooltip.changeText($dsInfoError, DSTStr.ContainsFileErrors);
+                if (dsObj.numErrors === "1") {
+                    text = DSTStr.ContainsFileError;
+                } else {
+                    text = xcHelper.replaceMsg(DSTStr.ContainsFileErrors,
+                        {num: num});
+                }
             }
+            xcTooltip.changeText($dsInfoError, text);
         } else {
             $dsInfoError.addClass("xc-hidden");
         }

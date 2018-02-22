@@ -1027,10 +1027,10 @@ DSTStr = {
     'UnshareFail': 'Unshare Dataset Failed',
     'LockDS': 'Lock Dataset',
     'UnlockDS': 'Unlock Dataset',
-    "ContainsRecordErrors": "Your dataset contains record errors.<br/>Click to view.",
-    "ContainsFileErrors": "Your dataset contains file errors.<br/>Click to view.",
     "RecordError": "Record error",
     "FileError": "File error",
+    "ContainsRecordError": "Your dataset contains 1 record error.<br/>Click to view.",
+    "ContainsFileError": "Your dataset contains 1 file error.<br/>Click to view.",
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1055,7 +1055,9 @@ DSTStr = {
     'ShareDSMsg': 'Are you sure you want to share \"<name>\"?',
     'UnshareDSMsg': 'Are you sure you want to unshare \"<name>\"?',
     'ForceShareMsg': 'Dataset \"<name>\" is being used by other users and is moved to the shared folder.',
-    'RenameMsg': 'It will be renamed to \"<newName>\".'
+    'RenameMsg': 'It will be renamed to \"<newName>\".',
+    "ContainsRecordErrors": "Your dataset contains <num> record errors.<br/>Click to view.",
+    "ContainsFileErrors": "Your dataset contains <num> file errors.<br/>Click to view.",
 };
 
 DSFormTStr = {
