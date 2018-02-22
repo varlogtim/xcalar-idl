@@ -2545,26 +2545,26 @@ describe("Dag Panel Test", function() {
                 },
                 "tag": "",
                 "comment": "",
-                "numParent": 0,
+                "numParents": 0,
+                "parents": [],
                 "dagNodeId": "18014398509488925",
                 "api": 2,
                 "state": 5,
                 "input": {
                     "loadInput": {
                         "dagNodeId": "11793",
-                        "datasetName": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
+                        "dest": ".XcalarDS.rudy2brea.03347.yelp_academic_dataset_user_fixed",
                         "loadArgs": {
-                            "sourceArgs": {
+                            "sourceArgsList": [{
                                 "fileNamePattern": "",
                                 "recursive": false,
                                 "targetName": "Default Shared Root",
                                 "path": "/netstore/datasets/yelp/user/yelp_academic_dataset_user_fixed.json",
-                            },
+                            }],
                             "parseArgs": {
                                 "parserFnName": "default:parseCSV",
                                 "parserArgJSON": '{"recordDelim":"\n","fieldDelim":"\t","isCRLF":true,"linesToSkip":0,"quoteDelim":"\"","hasHeader":false}'
                             },
-                            "fileNamePattern": "",
                             "maxSize": 1099511627776
                         },
                         "dagNodeId": "18014398509488925"
@@ -2578,7 +2578,8 @@ describe("Dag Panel Test", function() {
                 },
                 "tag": "indexFromDataset#DP0",
                 "comment": "",
-                "numParent": 1,
+                "numParents": 1,
+                "parents": ["18014398509488925"],
                 "dagNodeId": "18014398509489069",
                 "api": 3,
                 "state": 5,
@@ -2601,7 +2602,8 @@ describe("Dag Panel Test", function() {
                 },
                 "tag": "sort#DP3",
                 "comment": "",
-                "numParent": 1,
+                "numParents": 1,
+                "parents": ["18014398509489069"],
                 "dagNodeId": "18014398509611722",
                 "api": 3,
                 "state": 5,
@@ -2624,7 +2626,8 @@ describe("Dag Panel Test", function() {
                 },
                 "tag": "",
                 "comment": "",
-                "numParent": 1,
+                "numParents": 1,
+                "parents": ["18014398509611722"],
                 "dagNodeId": "1273",
                 "api": 33,
                 "state": 1,

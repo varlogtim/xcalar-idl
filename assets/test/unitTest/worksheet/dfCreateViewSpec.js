@@ -56,8 +56,8 @@ describe('DFCreateView Test', function() {
             expect($dfView.find('#newDFNameInput').val()).to.equal("");
         });
         it('columns should be selected', function() {
-            expect($dfView.find('.columnsToExport li').length).to.equal(6);
-            expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
+            expect($dfView.find('.columnsToExport li').length).to.equal(7);
+            expect($dfView.find('.columnsToExport li.checked').length).to.equal(7);
         });
 
         it('exit option on table menu should be available', function() {
@@ -88,7 +88,7 @@ describe('DFCreateView Test', function() {
             }).trigger(fakeEvent.mouseup);
 
             numCols = $dfView.find('.cols li').length;
-            expect(numCols).to.equal(6);
+            expect(numCols).to.equal(7);
         });
 
         it("dagTable picker should work", function() {
@@ -225,7 +225,7 @@ describe('DFCreateView Test', function() {
             var colText = "";
 
             selectAll(tableId);
-            expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
+            expect($dfView.find('.columnsToExport li.checked').length).to.equal(7);
             listText = $dfView.find('.columnsToExport li.checked').text();
             colText = getHighlightedColText();
             expect(listText.length).to.be.gt(20);
@@ -239,7 +239,7 @@ describe('DFCreateView Test', function() {
             expect(listText).to.equal(colText);
 
             selectAll(tableId);
-            expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
+            expect($dfView.find('.columnsToExport li.checked').length).to.equal(7);
             listText = $dfView.find('.columnsToExport li.checked').text();
             colText = getHighlightedColText();
             expect(listText.length).to.be.gt(20);
@@ -312,11 +312,11 @@ describe('DFCreateView Test', function() {
     describe("DFCreateView.udpateTables", function() {
         it ("should refresh column list", function() {
             var $cols = $dfView.find(".cols li");
-            expect($cols.length).to.equal(6);
+            expect($cols.length).to.equal(7);
             $cols.remove();
             expect($dfView.find(".cols li").length).to.equal(0);
             DFCreateView.updateTables(tableId, true);
-            expect($dfView.find(".cols li").length).to.equal(6);
+            expect($dfView.find(".cols li").length).to.equal(7);
         });
     });
 
@@ -470,7 +470,7 @@ describe('DFCreateView Test', function() {
     describe('closeDFView', function() {
         it('closeDFView should work', function() {
             DFCreateView.__testOnly__.selectAll(tableId);
-            expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
+            expect($dfView.find('.columnsToExport li.checked').length).to.equal(7);
             expect($table.find('.modalHighlighted').length).to.be.gt(0);
             $('#newDFNameInput').val('test');
             expect($dfView.find('#newDFNameInput').val()).to.equal("test");

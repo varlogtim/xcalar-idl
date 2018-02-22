@@ -496,7 +496,7 @@ window.DSTable = (function($, DSTable) {
             var dsObj = DS.getDSObj(dsId);
             var isFileError = false;
             var dsName = "";
-            if (dsObj) {
+            if (dsObj && dsObj.advancedArgs) {
                 isFIleError = dsObj.advancedArgs.allowFileErrors &&
                              !dsObj.advancedArgs.allowRecordErrors;
                 dsName = dsObj.getName();
@@ -510,7 +510,7 @@ window.DSTable = (function($, DSTable) {
             var dsObj = DS.getDSObj(dsId);
             var isRecordError = false;
             var numTotalErrors;
-            if (!dsObj) {
+            if (!dsObj || !dsObj.advancedArgs) {
                 isRecordError = true;
             } else {
                 isRecordError = dsObj.advancedArgs.allowRecordErrors;
