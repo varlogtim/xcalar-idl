@@ -1531,7 +1531,7 @@ XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows,
         data = [];
     }
 
-    if (maxNumRowsPerCall === 0) {
+    if (!maxNumRowsPerCall) {
         maxNumRowsPerCall = rowsToFetch;
     }
 
