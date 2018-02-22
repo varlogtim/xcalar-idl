@@ -2539,6 +2539,7 @@ XcalarApiDatasetT.prototype.write = function(output) {
 XcalarApiDatasetsInfoT = function(args) {
   this.datasetName = null;
   this.downSampled = null;
+  this.totalNumErrors = null;
   this.datasetSize = null;
   this.numColumns = null;
   this.columnNames = null;
@@ -2548,6 +2549,9 @@ XcalarApiDatasetsInfoT = function(args) {
     }
     if (args.downSampled !== undefined && args.downSampled !== null) {
       this.downSampled = args.downSampled;
+    }
+    if (args.totalNumErrors !== undefined && args.totalNumErrors !== null) {
+      this.totalNumErrors = args.totalNumErrors;
     }
     if (args.datasetSize !== undefined && args.datasetSize !== null) {
       this.datasetSize = args.datasetSize;
@@ -2590,19 +2594,26 @@ XcalarApiDatasetsInfoT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.I64) {
-        this.datasetSize = input.readI64().value;
+        this.totalNumErrors = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
       if (ftype == Thrift.Type.I64) {
-        this.numColumns = input.readI64().value;
+        this.datasetSize = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.numColumns = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
       if (ftype == Thrift.Type.LIST) {
         var _size48 = 0;
         var _rtmp352;
@@ -2643,18 +2654,23 @@ XcalarApiDatasetsInfoT.prototype.write = function(output) {
     output.writeBool(this.downSampled);
     output.writeFieldEnd();
   }
+  if (this.totalNumErrors !== null && this.totalNumErrors !== undefined) {
+    output.writeFieldBegin('totalNumErrors', Thrift.Type.I64, 3);
+    output.writeI64(this.totalNumErrors);
+    output.writeFieldEnd();
+  }
   if (this.datasetSize !== null && this.datasetSize !== undefined) {
-    output.writeFieldBegin('datasetSize', Thrift.Type.I64, 3);
+    output.writeFieldBegin('datasetSize', Thrift.Type.I64, 4);
     output.writeI64(this.datasetSize);
     output.writeFieldEnd();
   }
   if (this.numColumns !== null && this.numColumns !== undefined) {
-    output.writeFieldBegin('numColumns', Thrift.Type.I64, 4);
+    output.writeFieldBegin('numColumns', Thrift.Type.I64, 5);
     output.writeI64(this.numColumns);
     output.writeFieldEnd();
   }
   if (this.columnNames !== null && this.columnNames !== undefined) {
-    output.writeFieldBegin('columnNames', Thrift.Type.LIST, 5);
+    output.writeFieldBegin('columnNames', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRING, this.columnNames.length);
     for (var iter55 in this.columnNames)
     {

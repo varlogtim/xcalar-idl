@@ -821,7 +821,7 @@ window.Function.prototype.bind = function() {
                 test.fail("Fail struct type is wrong");
             }
             var loadOutput = failStruct.output;
-            var errStr = "record -1: line: 2 column: 1 position: 10892 error: " +
+            var errStr = "record: -1, line: 2, column: 1, position: 10892, error: " +
                          "end of file expected near '{'";
             var errFile = qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
@@ -3730,11 +3730,19 @@ window.Function.prototype.bind = function() {
     }
 
     function testParquetApp(test) {
-        var name = "XcalarParquet";
-        var pathToParquetDataset = qaTestDir + "/parquet/spark/yelp-users"
+        var parquetAppName = "XcalarParquet";
+        var targetMgrAppName = "XcalarTargetMgr";
+        var parquetTargetName = "parquetMgmtTest";
+        var resultSetId;
+        var randomColumns = [];
+        var randomPartitionKeyValue;
+        var parquetDsName = "parquetDs";
+        var pathToParquetDataset = qaTestDir + "/parquet/spark/yelp-users";
         var expectedPartitionKeys = [ "type", "yelping_since" ]
+        var possibleKeyValues;
+        var schema;
         var args = { "func": "getInfo", "targetName": "Default Shared Root", "path": pathToParquetDataset }
-        xcalarAppRun(thriftHandle, name,  false, JSON.stringify(args))
+        xcalarAppRun(thriftHandle, parquetAppName,  false, JSON.stringify(args))
         .then(function(result) {
             var groupId = result.appGroupId;
             return xcalarAppReap(thriftHandle, groupId);
@@ -3743,7 +3751,8 @@ window.Function.prototype.bind = function() {
             var outStr = result.outStr;
             console.log("Result from getInfo(): " + outStr)
             var appResult = JSON.parse(JSON.parse(outStr)[0][0]);
-            var partitionKeys = appResult.partitionKeys
+            schema = appResult.schema;
+            var partitionKeys = appResult.partitionKeys;
             if (partitionKeys.length != expectedPartitionKeys.length) {
                 test.fail("Expected " + expectedPartitionKeys.length + " partitionKeys, got " + partitionKeys.length);
                 return;
@@ -3758,7 +3767,7 @@ window.Function.prototype.bind = function() {
 
             args["func"] = "getPossibleKeyValues";
             args["key"] = expectedPartitionKeys[0];
-            return (xcalarAppRun(thriftHandle, name, false, JSON.stringify(args)))
+            return (xcalarAppRun(thriftHandle, parquetAppName, false, JSON.stringify(args)))
         })
         .then(function(result) {
             var groupId = result.appGroupId;
@@ -3775,15 +3784,24 @@ window.Function.prototype.bind = function() {
             }
 
             for (var ii = 0; ii < expectedValues.length; ii++) {
-                if (appResult[ii] != expectedValues[ii]) {
-                    test.fail("Expected value[" + ii + "] == \"" + expectedValues[ii] + "\", got \"" + appResult[ii] + "\"");
+                // Order of expectedValues might not match order of returned values and that's ok
+                var found = false;
+                for (var jj = 0; jj < appResult.length; jj++) {
+                    if (appResult[jj] == expectedValues[ii]) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    test.fail(JSON.stringify(appResult) + " does not contain " + expectedValues[ii]);
                     return;
                 }
             }
 
             args["key"] = expectedPartitionKeys[1];
             args["givenKeys"] = { "type": [ "user" ] };
-            return (xcalarAppRun(thriftHandle, name, false, JSON.stringify(args)));
+            return (xcalarAppRun(thriftHandle, parquetAppName, false, JSON.stringify(args)));
         })
         .then(function(result) {
             var groupId = result.appGroupId;
@@ -3792,8 +3810,84 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             var outStr = result.outStr;
             console.log("Result from getPossibleKeyValues(yelping_since): " + outStr);
+            possibleKeyValues = JSON.parse(JSON.parse(outStr)[0][0]);
 
-            test.pass()
+            randomPartitionKeyValue = possibleKeyValues[Math.floor(Math.random() * possibleKeyValues.length)]
+
+            var targetParams = { "backingTargetName": "Default Shared Root" } 
+            var targetArgs = { "targetTypeId": "sparkparquet", "targetName": parquetTargetName, 
+                               "targetParams": targetParams, "func": "addTarget" }
+            return xcalarAppRun(thriftHandle, targetMgrAppName, false, JSON.stringify(targetArgs))
+        })
+        .then(function(result) {
+            var groupId = result.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.outStr;
+            console.log("Result from addTarget: " + outStr);
+
+            var sourceArgs = new DataSourceArgsT();
+            sourceArgs.targetName = parquetTargetName;
+            sourceArgs.path = pathToParquetDataset + "?" + expectedPartitionKeys[0] + "=*&" + expectedPartitionKeys[1] + "=" + randomPartitionKeyValue;
+            sourceArgs.fileNamePattern = "";
+            sourceArgs.recursive = false;
+
+            for (var column in schema) {
+                if ((Math.random() * 100) < 50) {
+                    randomColumns.push(column)
+                }
+            }
+
+            for (var idx in expectedPartitionKeys) {
+                randomColumns.push(expectedPartitionKeys[idx]);
+            }
+
+            console.log(JSON.stringify(randomColumns))
+            var parquetArgs = { "columns": randomColumns }
+            var parseArgs = new ParseArgsT();
+            parseArgs.parserFnName = "default:parseParquet";
+            parseArgs.parserArgJson = JSON.stringify(parquetArgs);
+
+            return (xcalarLoad(thriftHandle, parquetDsName, [sourceArgs], parseArgs, 0));
+        })
+        .then(function(result) {
+            printResult(result);
+            loadOutput = result;
+            parquetDsName = loadOutput.dataset.name;
+
+            return (xcalarMakeResultSetFromDataset(thriftHandle, parquetDsName, false));
+        })
+        .then(function(ret) {
+            resultSetId = ret.resultSetId;
+            return (xcalarResultSetNext(thriftHandle, resultSetId, 1));
+        })
+        .then(function(resultSet) {
+            var values = JSON.parse(resultSet.values[0])
+            console.log(JSON.stringify(values))
+            for (var idx in randomColumns) {
+                var column = randomColumns[idx]
+                console.log("Checking for column " + column)
+                if (!values.hasOwnProperty(column)) {
+                    test.fail(JSON.stringify(values) + " is missing column " + column);
+                    return;
+                }
+            }
+            if (values[expectedPartitionKeys[1]] != randomPartitionKeyValue) {
+                test.fail("Expected " + expectedPartitionKeys[1] + " = " + randomPartitionKeyValue + " but got " + values[expectedPartitionKeys[1]]);
+            }
+            return (xcalarFreeResultSet(thriftHandle, resultSetId));
+        })
+        .then(function(status) {
+            return (xcalarDeleteDagNodes(thriftHandle, parquetDsName, SourceTypeT.SrcDataset))
+        })
+        .then(function(deleteDagNodesOutput) {
+            printResult(deleteDagNodesOutput);
+            return (xcalarApiDeleteDatasets(thriftHandle, parquetDsName))
+        })
+        .then(function(deleteDatasetsOutput) {
+            printResult(deleteDatasetsOutput);
+            test.pass();
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason.xcalarStatus]);

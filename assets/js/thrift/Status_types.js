@@ -614,7 +614,8 @@ StatusT = {
   'StatusUsrSessLoadFailed' : 605,
   'StatusProtobufError' : 606,
   'StatusRecordError' : 607,
-  'StatusCannotReplaceKey' : 608
+  'StatusCannotReplaceKey' : 608,
+  'StatusSerializationIsDisabled' : 609
 };
 StatusTStr = {
   0 : 'Success',
@@ -1050,8 +1051,8 @@ StatusTStr = {
   430 : 'Messaging interface with other process has been closed',
   431 : 'Operation has finished',
   432 : 'Operation statistics are not avaiable',
-  433 : 'Failed to parse retina file',
-  434 : 'Too many columns specified for Retina',
+  433 : 'Failed to parse batch dataflow file',
+  434 : 'Too many columns specified for batch dataflow',
   435 : 'Successfully overwrote user-defined module/application',
   436 : 'Support bundle generation failed',
   437 : 'Message payload too large to fit within message',
@@ -1119,10 +1120,10 @@ StatusTStr = {
   499 : 'OutputSize was corrupted',
   500 : 'Dataset name already exists',
   501 : 'Dataset has already been deleted',
-  502 : 'Retina does not exist',
+  502 : 'Batch dataflow does not exist',
   503 : 'Dht specified does not exist',
   504 : 'Table specified does not exist',
-  505 : 'Too many parameters in retina',
+  505 : 'Too many parameters in batch dataflow',
   506 : 'This parameter cannot be changed online',
   507 : 'Error occurs during Operation',
   508 : 'Operation has been cancelled',
@@ -1172,8 +1173,8 @@ StatusTStr = {
   552 : 'The DHT already exists',
   553 : 'The DHT is currently in use',
   554 : 'Number of result sets exceeded table meta limit',
-  555 : 'The retina already exists',
-  556 : 'The retina is currently in use',
+  555 : 'The batch dataflow already exists',
+  556 : 'The batch dataflow is currently in use',
   557 : 'Failed to compress buffer',
   558 : 'Failed to decompress buffer',
   559 : 'The query name is invalid',
@@ -1225,7 +1226,8 @@ StatusTStr = {
   605 : 'User failed to read sessions',
   606 : 'Generic protobuf error',
   607 : 'Record errors are disallowed',
-  608 : 'Cannot replace key field'
+  608 : 'Cannot replace key field',
+  609 : 'Serialization is disabled'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1661,8 +1663,8 @@ StatusTFromStr = {
   'Messaging interface with other process has been closed' : 430,
   'Operation has finished' : 431,
   'Operation statistics are not avaiable' : 432,
-  'Failed to parse retina file' : 433,
-  'Too many columns specified for Retina' : 434,
+  'Failed to parse batch dataflow file' : 433,
+  'Too many columns specified for batch dataflow' : 434,
   'Successfully overwrote user-defined module/application' : 435,
   'Support bundle generation failed' : 436,
   'Message payload too large to fit within message' : 437,
@@ -1730,10 +1732,10 @@ StatusTFromStr = {
   'OutputSize was corrupted' : 499,
   'Dataset name already exists' : 500,
   'Dataset has already been deleted' : 501,
-  'Retina does not exist' : 502,
+  'Batch dataflow does not exist' : 502,
   'Dht specified does not exist' : 503,
   'Table specified does not exist' : 504,
-  'Too many parameters in retina' : 505,
+  'Too many parameters in batch dataflow' : 505,
   'This parameter cannot be changed online' : 506,
   'Error occurs during Operation' : 507,
   'Operation has been cancelled' : 508,
@@ -1783,8 +1785,8 @@ StatusTFromStr = {
   'The DHT already exists' : 552,
   'The DHT is currently in use' : 553,
   'Number of result sets exceeded table meta limit' : 554,
-  'The retina already exists' : 555,
-  'The retina is currently in use' : 556,
+  'The batch dataflow already exists' : 555,
+  'The batch dataflow is currently in use' : 556,
   'Failed to compress buffer' : 557,
   'Failed to decompress buffer' : 558,
   'The query name is invalid' : 559,
@@ -1836,5 +1838,6 @@ StatusTFromStr = {
   'User failed to read sessions' : 605,
   'Generic protobuf error' : 606,
   'Record errors are disallowed' : 607,
-  'Cannot replace key field' : 608
+  'Cannot replace key field' : 608,
+  'Serialization is disabled' : 609
 };
