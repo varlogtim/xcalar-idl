@@ -32,7 +32,8 @@ window.AboutModal = (function($, AboutModal) {
         var thriftVersion = XVM.getSHA().substring(0, 8);
         // Both backend and front end must
         // have the same thrift version or they won't talk
-
+        buildNumber += (window.gPatchVersion == null)
+                        ? "" : "P" + window.gPatchVersion;
         var licenseKey = XVM.getLicenseKey();
         var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
         $modal.find(".mode .text").text(" - " + capitalize + " Cluster");
