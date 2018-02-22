@@ -287,8 +287,9 @@ window.DSPreview = (function($, DSPreview) {
         // set up format dropdownlist
         var menuHepler = new MenuHelper($("#preview-file"), {
             onSelect: function($li) {
+                var index;
                 if ($li.hasClass("mainPath") && !$li.hasClass("singlePath")) {
-                    var index = Number($li.data("index"));
+                    index = Number($li.data("index"));
                     if ($li.hasClass("collapse")) {
                         // expand case
                         previewFileSelect(index);
@@ -305,7 +306,13 @@ window.DSPreview = (function($, DSPreview) {
                     $("#preview-file").find("li.active").removeClass("active");
                     $li.addClass("active");
                     var path = $li.data("path");
-                    DSPreview.changePreviewFile(path);
+                    if ($li.hasClass("mainPath")) {
+                        index = Number($li.data("index"));
+                    } else {
+                        var $subPathList = $li.closest(".subPathList");
+                        index = Number($subPathList.data("index"));
+                    }
+                    changePreviewFile(index, path);
                 }
             },
             onOpen: setActivePreviewFile,
@@ -454,12 +461,8 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.changePreviewFile = function(path, noDetect) {
-        if (path === loadArgs.getPreviewFile()) {
-            return;
-        }
-        loadArgs.setPreviewFile(path);
-        refreshPreview(noDetect);
+    DSPreview.changePreviewFile = function(path) {
+        changePreviewFile(path);
     };
 
     DSPreview.update = function(listXdfsObj) {
@@ -1134,63 +1137,52 @@ window.DSPreview = (function($, DSPreview) {
         var allowRecordErrors = res.allowRecordErrors || false;
         var allowFileErrors = res.allowFileErrors || false;
 
-        var advancedArgs = {rowNumName: rowNumName,
-                            fileName: fileName,
-                            allowRecordErrors: allowRecordErrors,
-                            allowFileErrors: allowFileErrors};
+        var advancedArgs = {
+            rowNumName: rowNumName,
+            fileName: fileName,
+            allowRecordErrors: allowRecordErrors,
+            allowFileErrors: allowFileErrors
+        };
 
         // console.log(dsNames, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, quote, skipRows);
 
         var typedColumns = getColumnHeaders();
+        var colLen = toCreateTable
+                     ? $previewTable.find("th:not(.rowNumHead)").length
+                     : 0;
+
         cacheUDF(udfModule, udfFunc);
-
-        var colLen = 0;
-        if (toCreateTable) {
-            colLen = $previewTable.find("th:not(.rowNumHead)").length;
-        }
-
         xcHelper.disableSubmit($form.find('.confirm'));
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
+        var dsArgs = {
+            "format": format,
+            "fieldDelim": fieldDelim,
+            "lineDelim": lineDelim,
+            "hasHeader": header,
+            "moduleName": udfModule,
+            "funcName": udfFunc,
+            "quoteChar": quote,
+            "skipRows": skipRows,
+            "udfQuery": udfQuery,
+            "advancedArgs": advancedArgs,
+        };
+        var curPreviewId = previewId;
+
         invalidHeaderDetection(typedColumns)
         .then(function() {
             return tooManyColAlertHelper(colLen);
         })
         .then(function() {
-            // Clear fileBrowser after all validations pass
-            FileBrowser.clear();
-
-            if (format !== formatMap.CSV ||
-                !hasTypedColumnChange(typedColumns)) {
-                typedColumns = null;
+            return getTypedColumsList(typedColumns, dsArgs);
+        })
+        .then(function(typedColumnsList) {
+            if (isValidPreviewId(curPreviewId)) {
+                FileBrowser.clear();
             }
-            // XXX temp fix to preserve CSV header order
-            typedColumns = (format !== formatMap.JSON) ? typedColumns : null;
-            if (format === "Excel") {
-                if (header) {
-                    udfQuery.withHeader = true;
-                }
-                if (skipRows) {
-                    udfQuery.skipRows = skipRows;
-                }
-            }
-            var dsArgs = {
-                "format": format,
-                "fieldDelim": fieldDelim,
-                "lineDelim": lineDelim,
-                "hasHeader": header,
-                "moduleName": udfModule,
-                "funcName": udfFunc,
-                "quoteChar": quote,
-                "skipRows": skipRows,
-                "typedColumns": typedColumns,
-                "udfQuery": udfQuery,
-                "advancedArgs": advancedArgs,
-            };
-
-            return importDataHelper(dsNames, dsArgs, toCreateTable);
+            return importDataHelper(dsNames, dsArgs, typedColumnsList, toCreateTable);
         })
         .then(function() {
             cleanTempParser(true);
@@ -1201,7 +1193,176 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function importDataHelper(dsNames, dsArgs, toCreateTable) {
+    function getTypedColumsList(typedColumns, dsArgs) {
+        var format = dsArgs.format;
+        if (format !== formatMap.CSV) {
+            // no cast for other formats
+            return PromiseHelper.resolve([]);
+        }
+
+        if (!hasTypedColumnChange(typedColumns)) {
+            typedColumns = null;
+        }
+        typedColumns = (format !== formatMap.JSON) ? typedColumns : null;
+
+        var previewingSource = loadArgs.getPreviewingSource();
+        var sourceIndex = previewingSource ? previewingSource.index : null;
+        var multiDS = loadArgs.multiDS;
+
+        if (!multiDS) {
+            return PromiseHelper.resolve([typedColumns]);
+        }
+
+        var deferred = jQuery.Deferred();
+        var typedColumnsList = [];
+        typedColumnsList[sourceIndex] = typedColumns;
+
+        slowPreviewCheck()
+        .then(function() {
+            return getTypedColumnsListHelper(typedColumnsList, sourceIndex, dsArgs);
+        })
+        .then(function() {
+            deferred.resolve(typedColumnsList);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function slowPreviewCheck() {
+        var deferred = jQuery.Deferred();
+        var previewLimit = 10;
+        var targetName = loadArgs.getTargetName();
+        var shouldAlert = true;
+        var msg;
+
+        if (loadArgs.files.length > previewLimit) {
+            msg = xcHelper.replaceMsg(DSFormTStr.TooManyPreview, {
+                num: loadArgs.files.length
+            });
+        } else if (DSTargetManager.isSlowPreviewTarget(targetName) || true) {
+            msg = xcHelper.replaceMsg(DSFormTStr.SlowTargetPreview, {
+                target: targetName
+            });
+        } else {
+            shouldAlert = false;
+        }
+
+        if (shouldAlert) {
+            Alert.show({
+                title: DSFormTStr.ImportMultiple,
+                msg: msg,
+                onCancel: function() {
+                    xcHelper.enableSubmit($form.find(".confirm"));
+                    deferred.reject();
+                },
+                onConfirm: function() {
+                    deferred.resolve();
+                }
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
+    }
+
+    function getTypedColumnsListHelper(typedColumnsList, sourceIndex, dsArgs) {
+        var deferred = jQuery.Deferred();
+        var files = loadArgs.files;
+        var targetName = loadArgs.getTargetName();
+        var promises = [];
+
+        for (var i = 0; i < files.length; i++) {
+            if (i === sourceIndex) {
+                // null is the sourceIndex case
+                continue;
+            }
+
+            var args = {
+                targetName: targetName,
+                path: files[i].path
+            };
+            promises.push(autoDetectSourceHeaderTypes(args, i, typedColumnsList, dsArgs));
+        }
+
+        PromiseHelper.when.apply(this, promises)
+        .always(function() {
+            deferred.resolve(typedColumnsList); // always resolve
+        });
+
+        return deferred.promise();
+    }
+
+    function autoDetectSourceHeaderTypes(args, index, typedColumnsList, dsArgs) {
+        var deferred = jQuery.Deferred();
+        // fetch data
+        XcalarPreview(args, numBytesRequest, 0)
+        .then(function(res) {
+            if (res && res.buffer) {
+                typedColumnsList[index] = getTypedColumnsFromData(res.buffer, dsArgs);
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    function getTypedColumnsFromData(data, dsArgs) {
+        var lineDelim = dsArgs.lineDelim;
+        var fieldDelim = dsArgs.fieldDelim;
+        var hasHeader = dsArgs.hasHeader;
+        var quoteChar = dsArgs.quoteChar;
+
+        try {
+            var strippedData = xcHelper.replaceInsideQuote(data, quoteChar);
+            var rows = strippedData.split(lineDelim);
+            var headers = [];
+            if (hasHeader) {
+                var header = rows[0];
+                rows = rows.slice(1);
+                headers = header.split(fieldDelim).filter(function(name, index) {
+                    return name || ("column" + index);
+                });
+            }
+            var columns = [];
+            rows.forEach(function(row) {
+                var splits = row.split(fieldDelim);
+                splits.forEach(function(cell, colIndex) {
+                    columns[colIndex] = columns[colIndex] || [];
+                    columns[colIndex].push(cell);
+                });
+            });
+            // no more than gMaxDSColsSpec cols
+            columns = columns.slice(0, gMaxDSColsSpec);
+            var columTypes = columns.map(function(datas) {
+                return xcSuggest.suggestType(datas);
+            });
+            var notStringCols = columTypes.filter(function(colType) {
+                return colType !== ColumnType.string;
+            });
+
+            if (notStringCols.length === 0) {
+                return null;
+            }
+
+            var typedColumns = columTypes.map(function(colType, index) {
+                return {
+                    colName: headers[index] || null, // null will do auto name
+                    colType: colType
+                };
+            });
+            return typedColumns;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
+    function importDataHelper(dsNames, dsArgs, typedColumnsList, toCreateTable) {
         var multiDS = loadArgs.multiDS;
         var files = loadArgs.files;
         var targetName = loadArgs.getTargetName();
@@ -1222,7 +1383,8 @@ window.DSPreview = (function($, DSPreview) {
                 var source = getSource(file);
                 var args = $.extend({}, dsArgs, {
                     "name": dsNames[index],
-                    "sources": [source]
+                    "sources": [source],
+                    "typedColumns": typedColumnsList[index]
                 });
                 promises.push(DS.import(args, {
                     "createTable": toCreateTable
@@ -1233,7 +1395,8 @@ window.DSPreview = (function($, DSPreview) {
             var sources = files.map(getSource);
             var multiLoadArgs = $.extend(dsArgs, {
                 "name": dsNames[0],
-                "sources": sources
+                "sources": sources,
+                "typedColumns": typedColumnsList[0]
             });
             var dsToReplace = files[0].dsToReplace || null;
             return DS.import(multiLoadArgs, {
@@ -1486,7 +1649,8 @@ window.DSPreview = (function($, DSPreview) {
 
         return {
             skipRows: skipRows,
-            sheetIndex: excelIndex
+            sheetIndex: excelIndex,
+            withHeader: loadArgs.useHeader()
         };
     }
 
@@ -2171,8 +2335,8 @@ window.DSPreview = (function($, DSPreview) {
         var initialLoadArgStr;
 
         getURLToPreview(curPreviewId)
-        .then(function(url) {
-            setPreviewFile(url);
+        .then(function(sourceIndex, url) {
+            setPreviewFile(sourceIndex, url);
 
             if (isFirstTime && !hasUDF) {
                 if (isExcel(url)) {
@@ -2211,9 +2375,8 @@ window.DSPreview = (function($, DSPreview) {
                 args.advancedArgs = {
                     allowRecordErrors: options.allowRecordErrors,
                     allowFileErrors: options.allowFileErrors,
-                }
+                };
                 sql.args = args;
-
                 return loadDataWithUDF(txId, dsName, args);
             } else {
                 args.targetName = targetName;
@@ -2400,13 +2563,21 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function setPreviewFile(path) {
+    function setPreviewFile(index, file) {
         var $file = $("#preview-file");
-        $file.find(".text").val(path);
-        if (!loadArgs.getPreviewFile()) {
+        $file.find(".text").val(file);
+        if (loadArgs.getPreviewFile() == null) {
             // set the path to be preview file if not set yet
-            loadArgs.setPreviewFile(path);
+            loadArgs.setPreviewingSource(index, file);
         }
+    }
+
+    function changePreviewFile(index, file) {
+        if (file === loadArgs.getPreviewFile()) {
+            return;
+        }
+        loadArgs.setPreviewingSource(index, file);
+        refreshPreview();
     }
 
     function resetPreviewFile() {
@@ -2416,28 +2587,29 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getURLToPreview() {
-        var previewFile = loadArgs.getPreviewFile();
+        var previewingSource = loadArgs.getPreviewingSource();
         var targetName = loadArgs.getTargetName();
+        var index = 0;
 
-        if (previewFile != null) {
-            return PromiseHelper.resolve(previewFile);
+        if (previewingSource != null) {
+            return PromiseHelper.resolve(previewingSource.index, previewingSource.file);
         } else if (DSTargetManager.isGeneratedTarget(targetName)) {
             // target of type Generated is a special case
-            return PromiseHelper.resolve(loadArgs.files[0].path);
+            return PromiseHelper.resolve(index, loadArgs.files[index].path);
         }
 
         var deferred = jQuery.Deferred();
-        var firstFile = loadArgs.files[0];
+        var firstFile = loadArgs.files[index];
 
-        previewFileSelect(0, true)
+        previewFileSelect(index, true)
         .then(function(paths) {
-            var path = paths[0];
+            var path = paths[index];
             if (path == null) {
                 deferred.reject(xcHelper.replaceMsg(DSFormTStr.ResucriveErr, {
                     path: firstFile.path
                 }));
             } else {
-                deferred.resolve(path);
+                deferred.resolve(index, path);
             }
         })
         .fail(deferred.reject);
@@ -3003,8 +3175,7 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
         loadArgs.setOriginalTypedColumns(getColumnHeaders());
 
-        // XXX disabling smart cast due to backend bug
-        if (loadArgs.getFormat() === "CSV" && DSPreview.smartCast) {
+        if (loadArgs.getFormat() === formatMap.CSV) {
             initialSuggest();
         }
 
@@ -3421,6 +3592,24 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function lineSplitHelper(data, delim, rowsToSkip) {
+        var quote = loadArgs.getQuote();
+        var res = splitLine(data, delim, quote);
+
+        if (rowsToSkip == null || isNaN(rowsToSkip)) {
+            rowsToSkip = getSkipRows();
+        }
+
+        if (rowsToSkip > 0 && rowsToSkip >= res.length) {
+            errorHandler(DSTStr.SkipRowsError);
+            return null;
+        }
+
+        res = res.slice(rowsToSkip);
+
+        return res;
+    }
+
+    function splitLine(data, delim, quote) {
         // XXX this O^2 plus the fieldDelim O^2 may be too slow
         // may need a better way to do it
         var dels = delim.split("");
@@ -3431,7 +3620,6 @@ window.DSPreview = (function($, DSPreview) {
 
         var hasQuote = false;
         var hasBackSlash = false;
-        var quote = loadArgs.getQuote();
         var dataLen = data.length;
         var res = [];
         var i = 0;
@@ -3472,18 +3660,6 @@ window.DSPreview = (function($, DSPreview) {
         if (i === dataLen && startIndex !== dataLen) {
             res.push(data.substring(startIndex, dataLen));
         }
-
-        if (rowsToSkip == null || isNaN(rowsToSkip)) {
-            rowsToSkip = getSkipRows();
-        }
-
-        if (rowsToSkip > 0 && rowsToSkip >= res.length) {
-            errorHandler(DSTStr.SkipRowsError);
-            return null;
-        }
-
-        res = res.slice(rowsToSkip);
-
         return res;
     }
 
@@ -3540,7 +3716,6 @@ window.DSPreview = (function($, DSPreview) {
         var tdData = []; // holds acculumated chars until delimiter is reached
                         // and then these chars are added to html
         var val;
-        var blankThCount = 0; // for appending to "colname" if blank th
 
         if (hasDelimiter) {
             // when has delimiter
@@ -3567,8 +3742,7 @@ window.DSPreview = (function($, DSPreview) {
 
                     val = tdData.join("");
                     if (isTh && !val) { // autoname if no value for header
-                        val = "column" + blankThCount;
-                        blankThCount++;
+                        val = "column" + columnCount;
                     }
                     html += val;
                     tdData = [];
@@ -3644,7 +3818,7 @@ window.DSPreview = (function($, DSPreview) {
                 val = xcHelper.styleNewLineChar(val);
             }
             if (isTh && !val) { // autoname if no value for header
-                val = "column" + blankThCount;
+                val = "column" + columnCount;
             }
             html += val;
 
@@ -4037,7 +4211,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function hasTypedColumnChange(currTypedCols) {
-        prevTypedCols = loadArgs.getOriginalTypedColumns();
+        var prevTypedCols = loadArgs.getOriginalTypedColumns();
         for (var i = 0; i < currTypedCols.length; i++) {
             if (!prevTypedCols[i]) {
                 return true;
@@ -4075,17 +4249,32 @@ window.DSPreview = (function($, DSPreview) {
     // currently only being used for CSV
     function initialSuggest() {
         var $tbody = $previewTable.find("tbody").clone(true);
+        var recTypes = suggestColumnHeadersType($tbody);
+        changeColumnHeaders(recTypes);
+    }
+
+    function suggestColumnHeadersType($tbody) {
+        var recTypes = [];
+        var suggestType = function($tr, colNum) {
+            var datas = [];
+            $tr.find("td:nth-child(" + colNum + ")").each(function() {
+                var val = $(this).text();
+                datas.push(val);
+            });
+            return xcSuggest.suggestType(datas);
+        };
+
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".lineMarker").remove();
-        var recTypes = [];
 
-        $tbody.find("tr").eq(0).find("td").each(function(colNum) {
-            if (colNum >= gMaxDSColsSpec) {
+        var $tr = $tbody.find("tr");
+        $tr.eq(0).find("td").each(function(colIndex) {
+            if (colIndex >= gMaxDSColsSpec) {
                 return false;
             }
-            recTypes[colNum] = suggestType($tbody, colNum + 1);
+            recTypes[colIndex] = suggestType($tr, colIndex + 1);
         });
-        changeColumnHeaders(recTypes);
+        return recTypes;
     }
 
     function changeColumnHeaders(types, colNames) {
@@ -4113,18 +4302,6 @@ window.DSPreview = (function($, DSPreview) {
                 xcTooltip.changeText($input, name);
             }
         });
-    }
-
-    function suggestType($tbody, colNum) {
-        var datas = [];
-        var val;
-
-        $tbody.find("tr").find("td:nth-child(" + colNum + ")").each(function() {
-            val = $(this).text();
-            datas.push(val);
-        });
-
-        return xcSuggest.suggestType(datas);
     }
 
 

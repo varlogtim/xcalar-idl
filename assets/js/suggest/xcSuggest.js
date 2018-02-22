@@ -592,9 +592,7 @@ window.xcSuggest = (function($, xcSuggest) {
     }
 
     xcSuggest.detectLineDelimiter = function(rawStr, quote) {
-        rawStr = quote === "\"" ?
-            rawStr.replace(/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g, "") :
-            rawStr.replace(/(?=')(?:'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
+        rawStr = xcHelper.replaceInsideQuote(rawStr, quote);
         var crlfCount = coutCharOccurrence(rawStr, "\r\n");
         var lfCount = coutCharOccurrence(rawStr, "[^\r]\n");
         var crCount = coutCharOccurrence(rawStr, "\r(?!\n)");
@@ -619,9 +617,7 @@ window.xcSuggest = (function($, xcSuggest) {
         var numOfSamples = 10;
         // remove stuff inside quote
         // reference: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
-        var strippedStr = quote === "\"" ?
-            rawStr.replace(/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g, "") :
-            rawStr.replace(/(?=')(?:'[^'\\]*(?:\\[\s\S][^'\\]*)*')/g, "");
+        var strippedStr = xcHelper.replaceInsideQuote(rawStr, quote);
         var samples = strippedStr.split(lineDelim).slice(0, numOfSamples);
         // delimiters: [",", "\t", "|"]
         var delimiters = [];

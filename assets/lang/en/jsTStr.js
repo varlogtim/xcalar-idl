@@ -1078,10 +1078,13 @@ DSFormTStr = {
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'UDFHint': 'Please select a UDF module and UDF function then click \"APPLY UDF\" button to apply the UDF.',
     'GeneratedTargetHint': 'The path for this target should be the number of rows desired in the dataset',
+    'ImportMultiple': 'Importing Multiple Datasets',
     'ParseError': 'Your file cannot be parsed as <format>. We recommend you use the <suggest> format instead.',
     'UDFError': 'UDF generated errors while running your file.',
     'NoFileInFolder': 'No data source files in this directory',
-    'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.'
+    'ResucriveErr': 'No data source files in directory <path>. Please import with \"recursive\" option to include files in subdirectories.',
+    'TooManyPreview': 'You are importing <num> datasets. This will take a while. Do you want to proceed?',
+    'SlowTargetPreview': 'You are importing datasets from data target \"<target>\". This will take a while. Do you want to proceed?'
 };
 
 DSParserTStr = {

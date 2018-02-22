@@ -179,7 +179,7 @@ DSFormController.prototype = {
         this.lineDelim = "\n";
         this.hasHeader = false;
         this.quote = "\"";
-        this.previewFile = null;
+        this.previewingSource = null;
         this.previewSet = {};
         this.files = [];
 
@@ -245,12 +245,22 @@ DSFormController.prototype = {
         return this.quote;
     },
 
-    setPreviewFile: function(file) {
-        this.previewFile = file;
+    setPreviewingSource: function(index, file) {
+        this.previewingSource = {
+            index: index,
+            file: file
+        };
+    },
+
+    getPreviewingSource: function() {
+        return this.previewingSource;
     },
 
     getPreviewFile: function() {
-        return this.previewFile;
+        if (this.previewingSource == null) {
+            return null;
+        }
+        return this.previewingSource.file;
     },
 
     getPattern: function() {
@@ -259,7 +269,7 @@ DSFormController.prototype = {
 
     getArgStr: function() {
         var args = $.extend({}, this);
-        delete args.previewFile;
+        delete args.previewingSource;
         delete args.typedColumns;
         delete args.files;
         delete args.multiDS;

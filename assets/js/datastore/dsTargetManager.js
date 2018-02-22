@@ -42,6 +42,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     };
 
+    DSTargetManager.isSlowPreviewTarget = function(targetName) {
+        var target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_name && target.type_name.includes("Azure")) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     DSTargetManager.refreTargets = function(noWaitIcon) {
         var deferred = jQuery.Deferred();
         var updateTargetMenu = function(targets) {

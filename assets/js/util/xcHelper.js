@@ -187,6 +187,15 @@
         return format;
     };
 
+    xcHelper.replaceInsideQuote = function(str, quoteChar) {
+        // baisc case '/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g'
+        var regExStr = '(?=' + quoteChar + ')(?:' + quoteChar + '[^' +
+                        quoteChar +'\\\\]*(?:\\\\[\\s\\S][^' +
+                        quoteChar + '\\\\]*)*' + quoteChar + ')';
+        var regEx = new RegExp(regExStr, "g");
+        return str.replace(regEx, "");
+    };
+
     xcHelper.prefixRegExKey = function(searchKey) {
         // backend use re.match, so if you do "xlsx",
         // it's in backend it actually do "^xlsx"
@@ -1523,7 +1532,7 @@
         $hiddenInput.val(text).select();
         document.execCommand("copy");
         $hiddenInput.remove();
-    }
+    };
 
     xcHelper.validate = function(eles) {
         /*
