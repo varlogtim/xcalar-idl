@@ -1604,7 +1604,7 @@ window.DFParamModal = (function($, DFParamModal){
                 };
                 DF.saveAdvancedExportOption(retName, activeSessionOptions);
                 df = DF.getDataflow(retName);
-                df.updateParameterizedNode(dagNodeId, {"paramType": XcalarApisT.XcalarApiExport}, true);
+                df.updateParameterizedNode(dagNodeId, null, {"paramType": XcalarApisT.XcalarApiExport}, true);
                 closeDFParamModal();
                 xcHelper.showSuccess(SuccessTStr.ChangesSaved);
                 deferred.resolve();
@@ -1756,7 +1756,6 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         function genOrigQueryStruct() {
-
             var $oldVals = $dfParamModal.find(".template .boxed");
             var paramType;
             var paramValue;
@@ -1908,7 +1907,7 @@ window.DFParamModal = (function($, DFParamModal){
                 var numGroups = $editableRow.find(".paramGroup");
                 paramQuery = [];
                 paramValues = [];
-                $editableRow.find(".paramGroup").each(function() {
+               $editableRow.find(".paramGroup").each(function() {
                     var paramGroup = {};
                     $editableDivs = $(this).find("input.editableParamDiv");
                     var url = $.trim($editableDivs.eq(1).val());
@@ -1916,8 +1915,9 @@ window.DFParamModal = (function($, DFParamModal){
                     paramGroup.path = url;
                     paramGroup.fileNamePattern = pattern;
                     var targetName = $.trim($editableDivs.eq(0).val());
-                    paramValues.targetName = targetName;
-                    paramQuery = [targetName, url, pattern];
+                    paramGroup.targetName = targetName;
+                    paramValues.push(paramGroup);
+                    paramQuery.push([targetName, url, pattern]);
                 });
                 break;
             case ("export"):
