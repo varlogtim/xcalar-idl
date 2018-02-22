@@ -1240,7 +1240,7 @@ window.DSPreview = (function($, DSPreview) {
             msg = xcHelper.replaceMsg(DSFormTStr.TooManyPreview, {
                 num: loadArgs.files.length
             });
-        } else if (DSTargetManager.isSlowPreviewTarget(targetName) || true) {
+        } else if (DSTargetManager.isSlowPreviewTarget(targetName)) {
             msg = xcHelper.replaceMsg(DSFormTStr.SlowTargetPreview, {
                 target: targetName
             });
