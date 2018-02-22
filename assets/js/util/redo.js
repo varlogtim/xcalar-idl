@@ -323,12 +323,9 @@ window.Redo = (function($, Redo) {
                             {isUndo: true}));
     };
 
-    redoFuncs[SQLOps.MakeTemp] = function(options) {
-        return TblManager.sendTableToTempList(options.tableId);
-    };
 
-    redoFuncs[SQLOps.InActiveTables] = function(options) {
-        return TableList.moveTableToTempList(options.tableIds, options.workSheets);
+    redoFuncs[SQLOps.MakeTemp] = function(options) {
+        return TblManager.moveTableToTempList(options.tableIds);
     };
 
     redoFuncs[SQLOps.ActiveTables] = function(options) {

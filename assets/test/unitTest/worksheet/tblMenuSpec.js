@@ -86,7 +86,7 @@ describe('TableMenu Test', function() {
                 var cachedFunc = TblManager.sendTableToTempList;
                 var called = false;
                 TblManager.sendTableToTempList = function(tId) {
-                    expect(tId).to.equal(tableId);
+                    expect(tId[0]).to.equal(tableId);
                     called = true;
                 };
 

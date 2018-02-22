@@ -1167,7 +1167,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
-            TblManager.sendTableToTempList(tableId);
+            TblManager.sendTableToTempList([tableId]);
         });
 
         $menu.find('.showSchema').mouseup(function(event) {

@@ -123,7 +123,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var tableId = $tableMenu.data('tableId');
-            TblManager.sendTableToTempList(tableId);
+            TblManager.sendTableToTempList([tableId]);
         });
 
         $tableMenu.on('mouseup', '.deleteTable', function(event) {

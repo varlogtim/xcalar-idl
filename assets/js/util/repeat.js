@@ -206,7 +206,7 @@ window.Repeat = (function($, Repeat) {
     // };
 
     repeatFuncs[SQLOps.MakeTemp] = function(options, colNums, tableId) {
-        return TblManager.sendTableToTempList(tableId);
+        return TblManager.sendTableToTempList([tableId]);
     };
 
     repeatFuncs[SQLOps.HideTable] = function(options, colNums, tableId) {

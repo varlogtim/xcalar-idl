@@ -185,7 +185,22 @@ window.TableList = (function($, TableList) {
             if ($(this).hasClass('xc-unavailable')) {
                 return;
             }
-            TableList.inActiveTables();
+
+            var $tablesSelected = $('#activeTablesList').find(".addTableBtn.selected")
+                                            .closest(".tableInfo");
+            var tableIds = [];
+            var workSheets = [];
+            var tableNames = [];
+
+            $tablesSelected.each(function(index, ele) {
+                var tableId = $(ele).data("id");
+                tableIds.push(tableId);
+                workSheets.push(WSManager.getWSFromTable(tableId));
+                tableNames.push(gTables[tableId].getName());
+            });
+
+            TblManager.sendTableToTempList(tableIds, workSheets, tableNames);
+
             focusedListNum = null;
         });
 
@@ -401,102 +416,6 @@ window.TableList = (function($, TableList) {
 
         return deferred.promise();
     };
-
-    TableList.inActiveTables = function() {
-        var deferred = jQuery.Deferred();
-
-        var $tablesSelected = $('#activeTablesList').find(".addTableBtn.selected")
-                                            .closest(".tableInfo");
-        var tableIds = [];
-        var workSheets = [];
-        var tableNames = [];
-        var tablePos = [];
-        $tablesSelected.each(function(index, ele) {
-            var tableId = $(ele).data("id");
-            tableIds.push(tableId);
-            workSheets.push(WSManager.getWSFromTable(tableId));
-            tableNames.push(gTables[tableId].getName());
-        });
-
-        // table position after async call
-        var sqlOptions = {
-            "operation": SQLOps.InActiveTables,
-            "workSheets": workSheets,
-            "tableIds": tableIds,
-            "tableNames": tableNames,
-            "htmlExclude": ["tableIds", "tablePos", "workSheets"]
-        };
-
-        var options =  {removeAfter: true,
-                        noFocusWS: true};
-
-        TableList.moveTableToTempList(tableIds, workSheets)
-        .then(function(positions) {
-            sqlOptions.tablePos = positions;
-            Log.add(SQLTStr.MakeTemp, sqlOptions);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            if (error !== "canceled") {
-                //Alert.error(TblTStr.ActiveFail, error);
-                deferred.reject(error);
-            }
-        });
-
-        return deferred.promise();
-    };
-
-    TableList.moveTableToTempList = function(tableIds, workSheets){
-        var deferred = jQuery.Deferred();
-
-        if (!tableIds.length) {
-            deferred.resolve();
-            return deferred.promise();
-        }
-
-        var promises = [];
-        var failures = [];
-        var positions = [];
-
-        tableIds.forEach(function(tableId, index) {
-            promises.push((function() {
-                var innerDeferred = jQuery.Deferred();
-
-                var options = {
-                    removeAfter: true,
-                    noFocusWS: true
-                };
-                xcHelper.lockTable(tableId);
-
-                TblManager.sendTableToOrphaned(tableId, options)
-                .then(function(ret){
-                    positions.push(ret.relativePosition);
-                    innerDeferred.resolve();
-                })
-                .fail(function(error) {
-                    failures.push(tableId + ": {" + xcHelper.parseError(error) + "}");
-                    innerDeferred.resolve(error);
-                })
-                .always(function() {
-                    xcHelper.unlockTable(tableId);
-                });
-                return innerDeferred.promise();
-            }).bind(this));
-        })
-
-        PromiseHelper.chain(promises)
-        .then(function() {
-            // anything faile to alert
-            if (failures.length > 0) {
-                deferred.reject(failures.join("\n"));
-            } else {
-                deferred.resolve(positions);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
 
     // adding or deleting tables from different lists
     TableList.tableBulkAction = function(action, tableType, wsId, destWS,

@@ -232,7 +232,7 @@ window.DagEdit = (function($, DagEdit) {
             var status = curEdit.editingTables[tableName];
             if (status === "inactive") {
                 var tableId = xcHelper.getTableId(tableName);
-                TblManager.sendTableToTempList(tableId);
+                TblManager.sendTableToTempList([tableId]);
             }
         }
         curEdit.editingTables = {};

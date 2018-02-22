@@ -783,14 +783,6 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MakeTemp] = function(options) {
-        var refreshOptions = {
-            "isUndo": true,
-            "position": options.tablePos
-        };
-        return TblManager.refreshTable([options.tableName], null, [], options.worksheetId, null, refreshOptions);
-    };
-
-    undoFuncs[SQLOps.InActiveTables] = function(options) {
         var deferred = jQuery.Deferred();
 
         var promises = [];

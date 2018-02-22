@@ -1167,7 +1167,6 @@ TblTStr = {
     'DelFail': 'Drop Tables Failed',
     'Active': 'Send Tables to Worksheet',
     'ActiveFail': 'Active Tables Failed',
-    'InActiveFail':'InActive Tables Failed',
     'Truncate': 'Additional characters were truncated',
     'ToTemp': 'SEND TO TEMPORARY',
     'ToTempTip': 'Tables will be sent to the temporary tables list',

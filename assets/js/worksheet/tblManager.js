@@ -336,36 +336,88 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
-    TblManager.sendTableToTempList = function(tableId) {
+    TblManager.sendTableToTempList = function(tableIds, workSheets, tableNames) {
         var deferred = jQuery.Deferred();
-        var ws = WSManager.getWSFromTable(tableId);
 
-        // table position after async call
+        if(tableIds.length <= 1){
+            workSheets = [WSManager.getWSFromTable(tableIds[0])];
+            tableNames = [gTables[tableIds[0]].getName()];
+        }
+
         var sqlOptions = {
             "operation": SQLOps.MakeTemp,
-            "worksheetId": ws,
-            "tableId": tableId,
-            "tableName": gTables[tableId].getName(),
-            "htmlExclude": ["tableId", "tablePos", "worksheetId"]
+            "workSheets": workSheets,
+            "tableIds": tableIds,
+            "tableNames": tableNames,
+            "htmlExclude": ["tableIds", "tablePos", "workSheets"]
         };
 
-        var options =  {removeAfter: true,
-                        noFocusWS: true};
-        xcHelper.lockTable(tableId);
-
-        TblManager.sendTableToOrphaned(tableId, options)
-        .then(function(ret) {
-            sqlOptions.tablePos = ret.relativePosition;
+        TblManager.moveTableToTempList(tableIds)
+        .then(function(positions) {
+            sqlOptions.tablePos = positions;
             Log.add(SQLTStr.MakeTemp, sqlOptions);
             deferred.resolve();
         })
-        .fail(deferred.reject)
-        .always(function() {
-            xcHelper.unlockTable(tableId);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
+
+    TblManager.moveTableToTempList = function(tableIds){
+        var deferred = jQuery.Deferred();
+
+        if (!tableIds.length) {
+            deferred.resolve();
+            return deferred.promise();
+        }
+
+        var promises = [];
+        var failures = [];
+        var positions = [];
+
+        tableIds.forEach(function(tableId){
+            xcHelper.lockTable(tableId);
+        });
+
+        tableIds.forEach(function(tableId, index) {
+            promises.push((function() {
+                var innerDeferred = jQuery.Deferred();
+
+                var options = {
+                    removeAfter: true,
+                    noFocusWS: true
+                };
+
+                TblManager.sendTableToOrphaned(tableId, options)
+                .then(function(ret){
+                    positions.push(ret.relativePosition);
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    failures.push(tableId + ": {" + xcHelper.parseError(error) + "}");
+                    innerDeferred.resolve(error);
+                });
+                return innerDeferred.promise();
+            }).bind(this));
+        })
+
+        tableIds.forEach(function(tableId){
+            xcHelper.unlockTable(tableId);
+        });
+
+        PromiseHelper.chain(promises)
+        .then(function() {
+            // anything faile to alert
+            if (failures.length > 0) {
+                deferred.reject(failures.join("\n"));
+            } else {
+                deferred.resolve(positions);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     // options:
     //      remove: boolean, if true will remove table display from ws immediately

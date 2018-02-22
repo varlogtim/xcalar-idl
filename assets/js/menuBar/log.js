@@ -1239,7 +1239,6 @@ window.Log = (function($, Log) {
             case (SQLOps.PullMultipleCols):
             case (SQLOps.MakeTemp):
             case (SQLOps.ActiveTables):
-            case (SQLOps.InActiveTables):
             case (SQLOps.RenameCol):
             case (SQLOps.TextAlign):
             case (SQLOps.MinimizeCols):
