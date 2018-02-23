@@ -163,7 +163,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.getQuote()).to.be.equal("\'");
 
             // set and get preview file
-            controller.setPreviewFile("testFile");
+            controller.setPreviewingSource(0, "testFile");
             expect(controller.getPreviewFile()).to.equal("testFile");
 
             controller.reset();

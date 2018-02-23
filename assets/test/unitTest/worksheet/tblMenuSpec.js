@@ -206,7 +206,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 document.execCommand = function(action) {
                     expect(action).to.equal("copy");
-                    var $hiddenInput = $("body").find("input").last();
+                    var $hiddenInput = $("body").find("textarea").last();
                     var val = $hiddenInput.val();
                     expect(val).to.equal(tableName);
                     expect($hiddenInput.range().length).to.equal(tableName.length);
@@ -228,7 +228,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 document.execCommand = function(action) {
                     expect(action).to.equal("copy");
-                    var $hiddenInput = $("body").find("input").last();
+                    var $hiddenInput = $("body").find("textarea").last();
                     var val = $hiddenInput.val();
                     var colNames = '["average_stars","compliments","elite","four","friends","mixVal","one","review_count","two.three","user_id","votes","yelping_since"]';
                     expect(val).to.equal(colNames);
@@ -427,111 +427,7 @@ describe('TableMenu Test', function() {
             });
 
             describe('exit op', function() {
-                it('aggregate', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitAggregate').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitAggregate').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('filter', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitFilter').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitFilter').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Groupby', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitGroupby').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitGroupby').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Map', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitMap').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitMap').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Export', function() {
-                    var cachedFunc = ExportView.close;
-                    var called = false;
-                    ExportView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitExport').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitExport').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    ExportView.close = cachedFunc;
-                });
-                it('SmartCast', function() {
-                    var cachedFunc = SmartCastView.close;
-                    var called = false;
-                    SmartCastView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitSmartCast').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitSmartCast').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    SmartCastView.close = cachedFunc;
-                });
-                it('Join', function() {
-                    var cachedFunc = JoinView.close;
-                    var called = false;
-                    JoinView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitJoin').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitJoin').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    JoinView.close = cachedFunc;
-                });
+                // XXX change test to include other options
                 it('ext', function() {
                     var cachedFunc = BottomMenu.close;
                     var called = false;
@@ -546,68 +442,6 @@ describe('TableMenu Test', function() {
                     expect(called).to.be.true;
 
                     BottomMenu.close = cachedFunc;
-                });
-                it('dataflow', function() {
-                    var cachedFunc = DFCreateView.close;
-                    var called = false;
-                    DFCreateView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitDataflow').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitDataflow').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    DFCreateView.close = cachedFunc;
-                });
-                it('union', function() {
-                    var cachedFunc = UnionView.close;
-                    var called = false;
-                    UnionView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitUnion').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitUnion').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    UnionView.close = cachedFunc;
-                });
-
-                it('sort', function() {
-                    var cachedFunc = SortView.close;
-                    var called = false;
-                    SortView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitSort').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitSort').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    SortView.close = cachedFunc;
-                });
-
-                it('project', function() {
-                    var cachedFunc = ProjectView.close;
-                    var called = false;
-                    ProjectView.close = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitProject').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitProject').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    ProjectView.close = cachedFunc;
                 });
 
                 it('dfEdit', function() {
@@ -1101,111 +935,6 @@ describe('TableMenu Test', function() {
             });
 
             describe('exit op', function() {
-                it('aggregate', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitAggregate').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitAggregate').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('filter', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitFilter').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitFilter').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Groupby', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitGroupby').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitGroupby').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Map', function() {
-                    var cachedFunc = OperationsView.close;
-                    var called = false;
-                    OperationsView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitMap').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitMap').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    OperationsView.close = cachedFunc;
-                });
-                it('Export', function() {
-                    var cachedFunc = ExportView.close;
-                    var called = false;
-                    ExportView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitExport').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitExport').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    ExportView.close = cachedFunc;
-                });
-                it('SmartCast', function() {
-                    var cachedFunc = SmartCastView.close;
-                    var called = false;
-                    SmartCastView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitSmartCast').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitSmartCast').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    SmartCastView.close = cachedFunc;
-                });
-                it('Join', function() {
-                    var cachedFunc = JoinView.close;
-                    var called = false;
-                    JoinView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitJoin').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitJoin').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    JoinView.close = cachedFunc;
-                });
                 it('ext', function() {
                     var cachedFunc = BottomMenu.close;
                     var called = false;
@@ -1220,69 +949,6 @@ describe('TableMenu Test', function() {
                     expect(called).to.be.true;
 
                     BottomMenu.close = cachedFunc;
-                });
-                it('dataflow', function() {
-                    var cachedFunc = DFCreateView.close;
-                    var called = false;
-                    DFCreateView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitDataflow').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitDataflow').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    DFCreateView.close = cachedFunc;
-                });
-
-                it('union', function() {
-                    var cachedFunc = UnionView.close;
-                    var called = false;
-                    UnionView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitUnion').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitUnion').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    UnionView.close = cachedFunc;
-                });
-
-                it('sort', function() {
-                    var cachedFunc = SortView.close;
-                    var called = false;
-                    SortView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitSort').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitSort').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    SortView.close = cachedFunc;
-                });
-
-                it('project', function() {
-                    var cachedFunc = ProjectView.close;
-                    var called = false;
-                    ProjectView.close = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitProject').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitProject').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    ProjectView.close = cachedFunc;
                 });
 
                 it('dfEdit', function() {
@@ -1752,7 +1418,7 @@ describe('TableMenu Test', function() {
     describe('cell menu actions', function() {
         it('tdFilter', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
-            var cellText = $table.find('td.col12').eq(0).text();
+            var cellText = $table.find('td.col12 .displayedData').eq(0).text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
@@ -1870,7 +1536,7 @@ describe('TableMenu Test', function() {
 
         it('tdExclude', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
-            var cellText = $table.find('td.col12').eq(0).text();
+            var cellText = $table.find('td.col12 .displayedData').eq(0).text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
@@ -1972,7 +1638,7 @@ describe('TableMenu Test', function() {
 
             document.execCommand = function(action) {
                 expect(action).to.equal("copy");
-                var $hiddenInput = $("body").find("input").last();
+                var $hiddenInput = $("body").find("textarea").last();
                 var val = $hiddenInput.val();
                 var cellVals = 'testVal, otherVal';
                 expect(val).to.equal(cellVals);

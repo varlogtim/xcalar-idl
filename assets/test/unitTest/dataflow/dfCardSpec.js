@@ -787,11 +787,11 @@ describe("DFCard Test", function() {
             var $dfWrap = getDfWrap(testDfName);
             $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
-            DFParamModal.show($dfWrap.find(".dagTable").last())
+            DFParamModal.show($dfWrap.find(".dagTable").first())
             .then(function() {
                 var $inputs = $("#dfParamModal").find(".editableTable input.editableParamDiv");
-                $inputs.eq(1).val(testDfName + Date.now() + ".csv");
-                $inputs.eq(2).val("Default");
+                $inputs.eq(0).val(testDfName + Date.now() + ".csv");
+                $inputs.eq(1).val("Default");
                 return DFParamModal.__testOnly__.storeRetina();
             })
             .then(function() {

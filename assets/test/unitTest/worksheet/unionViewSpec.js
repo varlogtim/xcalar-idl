@@ -114,7 +114,7 @@ describe("Union View Test", function() {
     });
 
     it("should remove column", function() {
-        $unionView.find('.resultCol[data-index="1"] .removeCol').click();
+        $unionView.find('.resultCol[data-index="1"] .removeColInRow').click();
         expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
         expect($unionView.find('.candidateSection .lists[data-index="0"] .inputCol').length)

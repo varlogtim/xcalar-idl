@@ -1824,6 +1824,7 @@ window.DFParamModal = (function($, DFParamModal){
                 tName = tableName;
             }
             var oldNodes = DF.getDataflow(retName).retinaNodes;
+
             XcalarUpdateRetina(retName, tName, paramType, paramValues)
             .then(function() {
                 return XcalarGetRetina(retName);

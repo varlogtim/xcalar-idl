@@ -61,7 +61,7 @@ describe('ExportView Test', function() {
             expect($exportForm.find('#exportName').val()).to.equal(tableName.split('#')[0]);
             expect($exportForm.find("#exportPath").val()).to.equal("Default");
             expect($exportForm.find("#exportLists li").length).to.be.gt(1);
-            expect($exportForm.find('.columnsToExport li')).to.have.lengthOf(6);
+            expect($exportForm.find('.columnsToExport li')).to.have.lengthOf(7);
             expect($exportForm.find('.advancedSection .formRow').length).to.be.gt(4);
             expect($exportForm.find('.advancedSection .formRow:visible')).to.have.lengthOf(0);
         });
@@ -490,9 +490,9 @@ describe('ExportView Test', function() {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
             var fnCalled = false;
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
+                expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
+                expect(validTypes.length).to.equal(5);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'notFound', name: 'badColumn'};
@@ -518,9 +518,9 @@ describe('ExportView Test', function() {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
             var fnCalled = false;
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
+                expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
+                expect(validTypes.length).to.equal(5);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'tableNotFound'};
@@ -545,9 +545,9 @@ describe('ExportView Test', function() {
             var cachedFn = xcHelper.convertFrontColNamesToBack;
             var fnCalled = false;
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
-                expect(colNames.length).to.equal(6);
+                expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(4);
+                expect(validTypes.length).to.equal(5);
 
                 fnCalled = true;
                 return {
@@ -640,7 +640,7 @@ describe('ExportView Test', function() {
             ColManager.hideCol([4], tableId, {noAnimate: true})
             .then(function() {
                 ExportView.show(tableId, [1]);
-                expect($exportForm.find(".cols li").length).to.equal(5);
+                expect($exportForm.find(".cols li").length).to.equal(6);
                 expect($exportForm.find(".cols li").filter(function() {
                     return $(this).text() === colName;
                 }).length).to.equal(0);
@@ -661,7 +661,7 @@ describe('ExportView Test', function() {
                 }).length === 1;
             })
             .then(function() {
-                expect($exportForm.find(".cols li").length).to.equal(6);
+                expect($exportForm.find(".cols li").length).to.equal(7);
                 expect($exportForm.find(".cols li").eq(0).hasClass("checked")).to.be.false;
                 expect($exportForm.find(".cols li").eq(1).hasClass("checked")).to.be.true;
                 done();
@@ -670,7 +670,7 @@ describe('ExportView Test', function() {
                 done("fail");
             });
         });
-        
+
         after(function() {
             $exportForm.find(".close").click();
         });
@@ -680,7 +680,7 @@ describe('ExportView Test', function() {
         delete gTables[tableId2];
         WSManager.getTableList = cachedGetTableList;
         xcHelper.centerFocusedTable = cachedCenterFn;
-        
+
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             done();

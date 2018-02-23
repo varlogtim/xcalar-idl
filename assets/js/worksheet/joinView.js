@@ -646,7 +646,6 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
-
         if (options.prefill) {
             restorePrefill(options.prefill);
         }
@@ -1125,10 +1124,6 @@ window.JoinView = (function($, JoinView) {
         if (joinKeys == null) {
             return false;
         }
-
-        // if (isEditMode) {
-        //     return true;
-        // }
 
         var lCols = joinKeys.lCols;
         var rCols = joinKeys.rCols;
@@ -1783,6 +1778,7 @@ window.JoinView = (function($, JoinView) {
         // set up "joining on" columns
         var lColNums = getColNumsFromName(lCols, lTable);
         var rColNums = getColNumsFromName(rCols, rTable);
+
         var lColNames = getColNames(lCols, lTable);
         var rColNames = getColNames(rCols, rTable);
         // set up "keeping" columns
@@ -2108,9 +2104,6 @@ window.JoinView = (function($, JoinView) {
     }
 
     function getColNumsFromName(cols, table) {
-        // if (DagEdit.isEditMode()) {
-        //     return [];
-        // }
         var colNums = cols.map(function(colName) {
             var progCol = table.getColByFrontName(colName);
             return table.getColNumByBackName(progCol.getBackColName());
@@ -2166,9 +2159,6 @@ window.JoinView = (function($, JoinView) {
     }
 
     function prepJoinKeyDataSubmit(lCols, rCols) {
-        // if (isEditMode) {
-        //     return null;
-        // }
         var dataPerClause = [];
         // Iterate over each clause, treating every pair of left|right clause
         // as a completely independent data point.

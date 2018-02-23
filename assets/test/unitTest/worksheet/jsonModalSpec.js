@@ -264,7 +264,7 @@ describe('JsonModal Test', function() {
     describe('examine option in json modal', function() {
         it('examine should work', function(done) {
             var $td = $table.find('td').filter(function() {
-                return $(this).text() === '2012-11';
+                return $(this).find(".displayedData").text() === '2012-11';
             }).eq(0);
 
             JSONModal.show($td, {type: "string"});

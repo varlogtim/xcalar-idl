@@ -32,11 +32,29 @@ describe("JoinView Test", function() {
               // add a second table for table list testing
             tableName2 = "fakeTable#zz999";
             tableId2 = "zz999";
+            var progCol1 = new ProgCol({
+                    "name": "average_stars",
+                    "backName": tPrefix + "::average_stars",
+                    "isNewCol": false,
+                    "type": "string",
+                    "func": {
+                        "name": "pull"
+                    }
+                });
+
+            var progCol2 = new ProgCol({
+                "name": "DATA",
+                "backName": "DATA",
+                "isNewCol": false,
+                "func": {
+                    "name": "raw"
+                }
+            });
             var table = new TableMeta({
                 "tableId": tableId2,
                 "tableName": tableName2,
                 "status": TableType.Active,
-                "tableCols": []
+                "tableCols": [progCol1, progCol2]
             });
 
             gTables[tableId2] = table;
@@ -953,8 +971,11 @@ describe("JoinView Test", function() {
 
     describe("editing dataflow", function() {
         var colName;
+        var cacheDagEditMode;
         before(function() {
             colName = prefix + gPrefixSign + "average_stars";
+            cacheDagEditMode = DagEdit.isEditMode;
+            DagEdit.isEditMode = function() {return true};
         });
 
         describe("join form prefill", function() {
@@ -962,7 +983,7 @@ describe("JoinView Test", function() {
                 expect($("#joinView").is(":visible")).to.be.false;
                 prefillInfo = {
                     "joinType": "fullOuterJoin",
-                    "rightTable": tableName2,
+                    "rightTable": tableName,
                     "dest": "destTableName",
                     "srcCols": {left: [colName], right: [colName]},
                     "evalString": "",
@@ -984,7 +1005,7 @@ describe("JoinView Test", function() {
             });
 
             it("right table name should be selected", function() {
-                expect($("#joinRightTableList .text").val()).to.equal(tableName2);
+                expect($("#joinRightTableList .text").val()).to.equal(tableName);
                 expect($joinForm.find(".tableListSection.right .iconWrap")
                     .css("pointer-events")).to.equal("none");
             });
@@ -1004,28 +1025,44 @@ describe("JoinView Test", function() {
         });
 
         describe("submit", function() {
-            it("should save", function() {
+            it("should save", function(done) {
                 var called = false;
-                var cachedFn = DagEdit.store;
-                DagEdit.store = function(info) {
+                var cachedFn = XIApi.join;
+                XIApi.join = function(txId, joinType, lTableInfo, rTableInfo, joinOpts) {
                     called = true;
-                    expect(info.args.evalString).to.equal("");
-                    expect(info.args.joinType).to.equal("Full Outer Join");
-                    expect(info.indexFields.length).to.equal(2);
-                    expect(info.indexFields[0].length).to.equal(1);
-                    expect(info.indexFields[1].length).to.equal(1);
-                    expect(info.indexFields[0][0]).to.equal(colName);
-                    expect(info.indexFields[1][0]).to.equal(colName);
+                    expect(joinType).to.equal(JoinOperatorT.FullOuterJoin);
+                    expect(lTableInfo.tableName).to.equal(tableName);
+                    expect(lTableInfo.columns.length).to.equal(1);
+                    expect(lTableInfo.columns[0]).to.equal(prefix + "::average_stars");
+                    expect(rTableInfo.tableName).to.equal(tableName);
+                    expect(rTableInfo.columns.length).to.equal(1);
+                    expect(rTableInfo.columns[0]).to.equal(prefix + "::average_stars");
+                    return PromiseHelper.reject();
                 };
+
                 $joinForm.find(".next").click();
                 $joinForm.find(".confirm").click();
-                expect(called).to.be.true;
-                DagEdit.store = cachedFn;
+                $joinForm.find(".newName").eq(0).val("testYelp1");
+                $joinForm.find(".newName").eq(1).val("testYelp2");
+                $joinForm.find(".confirm").click();
+
+                UnitTest.testFinish(function() {
+                    return called;
+                })
+                .then(function() {
+                    expect(called).to.be.true;
+                    XIApi.join = cachedFn;
+                    done();
+                })
+                .fail(function() {
+                    done("failed");
+                })
             });
         });
 
         after(function() {
             JoinView.close();
+            DagEdit.isEditMode = cacheDagEditMode;
         });
     });
 
