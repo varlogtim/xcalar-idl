@@ -4276,7 +4276,7 @@ window.DSPreview = (function($, DSPreview) {
         var allNames = [];
         $previewTable.find(".editableHead").each(function(colIndex) {
             if (colIndex >= gMaxDSColsSpec) {
-                return false;
+                // return false;
             }
             allNames.push($(this).val().trim());
         });
@@ -4291,11 +4291,17 @@ window.DSPreview = (function($, DSPreview) {
         var usedNames = {};
         var newNames = [];
         allNames.forEach(function(name, index) {
-            var error = xcHelper.validateColName(name)
+            var error = xcHelper.validateColName(name);
             if (error) {
                 invalidNames.push({
                     name: name,
                     error: error,
+                    index: index
+                });
+            } else if (usedNames[name]) {
+                invalidNames.push({
+                    name: name,
+                    error: "duplicate",
                     index: index
                 });
             } else {
@@ -4307,6 +4313,9 @@ window.DSPreview = (function($, DSPreview) {
         invalidNames.forEach(function(name) {
             var candidate;
             switch (name.error) {
+                case ("duplicate"):
+                    candidate = name.name;// xcHelper.autoname will take care
+                    break;
                 case (ErrTStr.NoEmpty):
                 case (ErrTStr.PreservedName):
                     candidate = "column" + name.index;
