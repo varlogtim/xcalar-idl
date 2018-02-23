@@ -35,9 +35,12 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 deferred.resolve(overwriteUDF);
             })
             .fail(function(error) {
-                console.error(error);
+                var options = {
+                    side: "left",
+                    detail: error.log
+                };
                 StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
-                               false, {"side": "left"});
+                               false, options);
                 deferred.reject(error);
             });
         };
