@@ -950,7 +950,6 @@ input:-webkit-autofill:focus {
         .icon {
             .flex(0 0 36px);
             .font(@size: 24px, @color: @color-bg-select-blue);
-            margin-top: 5px;
         }
 
         .text {
@@ -1018,15 +1017,23 @@ input:-webkit-autofill:focus {
     top: ~"calc(50% - 300px)";
     .size(@width: 800px, @height: 650px);
     .modalHeader {
+        .text {
+            margin-left: 21px;
+            margin-right: 21px;
+            padding: 0px;
+        }
         background-color: @color-error-border;
         text-align: left;
     }
     .modalInstruction {
         height: 90px;
         border: none;
+        display: flex;
+        align-items: center;
         .cancel {
-            height: 80px;
-            width: 80px;
+            height: 67px;
+            width: 67px;
+            margin-left: 6px;
             .icon {
                 color: @color-error-border;
                 font-size: 67px;
@@ -1049,14 +1056,11 @@ input:-webkit-autofill:focus {
             }
         }
     }
-    .border {
-        height: 1px;
-        width: 100%;
-        background-color: @color-border-pinkish-grey2;
-    }
     .formWrap {
-        .size(@width: 100%, @height: 240px);
+        .size(@width: 100%);
         padding: 10px 22px 10px 22px;
+        border-top: 1px solid @color-border-pinkish-grey2;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
         .section {
             height: 30px;
             padding: 10px 0px 10px 0px;
@@ -1066,11 +1070,12 @@ input:-webkit-autofill:focus {
                 color: @color-font-greyish-brown;
             }
             .text {
-                width: ~"calc(100% - 134px)";
+                width: ~"calc(100% - 110px)";
                 float: left;
                 font-size: 13px;
                 display: inline-block;
                 color: @color-font-greyish-brown;
+                font-weight: 500;
             }
             &.errorMessage {
                 height: 140px;
@@ -1083,7 +1088,7 @@ input:-webkit-autofill:focus {
         }
         .showHide {
             .name {
-                width: 232px;
+                width: 126px;
                 float: left;
             }
             .showHideButton {
@@ -1097,10 +1102,15 @@ input:-webkit-autofill:focus {
                     color: @color-bg-select-blue;
                 }
             }
+            .name, .showHideButton {
+                &:hover {
+                    cursor: pointer;
+                }
+            }
         }
     }
     .logWrap {
-        .size(@width: 100%, @height: ~"calc(100% - 436px);");
+        .size(@width: 100%, @height: ~"calc(100% - 404px);");
         min-height: 150px;
         overflow: hidden;
         .logArea {
