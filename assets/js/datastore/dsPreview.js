@@ -1176,7 +1176,7 @@ window.DSPreview = (function($, DSPreview) {
             return tooManyColAlertHelper(colLen);
         })
         .then(function() {
-            return getTypedColumsList(typedColumns, dsArgs);
+            return getTypedColumnsList(typedColumns, dsArgs);
         })
         .then(function(typedColumnsList) {
             if (isValidPreviewId(curPreviewId)) {
@@ -1193,7 +1193,7 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getTypedColumsList(typedColumns, dsArgs) {
+    function getTypedColumnsList(typedColumns, dsArgs) {
         var format = dsArgs.format;
         if (format !== formatMap.CSV) {
             // no cast for other formats
@@ -1433,7 +1433,7 @@ window.DSPreview = (function($, DSPreview) {
                 var type = $th.data("type") || "string";
                 var header = {
                     colType: type,
-                    colName: $th.find(".text").val()
+                    colName: $th.find(".text").val().trim()
                 };
                 headers.push(header);
             });
@@ -1441,7 +1441,7 @@ window.DSPreview = (function($, DSPreview) {
             $previewTable.find("th:not(.rowNumHead)").each(function() {
                 var header = {
                     colType: "",
-                    colName: $(this).find(".text").text()
+                    colName: $(this).find(".text").text().trim()
                 };
                 headers.push(header);
             });
@@ -3741,9 +3741,6 @@ window.DSPreview = (function($, DSPreview) {
                     tdData = stripQuote(tdData, quote);
 
                     val = tdData.join("");
-                    if (isTh && !val) { // autoname if no value for header
-                        val = "column" + columnCount;
-                    }
                     html += val;
                     tdData = [];
                     // skip delimiter
@@ -3817,11 +3814,8 @@ window.DSPreview = (function($, DSPreview) {
             if (strToDelimit !== "\n") {
                 val = xcHelper.styleNewLineChar(val);
             }
-            if (isTh && !val) { // autoname if no value for header
-                val = "column" + columnCount;
-            }
-            html += val;
 
+            html += val;
             tdData = [];
         } else {
             // when not apply delimiter
@@ -4250,7 +4244,8 @@ window.DSPreview = (function($, DSPreview) {
     function initialSuggest() {
         var $tbody = $previewTable.find("tbody").clone(true);
         var recTypes = suggestColumnHeadersType($tbody);
-        changeColumnHeaders(recTypes);
+        var recNames = suggestColumHeadersNames();
+        changeColumnHeaders(recTypes, recNames);
     }
 
     function suggestColumnHeadersType($tbody) {
@@ -4275,6 +4270,70 @@ window.DSPreview = (function($, DSPreview) {
             recTypes[colIndex] = suggestType($tr, colIndex + 1);
         });
         return recTypes;
+    }
+
+    function suggestColumHeadersNames() {
+        var allNames = [];
+        $previewTable.find(".editableHead").each(function(colIndex) {
+            if (colIndex >= gMaxDSColsSpec) {
+                return false;
+            }
+            allNames.push($(this).val().trim());
+        });
+
+        var newNames = getValidNameSet(allNames);
+        return newNames;
+    }
+
+    function getValidNameSet(allNames) {
+        var delim = "_";
+        var invalidNames = [];
+        var usedNames = {};
+        var newNames = [];
+        allNames.forEach(function(name, index) {
+            var error = xcHelper.validateColName(name)
+            if (error) {
+                invalidNames.push({
+                    name: name,
+                    error: error,
+                    index: index
+                });
+            } else {
+                usedNames[name] = true;
+                newNames[index] = name;
+            }
+        });
+
+        invalidNames.forEach(function(name) {
+            var candidate;
+            switch (name.error) {
+                case (ErrTStr.NoEmpty):
+                case (ErrTStr.PreservedName):
+                    candidate = "column" + name.index;
+                    break;
+                case (ColTStr.RenameStartNum):
+                    candidate = xcHelper.stripColName(delim + name.name);
+                    break;
+                case (ColTStr.ColNameInvalidChar):
+                    candidate = xcHelper.stripColName(name.name);
+                    break;
+                case (ColTStr.LongName):
+                    candidate = name.name.substring(0,
+                                XcalarApisConstantsT.XcalarApiMaxFieldNameLen -
+                                6); // leave some space
+                    candidate = xcHelper.stripColName(candidate);
+                    break;
+                default:
+                    candidate = "column" + name.index;
+                    break;
+            }
+
+            candidate = xcHelper.autoName(candidate, usedNames, null, delim);
+            usedNames[candidate] = true;
+            newNames[name.index] = candidate;
+        });
+
+        return newNames;
     }
 
     function changeColumnHeaders(types, colNames) {

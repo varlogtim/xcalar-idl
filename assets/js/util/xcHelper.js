@@ -614,16 +614,17 @@
         }
     };
 
-    xcHelper.autoName = function(origName, checkMap, maxTry) {
+    xcHelper.autoName = function(origName, checkMap, maxTry, delim) {
         var validName = origName;
         var tryCnt = 0;
         if (maxTry == null) {
             maxTry = 20;
         }
+        delim = delim || "";
 
         while (checkMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
             tryCnt++;
-            validName = origName + tryCnt;
+            validName = origName + delim + tryCnt;
         }
 
         if (tryCnt > maxTry) {
@@ -2388,16 +2389,15 @@
     xcHelper.stripColName = function(colName, stripSpace) {
         var pattern;
         if (stripSpace) {
-            pattern = /[()\[\]\.\\ ]/g;
+            pattern = /[\^,{}'"()\[\]\.\\ ]/g;
         } else {
-            pattern = /[()\[\]\.\\]/g;
+            pattern = /[\^,{}'"()\[\]\.\\]/g;
         }
         var res = colName.split(pattern).filter(function(str) {
             return (str !== "");
         }).join("_");
         return res;
     };
-
 
     xcHelper.scrollToBottom = function($target) {
         // scroll to bottom
