@@ -346,10 +346,14 @@ window.DSTargetManager = (function($, DSTargetManager) {
             $paramSection.addClass("xc-hidden");
         } else {
             var paramHtml = paramKeys.map(function(paramName) {
+                var paramVal = target.params[paramName];
+                if (typeof paramVal !== "string") {
+                    paramVal = JSON.stringify(paramVal);
+                }
                 return '<div class="formRow">' +
                             '<label>' + paramName + ':</label>' +
                             '<span class="text">' +
-                                target.params[paramName] +
+                                paramVal +
                             '</span>' +
                         '</div>';
             }).join("");
