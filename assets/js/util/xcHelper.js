@@ -205,22 +205,27 @@
         return searchKey;
     };
 
-    xcHelper.fullTextRegExKey = function(searchKey, glob) {
+    xcHelper.fullTextRegExKey = function(searchKey) {
         // Make it a full-text regex search
-        if (!glob) {
-            searchKey = searchKey.replace(/\./g, "[^\/]");
-        }
-        return "(.*\/)?" + searchKey + "$";
+        return "(.*\/)?" + replaceDotForSearch(searchKey) + "$";
     };
 
-    xcHelper.containRegExKey = function(searchKey, glob) {
+    xcHelper.containRegExKey = function(searchKey) {
         // Make it a "contain" regex search, i.e. prepend .* and append .*
-        if (!glob) {
-            searchKey = searchKey.replace(/\./g, "[^\/]");
-        }
-        return "(.*" + searchKey + "[^\/]*$)";
+        return "(.*" + replaceDotForSearch(searchKey) + "[^\/]*$)";
     };
 
+    function replaceDotForSearch(searchKey) {
+        // Replace when there isn't odd number of \ preceding to .
+        // i.e. even number of \ or nothing
+        // XXX Not good but it's a workaround as js regex engine doesn't support
+        // negative lookbehind (?<!)
+        return searchKey.split("").reverse().join("")
+                        .replace(/\.(?:\\{2})*(?!\\)/g, function(match) {
+                            return match.replace(/\./g, "]\/^[");
+                        })
+                        .split("").reverse().join("");
+    }
     /*
      * options:
      *  defaultHeaderStyle: when set true, use the default table header style

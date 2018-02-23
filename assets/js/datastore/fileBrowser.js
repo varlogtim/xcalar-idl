@@ -1084,7 +1084,6 @@ window.FileBrowser = (function($, FileBrowser) {
             var regEx = null;
             if (searchKey != null) {
                 var fullTextMatch = false;
-                var glob = false;
                 searchInfo = "Searching";
                 var origKey = searchKey;
                 if (type == null) {
@@ -1102,9 +1101,8 @@ window.FileBrowser = (function($, FileBrowser) {
                             fullTextMatch = true;
                         case ("globContain"):
                             searchKey = xcHelper.escapeRegExp(searchKey);
-                            searchKey = searchKey.replace(/\\\*/g, "[^\\\/]*")
-                                                 .replace(/\\\?/g, "[^\\\/]");
-                            glob = true;
+                            searchKey = searchKey.replace(/\\\*/g, ".*")
+                                                 .replace(/\\\?/g, ".");
                             break;
                         default:
                             console.error("File search type not supported");
@@ -1114,9 +1112,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 searchInfo += ": " + getCurrentPath() + origKey;
                 $container.find(".filePathBottom .content").text(searchInfo);
                 if (fullTextMatch) {
-                    searchKey = xcHelper.fullTextRegExKey(searchKey, glob);
+                    searchKey = xcHelper.fullTextRegExKey(searchKey);
                 } else {
-                    searchKey = xcHelper.containRegExKey(searchKey, glob);
+                    searchKey = xcHelper.containRegExKey(searchKey);
                 }
                 var pattern = xcHelper.getFileNamePattern(searchKey, true);
                 var path = getCurrentPath();
