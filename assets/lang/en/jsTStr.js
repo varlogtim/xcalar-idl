@@ -926,6 +926,7 @@ DFTStr = {
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'AddSched': 'Add schedule to dataflow',
     'Cancel': 'Cancel batch dataflow',
+    'Canceled': 'Batch dataflow canceled',
     'CancelSuccessMsg': 'Cancellation of batch dataflow was successful.',
     'DFCreateFail': 'Dataflow Creation Failed',
     'DownloadDF': 'Download dataflow',
@@ -969,7 +970,9 @@ DFTStr = {
     "NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory",
 
     // with replace
-    "EditOpDirectly": "Please edit the <op> operation directly"
+    "EditOpDirectly": "Please edit the <op> operation directly",
+    'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
+
 };
 
 DSTStr = {

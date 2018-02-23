@@ -145,7 +145,10 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.refreshDFList = function(clear, noFocus) {
         if (clear) {
-            $dfCard.find('.cardMain').empty();
+            $dfCard.find(".dagWrap").filter(function() {
+                return !$(this).hasClass("inProgress");
+            }).remove();
+            $dfCard.find(".hint").remove();
         }
         var dataflows = DF.getAllDataflows();
         var activeGroupName = DFCard.getActiveDF();
@@ -677,9 +680,12 @@ window.DFCard = (function($, DFCard) {
         var ignoreNoExist = true;
 
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
-        .then(function() {
+        .then(function(ret) {
             $dagWrap.addClass("hasRun");
             updateOverallTime(dataflowName, true);
+            if (ret.queryState === QueryStateT.qrProcessing) {
+                startStatusCheck(dataflowName, true);
+            }
             deferred.resolve();
         })
         .fail(function() {
@@ -1013,6 +1019,7 @@ window.DFCard = (function($, DFCard) {
         var notNeedToCheckDuplicated = advancedOpts.activeSession ||
             (exportStruct && exportStruct.createRule == "appendOnly") ||
             (exportStruct && exportStruct.createRule == "deleteAndReplace");
+
         checkBeforeRunDF(notNeedToCheckDuplicated)
         .then(function() {
             return checkIfHasSystemParam(retName);
@@ -1033,7 +1040,7 @@ window.DFCard = (function($, DFCard) {
                                        txId);
         })
         .then(function() {
-            endStatusCheck(retName, passedCheckBeforeRunDF, true);
+            endStatusCheck(retName, true, true);
             if (advancedOpts.activeSession) {
                 return addTableToWS(advancedOpts.newTableName, exportStruct,
                                           txId);
@@ -1168,10 +1175,18 @@ window.DFCard = (function($, DFCard) {
         return deferred.promise();
     }
 
-    function startStatusCheck(retName) {
+    function startStatusCheck(retName, continuing) {
         retinasInProgress[retName] = true;
         var $dagWrap = getDagWrap(retName);
         $dagWrap.addClass("inProgress hasRun");
+
+        if (continuing) {
+            var $btn = $dagWrap.find(".runNowBtn");
+            $btn.addClass("running");
+            xcTooltip.changeText($btn, DFTStr.Cancel);
+            xcTooltip.refresh($btn);
+        }
+
         var createdState = DgDagStateTStr[DgDagStateT.DgDagStateCreated];
         $dagWrap.find(".dagTable." + DgDagStateTStr[DgDagStateT.DgDagStateDropped])
                 .addClass("wasDropped");
@@ -1184,13 +1199,13 @@ window.DFCard = (function($, DFCard) {
             numcompleted: 0,
             starttime: Date.now()
         });
-        statusCheckInterval(retName, true);
+        statusCheckInterval(retName, true, continuing);
         $dagWrap.find(".timeSection .label").html(CommonTxtTstr.elapsedTime);
         $dagWrap.find(".overallTime").html("0s");
-        overallTimeInterval(retName);
+        overallTimeInterval(retName, continuing);
     }
 
-    function overallTimeInterval(retName) {
+    function overallTimeInterval(retName, continuing) {
         var checkTime = 1000;
 
         setTimeout(function() {
@@ -1198,12 +1213,12 @@ window.DFCard = (function($, DFCard) {
                 // retina is finished, no more checking
                 return;
             }
-            updateOverallTime(retName);
-            overallTimeInterval(retName);
+            updateOverallTime(retName, false, continuing);
+            overallTimeInterval(retName, continuing);
         }, checkTime);
     }
 
-    function statusCheckInterval(retName, firstRun) {
+    function statusCheckInterval(retName, firstRun, continuing) {
         var checkTime;
         if (firstRun) {
             // shorter timeout on the first call
@@ -1217,15 +1232,29 @@ window.DFCard = (function($, DFCard) {
                 // retina is finished, no more checking
                 return;
             }
-            getAndUpdateRetinaStatuses(retName, false)
-            .always(function() {
-                statusCheckInterval(retName);
+            getAndUpdateRetinaStatuses(retName, false, false, continuing)
+            .always(function(ret) {
+                if (continuing && ret.queryState !== QueryStateT.qrProcessing) {
+                    var isComplete = false;
+                    if (ret.queryState === QueryStateT.qrFinished) {
+                        isComplete = true;
+                    } else if (canceledRuns[retName]) {
+                        Alert.show({
+                            "title": DFTStr.Canceled,
+                            "msg": xcHelper.replaceMsg(DFTStr.CancelAlertMsg,
+                                                        {name: retName}),
+                            "isAlert": true
+                        });
+                    }
+                    endStatusCheck(retName, true, isComplete, continuing);
+                }
+                statusCheckInterval(retName, false, continuing);
             });
 
         }, checkTime);
     }
 
-    function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete) {
+    function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete, continuing) {
         var deferred = jQuery.Deferred();
         var statusesToIgnore;
         if (ignoreNoExist) {
@@ -1238,20 +1267,25 @@ window.DFCard = (function($, DFCard) {
             if (isComplete) {
                 updateOverallTime(retName, isComplete);
             }
-            deferred.resolve();
+            deferred.resolve(retInfo);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function updateOverallTime(retName, isComplete) {
+    function updateOverallTime(retName, isComplete, continuing) {
         var $dagWrap = getDagWrap(retName);
         var time;
         var timeStr;
-        if (isComplete) {
+        if (isComplete || continuing) {
             time = $dagWrap.data("optime");
-            timeStr = xcHelper.getElapsedTimeStr(time);
+            var round = false;
+            if (continuing) {
+                time = Math.max(Date.now() - $dagWrap.data("starttime"), time);
+                round = true;
+            }
+            timeStr = xcHelper.getElapsedTimeStr(time, round);
             $dagWrap.find(".timeSection .label").html(CommonTxtTstr.operationTime);
         } else {
             time = Date.now() - $dagWrap.data("starttime");
@@ -1369,14 +1403,17 @@ window.DFCard = (function($, DFCard) {
         return (name);
     }
 
-    function endStatusCheck(retName, updateStatus, isComplete) {
+    function endStatusCheck(retName, updateStatus, isComplete, continuing) {
         if (!retinasInProgress[retName]) {
             return;
         }
 
         delete retinasInProgress[retName];
+
         var $dagWrap = getDagWrap(retName);
         $dagWrap.removeClass("inProgress");
+
+
         if (isComplete) {
             xcTooltip.remove($dagWrap.find(".dagTableIcon, .dataStoreIcon"));
         }
@@ -1384,6 +1421,39 @@ window.DFCard = (function($, DFCard) {
         if (updateStatus) {
             getAndUpdateRetinaStatuses(retName, false, isComplete);
         }
+
+        if (continuing) {
+            var $btn = $dagWrap.find(".runNowBtn");
+            $btn.removeClass("running canceling");
+            xcTooltip.changeText($btn, DFTStr.Run);
+            delete canceledRuns[retName];
+            if (isComplete) {
+                showDonePopup(retName);
+            }
+        }
+    }
+
+    function showDonePopup(retName) {
+        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
+        var numDatastores = parseInt($numDatastores.text());
+        var msg = DFTStr.RunDone + ": " + retName;
+
+        var $tab = $('#dataflowTab');
+        var left = $tab.offset().left + $tab.outerWidth() + 7;
+        var top = $tab.offset().top + 2;
+        var $popup =
+                $('<div class="tableDonePopupWrap" ' +
+                    'style="top:' + top + 'px;left:' + left + 'px;">' +
+                    '<div class="tableDonePopup datastoreNotify">' +
+                    msg +
+                    '<div class="close">+</div></div></div>');
+
+        $("body").append($popup);
+        $popup.find(".tableDonePopup").fadeIn(300);
+
+        $popup.click(function(event) {
+            $popup.remove();
+        });
     }
 
     DFCard.cancelDF = function(retName, txId) {
@@ -1400,7 +1470,9 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.refresh($btn);
         canceledRuns[retName] = true;
 
-        QueryManager.cancelQuery(txId);
+        if (txId) {
+            QueryManager.cancelQuery(txId);
+        }
 
         XcalarQueryCancel(retName)
         .then(deferred.resolve)

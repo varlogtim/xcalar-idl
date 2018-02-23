@@ -466,7 +466,6 @@ window.DS = (function ($, DS) {
 
     // Create dsObj for new dataset/folder
     function createDS(options, dsToReplace) {
-        console.log(options);
         // this will make sure option is a diffent copy of old option
         options = $.extend({}, options);
         // validation check
@@ -1473,7 +1472,6 @@ window.DS = (function ($, DS) {
         var deferred = jQuery.Deferred();
         XcalarGetDatasetsInfo(datasetName)
         .then(function(res) {
-            console.log(res);
             try {
                 var dsInfos = {};
                 res.datasets.forEach(function(dataset) {

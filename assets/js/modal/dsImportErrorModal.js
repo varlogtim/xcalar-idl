@@ -318,8 +318,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 $fileList.find(".toRemove").remove();
                 info.targetRow;
 
-            } else {
-
             }
         })
         .fail(function() {

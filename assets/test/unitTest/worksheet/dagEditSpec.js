@@ -687,19 +687,27 @@ describe("DagEdit Test", function() {
                 indexFields: [[mapColName], [mapColName]]
             });
 
+            DagEdit.store({
+                "operation": "XcalarApiJoin",
+                "args": {
+                    "source": [
+                        "students5.index#K2855",
+                        "students5.index#K2855"
+                    ],
+                    "dest": "gea#aa00",
+                    "joinType": "innerJoin",
+                    "columns": [],
+                    "evalString": ""
+                }
+            });
+
             editInfo = DagEdit.getInfo();
             expect(editInfo.structs).to.not.be.empty;
             var keys = Object.keys(editInfo.structs);
-            // 2 structs, 1 index, 1 join
-            expect(keys.length).to.equal(2);
+            expect(keys.length).to.equal(1);
 
-            expect(editInfo.structs[keys[0]].key.length).to.equal(1);
-            expect(editInfo.structs[keys[0]].key[0].name).to.equal(mapColName);
-            expect(editInfo.structs[keys[0]].key[0].ordering).to.equal("Unordered");
-            expect(editInfo.structs[keys[0]].key[0].type).to.equal("DfUnknown");
-
-            expect(editInfo.structs[keys[1]].joinType).to.equal("innerJoin");
-            expect(editInfo.structs[keys[1]].evalString).to.equal("");
+            expect(editInfo.structs[keys[0]].joinType).to.equal("innerJoin");
+            expect(editInfo.structs[keys[0]].evalString).to.equal("");
 
             DagEdit.undoEdit(node);
             DagEdit.exitForm();
@@ -914,7 +922,7 @@ describe("DagEdit Test", function() {
 
             var count = Authentication.getInfo().idCount;
             DagFunction.runProcedureWithParams(tableName, edits.structs, {});
-            UnitTest.hasAlertWithTitle("Rerunning Dataflow Failed");
+            UnitTest.hasAlertWithTitle("Failed to rerun dataflow");
 
             XcalarQueryWithCheck = cachedFn;
         });
