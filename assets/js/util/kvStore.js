@@ -219,7 +219,7 @@ window.KVStore = (function($, KVStore) {
         })
         .then(function() {
             var wkbkId = WorkbookManager.getActiveWKBK();
-            var wkbkName = WorkbookManager.getWorkbook(wkbkId).name
+            var wkbkName = WorkbookManager.getWorkbook(wkbkId).name;
             return XcalarSaveWorkbooks(wkbkName);
         })
         .then(function() {

@@ -46,9 +46,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         storeLocation(s);
                         break;
                     case ("autofillImportUdf"):
-                        if (s.includeStub == "true") {
+                        if (s.includeStub === "true") {
                             s.includeStub = true;
-                        } else if (s.includeStub == "false") {
+                        } else if (s.includeStub === "false") {
                             s.includeStub = false;
                         } else {
                             console.error(s);

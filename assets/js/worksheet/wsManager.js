@@ -1026,7 +1026,7 @@ window.WSManager = (function($, WSManager) {
         if (numDatastores === 0) {
             msg = TooltipTStr.ShowDatasetHint;
         } else {
-            msg = TooltipTStr.ShowDatasetTableHint
+            msg = TooltipTStr.ShowDatasetTableHint;
         }
 
         var $tab = $('#dataStoresTab');

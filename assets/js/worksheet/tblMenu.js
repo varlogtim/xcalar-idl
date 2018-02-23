@@ -85,7 +85,7 @@ window.TblMenu = (function(TblMenu, $) {
                 label = 'Group By';
                 break;
             case ('smartcast'):
-                nameUpper = 'SmartCast'
+                nameUpper = 'SmartCast';
                 label = 'Smart Cast';
                 break;
             default:
@@ -93,7 +93,7 @@ window.TblMenu = (function(TblMenu, $) {
         }
         $menu.html('<span class="label">Exit ' + label + '</span>');
         $menu.addClass('exit' + nameUpper.replace(/ /g,''));
-    }
+    };
 
     function addTableMenuActions() {
         var $tableMenu = $('#tableMenu');
@@ -1026,7 +1026,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
     }
 
-    function sortColumn(colNums, tableId, order, options) {
+    function sortColumn(colNums, tableId, order) {
         var colInfo = [];
         for (var i = 0; i < colNums.length; i++) {
             colInfo.push({

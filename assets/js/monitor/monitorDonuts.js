@@ -63,8 +63,8 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             var val = ramData[index];
             var rawVal = val;
             var sizeOption = {base2: true};
-            if (index == networkIndex) {
-                var sizeOption = {base3: true};
+            if (index === networkIndex) {
+                sizeOption = {base3: true};
             }
             val = xcHelper.sizeTranslator(val, true, null,
                                                     sizeOption);

@@ -1017,8 +1017,8 @@ window.DFCard = (function($, DFCard) {
 
         var passedCheckBeforeRunDF = false;
         var notNeedToCheckDuplicated = advancedOpts.activeSession ||
-            (exportStruct && exportStruct.createRule == "appendOnly") ||
-            (exportStruct && exportStruct.createRule == "deleteAndReplace");
+            (exportStruct && exportStruct.createRule === "appendOnly") ||
+            (exportStruct && exportStruct.createRule === "deleteAndReplace");
 
         checkBeforeRunDF(notNeedToCheckDuplicated)
         .then(function() {
@@ -1254,7 +1254,7 @@ window.DFCard = (function($, DFCard) {
         }, checkTime);
     }
 
-    function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete, continuing) {
+    function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete) {
         var deferred = jQuery.Deferred();
         var statusesToIgnore;
         if (ignoreNoExist) {
@@ -1434,8 +1434,8 @@ window.DFCard = (function($, DFCard) {
     }
 
     function showDonePopup(retName) {
-        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
-        var numDatastores = parseInt($numDatastores.text());
+        // var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
+        // var numDatastores = parseInt($numDatastores.text());
         var msg = DFTStr.RunDone + ": " + retName;
 
         var $tab = $('#dataflowTab');
@@ -1451,7 +1451,7 @@ window.DFCard = (function($, DFCard) {
         $("body").append($popup);
         $popup.find(".tableDonePopup").fadeIn(300);
 
-        $popup.click(function(event) {
+        $popup.click(function() {
             $popup.remove();
         });
     }

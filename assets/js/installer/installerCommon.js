@@ -479,7 +479,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     hasError = hasError || checkError(func($form));
                 }
             }
-        };
+        }
         if (hasError){
             deferred.reject(errorArg[0], errorArg[1]);
         } else {

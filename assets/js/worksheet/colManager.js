@@ -1493,12 +1493,12 @@ window.ColManager = (function($, ColManager) {
                         "...(" + (xcHelper.numToStr(truncLen)) +
                         " " + TblTStr.Truncate + ")";
             tdClass += " truncated";
-        }   
+        }
 
         if (!isDATACol) {
             if (typeof formatVal === "string") {
                 formatVal = xcHelper.styleNewLineChar(formatVal);
-            }  
+            }
         }
 
         // For formated number, need seprate display of formatVal

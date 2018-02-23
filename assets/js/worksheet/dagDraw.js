@@ -1323,7 +1323,7 @@ window.DagDraw = (function($, DagDraw) {
                 pattern = dagInfo.loadInfo.loadArgs.sourceArgsList[0].fileNamePattern;
                 targetName = dagInfo.loadInfo.loadArgs.sourceArgsList[0].targetName;
                 tableClasses += "dataStore dataset ";
-            }  else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
+            } else if (node.value.api === XcalarApisT.XcalarApiSynthesize) {
                 tId = xcHelper.getTableId(tableName);
                 tableClasses += "synthesize ";
             } else {
@@ -1947,11 +1947,11 @@ window.DagDraw = (function($, DagDraw) {
             info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);
         }
 
-        info.tooltip =  xcHelper.escapeDblQuoteForHTML(info.tooltip);
+        info.tooltip = xcHelper.escapeDblQuoteForHTML(info.tooltip);
 
         info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
         info.eval = xcHelper.escapeHTMLSpecialChar(info.eval);
-        info.eval =  xcHelper.escapeDblQuoteForHTML(info.eval);
+        info.eval = xcHelper.escapeDblQuoteForHTML(info.eval);
 
         return (info);
     }
@@ -2206,8 +2206,8 @@ window.DagDraw = (function($, DagDraw) {
 
     function getUnionSrcCols(node) {
         var srcColSets = [];
-        var lSrcCols = [];
-        var rSrcCols = [];
+        // var lSrcCols = [];
+        // var rSrcCols = [];
         var parents = getGroupLeaves(node); // gets leaves within a tagged group
 
         for (var i = 0; i < parents.length; i++) {

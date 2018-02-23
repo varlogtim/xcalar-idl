@@ -304,8 +304,8 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
     function resizeChatMsg() {
         var $chatMsg = $modal.find(".chatMsg").eq(0);
         if ($modal.find(".confirmBox:visible").length === 0) {
-                $chatMsg.css("height", "100%");
-                $chatMsg.css("margin-top", "0");
+            $chatMsg.css("height", "100%");
+            $chatMsg.css("margin-top", "0");
         } else {
             if ($modal.find(".confirmBox:visible").length === 1) {
                 $chatMsg.css("height", "calc(100% - 52px)");

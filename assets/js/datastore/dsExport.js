@@ -32,7 +32,7 @@ window.DSExport = (function($, DSExport) {
         });
 
         $("#createExportButton").click(function() {
-            if(!$("#datastoreMenu").hasClass("noAdmin")) {
+            if (!$("#datastoreMenu").hasClass("noAdmin")) {
                 showExportTargetForm();
             }
         });
@@ -239,7 +239,7 @@ window.DSExport = (function($, DSExport) {
     };
 
     DSExport.clickFirstGrid = function() {
-         $gridView.find(".target").eq(0).click();
+        $gridView.find(".target").eq(0).click();
     };
 
     function getDefaultPath() {

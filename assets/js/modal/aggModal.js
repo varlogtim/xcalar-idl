@@ -237,8 +237,6 @@ window.AggModal = (function($, AggModal) {
 
     function aggColsInitialize(tableId) {
         aggCols = [];
-
-        var $table = $("#xcTable-" + tableId);
         var tableCols = gTables[tableId].tableCols;
         for (var i = 0, colLen = tableCols.length; i < colLen; i++) {
             var progCol = tableCols[i];
@@ -420,7 +418,7 @@ window.AggModal = (function($, AggModal) {
             name = xcHelper.escapeHTMLSpecialChar(name);
             html += '<div class="aggTableField rowLabel">' +
                         prefixLabel +
-                        '<span data-original-title="' + 
+                        '<span data-original-title="' +
                             xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(name)) + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
@@ -455,7 +453,7 @@ window.AggModal = (function($, AggModal) {
                             prefClass + '">' +
                             labels[i].prefix +
                         '</span>' +
-                        '<span data-original-title="' + 
+                        '<span data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) +
                         '" ' +

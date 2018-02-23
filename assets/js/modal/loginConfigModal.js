@@ -81,7 +81,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function setupListeners() {
         $modal.find(".confirm").click(submitForm);
 
-        $modal.find(".loginSectionToggle").click(function(e) {
+        $modal.find(".loginSectionToggle").click(function() {
             $(this).find(".checkbox").toggleClass("checked");
             $(this).next().toggleClass("xc-hidden");
             if (($(this).attr('id') === "loginConfigEnableDefaultAdmin") &&

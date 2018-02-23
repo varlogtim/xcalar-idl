@@ -239,13 +239,13 @@ window.DagPanel = (function($, DagPanel) {
             return;
         }
         var nameUpper = xcHelper.capitalize(name);
-        if (name == 'dfcreate') {
+        if (name === 'dfcreate') {
             nameUpper = 'Batch Dataflow';
         }
         $menu.prepend('<li class="exitFormOption" ' +
             'data-action="exitFormOption" data-formname="' + name +
             '">Exit ' + nameUpper + '</li>');
-    }
+    };
 
     // opening and closing of dag is temporarily disabled during animation
     function setupDagPanelSliding() {
@@ -717,7 +717,7 @@ window.DagPanel = (function($, DagPanel) {
                         }
                         if (hideEdit) {
                             $menu.find(".editOp").addClass("unavailable");
-                                xcTooltip.add($menu.find(".editOp"), {
+                            xcTooltip.add($menu.find(".editOp"), {
                                 title: xcHelper.replaceMsg(DFTStr.EditOpDirectly, {
                                     "op": hideOp
                                 })

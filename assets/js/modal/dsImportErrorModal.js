@@ -86,12 +86,12 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             .then(function(msgs) {
                 for (var row = 0; row < msgs.length; row++) {
                     var fileInfo = JSON.parse(msgs[row]);
-                    for(var index = 0; index < fileInfo.errors.length; index++) {
+                    for (var index = 0; index < fileInfo.errors.length; index++) {
                         errorData.push({
-                            "FileName" : fileInfo.fullPath,
-                            "recordNumber" : fileInfo.errors[index].recordNumber,
-                            "error" : fileInfo.errors[index].error
-                        })
+                            "FileName": fileInfo.fullPath,
+                            "recordNumber": fileInfo.errors[index].recordNumber,
+                            "error": fileInfo.errors[index].error
+                        });
                     }
                 }
 
@@ -100,8 +100,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             })
             .fail(function(err) {
                 Alert.error(ErrTStr.ErrorModalDownloadFailure);
-                deferred.reject();
-            })
+                deferred.reject(err);
+            });
 
             return deferred.promise();
         });
@@ -127,8 +127,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         .then(function (result) {
             curResultSetId = result.resultSetId;
             $modal.find(".infoTotalFiles").find(".value").text(result.numEntries);
-            var numTotalErrors;
-
             var numRowsToFetch = Math.min(result.numEntries, numRecordsToShow);
 
             refreshScrollBar(result.numEntries, numRowsToFetch);
@@ -265,8 +263,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     var numRowsToAdd = Math.min(numRecordsToFetch, topRow,
                                                 scrollMeta.numRecords);
                     var rowNumber = topRow - numRowsToAdd;
-                    info = {
-                    };
+                    info = {};
 
                     goTo(rowNumber, numRowsToAdd, "top", info);
                 }
@@ -274,11 +271,11 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 if (scrollMeta.currentRowNumber < scrollMeta.numRecords) {
                     numRowsToAdd = Math.min(numRecordsToFetch,
                         scrollMeta.numRecords - scrollMeta.currentRowNumber);
-                    info  = {
+                    info = {
                         targetRow: scrollMeta.currentRowNumber + numRowsToAdd,
                         lastRowToDisplay: scrollMeta.currentRowNumber + numRowsToAdd,
                         // currentFirstRow:
-                    }
+                    };
                     goTo(scrollMeta.currentRowNumber, numRowsToAdd, "bottom", info);
                 }
             }
@@ -413,7 +410,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         var html = '<div class="row type-' + type +
             ' row' + rowNum + activeClass +
             '" data-path="' + fileInfo.fullPath + '">' +
-            '<i class="icon xi-error"'  + xcTooltip.Attrs +
+            '<i class="icon xi-error"' + xcTooltip.Attrs +
             ' data-original-title="' + tooltip + '"></i>' +
             '<span class="filePath" data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body" ' +
@@ -470,7 +467,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         }
         scrollMeta.scale = scale;
         $modal.find(".fileListSection").find(".sizer").height(sizerHeight);
-    };
+    }
 
     function getSizerHeight() {
         var sizerHeight = scrollMeta.numRecords * rowHeight;
@@ -493,7 +490,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     }
 
     function alignScrollBarWithList(onlyIfUnequal) {
-        var scrollTop = $fileList.scrollTop()
+        var scrollTop = $fileList.scrollTop();
         var numRowsAbove = scrollMeta.currentRowNumber -
                            scrollMeta.numVisibleRows;
         var rowsAboveHeight = getRowsAboveHeight(numRowsAbove);

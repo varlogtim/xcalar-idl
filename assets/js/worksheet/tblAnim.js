@@ -681,7 +681,7 @@ window.TblAnim = (function($, TblAnim) {
         $('#moveCursor').remove();
         setTimeout(function () {
             dragInfo.$el.closest("th").removeClass("colDragging");
-        })
+        });
         
         setTimeout(function() {
             dragInfo.$tableWrap.removeClass("checkingColDrag");

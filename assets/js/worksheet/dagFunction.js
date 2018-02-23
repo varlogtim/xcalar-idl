@@ -214,7 +214,7 @@ window.DagFunction = (function($, DagFunction) {
                 struct: inputStruct,
                 dagNodeId: dagNodeId,
                 inputName: inputName,
-                name : name,
+                name: name,
                 numParents: numParents,
                 parents: nodes[i].parents,
                 numChildren: nodes[i].numChildren,
@@ -1167,7 +1167,7 @@ window.DagFunction = (function($, DagFunction) {
                     struct: struct,
                     dagNodeId: struct.dest,
                     inputName: 'indexInput',
-                    name : struct.dest,
+                    name: struct.dest,
                     numParents: 1,
                     parents: parentNames,
                     parentNames: parentNames
@@ -1233,7 +1233,7 @@ window.DagFunction = (function($, DagFunction) {
                     struct: struct,
                     dagNodeId: struct.dest,
                     inputName: inputName,
-                    name : struct.dest,
+                    name: struct.dest,
                     numParents: 1,
                     parents: parentNames, // XXX
                     parentNames: parentNames,

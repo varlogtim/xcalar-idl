@@ -359,7 +359,7 @@ window.SmartCastView = (function($, SmartCastView) {
         SmartCastView.__testOnly__.submitForm = submitForm;
         SmartCastView.__testOnly__.getInfo = function() {
             return {colNames: colNames, colTypes: colTypes, recTypes: recTypes};
-        }
+        };
     }
     /* End Of Unit Test Only */
 

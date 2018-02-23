@@ -876,7 +876,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     };
 
-    OperationsView.updateColumns = function(tId) {
+    OperationsView.updateColumns = function() {
         if (!formHelper.isOpen()) {
             return;
         }
@@ -899,7 +899,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     };
 
-    function updateFormTitles(options) {
+    function updateFormTitles() {
         var titleName = operatorName;
         var submitText;
         if (isEditMode) {
@@ -2984,8 +2984,7 @@ window.OperationsView = (function($, OperationsView) {
                                 });
                             } else {
                                 allColTypes.push({});
-                                errorText = xcHelper.replaceMsg(
-                                    ErrWRepTStr.InvalidCol, {
+                                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                                     "name": frontColName
                                 });
                                 $errorInput = $input;
@@ -3390,7 +3389,7 @@ window.OperationsView = (function($, OperationsView) {
             colTypeInfo = colTypeInfos[0] || [];
             colTypeInfo.forEach(function(colInfo) {
                 if (colInfo.argNum === i) {
-                    groupByCols[i].cast = colInfo.type
+                    groupByCols[i].cast = colInfo.type;
                     return false;
                 }
             });

@@ -306,7 +306,7 @@ window.ProjectView = (function($, ProjectView) {
                 prefixedHtml +=
                     '<li data-colnum="' + group[j].colNum + '">' +
                         '<span class="text tooltipOverflow" ' +
-                        'data-original-title="' + 
+                        'data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                         'data-toggle="tooltip" data-placement="top" ' +

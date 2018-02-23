@@ -113,7 +113,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             deferred.reject();
         }
         return deferred.promise();
-    }
+    };
 
     return SQLEditor;
 }({}, jQuery));

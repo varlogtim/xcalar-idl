@@ -309,10 +309,11 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "q22": {"row0": [13, 888, 6737713.99],
                 "row4": [29, 948, 7158866.63],
                 "numOfRows": "7"}
-    }
+    };
+
     SqlTestSuite.runSqlTests = function(hasAnimation, toClean, noPopup, mode, withUndo,
                                 timeDilation) {
-        var tableNames = {};
+        // var tableNames = {};
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
@@ -361,6 +362,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     }
     // All helper functions
     function runAllQueries(queries) {
+        var deferred = jQuery.Deferred();
+        var promiseArray = [];
+        var failedQueries = "";
+
         function runQuery(queryName, sqlString) {
             console.log("Query name: " + queryName);
             console.log(sqlString);
@@ -407,12 +412,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 console.error(error, "runQuery");
                 failedQueries += queryName + ",";
                 innerDeferred.reject(error);
-            })
+            });
             return innerDeferred.promise();
         }
-        var deferred = jQuery.Deferred();
-        var promiseArray = [];
-        var failedQueries = "";
+
         $("#sqlTab").click();
         for (var queryName in queries) {
             var sqlString = queries[queryName];

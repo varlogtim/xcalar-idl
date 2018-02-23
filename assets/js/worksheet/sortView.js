@@ -155,7 +155,7 @@ window.SortView = (function($, SortView) {
             return;
         }
         setColumnCache(tableId);
-    }
+    };
 
     function resetForm() {
         colNames = [];
@@ -318,7 +318,7 @@ window.SortView = (function($, SortView) {
                         'textOverflowOneLine tooltipOverflow" ' +
                         'data-toggle="tooltip" data-placement="top"' +
                         'data-container="body" ' +
-                        'data-original-title="' + 
+                        'data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) + '">' +
                             colName +
@@ -360,7 +360,6 @@ window.SortView = (function($, SortView) {
         var tableCols = table.tableCols;
         var tableKeyNames = table.getKeyName();
         var tableKeys = table.getKeys();
-        var tableOrder = table.backTableMeta.ordering;
         colNames = [];
         colTypes = [];
         colOrders = [];

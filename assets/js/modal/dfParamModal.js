@@ -250,7 +250,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $toggle.next().remove();
                 $toggle.remove();
                 $dfParamModal.find(".editableParamQuery .toggleGroupRow").each(function(index) {
-                    $(this).find(".toggleText").text("Source Arguments " + ( index + 1))
+                    $(this).find(".toggleText").text("Source Arguments " + ( index + 1));
                 });
                 return;
             }
@@ -577,9 +577,7 @@ window.DFParamModal = (function($, DFParamModal){
                     $input.val(val);
                 }
             });
-        })
-
-
+        });
     }
 
     function filterSetup() {
@@ -749,7 +747,7 @@ window.DFParamModal = (function($, DFParamModal){
         options = options || {};
         if (type === "dataStore") {
             for (var i = 0; i < paramValue.length; i++) {
-                var collapsedState = i == 0 ? "expanded firstGroup" : "collapsed";
+                var collapsedState = i === 0 ? "expanded firstGroup" : "collapsed";
                 defaultText += '<div class="toggleGroupRow ' + collapsedState +
                         ' xc-action">' +
                         '<i class="icon xi-plus"></i><span class="toggleText">Source Arguments ' +
@@ -1831,7 +1829,7 @@ window.DFParamModal = (function($, DFParamModal){
                 return XcalarGetRetina(retName);
             })
             .then(function(retStruct) {
-                var dataflow = DF.getDataflow(retName)
+                var dataflow = DF.getDataflow(retName);
                 dataflow.retinaNodes = retStruct.retina.retinaDag.node;
                 dataflow.nodeIds = {};
                 var curNodeId;
@@ -1839,7 +1837,7 @@ window.DFParamModal = (function($, DFParamModal){
                 var $df = $("#dfViz").find('.dagWrap[data-dataflowName="' + retName + '"]');
                 for (var i = 0; i < dataflow.retinaNodes.length; i++) {
                     var tName = dataflow.retinaNodes[i].name.name;
-                    var curNodeId = dataflow.retinaNodes[i].dagNodeId
+                    curNodeId = dataflow.retinaNodes[i].dagNodeId;
                     dataflow.addNodeId(tName, curNodeId);
                     if (tName === tableName) {
                         newNodeId = curNodeId;
@@ -1904,10 +1902,10 @@ window.DFParamModal = (function($, DFParamModal){
                 break;
             case ("dataStore"):
                 paramType = XcalarApisT.XcalarApiBulkLoad;
-                var numGroups = $editableRow.find(".paramGroup");
+                // var numGroups = $editableRow.find(".paramGroup");
                 paramQuery = [];
                 paramValues = [];
-               $editableRow.find(".paramGroup").each(function() {
+                $editableRow.find(".paramGroup").each(function() {
                     var paramGroup = {};
                     $editableDivs = $(this).find("input.editableParamDiv");
                     var url = $.trim($editableDivs.eq(1).val());

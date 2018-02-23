@@ -339,7 +339,7 @@ window.TblManager = (function($, TblManager) {
     TblManager.sendTableToTempList = function(tableIds, workSheets, tableNames) {
         var deferred = jQuery.Deferred();
 
-        if(tableIds.length <= 1){
+        if (tableIds.length <= 1){
             workSheets = [WSManager.getWSFromTable(tableIds[0])];
             tableNames = [gTables[tableIds[0]].getName()];
         }
@@ -379,7 +379,7 @@ window.TblManager = (function($, TblManager) {
             xcHelper.lockTable(tableId);
         });
 
-        tableIds.forEach(function(tableId, index) {
+        tableIds.forEach(function(tableId) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
 
@@ -399,7 +399,7 @@ window.TblManager = (function($, TblManager) {
                 });
                 return innerDeferred.promise();
             }).bind(this));
-        })
+        });
 
         tableIds.forEach(function(tableId){
             xcHelper.unlockTable(tableId);
@@ -417,7 +417,7 @@ window.TblManager = (function($, TblManager) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
+    };
 
     // options:
     //      remove: boolean, if true will remove table display from ws immediately
@@ -906,12 +906,12 @@ window.TblManager = (function($, TblManager) {
             columnClass += " userHidden";
         }
         var type = progCol.getType();
-        var sortTip = "";
+        // var sortTip = "";
         if ([ColumnType.integer, ColumnType.float, ColumnType.string,
                       ColumnType.boolean, ColumnType.number].indexOf(type) > -1
             && !progCol.isEmptyCol()) {
             columnClass += " sortable ";
-            sortTip = ' data-toggle="tooltip" ';
+            // sortTip = ' data-toggle="tooltip" ';
         }
 
         var sortIcon = '<div class="sortIcon">' +
@@ -2514,10 +2514,10 @@ window.TblManager = (function($, TblManager) {
                 var keys = table.backTableMeta.keyAttr;
                 if (XcalarOrderingTFromStr[keys[keyIndex].ordering] ===
                     XcalarOrderingT.XcalarOrderingAscending) {
-                    order =  XcalarOrderingT.XcalarOrderingDescending;
+                    order = XcalarOrderingT.XcalarOrderingDescending;
                 }
             } else if ($(event.target).closest(".sortDesc").length) {
-                order =  XcalarOrderingT.XcalarOrderingDescending;
+                order = XcalarOrderingT.XcalarOrderingDescending;
             }
             TblMenu.sortColumn([colNum], tableId, order);
         });

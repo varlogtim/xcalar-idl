@@ -392,7 +392,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $infoContainer.on("click", ".confirm", function() {
             submitForm();
         });
-    };
+    }
 
     function addSortMenuEvents() {
         // toggle sort menu, should use mousedown for toggle

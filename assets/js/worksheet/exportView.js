@@ -59,7 +59,7 @@ window.ExportView = (function($, ExportView) {
             "container": "#exportLists"
         });
         dropdownHelper.setupListeners();
-        var dropdownHint = new InputDropdownHint($list, {
+        new InputDropdownHint($list, {
             "preventClearOnBlur": true,
             "order": true,
             "menuHelper": dropdownHelper,
@@ -291,7 +291,7 @@ window.ExportView = (function($, ExportView) {
             return;
         }
         // keep deselected cols deselected and select the new cols
-        var selectedCols = exportHelper.getExportColumns();
+        // var selectedCols = exportHelper.getExportColumns();
         var nonSelectedCols = [];
         $exportView.find('.cols li:not(.checked)').each(function() {
             nonSelectedCols.push($(this).text().trim());

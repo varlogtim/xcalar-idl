@@ -255,7 +255,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
     BottomMenu.unsetMenuCache = function() {
         needsMainMenuBackOpen = false;
-    }
+    };
 
     function openMenu(sectionIndex) {
         // bottom menu was closed or it was open and we"re switching to
