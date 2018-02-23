@@ -32,6 +32,7 @@ window.Alert = (function($, Alert){
        /* options includes:
             title: title of the alert
             instr: instruction information
+            instrTemplate: instead of change instr text, change it's html
             msg: alert content
             msgTemplate: instead of change alert text, change it's html
             isAlert: if it is an alert or a confirm
@@ -192,6 +193,15 @@ window.Alert = (function($, Alert){
         $("#alertContent .text").text(msg);
     };
 
+    Alert.isChecked = function() {
+        var $checkbox = $("#alertCheckBox");
+        return $checkbox.find(".checkbox").hasClass("checked");
+    };
+
+    Alert.isVisible = function() {
+        return $modal.is(":visible");
+    };
+
     function closeAlertModal($modalContainer) {
         modalHelper.clear({"close": function() {
             // alert modal has its own closer
@@ -258,8 +268,12 @@ window.Alert = (function($, Alert){
 
         // set alert instruction
         var $alertInstr = $("#alertInstruction");
-        if (options.instr != null) {
-            $alertInstr.find(".text").text(options.instr);
+        if (options.instr != null || options.instrTemplate != null) {
+            if (options.instrTemplate != null) {
+                $alertInstr.find(".text").html(options.instrTemplate);
+            } else {
+                $alertInstr.find(".text").text(options.instr);
+            }
             $alertInstr.show();
             $modal.addClass("hasInstr");
         } else {
@@ -270,11 +284,10 @@ window.Alert = (function($, Alert){
         // set checkbox,  default is unchecked
         var $checkbox = $("#alertCheckBox");
         $checkbox.find(".checkbox").removeClass("checked");
-        $checkbox.addClass("inactive"); // now make it disabled
         if (options.isCheckBox) {
-            $modal.on("click.alert", ".checkbox", function(event) {
+            $modal.on("click.alert", ".checkboxSection", function(event) {
                 event.stopPropagation();
-                $(this).toggleClass("checked");
+                $(this).find(".checkbox").toggleClass("checked");
             });
             $checkbox.show();
             $modal.addClass("hasCheckbox");

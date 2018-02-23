@@ -14,6 +14,7 @@ window.XcSupport = (function(XcSupport, $) {
     var statsMap = null;
     var isCheckingMem = false;
     var heartbeatLock = 0;
+    var turnOffRedMemoryAlert = false;
     // constant
     var defaultCommitFlag = "commit-default";
 
@@ -258,6 +259,7 @@ window.XcSupport = (function(XcSupport, $) {
             // when it's red, can stop loop immediately
             $memoryAlert.addClass("red").removeClass("yellow");
             shouldAlert = true;
+            redMemoryAlert();
         } else if (highestMemUsage > yellowThreshold) {
             // when it's yellow, should continue loop
             // to see if it has any red case
@@ -290,6 +292,26 @@ window.XcSupport = (function(XcSupport, $) {
 
         xcTooltip.changeText($memoryAlert, text);
         return shouldAlert;
+    }
+
+    function redMemoryAlert() {
+        if (turnOffRedMemoryAlert || Alert.isVisible()) {
+            return;
+        }
+
+        var instr = xcHelper.replaceMsg(MonitorTStr.LowMemInstr, {
+            link: paths.memory
+        });
+        Alert.show({
+            title: MonitorTStr.LowMem,
+            instrTemplate: instr,
+            msg: MonitorTStr.LowMemMsg,
+            isAlert: true,
+            isCheckBox: true,
+            onCancel: function() {
+                turnOffRedMemoryAlert = Alert.isChecked();
+            }
+        });
     }
 
     XcSupport.heartbeatCheck = function() {

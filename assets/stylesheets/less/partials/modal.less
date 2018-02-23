@@ -1720,6 +1720,11 @@ html.microsoft {
 
         .text {
             overflow: auto;
+
+            a {
+                color: @color-font-select-blue;
+                text-decoration: none;
+            }
         }
     }
 
@@ -1728,12 +1733,9 @@ html.microsoft {
         #alertCheckBox {
             text-align: center;
             margin: 15px auto 0px;
-            .font(@weight: bold, @size: 13px);
-            .checkbox {
-                .size(16px, 17px);
-            }
+            .size(@width: 150px);
+
             .text {
-                .position(relative, @top: -4px);
                 display: inline-block;
                 margin-left: 10px;
                 color: @color-text-lightGray;

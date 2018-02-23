@@ -718,7 +718,10 @@ MonitorTStr = {
 "AdditionalInfo": "附加(新)信息",
 "NoTickets": "找不到支持票",
 "SelectExistingTicket": "选择已有的支持票",
-"CharLimitErr": "Character limit of <limit> exceeded."
+"CharLimitErr": "Character limit of <limit> exceeded.",
+"LowMem": "内存不足",
+"LowMemMsg": "警告! 集群内存不足。详情信息请查看警告图案",
+"LowMemInstr": "关于内存管理, 请参照<a href=\"<link>\" target=\"_blank\">链接</a>",
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

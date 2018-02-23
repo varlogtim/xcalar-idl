@@ -30,4 +30,5 @@ var paths = {
     helpUserSearch: 'assets/help/user/Content/SearchInsight.htm?q=',
     favicon: "assets/images/xc-favicon.png",
     faviconUnsave: "assets/images/xc-favicon-unsave.gif",
+    memory: "https://www.xcalar.com/documentation/help/XD/1.3.0/Content/C_AdvancedTasks/I_UnderstandMemoryUse.htm",
 };
