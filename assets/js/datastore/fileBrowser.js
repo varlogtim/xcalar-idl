@@ -14,6 +14,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
+    var searchId;
 
     /* Contants */
     var defaultSortKey  = "name"; // default is sort by name;
@@ -25,6 +26,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var subUpperFileLimit = 25000; // file limit if not chrome
     var sortFileLimit = 25000; // do not allow sort if over 25k
     var oldBrowserError = "Deferred From Old Browser";
+    var oldSearchError = "Deferred From Old Search";
     var defaultPath = "/";
     var listFormatMap = {
         "JSON": "xi-json-big-file",
@@ -321,12 +323,14 @@ window.FileBrowser = (function($, FileBrowser) {
                 sortAction($title, false);
             }
         });
-
-
         $fileBrowserMain.find(".titleSection").on("mousedown", ".colGrab", function(event) {
             startColResize($(this), event);
         });
-
+        $fileBrowserMain.on("click", ".cancelSearch .xi-close", function() {
+            clearSearch();
+            $fileBrowser.removeClass("loadMode");
+            $fileBrowserMain.find(".searchLoadingSection").hide();
+        });
     }
 
     function addInfoContainerEvents() {
@@ -550,6 +554,10 @@ window.FileBrowser = (function($, FileBrowser) {
                 // Do a regular search
                 var searchKey = $(this).val();
                 if (searchKey.length > 0) {
+                    if ($searchSection.hasClass("open")) {
+                        searchDropdownMenu.toggleList($searchSection);
+                    }
+                    $(this).blur();
                     searchFiles(searchKey);
                 }
             }
@@ -769,6 +777,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).off(".fileBrowser");
         $(window).off(".fileBrowserResize");
         $fileBrowser.removeClass("loadMode errorMode");
+        $fileBrowserMain.find(".searchLoadingSection").hide();
         fileBrowserId = null;
 
         FilePreviewer.close();
@@ -904,13 +913,22 @@ window.FileBrowser = (function($, FileBrowser) {
     function listFiles(path, options) {
         var deferred = jQuery.Deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
+        var $searchLoadingSection = $fileBrowserMain.find(".searchLoadingSection");
         var targetName = getCurrentTarget();
         var curBrowserId = fileBrowserId;
+        var curSearchId = null;
+        if (options) {
+            curSearchId = searchId;
+        }
 
         $fileBrowser.addClass("loadMode");
         var timer = setTimeout(function() {
-            $loadSection.show();
-
+            if (options) {
+                // If it's a search
+                $searchLoadingSection.show();
+            } else {
+                $loadSection.show();
+            }
         }, 500);
 
         var args = {targetName: targetName, path: path};
@@ -922,6 +940,11 @@ window.FileBrowser = (function($, FileBrowser) {
         XcalarListFiles(args)
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
+                if (options && curSearchId !== searchId) {
+                    // If it is a search but not current search
+                    deferred.reject({"error": oldSearchError, "oldSearch": true});
+                    return;
+                }
                 cleanContainer({keepPicked: true});
                 FilePreviewer.close();
                 allFiles = dedupFiles(targetName, listFilesOutput.files);
@@ -940,6 +963,11 @@ window.FileBrowser = (function($, FileBrowser) {
         })
         .fail(function(error) {
             if (curBrowserId === fileBrowserId) {
+                if (options && curSearchId !== searchId) {
+                    // If it is a search but not current search
+                    deferred.reject({"error": oldSearchError, "oldSearch": true});
+                    return;
+                }
                 deferred.reject(error);
             } else {
                 deferred.reject({"error": oldBrowserError, "oldBrowser": true});
@@ -947,9 +975,13 @@ window.FileBrowser = (function($, FileBrowser) {
         })
         .always(function() {
             if (curBrowserId === fileBrowserId) {
+                if (options && curSearchId !== searchId) {
+                    return;
+                }
                 $fileBrowser.removeClass("loadMode");
                 clearTimeout(timer);
                 $loadSection.hide();
+                $searchLoadingSection.hide();
             }
         });
 
@@ -1126,18 +1158,20 @@ window.FileBrowser = (function($, FileBrowser) {
                 var path = getCurrentPath();
                 $("#fileBrowserSearch input").addClass("xc-disabled");
                 $innerContainer.hide();
-                var oldBrowser = false;
+
+                searchId = xcHelper.randName("search");
+                var cancelSearch = false;
                 listFiles(path, {recursive: true, fileNamePattern: pattern})
                 .fail(function(error) {
-                    if (error && error.oldBrowser) {
-                        oldBrowser = true;
+                    if (error && (error.oldBrowser || error.oldSearch)) {
+                        cancelSearch = true;
                     } else {
                         $input.addClass("error");
                         handleSearchError(ErrTStr.MaxFiles);
                     }
                 })
                 .always(function() {
-                    if (!oldBrowser) {
+                    if (!cancelSearch) {
                         $("#fileBrowserSearch input").removeClass("xc-disabled");
                         $innerContainer.show();
                         if ($searchSection.hasClass("open")) {
@@ -1158,6 +1192,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function clearSearch() {
+        searchId = null;
         $("#fileBrowserSearch input").removeClass("error xc-disabled").val("");
         $searchDropdown.find("li").removeClass("selected");
         refreshSearchDropdown("");
@@ -1289,7 +1324,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (key === "size") {
             folders.sort(function(a, b) {
-                return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
+                var aName = a.name.toLowerCase();
+                var bName = b.name.toLowerCase();
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
             });
 
             datasets.sort(function(a, b) {

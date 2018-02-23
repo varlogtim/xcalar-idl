@@ -179,7 +179,8 @@ module.exports = {
         "Severity2": "Xcalar集群正常工作,但性能或功能严重受损，没有可用解决方案。",
         "Severity3": "常规信息咨询或者有针对严重性1和严重性2的情况有可用解决方案的问题",
         "Severity4": "Feature request",
-        "CustomTicketId": "The organization associated with the ticket ID must match your organization."
+        "CustomTicketId": "The organization associated with the ticket ID must match your organization.",
+        "CancelSearch": "取消搜索",
     },
     "UDF": {
         "ADD": "添加UDF",

@@ -1056,7 +1056,7 @@ table.datasetTable {
     &.loadMode {
         pointer-events: none;
 
-        .cancel, .close {
+        .cancel, .close, .cancelSearch {
             pointer-events: auto;
         }
     }
@@ -1295,14 +1295,15 @@ table.datasetTable {
             }
         }
 
-        .loadingSection {
+        .loadingSection, .searchLoadingSection {
             display: none;
             .size(@width: 100%, @height: 100%);
             .position(absolute);
-            .waitingIcon {
+            .waitingIcon, .cancelSearch {
                 display: block;
                 top: 50%;
                 left: ~"calc((100% - @{fileInfoWidth}) * 0.5)";
+                transform: translate(-50%, -50%);
             }
         }
 
