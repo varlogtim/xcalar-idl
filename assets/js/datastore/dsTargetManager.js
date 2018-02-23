@@ -26,7 +26,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     DSTargetManager.isGeneratedTarget = function(targetName) {
         var target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_name === "Generated") {
+        if (target && target.type_id === "memory") {
             return true;
         } else {
             return false;
@@ -35,7 +35,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     DSTargetManager.isPreSharedTarget = function(targetName) {
         var target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_name === "Symmetric Pre-sharded Filesystem") {
+        if (target && target.type_id === "sharednothingsymm") {
             return true;
         } else {
             return false;
@@ -43,8 +43,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.isSlowPreviewTarget = function(targetName) {
+        // azblobenviron, azblobfullaccount, gcsenviron
         var target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_name && target.type_name.includes("Azure")) {
+        var idLists = ["azblobenviron", "azblobfullaccount", "gcsenviron"];
+        if (target && idLists.includes(target.type_id)) {
             return true;
         } else {
             return false;
