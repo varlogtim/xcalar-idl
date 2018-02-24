@@ -932,7 +932,7 @@ DFTStr = {
     'CancelSuccessMsg': 'Cancellation of batch dataflow was successful.',
     'DFCreateFail': 'Dataflow Creation Failed',
     'DownloadDF': 'Download dataflow',
-    'ExportFileExists': 'Export file already exists.',
+    'ExportFileExists': 'Export file or directory already exists.',
     'InvalidExportPath': 'Cannot contain / in the export file name',
     'InvalidTarget': 'Target not found.',
     'DFDrawError': 'Invalid dataflow structure',

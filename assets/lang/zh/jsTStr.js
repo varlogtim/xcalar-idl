@@ -759,7 +759,7 @@ DFTStr = {
 'Cancel': '取消批量数据流',
 'CancelSuccessMsg': '批量数据流的取消成功。',
 'DFCreateFail': '数据流创建失败',
-'ExportFileExists': '导出文件已经存在。',
+'ExportFileExists': '导出文件或文件夹已经存在。',
 'NoDF1': '没有添加数据流',
 'NoDF2': '从数据流图添加数据流',
 'ParamModalFail': '参数创建失败',
