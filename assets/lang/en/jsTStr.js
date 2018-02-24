@@ -351,6 +351,7 @@ ErrTStr = {
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
     'DuplicateColNames': 'Duplicate column names were detected',
+    'ColumnLimitExceeded': "Column Limit Exceeded",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

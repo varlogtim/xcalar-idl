@@ -4242,9 +4242,43 @@ window.DSPreview = (function($, DSPreview) {
 
     // currently only being used for CSV
     function initialSuggest() {
+        if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
+            $previewTable.find("th").addClass("nonEditable");
+            var headers = getColumnHeaders();
+            var hasInvalidName = false;
+            headers.forEach(function(header, i) {
+                var error = xcHelper.validateColName(header.colName);
+                if (error) {
+                    hasInvalidName = true;
+                    return false;
+                }
+            });
+            var alertMsg;
+            if (hasInvalidName) {
+                msg = "There are over " + gMaxDSColsSpec + " columns in " +
+                    "this dataset. There are column names in this dataset " +
+                    "that are not allowed. " +
+                    "To fix this, please select User Defined Format and " +
+                    "apply default:cleanseDataset. This function will " +
+                    "also auto-detect column types.";
+            } else {
+                msg = "There are over " + gMaxDSColsSpec + " columns in this " +
+                    "dataset. All columns will be read as strings. " +
+                    "If you want to auto-detect column types, please select " +
+                    "User Defined Format and apply default:cleanseDataset.";
+            }
+
+            Alert.show({
+                title: ErrTStr.ColumnLimitExceeded,
+                msg: msg,
+                isAlert: true
+            });
+            return;
+        }
+
         var $tbody = $previewTable.find("tbody").clone(true);
         var recTypes = suggestColumnHeadersType($tbody);
-        var recNames = suggestColumHeadersNames();
+        var recNames = suggestColumnHeadersNames();
         changeColumnHeaders(recTypes, recNames);
     }
 
@@ -4264,20 +4298,14 @@ window.DSPreview = (function($, DSPreview) {
 
         var $tr = $tbody.find("tr");
         $tr.eq(0).find("td").each(function(colIndex) {
-            if (colIndex >= gMaxDSColsSpec) {
-                return false;
-            }
             recTypes[colIndex] = suggestType($tr, colIndex + 1);
         });
         return recTypes;
     }
 
-    function suggestColumHeadersNames() {
+    function suggestColumnHeadersNames() {
         var allNames = [];
         $previewTable.find(".editableHead").each(function(colIndex) {
-            if (colIndex >= gMaxDSColsSpec) {
-                // return false;
-            }
             allNames.push($(this).val().trim());
         });
 

@@ -320,6 +320,7 @@ ErrTStr = {
 'RefreshBrowser': '刷新浏览器',
 'RefreshBrowserDesc': '我们检测到需要刷新的问题。\n 请刷新您的浏览器。您的工作将恢复到最后一致状态。',
 'BundleFailed': '提交包失败',
+'ColumnLimitExceeded': "Column Limit Exceeded",
 'WorkbookExists': '具有相同名称的工作簿<workbookName>已经存在，请选取其他名称。',
 'InvalidColumn': '列名无效：<name>',
 'LicenseExpire': '您的Xcalar许可证到期时间为 \"<date>\"',

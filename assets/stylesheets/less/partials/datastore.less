@@ -577,6 +577,17 @@ table.datasetTable {
                 cursor: default;
             }
         }
+        &.nonEditable {
+            .flex-left {
+                display: none;
+            }
+            .header .flexContainer {
+                background-color: transparent;
+            }
+            .editableHead {
+                pointer-events: none;
+            }
+        }
     }
     .selectedCol {
         .header {
