@@ -378,7 +378,7 @@
             var self = this;
             var txId = self._start();
 
-            XIApi.union(txId, txId, tableInfos, dedup, newTableName)
+            XIApi.union(txId, tableInfos, dedup, newTableName)
             .then(function(dstTable, dstCols) {
                 var cli = self._end(txId);
                 deferred.resolve({

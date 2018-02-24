@@ -1276,6 +1276,11 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
             newKeys.push(keyInfo.keyFieldName);
             return indexKeyMap(keyInfo);
         });
+        if (Transaction.isSimulate(txId)) {
+            newKeys = keyArray.map(function(key) {
+               return key.name;
+            });
+        }
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,
                                            dstTableName, keyArray, "", "");
         var def;

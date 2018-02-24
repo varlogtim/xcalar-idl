@@ -1,4 +1,4 @@
-require("jsdom").env("", function(err, window) {
+require("jsdom/lib/old-api").env("", function(err, window) {
     if (err) {
         console.error(err);
         return;
@@ -12,10 +12,14 @@ require("jsdom").env("", function(err, window) {
     var http = require("http");
     require("shelljs/global");
     var exec = require("child_process").exec;
+    var request = require('request');
     var app = express();
 
-    app.use(bodyParser.urlencoded({extended: false}));
-    app.use(bodyParser.json());
+    // app.use(bodyParser.urlencoded({extended: false}));
+    // app.use(bodyParser.json());
+        // increase default limit payload size of 100kb
+    app.use(bodyParser.urlencoded({extended: false, limit: '20mb'}));
+    app.use(bodyParser.json({limit: '20mb'}));
 
     app.all('/*', function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
@@ -49,27 +53,41 @@ require("jsdom").env("", function(err, window) {
         });
     });
 
+
     app.post("/sql/sqlquery/:sesId/:a/:b", function(req, res) {
-        var curlStr = "curl -v " + hostname + "/xcesql/sqlquery/" +
-                      req.params.sesId + "/" + req.params.a + "/" +
-                      req.params.b + " -X POST -d '" +
-                      JSON.stringify(req.body) +
-                      "' -H 'Content-type: application/json'";
-        console.log(curlStr);
-        var out = exec(curlStr);
-        var o = "";
-        out.stdout.on("data", function(data) {
-            o += data;
-            //console.log(data);
-        });
-        out.on("close", function() {
-            //console.log("closed");
-            res.jsonp({status:200,
-                       stdout: o});
-        });
-        out.stderr.on("data", function(data) {
-            //console.log("ERROR: " + data);
-        });
+        // var curlStr = "curl -v -s " + hostname + "/xcesql/sqlquery/" +
+        //               req.params.sesId + "/" + req.params.a + "/" +
+        //               req.params.b + " -X POST -d '" +
+        //               JSON.stringify(req.body) +
+        //               "' -H 'Content-type: application/json'";
+        // console.log(curlStr);
+        // var out = exec(curlStr);
+        // var o = "";
+        // out.stdout.on("data", function(data) {
+        //     o += data;
+        //     console.log(data);
+        // });
+        // out.on("close", function() {
+        //     //console.log("closed");
+        //     // console.log(o);
+        //     console.log("lllllength is:");
+        //     console.log(o.length);
+        //     res.jsonp({status:200,
+        //                stdout: o});
+        // });
+        // out.stderr.on("data", function(data) {
+        //     //console.log("ERROR: " + data);
+        // });
+        request.post(
+            hostname + "/xcesql/sqlquery/" + req.params.sesId + "/" + req.params.a + "/" + req.params.b,
+            { json: req.body },
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    console.log(body);
+                    res.jsonp({status: 200, stdout: JSON.stringify(body)});
+                }
+            }
+        );
     });
 
     app.all("/*", function(req, res) {

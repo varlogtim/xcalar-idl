@@ -177,6 +177,28 @@
         }
     }
 
+    function getAllTableNames(rawOpArray) {
+        var tableNames = {};
+        for (var i = 0; i < rawOpArray.length; i++) {
+            var value = rawOpArray[i];
+            if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+                var rdds = value.output;
+                var acc = {numOps: 0};
+                for (var j = 0; j < rdds.length; j++) {
+                    var evalStr = genEvalStringRecur(SQLCompiler.genTree(
+                                  undefined, rdds[j].slice(0)), acc);
+                    if (evalStr.indexOf(tablePrefix) === 0) {
+                        var newTableName = evalStr.substring(tablePrefix.length);
+                        if (!(newTableName in tableNames)) {
+                            tableNames[newTableName] = true;
+                        }
+                    }
+                }
+            }
+        }
+        return tableNames;
+    }
+
     function TreeNode(value) {
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
             // These are leaf nodes
@@ -313,6 +335,12 @@
                 "num-children": 1
             });
         }
+        function existNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.IsNotNull",
+                "num-children": 1
+            });
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Left, Right, etc.
@@ -384,26 +412,39 @@
                 // XXX backend to fix if and ifStr such that `if` is generic
                 // For now we are hacking this
                 var type = "";
+                var backupType = "";
                 for (var i = 0; i < node.children.length; i++) {
                     if (i % 2 === 1) {
                         if (node.children[i].value.class ===
-                          "org.apache.spark.sql.catalyst.expressions.Literal") {
+                          "org.apache.spark.sql.catalyst.expressions.Literal" ||
+                            node.children[i].value.class ===
+               "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                             type = node.children[i].value.dataType;
                             break;
+                        } else if (isMathOperator(node.children[i].value.class))
+                        {
+                            backupType = "float"; // anything except for string
                         }
                     }
                 }
                 if (type === "" &&
-                    node.value.elseValue && node.value.elseValue[0].class ===
-                    "org.apache.spark.sql.catalyst.expressions.Literal") {
+                    node.value.elseValue &&
+                    ((node.value.elseValue[0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Literal") ||
+                    (node.value.elseValue[0].class ===
+             "org.apache.spark.sql.catalyst.expressions.AttributeReference"))) {
                     // XXX Handle case where else value is a complex expr
                     assert(node.value.elseValue.length === 1,
                            SQLTStr.CaseWhenElse + node.value.elseValue.length);
                     type = node.value.elseValue[0].dataType;
                 }
                 if (type === "") {
-                    console.warn("Defaulting to ifstr as workaround");
-                    type = "string";
+                    if (backupType === "") {
+                        console.error("Defaulting to ifstr as workaround");
+                        type = "string";
+                    } else {
+                        type = backupType;
+                    }
                 }
                 var getNewNode;
                 if (type === "string") {
@@ -629,6 +670,31 @@
                     retNode = intCastNode;
                 }
                 break;
+            case ("expressions.Coalesce"):
+                // XXX It's a hack. It should be compiled into CASE WHEN as it
+                // may have more than 2 children
+                assert(node.children.length === 2);
+
+                var newNode;
+                // All children are already casted to the same type, just take 1
+                if (node.children[0].value.dataType === "string") {
+                    newNode = ifStrNode();
+                } else {
+                    newNode = ifNode();
+                }
+                // XXX Revisit for strings
+                var childNode = existNode();
+                childNode.children.push(node.children[0]);
+                newNode.children.push(childNode,
+                                      node.children[0], node.children[1]);
+                if (idx !== undefined) {
+                    var parent = node.parent;
+                    newNode.parent = parent;
+                    parent.children[idx] = newNode;
+                } else {
+                    retNode = newNode;
+                }
+                break;
             default:
                 break;
         }
@@ -663,7 +729,13 @@
                  "/true/true",
             success: function(data) {
                 try {
-                    deferred.resolve(JSON.parse(data.sqlQuery));
+                    if (data.stdout) {
+                        // Only for dev when using sqlRestfulServer. We need to
+                        // either modify here or sqlRestfulServer.js
+                        deferred.resolve(JSON.parse(JSON.parse(data.stdout).sqlQuery));
+                    } else {
+                        deferred.resolve(JSON.parse(data.sqlQuery));
+                    }
                 } catch (e) {
                     deferred.reject(data.stdout);
                     // console.error(e);
@@ -806,6 +878,9 @@
                 case ("LocalLimit"):
                     retStruct = self._pushDownIgnore(treeNode);
                     break;
+                case ("Union"):
+                    retStruct = self._pushDownUnion(treeNode);
+                    break;
                 default:
                     console.error("Unexpected operator: " + treeNodeClass);
                     retStruct = self._pushDownIgnore(treeNode);
@@ -846,53 +921,101 @@
     }
     SQLCompiler.prototype = {
         compile: function(sqlQueryString, isJsonPlan) {
+            // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
+            var oldKVcommit = KVStore.commit;
+            KVStore.commit = function(atStartUp) {
+                return PromiseHelper.resolve();
+            };
             var outDeferred = jQuery.Deferred();
             var self = this;
+            var cached = SQLCache.getCached(sqlQueryString);
 
-            var promise = isJsonPlan
-                          ? PromiseHelper.resolve(sqlQueryString)
-                          // this is a json plan
-                          : sendPost({"sqlQuery": sqlQueryString});
+            var promise;
+            if (isJsonPlan) {
+                promise = PromiseHelper.resolve(sqlQueryString);
+            } else if (cached) {
+                promise = PromiseHelper.resolve(cached, true);
+            } else {
+                promise = sendPost({"sqlQuery": sqlQueryString});
+            }
+
+            var toCache;
 
             promise
-            .then(function(jsonArray) {
-                var tree = SQLCompiler.genTree(undefined, jsonArray);
-                if (tree.value.class ===
-                                  "org.apache.spark.sql.execution.LogicalRDD") {
-                    // If the logicalRDD is root, we should add an extra Project
-                    var newNode = ProjectNode(tree.value.output.slice(0, -1));
-                    newNode.children = [tree];
-                    tree.parent = newNode;
-                    pushUpCols(tree);
-                    tree = newNode;
-                }
-
-                var numNodes = countNumNodes(tree);
-                SQLEditor.startCompile(numNodes);
-
-                var promiseArray = traverseAndPushDown(self, tree);
-                PromiseHelper.chain(promiseArray)
-                .then(function() {
-                    // Tree has been augmented with xccli
-                    var cliArray = [];
-                    getCli(tree, cliArray);
-                    cliArray = cliArray.map(function(cli) {
-                        if (cli.endsWith(",")) {
-                            cli = cli.substring(0, cli.length - 1);
-                        }
-                        return cli;
+            .then(function(jsonArray, hasPlan) {
+                var deferred = jQuery.Deferred();
+                if (hasPlan) {
+                    var plan = JSON.parse(jsonArray.plan);
+                    var finalTableName = SQLCache.setNewTableNames(plan,
+                                                         jsonArray.startTables,
+                                                         jsonArray.finalTable);
+                    SQLEditor.fakeCompile(jsonArray.steps)
+                    .then(function() {
+                        deferred.resolve(JSON.stringify(plan), finalTableName,
+                                         jsonArray.finalTableCols);
                     });
-                    var queryString = "[" + cliArray.join(",") + "]";
-                    // queryString = queryString.replace(/\\/g, "\\");
-                    // console.log(queryString);
-                    SQLEditor.startExecution();
-                    self.sqlObj.run(queryString, tree.newTableName,tree.usrCols)
-                    .then(outDeferred.resolve)
-                    .fail(outDeferred.reject);
+                } else {
+                    var allTableNames = getAllTableNames(jsonArray);
+
+                    var tree = SQLCompiler.genTree(undefined, jsonArray);
+                    if (tree.value.class ===
+                                      "org.apache.spark.sql.execution.LogicalRDD") {
+                        // If the logicalRDD is root, we should add an extra Project
+                        var newNode = ProjectNode(tree.value.output.slice(0, -1));
+                        newNode.children = [tree];
+                        tree.parent = newNode;
+                        pushUpCols(tree);
+                        tree = newNode;
+                    }
+
+                    var numNodes = countNumNodes(tree);
+                    SQLEditor.startCompile(numNodes);
+
+                    var promiseArray = traverseAndPushDown(self, tree);
+                    PromiseHelper.chain(promiseArray)
+                    .then(function() {
+                        // Tree has been augmented with xccli
+                        var cliArray = [];
+                        getCli(tree, cliArray);
+                        cliArray = cliArray.map(function(cli) {
+                            if (cli.endsWith(",")) {
+                                cli = cli.substring(0, cli.length - 1);
+                            }
+                            return cli;
+                        });
+                        var queryString = "[" + cliArray.join(",") + "]";
+                        // queryString = queryString.replace(/\\/g, "\\");
+                        // console.log(queryString);
+
+                        // Cache the query so that we can reuse it later
+                        // Caching only happens on successful run
+                        toCache = {plan: queryString,
+                                   startTables: allTableNames,
+                                   steps: numNodes,
+                                   finalTable: tree.newTableName,
+                                   finalTableCols: tree.usrCols};
+                        deferred.resolve(queryString,
+                                         tree.newTableName, tree.usrCols);
+                    });
+                }
+                return deferred.promise();
+            })
+            .then(function(queryString, newTableName, newCols) {
+                SQLEditor.startExecution();
+                self.sqlObj.run(queryString, newTableName, newCols)
+                .then(function() {
+                    if (toCache) {
+                        SQLCache.cacheQuery(sqlQueryString, toCache);
+                    }
+                    outDeferred.resolve();
                 })
                 .fail(outDeferred.reject);
             })
-            .fail(outDeferred.reject);
+            .fail(outDeferred.reject)
+            .always(function() {
+                // Restore the old KVcommit code
+                KVStore.commit = oldKVcommit;
+            });
 
             return outDeferred.promise();
         },
@@ -1323,6 +1446,7 @@
                                                              .substring(3);
                 firstMapColNames.push(gbTempColName);
                 gbColNames = [gbTempColName];
+                // gbAll = true;
             }
 
             var tempCol;
@@ -1406,7 +1530,13 @@
             node.usrCols = columns;
             // Also track xcCols
             for (var i = 0; i < secondMapColNames.length; i++) {
-                node.xcCols.push({colName: secondMapColNames[i]});
+                // XXX Not sure why I didn't add it at the first place. But I
+                // think this makes sense as bascially we don't want any usrCols
+                // (aggColNames) to be in xcCols. Will revisit when optimizing
+                // _pushDownAggregate
+                if (aggColNames.indexOf(secondMapColNames[i]) === -1) {
+                    node.xcCols.push({colName: secondMapColNames[i]});
+                }
             }
             for (var i = 0; i < firstMapColNames.length; i++) {
                 // Avoid adding the "col + 1" in
@@ -1701,6 +1831,35 @@
             firstDeferred.resolve();
 
             return deferred.promise();
+        },
+        _pushDownUnion: function(node) {
+            var self = this;
+            assert(node.children.length > 1);
+            // Union has at leaset two children
+            // XXX TO-DO
+            var newTableName = node.newTableName;
+            var tableInfos = [];
+            for (var i = 0; i < node.children.length; i++) {
+                var unionTable = node.children[i];
+                var unionCols = unionTable.usrCols;
+                var columns = [];
+                for (var j = 0; j < unionCols.length; j++) {
+                    columns.push({
+                        name: unionCols[j].colName,
+                        rename: unionCols[j].colName,
+                        type: "DfUnknown", // backend will figure this out. :)
+                        cast: false // Should already be casted by spark
+                    });
+                }
+                tableInfos.push({
+                    tableName: unionTable.newTableName,
+                    columns: columns
+                });
+            }
+            // XXX Only unionAll is supported now. It seems that if we want
+            // union, i.e. with dedup, in spark it has to be union followed by
+            // a distinct. Will implement later
+            return self.sqlObj.union(tableInfos, false, newTableName);
         }
     };
 
@@ -2572,6 +2731,70 @@
             default:
                 assert(0);
                 return "string";
+        }
+    }
+
+    function isMathOperator(expression) {
+        var mathOps = {
+            // arithmetic.scala
+            "expressions.UnaryMinus": null,
+            "expressions.UnaryPositive": null,
+            "expressions.Abs": "abs",
+            "expressions.Add": "add",
+            "expressions.Subtract": "sub",
+            "expressions.Multiply": "mult",
+            "expressions.Divide": "div",
+            "expressions.Remainder": "mod",
+            "expressions.Pmod": null,
+            "expressions.Least": null,
+            "expressions.Greatest": null,
+            // mathExpressions.scala
+            "expressions.EulerNumber": null,
+            "expressions.Pi": "pi",
+            "expressions.Acos": "acos",
+            "expressions.Asin": "asin",
+            "expressions.Atan": "atan",
+            "expressions.Cbrt": null,
+            "expressions.Ceil": "ceil",
+            "expressions.Cos": "cos",
+            "expressions.Cosh": "cosh",
+            "expressions.Conv": null,
+            "expressions.Exp": "exp",
+            "expressions.Expm1": null,
+            "expressions.Floor": "floor",
+            "expressions.Factorial": null,
+            "expressions.Log": "log",
+            "expressions.Log2": "log2",
+            "expressions.Log10": "log10",
+            "expressions.Log1p": null,
+            "expressions:Rint": null,
+            "expressions.Signum": null,
+            "expressions.Sin": "sin",
+            "expressions.Sinh": "sinh",
+            "expressions.Sqrt": "sqrt",
+            "expressions.Tan": "tan",
+            "expressions.Cot": null,
+            "expressions.Tanh": "tanh",
+            "expressions.ToDegrees": "degrees",
+            "expressions.ToRadians": "radians",
+            "expressions.Bin": null,
+            "expressions.Hex": null,
+            "expressions.Unhex": null,
+            "expressions.Atan2": "atan2",
+            "expressions.Pow": "pow",
+            "expressions.ShiftLeft": "bitlshift",
+            "expressions.ShiftRight": "bitrshift",
+            "expressions.ShiftRightUnsigned": null,
+            "expressions.Hypot": null,
+            "expressions.Logarithm": null,
+            "expressions.Round": "round",
+            "expressions.BRound": null,
+        };
+        if (expression.substring("org.apache.spark.sql.catalyst.".length) in
+            mathOps) {
+            return true;
+        } else {
+            return false;
         }
     }
 

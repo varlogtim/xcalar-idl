@@ -17,6 +17,36 @@ window.SQLEditor = (function(SQLEditor, $) {
         return editor;
     };
 
+    SQLEditor.fakeCompile = function(numSteps) {
+        var deferred = jQuery.Deferred();
+        $sqlButton.addClass("btn-disabled");
+        $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
+
+        var numMilSeconds = 1500;
+        // update once every 100ms
+        var frequency = 100;
+        var numIter;
+
+        var amtPerTick = numSteps/(numMilSeconds/frequency);
+        for (var i = 0; i < numMilSeconds/frequency; i++) {
+            setTimeout(function() {
+                var buttonText = $sqlButton.find(".text").html();
+                var numCurSteps = parseInt(buttonText.substring(13, buttonText.indexOf("/")));
+                var backPart = buttonText.substring(buttonText.indexOf("/"));
+                numCurSteps += Math.ceil(Math.random() * amtPerTick);
+                if (numCurSteps > parseInt(backPart.substring(1))) {
+                    numCurSteps = parseInt(backPart.substring(1));
+                }
+                $sqlButton.find(".text").html("Compiling... " + numCurSteps + backPart);
+            }, i*frequency);
+        }
+
+        setTimeout(function() {
+            deferred.resolve();
+        }, numMilSeconds);
+        return deferred.promise();
+    };
+
     SQLEditor.startCompile = function(numSteps) {
         $sqlButton.addClass("btn-disabled");
         $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
@@ -28,7 +58,7 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.updateProgress = function() {
         var buttonText = $sqlButton.find(".text").html();
-        var numCurSteps = buttonText.substring(13, buttonText.indexOf("/"));
+        var numCurSteps = parseInt(buttonText.substring(13, buttonText.indexOf("/")));
         var backPart = buttonText.substring(buttonText.indexOf("/"));
         numCurSteps++;
         $sqlButton.find(".text").html("Compiling... " + numCurSteps + backPart);
