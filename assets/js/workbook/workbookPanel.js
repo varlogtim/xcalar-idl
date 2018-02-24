@@ -161,10 +161,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     };
 
     WorkbookPanel.edit = function(workbookId, newName, description) {
-        var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
-            return $(this).attr("data-workbook-id") === workbookId;
-        });
-
+        var $workbookBox = getWorkbookBoxById(workbookId);
         var workbook = WorkbookManager.getWorkbook(workbookId);
         var oldWorkbookName = workbook.getName();
         var oldDescription = workbook.getDescription() || "";
@@ -283,6 +280,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             $lastFocusedInput = $(this);
         });
 
+        $workbookSection.on("click", ".vertBarBtn .btn", function() {
+            xcTooltip.hideAll();
+            StatusBox.forceHide();
+        });
+
         // Events for the actual workbooks
         // Play button
         $workbookSection.on("click", ".activate", function() {
@@ -295,7 +297,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.attr("data-workbook-id");
-            $(".tooltip").remove();
             WorkbookInfoModal.show(workbookId);
         });
 
@@ -348,8 +349,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             .always(function() {
                 $dupButton.removeClass("inActive");
             });
-
-            $(".tooltip").remove();
         });
 
         // Delete button
@@ -363,8 +362,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                     deleteWorkbookHelper($workbookBox);
                 }
             });
-
-            $(".tooltip").remove();
         });
 
         // pause button
@@ -378,8 +375,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                     pauseWorkbook($workbookBox);
                 }
             });
-
-            $(".tooltip").remove();
         });
 
         // deactivate button
@@ -393,8 +388,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                     deactiveWorkbook($workbookBox);
                 }
             });
-
-            $(".tooltip").remove();
         });
 
         $workbookSection.on("click", ".preview", function() {
@@ -582,34 +575,49 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }, 500);
     }
 
+    function getWorkbookBoxById(workbookId) {
+        var $workbookBox = $workbookPanel.find(".workbookBox").filter(function() {
+            return $(this).attr("data-workbook-id") === workbookId;
+        });
+        return $workbookBox;
+    }
+
     function activateWorkbook($workbookBox) {
         var workbookId = $workbookBox.attr("data-workbook-id");
         var activeWKBKId = WorkbookManager.getActiveWKBK();
         if (activeWKBKId === workbookId) {
-            $(".tooltip").remove();
             WorkbookPanel.hide();
         } else {
-            var deferred = jQuery.Deferred();
-
-            if (activeWKBKId == null) {
-                deferred.resolve();
-            } else {
-                Alert.show({
-                    title: WKBKTStr.Activate,
-                    msg: WKBKTStr.ActivateInstr,
-                    onConfirm: deferred.resolve,
-                    onCancel: deferred.reject
-                });
-            }
-
-            deferred.promise()
+            alertActivate(activeWKBKId)
             .then(function() {
                 WorkbookManager.switchWKBK(workbookId)
                 .fail(function(error) {
                     handleError(error, $workbookBox);
+                    // has chance that inactivate the fromWorkbook
+                    // but fail to activate the toWorkbook
+                    if (WorkbookManager.getActiveWKBK() == null
+                        && activeWKBKId != null) {
+                        var $activeWKBK = getWorkbookBoxById(activeWKBKId);
+                        updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
+                    }
                 });
             });
         }
+    }
+
+    function alertActivate(activeWKBKId) {
+        var deferred = jQuery.Deferred();
+        if (activeWKBKId == null) {
+            deferred.resolve();
+        } else {
+            Alert.show({
+                title: WKBKTStr.Activate,
+                msg: WKBKTStr.ActivateInstr,
+                onConfirm: deferred.resolve,
+                onCancel: deferred.reject
+            });
+        }
+        return deferred.promise();
     }
 
     function deleteWorkbookHelper($workbookBox) {

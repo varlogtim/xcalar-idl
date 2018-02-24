@@ -322,6 +322,45 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
+    function isActiveWorkbook(workbookName) {
+        var deferred = jQuery.Deferred();
+
+        XcalarListWorkbooks(workbookName)
+        .then(function(ret) {
+            var session = ret.sessions[0];
+            var isActive = (session.state === "Active");
+            var hasResouce = checkResource(session.info);
+            deferred.resolve(isActive, hasResouce);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function checkIfStillActiveWorkbook(workbookName) {
+        var deferred = jQuery.Deferred();
+        var activeWorkbook = wkbkSet.get(activeWKBKId);
+        if (activeWKBKId != null && activeWorkbook.name === workbookName) {
+            isActiveWorkbook(workbookName)
+            .then(function(isActive, hasResouce) {
+                if (!isActive) {
+                    activeWKBKId = null;
+                }
+                if (!hasResouce) {
+                    activeWorkbook.setResource(false);
+                }
+                deferred.resolve();
+            })
+            .fail(function() {
+                deferred.resolve(); // still resolve it
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    }
+
     function switchWorkBookHelper(toName, fromName) {
         var deferred = jQuery.Deferred();
         var queryName = XcSupport.getUser() + ":" + toName;
@@ -334,10 +373,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .fail(function(error) {
             console.error(error);
 
-            XcalarListWorkbooks(toName)
-            .then(function(ret) {
-                var sessionInfo = ret.sessions[0];
-                if (sessionInfo.state === "Active") {
+            checkIfStillActiveWorkbook(fromName)
+            .then(function() {
+                return isActiveWorkbook(toName);
+            })
+            .then(function(isActive) {
+                if (isActive) {
                     // when error but backend still active the session
                     showAlert();
                 } else {
