@@ -17,7 +17,7 @@ window.Compatible = (function($, Compatible) {
 
     function stringCheck() {
         // XXX(Always Open) check if those functions are already
-        // support by all browsers frequently
+        // supported by all browsers frequently
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
         if (!String.prototype.startsWith) {
