@@ -1623,6 +1623,24 @@ window.FileBrowser = (function($, FileBrowser) {
             });
         }
     }
+
+    function refreshFilePathEllipsis() {
+        var $path = $container.find(".filePathBottom .content");
+        var name = $path.attr("data-title") || $path.text();
+
+        var maxChar = 38;
+        var maxWidth = $path.parent().width();
+
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.font = '700 13px Open Sans';
+        var ellipsis = false;
+
+        ellipsis = xcHelper.middleEllipsis(name, $path, maxChar,
+                                           maxWidth, false, ctx);
+        toggleTooltip($path, name, ellipsis);
+    }
+
     function toggleTooltip($text, name, isEllipsis) {
         // GridView may have different ellipsis than listView
         if (isEllipsis) {
@@ -1705,6 +1723,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function addResizeEvent() {
         var timeout;
         $(window).on("resize.fileBrowserResize", function(event) {
+            refreshFilePathEllipsis();
             clearTimeout(timeout);
             setTimeout(function() {
                 if ($container.hasClass("manyFiles")) {
@@ -2021,7 +2040,10 @@ window.FileBrowser = (function($, FileBrowser) {
         $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
+        toggleTooltip($container.find(".filePathBottom .content"), null, false);
+        refreshFilePathEllipsis();
     }
+
     function selectMultiFiles($curActiveGrid) {
         // Selecet but not pick
         var startIndex;
