@@ -433,8 +433,9 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             resetForm();
             loadArgs.set(options);
-            setDefaultDSName();
         }
+
+        setDefaultDSName();
 
         var module = null;
         var func = null;
@@ -2469,7 +2470,8 @@ window.DSPreview = (function($, DSPreview) {
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
-                } else if (format == null || detectArgs.format == null) {
+                } else if (format == null || detectArgs.format == null ||
+                            format === detectArgs.format) {
                     errorHandler(error);
                 } else {
                     error = getParseError(format, detectArgs.format);
@@ -2577,7 +2579,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
         loadArgs.setPreviewingSource(index, file);
-        refreshPreview();
+        refreshPreview(true, true);
     }
 
     function resetPreviewFile() {
@@ -3406,7 +3408,7 @@ window.DSPreview = (function($, DSPreview) {
     function getParseError(format, suggest) {
         return xcHelper.replaceMsg(DSFormTStr.ParseError, {
             format: format,
-            suggest: '<span class="suggest" data-format="CSV">' +
+            suggest: '<span class="suggest" data-format="' + suggest + '">' +
                         suggest +
                     '</span>'
         });
@@ -4253,7 +4255,7 @@ window.DSPreview = (function($, DSPreview) {
                     return false;
                 }
             });
-            var alertMsg;
+            var msg;
             if (hasInvalidName) {
                 msg = "There are over " + gMaxDSColsSpec + " columns in " +
                     "this dataset. There are column names in this dataset " +
@@ -4305,7 +4307,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function suggestColumnHeadersNames() {
         var allNames = [];
-        $previewTable.find(".editableHead").each(function(colIndex) {
+        $previewTable.find(".editableHead").each(function() {
             allNames.push($(this).val().trim());
         });
 
