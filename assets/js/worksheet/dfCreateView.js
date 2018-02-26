@@ -71,7 +71,8 @@ window.DFCreateView = (function($, DFCreateView) {
         var nodeIdMap = allDagInfo.nodeIdMap;
         for (var i in nodeIdMap) {
             var node = nodeIdMap[i];
-            if (node.value.numParents && node.value.name.indexOf("#") > -1) {
+            if (node.value.api !== XcalarApisT.XcalarApiBulkLoad &&
+                node.value.name.indexOf("#") > -1) {
                 // exclude datasets
                 if (node.value.state === DgDagStateT.DgDagStateReady) {
                     dfTablesCache.push(node.value.name);
