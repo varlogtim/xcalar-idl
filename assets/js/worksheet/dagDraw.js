@@ -1459,7 +1459,7 @@ window.DagDraw = (function($, DagDraw) {
             var comment = "Comments: " +
                             xcHelper.escapeDblQuoteForHTML(node.value.comment);
             commentIcon += '<div class="commentIcon" ' +
-                            'i data-toggle="tooltip" data-placement="top" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" data-tiphtml="false" ' +
                             'data-original-title="' + comment + '" ' +
                             '><i class="icon xi-info-circle">' +
@@ -1475,8 +1475,7 @@ window.DagDraw = (function($, DagDraw) {
                     'data-table="' + resultTableName + '"' +
                     'data-id="' + node.value.dagNodeId + '">' +
                         '<div class="actionTypeWrap" ' +
-                        'data-toggle="tooltip" data-placement="top" ' +
-                        'data-container="body" data-original-title="' +
+                        xcTooltip.Attrs + 'data-original-title="' +
                         info.tooltip + '"' +'>' +
                             '<div class="dagIcon">' +
                                 getIconHtml(info) +

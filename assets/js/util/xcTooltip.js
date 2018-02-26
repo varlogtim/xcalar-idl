@@ -7,7 +7,7 @@ window.xcTooltip = (function(xcTooltip, $) {
     };
 
     xcTooltip.Attrs = ' data-toggle="tooltip" data-container="body" ' +
-                      'data-placement="top" ';
+                      'data-placement="auto top" ';
 
     xcTooltip.setup = function() {
         $("body").tooltip({
