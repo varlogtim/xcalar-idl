@@ -748,10 +748,14 @@ window.ProfileEngine = (function(ProfileEngine) {
             // (max - min) / numRowsToFetch will get bucketSize 5
             // but range [100, 105) is the 21th size,
             // so we should do (max + min + numRowsToFetch) / numRowsToFetch
-            var bucketSize = (profileInfo.aggInfo.max
-                              - profileInfo.aggInfo.min
-                              + numRowsToFetch) / numRowsToFetch;
-            if (bucketSize >= 0.01) {
+            var max = profileInfo.aggInfo.max;
+            var min = profileInfo.aggInfo.min;
+            var bucketSize = (max - min
+                              + numRowsToFetch) / numRowsToFetch;            
+            if (bucketSize >= 1) {
+                bucketSize = xcHelper.roundToSignificantFigure(bucketSize, numRowsToFetch, max, min);
+            }
+            else if (bucketSize >= 0.01) {
                 // have mostly two digits after decimal
                 bucketSize = Math.round(bucketSize * 100) / 100;
             }

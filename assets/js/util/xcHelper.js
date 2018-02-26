@@ -4078,6 +4078,16 @@
         xcMenu.addKeyboardNavigation($menu, $subMenu, navOptions);
     };
 
+    // Will round bucket size up or down depending on how many rows can fit on the screen
+    xcHelper.roundToSignificantFigure = function(value, numRows, max, min) {
+        value = Math.floor(value);
+        var numDigits = Math.floor(Math.log10(value));
+        var firstDigit = Math.floor(value / Math.pow(10, numDigits));
+        // adds 1 to first digit (round up) if rounding down creates too many buckets
+        firstDigit = (max - min) / (firstDigit * Math.pow(10, numDigits)) > numRows ? firstDigit + 1 : firstDigit;
+        return firstDigit * Math.pow(10, numDigits);
+    }
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
