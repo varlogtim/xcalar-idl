@@ -735,7 +735,8 @@ module.exports = {
         "Header": "Dataset Import Error",
         "NumFileErrors": "Files with errors",
         "NumErrors": "Number of errors",
-        "SizeLimit": "SIZE LIMIT"
+        "SizeLimit": "SIZE LIMIT",
+        "DownloadLogs": "Download error logs"
     },
 
     "dsCart": {

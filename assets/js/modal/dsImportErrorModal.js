@@ -78,7 +78,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         });
 
         $modal.on('click', '.downloadErrorModal', function() {
-
             var deferred = jQuery.Deferred();
 
             var errorData = [];

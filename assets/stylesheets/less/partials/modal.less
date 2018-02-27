@@ -5920,12 +5920,25 @@ html.microsoft {
 
     .generalInfo {
         line-height: 50px;
+        position: relative;
 
         .infoPart {
             margin-right: 30px;
         }
         .label {
             margin-right: 2px;
+        }
+
+        .download {
+            .position(absolute, @top: 0px, @right: 25px);
+
+            .downloadErrorModal {
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                font-size: 16px;
+                color: @color-bg-select-blue;
+            }
         }
     }
 
