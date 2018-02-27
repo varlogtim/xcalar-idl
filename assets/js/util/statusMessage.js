@@ -594,7 +594,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 if (!$("#inButton").hasClass("active")) {
                     $('#inButton').click();
                 }
-                $('#' + options.dataSetId).click();
+                DS.getGrid(options.dataSetId).click();
             }
 
             if ($popup.siblings().length === 0) {
