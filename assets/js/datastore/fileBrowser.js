@@ -321,6 +321,12 @@ window.FileBrowser = (function($, FileBrowser) {
                 sortAction($title, false);
             }
         });
+
+
+        $fileBrowserMain.find(".titleSection").on("mousedown", ".colGrab", function(event) {
+            startColResize($(this), event);
+        });
+
     }
 
     function addInfoContainerEvents() {
@@ -1555,6 +1561,12 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             $fileBrowser.removeClass('unsortable');
         }
+        var containerWidth = $fileBrowserMain.find(".titleSection").width();
+        var fileNameWidth = $fileBrowserMain.find(".titleSection").find(".fileName").outerWidth();
+        var fileNamePct = 100 * (fileNameWidth + 20 ) / containerWidth;
+        var siblingPct = (100 - fileNamePct) / 2;
+        $innerContainer.find(".fileName").css("width", "calc(" + fileNamePct + "% - 20px)");
+        $innerContainer.find(".fileDate, .fileSize").css("width", "calc(" + siblingPct + "% - 20px)");
     }
 
     function refreshIcon() {
@@ -2221,6 +2233,48 @@ window.FileBrowser = (function($, FileBrowser) {
                 files[i].isPicked = true;
             }
         }
+    }
+
+    var dragInfo = {};
+    function startColResize($el, event) {
+        dragInfo.$header = $el.closest(".title");
+        dragInfo.$header.addClass("dragging");
+        dragInfo.$headerSiblings = $fileBrowserMain.find(".titleSection").find(".mdate, .fileSize");
+        dragInfo.$bodyCols = $innerContainer.find(".fileName");
+        dragInfo.$bodySiblings = $innerContainer.find(".fileDate, .fileSize");
+
+        event.preventDefault();
+        dragInfo.mouseStart = event.pageX;
+        dragInfo.startWidth = dragInfo.$header.outerWidth();
+        dragInfo.containerWidth = $fileBrowserMain.find(".titleSection").width();
+        dragInfo.minWidth = 80;
+        dragInfo.maxWidth = dragInfo.containerWidth - 200;
+
+        var cursorStyle = '<div id="resizeCursor"></div>';
+        $('body').addClass('tooltipOff').append(cursorStyle);
+        $(document).on('mousemove.onColResize', onColResize);
+        $(document).on('mouseup.endColResize', endColResize);
+    };
+
+    function onColResize(event) {
+        var newWidth = (event.pageX - dragInfo.mouseStart) + dragInfo.startWidth;
+        newWidth = Math.min(dragInfo.maxWidth, Math.max(newWidth, dragInfo.minWidth));
+        var pct = 100 * (newWidth + 20) / dragInfo.containerWidth;
+        var siblingPct = (100 - pct) / 2;
+        dragInfo.$header.css("width", "calc(" + pct + "% - 20px)");
+        dragInfo.$bodyCols.css("width", "calc(" + pct + "% - 20px)");
+        dragInfo.$headerSiblings.css("width", "calc(" + siblingPct + "% - 20px)");
+        dragInfo.$bodySiblings.css("width", "calc(" + siblingPct + "% - 20px)");
+    }
+
+    function endColResize() {
+        dragInfo.$header.removeClass("dragging");
+        dragInfo = {};
+        $(document).off('mousemove.onColResize');
+        $(document).off('mouseup.endColResize');
+        $('#resizeCursor').remove();
+        $('body').removeClass('tooltipOff');
+        $('.tooltip').remove();
     }
 
     /* Unit Test Only */
