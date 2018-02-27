@@ -1224,13 +1224,19 @@
         }
         options = options || {};
         var units;
+        var num = parseFloat(numText);
         if (options.base2) {
             units = ["B", "KIB", "MIB", "GIB", "TIB", "PIB"];
+        } else if (options.base3) {
+            num /= 8;
+            units = ["B", "Kib", "Mib", "Gib", "Tib", "Pib"];
         } else {
             units = ["B", "KB", "MB", "GB", "TB", "PB"];
         }
-        var num = parseFloat(numText);
-        var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();
+        var text = numText.match(/[a-zA-Z]+/)[0];
+        if (!options.base3) {
+            text = text.toUpperCase();
+        }
         var index = units.indexOf(text);
         var bytes = Math.round(num * Math.pow(1024, index));
         return (bytes);
