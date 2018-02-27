@@ -707,22 +707,41 @@ window.Admin = (function($, Admin) {
     }
 
     function startNode() {
-        supportPrep('startNode')
-        .then(XFTSupportTools.clusterStart)
-        .then(function(ret) {
-            // refresh page
-            exitSetupMode();
-            if (ret.status === Status.Ok &&
-                ret.logs.indexOf("already running") > -1) {
-                Alert.show({msg: ret.logs, isAlert: true});
-            } else {
-                xcHelper.reload();
+        checkIfStart()
+        .then(function(startFlag) {
+            if (startFlag) {
+                Alert.show({msg: AlertTStr.AlreadyStart, isAlert: true});
+            }else {
+                supportPrep('startNode')
+                .then(XFTSupportTools.clusterStart)
+                .then(function(ret) {
+                    // refresh page
+                    exitSetupMode();
+                    if (ret.status === Status.Ok &&
+                        ret.logs.indexOf("already running") > -1) {
+                        Alert.show({msg: ret.logs, isAlert: true});
+                    } else {
+                        xcHelper.reload();
+                    }
+                })
+                .fail(function(err) {
+                    exitSetupMode();
+                    nodeCmdFailHandler('startNode', err);
+                });
             }
-        })
-        .fail(function(err) {
-            exitSetupMode();
-            nodeCmdFailHandler('startNode', err);
         });
+    }
+
+    function checkIfStart() {
+        var deferred = jQuery.Deferred();
+        XVM.checkVersion(true)
+        .then(function() {
+            deferred.resolve(true);
+        })
+        .fail(function() {
+            deferred.resolve(false);
+        });
+        return deferred.promise();
     }
 
     function stopNode() {

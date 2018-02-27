@@ -1673,10 +1673,14 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    function refreshFilePathEllipsis() {
+    function refreshFilePathEllipsis(emptyTooltip) {
         var $path = $container.find(".filePathBottom .content");
-        var name = $path.attr("data-title") || $path.text();
 
+        if (emptyTooltip) {
+            xcTooltip.remove($path);
+        }
+
+        var name = $path.attr("data-title") || $path.text();
         var maxChar = 38;
         var maxWidth = $path.parent().width();
 
@@ -1772,7 +1776,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function addResizeEvent() {
         var timeout;
         $(window).on("resize.fileBrowserResize", function(event) {
-            refreshFilePathEllipsis();
+            refreshFilePathEllipsis(false);
             clearTimeout(timeout);
             setTimeout(function() {
                 if ($container.hasClass("manyFiles")) {
@@ -2089,8 +2093,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $infoContainer.find(".fileSize .content").text(size);
         // Update bottom file path
         $container.find(".filePathBottom .content").text(path);
-        toggleTooltip($container.find(".filePathBottom .content"), null, false);
-        refreshFilePathEllipsis();
+        refreshFilePathEllipsis(true);
     }
 
     function selectMultiFiles($curActiveGrid) {
