@@ -317,6 +317,7 @@ function installUpgradeUtil(credArray, execCommand, script) {
     var deferredOut = jQuery.Deferred();
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
+    clearErrorLog();
 
     function initialStep() {
         var deferred = jQuery.Deferred();
