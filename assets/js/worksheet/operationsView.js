@@ -831,7 +831,8 @@ window.OperationsView = (function($, OperationsView) {
                     return;
                 }
                 if ($lastInputFocused.closest(".row")
-                                     .siblings(".addArgWrap").length) {
+                                     .siblings(".addArgWrap").length
+                    || $lastInputFocused.hasClass("variableArgs")) {
                     options.append = true;
                 }
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
@@ -1088,35 +1089,32 @@ window.OperationsView = (function($, OperationsView) {
             }
 
             var params = options.prefill.args[i];
-            var $args = $group.find(".arg:visible:not(.gbOnArg)");
+            var $args = $group.find(".arg:visible:not(.gbOnArg)").filter(function() {
+                return $(this).closest(".colNameSection").length === 0;
+            });
             for (var j = 0; j < params.length; j++) {
-                if ($args.eq(j).length) {
-                    var arg = params[j];
-                    if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
-                        if (isArgAColumn(arg)) {
-                            // it's a column
-                            if (arg[0] !== gAggVarPrefix) {
-                                // do not prepend colprefix if has aggprefix
-                                arg = gColPrefix + arg;
-                            }
-                        }
-                    } else {
-                        var quote = arg[0];
-                        if (arg.lastIndexOf(quote) === arg.length - 1) {
-                            arg = arg.slice(1, -1);
-                        }
-                    }
-                    $args.eq(j).val(arg);
+                var arg = params[j];
+                arg = formatArg(arg);
 
+                if ($args.eq(j).length) {
+                    $args.eq(j).val(arg);
                     if ($args.eq(j).closest(".row").hasClass("boolOption")) {
                         if (arg === "true") {
-                            $args.eq(j).closest(".row").find(".boolArgWrap .checkbox")
-                                                .addClass("checked");
+                            $args.eq(j).closest(".row")
+                                 .find(".boolArgWrap .checkbox")
+                                 .addClass("checked");
                         }
                     }
-
-                } else {
-                    break;
+                } else { // check if has variable arguments
+                    if ($group.find(".addArgWrap").length) {
+                        $group.find(".addArg").last().click();
+                        $group.find(".arg").filter(function() {
+                            return $(this).closest(".colNameSection")
+                                          .length === 0;
+                        }).last().val(arg);
+                    } else {
+                        break;
+                    }
                 }
             }
             if (options.prefill.newFields) {
@@ -1134,6 +1132,24 @@ window.OperationsView = (function($, OperationsView) {
         }
         if (options.prefill.includeSample) {
             $activeOpSection.find(".incSample .checkbox").addClass("checked");
+        }
+
+        function formatArg(arg) {
+            if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
+                if (isArgAColumn(arg)) {
+                    // it's a column
+                    if (arg[0] !== gAggVarPrefix) {
+                        // do not prepend colprefix if has aggprefix
+                        arg = gColPrefix + arg;
+                    }
+                }
+            } else {
+                var quote = arg[0];
+                if (arg.lastIndexOf(quote) === arg.length - 1) {
+                    arg = arg.slice(1, -1);
+                }
+            }
+            return arg;
         }
 
         checkIfStringReplaceNeeded(true);
@@ -1919,8 +1935,10 @@ window.OperationsView = (function($, OperationsView) {
             }
 
             // add "addArg" button if *arg is found in the description
-            if (description.indexOf("*") === 0 &&
-                description.indexOf("**") === -1) {
+            if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.VariableArg ||
+                (description.indexOf("*") === 0 &&
+                description.indexOf("**") === -1)) {
+                $input.addClass("variableArgs");
                 $rows.eq(i).after(
                     '<div class="addArgWrap addArgWrapLarge">' +
                         '<button class="btn addArg addMapArg">' +
@@ -2258,8 +2276,15 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     if ($input.data('casted')) {
-                        val = xcHelper.castStrHelper(val,
+                        var cols = val.split(",");
+                        val = "";
+                        for (var i = 0; i < cols.length; i++) {
+                            if (i > 0) {
+                                val += ", ";
+                            }
+                            val += xcHelper.castStrHelper(cols[i],
                                                      $input.data('casttype'));
+                        }
                     }
 
                     if (numNonBlankArgs > 0) {
@@ -2279,7 +2304,7 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     newText += val;
-                    inputCount ++;
+                    inputCount++;
                 });
                 newText += ")";
             });
@@ -2864,19 +2889,25 @@ window.OperationsView = (function($, OperationsView) {
                                  .find('.emptyOptions .checked').length;
             var isCasting = $input.data('casted') && !hasEmpty;
             if (isCasting) {
-                var progCol = table.getColByBackName(args[i]);
-                if (progCol != null) {
-                    isValid = true;
-                    var castType = $input.data('casttype');
-                    if (castType !== progCol.getType()) {
-                        colTypeInfos.push({
-                            "type": castType,
-                            "argNum": i
-                        });
+                var cols = args[i].split(",");
+                var casting = false;
+                for (var j = 0; j < cols.length; j++) {
+                    var progCol = table.getColByBackName(cols[j]);
+                    if (progCol != null) {
+                        isValid = true;
+                        var castType = $input.data('casttype');
+                        if (castType !== progCol.getType() && !casting) {
+                            casting = true;
+                            colTypeInfos.push({
+                                "type": castType,
+                                "argNum": i
+                            });
+                        }
+                    } else {
+                        console.error("Cannot find col", args[i]);
                     }
-                } else {
-                    console.error("Cannot find col", args[i]);
                 }
+
             }
         });
 
@@ -2961,12 +2992,13 @@ window.OperationsView = (function($, OperationsView) {
                     // col types they are expecting in the python functions, we will
                     // skip this type check if the function category is user defined
                     // function.
-                    if (operatorName !== "map" || !isUDF()) {
+                    if (!isUDF()) {
                         var types;
                         if (tempColNames.length > 1 &&
-                            (operatorName !== "group by" ||
-                            (operatorName === "group by" &&
-                             $input.closest('.gbOnRow').length === 0))) {
+                            !$input.hasClass("variableArgs") &&
+                            !$input.closest(".extraArg").length &&
+                            !$input.closest(".row")
+                                   .siblings(".addArgWrap").length) {
                             // non group by fields cannot have multiple column
                             //  names;
                             allColTypes.push({});
@@ -3677,13 +3709,20 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 0; i < colTypeGroups.length; i++) {
             for (var j = 0; j < colTypeGroups[i].length; j++) {
                 argNum = colTypeGroups[i][j].argNum;
-                argGroups[i][argNum] = xcHelper.castStrHelper(
-                                                argGroups[i][argNum],
+                var colNames = argGroups[i][argNum].split(",");
+                var colStr = "";
+                for (var k = 0; k < colNames.length; k++) {
+                    if (k > 0) {
+                        colStr += ", ";
+                    }
+                    colStr += xcHelper.castStrHelper(colNames[k],
                                                  colTypeGroups[i][j].type);
+                }
+                argGroups[i][argNum] = colStr;
             }
         }
 
-        // loop throguh groups
+        // loop through groups
         for (var i = 0; i < argGroups.length; i++) {
             var fName;
             if (operatorName === "filter") {
