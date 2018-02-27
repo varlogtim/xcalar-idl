@@ -775,7 +775,7 @@ XcalarLoad = function(datasetName, options, txId) {
             var loadError = null;
             if (thriftError.output && thriftError.output.errorString) {
                 // This has a valid error struct that we can use
-                console.error("error in point", thriftError.output);
+                console.error("error in import", thriftError.output);
                 loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
                     "error": parseLoadError(thriftError.output)
                 });

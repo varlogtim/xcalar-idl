@@ -252,7 +252,7 @@
             },
 
             setVersionId: function(id) {
-                if (id <= DSInfoKeys.VersionId) {
+                if (id <= this[DSInfoKeys.VersionId]) {
                     console.error("error case");
                 } else {
                     this[DSInfoKeys.VersionId] = id;

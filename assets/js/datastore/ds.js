@@ -180,7 +180,7 @@ window.DS = (function ($, DS) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
-        options = $.extend({}, options, {
+        var dsOptions = $.extend({}, options, {
             "id": fullDSName, // user the fulldsname as a unique id
             "name": dsName,
             "user": user,
@@ -188,7 +188,7 @@ window.DS = (function ($, DS) {
             "isFolder": false,
             "parentId": DSObjTerm.SharedFolderId
         });
-        var dsObj = createDS(options);
+        var dsObj = createDS(dsOptions);
         var arg = {
             dir: DSObjTerm.SharedFolderId,
             action: "add",
@@ -196,10 +196,9 @@ window.DS = (function ($, DS) {
         };
 
         commitSharedFolderChange(arg, true)
-        .then(deferred.resolve)
-        .fail(function() {
-            // still resolve it
-            deferred.reolve();
+        .always(function() {
+            // always resolve it
+            deferred.resolve(dsObj);
         });
 
         return deferred.promise();
@@ -278,7 +277,7 @@ window.DS = (function ($, DS) {
         };
 
         sortDS(curDirId);
-        return pointToHelper(dsObj, createTable, sql);
+        return importHelper(dsObj, createTable, sql);
     };
 
     // Rename dsObj
@@ -814,7 +813,7 @@ window.DS = (function ($, DS) {
         dsInfoMeta.setVersionId(arg.id);
     };
 
-    function pointToHelper(dsObj, createTable, sql) {
+    function importHelper(dsObj, createTable, sql) {
         var deferred = jQuery.Deferred();
         var dsName = dsObj.getName();
         var $grid = DS.getGrid(dsObj.getId());
@@ -854,7 +853,7 @@ window.DS = (function ($, DS) {
         })
         .then(function(dsInfos) {
             updateDSMeta(dsInfos[datasetName], dsObj, $grid);
-            finishPoint();
+            finishImport($grid);
 
             if (createTable) {
                 createTableHelper($grid, dsObj);
@@ -889,10 +888,11 @@ window.DS = (function ($, DS) {
                 if ($grid.hasClass("active")) {
                     focusOnForm();
                 }
+            } else {
+                // show loadError if has, otherwise show error message
+                var displayError = loadError || error;
+                handleImportError(dsObj, displayError);
             }
-            // show loadError if has, otherwise show error message
-            var displayError = loadError || error;
-            handlePointError(displayError);
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.ImportDSFailed,
@@ -908,25 +908,26 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
 
-        function finishPoint() {
-            $grid.removeData("txid");
-            $grid.removeClass("inactive").find(".waitingIcon").remove();
-            $grid.removeClass("loading");
-            $grid.addClass("notSeen");
-            // display new dataset
-            refreshDS();
-        }
+    function finishImport($grid) {
+        $grid.removeData("txid");
+        $grid.removeClass("inactive").find(".waitingIcon").remove();
+        $grid.removeClass("loading");
+        $grid.addClass("notSeen");
+        // display new dataset
+        refreshDS();
+    }
 
-        function handlePointError(error) {
-            var dsId = dsObj.getId();
-            if ($grid.hasClass("active")) {
-                dsObj.setError(error);
-                cacheErrorDS(dsId, dsObj);
-                DSTable.showError(dsId, error);
-                removeDS(dsId);
-            }
+    function handleImportError(dsObj, error) {
+        var dsId = dsObj.getId();
+        var $grid = DS.getGrid(dsId);
+        if ($grid.hasClass("active")) {
+            dsObj.setError(error);
+            cacheErrorDS(dsId, dsObj);
+            DSTable.showError(dsId, error);
         }
+        removeDS(dsId);
     }
 
     function delDSHelper($grid, dsObj, options) {
@@ -2324,8 +2325,10 @@ window.DS = (function ($, DS) {
     }
 
     function refreshHelper() {
-        xcHelper.showRefreshIcon($gridView);
-        DS.restore(DS.getHomeDir(true))
+        var promise = DS.restore(DS.getHomeDir(true));
+        xcHelper.showRefreshIcon($gridView, false, promise);
+
+        promise
         .then(function() {
             cleanFocusedDSIfNecessary();
             KVStore.commit();

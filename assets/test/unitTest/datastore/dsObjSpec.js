@@ -45,11 +45,6 @@ describe("Dataset-DSObj Test", function() {
         });
     });
 
-    function genUniqDSName(name) {
-        var validFunc = function(dsName) { return !DS.has(dsName); };
-        return xcHelper.uniqueRandName(name, validFunc, 10);
-    }
-
     describe("Basic Function Test", function() {
         it("Should get home folder", function() {
             var homeFolder = DS.getHomeDir();
@@ -65,6 +60,16 @@ describe("Dataset-DSObj Test", function() {
                                 .to.have.length.of.at.least(0);
             expect(homeFolder).to.have.property("totalChildren")
                                 .to.be.at.least(0);
+        });
+
+        it("should get shared dir", function() {
+            var persistSharedDir = DS.getSharedDir(true);
+            expect(persistSharedDir).to.be.an("object");
+            expect(persistSharedDir).not.to.be.instanceof(DSObj);
+
+            var nonPersistSharedDir = DS.getSharedDir(false);
+            expect(nonPersistSharedDir).to.be.an("object");
+            expect(nonPersistSharedDir).to.be.instanceof(DSObj);
         });
 
         it("Should get dsObj", function() {
@@ -85,8 +90,22 @@ describe("Dataset-DSObj Test", function() {
             expect(res).not.to.be.empty;
         });
 
+        it("DS.getUniqueName should work", function() {
+            var name = xcHelper.randName("test");
+            var dsName = DS.getUniqueName(name);
+            expect(name).to.equal(dsName);
+
+            var oldFunc = DS.has;
+            DS.has = function() {
+                return true;
+            };
+            dsName = DS.getUniqueName(name);
+            expect(name).not.to.equal(dsName);
+            DS.has = oldFunc;
+        });
+
         it("DS.has should work", function() {
-            var testName = genUniqDSName("testSuites-dsObj");
+            var testName = DS.getUniqueName("testSuites-dsObj");
             expect(DS.has(testName)).to.be.false;
             expect(DS.has(null)).to.be.false;
         });
@@ -136,20 +155,52 @@ describe("Dataset-DSObj Test", function() {
 
         it("Should add current user's ds", function() {
             var user = XcSupport.getUser();
-            var dsName = genUniqDSName("dsobj");
+            var dsName = DS.getUniqueName("testDS");
             var testName = user + "." + dsName;
             var ds = DS.addCurrentUserDS(testName, {
-                "format": "CSV",
-                "path": "testPath"
+                format: "CSV",
+                path: "testPath"
             });
 
             expect(ds).not.to.be.null;
             expect(ds.getName()).to.equal(dsName);
             expect(ds.getFormat()).to.equal("CSV");
-            expect(ds.isEditable()).to.be.true;
             var dsId = ds.getId();
             DS.__testOnly__.removeDS(dsId);
             expect(DS.getDSObj(dsId)).to.be.null;
+        });
+
+        it("should add other user's ds", function(done) {
+            var oldFunc = XcSocket.sendMessage;
+            XcSocket.sendMessage = function(ds, action, callback) {
+                if (typeof callback === "function") {
+                    callback(false); // make it fail
+                }
+            };
+
+            var user = xcHelper.randName("testUser");
+            var dsName = DS.getUniqueName("testDS");
+            var testName = user + "." + dsName;
+            DS.addOtherUserDS(testName, {
+                format: "CSV",
+                path: "testPath"
+            })
+            .then(function(ds) {
+                expect(ds).not.to.be.null;
+                expect(ds.getName()).to.equal(dsName);
+                expect(ds.getFormat()).to.equal("CSV");
+                expect(ds.parentId).to.equal(DSObjTerm.SharedFolderId);
+                var dsId = ds.getId();
+                DS.__testOnly__.removeDS(dsId);
+                expect(DS.getDSObj(dsId)).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcSocket.sendMessage = oldFunc;
+            });
         });
 
         it("Should upgrade dsObj", function() {
@@ -207,6 +258,36 @@ describe("Dataset-DSObj Test", function() {
             });
         });
     });
+
+    // describe("DS.updateDSInfo Test", function() {
+    //     var dsId;
+    //     var dsName;
+
+    //     before(function() {
+    //         dsId = xcHelper.randName("testId");
+    //     });
+
+    //     it("should add DS", function() {
+    //         var oldFunc = DS.getDSObj;
+    //         DS.getDSObj = function() {
+    //             return {};
+    //         };
+
+    //         var arg = {
+    //             ds: {
+    //                 id: dsId,
+    //                 name: dsId,
+    //                 parentId: DSObjTerm.homeDirId
+    //             },
+    //             dir: DSObjTerm.homeDirId,
+    //             id: 0
+    //         };
+    //         DS.updateDSInfo(arg);
+    //         UnitTest.hasAlertWithTitle(DSTStr.ShareDS);
+    //         expect(DS.getDSObj(dsId)).not.to.be.null;
+    //         oldFunc = DS.getDSObj;
+    //     });
+    // });
 
     describe("Hide unlistable DS Test", function() {
         var $grid;
@@ -427,7 +508,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should rename the folder", function() {
-            var newName = genUniqDSName("testFolder");
+            var newName = DS.getUniqueName("testFolder");
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.true;
             expect(testFolder.getName()).to.equal(newName);
@@ -442,7 +523,7 @@ describe("Dataset-DSObj Test", function() {
 
         it("Should not rename folder to invalid name", function() {
             var oldName = testFolder.getName();
-            var newName = genUniqDSName("test*folder");
+            var newName = DS.getUniqueName("test*folder");
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.false;
             expect(testFolder.getName()).to.equal(oldName);
@@ -471,12 +552,12 @@ describe("Dataset-DSObj Test", function() {
 
     describe("New Dataset Test", function() {
         it("should handle DS.import error", function(done) {
-            var oldFocus = DS.focusOn;
-            DS.focusOn = function() {
+            var oldFunc = XcalarLoad;
+            XcalarLoad = function() {
                 return PromiseHelper.reject("test");
             };
 
-            var name = genUniqDSName("test");
+            var name = DS.getUniqueName("test");
             var dataset = testDatasets.sp500;
             var dsArgs = $.extend({}, dataset, {"name": name});
             DS.import(dsArgs)
@@ -489,12 +570,12 @@ describe("Dataset-DSObj Test", function() {
                 done();
             })
             .always(function() {
-                DS.focusOn = oldFocus;
+                XcalarLoad = oldFunc;
             });
         });
 
         it("Should import ds", function(done) {
-            var name = genUniqDSName("testSuites-dsObj-sp500");
+            var name = DS.getUniqueName("testSuites-dsObj-sp500");
             var dataset = testDatasets.sp500;
             var dsArgs = $.extend({}, dataset, {"name": name});
             DS.import(dsArgs)
@@ -505,7 +586,8 @@ describe("Dataset-DSObj Test", function() {
                 expect(testDS).to.have.property("id");
                 expect(testDS).to.have.property("name").to.equal(name);
                 expect(testDS).to.have.property("format").to.equal(dataset.format);
-                expect(testDS).to.have.property("path").to.equal(dataset.path);
+                expect(testDS).to.have.property("sources").be.an("array");
+                expect(testDS.sources).to.equal(dataset.sources);
                 expect(testDS).to.have.property("size");
                 expect(testDS).to.have.property("numEntries");
                 expect(testDS).to.have.property("parentId");
@@ -1439,8 +1521,10 @@ describe("Dataset-DSObj Test", function() {
             };
 
             var options = {
-                tagetName: gDefaultSharedRoot,
-                path: "/test",
+                sources: [{
+                    tagetName: gDefaultSharedRoot,
+                    path: "/test",
+                }],
                 format: "JSON"
             };
             XcalarLoad("testDS", options, 1)

@@ -18,6 +18,10 @@ var testDatasets = {
         "targetName": gDefaultSharedRoot,
         "path": "/netstore/datasets/sp500.csv",
         "url": "netstore/datasets/sp500.csv",
+        "sources": [{
+            "targetName": gDefaultSharedRoot,
+            "path": "/netstore/datasets/sp500.csv"
+        }],
         "format": "CSV",
         "fieldDelim": "\t",
         "lineDelim": "\n",
@@ -31,6 +35,10 @@ var testDatasets = {
         "targetName": gDefaultSharedRoot,
         "path": "/netstore/datasets/indexJoin/schedule/",
         "url": "netstore/datasets/indexJoin/schedule/",
+        "sources": [{
+            "targetName": gDefaultSharedRoot,
+            "path": "/netstore/datasets/indexJoin/schedule/"
+        }],
         "format": "JSON",
         "moduleName": "",
         "funcName": "",
@@ -41,6 +49,10 @@ var testDatasets = {
         "targetName": gDefaultSharedRoot,
         "path": "/netstore/datasets/unittest/test_yelp.json",
         "url": "netstore/datasets/unittest/test_yelp.json",
+        "sources": [{
+            "targetName": gDefaultSharedRoot,
+            "path": "/netstore/datasets/unittest/test_yelp.json"
+        }],
         "format": "JSON",
         "moduleName": "",
         "funcName": "",
