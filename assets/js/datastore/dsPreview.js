@@ -731,12 +731,29 @@ window.DSPreview = (function($, DSPreview) {
         var $extraCols = $advanceSection.find(".extraCols");
         $extraCols.on("click", ".checkboxSection", function() {
             var $part = $(this).closest(".part");
-            $part.find(".checkbox").toggleClass("checked");
-            $part.toggleClass("active");
+            var $checkbox = $part.find(".checkbox");
 
-            if ($part.hasClass("active")) {
+            if ($checkbox.hasClass("checked")) {
+                $checkbox.removeClass("checked");
+                $part.removeClass("active");
+            } else {
+                $checkbox.addClass("checked");
+                $part.addClass("active");
                 $part.find("input").focus();
             }
+            addAdvancedRows();
+        });
+
+        var $fileName = $advanceSection.find(".fileName");
+        $fileName.on("input", "input", function() {
+            var text = $(this).val().trim();
+            $previewTable.find(".extra.fileName .text").text(text);
+        });
+
+        var $rowNumber = $advanceSection.find(".rowNumber");
+        $rowNumber.on("input", "input", function() {
+            var text = $(this).val().trim();
+            $previewTable.find(".extra.rowNumber .text").text(text);
         });
 
         $advanceSection.find(".performance").on("click", ".checkboxSection", function() {
@@ -1077,6 +1094,9 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.XML) {
             $("#dsForm-xPaths").val(options.udfQuery.xPath);
             toggleXMLCheckboxes(options.udfQuery);
+            // XML preview don't use UDF
+            delete options.moduleName;
+            delete options.funcName;
         }
         options.format = format;
         toggleFormat(format);
@@ -1428,8 +1448,9 @@ window.DSPreview = (function($, DSPreview) {
 
     function getColumnHeaders() {
         var headers = [];
+        var $ths = $previewTable.find("th:not(.rowNumHead):not(.extra)");
         if (loadArgs.getFormat() === formatMap.CSV) {
-            $previewTable.find("th:not(.rowNumHead)").each(function() {
+            $ths.each(function() {
                 var $th = $(this);
                 var type = $th.data("type") || "string";
                 var header = {
@@ -1439,7 +1460,7 @@ window.DSPreview = (function($, DSPreview) {
                 headers.push(header);
             });
         } else {
-            $previewTable.find("th:not(.rowNumHead)").each(function() {
+            $ths.each(function() {
                 var header = {
                     colType: "",
                     colName: $(this).find(".text").text().trim()
@@ -1742,7 +1763,7 @@ window.DSPreview = (function($, DSPreview) {
         var fileName = $fileName.find("input").val().trim() || null;
         var unsorted = $advanceSection.find(".performance .checkbox")
                                       .hasClass("checked");
-        terminationOptions = getTerminationOptions();
+        var terminationOptions = getTerminationOptions();
         return {
             //metaFile: metaFile,
             rowNum: rowNum,
@@ -3045,10 +3066,14 @@ window.DSPreview = (function($, DSPreview) {
                             '</div>');
     }
 
+    function isInError() {
+        return !$previewWrap.find(".errorSection").hasClass("hidden");
+    }
+
     function getPreviewTable(udfHint) {
         if (rawData == null && !udfHint) {
             // error case
-            if (!$previewWrap.find(".errorSection").hasClass("hidden")) {
+            if (isInError()) {
                 errorHandler(DSFormTStr.NoData);
             }
             return;
@@ -3070,125 +3095,96 @@ window.DSPreview = (function($, DSPreview) {
             showUDFHint();
             return;
         }
-        if (isUseUDFWithFunc() || format === formatMap.JSON) {
-            getJSONTable(rawData);
-            return;
-        }
 
-        if (format === formatMap.EXCEL) {
-            getJSONTable(rawData, getSkipRows());
-            if (loadArgs.useHeader()) {
+        var isSuccess = false;
+        if (isUseUDFWithFunc() || format === formatMap.JSON) {
+            isSuccess = getJSONTable(rawData);
+        } else if (format === formatMap.EXCEL) {
+            isSuccess = getJSONTable(rawData, getSkipRows());
+            if (isSuccess && loadArgs.useHeader()) {
                 toggleHeader(true, true);
             }
-            return;
-        }
-
-        if (format === formatMap.XML)
-        {
-            getXMLTable(rawData);
-            return;
-        }
-
-        // line delimiter
-        var lineDelim = loadArgs.getLineDelim();
-        var data = lineSplitHelper(rawData, lineDelim);
-        if (data == null) {
-            return;
-        }
-
-        data = data.map(function(d) {
-            return d.split("");
-        });
-
-        var fieldDelim = loadArgs.getFieldDelim();
-        if (format === formatMap.CSV && fieldDelim === "") {
-            $highlightBtns.removeClass("hidden")
-                          .find("button").addClass("xc-disabled");
-        }
-
-        var $tbody = $(getTbodyHTML(data, fieldDelim));
-        var $trs = $tbody.find("tr");
-        var maxTdLen = 0;
-        var fnf = xcHelper.parseJsonValue(null, true);
-        // find the length of td and fill up empty space
-        $trs.each(function() {
-            maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
-        });
-
-        $trs.each(function() {
-            var $tr  = $(this);
-            var $tds = $tr.find("td");
-            var trs = "";
-
-            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
-                trs += "<td>" + fnf + "</td>";
-            }
-
-            $tr.append(trs);
-        });
-
-        var $tHead = $(getTheadHTML(data, fieldDelim, maxTdLen));
-        var $tHrow = $tHead.find("tr");
-        var thLen  = $tHead.find("th").length;
-        var ths = "";
-
-        var thHtml;
-        if (loadArgs.getFormat() === formatMap.CSV) {
-            thHtml = '<th class="editable" data-type="string">' +
-                        '<div class="header type-string">' +
-                            colGrabTemplate +
-                            '<div class="flexContainer flexRow">' +
-                                '<div class="flexWrap flex-left" ' +
-                                'data-toggle="tooltip" data-container="body" ' +
-                                'data-placement="top" data-original-title="' +
-                                xcHelper.capitalize(ColumnType.string) +
-                                '<br>' + DSTStr.ClickChange + '">' +
-                                    '<span class="iconHidden"></span>' +
-                                    '<span class="type icon"></span>' +
-                                    '<div class="dropdownBox"></div>' +
-                                '</div>' +
-                                '<div class="flexWrap flex-mid">' +
-                                    '<input spellcheck="false" ' +
-                                    'class="text tooltipOverflow ' +
-                                    'editableHead" value="">' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</th>';
+        } else if (format === formatMap.XML) {
+            isSuccess = getXMLTable(rawData);
         } else {
-            thHtml = '<th>' +
-                '<div class="header">' +
-                    colGrabTemplate +
-                    '<div class="text"></div>' +
-                '</div>' +
-            '</th>';
-        }
-        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            ths += thHtml;
-        }
-        $tHrow.append(ths);
+            isSuccess = getCSVTable(rawData, format);
 
-        // add class
-        $tHrow.find("th").each(function(index) {
-            $(this).addClass("col" + index);
-        });
-
-        $previewTable.empty().append($tHead, $tbody);
-        $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
-        loadArgs.setOriginalTypedColumns(getColumnHeaders());
-
-        if (loadArgs.getFormat() === formatMap.CSV) {
-            initialSuggest();
+            if (isSuccess && format === formatMap.CSV) {
+                initialSuggest();
+            }
         }
 
-        if (fieldDelim !== "") {
-            $previewTable.addClass("has-delimiter");
+        if (!isSuccess) {
+            return;
         }
 
+        addAdvancedRows();
         if (window.isBrowserSafari) {
             $previewTable.removeClass("dataTable");
             setTimeout(function() {$previewTable.addClass("dataTable");}, 0);
         }
+    }
+
+    function addAdvancedRows() {
+        if (isInError()) {
+            return;
+        } else if (loadArgs.getFormat() === formatMap.XML) {
+            // XXX don't have a good UX for it, so disable it first
+            return;
+        }
+
+        $previewTable.find(".extra").remove();
+        var $advanceSection = $form.find(".advanceSection");
+        var $fileName = $advanceSection.find(".fileName");
+        var $rowNumber = $advanceSection.find(".rowNumber");
+        var hasFileName = $fileName.find(".checkbox").hasClass("checked");
+        var hasRowNumber = $rowNumber.find(".checkbox").hasClass("checked");
+        if (!hasFileName && !hasRowNumber) {
+            return;
+        }
+
+        var getTh = function($ele, extraClass) {
+            var header = $ele.find("input").val().trim() || "";
+            var th = '<th class="extra ' + extraClass + '">' +
+                        '<div class="header">' +
+                            colGrabTemplate +
+                            '<div class="text">' +
+                                header +
+                            '</div>' +
+                        '</div>' +
+                    '</th>';
+            return th;
+        };
+
+        var getTd = function(text) {
+            var td = '<td class="cell extra">' +
+                        '<div class="innerCell">' +
+                            text +
+                        '</div>' +
+                    '</td>';
+            return td;
+        };
+
+        var previewFile = loadArgs.getPreviewFile() || "";
+        var extraTh = "";
+        if (hasFileName) {
+            extraTh += getTh($fileName, "fileName");
+        }
+        if (hasRowNumber) {
+            extraTh += getTh($rowNumber, "rowNumber");
+        }
+
+        $previewTable.find("thead tr").append(extraTh);
+        $previewTable.find("tbody tr").each(function(index) {
+            var extraTd = "";
+            if (hasFileName) {
+                extraTd += getTd(previewFile);
+            }
+            if (hasRowNumber) {
+                extraTd += getTd(index + 1);
+            }
+            $(this).append(extraTd);
+        });
     }
 
     function toggleHeader(promote, changePreview) {
@@ -3324,12 +3320,13 @@ window.DSPreview = (function($, DSPreview) {
         var json = parseJSONData(datas);
         if (json == null) {
             // error case
-            return;
+            return false;
         }
         json = json.splice(skipRows);
 
         $previewTable.html(getJSONTableHTML(json))
         .addClass("has-delimiter");
+        return true;
     }
 
     function parseJSONByRow(data) {
@@ -3414,16 +3411,17 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function getXMLTable(rawData) {
-        if (rawData == null){
-            return;
+    function getXMLTable(xmlData) {
+        if (xmlData == null){
+            return false;
         }
 
-        var data = lineSplitHelper(rawData, '\n');
+        var data = lineSplitHelper(xmlData, '\n');
         var html = getXMLTbodyHTML(data);
 
         $previewTableWrap.addClass("XMLTableFormat");
         $previewTable.html(html);
+        return true;
     }
 
 
@@ -3492,6 +3490,101 @@ window.DSPreview = (function($, DSPreview) {
         html += '</tbody>';
 
         return html;
+    }
+
+    function getCSVTable(csvData, format) {
+         // line delimiter
+        var lineDelim = loadArgs.getLineDelim();
+        var data = lineSplitHelper(csvData, lineDelim);
+        if (data == null) {
+            return false;
+        }
+
+        data = data.map(function(d) {
+            return d.split("");
+        });
+
+        var fieldDelim = loadArgs.getFieldDelim();
+        if (format === formatMap.CSV && fieldDelim === "") {
+            $highlightBtns.removeClass("hidden")
+                          .find("button").addClass("xc-disabled");
+        }
+
+        var $tbody = $(getTbodyHTML(data, fieldDelim));
+        var $trs = $tbody.find("tr");
+        var maxTdLen = 0;
+        var fnf = xcHelper.parseJsonValue(null, true);
+        // find the length of td and fill up empty space
+        $trs.each(function() {
+            maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
+        });
+
+        $trs.each(function() {
+            var $tr  = $(this);
+            var $tds = $tr.find("td");
+            var trs = "";
+
+            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
+                trs += "<td>" + fnf + "</td>";
+            }
+
+            $tr.append(trs);
+        });
+
+        var $tHead = $(getTheadHTML(data, fieldDelim, maxTdLen));
+        var $tHrow = $tHead.find("tr");
+        var thLen  = $tHead.find("th").length;
+        var ths = "";
+
+        var thHtml;
+        if (loadArgs.getFormat() === formatMap.CSV) {
+            thHtml = '<th class="editable" data-type="string">' +
+                        '<div class="header type-string">' +
+                            colGrabTemplate +
+                            '<div class="flexContainer flexRow">' +
+                                '<div class="flexWrap flex-left" ' +
+                                'data-toggle="tooltip" data-container="body" ' +
+                                'data-placement="top" data-original-title="' +
+                                xcHelper.capitalize(ColumnType.string) +
+                                '<br>' + DSTStr.ClickChange + '">' +
+                                    '<span class="iconHidden"></span>' +
+                                    '<span class="type icon"></span>' +
+                                    '<div class="dropdownBox"></div>' +
+                                '</div>' +
+                                '<div class="flexWrap flex-mid">' +
+                                    '<input spellcheck="false" ' +
+                                    'class="text tooltipOverflow ' +
+                                    'editableHead" value="">' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</th>';
+        } else {
+            thHtml = '<th>' +
+                '<div class="header">' +
+                    colGrabTemplate +
+                    '<div class="text"></div>' +
+                '</div>' +
+            '</th>';
+        }
+        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
+            ths += thHtml;
+        }
+        $tHrow.append(ths);
+
+        // add class
+        $tHrow.find("th").each(function(index) {
+            $(this).addClass("col" + index);
+        });
+
+        $previewTable.empty().append($tHead, $tbody);
+        $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
+        loadArgs.setOriginalTypedColumns(getColumnHeaders());
+
+        if (fieldDelim !== "") {
+            $previewTable.addClass("has-delimiter");
+        }
+        return true;
     }
 
     function getTheadHTML(datas, delimiter, tdLen) {
