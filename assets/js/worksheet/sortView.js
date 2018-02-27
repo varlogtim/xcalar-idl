@@ -39,7 +39,10 @@ window.SortView = (function($, SortView) {
             }
         });
 
-        $sortView.on("click", ".colName", function() {
+        $sortView.on("click", ".colName", function(event) {
+            if ($(event.target).is(".removeCol")) {
+                return;
+            }
             var colNum = $(this).closest(".row").data("col");
             scrollToColumn(colNum);
         });
@@ -78,6 +81,11 @@ window.SortView = (function($, SortView) {
             var colOrder = $(this).data("order");
             colOrder = colOrder[0].toUpperCase() + colOrder.slice(1);
             changeColOrder(colNum, colOrder);
+        });
+
+        $sortView.on("click", ".removeCol", function() {
+            var colNum = $(this).closest(".row").data("col");
+            deSelectCol(colNum);
         });
     };
 
@@ -316,12 +324,12 @@ window.SortView = (function($, SortView) {
         var html = '<div class="row" data-col="' + colNum + '">' +
                         '<div class="col colName ' +
                         'textOverflowOneLine tooltipOverflow" ' +
-                        'data-toggle="tooltip" data-placement="top"' +
-                        'data-container="body" ' +
+                        xcTooltip.Attrs +
                         'data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) + '">' +
                             colName +
+                        '<i class="icon xi-close xc-action removeCol"></i>' +
                         '</div>' +
                         '<div class="' + colTypeClass + '">' +
                             '<div class="text">' +

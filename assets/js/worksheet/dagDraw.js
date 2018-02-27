@@ -1377,9 +1377,7 @@ window.DagDraw = (function($, DagDraw) {
                     'data-nodeid="' + node.value.dagNodeId + '" ' +
                     dataAttrs + '>' +
                         '<div class="' + iconClasses + '" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
+                        xcTooltip.Attrs +
                         'title="' + tooltipTxt + '"' +
                         '></div>' +
                         extraIcon +
@@ -1447,8 +1445,7 @@ window.DagDraw = (function($, DagDraw) {
             }
             dataAttr += " data-tag='" + node.value.tags[0] + "' ";
             groupTagIcon += '<div class="groupTagIcon" data-tagid="' + tagId +
-                            '" data-toggle="tooltip" data-placement="top" ' +
-                            'data-container="body" data-original-title="' +
+                            '"' + xcTooltip.Attrs + 'data-original-title="' +
                             tagIconTip + '" ' +
                             '><i class="icon xi-ellipsis-h-circle">' +
                             '</i></div>';
@@ -1459,8 +1456,7 @@ window.DagDraw = (function($, DagDraw) {
             var comment = "Comments: " +
                             xcHelper.escapeDblQuoteForHTML(node.value.comment);
             commentIcon += '<div class="commentIcon" ' +
-                            'data-toggle="tooltip" data-placement="top" ' +
-                            'data-container="body" data-tiphtml="false" ' +
+                            xcTooltip.Attrs + 'data-tiphtml="false" ' +
                             'data-original-title="' + comment + '" ' +
                             '><i class="icon xi-info-circle">' +
                             '</i></div>';
@@ -1583,20 +1579,20 @@ window.DagDraw = (function($, DagDraw) {
         // condensedId comes from the index of the child of rightmost
         // hidden table
         html += '<div class="expandWrap horz' + classes + '" ' +
-                        'style="top:' + (top + 5) + 'px;right:' + right +
-                        'px;" ' +
-                        'data-depth="' + depth + '" ' +
-                        'data-index="' + groupId + '" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
-                        'data-size=' + groupLength + ' ' +
-                        'title="' + tooltip + '">...</div>' +
-                    '<div class="groupOutline" ' +
-                        'style="top:' + top + 'px;right:' +
-                            outlineOffset +
-                            'px;width:' + groupWidth + 'px;" ' +
-                        'data-index="' + groupId + '"></div>';
+                    'style="top:' + (top + 5) + 'px;right:' + right +
+                    'px;" ' +
+                    'data-depth="' + depth + '" ' +
+                    'data-index="' + groupId + '" ' +
+                    xcTooltip.Attrs +
+                    'data-size=' + groupLength + ' ' +
+                    'title="' + tooltip + '">...' +
+                '</div>' +
+                '<div class="groupOutline" ' +
+                    'style="top:' + top + 'px;right:' +
+                    outlineOffset +
+                    'px;width:' + groupWidth + 'px;" ' +
+                    'data-index="' + groupId + '">' +
+                '</div>';
 
         return html;
     }

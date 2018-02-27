@@ -30,7 +30,7 @@ window.xcTooltip = (function(xcTooltip, $) {
         var defaultOptions = {
             "title": "",
             "container": "body",
-            "placement": "top"
+            "placement": "auto top"
         };
 
         options = $.extend(defaultOptions, options);
@@ -61,7 +61,7 @@ window.xcTooltip = (function(xcTooltip, $) {
     xcTooltip.transient = function($element, options, delay) {
         var defaultOptions = {
             "title": "",
-            "placement": "top",
+            "placement": "auto top",
             "animation": true,
             "container": "body",
             "trigger": "manual"

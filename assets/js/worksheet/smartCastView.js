@@ -45,7 +45,10 @@ window.SmartCastView = (function($, SmartCastView) {
             smartSuggest(curTableId);
         });
 
-        $castView.on("click", ".colName", function() {
+        $castView.on("click", ".colName", function(event) {
+            if ($(event.target).is(".removeCol")) {
+                return;
+            }
             var colNum = $(this).closest(".row").data("col");
             formHelper.focusOnColumn(curTableId, colNum);
         });
@@ -75,6 +78,11 @@ window.SmartCastView = (function($, SmartCastView) {
             var colNum = $castMenu.data("col");
             var colType = $(this).data("type");
             changeColType(colNum, colType);
+        });
+
+        $castView.on("click", ".removeCol", function() {
+            var colNum = $(this).closest(".row").data("col");
+            deSelectCol(colNum);
         });
     };
 
@@ -139,7 +147,7 @@ window.SmartCastView = (function($, SmartCastView) {
         if (tableId !== curTableId) {
             return;
         }
-       
+
         initialSuggest(curTableId);
     };
 
@@ -272,12 +280,12 @@ window.SmartCastView = (function($, SmartCastView) {
         var html = '<div class="row" data-col="' + colNum + '">' +
                         '<div class="col colName ' +
                         'textOverflowOneLine tooltipOverflow" ' +
-                        'data-toggle="tooltip" data-placement="top"' +
-                        'data-container="body" ' +
+                        xcTooltip.Attrs +
                         'data-original-title="' +
                         xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(colName)) + '">' +
                             colName +
+                        '<i class="icon xi-close xc-action removeCol"></i>' +
                         '</div>' +
                         '<div class="' + colTypeClass + '">' +
                             '<div class="text">' +
