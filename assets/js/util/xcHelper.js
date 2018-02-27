@@ -3810,8 +3810,12 @@
                         keyFieldName = name;
                         type = colMeta[name];
                     }
+                } else {
+                    // // if no tableMeta, let backend handle it
+                    // if no tableMeta, just overwrite keyFieldName with key.name
+                    keyFieldNameName = name;
                 }
-                // if no tableMeta, let backend handle it
+
                 return {
                     name: name,
                     type: type || DfFieldTypeT.DfUnknown,

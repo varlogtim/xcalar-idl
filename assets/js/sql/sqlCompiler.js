@@ -474,6 +474,9 @@
                 if (node.children.length % 2 === 1) {
                     lastNode.children[2] =
                                           node.children[node.children.length-1];
+                    // important here. otherwise in following secondTraverse we
+                    // are not able to refer to this retNode by node.parent
+                    node.children[node.children.length-1].parent = lastNode;
                 } else {
                     // no else clause
                     // We need to create our own terminal condition
@@ -662,11 +665,14 @@
                 var intCastNode = castNode("int");
                 intCastNode.children = [node, literalNumberNode(10)];
                 intCastNode.value["num-children"] = 2;
-                if (idx !== undefined) {
-                    var parent = node.parent;
-                    intCastNode.parent = parent;
-                    parent.children[idx] = intCastNode;
+
+                if (node.parent) {
+                    assert(idx !== undefined, SQLTStr.DayOfMonth);
+                    intCastNode.parent = node.parent;
+                    node.parent.children[idx] = intCastNode;
                 } else {
+                    assert(idx === undefined, SQLTStr.DayOfMonth + idx);
+                    // This must be the first level call
                     retNode = intCastNode;
                 }
                 break;
@@ -687,11 +693,13 @@
                 childNode.children.push(node.children[0]);
                 newNode.children.push(childNode,
                                       node.children[0], node.children[1]);
-                if (idx !== undefined) {
-                    var parent = node.parent;
-                    newNode.parent = parent;
-                    parent.children[idx] = newNode;
+                if (node.parent) {
+                    assert(idx !== undefined, SQLTStr.Coalesce);
+                    newNode.parent = node.parent;
+                    node.parent.children[idx] = newNode;
                 } else {
+                    assert(idx === undefined, SQLTStr.Coalesce + idx);
+                    // This must be the first level call
                     retNode = newNode;
                 }
                 break;
