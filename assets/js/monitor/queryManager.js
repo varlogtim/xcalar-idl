@@ -873,10 +873,17 @@ window.QueryManager = (function(QueryManager, $) {
                 mainQuery.currStep = Math.max(mainQuery.currStep, currStep);
                 setQueriesDone(mainQuery, firstQueryPos, currStep);
                 var state = res.queryState;
+
                 if (state === QueryStateT.qrFinished) {
-                    mainQuery.currStep++;
+                    var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
+                    currStep = mainQuery.currStep + 1;
+                    if (!curSubQuery.retName) {
+                        // do not increment step if retina because
+                        // subQueryDone() will do this when retina resolves
+                        mainQuery.currStep++;
+                    }
                     clearIntervalHelper(id);
-                    var subQuery = mainQuery.subQueries[mainQuery.currStep];
+                    var subQuery = mainQuery.subQueries[currStep];
                     if (subQuery) {
                         if (subQuery.queryName) {
                             outerQueryCheck(id, doNotAnimate);
