@@ -245,6 +245,9 @@ window.Dag = (function($, Dag) {
             tableName = gTables[tableId].tableName;
             $dags = $dagPanel.find('.dagTable[data-id="' + tableId + '"]');
         }
+        if (!$dags.length) {
+            return;
+        }
 
         $dags.removeClass('Ready')
              .addClass('Dropped');

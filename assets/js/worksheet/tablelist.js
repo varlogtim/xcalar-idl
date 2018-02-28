@@ -228,7 +228,10 @@ window.TableList = (function($, TableList) {
                 "title": title,
                 "msgTemplate": msg,
                 "onConfirm": function() {
-                    deleteFromList($section, tableType);
+                    // allows modal to close if laggy from lots of tables
+                    setTimeout(function() {
+                        deleteFromList($section, tableType);
+                    }, 10);
                 }
             });
             focusedListNum = null;
