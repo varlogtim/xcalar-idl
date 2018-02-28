@@ -462,10 +462,6 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.changePreviewFile = function(path) {
-        changePreviewFile(path);
-    };
-
     DSPreview.update = function(listXdfsObj) {
         var moduleName = $udfModuleList.find("input").val();
         var funcName = $udfFuncList.find("input").val();
@@ -4517,7 +4513,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.invalidHeaderDetection = invalidHeaderDetection;
         DSPreview.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
         DSPreview.__testOnly__.checkBulkDuplicateNames = checkBulkDuplicateNames;
-
+        DSPreview.__testOnly__.changePreviewFile = changePreviewFile;
 
         DSPreview.__testOnly__.resetForm = resetForm;
         DSPreview.__testOnly__.restoreForm = restoreForm;

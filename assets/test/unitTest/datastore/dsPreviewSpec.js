@@ -405,8 +405,9 @@ describe("Dataset-DSPreview Test", function() {
             };
 
             DSPreview.__testOnly__.getURLToPreview()
-            .then(function(path) {
-                expect(path).equal("/url/test");
+            .then(function(index, path) {
+                expect(index).to.equal(0);
+                expect(path).to.equal("/url/test");
                 done();
             })
             .fail(function() {
@@ -480,37 +481,18 @@ describe("Dataset-DSPreview Test", function() {
                 done();
             });
         });
+
+        it("changePreviewFile should work", function() {
+            var oldPreviewSource = loadArgs.getPreviewingSource();
+            DSPreview.__testOnly__.changePreviewFile(0, "test");
+            expect(loadArgs.getPreviewFile()).to.equal("test");
+            if (oldPreviewSource != null) {
+                loadArgs.setPreviewingSource(oldPreviewSource.index, oldPreviewSource.file);
+            }
+        });
     });
 
     describe("Preview Public API Test", function() {
-        it("DSPreview.changePreviewFile should work", function() {
-            var oldPreviewFile = loadArgs.getPreviewFile();
-            DSPreview.changePreviewFile("test", true);
-            expect(loadArgs.getPreviewFile()).to.equal("test");
-            loadArgs.setPreviewFile(oldPreviewFile);
-        });
-
-        // it("DSPreview.backFromParser should work", function() {
-        //     var oldFunc = DSPreview.changePreviewFile;
-        //     DSPreview.changePreviewFile = function() {
-        //         return;
-        //     };
-        //     // case 1
-        //     DSPreview.backFromParser("test", {
-        //         "moduleName": "udf"
-        //     });
-        //     var useUDF = DSPreview.__testOnly__.isUseUDF();
-        //     expect(useUDF).to.be.true;
-        //     // case 2
-        //     DSPreview.backFromParser("test", {
-        //         "moduleName": "udf",
-        //         "delimiter": ","
-        //     });
-        //     expect(loadArgs.getLineDelim()).to.be.equal(",");
-
-        //     DSPreview.changePreviewFile = oldFunc;
-        // });
-
         it("DSPreview.toggleXcUDFs should work", function() {
             var isHide = UserSettings.getPref("hideXcUDF") || false;
             var $li = $("<li>_xcalar_test</li>");
@@ -555,9 +537,9 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
-            loadArgs.setPreviewFile("test.xlsx");
+            loadArgs.setPreviewingSource(0, "test.xlsx");
             expect(detectFormat()).to.equal("Excel");
-            loadArgs.setPreviewFile("test");
+            loadArgs.setPreviewingSource(0, "test");
             var data = "[{\"test\"}";
             expect(detectFormat(data, "\n")).to.equal("JSON");
 
@@ -1841,14 +1823,14 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("cast dropdown li should work", function() {
-            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.true;
+            expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.true;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
             $("#dsForm-preview").find(".castDropdown").find(".type-boolean").trigger(fakeEvent.mouseup);
-            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.false;
+            expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.false;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.true;
 
-            $("#dsForm-preview").find(".castDropdown").find(".type-string").trigger(fakeEvent.mouseup);
-            expect($previewTable.find(".header").eq(1).hasClass("type-string")).to.be.true;
+            $("#dsForm-preview").find(".castDropdown").find(".type-integer").trigger(fakeEvent.mouseup);
+            expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.true;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
         });
 
