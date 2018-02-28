@@ -42,9 +42,13 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             if ($(this).hasClass('minimize')) {
                 $configCard.addClass('minimized');
                 $(this).parent().addClass('minimized');
+
+                $('#monitorLogCard').addClass('maximized');
             } else {
                 $configCard.removeClass('minimized');
                 $(this).parent().removeClass('minimized');
+
+                $('#monitorLogCard').removeClass('maximized');
             }
         });
 

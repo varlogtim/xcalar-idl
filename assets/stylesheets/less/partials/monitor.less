@@ -1558,6 +1558,16 @@
         overflow: hidden;
         padding: 30px 0px !important;
     }
+    &.maximized {
+        height: 100%;
+        .cardMain {
+            height: 100%;
+        }
+        .logSection {
+            max-height: ~"calc(100% - 171px)";
+            height: auto !important;
+        }
+    }
     .inputSection {
         .flex-display;
         .justify-content(space-between);
