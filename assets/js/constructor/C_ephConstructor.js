@@ -138,6 +138,8 @@ DSFormController.prototype = {
     set: function(options) {
         options = options || {};
         this.previewSet = {};
+        this.headersList = [];
+        this.originalHeadersList = [];
         this.files = this.files || [];
 
         if (options.targetName != null) {
@@ -168,10 +170,6 @@ DSFormController.prototype = {
         if (options.pattern != null) {
             this.pattern = options.pattern;
         }
-
-        if (options.typedColumns != null) {
-            this.typedColumns = options.typedColumns;
-        }
     },
 
     reset: function() {
@@ -181,6 +179,8 @@ DSFormController.prototype = {
         this.quote = "\"";
         this.previewingSource = null;
         this.previewSet = {};
+        this.headersList = [];
+        this.originalHeadersList = [];
         this.files = [];
 
         delete this.multiDS;
@@ -190,7 +190,6 @@ DSFormController.prototype = {
         delete this.pattern;
         delete this.udfModule;
         delete this.udfFunc;
-        delete this.typedColumns;
     },
 
     getTargetName: function() {
@@ -263,6 +262,48 @@ DSFormController.prototype = {
         return this.previewingSource.file;
     },
 
+    getPreivewIndex: function() {
+        if (this.previewingSource == null) {
+            return null;
+        }
+        return this.previewingSource.index;
+    },
+
+    _getPreviewHeadersIndex: function(index) {
+        // single souce only have one headers
+        return this.multiDS ? index : 0;
+    },
+
+    setPreviewHeaders: function(index, headers) {
+        index = this._getPreviewHeadersIndex(index);
+        if (headers instanceof Array && headers.length > 0) {
+            this.headersList[index] = headers;
+        }
+    },
+
+    getPreviewHeaders: function(index) {
+        index = this._getPreviewHeadersIndex(index);
+        return this.headersList[index];
+    },
+
+    setOriginalHeaders: function(headers) {
+        var index = this.getPreivewIndex();
+        if (index != null) {
+            index = this._getPreviewHeadersIndex(index);
+            this.originalHeadersList[index] = headers;
+        }
+    },
+
+    getOriginalHeaders: function(index) {
+        index = this._getPreviewHeadersIndex(index);
+        return this.originalHeadersList[index] || [];
+    },
+
+    resetCachedHeaders: function() {
+        this.headersList = [];
+        this.originalHeadersList = [];
+    },
+
     getPattern: function() {
         return this.pattern;
     },
@@ -270,19 +311,12 @@ DSFormController.prototype = {
     getArgStr: function() {
         var args = $.extend({}, this);
         delete args.previewingSource;
-        delete args.typedColumns;
         delete args.files;
         delete args.multiDS;
         delete args.previewSet;
+        delete args.headersList;
+        delete args.originalHeadersList;
         return JSON.stringify(args);
-    },
-
-    setOriginalTypedColumns: function(typedColumns) {
-        this.typedColumns = typedColumns;
-    },
-
-    getOriginalTypedColumns: function() {
-        return this.typedColumns;
     },
 
     listFileInPath: function(path, recursive) {

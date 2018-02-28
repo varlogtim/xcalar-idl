@@ -524,7 +524,8 @@ module.exports = {
         "Previewing": "数据预览",
         "RmHighlight": "清除高亮",
         "Tab": "TAB建",
-        "MoreRows": "加载更多行"
+        "MoreRows": "加载更多行",
+        "HeaderChangeWarn": "警告！数据集列名被改变，有关列名的修改已被删除"
     },
     "dsTable": {
         "CreatedBy": "创建者",

@@ -752,7 +752,8 @@ module.exports = {
         "ApplyHighlight": "Apply highlighted characters as field delimiter",
         "EndOfPreview": "End of the file to preview",
         "Tab": "Tab",
-        "MoreRows": "Show more rows"
+        "MoreRows": "Show more rows",
+        "HeaderChangeWarn": "Warning! Dataset headers were changed and any previous modifications to the headers were discarded."
     },
 
     "dsExport": {
