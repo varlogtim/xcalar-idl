@@ -810,7 +810,7 @@ module.exports = {
         "Columns": "Columns",
         "AdditionalTables": "Additional tables to export",
         "SourceTableHint": "Specifying source tables allows batch dataflows to use tables from the current workbook instead of reading the data from source",
-        "AddSource": "Add a source table",
+        "AddSource": "Select a source table",
         "SourceTables": "Source Tables",
         "SelectOpEdit": "Select an operation to edit",
         // For uploader
