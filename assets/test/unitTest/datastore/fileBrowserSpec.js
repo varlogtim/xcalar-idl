@@ -3,20 +3,48 @@ describe("Dataset-File Browser Test", function() {
     var $pathLists;
     var $pathSection;
     var $mainTabCache;
+    var $pickedFileList;
+    var testFiles;
 
     before(function(){
         $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
         $pathSection = $("#fileBrowserPath");
+        $pickedFileList = $("#fileInfoContainer .pickedFileList").eq(0);
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
         UnitTest.onMinMode();
+
+        testFiles = [{
+            "name": "test1.csv",
+            "attr": {
+                "isDirectory": false,
+                "mtime": 1434159233,
+                "size": 1
+            }
+        },
+        {
+            "name": "test2.json",
+            "attr": {
+                "isDirectory": false,
+                "mtime": 1451005071,
+                "size": 3
+            }
+        },
+        {
+            "name": "test3",
+            "attr": {
+                "isDirectory": true,
+                "mtime": 1458167245,
+                "size": 2
+            }
+        }
+        ];
     });
 
     describe("Basic function test", function() {
         var $testGrid;
-        var testFiles;
         var testHtml;
 
         before(function(){
@@ -24,32 +52,6 @@ describe("Dataset-File Browser Test", function() {
                             '<div class="label" data-name="test"></div>' +
                         '</div>';
             $testGrid = $(testHtml);
-
-            testFiles = [{
-                "name": "test1.csv",
-                "attr": {
-                    "isDirectory": false,
-                    "mtime": 1434159233,
-                    "size": 1
-                }
-            },
-            {
-                "name": "test2.json",
-                "attr": {
-                    "isDirectory": false,
-                    "mtime": 1451005071,
-                    "size": 3
-                }
-            },
-            {
-                "name": "test3",
-                "attr": {
-                    "isDirectory": true,
-                    "mtime": 1458167245,
-                    "size": 2
-                }
-            }
-            ];
         });
 
         it("should get current target", function() {
@@ -224,43 +226,6 @@ describe("Dataset-File Browser Test", function() {
             }
         });
 
-        it("should submit form", function() {
-            var submitForm = FileBrowser.__testOnly__.submitForm;
-            var oldFunc = DSPreview.show;
-            var test = null;
-            DSPreview.show = function(options) {
-                test = options;
-            };
-            // error case
-            // use default path
-            $pathLists.prepend("<li>/</li>");
-            submitForm();
-            expect(test).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFile);
-
-            // normal case 1
-            $pathSection.find(".targetName").text(gDefaultSharedRoot);
-            $pathLists.prepend("<li>/test/</li>");
-            submitForm();
-            expect(test).to.be.an("object");
-            expect(test.targetName).to.equal(gDefaultSharedRoot);
-            expect(test.path).to.equal("/test/");
-            expect(test.format).to.be.null;
-
-            // normal case 2
-            $pathLists.prepend("<li>/</li>");
-            var $ds = $('<div>' +
-                            '<div class="fileName" data-name="test.csv"></div>' +
-                        '</div>');
-            submitForm($ds);
-            expect(test).to.be.an("object");
-            expect(test.targetName).to.equal(gDefaultSharedRoot);
-            expect(test.path).to.equal("/test.csv");
-            expect(test.format).to.equal("CSV");
-
-            DSPreview.show = oldFunc;
-        });
-
         it("showPathError should work", function() {
             FileBrowser.__testOnly__.showPathError();
             UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFilePath);
@@ -303,6 +268,94 @@ describe("Dataset-File Browser Test", function() {
             $testGrid.remove();
         });
     });
+    describe("File Selection Test", function() {
+        var $firstGrid;
+        var $lastGrid;
+        var submitForm;
+        var oldFunc;
+        var test;
+
+        before(function() {
+            FileBrowser.__testOnly__.setCurFiles(testFiles);
+            FileBrowser.__testOnly__.getHTMLFromFiles(testFiles);
+            $firstGrid = $fileBrowser.find(".grid-unit").eq(0);
+            $lastGrid = $fileBrowser.find(".grid-unit").eq(testFiles.length - 1);
+            submitForm = FileBrowser.__testOnly__.submitForm;
+            oldFunc = DSPreview.show;
+            test = null;
+            DSPreview.show = function(options) {
+                test = options;
+            };
+        });
+
+        it("submitForm should fail when no file is selected", function() {
+            // error case
+            // use default path
+            $pathLists.prepend("<li>/</li>");
+            submitForm();
+            expect(test).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFile);
+        });
+
+        it("selectSingleFile should work", function() {
+            FileBrowser.__testOnly__.selectSingleFile($firstGrid);
+            expect($firstGrid.hasClass("selected")).to.be.true;
+        });
+
+        it("selectMultiFiles should work", function() {
+            FileBrowser.__testOnly__.selectMultiFiles($lastGrid);
+            expect($fileBrowser.find(".grid-unit.selected").length)
+                                                    .to.equal(testFiles.length);
+        });
+
+        it("should toggle to pick all selected files", function() {
+            FileBrowser.__testOnly__.togglePickedFiles($lastGrid);
+            // Should give ".picked" to left part
+            expect($fileBrowser.find(".grid-unit.picked").length)
+                                                    .to.equal(testFiles.length);
+            FileBrowser.__testOnly__.updatePickedFilesList();
+            // Should add files to right part
+            expect($pickedFileList.find("li").length).to.equal(testFiles.length);
+        });
+
+        it("unselectSingleFile should work", function() {
+            FileBrowser.__testOnly__.unselectSingleFile($firstGrid);
+            // Unselect also unpick the file
+            expect($firstGrid.hasClass("selected")).to.be.false;
+            expect($firstGrid.hasClass("picked")).to.be.false;
+            expect($pickedFileList.find("li").length)
+                                                .to.equal(testFiles.length - 1);
+        });
+
+        it("submitForm should work", function() {
+            $pathSection.find(".targetName").text(gDefaultSharedRoot);
+            // submit by double-clicking a file
+            submitForm($firstGrid);
+            expect(test).to.be.an("object");
+            expect(test.targetName).to.equal(gDefaultSharedRoot);
+            expect(test.files.length).to.equal(1);
+            expect(test.files[0].path).to.equal("/test1.csv");
+
+            // submit by the added file list
+            submitForm();
+            expect(test).to.be.an("object");
+            expect(test.targetName).to.equal(gDefaultSharedRoot);
+            expect(test.files.length).to.equal(testFiles.length - 1);
+        });
+
+        it("should toggle to remove and unpick all selected", function() {
+            // Toggle to remove all
+            FileBrowser.__testOnly__.togglePickedFiles($lastGrid);
+            FileBrowser.__testOnly__.updatePickedFilesList(null,
+                                                           {isRemove: true});
+            expect($fileBrowser.find(".grid-unit.picked").length).to.equal(0);
+            expect($pickedFileList.find("li").length).to.equal(0);
+        });
+
+        after(function() {
+            DSPreview.show = oldFunc;
+        })
+    })
 
     describe("Go To Path Test", function() {
         var oldFunc;
@@ -590,9 +643,11 @@ describe("Dataset-File Browser Test", function() {
             .then(function() {
                 var $grid = findGrid("netstore");
                 $grid.click(); // focus on it
+                $grid.find(".checkBox .icon").click();
                 $fileBrowser.find(".confirm").click();
                 expect(test).to.be.an("object");
-                expect(test.path).contain("netstore");
+                expect(test.files.length).to.equal(1);
+                expect(test.files[0].path).contain("netstore");
                 done();
             })
             .fail(function() {
@@ -607,7 +662,8 @@ describe("Dataset-File Browser Test", function() {
                 var $grid = findGrid("sp500.csv");
                 $grid.trigger(jQuery.Event("dblclick"));
                 expect(test).to.be.an("object");
-                expect(test.path).contain("sp500.csv");
+                expect(test.files.length).to.equal(1);
+                expect(test.files[0].path).contain("sp500.csv");
                 done();
             })
             .fail(function() {

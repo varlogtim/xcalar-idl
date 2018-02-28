@@ -2212,8 +2212,10 @@ window.FileBrowser = (function($, FileBrowser) {
     }
     function selectSingleFile($grid) {
         $grid.addClass('active selected');
-        curFiles[$grid.data("index")].isSelected = true;
-        updateActiveFileInfo($grid);
+        if ($grid.data("index")) {
+            curFiles[$grid.data("index")].isSelected = true;
+            updateActiveFileInfo($grid);
+        }
 
         if (FilePreviewer.isOpen()) {
             previewDS($grid);
@@ -2323,6 +2325,9 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.getCurFiles = function() {
             return curFiles;
         };
+        FileBrowser.__testOnly__.setCurFiles = function(files) {
+            curFiles = files;
+        };
         FileBrowser.__testOnly__.setTarget = setTarget;
         FileBrowser.__testOnly__.getCurrentTarget = getCurrentTarget;
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
@@ -2342,6 +2347,14 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.submitForm = submitForm;
         FileBrowser.__testOnly__.showScrolledFiles = showScrolledFiles;
         FileBrowser.__testOnly__.applySearchPattern = applySearchPattern;
+        FileBrowser.__testOnly__.selectMultiFiles = selectMultiFiles;
+        FileBrowser.__testOnly__.selectSingleFile = selectSingleFile;
+        FileBrowser.__testOnly__.unselectSingleFile = unselectSingleFile;
+        FileBrowser.__testOnly__.updatePickedFilesList = updatePickedFilesList;
+        FileBrowser.__testOnly__.togglePickedFiles = togglePickedFiles;
+        FileBrowser.__testOnly__.checkPicked = checkPicked;
+        FileBrowser.__testOnly__.getHTMLFromFiles = getHTMLFromFiles;
+
     }
     /* End Of Unit Test Only */
 
