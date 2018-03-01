@@ -673,7 +673,7 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
-            test.assert(result.numBytes == 17432576);
+            test.assert(result.numBytes >= 17432576);
             test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;

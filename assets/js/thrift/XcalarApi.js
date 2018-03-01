@@ -4325,7 +4325,10 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         json["args"] = workItem.input.exportInput;
         break;
     case XcalarApisT.XcalarApiDeleteObjects:
-        json["args"] = workItem.input.deleteDagNodeInput;
+        json["args"] = {}
+        json["args"]["namePattern"] = workItem.input.deleteDagNodeInput.namePattern;
+        json["args"]["srcType"] =
+            SourceTypeTStr[workItem.input.deleteDagNodeInput.srcType];
         break;
     case XcalarApisT.XcalarApiRenameNode:
         json["args"] = workItem.input.renameNodeInput;
@@ -4337,7 +4340,6 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         break;
     }
 
-    json.args.broadcast = false;
     return (JSON.stringify(json));
 };
 
