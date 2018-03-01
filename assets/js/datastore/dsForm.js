@@ -258,7 +258,7 @@ window.DSForm = (function($, DSForm) {
         DSPreview.show({
             targetName: targetName,
             files: [{path: path}]
-        }, true);
+        }, null);
     }
 
     /* Unit Test Only */

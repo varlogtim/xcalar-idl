@@ -496,9 +496,9 @@ describe.skip("Dataset-DSUploader Test", function() {
         it("submitForm should work", function() {
             var cachedDSPreviewShow = DSPreview.show;
             var showCalled = false;
-            DSPreview.show = function(options, fromFormCard) {
+            DSPreview.show = function(options, lastPath) {
                 expect(options.path).to.equal("demo:///ghi");
-                expect(fromFormCard).to.be.true;
+                expect(fromFormCard).to.be.null;
                 showCalled = true;
             };
 
@@ -512,9 +512,9 @@ describe.skip("Dataset-DSUploader Test", function() {
         it("clicking on grid should submitForm", function() {
             var cachedDSPreviewShow = DSPreview.show;
             var showCalled = false;
-            DSPreview.show = function(options, fromFormCard) {
+            DSPreview.show = function(options, lastPath) {
                 expect(options.path).to.equal("demo:///ghi");
-                expect(fromFormCard).to.be.true;
+                expect(fromFormCard).to.be.null;
                 showCalled = true;
             };
             var $grid = $uploaderMain.find(".grid-unit").eq(0);
@@ -673,7 +673,7 @@ describe.skip("Dataset-DSUploader Test", function() {
                     "format": null,
                 };
 
-                return DSPreview.show(options, true);
+                return DSPreview.show(options, null);
             })
             .then(function() {
                 expect($("#preview-url").text()).to.equal("Path: demo:///" + fileName);

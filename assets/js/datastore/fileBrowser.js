@@ -131,7 +131,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var paths = parsePath(path);
         setPath(paths[paths.length - 1]);
 
-        retrievePaths(path)
+        retrievePaths(path, null, restore)
         .then(function() {
             measureDSIcon();
             measureDSListHeight();
@@ -1109,7 +1109,7 @@ window.FileBrowser = (function($, FileBrowser) {
         };
         setHistoryPath();
 
-        DSPreview.show(options);
+        DSPreview.show(options, curDir);
     }
 
     function searchFiles(searchKey, type) {
@@ -1480,11 +1480,14 @@ window.FileBrowser = (function($, FileBrowser) {
         return $container.find(".grid-unit.active");
     }
 
-    function retrievePaths(path, noPathUpdate) {
+    function retrievePaths(path, noPathUpdate, restore) {
+        if (restore) {
+            // This is a restore case
+            return PromiseHelper.resolve();
+        }
         if (!path.startsWith(defaultPath)) {
             path = defaultPath + path;
         }
-
         var paths = parsePath(path);
         // cannot parse the path
         if (paths.length === 0) {

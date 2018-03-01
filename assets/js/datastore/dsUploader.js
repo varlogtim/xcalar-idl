@@ -229,7 +229,7 @@ window.DSUploader = (function($, DSUploader) {
             "format": format,
         };
 
-        DSPreview.show(options, true);
+        DSPreview.show(options, null);
     }
 
     function submitFiles(files, event) {

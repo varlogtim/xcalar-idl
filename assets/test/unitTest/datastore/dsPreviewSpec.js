@@ -1716,7 +1716,7 @@ describe("Dataset-DSPreview Test", function() {
             DSPreview.show({
                 "targetName": testDatasets.sp500.targetName,
                 "files": [{path: testDatasets.sp500.path}]
-            }, true)
+            }, null)
             .then(function() {
                 done();
             })
@@ -1894,7 +1894,7 @@ describe("Dataset-DSPreview Test", function() {
             DSPreview.show({
                 "targetName": testDatasets.sp500.targetName,
                 "files": [{path: testDatasets.sp500.path}]
-            }, true)
+            }, null)
             .then(function() {
                 expect($previewTable.html()).not.to.equal("");
                 expect($formatText.data("format")).to.equal("CSV");
