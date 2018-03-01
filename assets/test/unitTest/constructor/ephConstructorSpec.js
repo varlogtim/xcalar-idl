@@ -168,7 +168,7 @@ describe("Ephemeral Constructor Test", function() {
 
             controller.reset();
 
-            expect(Object.keys(controller).length).to.equal(7);
+            expect(Object.keys(controller).length).to.equal(9);
             expect(controller.getTargetName()).to.be.undefined;
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
@@ -176,6 +176,8 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.getQuote()).to.equal("\"");
             expect(controller.getPreviewFile()).to.be.null;
             expect(controller.previewSet).to.be.an("object");
+            expect(controller.headersList).to.be.an("array");
+            expect(controller.originalHeadersList).to.be.an("array");
             expect(controller.files.length).to.equal(0);
             expect(controller.getArgStr())
             .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');

@@ -140,10 +140,10 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.fullTextRegExKey should work", function() {
         var res = xcHelper.fullTextRegExKey("test");
-        expect(res).to.equal("^test$");
+        expect(res).to.equal("(.*/)?test$");
         // case 2
         res = xcHelper.fullTextRegExKey("^test2$");
-        expect(res).to.equal("^test2$");
+        expect(res).to.equal("(.*/)?^test2$$");
     });
 
     it("xcHelper.getTextWidth should work", function() {
