@@ -331,6 +331,7 @@ ErrTStr = {
 'DuplicateColNames': 'Duplicate column names were detected',
 'MaxPayload': '文件数量超出限制。请减少文件数量或者递归导入整个目录',
 'MaxFiles': '文件数量超出限制。请尝试在子目录中进行搜索。',
+'CancelSearch': '搜索已取消',
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',

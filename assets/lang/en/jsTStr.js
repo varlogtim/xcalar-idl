@@ -354,6 +354,7 @@ ErrTStr = {
     'DuplicateColNames': 'Duplicate column names were detected',
     'ColumnLimitExceeded': "Column Limit Exceeded",
     'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
+    'CancelSearch': "Search is canclled",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

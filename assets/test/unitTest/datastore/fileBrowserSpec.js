@@ -781,14 +781,12 @@ describe("Dataset-File Browser Test", function() {
     describe("Search Behavior Test", function() {
         var $searchSection = $("#fileBrowserSearch");
         var $searchDropdown = $("#fileSearchDropdown");
+        var $input = $searchSection.find("input");
 
         before(function(done) {
             // not using the cached history
-            FileBrowser.show(gDefaultSharedRoot, "/netstore")
+            FileBrowser.show(gDefaultSharedRoot, "/netstore/datasets/tpch/")
             .then(function() {
-                // make sure it's focused
-                var $grid = findGrid("netstore");
-                $grid.click();
                 done();
             })
             .fail(function() {
@@ -796,95 +794,117 @@ describe("Dataset-File Browser Test", function() {
             });
         });
 
-        it("Should search files", function() {
-            var $input = $searchSection.find("input");
-            $input.val("netstore").trigger("input");
-            // should only have one result
-            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.equal(1);
-            // should have one result as it is by default a "conatins" search
-            $input.val("ets").trigger("input");
-            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.equal(1);
-            expect($grids.eq(0).hasClass("active")).to.be.true;
+        it("Should show search dropdown", function() {
+            $input.val("region.tbl").trigger("input");
+            expect($("#fileSearchDropdown").hasClass("openList")).to.be.true;
+        });
+
+        it("Should search files", function(done) {
+            // we want files called "region.tbl"
+            FileBrowser.__testOnly__.searchFiles("region.tb")
+            .then(function() {
+                var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(2);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
         it("Should clear search", function() {
             $searchSection.find(".clear").mousedown();
             var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.above(1);
-            var $grid = findGrid("netstore");
-            expect($grid.hasClass("active")).to.be.true;
+            expect($grids.length).to.be.above(2);
         });
 
-        it("Should do regex(match) search", function() {
-            var $input = $searchSection.find("input");
-            // should no result
-            $input.val("ets.*").trigger("input");
+        it("Should do regex(match) search", function(done) {
+            // we want files called "region.tbl"
+            $input.val("ion.*").trigger("input");
+            var $grids;
             FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(0));
-            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.equal(0);
-            // should have one result
-            $input.val(".*ets.*").trigger("input");
-            FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(0));
-            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.at.least(1);
+                                              $searchDropdown.find("li").eq(0))
+            .then(function() {
+                $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(0);
+                $input.val("re.*tbl").trigger("input");
+                return FileBrowser.__testOnly__.applySearchPattern(
+                                              $searchDropdown.find("li").eq(0))
+            })
+            .then(function() {
+                $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(2);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("Should do regex(contains) search", function() {
-            var $input = $searchSection.find("input");
-            // should have one result
-            $input.val("et*s").trigger("input");
+        it("Should do regex(contains) search", function(done) {
+            // we want files called "region.tbl"
+            $input.val("gio.*tb").trigger("input");
+            var $grids;
             FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(1));
-            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.at.least(1);
+                                              $searchDropdown.find("li").eq(1))
+            .then(function() {
+                $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(2);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("Should do glob(match) search", function() {
-            var $input = $searchSection.find("input");
-            // should no result
-            $input.val("ets*").trigger("input");
+        it("Should do glob(match) search", function(done) {
+            // we want files called "region.tbl"
+            $input.val("*gion.tbl").trigger("input");
             FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(2));
-            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.equal(0);
-            // should have one result
-            $input.val("*ets*").trigger("input");
-            FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(2));
-            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.at.least(1);
+                                              $searchDropdown.find("li").eq(2))
+            .then(function() {
+                $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(2);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("Should do glob(contains) search", function() {
-            var $input = $searchSection.find("input");
-            // should have one result
-            $input.val("et*s").trigger("input");
+        it("Should do glob(contains) search", function(done) {
+            // we want files called "region.tbl"
+            $input.val("g*tb").trigger("input");
             FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(3));
-            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.at.least(1);
+                                              $searchDropdown.find("li").eq(3))
+            .then(function() {
+                $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+                expect($grids.length).to.equal(2);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("Should hanld invalid search", function() {
-            var $input = $searchSection.find("input");
+        it("Should hanld invalid search", function(done) {
             $searchSection.find("input").val("*").trigger("input");
             FileBrowser.__testOnly__.applySearchPattern(
-                                              $searchDropdown.find("li").eq(0));
-            // should only have one result
-            var error = $("#innerFileBrowserContainer").text();
-            expect(error).to.equal(ErrTStr.InvalidRegEx);
-            expect($input.hasClass("error")).to.be.true;
+                                              $searchDropdown.find("li").eq(0))
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.equal(ErrTStr.InvalidRegEx);
+                expect($input.hasClass("error")).to.be.true;
+                done();
+            });
         });
 
-        it("Should clear search to remove invalid search", function() {
-            var $input = $searchSection.find("input");
+        it("Should clear search to remove and restore", function() {
             $searchSection.find(".clear").mousedown();
             var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
-            expect($grids.length).to.be.above(1);
+            expect($grids.length).to.be.above(2);
             expect($input.hasClass("error")).to.be.false;
         });
 
@@ -1132,84 +1152,87 @@ describe("Dataset-File Browser Test", function() {
         }
     });
 
-    describe("Right Click Menu Behavior Test", function() {
-        var $fileBrowserMenu;
+    // We got rid of right-click behaviors because now we have the
+    // "view raw data" button
 
-        before(function(done) {
-            $fileBrowserMenu = $("#fileBrowserMenu");
-            // not using the cached history
-            FileBrowser.show(gDefaultSharedRoot, "/netstore/")
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+    // describe("Right Click Menu Behavior Test", function() {
+    //     var $fileBrowserMenu;
 
-        it("Should show menu on folder", function() {
-            var target = $fileBrowser.find(".grid-unit.folder").get(0);
-            triggerContextMenu(target);
-            assert.isTrue($fileBrowserMenu.is(":visible"));
-            expect($fileBrowserMenu.hasClass("dsOpts")).to.be.false;
-            expect($fileBrowserMenu.hasClass("folderOpts")).to.be.true;
-        });
+    //     before(function(done) {
+    //         $fileBrowserMenu = $("#fileBrowserMenu");
+    //         // not using the cached history
+    //         FileBrowser.show(gDefaultSharedRoot, "/netstore/")
+    //         .then(function() {
+    //             done();
+    //         })
+    //         .fail(function() {
+    //             done("fail");
+    //         });
+    //     });
 
-        it("Should show menu on ds", function() {
-            $fileBrowserMenu.hide();
-            var target = $fileBrowser.find(".grid-unit.ds").get(0);
-            triggerContextMenu(target);
-            assert.isTrue($fileBrowserMenu.is(":visible"));
-            expect($fileBrowserMenu.hasClass("dsOpts")).to.be.true;
-            expect($fileBrowserMenu.hasClass("folderOpts")).to.be.false;
-        });
+    //     it("Should show menu on folder", function() {
+    //         var target = $fileBrowser.find(".grid-unit.folder").get(0);
+    //         triggerContextMenu(target);
+    //         assert.isTrue($fileBrowserMenu.is(":visible"));
+    //         expect($fileBrowserMenu.hasClass("dsOpts")).to.be.false;
+    //         expect($fileBrowserMenu.hasClass("folderOpts")).to.be.true;
+    //     });
 
-        it("Should not show menu on empty space", function() {
-            $fileBrowserMenu.hide();
-            var target = $("#fileBrowserMain").get(0);
-            triggerContextMenu(target);
-            assert.isFalse($fileBrowserMenu.is(":visible"));
-        });
+    //     it("Should show menu on ds", function() {
+    //         $fileBrowserMenu.hide();
+    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
+    //         triggerContextMenu(target);
+    //         assert.isTrue($fileBrowserMenu.is(":visible"));
+    //         expect($fileBrowserMenu.hasClass("dsOpts")).to.be.true;
+    //         expect($fileBrowserMenu.hasClass("folderOpts")).to.be.false;
+    //     });
 
-        it("Should trigger preview via menu", function() {
-            var oldFunc = FilePreviewer.show;
-            var test = null;
-            FilePreviewer.show = function(url) {
-                test = url;
-            };
-            var target = $fileBrowser.find(".grid-unit.ds").get(0);
-            triggerContextMenu(target);
+    //     it("Should not show menu on empty space", function() {
+    //         $fileBrowserMenu.hide();
+    //         var target = $("#fileBrowserMain").get(0);
+    //         triggerContextMenu(target);
+    //         assert.isFalse($fileBrowserMenu.is(":visible"));
+    //     });
 
-            $fileBrowserMenu.find(".preview").mouseup();
-            expect(test).not.to.be.null;
+    //     it("Should trigger preview via menu", function() {
+    //         var oldFunc = FilePreviewer.show;
+    //         var test = null;
+    //         FilePreviewer.show = function(url) {
+    //             test = url;
+    //         };
+    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
+    //         triggerContextMenu(target);
 
-            FilePreviewer.show = oldFunc;
-        });
+    //         $fileBrowserMenu.find(".preview").mouseup();
+    //         expect(test).not.to.be.null;
 
-        it("Should trigger getInfo via menu", function() {
-            var oldFunc = FileInfoModal.show;
-            var test = null;
-            FileInfoModal.show = function(options) {
-                test = options;
-            };
-            var target = $fileBrowser.find(".grid-unit.ds").get(0);
-            triggerContextMenu(target);
+    //         FilePreviewer.show = oldFunc;
+    //     });
 
-            $fileBrowserMenu.find(".getInfo").mouseup();
-            expect(test).to.be.an("object");
+    //     it("Should trigger getInfo via menu", function() {
+    //         var oldFunc = FileInfoModal.show;
+    //         var test = null;
+    //         FileInfoModal.show = function(options) {
+    //             test = options;
+    //         };
+    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
+    //         triggerContextMenu(target);
 
-            FileInfoModal.show = oldFunc;
-        });
+    //         $fileBrowserMenu.find(".getInfo").mouseup();
+    //         expect(test).to.be.an("object");
 
-        after(function() {
-            $fileBrowser.find(".cancel").click();
-        });
+    //         FileInfoModal.show = oldFunc;
+    //     });
 
-        function triggerContextMenu(target) {
-            var e = jQuery.Event("contextmenu", {"target": target});
-            $("#fileBrowserMain").trigger(e);
-        }
-    });
+    //     after(function() {
+    //         $fileBrowser.find(".cancel").click();
+    //     });
+
+    //     function triggerContextMenu(target) {
+    //         var e = jQuery.Event("contextmenu", {"target": target});
+    //         $("#fileBrowserMain").trigger(e);
+    //     }
+    // });
 
     after(function() {
         // go back to previous tab

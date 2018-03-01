@@ -578,7 +578,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $pattern.addClass("selected");
         var type = $pattern.find("span").attr("class");
         var searchKey = $pattern.find("span").text() || null;
-        searchFiles(searchKey, type);
+        return searchFiles(searchKey, type);
     }
 
     function hideBrowserMenu() {
@@ -1113,82 +1113,97 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function searchFiles(searchKey, type) {
+        // for unit test, use promise
+        var deferred = jQuery.Deferred();
         var $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
         if (type == null) {
             $searchDropdown.find("li").removeClass("selected");
         }
-        try {
-            var regEx = null;
-            if (searchKey != null) {
-                var fullTextMatch = false;
-                searchInfo = "Searching";
-                var origKey = searchKey;
-                if (type == null) {
-                    // Do a regular text search
-                    searchKey = xcHelper.escapeRegExp(searchKey);
-                } else {
-                    searchInfo += "(" + type + ")";
-                    switch (type) {
-                        case ("regMatch"):
-                            fullTextMatch = true;
-                            break;
-                        case ("regContain"):
-                            break;
-                        case ("globMatch"):
-                            fullTextMatch = true;
-                        case ("globContain"):
-                            searchKey = xcHelper.escapeRegExp(searchKey);
-                            searchKey = searchKey.replace(/\\\*/g, ".*")
-                                                 .replace(/\\\?/g, ".");
-                            break;
-                        default:
-                            console.error("File search type not supported");
-                            break;
-                    }
-                }
-                searchInfo += ": " + getCurrentPath() + origKey;
-                $container.find(".filePathBottom .content").text(searchInfo);
-                if (fullTextMatch) {
-                    searchKey = xcHelper.fullTextRegExKey(searchKey);
-                } else {
-                    searchKey = xcHelper.containRegExKey(searchKey);
-                }
-                var pattern = xcHelper.getFileNamePattern(searchKey, true);
-                var path = getCurrentPath();
-                $("#fileBrowserSearch input").addClass("xc-disabled");
-                $innerContainer.hide();
-
-                searchId = xcHelper.randName("search");
-                var cancelSearch = false;
-                listFiles(path, {recursive: true, fileNamePattern: pattern})
-                .fail(function(error) {
-                    if (error && (error.oldBrowser || error.oldSearch)) {
-                        cancelSearch = true;
-                    } else {
-                        $input.addClass("error");
-                        handleSearchError(ErrTStr.MaxFiles);
-                    }
-                })
-                .always(function() {
-                    if (!cancelSearch) {
-                        $("#fileBrowserSearch input").removeClass("xc-disabled");
-                        $innerContainer.show();
-                        if ($searchSection.hasClass("open")) {
-                            searchDropdownMenu.toggleList($searchSection);
-                        }
-                    }
-                });
-            } else {
-                // isRestore = true
-                sortFilesBy(sortKey, sortRegEx, true);
-                searchInfo = "";
-                $container.find(".filePathBottom .content").text(searchInfo);
-            }
-        } catch (error) {
-            $input.addClass("error");
-            handleSearchError(ErrTStr.InvalidRegEx);
+        if (searchKey == null) {
+            // restore case
+            sortFilesBy(sortKey, sortRegEx, true);
+            searchInfo = "";
+            $container.find(".filePathBottom .content").text(searchInfo);
+            return deferred.resolve().promise();
         }
+        var regEx = null;
+        var fullTextMatch = false;
+        searchInfo = "Searching";
+        var origKey = searchKey;
+        if (type == null) {
+            // Do a regular text search
+            searchKey = xcHelper.escapeRegExp(searchKey);
+        } else {
+            searchInfo += "(" + type + ")";
+            switch (type) {
+                case ("regMatch"):
+                    fullTextMatch = true;
+                    break;
+                case ("regContain"):
+                    break;
+                case ("globMatch"):
+                    fullTextMatch = true;
+                case ("globContain"):
+                    searchKey = xcHelper.escapeRegExp(searchKey);
+                    searchKey = searchKey.replace(/\\\*/g, ".*")
+                                         .replace(/\\\?/g, ".");
+                    break;
+                default:
+                    console.error("File search type not supported");
+                    break;
+            }
+        }
+        searchInfo += ": " + getCurrentPath() + origKey;
+        $container.find(".filePathBottom .content").text(searchInfo);
+        if (fullTextMatch) {
+            searchKey = xcHelper.fullTextRegExKey(searchKey);
+        } else {
+            searchKey = xcHelper.containRegExKey(searchKey);
+        }
+        var pattern = xcHelper.getFileNamePattern(searchKey, true);
+        var path = getCurrentPath();
+        $("#fileBrowserSearch input").addClass("xc-disabled");
+        $innerContainer.hide();
+
+        searchId = xcHelper.randName("search");
+        var cancelSearch = false;
+        var isValidRegex = true;
+        try {
+            // Check if it's valid regex
+            new RegExp(pattern);
+        } catch(e) {
+            isValidRegex = false;
+        }
+
+        listFiles(path, {recursive: true, fileNamePattern: pattern})
+        .fail(function(error) {
+            if (error && (error.oldBrowser || error.oldSearch)) {
+                cancelSearch = true;
+            } else {
+                $input.addClass("error");
+                if (isValidRegex) {
+                    handleSearchError(ErrTStr.MaxFiles);
+                    deferred.reject(ErrTStr.MaxFiles);
+                } else {
+                    handleSearchError(ErrTStr.InvalidRegEx);
+                    deferred.reject(ErrTStr.InvalidRegEx).promise();
+                }
+            }
+        })
+        .always(function() {
+            if (!cancelSearch) {
+                $("#fileBrowserSearch input").removeClass("xc-disabled");
+                $innerContainer.show();
+                if ($searchSection.hasClass("open")) {
+                    searchDropdownMenu.toggleList($searchSection);
+                }
+                deferred.resolve();
+            } else {
+                deferred.reject(ErrTStr.CancelSearch);
+            }
+        });
+        return deferred.promise();
     }
 
     function clearSearch() {
@@ -2354,6 +2369,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.togglePickedFiles = togglePickedFiles;
         FileBrowser.__testOnly__.checkPicked = checkPicked;
         FileBrowser.__testOnly__.getHTMLFromFiles = getHTMLFromFiles;
+        FileBrowser.__testOnly__.searchFiles = searchFiles;
 
     }
     /* End Of Unit Test Only */
