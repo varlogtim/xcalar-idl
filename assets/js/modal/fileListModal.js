@@ -46,6 +46,7 @@ window.FileListModal = (function(FileListModal, $) {
             if (modalId !== curModalId) {
                 return;
             }
+
             constructTree(list, dsId);
             drawAllTrees();
             resizeModal();
@@ -306,6 +307,11 @@ window.FileListModal = (function(FileListModal, $) {
                     null, null, maxPerCall)
         })
         .then(function(results) {
+            if ($.isEmptyObject(results)) {
+                deferred.reject(AlertTStr.FilePathError);
+                return deferred.promise();
+            }
+
             var files = [];
             for (var i = 0; i < results.length; i++) {
                 files.push(JSON.parse(results[i]).fullPath);

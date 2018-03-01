@@ -479,7 +479,8 @@ AlertTStr = {
 "RunEdit": "Run edited dataflow",
 "RunEditConfirm": "Are you sure you want to run this edited dataflow?",
 "EditInProgress": "Edit in progress",
-"EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?"
+"EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?",
+"FilePathError": "文件路径生成失败"
 };
 ErrorMessageTStr = {
 'title': '错误',
@@ -744,7 +745,7 @@ DFTStr = {
 "AdvancedOpts": '高级导出设置',
 "Default": '导出到文件系统',
 "DelDF": '永久删除数据流',
-"DelDFMsg": '您确定要永久删除此数据流吗？此操作无法撤消。',
+"DelDFMsg": '您确定要永久删除数据流: \"<dfName>\"吗？此操作无法撤消。',
 "DFTitle": '数据流',
 "BatchDF": "批量数据流",
 "DownloadErr": '下载失败',
