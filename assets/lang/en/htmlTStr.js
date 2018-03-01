@@ -716,7 +716,7 @@ module.exports = {
         "XML": "XML",
         "PLAINTEXT": "PLAIN TEXT",
         "PARQUET": "Parquet Dataset",
-        "UDF": "User Defined Format"
+        "UDF": "Custom Format"
     },
 
     "dsTable": {

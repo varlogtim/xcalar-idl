@@ -346,7 +346,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             Alert.show({
                 title: "Error",
                 msg: "Please select" +
-                " a dataset to import in the Dataset Panel and select 'User Defined Format' as the" +
+                " a dataset to import in the Dataset Panel and select 'Custom Format' as the" +
                 " current format.",
                 isAlert: true
             });
