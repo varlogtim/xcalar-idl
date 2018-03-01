@@ -385,7 +385,9 @@ window.DFCard = (function($, DFCard) {
             var dfName = $(this).siblings('.groupName').text();
             Alert.show({
                 'title': DFTStr.DelDF,
-                'msg': DFTStr.DelDFMsg,
+                'msg': xcHelper.replaceMsg(DFTStr.DelDFMsg, {
+                    "dfName": dfName
+                }),
                 'onConfirm': function() {
                     deleteDataflow(dfName);
                 }
