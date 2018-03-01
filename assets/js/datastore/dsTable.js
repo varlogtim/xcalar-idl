@@ -845,7 +845,27 @@ window.DSTable = (function($, DSTable) {
 
     function toggleErrorIcon(dsObj) {
         var $dsInfoError = $("#dsInfo-error");
-        if (dsObj.numErrors) {
+        $dsInfoError.addClass("xc-hidden");
+
+        if (!dsObj.numErrors) {
+            return;
+        }
+
+        // if (!dsObj.advancedArgs) {
+            var datasetName = dsObj.getFullName();
+            lastDSToSample = datasetName;
+            dsObj.addAdvancedArgs()
+            .then(function() {
+                if (lastDSToSample !== datasetName) {
+                    return;
+                }
+                showIcon();
+            }); // if fail, keep hidden
+        // } else {
+        //     showIcon();
+        // }
+
+        function showIcon() {
             $dsInfoError.removeClass("xc-hidden");
             var num = xcHelper.numToStr(dsObj.numErrors);
             var text;
@@ -867,8 +887,6 @@ window.DSTable = (function($, DSTable) {
                 }
             }
             xcTooltip.changeText($dsInfoError, text);
-        } else {
-            $dsInfoError.addClass("xc-hidden");
         }
     }
 

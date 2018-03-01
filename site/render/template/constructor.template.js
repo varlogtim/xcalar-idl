@@ -2421,7 +2421,28 @@
                                             .text(parent.totalChildren);
                     parent = DS.getDSObj(parent.parentId);
                 }
+            },
+
+            // used if advancedArgs property is missing
+            addAdvancedArgs: function() {
+                var self = this;
+                var deferred = jQuery.Deferred();
+
+                XcalarGetDag(gDSPrefix + self.fullName)
+                .then(function(result) {
+                    var node = result.node[0];
+                    var loadArgs = node.input.loadInput.loadArgs;
+                    self.advancedArgs = {
+                        allowFileErrors: loadArgs.parseArgs.allowFileErrors,
+                        allowRecordErrors: loadArgs.parseArgs.allowRecordErrors,
+                    };
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+
+                return deferred.promise();
             }
+
             <%}%>
         });
 
