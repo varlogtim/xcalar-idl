@@ -201,7 +201,10 @@ describe("WorkbookManager Test", function() {
 
             XcalarListWorkbooks = function() {
                 return PromiseHelper.resolve({
-                    "sessions": [{"state": "Active"}]
+                    "sessions": [{
+                        "state": "Active",
+                        "info": "has resources"
+                    }]
                 });
             };
 
@@ -376,10 +379,11 @@ describe("WorkbookManager Test", function() {
         it("WorkbookManager.getGlobalScopeKeys should work", function() {
             var res = WorkbookManager.getGlobalScopeKeys();
             expect(res).to.be.an("object");
-            expect(Object.keys(res).length).to.equal(3);
+            expect(Object.keys(res).length).to.equal(4);
             expect(res).to.ownProperty("gEphStorageKey");
             expect(res).to.ownProperty("gPendingUploadsKey");
             expect(res).to.ownProperty("gSettingsKey");
+            expect(res).to.ownProperty("gSharedDSKey");
         });
 
         it("WorkbookManager.upgrade should work", function() {

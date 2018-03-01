@@ -2634,7 +2634,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function changePreviewFile(index, file) {
         var previewingSource = loadArgs.getPreviewingSource();
-        if (previewingSource != null && index === previewingSource.index
+        if (previewingSource == null || index === previewingSource.index
             && file === previewingSource.file) {
             return;
         }

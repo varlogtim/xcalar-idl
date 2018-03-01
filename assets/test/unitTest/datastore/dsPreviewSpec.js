@@ -484,8 +484,9 @@ describe("Dataset-DSPreview Test", function() {
 
         it("changePreviewFile should work", function() {
             var oldPreviewSource = loadArgs.getPreviewingSource();
-            DSPreview.__testOnly__.changePreviewFile(0, "test");
-            expect(loadArgs.getPreviewFile()).to.equal("test");
+            loadArgs.setPreviewingSource(0, "test");
+            DSPreview.__testOnly__.changePreviewFile(0, "test2");
+            expect(loadArgs.getPreviewFile()).to.equal("test2");
             if (oldPreviewSource != null) {
                 loadArgs.setPreviewingSource(oldPreviewSource.index, oldPreviewSource.file);
             }

@@ -327,45 +327,45 @@ describe("Admin Test", function() {
             $("#configCard").removeClass("xc-hidden");
         });
 
-        it("startNode should work", function(done) {
-            var cached = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart = function() {
-                return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
-            };
+        // it("startNode should work", function(done) {
+        //     var cached = XFTSupportTools.clusterStart;
+        //     XFTSupportTools.clusterStart = function() {
+        //         return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
+        //     };
 
-            $("#configStartNode").click();
-            UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
-            UnitTest.testFinish(function() {
-                return $("#alertHeader .text").text() === "Warning";
-            })
-            .then(function() {
-                UnitTest.hasAlertWithTitle("Warning");
-                XFTSupportTools.clusterStart = cached;
-                setTimeout(function() {
-                    done();
-                }, 100);
-            });
-        });
+        //     $("#configStartNode").click();
+        //     UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
+        //     UnitTest.testFinish(function() {
+        //         return $("#alertHeader .text").text() === "Warning";
+        //     })
+        //     .then(function() {
+        //         UnitTest.hasAlertWithTitle("Warning");
+        //         XFTSupportTools.clusterStart = cached;
+        //         setTimeout(function() {
+        //             done();
+        //         }, 100);
+        //     });
+        // });
 
-        it("startNode fail should work", function(done) {
-            var cached = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart = function() {
-                return PromiseHelper.reject({});
-            };
+        // it("startNode fail should work", function(done) {
+        //     var cached = XFTSupportTools.clusterStart;
+        //     XFTSupportTools.clusterStart = function() {
+        //         return PromiseHelper.reject({});
+        //     };
 
-            $("#configStartNode").click();
-            UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
-            UnitTest.testFinish(function() {
-                return $("#alertHeader .text").text() === MonitorTStr.StartNodeFailed;
-            })
-            .then(function() {
-                UnitTest.hasAlertWithTitle(MonitorTStr.StartNodeFailed, {confirm: true});
-                XFTSupportTools.clusterStart = cached;
-                setTimeout(function() {
-                    done();
-                }, 100);
-            });
-        });
+        //     $("#configStartNode").click();
+        //     UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
+        //     UnitTest.testFinish(function() {
+        //         return $("#alertHeader .text").text() === MonitorTStr.StartNodeFailed;
+        //     })
+        //     .then(function() {
+        //         UnitTest.hasAlertWithTitle(MonitorTStr.StartNodeFailed, {confirm: true});
+        //         XFTSupportTools.clusterStart = cached;
+        //         setTimeout(function() {
+        //             done();
+        //         }, 100);
+        //     });
+        // });
 
         it("stopNode should work", function(done) {
             var cached = XFTSupportTools.clusterStop;

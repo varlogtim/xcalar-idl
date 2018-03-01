@@ -880,11 +880,11 @@ describe("xcHelper Test", function() {
                     '<i class="icon"></i>' +
                     '<span class="text">test</span>' +
                 '</button>');
-        xcHelper.toggleBtnInProgress($btn, true);
+        xcHelper.toggleBtnInProgress($btn, false);
         expect($btn.hasClass("btnInProgress")).to.be.true;
         expect($btn.text()).to.equal("test...");
         expect($btn.find(".icon").length).to.equal(0);
-        xcHelper.toggleBtnInProgress($btn, true);
+        xcHelper.toggleBtnInProgress($btn, false);
         expect($btn.hasClass("btnInProgress")).to.be.false;
         expect($btn.text()).to.equal("test");
         expect($btn.find(".icon").length).to.equal(1);
@@ -2656,7 +2656,7 @@ describe("xcHelper Test", function() {
                 var $menu = $("#cellMenu");
                 var $unnestLi = $menu.find(".tdUnnest");
                 var $jsonModalLi = $menu.find(".tdJsonModal");
-                var $div = $("#xcTable-" + tableId).find(".row0 .col11 .displayedData");
+                var $div = $("#xcTable-" + tableId).find(".row0 .col11 .originalData");
                 var multiCell = false;
                 var notAllowed = $div.find(".null, .blank").length;
                 var columnType = "mixed";

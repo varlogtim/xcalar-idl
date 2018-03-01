@@ -91,7 +91,7 @@ describe('QueryManager Test', function() {
             expect(queryObj.subQueries.length).to.equal(0);
         });
 
-        it('QueryManager.addSubQuery should work', function() {
+        it('QueryManager.addSubQuery should work', function(done) {
             var getStatsCalled = false;
             XcalarGetOpStats = function() {
                 getStatsCalled = true;
@@ -109,14 +109,17 @@ describe('QueryManager Test', function() {
             expect(getStatsCalled).to.be.false;
 
             QueryManager.addSubQuery(1, name, dstTable, query); // correct ID
-            expect(queryObj.subQueries.length).to.equal(1);
-            expect(getStatsCalled).to.be.true;
-            expect($queryDetail.find(".operationSection .content").text())
-            .to.equal(query);
-            expect(queryCheckLists[1]).to.be.undefined;
+            setTimeout(function() {
+                expect(queryObj.subQueries.length).to.equal(1);
+                expect(getStatsCalled).to.be.true;
+                expect($queryDetail.find(".operationSection .content").text())
+                .to.equal(query);
+                expect(queryCheckLists[1]).to.be.undefined;
+                done();
+            }, 100);
         });
 
-        it('QueryManager.addQuery to xcQuery should work', function() {
+        it('QueryManager.addQuery to xcQuery should work', function(done) {
             var getStatsCalled = false;
             var getQueryStateCalled = false;
             XcalarGetOpStats = function() {
@@ -134,13 +137,15 @@ describe('QueryManager Test', function() {
 
             queryObj.currStep = 1;
             QueryManager.addSubQuery(1, 'mapQuery', 'dstTable2', query, {queryName: 'queryName'});
-            expect(queryObj.subQueries.length).to.equal(2);
-            expect(getStatsCalled).to.be.false;
-            expect(getQueryStateCalled).to.be.true;
-            expect($queryDetail.find(".operationSection .content").text())
-            .to.equal(query + query);
-            expect(queryCheckLists[1]).to.be.undefined;
-
+            setTimeout(function() {
+                expect(queryObj.subQueries.length).to.equal(2);
+                expect(getStatsCalled).to.be.false;
+                expect(getQueryStateCalled).to.be.true;
+                expect($queryDetail.find(".operationSection .content").text())
+                .to.equal(query + query);
+                expect(queryCheckLists[1]).to.be.undefined;
+                done();
+            }, 100);
         });
 
         it('QueryManager.cancelQuery should work', function(done) {

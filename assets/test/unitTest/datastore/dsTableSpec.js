@@ -383,17 +383,22 @@ describe("Dataset-DSTable Test", function() {
         it("should click retry button to retry", function() {
             var oldGetError = DS.getErrorDSObj;
             var oldRemove = DS.removeErrorDSObj;
+            var oldPreview = DSPreview.show;
             var test = false;
             var oldId = $dsTableContainer.data("id");
             var $dsTableView = $("#dsTableView");
 
             DS.getErrorDSObj = function() {
-                return new DSObj({});
+                return new DSObj({
+                    sources: [{}]
+                });
             };
 
             DS.removeErrorDSObj = function() {
                 test = true;
             };
+
+            DSPreview.show = function() {};
 
             // case 1
             $dsTableContainer.data("id", null);
@@ -408,6 +413,7 @@ describe("Dataset-DSTable Test", function() {
             DS.getErrorDSObj = oldGetError;
             DS.removeErrorDSObj = oldRemove;
             $dsTableContainer.data(oldId);
+            DSPreview.show = oldPreview;
         });
     });
 

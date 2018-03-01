@@ -508,7 +508,8 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should rename the folder", function() {
-            var newName = DS.getUniqueName("testFolder");
+            var newName = xcHelper.uniqueRandName("testFolder");
+            newName = DS.getUniqueName(newName);
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.true;
             expect(testFolder.getName()).to.equal(newName);
@@ -523,7 +524,8 @@ describe("Dataset-DSObj Test", function() {
 
         it("Should not rename folder to invalid name", function() {
             var oldName = testFolder.getName();
-            var newName = DS.getUniqueName("test*folder");
+            var newName = xcHelper.uniqueRandName("test*folder");
+            newName = DS.getUniqueName(newName);
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.false;
             expect(testFolder.getName()).to.equal(oldName);

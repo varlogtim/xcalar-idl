@@ -27,7 +27,7 @@ describe('xcTooltip Test', function() {
         expect($ele.attr("data-original-title")).to.equal("test");
         expect($ele.attr("data-toggle")).to.equal("tooltip");
         expect($ele.attr("data-container")).to.equal("body");
-        expect($ele.attr("data-placement")).to.equal("top");
+        expect($ele.attr("data-placement")).to.equal("auto top");
     });
 
     it('Should remove tooltip', function() {
