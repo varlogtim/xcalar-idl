@@ -2212,7 +2212,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
     function selectSingleFile($grid) {
         $grid.addClass('active selected');
-        if ($grid.data("index")) {
+        if ($grid.data("index") != null) {
             curFiles[$grid.data("index")].isSelected = true;
             updateActiveFileInfo($grid);
         }
