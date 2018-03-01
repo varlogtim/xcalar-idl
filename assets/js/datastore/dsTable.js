@@ -735,9 +735,7 @@ window.DSTable = (function($, DSTable) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
             var type = columnsType[i];
-            var width = xcHelper.getTextWidth(null, key, {
-                "defaultHeaderStyle": true
-            });
+            var width = xcHelper.getTextWidth(null, key);
 
             width += 2; // text will overflow without it
             width = Math.max(width, defaultColWidth); // min of 130px

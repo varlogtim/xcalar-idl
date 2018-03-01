@@ -3599,8 +3599,7 @@ window.OperationsView = (function($, OperationsView) {
         if (isNewCol) {
             mapOptions.replaceColumn = true;
             if (colName === "") {
-                var widthOptions = {defaultHeaderStyle: true};
-                var width = xcHelper.getTextWidth($(), newColName, widthOptions);
+                var width = xcHelper.getTextWidth(null, newColName);
                 mapOptions.width = width;
             }
         }

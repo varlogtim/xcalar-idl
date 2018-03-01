@@ -226,32 +226,30 @@
                         })
                         .split("").reverse().join("");
     }
-    /*
-     * options:
-     *  defaultHeaderStyle: when set true, use the default table header style
-     */
+
     var $tempDiv = $('<div style="position:absolute;display:inline-block;' +
                         'white-space:pre;"></div>');
     $tempDiv.appendTo($("body"));
-    xcHelper.getTextWidth = function($el, val, options) {
-        $el = $el || $();
-        options = options || {};
-        var extraSpace = 0;
 
+    // $el is optional if val is provided
+    // val, is optional if $el is provided
+    xcHelper.getTextWidth = function($el, val) {
+        var extraSpace = 0;
+        var text;
         var defaultStyle;
-        if (options.defaultHeaderStyle) {
+        if (!$el) {
             defaultStyle = { // styling we use for column header
                 "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
                 "fontSize": "13px",
                 "fontWeight": "600",
                 "padding": 48
             };
+            $el = $();
         } else {
             defaultStyle = {"padding": 0};
         }
 
-        var text;
-        if (val === undefined) {
+        if (val == null) {
             if ($el.is("input")) {
                 text = $.trim($el.val() + " ");
             } else {
@@ -928,14 +926,13 @@
     };
 
     xcHelper.getDefaultColWidth = function(colName, prefix) {
-        var widthOption = {"defaultHeaderStyle": true};
         var prefixText = prefix;
         if (prefixText === "" || prefixText == null) {
             prefixText = CommonTxtTstr.Immediates;
         }
 
-        var width = xcHelper.getTextWidth(null, colName, widthOption);
-        var prefixW = xcHelper.getTextWidth(null, prefixText, widthOption);
+        var width = xcHelper.getTextWidth(null, colName);
+        var prefixW = xcHelper.getTextWidth(null, prefixText);
 
         return Math.max(width, prefixW);
     };

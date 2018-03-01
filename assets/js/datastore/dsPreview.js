@@ -3447,9 +3447,7 @@ window.DSPreview = (function($, DSPreview) {
                         '<div class="header"></div>' +
                     '</th>';
         for (var i = 0; i < colLen; i++) {
-            var cellWidth = xcHelper.getTextWidth(null, headers[i], {
-                "defaultHeaderStyle": true
-            }) - 36;
+            var cellWidth = xcHelper.getTextWidth(null, headers[i]) - 36;
             var width = Math.max(gNewCellWidth + 5, cellWidth);
             html += '<th style="width:' + width + 'px;">' +
                         '<div class="header">' +

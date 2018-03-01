@@ -147,14 +147,12 @@ describe("xcHelper Test", function() {
     });
 
     it("xcHelper.getTextWidth should work", function() {
-        var res = xcHelper.getTextWidth(null, "test", {
-            "defaultHeaderStyle": true
-        });
+        var res = xcHelper.getTextWidth(null, "test");
         expect(res).to.equal(72);
 
         // case 2
-        res = xcHelper.getTextWidth(null, "test");
-        expect(res).to.equal(0);
+        res = xcHelper.getTextWidth(null, "testtest");
+        expect(res).to.equal(96);
 
         // case 3
         // this don't have the 48px padding
@@ -2351,7 +2349,7 @@ describe("xcHelper Test", function() {
                 name: "prefix::test",
                 ordering: 0
             }];
-            
+
             var expectedArray = [{
                 name: "col",
                 type: DfFieldTypeT.DfString,

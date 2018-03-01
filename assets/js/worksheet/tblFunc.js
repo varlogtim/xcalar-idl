@@ -106,9 +106,7 @@ window.TblFunc = (function(TblFunc, $) {
             // include prefix width
             if ($th.closest('.xcTable').length) {
                 var prefixText = $th.closest('.header').find('.prefix').text();
-                prefixWidth = xcHelper.getTextWidth(null, prefixText, {
-                    "defaultHeaderStyle": true
-                });
+                prefixWidth = xcHelper.getTextWidth(null, prefixText);
                 headerWidth = Math.max(headerWidth, prefixWidth);
             }
 
