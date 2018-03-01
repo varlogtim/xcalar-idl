@@ -1224,9 +1224,7 @@
                     }
                     assert(orderArray[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                    var colName = orderArray[i][1].name
-                                                  .replace(/[\(|\)|\.]/g, "_")
-                                                  .toUpperCase();
+                    var colName = cleanseColName(orderArray[i][1].name);
                     var id = orderArray[i][1].exprId.id;
                     if (options && options.renamedColIds &&
                         options.renamedColIds.indexOf(id) !== -1) {
@@ -1535,13 +1533,18 @@
             .fail(deferred.reject);
             // End of Step 6
 
+            // XXX This is a workaround for the prefix issue. Need to revist
+            // when taking good care of index & prefix related issues.
+            for (var i = 0; i < columns.length; i++) {
+                if (columns[i].rename) {
+                    columns[i].rename = cleanseColName(columns[i].rename, true);
+                } else {
+                    columns[i].colName = cleanseColName(columns[i].colName, true);
+                }
+            }
             node.usrCols = columns;
             // Also track xcCols
             for (var i = 0; i < secondMapColNames.length; i++) {
-                // XXX Not sure why I didn't add it at the first place. But I
-                // think this makes sense as bascially we don't want any usrCols
-                // (aggColNames) to be in xcCols. Will revisit when optimizing
-                // _pushDownAggregate
                 if (aggColNames.indexOf(secondMapColNames[i]) === -1) {
                     node.xcCols.push({colName: secondMapColNames[i]});
                 }
@@ -2492,8 +2495,7 @@
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
                 if (condTree.value.name.indexOf(tablePrefix) !== 0) {
-                    outStr += condTree.value.name.replace(/[\(|\)|\.]/g, "_")
-                                      .toUpperCase();
+                    outStr += cleanseColName(condTree.value.name);
                 } else {
                     outStr += condTree.value.name;
                 }
@@ -2539,12 +2541,9 @@
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
 
                 if (options && options.groupby) {
-                    var newColName = evalStr.replace(/[\(|\)|\.]/g, "_")
-                                                   .toUpperCase();
+                    var newColName = cleanseColName(evalStr, true);
                 } else {
-                    var newColName = evalList[i][0].name
-                                                   .replace(/[\(|\)|\.]/g, "_")
-                                                   .toUpperCase();
+                    var newColName = cleanseColName(evalList[i][0].name, true);
                     colStruct.colId = evalList[i][0].exprId.id;
                 }
                 colStruct.colName = newColName;
@@ -2572,8 +2571,7 @@
                 var curColStruct = evalList[i][0];
                 assert(curColStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                colStruct.colName = curColStruct.name.replace(/[\(|\)|\.]/g, "_")
-                                            .toUpperCase();
+                colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
                 if (options && options.renamedColIds &&
                     options.renamedColIds.indexOf(colStruct.colId) !== -1) {
@@ -2714,8 +2712,7 @@
                 attrName += "_E" + id;
             }
             if (arr.indexOf(attrName) === -1) {
-                arr.push(attrName.replace(/[\(|\)|\.]/g, "_")
-                                            .toUpperCase());
+                arr.push(cleanseColName(attrName));
             }
         }
 
@@ -2740,6 +2737,13 @@
                 assert(0);
                 return "string";
         }
+    }
+
+    function cleanseColName(name, isNewCol) {
+        if (isNewCol) {
+            name = name.replace(/(::)/g, "--");
+        }
+        return name.replace(/[().]/g, "_").toUpperCase();
     }
 
     function isMathOperator(expression) {

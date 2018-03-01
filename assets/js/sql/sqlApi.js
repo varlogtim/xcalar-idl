@@ -124,13 +124,20 @@
                 var progCols = [];
                 for (var i = 0; i < allCols.length; i++) {
                     var found = false;
+                    var colName = allCols[i].colName;
+                    var prefix = colName;
+                    if (colName.indexOf("::") > 0) {
+                        prefix = colName.split("::")[0];
+                        colName = colName.split("::")[1];
+                    }
                     for (var j = 0; j < valueAttrs.length; j++) {
                         var name = valueAttrs[j].name;
                         if (name === allCols[i].rename ||
-                            (name === allCols[i].colName && !allCols[i].rename)) {
+                          (name === colName && !allCols[i].rename) ||
+                            name === prefix) {
                             found = true;
                             var type = self._getColType(valueAttrs[j].type);
-                            progCols.push(ColManager.newPullCol(name, name, type));
+                            progCols.push(ColManager.newPullCol(colName, allCols[i].colName, type));
                             break;
                         }
                     }

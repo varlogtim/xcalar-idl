@@ -212,16 +212,16 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                "_shipdate >= date \"1994-01-01\" and l_shipdate < date \"1994" +
                "-01-01\" + interval \"1\" year ) ) and s_nationkey = n_nation" +
                "key and n_name = \"CANADA\" order by s_name",
-        "q21": "select s_name, count(*) as numwait from supplier, lineitem l1" +
-               ", orders, nation where s_suppkey = l1.l_suppkey and o_orderke" +
-               "y = l1.l_orderkey and o_orderstatus = \"F\" and l1.l_receiptd" +
-               "ate > l1.l_commitdate and exists ( select * from lineitem l2 " +
-               "where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_" +
-               "suppkey ) and not exists ( select * from lineitem l3 where l3" +
-               ".l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey " +
-               "and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_" +
-               "nationkey and n_name = \"SAUDI ARABIA\" group by s_name order" +
-               " by numwait desc, s_name",
+        // "q21": "select s_name, count(*) as numwait from supplier, lineitem l1" +
+        //        ", orders, nation where s_suppkey = l1.l_suppkey and o_orderke" +
+        //        "y = l1.l_orderkey and o_orderstatus = \"F\" and l1.l_receiptd" +
+        //        "ate > l1.l_commitdate and exists ( select * from lineitem l2 " +
+        //        "where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_" +
+        //        "suppkey ) and not exists ( select * from lineitem l3 where l3" +
+        //        ".l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey " +
+        //        "and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_" +
+        //        "nationkey and n_name = \"SAUDI ARABIA\" group by s_name order" +
+        //        " by numwait desc, s_name",
         "q22": "select cntrycode, count(*) as numcust, sum(c_acctbal) as tota" +
                "cctbal from ( select substring(c_phone, 1, 2) as cntrycode, c" +
                "_acctbal from customer where substring(c_phone, 1, 2) in (\"1" +
@@ -448,14 +448,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             // Remove extra columns
             return removeColumns(gActiveTableId);
         })
-        .then(function() {
-            // Cast data types
-            return castColumns(gActiveTableId);
-        })
-        .then(function() {
-            // Finalize table
-            return finalizeTables(gActiveTableId);
-        })
+        // .then(function() {
+        //     // Cast data types
+        //     return castColumns(gActiveTableId);
+        // })
+        // .then(function() {
+        //     // Finalize table
+        //     return finalizeTables(gActiveTableId);
+        // })
         .then(function() {
             // Send schema
             return sendSchema(gActiveTableId, tableName);

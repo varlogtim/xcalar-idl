@@ -687,8 +687,9 @@
             // incSample does not take renames, multiGroupby already handle
             // the name in index stage
             var newKeyFieldName = (isIncSample || isMultiGroupby) ? null
-                                  : xcHelper.parsePrefixColName(indexedColName)
-                                            .name;
+                                  // : xcHelper.parsePrefixColName(indexedColName)
+                                            // .name;
+                                : xcHelper.stripPrefixInColName(indexedColName);
             var operators = [];
             var newColNames = [];
             var aggColNames = [];
