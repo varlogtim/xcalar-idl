@@ -49,11 +49,6 @@ function stripLogsAndKey(c) {
 }
 
 function helper(contents, ctx) {
-    // Following function is from https://gist.github.com/tmazur/3965625
-    /*function isValidEmail(emailAddress) {
-        var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
-        return pattern.test(emailAddress);
-    }*/
     var contentsObj = JSON.parse(contents);
     var license = contentsObj.license;
     console.log("license", license);
@@ -151,10 +146,10 @@ function organizationCheckPartTwo(contents, ctx, contentsObj, orgId) {
     });
 }
 
-function fetchAdmin(contents, ctx, contentsObj, org) {
-    var url = "https://myxcalar.zendesk.com/api/v2/search.json?";
+function fetchAdmin(contents, ctx, contentsObj, organizationName) {
+    var url = "https://myxcalar.zendesk.com/api/v2/organizations/autocomplete.json?";
     var cmd = 'curl ' + url + ' ' +
-               '-G --data-urlencode "query=type:user tags:admin organization:\''+ org +'\'" ' +
+               '-G --data-urlencode "name=' + organizationName + '" ' +
                '-H "Content-Type: application/json" -v ' +
                '-u dshetty@xcalar.com/token:5b4NoJkwc36w2BRww0H9FQjdhXbZpnaLfrr7oZej';
     console.log("cmd", cmd);
@@ -169,14 +164,20 @@ function fetchAdmin(contents, ctx, contentsObj, org) {
         try {
             var jstruct = JSON.parse(stringifiedStruct);
             console.log("jstruct", jstruct);
-            if (jstruct.results && jstruct.results.length > 0 &&
-                jstruct.results[0].hasOwnProperty("name") && jstruct.results[0].hasOwnProperty("email")) {
-                admin = {
-                    name: jstruct.results[0].name,
-                    email: jstruct.results[0].email
-                };
-                console.log(admin);
-                submitTicket(contents, ctx, contentsObj, admin);
+            var organizationId = null;
+            if (jstruct.organizations) {
+                for (var i = 0; i < jstruct.organizations.length; i++) {
+                    if (jstruct.organizations[i].name === organizationName) {
+                        organizationId = jstruct.organizations[i].id;
+                        break;
+                    }
+                }
+
+                if (organizationId) {
+                    getAdminFromOrganizationId(organizationName, organizationId);
+                } else {
+                    submitTicket(contents, ctx, contensObj);
+                }
             } else {
                 if (jstruct.error) {
                     ctx.done(null, {error: "Fetching admin failed."});
@@ -190,7 +191,57 @@ function fetchAdmin(contents, ctx, contentsObj, org) {
             ctx.done(null, {error: "Fetching admin failed."});
         }
     });
+
+    function getAdminFromOrganizationId(organizationName, organizationId) {
+        var url = "https://myxcalar.zendesk.com/api/v2/search.json?";
+        var cmd = 'curl ' + url + ' ' +
+               '-G --data-urlencode "query=type:user tags:admin organization:\''+ organizationName +'\'" ' +
+               '-H "Content-Type: application/json" -v ' +
+               '-u dshetty@xcalar.com/token:5b4NoJkwc36w2BRww0H9FQjdhXbZpnaLfrr7oZej';
+        console.log("cmd", cmd);
+        var out = cp.exec(cmd);
+        var admin;
+        var stringifiedStruct = "";
+        out.stdout.on("data", function(data) {
+            stringifiedStruct += data;
+        });
+        out.on('close', function() {
+            console.log("fetching completes");
+            try {
+                var jstruct = JSON.parse(stringifiedStruct);
+                console.log("jstruct", jstruct);
+                if (jstruct.results && jstruct.results.length > 0) {
+                    for (var i = 0; i < jstruct.results.length; i++) {
+                        if (jstruct.results[i].organization_id === organizationId) {
+                            admin = {
+                                name: jstruct.results[i].name,
+                                email: jstruct.results[i].email
+                            };
+                            break;
+                        }
+                    }
+
+                    if (admin) {
+                        submitTicket(contents, ctx, contentsObj, admin);
+                    } else {
+                        submitTicket(contents, ctx, contentsObj);
+                    }
+                } else {
+                    if (jstruct.error) {
+                        ctx.done(null, {error: "Fetching admin failed."});
+                        console.log("fetching fails");
+                    } else {
+                        submitTicket(contents, ctx, contentsObj);
+                    }
+                }
+            } catch (error) {
+                console.log("fetching admin error", error);
+                ctx.done(null, {error: "Fetching admin failed."});
+            }
+        });
+    }
 }
+
 
 function submitTicket(contents, ctx, contentsObj, admin) {
     var customerName = JSON.stringify(contentsObj.userIdName).replace(/'/g, "\\u0027");
@@ -198,11 +249,9 @@ function submitTicket(contents, ctx, contentsObj, admin) {
     var subject = getContentSubject(contentsObj);
     var isNew = (contentsObj.ticketId === null);
     var trunContents = stripLogsAndKey(contents); // Remove logs to make ticket smaller
-    //trunContents = encodeURIComponent(trunContents);
     trunContents = JSON.stringify(trunContents).replace(/'/g, "\\u0027");
-    //trunContents = trunContents.replace(/'/g, "\\u0027");
     var email = "xi@xcalar.com";
-    //if (isValidEmail(customerName)) {
+
     if (admin && admin.email) {
         email = admin.email;
     }
@@ -216,6 +265,8 @@ function submitTicket(contents, ctx, contentsObj, admin) {
         method = "PUT";
     }
     var severityStr = getSeverityStr(contentsObj.severity);
+    // use the tag xcuser-{customerId} so that we can search for all the tickets
+    // from this user in zenDeskGetLambda
     var cmd = 'curl ' + url + ' ' +
                '-d \'{"ticket": {"requester": {"name": ' + customerName +
                ', "email": "' + email + '"}, ' + severityStr +
