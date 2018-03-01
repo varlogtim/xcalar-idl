@@ -1594,102 +1594,6 @@
         return true;
     }
 
-    function checkIfNeedIndex(colsToIndex, tableName, tableKeys, order, txId) {
-        var deferred = jQuery.Deferred();
-        var shouldIndex = false;
-        var tempTables = [];
-
-        getUnsortedTableName(tableName, null, txId)
-        .then(function(unsorted) {
-            if (unsorted !== tableName) {
-                // this is sorted table, should index a unsorted one
-                XIApi.checkOrder(unsorted, txId)
-                .then(function(parentOrder, parentKeys) {
-                    var parentKeyNames = parentKeys.map(function(key) {
-                        return key.name;
-                    });
-                    if (!isSameKey(parentKeyNames, colsToIndex)) {
-                        var tableKeyNames = tableKeys.map(function(key) {
-                            return key.name;
-                        });
-                        if (!isSameKey(parentKeyNames, tableKeyNames)) {
-                            // if current is sorted, the parent should also
-                            // index on the tableKey to remove "FNF"
-                            // var fltTable = getNewTableName(tableName,
-                            //                               ".fltParent", true);
-
-                            // XXX this is correct This is correct, but there are some backend issues with excluding FNFs for now 7071, 7622
-                            // So for now, we will have to use the old method in trunk. But for the demo, since we are not sorting, we will not run into this :) Also there are no FNFs
-                            // var fltStr = "exists(" + tableKey + ")";
-                            // XIApi.filter(txId, fltStr, unsorted, fltTable)
-                            // .then(function(tblAfterFlt) {
-                            //     // must index
-                            //     shouldIndex = true;
-                            //     tempTables.push(tblAfterFlt);
-                            //     deferred.resolve(shouldIndex, tblAfterFlt,
-                            //                      tempTables);
-                            // })
-                            // .fail(deferred.reject);
-
-                            var indexTable = getNewTableName(tableName,
-                                                          ".indexParent", true);
-                            var keyInfos = tableKeyNames.map(function(key) {
-                                return {
-                                    name: key,
-                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                                };
-                            });
-                            XcalarIndexFromTable(unsorted, keyInfos,
-                                                 indexTable, txId)
-                            .then(function() {
-                                if (isSameKey(tableKeyNames, colsToIndex)) {
-                                    // when the parent has right index
-                                    shouldIndex = false;
-                                } else {
-                                    // when parent need another index on colName
-                                    shouldIndex = true;
-                                }
-                                tempTables.push(indexTable);
-                                deferred.resolve(shouldIndex, indexTable,
-                                                 tempTables);
-                            })
-                            .fail(deferred.reject);
-                        } else {
-                            // when parent is indexed on tableKeys,
-                            // still need another index on colNames
-                            shouldIndex = true;
-                            deferred.resolve(shouldIndex, unsorted, tempTables);
-                        }
-                    } else {
-                        // because FAJS will automatically find parent table
-                        // so if parent table is already index on colName
-                        // no need to do another index
-                        shouldIndex = false;
-                        deferred.resolve(shouldIndex, unsorted, tempTables);
-                    }
-                })
-                .fail(deferred.reject);
-            } else {
-                // this is the unsorted table
-                var tableKeyNames = tableKeys.map(function(key) {
-                    return key.name;
-                });
-                if (!isSameKey(tableKeyNames, colsToIndex)) {
-                    shouldIndex = true;
-                } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
-                          order === XcalarOrderingT.XcalarOrderingInvalid) {
-                    console.error("invalid ordering");
-                    shouldIndex = true;
-                }
-
-                deferred.resolve(shouldIndex, tableName, tempTables);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
                             newTableName, joinType, lRename, rRename,
                             tempTables, txId) {
@@ -1855,6 +1759,101 @@
                     tempTables: tempTables,
                     hasIndexed: shouldIndex
                 });
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+
+    function checkIfNeedIndex(colsToIndex, tableName, tableKeys, order, txId) {
+        var deferred = jQuery.Deferred();
+        var shouldIndex = false;
+        var tempTables = [];
+
+        var tableKeyNames = tableKeys.map(function(key) {
+            return key.name;
+        });
+        var keyInfos = tableKeyNames.map(function(key) {
+            return {
+                name: key,
+                ordering: XcalarOrderingT.XcalarOrderingUnordered
+            };
+        });
+
+        getUnsortedTableName(tableName, null, txId, colsToIndex)
+        .then(function(unsorted) {
+            if (unsorted !== tableName) {
+                // this is sorted table, should index a unsorted one
+                XIApi.checkOrder(unsorted, txId)
+                .then(function(parentOrder, parentKeys) {
+                    var parentKeyNames = parentKeys.map(function(key) {
+                        return key.name;
+                    });
+                    if (!isSameKey(parentKeyNames, colsToIndex)) {
+                        if (!isSameKey(parentKeyNames, tableKeyNames)) {
+                            // if current is sorted, the parent should also
+                            // index on the tableKey to remove "FNF"
+                            // var fltTable = getNewTableName(tableName,
+                            //                               ".fltParent", true);
+
+                            // XXX this is correct This is correct, but there are some backend issues with excluding FNFs for now 7071, 7622
+                            // So for now, we will have to use the old method in trunk. But for the demo, since we are not sorting, we will not run into this :) Also there are no FNFs
+                            // var fltStr = "exists(" + tableKey + ")";
+                            // XIApi.filter(txId, fltStr, unsorted, fltTable)
+                            // .then(function(tblAfterFlt) {
+                            //     // must index
+                            //     shouldIndex = true;
+                            //     tempTables.push(tblAfterFlt);
+                            //     deferred.resolve(shouldIndex, tblAfterFlt,
+                            //                      tempTables);
+                            // })
+                            // .fail(deferred.reject);
+
+                            var indexTable = getNewTableName(tableName,
+                                                          ".indexParent", true);
+                            XcalarIndexFromTable(unsorted, keyInfos,
+                                                 indexTable, txId)
+                            .then(function() {
+                                if (isSameKey(tableKeyNames, colsToIndex)) {
+                                    // when the parent has right index
+                                    shouldIndex = false;
+                                } else {
+                                    // when parent need another index on colName
+                                    shouldIndex = true;
+                                }
+                                tempTables.push(indexTable);
+                                deferred.resolve(shouldIndex, indexTable,
+                                                 tempTables);
+                            })
+                            .fail(deferred.reject);
+                        } else {
+                            // when parent is indexed on tableKeys,
+                            // still need another index on colNames
+                            shouldIndex = true;
+                            deferred.resolve(shouldIndex, unsorted, tempTables);
+                        }
+                    } else {
+                        // because FAJS will automatically find parent table
+                        // so if parent table is already index on colName
+                        // no need to do another index
+                        shouldIndex = false;
+                        deferred.resolve(shouldIndex, unsorted, tempTables);
+                    }
+                })
+                .fail(deferred.reject);
+            } else {
+                // this is the unsorted table
+                if (!isSameKey(tableKeyNames, colsToIndex)) {
+                    shouldIndex = true;
+                } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
+                          order === XcalarOrderingT.XcalarOrderingInvalid) {
+                    console.error("invalid ordering");
+                    shouldIndex = true;
+                }
+
+                deferred.resolve(shouldIndex, tableName, tempTables);
             }
         })
         .fail(deferred.reject);

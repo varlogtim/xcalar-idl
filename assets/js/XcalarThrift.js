@@ -326,16 +326,17 @@ function insertError(argCallee, deferred) {
 }
 
 // ========================== HELPER FUNCTIONS ============================= //
-
-// will only make a backend call if unsorted source table is found but is inactive
-getUnsortedTableName = function(tableName, otherTableName, txId) {
+// colsToIndex is optional array of colnames
+// if a new index table needs to be created, "colsToIndex" will be used
+// as the keys for the new index table
+getUnsortedTableName = function(tableName, otherTableName, txId, colsToIndex) {
     // XXX this may not right but have to this
     // or some intermediate table cannot be found
     if (txId != null && Transaction.isSimulate(txId)) {
         return PromiseHelper.resolve(tableName, otherTableName);
     }
 
-    var getUnostedTableHelper = function(table) {
+    var getUnsortedTableHelper = function(table) {
         var deferred = jQuery.Deferred();
         var originalTableName = table;
         var srcTableName = table;
@@ -345,7 +346,7 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
             // Check if the last one is a sort. If it is, then use the unsorted
             // one
             // If it isn't then just return the original
-            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
+            if (nodeArray.node[0].api === XcalarApisT.XcalarApiIndex) {
                 var indexInput = nodeArray.node[0].input.indexInput;
                 var primeKey = indexInput.key[0];
                 // no matter it's sorted or multi sorted, first key must be sorted
@@ -360,14 +361,25 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
                                                                   .parents[0]);
 
                     if (!hasReadyState) {
-                        var newId = Authentication.getHashId().split("#")[1];
-                        srcTableName = originalTableName.split("#")[0] + "#" + newId;
-                        var keys = indexInput.key.map(function(keyAttr) {
-                            return {
-                                name: keyAttr.name,
-                                ordering: XcalarOrderingT.XcalarOrderingUnordered
-                            };
-                        });
+                        srcTableName = xcHelper.getTableName(originalTableName) +
+                                       Authentication.getHashId();
+                        var keys;
+                        if (!colsToIndex) {
+                            keys = indexInput.key.map(function(keyAttr) {
+                                return {
+                                    name: keyAttr.name,
+                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                                };
+                            });
+                        } else {
+                            keys = colsToIndex.map(function(colName) {
+                                return {
+                                    name: colName,
+                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                                };
+                            });
+                        }
+
                         return XcalarIndexFromTable(originalTableName, keys,
                                                     srcTableName, null, true);
                     } else {
@@ -375,8 +387,51 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
                     }
                     console.log("Using unsorted table instead:", srcTableName);
                 }
+            } else if (nodeArray.node[0].api === XcalarApisT.XcalarApiExecuteRetina) {
+                // if this is a sorted retina node, then it doesn't have
+                // parents we can use to index on, so we index on the retina
+                // node itself
+                var innerDeferred = jQuery.Deferred();
+                XcalarGetTableMeta(table)
+                .then(function(ret) {
+                    var keyAttrs = ret.keyAttr;
+                    if (keyAttrs[0] &&
+                        (keyAttrs[0].ordering ===
+                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
+                        keyAttrs[0].ordering ===
+                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending])) {
+
+                        srcTableName = xcHelper.getTableName(originalTableName) +
+                                       Authentication.getHashId();
+                        var keys;
+                        if (!colsToIndex) {
+                            keys = keyAttrs.map(function(keyAttr) {
+                                return {
+                                    name: keyAttr.name,
+                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                                };
+                            });
+                        } else {
+                            keys = colsToIndex.map(function(colName) {
+                                return {
+                                    name: colName,
+                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                                };
+                            });
+                        }
+                        return XcalarIndexFromTable(originalTableName, keys,
+                                                    srcTableName, txId, true);
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
+                })
+                .then(innerDeferred.resolve)
+                .fail(innerDeferred.reject);
+
+                return innerDeferred.promise();
+            } else {
+                return PromiseHelper.resolve(null);
             }
-            return PromiseHelper.resolve(null);
         })
         .then(function() {
             deferred.resolve(srcTableName);
@@ -387,10 +442,10 @@ getUnsortedTableName = function(tableName, otherTableName, txId) {
     };
 
     if (!otherTableName) {
-        return getUnostedTableHelper(tableName);
+        return getUnsortedTableHelper(tableName);
     } else {
-        var def1 = getUnostedTableHelper(tableName);
-        var def2 = getUnostedTableHelper(otherTableName);
+        var def1 = getUnsortedTableHelper(tableName);
+        var def2 = getUnsortedTableHelper(otherTableName);
         return PromiseHelper.when(def1, def2);
     }
 };
@@ -1291,7 +1346,7 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
                               keyArray, "", "");
         }
         query = XcalarGetQuery(workItem);
-        if (!unsorted) {
+        if (txId) {
             Transaction.startSubQuery(txId, "index", dstTableName, query);
         }
         return def;
@@ -1300,7 +1355,7 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            if (!unsorted) {
+            if (txId) {
                 Transaction.log(txId, query, dstTableName, ret.timeElapsed);
             }
             deferred.resolve({
