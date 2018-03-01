@@ -1272,6 +1272,7 @@ DaysTStr = {
 
 OpModalTStr = {
     'EmptyHint': 'Select to allow empty field',
+    'NoneHint': 'Select to allow \'None\' value',
     'EmptyStringHint': 'Select to allow empty strings',
     'ColNameDesc': 'New Resultant Column Name',
     'AggNameDesc': 'New Resultant Aggregate Name (optional)',
@@ -1282,6 +1283,7 @@ OpModalTStr = {
     'KeepInTableDesc': 'If checked, group by will augment original table',
     'ModifyMapDesc': 'Would you like to modify the map?',
     'NoArg': 'No Argument',
+    'NoneArg': 'None',
     'EmptyString': 'Empty String',
     'WeirdQuotes': '[Unicode Quotes(“) detected. Please check quotation marks]',
 

@@ -1065,6 +1065,7 @@ DaysTStr = {
 };
 OpModalTStr = {
 'EmptyHint': '选择允许输入为空',
+'NoneHint': 'Select to allow \'None\' value',
 'EmptyStringHint': '选择允许空字符串',
 'ColNameDesc': '新的结果列名称',
 'AggNameDesc': '新的聚合名称（可选）',
@@ -1075,6 +1076,7 @@ OpModalTStr = {
 'KeepInTableDesc': '如果选中，生成的表将会与原表连接',
 'ModifyMapDesc': '您想修改映射吗？',
 'NoArg': '没有参数',
+'NoneArg': 'None',
 'EmptyString': '空字符串',
 'WeirdQuotes': '您的输入包含非Unicode的引号(“)，请检查]',
 'ModifyDesc': '您想修改<name>吗？',

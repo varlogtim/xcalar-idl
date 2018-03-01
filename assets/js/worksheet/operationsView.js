@@ -566,9 +566,10 @@ window.OperationsView = (function($, OperationsView) {
 
         // empty options checkboxes
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
-            var $checkbox = $(this).find('.checkbox');
-            var $emptyOptsWrap = $(this).parent();
-            var isNoArgsBox = $(this).hasClass("noArgWrap");
+            var $checkboxWrap = $(this);
+            var $checkbox = $checkboxWrap.find('.checkbox');
+            var $emptyOptsWrap = $checkboxWrap.parent();
+            var isEmptyArgsBox = $checkboxWrap.closest(".skipField").length > 0;
 
             var $arg = $emptyOptsWrap.siblings(".inputWrap").find(".arg");
             var $group = $checkbox.closest(".group");
@@ -577,6 +578,7 @@ window.OperationsView = (function($, OperationsView) {
             $sibArgs = $sibArgs.filter(function() {
                 return !$(this).closest(".resultantColNameRow").length;
             });
+            $arg.val("");
 
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
@@ -584,9 +586,7 @@ window.OperationsView = (function($, OperationsView) {
                                .removeClass('semiHidden');
                 $emptyOptsWrap.siblings('.cast')
                               .removeClass('semiHidden');
-                if (isNoArgsBox) {
-                    $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
-                }
+
             } else {
                 $checkbox.addClass('checked');
                 if ($emptyOptsWrap.siblings('.inputWrap').length === 1) {
@@ -600,11 +600,10 @@ window.OperationsView = (function($, OperationsView) {
                 // noArg and empty str toggling
                 $checkbox.closest('.checkboxWrap').siblings()
                         .find('.checkbox').removeClass('checked');
-
-                if (isNoArgsBox) {
+                if (isEmptyArgsBox) {
                     showEmptyOptions($sibArgs);
                     $sibArgs.val("");
-                    var $inputWraps = $sibArgs.closest(".inputWrap");
+                    var $inputWraps = $checkbox.closest(".row").find(".inputWrap");
                     $inputWraps.addClass("semiHidden");
                     $inputWraps.siblings(".cast").addClass("semiHidden");
                     $inputWraps.siblings(".emptyOptions")
@@ -612,9 +611,6 @@ window.OperationsView = (function($, OperationsView) {
                     $inputWraps.siblings(".emptyOptions")
                                .find(".emptyStrWrap .checkbox")
                                .removeClass("checked");
-                    $inputWraps.closest(".row").addClass("xc-hidden");
-                } else {
-                    $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
                 }
             }
             checkIfStringReplaceNeeded();
@@ -826,8 +822,9 @@ window.OperationsView = (function($, OperationsView) {
             "colCallback": function($target) {
                 var options = {};
                 var $focusedEl = $(document.activeElement);
-                if ($focusedEl.is("input") &&
-                    !$focusedEl.is($lastInputFocused)) {
+                if (($focusedEl.is("input") &&
+                    !$focusedEl.is($lastInputFocused)) ||
+                    $lastInputFocused.closest(".semiHidden").length) {
                     return;
                 }
                 if ($lastInputFocused.closest(".row")
@@ -1912,7 +1909,9 @@ window.OperationsView = (function($, OperationsView) {
                 $input.data("nofunc", true);
             }
 
-            $rows.eq(i).find('.description').text(description + ':');
+            var $row = $rows.eq(i);
+
+            $row.find('.description').text(description + ':');
 
             // automatically show empty checkbox if optional detected
             if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.OptionalArg)
@@ -1927,11 +1926,11 @@ window.OperationsView = (function($, OperationsView) {
                     showEmptyOptions($input);
                 }
             } else if (!isUDF()) {
-                $rows.eq(i).addClass("required").find(".noArgWrap").remove();
+                $row.addClass("required").find(".noArgWrap").remove();
             }
 
-            if (types.indexOf('string') === -1) {
-                $rows.eq(i).find('.emptyStrWrap').remove();
+            if (types.indexOf(ColumnType.string) === -1) {
+                $row.find('.emptyStrWrap').remove();
             }
 
             // add "addArg" button if *arg is found in the description
@@ -1939,13 +1938,20 @@ window.OperationsView = (function($, OperationsView) {
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
                 $input.addClass("variableArgs");
-                $rows.eq(i).after(
+                $row.after(
                     '<div class="addArgWrap addArgWrapLarge">' +
                         '<button class="btn addArg addMapArg">' +
                           '<i class="icon xi-plus"></i>' +
                           '<span class="text">ADD ANOTHER ARGUMENT</span>' +
                         '</button>' +
                       '</div>');
+                if (description.indexOf("*") === 0 &&
+                    description.indexOf("**") === -1) {
+                    var $checkboxWrap = $row.find(".noArgWrap");
+                    $checkboxWrap.addClass("skipField")
+                                 .find(".checkboxText").text(OpModalTStr.NoArg);
+                    xcTooltip.changeText($checkboxWrap, OpModalTStr.EmptyHint);
+                }
             }
         }
     }
@@ -2144,6 +2150,8 @@ window.OperationsView = (function($, OperationsView) {
                 var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
                 if (emptyStrChecked && arg === "") {
                     quotesNeeded.push(true);
+                } else if (isNoneInInput($input)) {
+                    quotesNeeded.push(false);
                 } else if (!$input.closest(".dropDownList")
                             .hasClass("colNameSection") &&
                             !xcHelper.hasValidColPrefix(arg) &&
@@ -2176,6 +2184,13 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         updateStrPreview(noHighlight);
+    }
+
+    // returns true of the noArg box is selected, not skipping fields
+    function isNoneInInput($input) {
+        var $row = $input.closest(".row");
+        return ($row.find(".noArg.checked").length &
+                !$row.find(".skipField").length);
     }
 
     function checkArgsHasCol(colName) {
@@ -2262,7 +2277,8 @@ window.OperationsView = (function($, OperationsView) {
                 $inputs.each(function() {
                     var $input = $(this);
                     var $row = $input.closest('.row');
-                    var noArgsChecked = $row.find('.noArg.checked').length > 0 ||
+                    var noArgsChecked = ($row.find('.noArg.checked').length &&
+                                        $row.find(".skipField").length) ||
                                         ($row.hasClass("boolOption") &&
                                     !$row.find(".boolArg").hasClass("checked"));
                     var val = $input.val();
@@ -2273,6 +2289,8 @@ window.OperationsView = (function($, OperationsView) {
                         // no quotes if noArgs and nothing in the input
                     } else if (quotesNeeded[inputCount]) {
                         val = "\"" + val + "\"";
+                    } else if (isNoneInInput($input)) {
+                        val = "None";
                     }
 
                     if ($input.data('casted')) {
@@ -2944,6 +2962,9 @@ window.OperationsView = (function($, OperationsView) {
             // empty field and empty field is allowed
             if (trimmedArg === "") {
                 if (noArgsChecked) {
+                    if (isNoneInInput($input)) {
+                        trimmedArg = "None";
+                    }
                     args.push(trimmedArg);
                     return;
                 } else if (emptyStrChecked) {
@@ -3258,23 +3279,6 @@ window.OperationsView = (function($, OperationsView) {
         }
         $target.find('.cast').removeClass('showing overflowVisible');
     }
-
-    // function checkNoEmptyFields(args) {
-    //     var numArgs = args.length;
-    //     var emptyFields = [];
-    //     for (var i = 0; i < numArgs; i++) {
-    //         if (args[i] === "\"\"" || args[i] === "") {
-    //             if (!(operatorName === "group by" && i === numArgs - 1)) {
-    //                 emptyFields.push(i);
-    //             }
-    //         }
-    //     }
-    //     if (emptyFields.length) {
-    //         return (false);
-    //     } else {
-    //         return (true);
-    //     }
-    // }
 
     function aggregateCheck(args) {
         if (isEditMode) {
@@ -4109,7 +4113,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function showEmptyOptions($input) {
-        $input.closest('.row').find('.checkboxWrap').removeClass('xc-hidden');
+        $input.closest('.row').find('.noArgWrap, .emptyStrWrap').removeClass('xc-hidden');
     }
 
     function hideEmptyOptions($input) {
@@ -4557,12 +4561,14 @@ window.OperationsView = (function($, OperationsView) {
                     '<div class="checkboxWrap xc-hidden noArgWrap" ' +
                         'data-container="body" ' +
                         'data-toggle="tooltip" title="' +
-                        OpModalTStr.EmptyHint + '">' +
+                        OpModalTStr.NoneHint + '">' +
                         '<span class="checkbox noArg" >'+
                             '<i class="icon xi-ckbox-empty fa-13"></i>'+
                             '<i class="icon xi-ckbox-selected fa-13"></i>'+
                         '</span>' +
-                        OpModalTStr.NoArg +
+                        '<span class="checkboxText">' +
+                        OpModalTStr.NoneArg +
+                        '</span>' +
                     '</div>' +
                     '<div class="checkboxWrap xc-hidden emptyStrWrap" ' +
                         'data-container="body" ' +
