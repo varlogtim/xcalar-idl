@@ -47,7 +47,7 @@ window.FileListModal = (function(FileListModal, $) {
                 return;
             }
 
-            constructTree(list, dsId);
+            constructTree(list, dsName);
             drawAllTrees();
             resizeModal();
         })
@@ -150,12 +150,13 @@ window.FileListModal = (function(FileListModal, $) {
             html += '<ul>';
         }
         node.children.sort(function(a, b) {
-            if (a.type !== b.type) {
-                return a.type < b.type;
+            if (a.value.type !== b.value.type) {
+                return a.value.type < b.value.type;
             } else {
-                return a.name > b.name;
+                return a.value.name > b.value.name;
             }
         });
+
         for (var i = 0; i < node.children.length; i++) {
             html += drawTree(node.children[i], html);
         }
@@ -329,6 +330,17 @@ window.FileListModal = (function(FileListModal, $) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         FileListModal.__testOnly__ = {};
+        FileListModal.__testOnly__.getList = getList;
+        FileListModal.__testOnly__.constructTree = constructTree;
+        FileListModal.__testOnly__.resizeModal = resizeModal;
+        FileListModal.__testOnly__.getInfo = function() {
+            return {
+                nodesMap: nodesMap,
+                roots: roots,
+                curResultSetId: curResultSetId,
+                modalId: modalId
+            }
+        }
     }
     /* End Of Unit Test Only */
 
