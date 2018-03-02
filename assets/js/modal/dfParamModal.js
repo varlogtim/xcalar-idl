@@ -1581,6 +1581,8 @@ window.DFParamModal = (function($, DFParamModal){
         var dagNodeId = $dfParamModal.data("id");
         var retName = $dfParamModal.data("df");
         var radioButton = $dfParamModal.find(".advancedOpts .radioButton.active");
+        var btn = $('#dfViz').find(".runNowBtn");
+
         if (radioButton.length === 1 && $(radioButton).data("option") === "import") {
             storeExportToTableNode();
         } else {
@@ -1707,6 +1709,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
 
             var paramInfo;
+            btn.addClass('xc-disabled');
             updateRetina()
             .then(function(paramInformation) {
                 // store meta
@@ -1750,6 +1753,9 @@ window.DFParamModal = (function($, DFParamModal){
             .fail(function(error) {
                 updateRetinaErrorHandler(error);
                 deferred.reject();
+            })
+            .always(function() {
+                btn.removeClass('xc-disabled');
             });
         }
 
