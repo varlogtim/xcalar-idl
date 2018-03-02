@@ -5,7 +5,8 @@ describe("FileListModal Test", function() {
     before(function() {
         $modal = $("#fileListModal");
         UnitTest.onMinMode();
-
+        XcalarMakeResultSetFromDatasetCache = XcalarMakeResultSetFromDataset;
+        XcalarFetchDataCache = XcalarFetchData;
     });
 
     describe("FileListModal General Test", function() {
