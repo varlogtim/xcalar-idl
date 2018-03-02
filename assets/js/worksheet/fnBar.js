@@ -182,10 +182,16 @@ window.FnBar = (function(FnBar, $) {
             var op = opMap[i];
             var fnName = op.fnName.toLowerCase();
             if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
-                udfMap[fnName] = op;
+                if (!udfMap[fnName]) {
+                    udfMap[fnName] = [];
+                }
+                udfMap[fnName].push(op);
             } else if (op.category !==
                         FunctionCategoryT.FunctionCategoryAggregate) {
-                xdfMap[fnName] = op;
+                if (!xdfMap[fnName]) {
+                    xdfMap[fnName] = [];
+                }
+                xdfMap[fnName].push(op);
             }
 
             op.template = createFuncTemplate(op);
@@ -433,12 +439,12 @@ window.FnBar = (function(FnBar, $) {
 
                 // search xdfMap
                 for (var xdfFn in xdfMap) {
-                    seachMapFunction(xdfFn, xdfMap[xdfFn]);
+                    searchMapFunction(xdfFn, xdfMap[xdfFn]);
                 }
 
                 // search udfMap
                 for (var udfFn in udfMap) {
-                    seachMapFunction(udfFn, udfMap[udfFn]);
+                    searchMapFunction(udfFn, udfMap[udfFn]);
                 }
 
                 // search aggMap
@@ -469,23 +475,28 @@ window.FnBar = (function(FnBar, $) {
                 to: CodeMirror.Pos(0, end)
             });
 
-            function seachMapFunction(fnName, mapFunc) {
+            function searchMapFunction(fnName, mapFuncs) {
                 if (fnName.lastIndexOf(curWord, 0) === 0 &&
                     !seen.hasOwnProperty(fnName)) {
                     seen[fnName] = true;
-                    if (hideXcUDF && mapFunc.fnName.indexOf("_xcalar") === 0) {
-                        return;
+                    var mapFunc;
+                    for (var i = 0; i < mapFuncs.length; i++) {
+                        mapFunc = mapFuncs[i];
+                        if (!hideXcUDF ||
+                            mapFunc.fnName.indexOf("_xcalar") !== 0) {
+
+                            list.push({
+                                text: mapFunc.fnName + "()",
+                                displayText: mapFunc.fnName,
+                                template: mapFunc.template,
+                                templateTwo: mapFunc.templateTwo,
+                                argDescs: mapFunc.modArgDescs,
+                                hint: autocompleteSelect,
+                                render: renderOpLi,
+                                className: "operator"
+                            });
+                        }
                     }
-                    list.push({
-                        text: mapFunc.fnName + "()",
-                        displayText: mapFunc.fnName,
-                        template: mapFunc.template,
-                        templateTwo: mapFunc.templateTwo,
-                        argDescs: mapFunc.modArgDescs,
-                        hint: autocompleteSelect,
-                        render: renderOpLi,
-                        className: "operator"
-                    });
                 }
             }
         });
@@ -976,6 +987,28 @@ window.FnBar = (function(FnBar, $) {
             if (!xdfMap.hasOwnProperty(fLower) &&
                 !udfMap.hasOwnProperty(fLower)) {
                 unknownFuncs.push(funcs[i]);
+            } else {
+                var found = false;
+                if (udfMap.hasOwnProperty(fLower)) {
+                    for (var j = 0; j < udfMap[fLower].length; j++) {
+                        if (udfMap[fLower][j].fnName === funcs[i]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found && xdfMap.hasOwnProperty(fLower)) {
+                    for (var j = 0; j < xdfMap[fLower].length; j++) {
+                        if (xdfMap[fLower][j].fnName === funcs[i]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    unknownFuncs.push(funcs[i]);
+                }
             }
         }
         return unknownFuncs;
