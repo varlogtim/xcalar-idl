@@ -231,15 +231,15 @@ describe("Profile-Profile Selector Test", function() {
                 expect($modal.find(".area.selected").length).to.be.at.least(1);
             });
 
-            it("ProfileSelector.filter should work", function() {
-                var res = ProfileSelector.filter(FltOp.Filter, {
-                    colName: "a",
-                    type: ColumnType.integer
-                });
-                expect(res).to.be.an("object");
-                expect(res.operator).to.equal(FltOp.Filter);
-                expect(res.filterString).to.equal("and(ge(a, 16), le(a, 17))");
-            });
+            // it("ProfileSelector.filter should work", function() {
+            //     var res = ProfileSelector.filter(FltOp.Filter, {
+            //         colName: "a",
+            //         type: ColumnType.integer
+            //     });
+            //     expect(res).to.be.an("object");
+            //     expect(res.operator).to.equal(FltOp.Filter);
+            //     expect(res.filterString).to.equal("and(ge(a, 16), le(a, 17))");
+            // });
 
             after(function() {
                 ProfileSelector.clear();
