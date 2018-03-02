@@ -6,30 +6,27 @@ describe('Sort View Test', function() {
     var dsName, tableName, tableId, oldTableName;
 
     before(function(done){
+        console.clear();
         xcTooltip.hideAll();
         $sortView = $("#sortView");
         $sortTable = $("#sortView-table");
 
         UnitTest.addAll(testDatasets.fakeYelp, "yelp_sort_test")
         .then(function(resDS, resTable) {
-
             dsName = resDS;
             tableName = resTable;
             oldTableName = tableName;
             tableId = xcHelper.getTableId(tableName);
-            xcFunction.sort(tableId, [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}])
-            .then(function(resTable2) {
-                tableName = resTable2;
-                tableId = xcHelper.getTableId(tableName);
-                $table = $("#xcTable-" + tableId);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
+            return xcFunction.sort(tableId, [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}]);
         })
-        .fail(function(error) {
-            throw error;
+        .then(function(resTable2) {
+            tableName = resTable2;
+            tableId = xcHelper.getTableId(tableName);
+            $table = $("#xcTable-" + tableId);
+            done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -109,13 +106,14 @@ describe('Sort View Test', function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.TableNotExists);
             gTables[tableId] = table;
 
-            // one column, already sorted by this column
-            SortView.__testOnly__.selectCol(1);
-            SortView.__testOnly__.submitForm();
-            expect(test).to.be.false;
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoSortChange);
+            // // one column, already sorted by this column
+            // SortView.__testOnly__.selectCol(1);
+            // SortView.__testOnly__.submitForm();
+            // expect(test).to.be.false;
+            // UnitTest.hasStatusBoxWithError(ErrTStr.NoSortChange);
 
             // something to sort
+            SortView.__testOnly__.selectCol(1);
             SortView.__testOnly__.changeColOrder(1, "Descending");
             $sortView.find(".confirm").click();
             expect(test).to.be.true;

@@ -1007,7 +1007,7 @@ describe('ColManager Test', function() {
             // 17 columns (including rowNum and dataCol)
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal(newNumRows + "");
-            expect($rows.find('td').eq(1).text()).to.equal("FNF");
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal('{"a":"b"}');
             expect($table.find('tr').last().is($rows)).to.be.true;
 
@@ -1020,7 +1020,7 @@ describe('ColManager Test', function() {
             newNumRows = numRows + 1;
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal("1");
-            expect($rows.find('td').eq(1).text()).to.equal("FNF");
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal('{"a":"b"}');
             expect($table.find('tr').last().is($rows)).to.be.true;
 
@@ -1063,7 +1063,7 @@ describe('ColManager Test', function() {
             // 17 columns (including rowNum and dataCol)
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal(newNumRows + "");
-            expect($rows.find('td').eq(1).text()).to.equal("FNF");
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal("");
             expect($table.find('tr').last().is($rows)).to.be.true;
 
@@ -1077,7 +1077,7 @@ describe('ColManager Test', function() {
             // 17 columns (including rowNum and dataCol)
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal(newNumRows + "");
-            expect($rows.find('td').eq(1).text()).to.equal("FNF");
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal("");
             expect($table.find('tr').last().is($rows)).to.be.true;
 
@@ -1092,8 +1092,8 @@ describe('ColManager Test', function() {
             // 17 columns (including rowNum and dataCol)
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal(newNumRows + "");
-            expect($rows.find('td').eq(1).text()).to.equal("null");
-            expect($rows.find('td').eq(2).text()).to.equal("FNF");
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("null");
+            expect($rows.find('td').eq(2).find(".displayedData").text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal('{"' + colName1 + '":null}');
             expect($table.find('tr').last().is($rows)).to.be.true;
 
@@ -1108,9 +1108,9 @@ describe('ColManager Test', function() {
             // 17 columns (including rowNum and dataCol)
             expect($rows.find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal(newNumRows + "");
-            expect($rows.find('td').eq(1).text()).to.equal("FNF");
-            expect($rows.find('td').eq(2).text()).to.equal("FNF");
-            expect($rows.find('td').last().text()).to.equal('null');
+            expect($rows.find('td').eq(1).find(".displayedData").text()).to.equal("FNF");
+            expect($rows.find('td').eq(2).find(".displayedData").text()).to.equal("FNF");
+            expect($rows.find('td').last().find(".displayedData").text()).to.equal('null');
             expect($table.find('tr').last().is($rows)).to.be.true;
         });
 

@@ -252,7 +252,11 @@ describe('ExportView Test', function() {
             expect($selectedLi.length).to.equal(1);
 
             // click the hint
-            $ul.find("li").first().trigger(fakeEvent.mouseup);
+            var $li = $ul.find("li").filter(function() {
+                return $(this).text() === "Default";
+            });
+
+            $li.trigger(fakeEvent.mouseup);
             expect($text.val()).to.equal("Default");
             expect($text.data('type')).to.equal(1);
 

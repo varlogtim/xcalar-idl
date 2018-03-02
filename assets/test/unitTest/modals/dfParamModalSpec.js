@@ -171,7 +171,7 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(9);
             expect($modal.find(".template .boxed").eq(0).text()).to.equal("export-" + tableName);
             expect($modal.find(".template .boxed").eq(1).text()).to.equal("Default");
-            expect($modal.find(".template .boxed").eq(2).text()).to.equal("Do not Overwrite");
+            expect($modal.find(".template .boxed").eq(2).text()).to.equal("Do Not Overwrite");
             expect($modal.find(".template .boxed").eq(3).text()).to.equal("\\n");
             expect($modal.find(".template .boxed").eq(4).text()).to.equal("\\t");
             expect($modal.find(".template .boxed").eq(5).text()).to.equal("\"");
@@ -201,7 +201,7 @@ describe("DFParamModal Test", function() {
             var splitRule = $modal.find(prefix + ".splitRule input").val();
             var exportOptions = DFParamModal.__testOnly__.getExportOptions();
 
-            expect(createRule).to.equal("Do not Overwrite");
+            expect(createRule).to.equal("Do Not Overwrite");
             expect(exportOptions.createRule).to.equal("createOnly");
             expect(exportOptions.fieldDelim).to
             .equal(DFParamModal.__testOnly__.strToSpecialChar(fieldDelim));
@@ -283,7 +283,7 @@ describe("DFParamModal Test", function() {
         });
 
         it("param should be present", function() {
-            expect($modal.find(".draggableDiv").length).to.equal(2);
+            expect($modal.find(".draggableDiv").length).to.equal(3);
             expect($("#draggableParam-" + paramName).length).to.equal(1);
             expect($("#draggableParam-N").length).to.equal(1);
         });

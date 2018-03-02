@@ -64,6 +64,8 @@ describe("Datastore-DSTargetManger Test", function() {
             }
 
             testTarget = xcHelper.randName("target");
+            $("#datastoreMenu").removeClass("noAdmin");
+            $("#datastorePanel").removeClass("noAdmin");
         });
 
         it("should show create target view", function() {
@@ -100,13 +102,14 @@ describe("Datastore-DSTargetManger Test", function() {
             $("#dsTarget-submit").click();
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
 
-            $name.val(testTarget);
-            $("#dsTarget-submit").click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+            // $name.val(testTarget);
+            // $("#dsTarget-submit").click();
+            // UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
         });
 
         it("should submit and create a target", function(done) {
             var numTargets = getNumTargets();
+            $("#dsTarget-name").val(testTarget);
             $("#dsTarget-param-0").val("netstore/");
             $("#dsTarget-submit").click();
 
@@ -126,6 +129,13 @@ describe("Datastore-DSTargetManger Test", function() {
                 done("fail");
             });
         });
+
+        after(function() {
+            if (!Admin.isAdmin()) {
+                $("#datastoreMenu").addClass("noAdmin");
+                $("#datastorePanel").addClass("noAdmin");
+            }
+        })
     });
 
     describe("Target Info Form Test", function() {

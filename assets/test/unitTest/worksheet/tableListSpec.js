@@ -355,7 +355,7 @@ describe('TableList Test', function() {
             TableList.activeTables = cachedTableFn;
         });
 
-        it("submit delete orphaned should work", function() {
+        it("submit delete orphaned should work", function(done) {
             var tableBulkCache = TableList.tableBulkAction;
             var bulkCalled = false;
             TableList.tableBulkAction = function(action, tableType, wsId) {
@@ -369,12 +369,14 @@ describe('TableList Test', function() {
             $("#orphanedTableListSection").find(".submit.delete").click();
 
             UnitTest.hasAlertWithTitle(TblTStr.Del, {confirm: true});
-            expect(bulkCalled).to.be.true;
-
-            TableList.tableBulkAction = tableBulkCache;
+            setTimeout(function() {
+                expect(bulkCalled).to.be.true;
+                TableList.tableBulkAction = tableBulkCache;
+                done();
+            }, 100);
         });
 
-        it("submit delete constants should work", function() {
+        it("submit delete constants should work", function(done) {
             var deleteAggsCache = Aggregates.deleteAggs;
             var tableBulkCache = TableList.tableBulkAction;
             var bulkCalled = false;
@@ -392,11 +394,14 @@ describe('TableList Test', function() {
             $("#constantsListSection").find(".submit.delete").click();
 
             UnitTest.hasAlertWithTitle(SideBarTStr.DropConsts, {confirm: true});
-            expect(bulkCalled).to.be.false;
-            expect(deleteAggsCalled).to.be.true;
+            setTimeout(function() {
+                expect(bulkCalled).to.be.false;
+                expect(deleteAggsCalled).to.be.true;
 
-            TableList.tableBulkAction = tableBulkCache;
-            Aggregates.deleteAggs = deleteAggsCache;
+                TableList.tableBulkAction = tableBulkCache;
+                Aggregates.deleteAggs = deleteAggsCache;
+                done();
+            }, 100);
         });
     });
 

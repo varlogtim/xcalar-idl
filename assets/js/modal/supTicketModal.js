@@ -1007,7 +1007,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
         SupTicketModal.__testOnly__.submitForm = submitForm;
         SupTicketModal.__testOnly__.parseTicketList = parseTicketList;
         SupTicketModal.__testOnly__.getTickets = getTickets;
-        SupTicketModal.__testOnly__.trimRecentLogs = SupTicketModal.trimRecentLogs;
     }
     /* End Of Unit Test Only */
 

@@ -130,7 +130,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.isSparkParquet = function(targetName) {
-        return DSTargetManager.getTarget(targetName).type_id === "sparkparquet";
+        var target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_id === "sparkparquet") {
+            return true;
+        } else {
+            return false;
+        }
     };
 
     function addEventListeners() {
@@ -439,6 +444,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                         // when still focus on grid to delete
                         showTargetCreateView();
                     }
+                    $grid.remove();
                     DSTargetManager.refreshTargets();
                 })
                 .fail(function(error) {
