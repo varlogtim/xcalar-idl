@@ -3853,7 +3853,14 @@ table.datasetTable {
                 &.loading {
                     border-style: dashed;
                     border-width: 1px;
-                    .xc-disabled;
+                    
+                    .icon, div {
+                        opacity: @opacity-disabled;
+                    }
+
+                    .action {
+                        pointer-events: none;
+                    }
                 }
 
                 > .label {
