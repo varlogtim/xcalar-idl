@@ -16,7 +16,6 @@ destMap = {
     "unitTest.html": "unitTest.html",
     "unitTestInstaller.html": "unitTestInstaller.html",
     "datastoreTut1.html": "assets/htmlFiles/walk/datastoreTut1.html",
-    "datastoreTut1DemoMode.html": "assets/htmlFiles/walk/datastoreTut1DemoMode.html",
     "datastoreTut2.html": "assets/htmlFiles/walk/datastoreTut2.html",
     "workbookTut.html": "assets/htmlFiles/walk/workbookTut.html",
     "login.html": "assets/htmlFiles/login.html",
@@ -35,7 +34,7 @@ replaceProductJsFiles = {
     "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
 };
 
-var noPrettify = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"];
+var noPrettify = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html"];
 
 htmlMinOptions = {};
 

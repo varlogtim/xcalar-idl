@@ -954,18 +954,12 @@ window.DFParamModal = (function($, DFParamModal){
             $advancedOpts.html(advancedOpts);
             $dfParamModal.find('.exportSettingParamSection').html(exportSettingText);
             $dfParamModal.addClass("export");
-            if (xdpMode === XcalarMode.Demo) {
-                xcHelper.disableMenuItem($dfParamModal.find(".advancedOpts [data-option='default']"),
-                    {"title": TooltipTStr.NotInDemoMode});
+            var retName = $dfParamModal.data("df");
+            var df = DF.getDataflow(retName);
+            if (df && df.activeSession) {
                 $dfParamModal.find(".advancedOpts [data-option='import']").click();
             } else {
-                var retName = $dfParamModal.data("df");
-                var df = DF.getDataflow(retName);
-                if (df && df.activeSession) {
-                    $dfParamModal.find(".advancedOpts [data-option='import']").click();
-                } else {
-                    $dfParamModal.find(".advancedOpts [data-option='default']").click();
-                }
+                $dfParamModal.find(".advancedOpts [data-option='default']").click();
             }
         } else {
             $advancedOpts.html("");

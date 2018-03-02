@@ -621,23 +621,6 @@ module.exports = {
         "delDSBtn": "Delete folder or dataset"
     },
 
-    "dsParser": {
-        "ParserTitle": "Visual Parser",
-        "PreviewMode": "Preview Mode",
-        "SelectedKeys": "Selected Keys",
-        "SelectFormat": "Select format",
-        "Full": "Full Path",
-        "Partial": "Partial Path",
-        "SkipToLine": "Skip to line",
-        "ViewInText": "View data in plain text format"
-    },
-
-    "dsUploader": {
-        "DropHere": "Drop Files Here",
-        "AddFile": "Add File / Create Dataset",
-        "AddFileDesc": "To add a file, drag and drop files from your computer into this window or click Browse."
-    },
-
     "dsForm": {
         "PathInstr": "Select data target, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
         "filePath": "Data Source Path",
@@ -1134,9 +1117,6 @@ module.exports = {
             // leave it empty, it will be overwritten by render.js
         },
         "datastoreTut1": {
-            "tab": "Viewing Datasets"
-        },
-        "datastoreTut1Demo": {
             "tab": "Viewing Datasets"
         },
         "datastoreTut2": {

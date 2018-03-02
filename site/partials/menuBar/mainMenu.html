@@ -33,8 +33,7 @@
       include "../worksheet/sortView.html"
       include "../worksheet/projectView.html"
     </div>
-    <% if (dicts.tutor.name == "datastoreTut1" || (dicts.tutor.name == "datastoreTut2" ||
-    (dicts.tutor.name == "datastoreTut1Demo"))) { %>
+    <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut2") { %>
     <div id="datastoreMenu" class="commonSection active" data-tab="dataStoresTab">
     <% } else { %>
     <div id="datastoreMenu" class="commonSection" data-tab="dataStoresTab">

@@ -351,7 +351,6 @@ SQLOps = {
 XcalarMode = {
     Oper: "operational",
     Mod: "modeling",
-    Demo: "demo",
     Unlic: "unlicensed",
 };
 

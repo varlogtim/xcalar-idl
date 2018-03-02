@@ -5,10 +5,9 @@ _ = require('underscore');
 dicts = require('../../assets/lang/' + lang + '/htmlTStr.js');
 
 var tutorMap = {
-    "datastoreTut1.html"        : "datastoreTut1",
-    "datastoreTut1DemoMode.html": "datastoreTut1Demo",
-    "datastoreTut2.html"        : "datastoreTut2",
-    "workbookTut.html"          : "workbookTut"
+    "datastoreTut1.html": "datastoreTut1",
+    "datastoreTut2.html": "datastoreTut2",
+    "workbookTut.html": "workbookTut"
 };
 
 function genHTML(srcDir, destMap, product, replaceJsFiles) {

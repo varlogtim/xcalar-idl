@@ -89,11 +89,7 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
                 }
             };
 
-            if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                introHelper('datastoreTut1Demo', WalkThroughTStr.w4, options);
-            } else {
-                introHelper('datastoreTut1', WalkThroughTStr.w2, options);
-            }
+            introHelper('datastoreTut1', WalkThroughTStr.w2, options);
         });
 
         $('#datastoreWT2').click(function() {
@@ -109,32 +105,17 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
         });
 
         function dsDemo1ToggleForm(showPreview) {
-            if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                if (showPreview) {
-                    $('#demoScreen').find('#dsForm-preview')
-                                    .removeClass('xc-hidden');
-                    $('#demoScreen').find('#dsUploader')
-                                    .addClass('xc-hidden');
-                } else {
-                    $('#demoScreen').find('#dsForm-preview')
-                                    .addClass('xc-hidden');
-                    $('#demoScreen').find('#dsUploader')
-                                    .removeClass('xc-hidden');
-                }
+            if (showPreview) {
+                $('#demoScreen').find('#dsForm-preview')
+                                .removeClass('xc-hidden');
+                $('#demoScreen').find('#dsForm-path')
+                                .addClass('xc-hidden');
             } else {
-                if (showPreview) {
-                    $('#demoScreen').find('#dsForm-preview')
-                                    .removeClass('xc-hidden');
-                    $('#demoScreen').find('#dsForm-path')
-                                    .addClass('xc-hidden');
-                } else {
-                    $('#demoScreen').find('#dsForm-preview')
-                                    .addClass('xc-hidden');
-                    $('#demoScreen').find('#dsForm-path')
-                                    .removeClass('xc-hidden');
-                }
+                $('#demoScreen').find('#dsForm-preview')
+                                .addClass('xc-hidden');
+                $('#demoScreen').find('#dsForm-path')
+                                .removeClass('xc-hidden');
             }
-            
         }
     };
 

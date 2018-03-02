@@ -100,8 +100,6 @@ TooltipTStr = {
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
-    "PointDemo": "Add File / Create Dataset",
-    "NotInDemoMode": "Feature not available in cloud preview",
     "KeyExists": "Key Already Exists",
     "ViewAllWS": "View all worksheets",
     "LoggedIn": "Logged In",

@@ -1548,48 +1548,6 @@ describe("Dataset-DSPreview Test", function() {
             expect($previewCard.hasClass("minimize")).to.be.false;
         });
 
-        // it("shuod click change file to trigger previewFileModal", function() {
-        //     var oldFunc = PreviewFileModal.show;
-        //     var test = false;
-        //     PreviewFileModal.show = function() {
-        //         test = true;
-        //     };
-        //     $("#preview-changeFile").click();
-        //     expect(test).to.be.true;
-        //     PreviewFileModal.show = oldFunc;
-        // });
-
-        // it("should click parser to trigger parser", function() {
-        //     var oldParser = DSParser.show;
-        //     var oldSelect = PreviewFileModal.show;
-        //     var test1 = false;
-        //     var test2 = false;
-
-        //     DSParser.show = function() {
-        //         test1 = true;
-        //     };
-        //     PreviewFileModal.show = function() {
-        //         test2 = true;
-        //     };
-
-        //     var isFolder = DSPreview.__testOnly__.get().isViewFolder;
-        //     DSPreview.__testOnly__.set(null, null, false);
-        //     $("#preview-parser").click();
-        //     expect(test1).to.be.true;
-        //     expect(test2).to.be.false;
-
-        //     DSPreview.__testOnly__.set(null, null, true);
-        //     $("#preview-parser").click();
-        //     expect(test1).to.be.true;
-        //     expect(test2).to.be.true;
-
-        //     if (isFolder) {
-        //         DSPreview.__testOnly__.set(null, null, true);
-        //     }
-        //     DSParser.show = oldParser;
-        //     PreviewFileModal.show = oldSelect;
-        // });
-
         it("should click to toggle advanced option", function() {
             var $advanceSection = $form.find(".advanceSection");
             var $button = $advanceSection.find(".listWrap");
@@ -1658,24 +1616,14 @@ describe("Dataset-DSPreview Test", function() {
             });
             var $button = $form.find(".cancel");
             var oldGetLicense = XVM.getLicenseMode;
-            var oldUpload = DSUploader.show;
             var oldForm = DSForm.show;
             var oldFileBrowser = FileBrowser.show;
-            var test1 = test2 = test3 = false;
+            var test1 = test2 = false;
 
-            DSUploader.show = function() { test1 = true; };
-            DSForm.show = function() { test2 = true; };
-            FileBrowser.show = function() { test3 = true; };
+            DSForm.show = function() { test1 = true; };
+            FileBrowser.show = function() { test2 = true; };
 
             // case 1
-            XVM.getLicenseMode = function() { return XcalarMode.Demo; };
-            $button.click();
-            expect(test1).to.be.true;
-            expect(test2).to.be.false;
-            expect(test3).to.be.false;
-            test1 = false;
-
-            // case 2
             loadArgs.set({
                 targetName: gDefaultSharedRoot,
                 files: [{path: "/abc"}]
@@ -1683,12 +1631,11 @@ describe("Dataset-DSPreview Test", function() {
             XVM.getLicenseMode = function() { return XcalarMode.Oper; };
             DSPreview.__testOnly__.setBackToFormCard(true);
             $button.click();
-            expect(test1).to.be.false;
-            expect(test2).to.be.true;
-            expect(test3).to.be.false;
-            test2 = false;
+            expect(test1).to.be.true;
+            expect(test2).to.be.false;
+            test1 = false;
 
-            // case 3
+            // case 2
             loadArgs.set({
                 targetName: gDefaultSharedRoot,
                 files: [{path: "/abc"}]
@@ -1696,11 +1643,9 @@ describe("Dataset-DSPreview Test", function() {
             DSPreview.__testOnly__.setBackToFormCard(false);
             $button.click();
             expect(test1).to.be.false;
-            expect(test2).to.be.false;
-            expect(test3).to.be.true;
+            expect(test2).to.be.true;
 
             XVM.getLicenseMode = oldGetLicense;
-            DSUploader.show = oldUpload;
             DSForm.show = oldForm;
             FileBrowser.show = oldFileBrowser;
         });

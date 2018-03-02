@@ -8,10 +8,8 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.View = {
         "Path": "DSForm",
-        "Uploader": "DSUploader",
         "Browser": "FileBrowser",
-        "Preview": "DSPreview",
-        "Parser": "DSParser"
+        "Preview": "DSPreview"
     };
 
     DSForm.setup = function() {
@@ -41,17 +39,7 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.show = function(options) {
         options = options || {};
-
-        // if (!options.noReset) {
-        //     resetForm();
-        // }
-
-        if (XVM.getLicenseMode() === XcalarMode.Demo) {
-            DSForm.switchView(DSForm.View.Uploader);
-        } else {
-            DSForm.switchView(DSForm.View.Path);
-        }
-
+        DSForm.switchView(DSForm.View.Path);
         $filePath.focus();
     };
 
@@ -61,17 +49,11 @@ window.DSForm = (function($, DSForm) {
             case DSForm.View.Path:
                 $cardToSwitch = $pathCard;
                 break;
-            case DSForm.View.Uploader:
-                $cardToSwitch = $("#dsUploader");
-                break;
             case DSForm.View.Browser:
                 $cardToSwitch = $("#fileBrowser");
                 break;
             case DSForm.View.Preview:
                 $cardToSwitch = $("#dsForm-preview");
-                break;
-            case DSForm.View.Parser:
-                $cardToSwitch = $("#dsParser");
                 break;
             default:
                 console.error("invalid view");

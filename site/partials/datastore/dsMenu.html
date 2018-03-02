@@ -1,7 +1,7 @@
 <!-- dataset menu -->
 <div class="iconSection">
   <!-- import data button -->
-  <% if (dicts.tutor.name !== "datastoreTut1" && dicts.tutor.name !== "datastoreTut1Demo") { %>
+  <% if (dicts.tutor.name !== "datastoreTut1") { %>
   <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
     <i class="icon xi-add-data"></i>
   </div>
@@ -32,7 +32,7 @@
 </div>
 <div class="titleSection no-selection">
   <header>
-    <% if (dicts.tutor.name === "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
+    <% if (dicts.tutor.name === "datastoreTut1") { %>
     <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">0</span>)</span>
     <% } else if (dicts.tutor.name === "datastoreTut2") { %>
     <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">1</span>)</span>

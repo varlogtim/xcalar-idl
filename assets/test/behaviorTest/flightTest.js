@@ -47,8 +47,7 @@ window.FlightTest = (function(FlightTest, $) {
         test.add(retinaTest, "RetinaTest",
                       defaultTimeout, TestCaseEnabled);
         // interactive mode not run test
-        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Demo ||
-                             XVM.getLicenseMode() === XcalarMode.Mod) ?
+        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
                             TestCaseDisabled : TestCaseEnabled;
         // XXX temporarily disable it because of the expotNode bug by json query change
 

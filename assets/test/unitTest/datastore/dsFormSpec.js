@@ -21,23 +21,10 @@ describe("Dataset-DSForm Test", function() {
             assert.isFalse($("#dsFormView").is(":visible"));
         });
 
-        it("should see Uploader in demo license", function() {
-            var oldFunc = XVM.getLicenseMode;
-            XVM.getLicenseMode = function() {
-                return XcalarMode.Demo;
-            };
-            DSForm.show();
-            assert.isTrue($("#dsFormView").is(":visible"));
-            expect($("#dsForm-path").hasClass("xc-hidden")).to.be.true;
-            expect($("#dsUploader").hasClass("xc-hidden")).to.be.false;
-            XVM.getLicenseMode = oldFunc;
-        });
-
         it("Should see form", function() {
             DSForm.show();
             assert.isTrue($("#dsFormView").is(":visible"));
             expect($("#dsForm-path").hasClass("xc-hidden")).to.be.false;
-            expect($("#dsUploader").hasClass("xc-hidden")).to.be.true;
         });
 
         it("Should trigger show from importDataButton button", function() {
@@ -58,17 +45,11 @@ describe("Dataset-DSForm Test", function() {
             assert.isTrue($pathCard.is(":visible"));
 
             var tests = [{
-                "view": DSForm.View.Uploader,
-                "$ele": $("#dsUploader")
-            }, {
                 "view": DSForm.View.Browser,
                 "$ele": $("#fileBrowser")
             }, {
                 "view": DSForm.View.Preview,
                 "$ele": $("#dsForm-preview")
-            }, {
-                "view": DSForm.View.Parser,
-                "$ele": $("#dsParser")
             }, {
                 "view": DSForm.View.Path,
                 "$ele": $pathCard

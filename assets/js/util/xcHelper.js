@@ -4244,11 +4244,6 @@
                     return "closeMenu";
                 }
                 updateTableDropdown($menu, options);
-                // XXX This really shouldn't be here...
-                if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                    xcHelper.disableMenuItem($("#tableMenu .exportTable"),
-                                          {"title": TooltipTStr.NotInDemoMode});
-                }
                 if (gTables[tableId].isNoDelete()) {
                     xcHelper.disableMenuItem($("#tableMenu .deleteTable"),
                                     {"title": TooltipTStr.CannotDropLocked});

@@ -7,7 +7,6 @@ var paths = {
     testAbsolute: '/unitTest.html',
     workbookTut: 'assets/htmlFiles/walk/workbookTut.html',
     datastoreTut1: 'assets/htmlFiles/walk/datastoreTut1.html',
-    datastoreTut1Demo: 'assets/htmlFiles/walk/datastoreTut1DemoMode.html',
     datastoreTut2: 'assets/htmlFiles/walk/datastoreTut2.html',
     dfIcons: 'assets/images/dfgIcons/',
     dagBackground: 'assets/images/dagIcons/dag-background.png',

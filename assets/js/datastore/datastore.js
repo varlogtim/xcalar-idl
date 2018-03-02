@@ -6,15 +6,10 @@ window.DataStore = (function($, DataStore) {
         DS.setup();
         setupViews();
         DSForm.setup();
-        DSParser.setup();
         DSTable.setup();
         DSCart.setup();
         DSExport.setup();
         DSTargetManager.setup();
-    };
-
-    DataStore.initialize = function() {
-        DSUploader.initialize();
     };
 
     DataStore.update = function(numDatasets) {

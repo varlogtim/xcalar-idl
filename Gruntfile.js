@@ -900,7 +900,7 @@ var END_OF_BUILD_WARNINGS = []; // some warnings that might be bugs we collect o
                             /** BLACKLISTS */
 
     // dont do HTML prettification on these (obj so key lookup for filter rather than iter. list for every single html file to check)
-var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"],
+var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html"],
     // a list of files and/or directories, not to template (for dirs, won't template any files within those dirs)
     DONT_TEMPLATE_HTML = htmlMapping.required, // MAKE THESE REL PATHS to src/bld
     /**
@@ -2864,10 +2864,9 @@ module.exports = function(grunt) {
         landCode = (lang === "en") ? "en-US" : "zh-CN";
         dicts = require(SRCROOT + 'assets/lang/' + lang + '/htmlTStr.js');
         var tutorMap = {
-            "datastoreTut1.html"        : "datastoreTut1",
-            "datastoreTut1DemoMode.html": "datastoreTut1Demo",
-            "datastoreTut2.html"        : "datastoreTut2",
-            "workbookTut.html"          : "workbookTut"
+            "datastoreTut1.html": "datastoreTut1",
+            "datastoreTut2.html": "datastoreTut2",
+            "workbookTut.html": "workbookTut"
         };
 
         if ( !srcRoot ) {
@@ -3075,7 +3074,6 @@ module.exports = function(grunt) {
         htmlTemplateMapping = {
             "dashboard.html": ["dashboard.html"],
             "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
-            "datastoreTut1DemoMode.html": ["assets/htmlFiles/walk/datastoreTut1DemoMode.html"],
             "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
             "dologout.html": ["assets/htmlFiles/dologout.html"],
             "extensionUploader.html": ["services/appMarketplace/extensionUploader.html"],

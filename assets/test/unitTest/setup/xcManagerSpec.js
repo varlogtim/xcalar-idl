@@ -238,32 +238,22 @@ describe("xcManager Test", function() {
         });
 
         it("xcManager.unload should work in async case", function() {
-            var oldClean = DSPreview.cleanup;
             var oldFree = TblManager.freeAllResultSets;
-            var test1, test2;
-            DSPreview.cleanup = function() { test1 = true; };
-            TblManager.freeAllResultSets = function() { test2 = true; };
+            var test;
+            TblManager.freeAllResultSets = function() { test = true; };
 
             xcManager.unload(true);
-            expect(test1).to.be.true;
-            expect(test2).to.be.true;
-
-            DSPreview.cleanup = oldClean;
+            expect(test).to.be.true;
             TblManager.freeAllResultSets = oldFree;
         });
 
         it("xcManager.unload should work in sync case", function(done) {
             xcManager.__testOnly__.fakeLogoutRedirect();
 
-            var oldClean = DSPreview.cleanup;
             var oldFree = TblManager.freeAllResultSetsSync;
             var oldRelease =  XcSupport.releaseSession;
             var oldRemove = xcManager.removeUnloadPrompt;
-            var test1, test2, test3, test4;
-            DSPreview.cleanup = function() {
-                test1 = true;
-                return PromiseHelper.resolve();
-            };
+            var test2, test3, test4;
             TblManager.freeAllResultSetsSync = function() {
                 test2 = true;
                 return PromiseHelper.resolve();
@@ -280,7 +270,6 @@ describe("xcManager Test", function() {
                 return test4 === true;
             })
             .then(function() {
-                expect(test1).to.be.true;
                 expect(test2).to.be.true;
                 expect(test3).to.be.true;
                 done();
@@ -289,7 +278,6 @@ describe("xcManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                DSPreview.cleanup = oldClean;
                 TblManager.freeAllResultSetsSync = oldFree;
                 XcSupport.releaseSession = oldRelease;
                 xcManager.removeUnloadPrompt = oldRemove;

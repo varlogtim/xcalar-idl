@@ -78,7 +78,6 @@ window.Upgrader = (function(Upgrader, $) {
      * global keys:
      *  gEphStorageKey, for EMetaConstructor
      *  gSettingsKey, for GenSettings
-     *  gPendingUploadsKey, a simple array of string (no upgarde)
      */
     function upgradeGlobalInfos(globalKeys) {
         var def1 = upgradeEphMeta(globalKeys.gEphStorageKey);

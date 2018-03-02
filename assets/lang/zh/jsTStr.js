@@ -98,7 +98,6 @@ TooltipTStr = {
 'ParamValNoChange': '此参数值不能更改',
 'DeleteFile': '删除文件',
 'CancelUpload': '取消上传',
-"PointDemo": '添加文件/创建数据集',
 "NotInDemoMode": '该功能在云预览中不可用',
 "KeyExists": '键已经存在',
 "ViewAllWS": '查看所有工作表',

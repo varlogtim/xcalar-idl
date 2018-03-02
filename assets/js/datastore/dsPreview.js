@@ -36,7 +36,6 @@ window.DSPreview = (function($, DSPreview) {
     var lastUDFModule = null;
     var lastUDFFunc = null;
     var backToFormCard = false;
-    var tempParserUDF;
     var rowsToFetch = 40;
     var previewId;
     var fileBrowserPath = "/";
@@ -488,39 +487,6 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
-    /*
-     * options:
-     *  moduleName: udf module to apply
-     *  delimieter: line delimiter (for plain text mode)
-     */
-    // DSPreview.backFromParser = function(curUrl, options) {
-    //     options = options || {};
-    //     var moduleName = options.moduleName;
-    //     var delimiter = options.delimiter;
-
-    //     // After plain text mode in AVP,
-    //     // instead of redetecting, we should change to text,
-    //     // no field delim, no quote char and add row num
-    //     var noDetect = false;
-    //     if (delimiter == null) {
-    //         cleanTempParser();
-    //         tempParserUDF = moduleName;
-    //         toggleFormat("UDF");
-    //         selectUDF(moduleName, "parser");
-    //     } else {
-    //         applyLineDelim(delimiter);
-    //         noDetect = true;
-    //         toggleFormat("TEXT");
-    //         applyQuote("");
-    //         if (isPreviewSingleFile()) {
-    //             toggleGenLineNum(true);
-    //         }
-    //     }
-
-    //     DSForm.switchView(DSForm.View.Preview);
-    //     DSPreview.changePreviewFile(curUrl, noDetect);
-    // };
-
     DSPreview.clear = function() {
         if ($("#dsForm-preview").hasClass("xc-hidden")) {
             // when preview table not shows up
@@ -528,10 +494,6 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             return clearPreviewTable(tableName);
         }
-    };
-
-    DSPreview.cleanup = function() {
-        return cleanTempParser();
     };
 
     function positionAndShowCastDropdown($div) {
@@ -647,9 +609,7 @@ window.DSPreview = (function($, DSPreview) {
             }
             resetForm();
             clearPreviewTable(tableName);
-            if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                DSUploader.show();
-            } else if (backToFormCard) {
+            if (backToFormCard) {
                 DSForm.show({"noReset": true});
             } else {
                 // XXX changet to support multiple of paths
@@ -1203,28 +1163,6 @@ window.DSPreview = (function($, DSPreview) {
                    .removeClass("end");
     }
 
-    function cleanTempParser(keepUDF) {
-        if (keepUDF) {
-            // if not keep applied UDF, dataflow will be broken
-            tempParserUDF = null;
-        }
-
-        if (tempParserUDF == null) {
-            return PromiseHelper.resolve();
-        } else {
-            var deferred = jQuery.Deferred();
-            var tempUDF = tempParserUDF;
-            tempParserUDF = null;
-            XcalarDeletePython(tempUDF)
-            .always(function() {
-                UDF.refresh();
-                deferred.resolve();
-            });
-
-            return deferred.promise();
-        }
-    }
-
     function restoreForm(options) {
         var isSpecialJSON = false;
         $form.find("input").not($formatText).val("");
@@ -1376,7 +1314,6 @@ window.DSPreview = (function($, DSPreview) {
                                     toCreateTable);
         })
         .then(function() {
-            cleanTempParser(true);
             deferred.resolve();
         })
         .fail(deferred.reject);

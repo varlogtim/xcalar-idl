@@ -58,12 +58,8 @@ describe("Mocha Setup Test", function() {
 
     it("Should check license type", function() {
         var mode = XVM.getLicenseMode();
-        var valid = (mode === XcalarMode.Oper) || (mode === XcalarMode.Mod)
-                    || (mode === XcalarMode.Demo);
+        var valid = (mode === XcalarMode.Oper) || (mode === XcalarMode.Mod);
         expect(valid).to.be.true;
-        if (mode === XcalarMode.Demo) {
-            UnitTest.hasAlertWithTitle(DemoTStr.title);
-        }
     });
 
     it("Should be able to test DSCart module", function() {

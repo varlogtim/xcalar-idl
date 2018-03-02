@@ -772,14 +772,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gEphInfoKey = generateKey("", "gEphInfo", version);
         var gSharedDSKey = generateKey("", "gSharedDS", version);
         var gSettingsKey = generateKey("", "gSettings", version);
-        // gPendingUploadsKey don't need to versioning
-        var gPendingUploadsKey = generateKey("", "gPUploads");
 
         return {
             "gEphStorageKey": gEphInfoKey,
             "gSettingsKey": gSettingsKey,
-            "gSharedDSKey": gSharedDSKey,
-            "gPendingUploadsKey": gPendingUploadsKey
+            "gSharedDSKey": gSharedDSKey
         };
     }
 

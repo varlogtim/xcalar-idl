@@ -1,8 +1,4 @@
-<% if (dicts.tutor.name == "datastoreTut1Demo") { %>
-<div id="dsForm-path" class="cardContainer xc-hidden">
-<% } else { %>
 <div id="dsForm-path" class="cardContainer">
-<% } %>
   <header class="cardHeader">
     <div class="title"><%= dicts.ds.Point %>
       <div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
@@ -57,9 +53,5 @@
     <button class="btn btn-cancel cancel"><%= dicts.common.CLEAR %></button>
   </div>
 </div>
-<% if (dicts.tutor.name != 'datastoreTut1' || dicts.tutorname != 'datastoreTut2') { %>
-include "dsUploader.html"
-<% } %>
 include "fileBrowser/fileBrowser.html"
 include "dsPreview.html"
-include "dsParser.html"

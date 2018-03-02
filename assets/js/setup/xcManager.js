@@ -62,7 +62,6 @@ window.xcManager = (function(xcManager, $) {
         .then(function() {
             StatusMessage.updateLocation(true,
                                         StatusMessageTStr.SettingExtensions);
-            DataStore.initialize();
             // Extensions need to be moved to after version check because
             // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
             // pass
@@ -77,8 +76,6 @@ window.xcManager = (function(xcManager, $) {
             JoinView.restore();
             FileBrowser.restore();
             JupyterPanel.initialize();
-
-            XVM.initMode();
 
             WSManager.focusOnWorksheet();
             // This adds a new failure mode to setup.
@@ -99,7 +96,6 @@ window.xcManager = (function(xcManager, $) {
             'background-color: #5CB2E8; ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
-            XVM.alertLicenseExpire();
             // get initial memory usage
             XcSupport.memoryCheck();
             // start heartbeat check
@@ -243,13 +239,9 @@ window.xcManager = (function(xcManager, $) {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
-            DSPreview.cleanup();
             TblManager.freeAllResultSets();
         } else {
-            DSPreview.cleanup()
-            .then(function() {
-                return TblManager.freeAllResultSetsSync();
-            })
+            TblManager.freeAllResultSetsSync()
             .then(function() {
                 return XcSupport.releaseSession();
             })
@@ -535,7 +527,6 @@ window.xcManager = (function(xcManager, $) {
         SupTicketModal.setup();
         AboutModal.setup();
         FileInfoModal.setup();
-        PreviewFileModal.setup();
         DSInfoModal.setup();
         SkewInfoModal.setup();
         WorkbookInfoModal.setup();

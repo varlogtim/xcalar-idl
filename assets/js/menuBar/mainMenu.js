@@ -371,7 +371,6 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.removeClass("firstTouch");
                     DS.setupView();
                     DSForm.initialize();
-                    DSUploader.refreshFiles();
                 }
                 DS.resize();
                 break;

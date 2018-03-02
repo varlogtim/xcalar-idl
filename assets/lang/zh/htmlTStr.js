@@ -508,16 +508,6 @@ module.exports = {
         "PARQUET": "Parquet Dataset",
         "UDF": "自定义格式"
     },
-    "dsParser": {
-        "Full": "绝对路径",
-        "ParserTitle": "数据源解析器",
-        "Partial": "相对路径",
-        "PreviewMode": "预览模式",
-        "SelectFormat": "选择格式",
-        "SelectedKeys": "选择的键",
-        "SkipToLine": "跳到",
-        "ViewInText": "用plain text格式浏览数据"
-    },
     "dsPreview": {
         "ApplyHighlight": "应用高亮字符作为列分隔符",
         "EndOfPreview": "文件预览结束",
@@ -553,11 +543,6 @@ module.exports = {
         "TargetInfoInstr": "以下是所选目标的详细信息。 要创建新目标, 请点击左边栏上方的创建按钮。",
         "TargetParams": "目标参数",
         "DELETETARGET": "删除目标"
-    },
-    "dsUploader": {
-        "AddFile": "添加文件/创建数据集",
-        "AddFileDesc": "要添加文件，请将文件从计算机拖放到此窗口，或单击“浏览”按钮。",
-        "DropHere": "请将文件拖放至此处"
     },
     "dsView": {
         "Back": "后退",
@@ -1012,9 +997,6 @@ module.exports = {
     },
     "tutor": {
         "datastoreTut1": {
-            "tab": "查看数据集"
-        },
-        "datastoreTut1Demo": {
             "tab": "查看数据集"
         },
         "datastoreTut2": {

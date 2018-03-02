@@ -5,12 +5,6 @@ window.SQLEditor = (function(SQLEditor, $) {
     SQLEditor.setup = function() {
         setupEditor();
         addEventListeners();
-
-        // XXX demo use
-        var showSQLPanel = true;
-        if (showSQLPanel) {
-            $("#sqlTab").removeClass("xc-hidden");
-        }
     };
 
     SQLEditor.getEditor = function() {
