@@ -625,7 +625,7 @@ window.DSExport = (function($, DSExport) {
             deferred.resolve();
         })
         .fail(function(err) {
-            Alert.error(DSExportTStr.ExportFail, err.error);
+            Alert.error(DSExportTStr.ExportFail, err);
             deferred.reject(err);
         });
 
