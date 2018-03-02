@@ -3066,6 +3066,36 @@ module.exports = function(grunt) {
     function getTemplatingOutputFilepaths(filepath) {
 
         /**
+
+            ==================================================
+
+            IF YOU ARE A GUI DEVELOPER ADDING IN A NEW HTML FILE FOR TEMPLATING::::
+
+            add in a new key/value pair in to the following hash, for your new file
+
+            - key should be JUST the filename itself, regardless where the file is nested in your project source.
+            (because all the src html files will be taken and flattened in to a staging dir,
+            and the keys here are paths rel the staging dir.  Note - src html files are considered
+            those files in <project source>/site/)
+
+            - value should be a list, with one entry for each path you want the templated file to be mapped
+            to in the final build.  (Note that if you are running 'grunt dev' and not specifying any custom
+            --buildroot option, then these paths, in the final build, will be relative your project source itself,
+            because the build output itself is rooted at the project source.)
+
+            If you have adding in the new key/value pair but are NOT seeing your HTML file build::
+
+                1. make sure your new HTML file is stored in <project source>/site/
+                --> this is where src html will be taken from, to be transfered in to the staging dir
+
+                2. check if you have $XLRGUIDIR env variable set.
+                    If this variable is set, Grunt will use it's value as the <project source>
+                    (To override this behavior, you can supply --srcroot=<project source you want to build from>)
+
+                3. if still problems, contact jolsen@xcalar.com, ill help you
+
+            ==========================================================
+
             mapping such that:
             (key): path to unprocessed file in staging dir I
             (val): path(s) you want in final bld of the processed, templated file
