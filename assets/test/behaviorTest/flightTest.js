@@ -228,10 +228,10 @@ window.FlightTest = (function(FlightTest, $) {
                 var editor = UDF.getEditor();
                 editor.setValue('def ymd(year, month, day):\n' +
                                 '    if int(month) < 10:\n' +
-                                '        month = "0" + month\n' +
+                                '        month = "0" + str(month)\n' +
                                 '    if int(day) < 10:\n' +
-                                '        day = "0" + day\n' +
-                                '    return year + month + day');
+                                '        day = "0" + str(day)\n' +
+                                '    return str(year) + str(month) + str(day)');
                 $("#udf-fnName").val("ymd");
                 $("#udf-fnUpload").click();
 
