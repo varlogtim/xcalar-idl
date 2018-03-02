@@ -646,8 +646,14 @@ window.FnBar = (function(FnBar, $) {
 
         var $table = $colInput.closest('.dataTable');
         var tableId = xcHelper.parseTableId($table);
-        var colNum = xcHelper.parseColNum($colInput);
         var table = gTables[tableId];
+
+        if (table.hasLock()) {
+            return PromiseHelper.reject();
+        }
+
+        var colNum = xcHelper.parseColNum($colInput);
+
         var tableCol = table.tableCols[colNum - 1];
         var colName = tableCol.getBackColName();
         var frontColName = tableCol.getFrontColName();
