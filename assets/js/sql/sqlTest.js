@@ -448,14 +448,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             // Remove extra columns
             return removeColumns(gActiveTableId);
         })
-        // .then(function() {
-        //     // Cast data types
-        //     return castColumns(gActiveTableId);
-        // })
-        // .then(function() {
-        //     // Finalize table
-        //     return finalizeTables(gActiveTableId);
-        // })
+        .then(function() {
+            // Cast data types
+            return castColumns(gActiveTableId);
+        })
+        .then(function() {
+            // Finalize table
+            return finalizeTables(gActiveTableId);
+        })
         .then(function() {
             // Send schema
             return sendSchema(gActiveTableId, tableName);

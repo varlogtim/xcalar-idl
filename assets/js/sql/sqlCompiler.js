@@ -1845,11 +1845,11 @@
         },
         _pushDownUnion: function(node) {
             var self = this;
+            // Union has at least two children
             assert(node.children.length > 1);
-            // Union has at leaset two children
-            // XXX TO-DO
             var newTableName = node.newTableName;
             var tableInfos = [];
+            var colRenames = node.children[0].usrCols;
             for (var i = 0; i < node.children.length; i++) {
                 var unionTable = node.children[i];
                 var unionCols = unionTable.usrCols;
@@ -1857,7 +1857,7 @@
                 for (var j = 0; j < unionCols.length; j++) {
                     columns.push({
                         name: unionCols[j].colName,
-                        rename: unionCols[j].colName,
+                        rename: colRenames[j].colName,
                         type: "DfUnknown", // backend will figure this out. :)
                         cast: false // Should already be casted by spark
                     });
@@ -1867,9 +1867,10 @@
                     columns: columns
                 });
             }
-            // XXX Only unionAll is supported now. It seems that if we want
-            // union, i.e. with dedup, in spark it has to be union followed by
-            // a distinct. Will implement later
+            // We now support union w/ deduplication as Spark converts it into a
+            // groupBy without aggregation on all columns we need.
+            // XXX Since we support dedup flag, we may consider optimization.
+            // It will save us one groupBy.
             return self.sqlObj.union(tableInfos, false, newTableName);
         }
     };
@@ -2571,6 +2572,10 @@
                 var curColStruct = evalList[i][0];
                 assert(curColStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+                if (curColStruct.name.indexOf(tablePrefix) >= 0) {
+                    // Skip XC_TABLENAME_XXX
+                    continue;
+                }
                 colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
                 if (options && options.renamedColIds &&
