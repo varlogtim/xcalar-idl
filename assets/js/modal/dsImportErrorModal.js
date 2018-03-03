@@ -43,8 +43,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             } else {
                 $row.addClass("expanded").removeClass("collapsed");
             }
-            setSizerHeight();
-            alignScrollBarWithList();
+            // setSizerHeight();
+            // alignScrollBarWithList();
         });
 
         $modal.on("click", ".errorFileList .row", function() {
@@ -78,8 +78,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         });
 
         $modal.on('click', '.downloadErrorModal', function() {
-            var deferred = jQuery.Deferred();
-
             var errorData = [];
             XcalarFetchData(curResultSetId, 0, scrollMeta.numRecords, scrollMeta.numRecords, [], 0, 0)
             .then(function(msgs) {
@@ -95,14 +93,10 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 }
 
                 xcHelper.downloadAsFile(curDSName + "_err.json", JSON.stringify(errorData, null, 2));
-                deferred.resolve();
             })
             .fail(function(err) {
                 Alert.error(ErrTStr.ErrorModalDownloadFailure);
-                deferred.reject(err);
             });
-
-            return deferred.promise();
         });
     };
 
@@ -225,14 +219,12 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 }
 
                 var rowNum = Math.ceil(top / rowHeight);
-                var origRowNum = Math.min(scrollMeta.numRecords - 1,
-                                        Math.floor(rowNum));
+                var origRowNum = Math.min(scrollMeta.numRecords - 1, rowNum);
                 rowNum = Math.min(origRowNum,
                             scrollMeta.numRecords - scrollMeta.numVisibleRows);
 
                 var info = {
-                    bulk: true,
-                    // targetRow: targetRow
+                    bulk: true
                 };
                 $scrollBar.addClass("bulkFetch");
                 goTo(rowNum, scrollMeta.numVisibleRows, "bottom", info)
@@ -252,7 +244,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 scrollMeta.isListScrolling = true;
                 alignScrollBarWithList();
             }
-            var info;
+            var info = {};
             if ($fileList.hasClass("scrolling")) {
                 return;
             } else if (scrollTop === 0) {
@@ -262,19 +254,12 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     var numRowsToAdd = Math.min(numRecordsToFetch, topRow,
                                                 scrollMeta.numRecords);
                     var rowNumber = topRow - numRowsToAdd;
-                    info = {};
-
                     goTo(rowNumber, numRowsToAdd, "top", info);
                 }
             } else if (isScrollBarAtBottom()) {
                 if (scrollMeta.currentRowNumber < scrollMeta.numRecords) {
                     numRowsToAdd = Math.min(numRecordsToFetch,
                         scrollMeta.numRecords - scrollMeta.currentRowNumber);
-                    info = {
-                        targetRow: scrollMeta.currentRowNumber + numRowsToAdd,
-                        lastRowToDisplay: scrollMeta.currentRowNumber + numRowsToAdd,
-                        // currentFirstRow:
-                    };
                     goTo(scrollMeta.currentRowNumber, numRowsToAdd, "bottom", info);
                 }
             }
@@ -312,8 +297,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             }
             if (info.bulk) {
                 $fileList.find(".toRemove").remove();
-                info.targetRow;
-
             }
         })
         .fail(function() {
@@ -350,8 +333,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     }
 
     function fetchRows(startIndex, numRowsToAdd, direction, info) {
-
-
         var deferred = jQuery.Deferred();
         var curId = modalId;
 
@@ -421,18 +402,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         return html;
     }
 
-    function getRecordRowHtml(rowNum, msg) {
-        html = '<div class="row collapsed row' + rowNum + '">' +
-                '<div class="recordNum">' +
-                    '<i class="icon xi-arrow-down arrow"></i>' +
-                    '<span class="num">' + rowNum + '</span>' +
-                '</div>' +
-                '<div class="errorMsg">' + msg + '</div>' +
-            '</div>';
-        return html;
-    }
-
-
     function addTempRows(startIndex, numRowsToAdd, direction) {
         var html = "";
         for (var row = 0; row < numRowsToAdd; row++) {
@@ -501,6 +470,17 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                                            .scrollTop(scrollBarTop);
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DSImportErrorModal.__testOnly__ = {};
+        DSImportErrorModal.__testOnly__goTo = goTo;
+        DSImportErrorModal.__testOnly__.getScrollmeta = function() {
+            return scrollMeta;
+        }
+
+    }
+    /* End Of Unit Test Only */
 
     return DSImportErrorModal;
 }({}, jQuery));
