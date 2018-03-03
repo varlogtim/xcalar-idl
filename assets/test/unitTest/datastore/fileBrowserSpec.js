@@ -274,6 +274,7 @@ describe("Dataset-File Browser Test", function() {
         var submitForm;
         var oldFunc;
         var test;
+        var $infoContainer;
 
         before(function() {
             FileBrowser.__testOnly__.setCurFiles(testFiles);
@@ -286,6 +287,7 @@ describe("Dataset-File Browser Test", function() {
             DSPreview.show = function(options) {
                 test = options;
             };
+            $infoContainer = $("#fileInfoContainer");
         });
 
         it("submitForm should fail when no file is selected", function() {
@@ -297,13 +299,21 @@ describe("Dataset-File Browser Test", function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFile);
         });
 
-        it("selectSingleFile should work", function() {
-            FileBrowser.__testOnly__.selectSingleFile($firstGrid);
+        it("clicking to select a file should work", function() {
+            $firstGrid.click();
             expect($firstGrid.hasClass("selected")).to.be.true;
         });
 
-        it("selectMultiFiles should work", function() {
-            FileBrowser.__testOnly__.selectMultiFiles($lastGrid);
+        it("ctrl-clicking to select more files should work", function() {
+            var event = jQuery.Event("click", {"ctrlKey": true, "metaKey": true});
+            $lastGrid.trigger(event);
+            expect($fileBrowser.find(".grid-unit.selected").length)
+                                                .to.equal(testFiles.length - 1);
+        });
+
+        it("shift-clicking to select multiple files should work", function() {
+            var event = jQuery.Event("click", {"shiftKey": true});
+            $firstGrid.trigger(event);
             expect($fileBrowser.find(".grid-unit.selected").length)
                                                     .to.equal(testFiles.length);
         });
@@ -319,7 +329,8 @@ describe("Dataset-File Browser Test", function() {
         });
 
         it("unselectSingleFile should work", function() {
-            FileBrowser.__testOnly__.unselectSingleFile($firstGrid);
+            var event = jQuery.Event("click", {"ctrlKey": true, "metaKey": true});
+            $firstGrid.trigger(event);
             // Unselect also unpick the file
             expect($firstGrid.hasClass("selected")).to.be.false;
             expect($firstGrid.hasClass("picked")).to.be.false;
@@ -352,6 +363,63 @@ describe("Dataset-File Browser Test", function() {
             expect($pickedFileList.find("li").length).to.equal(0);
         });
 
+        it("hovering/unhovering should work", function() {
+            $firstGrid.trigger("mouseenter");
+            expect($firstGrid.hasClass("hovering")).to.be.true;
+            $firstGrid.trigger("mouseleave");
+            expect($firstGrid.hasClass("hovering")).to.be.false;
+        });
+
+        it("unpicking in fileInfo should swork", function() {
+            // First, toggle to pick all
+            $firstGrid.click();
+            var event = jQuery.Event("click", {"shiftKey": true});
+            $lastGrid.trigger(event);
+            FileBrowser.__testOnly__.togglePickedFiles($lastGrid);
+            FileBrowser.__testOnly__.updatePickedFilesList();
+            expect($fileBrowser.find(".grid-unit.picked").length)
+                                                    .to.equal(testFiles.length);
+            $infoContainer.find(".pickedFileList .close").eq(0).click();
+            expect($fileBrowser.find(".pickedFileList li").length)
+                                                .to.equal(testFiles.length - 1);
+        });
+
+        it("toggling 'recursive' flag should work", function() {
+            // Only one clickable bc there is only one folder
+            expect($infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)").length)
+                                                    .to.equal(1);
+            var $folder = $infoContainer
+                               .find(".xi-ckbox-empty:not(.xc-disabled)").eq(0);
+            $folder.click();
+            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(1);
+            $folder.click();
+            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(0);
+
+            $infoContainer.find(".selectAll").click();
+            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(1);
+            $infoContainer.find(".pickedFiles .xi-close").click();
+            expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(0);
+        });
+
+        it("toggle single/multi ds switch should work", function() {
+            var $swtich = $infoContainer.find(".switch").eq(0);
+            // Click on switch
+            $swtich.click();
+            expect($swtich.hasClass("on")).to.be.true;
+            $swtich.click();
+            expect($swtich.hasClass("on")).to.be.false;
+            // Click on label
+            var $label = $infoContainer.find(".switchLabel");
+            expect($label.length).to.equal(2);
+            $label.eq(1).click();
+            expect($swtich.hasClass("on")).to.be.true;
+            $label.eq(0).click();
+            expect($swtich.hasClass("on")).to.be.false;
+        })
+        it("clearAll should work", function() {
+            $infoContainer.find(".infoTitle .xi-close").click();
+            expect($fileBrowser.find(".pickedFileList li").length).to.equal(0);
+        });
         after(function() {
             DSPreview.show = oldFunc;
         })
@@ -906,6 +974,28 @@ describe("Dataset-File Browser Test", function() {
             var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
             expect($grids.length).to.be.above(2);
             expect($input.hasClass("error")).to.be.false;
+        });
+
+        it("Should cancel search", function(done) {
+            // Go to a path where search takes longer time
+            FileBrowser.show(gDefaultSharedRoot, "/netstore/datasets/")
+            .then(function() {
+                var len = $grids.length;
+                var event = jQuery.Event("keyup", {"which": 13});
+                $input.val("region.tbl").trigger(event);
+                setTimeout(function() {
+                    expect($fileBrowser.find(".searchLoadingSection")
+                                       .is(":visible")).to.be.true;
+                    $fileBrowser.find(".cancelSearch .xi-close").click();
+                    expect($fileBrowser.find(".searchLoadingSection")
+                                       .is(":visible")).to.be.false;
+                    expect($grids.length).to.equal(len);
+                    done();
+                }, 500);
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
         after(function() {
