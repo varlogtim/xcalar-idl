@@ -96,6 +96,7 @@ window.xcManager = (function(xcManager, $) {
             'background-color: #5CB2E8; ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
+            XcSocket.addEventsAfterSetup();
             // get initial memory usage
             XcSupport.memoryCheck();
             // start heartbeat check

@@ -11,6 +11,10 @@ window.XcSocket = (function(XcSocket) {
         };
         initDeferred = jQuery.Deferred();
         socket = io.connect(url, options);
+        addAuthenticationEvents();
+    };
+
+    XcSocket.addEventsAfterSetup = function() {
         addSocketEvent();
     };
 
@@ -65,7 +69,7 @@ window.XcSocket = (function(XcSocket) {
         return host;
     }
 
-    function addSocketEvent() {
+    function addAuthenticationEvents() {
         socket.on("connect", function() {
             connected = true;
             initDeferred.resolve();
@@ -99,6 +103,19 @@ window.XcSocket = (function(XcSocket) {
             Admin.updateLoggedInUsers(users);
         });
 
+        socket.on("adminAlert", function(alertOption) {
+            if (!registered) {
+                return;
+            }
+            Alert.show({
+                "title": alertOption.title,
+                "msg": alertOption.message,
+                "isAlert": true
+            });
+        });
+    }
+
+    function addSocketEvent() {
         socket.on("refreshDataflow", function(dfName) {
             if (!registered) {
                 return;
@@ -114,21 +131,12 @@ window.XcSocket = (function(XcSocket) {
             // In the event that there's new UDF added or overwrite old UDF
             UDF.refreshWithoutClearing(overwriteUDF);
         });
+
         socket.on("refreshDSExport", function() {
             if (!registered) {
                 return;
             }
             DSExport.refresh();
-        });
-        socket.on("adminAlert", function(alertOption) {
-            if (!registered) {
-                return;
-            }
-            Alert.show({
-                "title": alertOption.title,
-                "msg": alertOption.message,
-                "isAlert": true
-            });
         });
 
         socket.on("ds.update", function(arg) {
