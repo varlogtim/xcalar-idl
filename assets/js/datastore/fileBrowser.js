@@ -680,6 +680,7 @@ window.FileBrowser = (function($, FileBrowser) {
         if (toListView) {
             $fileBrowserMain.removeClass("gridView").addClass("listView");
             measureDSListHeight();
+            sizeFileNameColumn();
         } else {
             // change to grid view
             $fileBrowserMain.removeClass("listView").addClass("gridView");
@@ -1616,12 +1617,20 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             $fileBrowser.removeClass('unsortable');
         }
+        sizeFileNameColumn();
+
+    }
+
+    function sizeFileNameColumn() {
         var containerWidth = $fileBrowserMain.find(".titleSection").width();
-        var fileNameWidth = $fileBrowserMain.find(".titleSection").find(".fileName").outerWidth();
+        var fileNameWidth = $fileBrowserMain.find(".titleSection")
+                                            .find(".fileName").outerWidth();
         var fileNamePct = 100 * (fileNameWidth + 20 ) / containerWidth;
         var siblingPct = (100 - fileNamePct) / 2;
-        $innerContainer.find(".fileName").css("width", "calc(" + fileNamePct + "% - 20px)");
-        $innerContainer.find(".fileDate, .fileSize").css("width", "calc(" + siblingPct + "% - 20px)");
+        $innerContainer.find(".fileName").css("width", "calc(" + fileNamePct +
+                                              "% - 20px)");
+        $innerContainer.find(".fileDate, .fileSize").css("width", "calc(" +
+                                                    siblingPct + "% - 20px)");
     }
 
     function refreshIcon() {
@@ -2373,6 +2382,12 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.checkPicked = checkPicked;
         FileBrowser.__testOnly__.getHTMLFromFiles = getHTMLFromFiles;
         FileBrowser.__testOnly__.searchFiles = searchFiles;
+        FileBrowser.__testOnly__.startColResize = startColResize;
+        FileBrowser.__testOnly__.onColResize = onColResize;
+        FileBrowser.__testOnly__.endColResize = endColResize;
+        FileBrowser.__testOnly__.getDragInfo = function() {
+            return dragInfo;
+        };
 
     }
     /* End Of Unit Test Only */

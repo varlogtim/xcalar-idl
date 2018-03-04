@@ -1242,87 +1242,95 @@ describe("Dataset-File Browser Test", function() {
         }
     });
 
-    // We got rid of right-click behaviors because now we have the
-    // "view raw data" button
+    describe("Resize Column Test", function() {
+        var $titleRow;
+        var $header;
+        var $headerSiblings;
+        var startWidth;
+        var startX;
+        var totalPadding;
 
-    // describe("Right Click Menu Behavior Test", function() {
-    //     var $fileBrowserMenu;
+        before(function(done) {
+            $pathSection = $("#fileBrowserPath");
+            // not using the cached history
+            FileBrowser.show(gDefaultSharedRoot, "/netstore")
+            .then(function() {
+                // remove active focus
+                $("#innerFileBrowserContainer").click();
+                $("#fileBrowserGridView").click(); // list view
+                $titleRow = $fileBrowser.find(".titleSection");
+                $header = $fileBrowser.find(".title.fileName");
+                $headerSiblings = $fileBrowser.find(".title.mDate, .title.fileSize");
+                startWidth = $header.outerWidth();
+                startX = 0;
+                totalPadding = 60;
 
-    //     before(function(done) {
-    //         $fileBrowserMenu = $("#fileBrowserMenu");
-    //         // not using the cached history
-    //         FileBrowser.show(gDefaultSharedRoot, "/netstore/")
-    //         .then(function() {
-    //             done();
-    //         })
-    //         .fail(function() {
-    //             done("fail");
-    //         });
-    //     });
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
 
-    //     it("Should show menu on folder", function() {
-    //         var target = $fileBrowser.find(".grid-unit.folder").get(0);
-    //         triggerContextMenu(target);
-    //         assert.isTrue($fileBrowserMenu.is(":visible"));
-    //         expect($fileBrowserMenu.hasClass("dsOpts")).to.be.false;
-    //         expect($fileBrowserMenu.hasClass("folderOpts")).to.be.true;
-    //     });
+        it("start column resize should work", function() {
+            var dragInfo = FileBrowser.__testOnly__.getDragInfo();
+            var initialWidth = $header.width();
+            expect(dragInfo).to.be.empty;
 
-    //     it("Should show menu on ds", function() {
-    //         $fileBrowserMenu.hide();
-    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
-    //         triggerContextMenu(target);
-    //         assert.isTrue($fileBrowserMenu.is(":visible"));
-    //         expect($fileBrowserMenu.hasClass("dsOpts")).to.be.true;
-    //         expect($fileBrowserMenu.hasClass("folderOpts")).to.be.false;
-    //     });
+            var e = $.Event('mousedown', {pageX: startX});
+            FileBrowser.__testOnly__.startColResize($header.find(".colGrab"), e);
 
-    //     it("Should not show menu on empty space", function() {
-    //         $fileBrowserMenu.hide();
-    //         var target = $("#fileBrowserMain").get(0);
-    //         triggerContextMenu(target);
-    //         assert.isFalse($fileBrowserMenu.is(":visible"));
-    //     });
+            expect(dragInfo.startWidth).to.equal(startWidth);
+            expect($('#resizeCursor').length).to.equal(1);
+        });
 
-    //     it("Should trigger preview via menu", function() {
-    //         var oldFunc = FilePreviewer.show;
-    //         var test = null;
-    //         FilePreviewer.show = function(url) {
-    //             test = url;
-    //         };
-    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
-    //         triggerContextMenu(target);
+        it('onColResize should work', function() {
+            expect($header.outerWidth()).to.equal(startWidth);
+            // moving mouse all the way to left edge of cell
+            // should hit a minimum width
+            var newX = -startWidth;
+            var e = $.Event('mousemove', {pageX: newX});
+            FileBrowser.__testOnly__.onColResize(e);
 
-    //         $fileBrowserMenu.find(".preview").mouseup();
-    //         expect(test).not.to.be.null;
+            // because siblings are twice as small, dividing odd width by 2
+            // will generate a rounded number and we can't predict if it's
+            // rounded down or up
+            expect($header.outerWidth()).to.equal(80);
+            expect($headerSiblings.outerWidth() + 1).to.be.gt(($titleRow.width() - (80 + totalPadding)) / 2);
+            expect($headerSiblings.outerWidth() - 1).to.be.lt(($titleRow.width() - (80 + totalPadding)) / 2);
 
-    //         FilePreviewer.show = oldFunc;
-    //     });
+            newX = 10000;
+            e = $.Event('mousemove', {pageX: newX});
+            FileBrowser.__testOnly__.onColResize(e);
+            expect($header.outerWidth()).to.equal($titleRow.width() - 200);
+            expect($headerSiblings.outerWidth() + 1).to.be.gt((200 - totalPadding) / 2);
+            expect($headerSiblings.outerWidth() - 1).to.be.lt((200 - totalPadding) / 2);
 
-    //     it("Should trigger getInfo via menu", function() {
-    //         var oldFunc = FileInfoModal.show;
-    //         var test = null;
-    //         FileInfoModal.show = function(options) {
-    //             test = options;
-    //         };
-    //         var target = $fileBrowser.find(".grid-unit.ds").get(0);
-    //         triggerContextMenu(target);
+            // increasing width by 10px
+            newX = 10;
+            e = $.Event('mousemove', {pageX: newX});
+            FileBrowser.__testOnly__.onColResize(e);
+            expect($header.outerWidth()).to.equal(startWidth + newX);
+            expect($headerSiblings.outerWidth() + 1).to.gt((($titleRow.width() - (startWidth + newX)) - totalPadding) / 2);
+            expect($headerSiblings.outerWidth() - 1).to.lt((($titleRow.width() - (startWidth + newX)) - totalPadding) / 2);
+        });
 
-    //         $fileBrowserMenu.find(".getInfo").mouseup();
-    //         expect(test).to.be.an("object");
+        it('endColResize should work', function() {
+            expect($('#resizeCursor').length).to.equal(1);
 
-    //         FileInfoModal.show = oldFunc;
-    //     });
+            FileBrowser.__testOnly__.endColResize();
+            var dragInfo = FileBrowser.__testOnly__.getDragInfo();
+            expect(dragInfo).to.be.empty;
 
-    //     after(function() {
-    //         $fileBrowser.find(".cancel").click();
-    //     });
+            // based on onColResize width
+            expect($header.outerWidth()).to.equal(startWidth + 10);
+            expect($('#resizeCursor').length).to.equal(0);
+        });
 
-    //     function triggerContextMenu(target) {
-    //         var e = jQuery.Event("contextmenu", {"target": target});
-    //         $("#fileBrowserMain").trigger(e);
-    //     }
-    // });
+        after(function() {
+            $fileBrowser.find(".cancel").click();
+        });
+    });
 
     after(function() {
         // go back to previous tab
