@@ -230,6 +230,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 goTo(rowNum, scrollMeta.numVisibleRows, "bottom", info)
                 .then(function() {
                     positionScrollBar(origRowNum);
+                })
+                .always(function() {
                     $scrollBar.removeClass("bulkFetch");
                 });
                 scrollMeta.base = top - (top / scrollMeta.scale);

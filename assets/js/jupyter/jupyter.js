@@ -128,10 +128,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
                       .postMessage(JSON.stringify(workbookStruct), "*");
     };
 
-    JupyterPanel.publishTable = function(tableName, numRows, renamed) {
+    JupyterPanel.publishTable = function(tableName, numRows, hasVerifiedNames) {
         var colNames = getCols(tableName);
         var needsRename = false;
-        if (!renamed) {
+        if (!hasVerifiedNames) {
             needsRename = checkColsNeedRename(tableName);
         }
 

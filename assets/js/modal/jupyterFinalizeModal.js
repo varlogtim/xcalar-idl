@@ -166,7 +166,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 if (existingCols[name] === "immediate") {
                     msg = ColTStr.ImmediateClash;
                 } else {
-                    msg = "Duplicate column name";
+                    msg = ErrTStr.DuplicateColNames;
                 }
                 StatusBox.show(msg, $(this), true, {
                     preventImmediateHide: true,
@@ -216,7 +216,8 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
             }
 
             if (!mapStrs.length) {
-                deferred.resolve();
+                closeModal();
+                deferred.resolve(tableName);
                 return deferred.promise();
             }
 
@@ -244,18 +245,13 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 finalTableId = xcHelper.getTableId(finalTableName);
                 Profile.copy(tableId, finalTableId);
                 TblManager.setOrphanTableMeta(finalTableName, xcHelper.deepCopy(newTableCols));
-            //     return TblManager.refreshTable([finalTableName], newTableCols,
-            //                                    [tableName], worksheet, txId,
-            //                                    options);
-            // })
-            // .then(function() {
+
                 xcHelper.unlockTable(tableId);
                 sql.newTableName = finalTableName;
                 Transaction.done(txId, {
                     "msgTable": finalTableId,
                     "sql": sql
                 });
-
                 deferred.resolve(finalTableName);
             })
             .fail(function(error) {
@@ -297,6 +293,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         JupyterFinalizeModal.__testOnly__ = {};
+        JupyterFinalizeModal.__testOnly__submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 
