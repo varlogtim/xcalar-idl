@@ -1484,6 +1484,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function retrievePaths(path, noPathUpdate, restore) {
         if (restore) {
             // This is a restore case
+            setPath(path);
             return PromiseHelper.resolve();
         }
         if (!path.startsWith(defaultPath)) {
