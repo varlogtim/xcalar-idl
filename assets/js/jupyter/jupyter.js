@@ -194,10 +194,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
     };
 
     function showImportUdfModal(target, filePath) {
-        JupyterUDFModal.show("newImport");
-        $("#jupyterUDFTemplateModal .newImportForm .target").val(target);
-        $("#jupyterUDFTemplateModal .newImportForm .url").val(filePath);
-        $("#jupyterUDFTemplateModal .newImportForm .moduleName").focus();
+        var params = {
+            target: target,
+            filePath: filePath
+        }
+        JupyterUDFModal.show("newImport", params);
     }
 
     function getCols(tableName) {

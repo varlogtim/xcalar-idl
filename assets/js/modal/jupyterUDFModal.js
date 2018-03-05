@@ -97,16 +97,29 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         }).setupListeners();
     };
 
-    JupyterUDFModal.show = function(type) {
+    JupyterUDFModal.show = function(type, params) {
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
             return;
         }
+        params = params || {};
         $modal.removeClass("type-map type-newImport");
         $modal.addClass("type-" + type);
         modalHelper.setup();
-        $modal.find(".arg:visible").eq(0).focus();
+
+        var $activeSection = $modal.find(".form:visible");
+        if (params.target) {
+            $activeSection.find(".target").val(params.target);
+        }
+        if (params.filePath) {
+            $activeSection.find(".url").val(params.filePath);
+        }
+
+        // focus on first none empty input
+        $activeSection.find(".arg").filter(function() {
+            return !$(this).val();
+        }).eq(0).focus();
     };
 
     JupyterUDFModal.refreshTarget = function(targetList) {
