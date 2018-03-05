@@ -8,7 +8,6 @@ window.DFParamModal = (function($, DFParamModal){
     var modalHelper;
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
-    var defaultParam;
     var xdpMode;
     var hasChange = false;
     var isOpen = false;
@@ -303,73 +302,63 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
-        defaultParam = getParamValues(df, id);
-
-        getExportInfo(type, dfName)
-        .always(function(info) {
-            // async may return after user decides to delete df while waiting
-            if (DFCard.getCurrentDF() !== dfName ||
-                !$currentIcon.closest("body").length) {
-                closeDFParamModal(true);
-                deferred.reject();
-                return;
-            }
-            setupInputText(defaultParam, info);
-            $("#dfParamModal .editableRow .defaultParam").click();
-            var draggableInputs = "";
-            DF.getDataflow(dfName).parameters.forEach(function(paramName) {
-                if (!systemParams.hasOwnProperty(paramName)) {
-                    draggableInputs += generateDraggableParams(paramName);
-                }
-            });
-
-            var createNewParam = '<div class="inputSection">'+
-                                 '<input class="newParam" type="text" placeholder="' +
-                                  DFTStr.EnterNewParam +
-                                 '"style="display:none" spellcheck="false">'+
-                                 '<div class="btn btn-icon addParam">' +
-                                 '<i class="icon xi-plus"></i>' +
-                                 '<div class="message">'+
-                                 DFTStr.NewParam +
-                                 '</div>'+
-                                 '</div>' +
-                                 '</div>';
-            $dfParamModal.find('.draggableParams.currParams')
-                         .html(draggableInputs + createNewParam);
-            draggableInputs = "";
-            for (var key in systemParams) {
-                draggableInputs += generateDraggableParams(key);
-            }
-            $dfParamModal.find('.draggableParams.systemParams')
-                           .removeClass("hint")
-                                .html(draggableInputs);
-            fillUpRows(); // parameterlist table
-            populateSavedFields(id, dfName); // template section
-
-            modalHelper.setup();
-            setupDummyInputs();
-
-            if (type === "filter") {
-                filterSetup()
-                .then(deferred.resolve)
-                .fail(deferred.reject);
-            } else {
-                if (type === "export") {
-                    exportSetup();
-                    var retName = $dfParamModal.data("df");
-                    var df = DF.getDataflow(retName);
-                    if (df && df.activeSession) {
-                        $dfParamModal.find(".innerEditableRow.filename input").val(df.newTableName);
-                        $paramLists.empty();
-                        fillUpRows();
-                    }
-                } else if (type === "dataStore") {
-                    datasetSetup();
-                }
-                dropdownHelper = null;
-                deferred.resolve();
+        var defaultParam = getParamValues(df, id);
+        setupInputText(defaultParam);
+        $("#dfParamModal .editableRow .defaultParam").click();
+        var draggableInputs = "";
+        DF.getDataflow(dfName).parameters.forEach(function(paramName) {
+            if (!systemParams.hasOwnProperty(paramName)) {
+                draggableInputs += generateDraggableParams(paramName);
             }
         });
+
+        var createNewParam = '<div class="inputSection">'+
+                             '<input class="newParam" type="text" placeholder="' +
+                              DFTStr.EnterNewParam +
+                             '"style="display:none" spellcheck="false">'+
+                             '<div class="btn btn-icon addParam">' +
+                             '<i class="icon xi-plus"></i>' +
+                             '<div class="message">'+
+                             DFTStr.NewParam +
+                             '</div>'+
+                             '</div>' +
+                             '</div>';
+        $dfParamModal.find('.draggableParams.currParams')
+                     .html(draggableInputs + createNewParam);
+        draggableInputs = "";
+        for (var key in systemParams) {
+            draggableInputs += generateDraggableParams(key);
+        }
+        $dfParamModal.find('.draggableParams.systemParams')
+                       .removeClass("hint")
+                            .html(draggableInputs);
+        fillUpRows(); // parameterlist table
+        populateSavedFields(id, dfName); // template section
+
+        modalHelper.setup();
+        setupDummyInputs();
+
+        if (type === "filter") {
+            filterSetup()
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            if (type === "export") {
+                exportSetup();
+                var retName = $dfParamModal.data("df");
+                var df = DF.getDataflow(retName);
+                if (df && df.activeSession) {
+                    $dfParamModal.find(".innerEditableRow.filename input").val(df.newTableName);
+                    $paramLists.empty();
+                    fillUpRows();
+                }
+            } else if (type === "dataStore") {
+                datasetSetup();
+            }
+            dropdownHelper = null;
+            deferred.resolve();
+        }
+
 
         return deferred.promise();
     };
@@ -495,27 +484,6 @@ window.DFParamModal = (function($, DFParamModal){
     DFParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
-
-    function getExportInfo(type, dfName) {
-        var deferred = jQuery.Deferred();
-        if (type !== "export") {
-            return PromiseHelper.resolve({});
-        } else {
-            XcalarGetRetina(dfName)
-            .then(function(data){
-                if (data && data.retina && data.retina.retinaDag
-                    && data.retina.retinaDag.node
-                    && data.retina.retinaDag.node.length > 0) {
-                    var exportNode = data.retina.retinaDag.node[0];
-                    deferred.resolve($.extend({}, exportNode.input.exportInput));
-                } else {
-                    deferred.resolve();
-                }
-            })
-            .fail(deferred.reject);
-            return deferred.promise();
-        }
-    }
 
     function setupDummyInputs() {
         var $dummyInputs = $dfParamModal.find('.dummy');
@@ -739,12 +707,11 @@ window.DFParamModal = (function($, DFParamModal){
 
     // options:
     //      defaultPath: string, for export
-    function setupInputText(paramValue, options) {
+    function setupInputText(paramValue) {
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized
                                 // Query:
         var advancedOpts = "";
-        options = options || {};
         if (type === "dataStore") {
             for (var i = 0; i < paramValue.length; i++) {
                 var collapsedState = i === 0 ? "expanded firstGroup" : "collapsed";
@@ -818,7 +785,8 @@ window.DFParamModal = (function($, DFParamModal){
         } else if (type === "export") {
             defaultText += '<div class="paramGroup">';
             editableText += '<div class="paramGroup">';
-            var path = options.defaultPath || "";
+            var struct = paramValue[3];
+            var path = struct.defaultPath || "";
             if (path[path.length - 1] !== "/") {
                 path += "/";
             }
@@ -840,7 +808,7 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
                                 '</div>' +
                             '</div>';
-            exportSettingText = getDefaultExportSetting(options);
+            exportSettingText = getDefaultExportSetting(struct);
             editableText +=
                             '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
@@ -887,8 +855,8 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>';
             defaultText += '</div>';
             editableText += '</div>';
-            setUpExportSettingTable(options);
-        } else { // not a datastore but a table
+            setUpExportSettingTable(struct);
+        } else { // not a datastore but a table (filter)
             defaultText += '<div class="paramGroup">';
             editableText += '<div class="paramGroup">';
             paramValue = paramValue[0];
@@ -2248,7 +2216,6 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow.empty();
         $dfParamModal.find('.draggableParams').empty();
         $paramLists.empty();
-        defaultParam = null;
         isOpen = false;
     }
 
@@ -2274,7 +2241,7 @@ window.DFParamModal = (function($, DFParamModal){
                 break;
             case ("export"):
                 paramValues = [struct.fileName, struct.targetName,
-                               struct.targetType];
+                               struct.targetType, struct];
                 break;
             default:
                 break;
