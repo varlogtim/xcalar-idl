@@ -917,6 +917,13 @@ window.FlightTest = (function(FlightTest, $) {
             return test.checkExists(".dagTable.export.hasParam");
         })
         .then(function() {
+            var $runNowBtn = $('.dagWrap[data-dataflowname="' + dfName + '"] .runNowBtn');
+            if ($runNowBtn.hasClass("xc-disabled")) {
+                var check = '.dagWrap[data-dataflowname="' + dfName + '"] .runNowBtn:not(.xc-disabled)';
+                return test.checkExists(check);
+            }
+        })
+        .then(function() {
             test.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
