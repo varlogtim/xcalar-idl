@@ -46,6 +46,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         storeLocation(s);
                         break;
                     case ("autofillImportUdf"):
+                        // comes from xcalar.js if initial autofillimportudf
+                        // call occurs in the notebook list view
                         if (s.includeStub === "true") {
                             s.includeStub = true;
                         } else if (s.includeStub === "false") {
@@ -58,6 +60,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             showImportUdfModal(s.target, s.filePath);
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
+                            BottomMenu.openSection(2);
+                            UDF.selectUDFFuncList(s.moduleName);
                         }
                         break;
                     case ("mixpanel"):
@@ -172,7 +176,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
             // custom.js will create a new notebook and xcalar.js will
             // send a message back to here with an autofillImportUdf action
         } else {
-            if (!includeStub) {
+            if (includeStub) {
+                showImportUdfModal(target, filePath);
+            } else {
                 JupyterPanel.appendStub("importUDF", {
                     fnName: functionName,
                     target: target,
@@ -183,8 +189,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
                 BottomMenu.openSection(2);
                 UDF.selectUDFFuncList(moduleName);
-            } else {
-                showImportUdfModal(target, filePath);
             }
         }
     };

@@ -1106,7 +1106,8 @@ window.QueryManager = (function(QueryManager, $) {
             queryString = '<div class="queryRow">' + query + '</div>';
         }
         if (errorText) {
-            queryString += '<div class="queryRow errorRow">' + errorText + '</div>';
+            queryString += '<div class="queryRow errorRow">' +
+                           xcHelper.escapeHTMLSpecialChar(errorText) + '</div>';
         }
 
         $queryDetail.find(".operationSection .content").html(queryString);
