@@ -1483,6 +1483,7 @@ window.DagDraw = (function($, DagDraw) {
                             groupTagIcon + commentIcon +
                         '</div>' +
                     '</div>';
+
         return (originHTML);
     }
 
@@ -1908,6 +1909,7 @@ window.DagDraw = (function($, DagDraw) {
                     break;
                 case ('unionInput'):
                     node.value.indexedFields = getUnionSrcCols(node);
+                    info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
                     break;
                 default:
                     var name;
@@ -1933,7 +1935,8 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         // if ((taggedInfo || key !== "mapInput") && (!taggedInfo || key === "groupByInput")) {
-        if ((taggedInfo || key !== "mapInput") && !(taggedInfo && key === "groupByInput")) {
+        if ((taggedInfo || key !== "mapInput") && !(taggedInfo && key === "groupByInput")
+            && (key !== "unionInput")) {
             // map and groupby already escaped once
             info.tooltip = xcHelper.escapeHTMLSpecialChar(info.tooltip);
 
@@ -2058,6 +2061,7 @@ window.DagDraw = (function($, DagDraw) {
                 break;
             case (SQLOps.Union):
                 node.value.indexedFields = getUnionSrcCols(node);
+                info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
                 break;
             default:
                 if (taggedOp.indexOf(SQLOps.Ext) === 0) {
@@ -2080,6 +2084,14 @@ window.DagDraw = (function($, DagDraw) {
         } else {
             return null;
         }
+    }
+
+    function generateUnionTooltip(parentNames, fields) {
+        var tooltip;
+        tooltip = "Union between tables: <br>" +
+                xcHelper.escapeHTMLSpecialChar(parentNames.join(", ")) +
+                "<br>Columns : " + xcHelper.escapeHTMLSpecialChar(fields.join("="));
+        return tooltip;
     }
 
     function getJoinInfo(info, node, value, parentNames, isCollapsedTag,
