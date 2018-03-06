@@ -15,7 +15,7 @@ describe("Dataset-DSForm Test", function() {
         UnitTest.onMinMode();
     });
 
-    describe("Baisc APi Test", function() {
+    describe("Basic APi Test", function() {
         it("Should not see form", function() {
             DSForm.hide();
             assert.isFalse($("#dsFormView").is(":visible"));
@@ -126,6 +126,11 @@ describe("Dataset-DSForm Test", function() {
             expect($("#dsForm-target").find(".text").val()).to.equal("Default Shared Root");
         });
 
+        it("should set the history path dropdown to empty", function() {
+            $filePath.trigger(fakeEvent.click);
+            expect($filePath.closest(".dropDownList").closest(".list").text()).to.equal("");
+        });
+
         it("Should click browse button to trigger browse", function() {
             var oldFunc = FileBrowser.show;
             var test = false;
@@ -150,6 +155,14 @@ describe("Dataset-DSForm Test", function() {
             $pathCard.find(".confirm").click();
             expect(test).to.be.true;
             DSPreview.show = oldFunc;
+        });
+
+        it("Should use the previously set history path dropdown", function() {
+            //Two clicks required to toggle off empty list
+            //  then second click to fill history list
+            $filePath.click();
+            $filePath.click();
+            expect($filePath.closest(".dropDownList").find("ul").text()).to.equal("/test");
         });
 
         after(function() {
