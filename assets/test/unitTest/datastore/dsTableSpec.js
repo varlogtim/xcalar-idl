@@ -118,6 +118,7 @@ describe("Dataset-DSTable Test", function() {
         });
 
         it("Should scroll the dsTable", function(done) {
+            $("#dsTableContainer").scrollTop(100);
             var $dsTable = $("#dsTable");
             var numRows = $dsTable.find("tr").length;
             var rowsToFetch = 40;
@@ -232,6 +233,7 @@ describe("Dataset-DSTable Test", function() {
         before(function() {
             cache = XcalarFetchData;
             $errorSection = $dsTableContainer.find(".errorSection");
+            testDSObj.numErrors = 1;
         });
 
         beforeEach(function() {
@@ -330,8 +332,26 @@ describe("Dataset-DSTable Test", function() {
             });
         });
 
+        it("Should test file error icon appearing", function(done) {
+            var dsError = "fileError";
+
+            XcalarFetchData = function() {
+                return PromiseHelper.reject(dsError);
+            };
+
+            DSTable.show(testDSId)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                assert.isTrue($("#dsInfo-error").hasClass("type-file"));
+                done();
+            });
+        });
+
         after(function() {
             XcalarFetchData = cache;
+            testDSObj.numErrors = 0;
         });
     });
 
@@ -344,6 +364,32 @@ describe("Dataset-DSTable Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("Should animate the ds path container", function() {
+            $("#dsInfo-path").trigger(fakeEvent.click);
+            assert.isTrue($('#dsInfo-pathContainer').hasClass("animate"));
+        });
+
+        it("Should show file path modal", function() {
+            var oldFunc = DS.getDSObj;
+            DS.getDSObj = function(id) {
+                return testDSObj;
+            }
+
+            $("#showFileListBtn").click();
+            assert.isTrue($("#fileListModal").is(":visible"));
+            $("#fileListModal").find(".xi-close").click();
+
+            DS.getDSObj = oldFunc;
+        });
+
+        it("Should show the error detail modal", function() {
+            $("#dsInfo-error").removeClass("xc-hidden");
+            $("#dsInfo-error").click();
+            assert.isTrue($("#dsImportErrorModal").is(":visible"));
+
+             $("#dsImportErrorModal").find(".xi-close").click();
         });
 
         it("Should select all columns", function() {
