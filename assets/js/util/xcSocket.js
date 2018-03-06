@@ -37,13 +37,15 @@ window.XcSocket = (function(XcSocket) {
     XcSocket.registerUser = function() {
         if (registered) {
             console.log("already registered");
-            return;
+            return false;
         }
 
         socket.emit("registerUser", XcSupport.getUser(), function() {
             console.log("registerSuccess!");
             registered = true;
         });
+
+        return true;
     };
 
     XcSocket.isConnected = function() {

@@ -46,10 +46,10 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             updateTableList(tableList);
         });
 
-        $workbookPreview.on("click", ".delete", function() {
-            var tableName = getTableNameFromEle(this);
-            deleteTable(tableName);
-        });
+        // $workbookPreview.on("click", ".delete", function() {
+        //     var tableName = getTableNameFromEle(this);
+        //     deleteTable(tableName);
+        // });
 
         $workbookPreview.on("click", ".back", function() {
             closeDag();
@@ -287,38 +287,38 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         updateTotalSize(xcHelper.sizeTranslator(totalSize));
     }
 
-    function deleteTable(tableName) {
-        Alert.show({
-            title: TblTStr.DropTbl,
-            msg: SideBarTStr.DelTablesMsg,
-            onConfirm: function() {
-                submitDropTable(tableName);
-            }
-        });
-    }
+    // function deleteTable(tableName) {
+    //     Alert.show({
+    //         title: TblTStr.DropTbl,
+    //         msg: SideBarTStr.DelTablesMsg,
+    //         onConfirm: function() {
+    //             submitDropTable(tableName);
+    //         }
+    //     });
+    // }
 
-    function submitDropTable(tableName) {
-        var tableList = curTableList;
-        var curId = id;
+    // function submitDropTable(tableName) {
+    //     var tableList = curTableList;
+    //     var curId = id;
 
-        XcalarDeleteTable(tableName)
-        .then(function() {
-            if (curId !== id) {
-                return;
-            }
-            curTableList = tableList.filter(function(tableInfo) {
-                return tableInfo.name !== tableName;
-            });
-            xcHelper.showRefreshIcon($workbookPreview.find(".listSection"));
-            updateTableList(curTableList);
-        })
-        .fail(function(error) {
-            if (curId !== id) {
-                return;
-            }
-            Alert.error(StatusMessageTStr.DeleteTableFailed, error);
-        });
-    }
+    //     XcalarDeleteTable(tableName)
+    //     .then(function() {
+    //         if (curId !== id) {
+    //             return;
+    //         }
+    //         curTableList = tableList.filter(function(tableInfo) {
+    //             return tableInfo.name !== tableName;
+    //         });
+    //         xcHelper.showRefreshIcon($workbookPreview.find(".listSection"));
+    //         updateTableList(curTableList);
+    //     })
+    //     .fail(function(error) {
+    //         if (curId !== id) {
+    //             return;
+    //         }
+    //         Alert.error(StatusMessageTStr.DeleteTableFailed, error);
+    //     });
+    // }
 
     function showDag(tableName, workbookName) {
         var deferred = jQuery.Deferred();

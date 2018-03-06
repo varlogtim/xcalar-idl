@@ -39,8 +39,20 @@ describe("Workbook Preview Test", function() {
                         tableId: "#ab2",
                         status: "orphaned"
                     }
+                },
+                worksheets: {
+                    wsInfos: {
+                        testWSId1: {
+                            name: "testWorksheet1",
+                            tables: ["ab2"]
+                        },
+                        testWSId2: {
+                            name: "testWorksheet2",
+                            tables: ["ab1"]
+                        }
+                    }
                 }
-            })
+            });
         };
 
         XcalarGetDag = function() {
@@ -113,7 +125,7 @@ describe("Workbook Preview Test", function() {
         });
 
         it("should sort by status", function() {
-            var $status = $workbookPreview.find(".titleSection .name");
+            var $status = $workbookPreview.find(".titleSection .status");
             var $listSection = $workbookPreview.find(".listSection");
 
             $status.find(".label").click();
@@ -126,6 +138,22 @@ describe("Workbook Preview Test", function() {
             expect($listSection.find(".grid-unit:first-child .name").text())
             .to.equal("test2#ab2");
             expect($status.hasClass("active")).to.be.true;
+        });
+
+        it("should sort by worksheets", function() {
+            var $worksheet = $workbookPreview.find(".titleSection .worksheet");
+            var $listSection = $workbookPreview.find(".listSection");
+
+            $worksheet.find(".label").click();
+            expect($listSection.find(".grid-unit:first-child .name").text())
+            .to.equal("test2#ab2");
+            expect($worksheet.hasClass("active")).to.be.true;
+
+            // reverse
+            $worksheet.find(".label").click();
+            expect($listSection.find(".grid-unit:first-child .name").text())
+            .to.equal("test1#ab1");
+            expect($worksheet.hasClass("active")).to.be.true;
         });
 
         after(function() {
@@ -223,6 +251,41 @@ describe("Workbook Preview Test", function() {
                 KVStore.getAndParse = oldFunc;
             });
         });
+
+        it("should handle no ws meta case", function(done) {
+            var oldFunc = KVStore.getAndParse;
+            KVStore.getAndParse = function() {
+                return PromiseHelper.resolve({
+                    TILookup: {
+                        ab1: {
+                            tableName: "test1#ab1",
+                            tableId: "#ab1",
+                            status: "active"
+                        },
+                        ab2: {
+                            tableName: "test2#ab2",
+                            tableId: "#ab2",
+                            status: "orphaned"
+                        }
+                    },
+                });
+            };
+
+            WorkbookPreview.show(workbookId)
+            .then(function() {
+                expect($workbookPreview.hasClass("error")).to.be.false;
+                var $listSection = $workbookPreview.find(".listSection");
+                expect($listSection.find(".grid-unit:first-child .worksheet").text())
+                .to.equal("--");
+                done();
+            })
+            .fail(function(error) {
+                done("fail");
+            })
+            .always(function() {
+                KVStore.getAndParse = oldFunc;
+            });
+        })
     });
 
     after(function() {

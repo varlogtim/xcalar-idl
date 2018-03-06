@@ -1,8 +1,13 @@
 describe("xcSocket Test", function() {
-    it("should know if is connected or not", function() {
+    it("XcSocket.isConnected should work", function() {
         var res = XcSocket.isConnected();
         // XXXnow socket is not fulled enalbe in all servers
         // will change it to equal true to make sure socket is connected
+        expect(res).to.be.a("boolean");
+    });
+
+    it("XcSocket.isResigered should work", function() {
+        var res = XcSocket.isResigered();
         expect(res).to.be.a("boolean");
     });
 
@@ -20,5 +25,12 @@ describe("xcSocket Test", function() {
         expect(res).to.equal("http://test2");
 
         window.expHost = oldExpHost;
+    });
+
+    it("should already registered", function() {
+        var isRegistered = XcSocket.isResigered();
+        if (isRegistered) {
+            expect(XcSocket.registerUser()).to.be.false;
+        }
     });
 });
