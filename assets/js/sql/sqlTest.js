@@ -310,6 +310,21 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 "row4": [29, 948, 7158866.63],
                 "numOfRows": "7"}
     };
+    var tpchTables = {
+      dataSource: "tpch_sf1/",
+      tableNames: ["customer", "lineitem", "nation", "orders", "part",
+                   "partsupp", "region", "supplier"]
+    };
+    var tpcdsTables = {
+      dataSource: "tpcds_sf1/",
+      tableNames: ["call_center", "catalog_page", "catalog_returns",
+                   "catalog_sales", "customer", "customer_address",
+                   "customer_demographics", "date_dim", "dbgen_version",
+                   "household_demographics", "income_band", "inventory", "item",
+                   "promotion", "reason", "ship_mode", "store", "store_returns",
+                   "store_sales", "time_dim", "warehouse", "web_page",
+                   "web_returns", "web_sales", "web_site"]
+    };
 
     SqlTestSuite.runSqlTests = function(hasAnimation, toClean, noPopup, mode, withUndo,
                                 timeDilation) {
@@ -326,21 +341,17 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     function tpchTest(deferred, testName, currentTestNumber) {
         setUpTpchDatasets({});
         function setUpTpchDatasets(tableStruct) {
-            var dataSource = testDataLoc + "/tpch_sf1/";
-            var tableNames = ["customer", "lineitem", "nation", "orders", "part",
-                              "partsupp", "region", "supplier"];
-            var checkList = ["#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')",
-                             "#previewTable td:eq(1):contains('')"];
+            var dataSource = testDataLoc + tpcdsTables.dataSource;
+            var tableNames = tpcdsTables.tableNames;
+            var checkList = [];
+            for (var i = 0; i < tableNames.length; i++) {
+              checkList.push("#previewTable td:eq(1):contains('')");
+            }
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];
             for (var i = 0; i < tableNames.length; i++) {
-                var dataPath = dataSource + tableNames[i] + ".tbl";
+                // var dataPath = dataSource + tableNames[i] + ".tbl";
+                var dataPath = dataSource + tableNames[i] + ".dat";
                 tableStruct[tableNames[i]] = randId;
                 var tableName = tableNames[i];
                 var check = checkList[i];
@@ -348,9 +359,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                                                    randId, dataPath, check));
             }
             PromiseHelper.chain(promiseArray)
-            .then(function() {
-                return runAllQueries(tpchCases);
-            })
+            // .then(function() {
+            //     return runAllQueries(tpchCases);
+            // })
             .then(function() {
                 test.pass(deferred, testName, currentTestNumber);
             })

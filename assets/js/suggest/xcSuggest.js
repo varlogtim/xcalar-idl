@@ -654,22 +654,30 @@ window.xcSuggest = (function($, xcSuggest) {
         // same times across header and rows.
         //
         // 2. If not, check edge cases:
-        //      1) It's in potential header but not in any other rows.
-        //         e.g.[2,0,0,0,0...]
-        //      2) It occurs same times across rows but it's not in header.
+        //      1) It occurs same times across rows but it's not in header.
         //         e.g.[0,2,2,2,2...]
+        //      2) It's in potential header but not in any other rows.
+        //         e.g.[2,0,0,0,0...]
         // Both indicate it's very likely to have only one field, i.e. no delim
+        //      3) If occurs same times across rows but different in header.
+        //         e.g.[3,2,2,2,2...] (all > 0)
+        // It's probably the delimiter if there is no other perfect delimiters
         //
         // 3. If not perfect case nor fell within edges, we choose the one with
         // lowest score (likely to be the delimiter)
 
-        var edgeCase = false;
+        var noDelim = false;
+        var subDelim;
         var bestDelim = delimiters[0];
         var minScore = computeVariance(occurences[bestDelim]);
         if (minScore === -1) {
-            // Fell in edge cases
-            edgeCase = true;
+            // Edge case 1 & 2 => no delimiter (if no other 0 score)
+            noDelim = true;
             // Give it a big value so that we can continue with score comparison
+            minScore = Number.MAX_VALUE;
+        } else if (minScore === -2) {
+            // Edge case 3 => 2nd choice of delimiter (if no other 0 score)
+            subDelim = bestDelim;
             minScore = Number.MAX_VALUE;
         }
         for (var i = 1; i < delimiters.length; i++) {
@@ -677,31 +685,44 @@ window.xcSuggest = (function($, xcSuggest) {
             var currScore = computeVariance(occurences[currDelim]);
 
             if (currScore === -1) {
-                // Fell in edge cases
-                edgeCase = true;
+                noDelim = true;
+                continue;
+            } else if (currScore === -2) {
+                if (subDelim == null ||
+                    (subDelim === currDelim && breakTie(currDelim, subDelim))) {
+                    subDelim = currDelim;
+                }
                 continue;
             }
 
             if (currScore < minScore) {
                 bestDelim = currDelim;
                 minScore = currScore;
-            } else if (currScore === minScore) {
+            } else if (currScore === minScore &&
+                       breakTie(currDelim, bestDelim)) {
                 // When there is a tie, we have preference as comma > tab > pipe
                 // All others follow a "first detected, first selected" rule
-                if (currDelim === "," ||
-                    (currDelim === "\t" && bestDelim !== ",") ||
-                    (currDelim === "|" && bestDelim !== "," &&
-                     bestDelim !== "\t")) {
-                    bestDelim = currDelim;
-                    minScore = currScore;
-                }
+                bestDelim = currDelim;
+                minScore = currScore;
             }
         }
-        if (minScore !== 0 && edgeCase) {
-            return "";
+        if (minScore !== 0) {
+            // Follow this priority
+            if (subDelim) {
+                return subDelim;
+            }
+            if (noDelim) {
+                return "";
+            }
         }
         return bestDelim;
     };
+
+    function breakTie(currDelim, bestDelim) {
+        return (currDelim === "," ||
+                (currDelim === "\t" && bestDelim !== ",") ||
+                (currDelim === "|" && bestDelim !== "," && bestDelim !== "\t"));
+    }
 
     function coutCharOccurrence(str, ch) {
         var regEx = new RegExp(ch, "g");
@@ -717,21 +738,28 @@ window.xcSuggest = (function($, xcSuggest) {
         var otherWeight = 0.5 / (len - 1);
         var edgeCase1 = true;
         var edgeCase2 = true;
+        var edgeCase3 = true;
         var sum = 0;
         if (nums[0] !== 0) {
             edgeCase1 = false;
+        } else {
+            edgeCase2 = edgeCase3 = false;
         }
         if (nums.length <= 2) {
-            edgeCase2 = false;
+            // [2,1] or [1,0] will not be treated as edge cases but [0,2] will
+            // This might be changed based on real cases
+            edgeCase2 = edgeCase3 =  false;
         }
         sum += nums[0];
         for (var i = 1; i < nums.length - 1; i++) {
-            if (edgeCase1 && nums[i] !== nums[i+1]) {
-                // Breaks edgeCase1
-                edgeCase1 = false;
-            }
-            if (edgeCase2 && (nums[i] !== 0 || nums[i+1] !==0)) {
-                // Breaks edgeCase2
+            if (nums[i] !== nums[i+1]) {
+                // Break all edgeCases
+                edgeCase1 = edgeCase2 = edgeCase3 = false;
+            } else if (nums[i] === 0 && nums[i+1] === 0){
+                // All 0, break edgeCase3
+                edgeCase3 = false;
+            } else {
+                // All non-zero, break edgeCase2
                 edgeCase2 = false;
             }
             sum += nums[i];
@@ -739,7 +767,9 @@ window.xcSuggest = (function($, xcSuggest) {
         if (nums.length > 1) {
             sum += nums[nums.length - 1];
         }
-
+        if (edgeCase3) {
+            return -2;
+        }
         if (edgeCase1 || edgeCase2) {
             return -1;
         }
