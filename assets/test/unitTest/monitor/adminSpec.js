@@ -121,11 +121,15 @@ describe("Admin Test", function() {
                 for (var i = 0; i < cachedList.length; i++) {
                     list.push(cachedList[i]);
                 }
-
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
                 KVStore.get = cachedGet;
                 XcSupport.getUser = cachedGetUser;
                 XcalarKeyAppend = cachedAppend;
-                done();
             });
         });
 
@@ -233,8 +237,13 @@ describe("Admin Test", function() {
                 $(document).mousedown();
                 expect($("#userMemPopup").is(":visible")).to.be.false;
                 expect($("#userMemPopup").find(".content").text()).to.equal("");
-                XcalarGetMemoryUsage = cachedFn;
                 done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetMemoryUsage = cachedFn;
             });
         });
 
@@ -257,12 +266,17 @@ describe("Admin Test", function() {
                 return ($("#userMemPopup").find(".content").text() === "testError");
             })
             .then(function() {
-                XcalarGetMemoryUsage = cachedFn;
-                userIdName = cachedUserId;
                 expect($ownLi.hasClass("notExists")).to.be.true;
                 $("#userMemPopup").find(".close").click();
                 expect($("#userMemPopup").is(":visible")).to.be.false;
                 done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetMemoryUsage = cachedFn;
+                userIdName = cachedUserId;
             });
         });
 
@@ -327,45 +341,102 @@ describe("Admin Test", function() {
             $("#configCard").removeClass("xc-hidden");
         });
 
-        // it("startNode should work", function(done) {
-        //     var cached = XFTSupportTools.clusterStart;
-        //     XFTSupportTools.clusterStart = function() {
-        //         return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
-        //     };
+        it("startNode when node already start should work", function(done) {
+            var cached = XVM.checkVersion;
+            XVM.checkVersion = function() {
+                return PromiseHelper.resolve();
+            };
 
-        //     $("#configStartNode").click();
-        //     UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
-        //     UnitTest.testFinish(function() {
-        //         return $("#alertHeader .text").text() === "Warning";
-        //     })
-        //     .then(function() {
-        //         UnitTest.hasAlertWithTitle("Warning");
-        //         XFTSupportTools.clusterStart = cached;
-        //         setTimeout(function() {
-        //             done();
-        //         }, 100);
-        //     });
-        // });
+            $("#configStartNode").click();
 
-        // it("startNode fail should work", function(done) {
-        //     var cached = XFTSupportTools.clusterStart;
-        //     XFTSupportTools.clusterStart = function() {
-        //         return PromiseHelper.reject({});
-        //     };
+            UnitTest.testFinish(function() {
+                return $("#alertHeader .text").text() === "Warning";
+            })
+            .then(function() {
+                UnitTest.hasAlertWithText(AlertTStr.AlreadyStart, {confirm: true});
+                setTimeout(function() {
+                    done();
+                }, 100);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XVM.checkVersion = cached;
+            });
+        });
 
-        //     $("#configStartNode").click();
-        //     UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
-        //     UnitTest.testFinish(function() {
-        //         return $("#alertHeader .text").text() === MonitorTStr.StartNodeFailed;
-        //     })
-        //     .then(function() {
-        //         UnitTest.hasAlertWithTitle(MonitorTStr.StartNodeFailed, {confirm: true});
-        //         XFTSupportTools.clusterStart = cached;
-        //         setTimeout(function() {
-        //             done();
-        //         }, 100);
-        //     });
-        // });
+        it("startNode should work", function(done) {
+            var cachedClusterStart = XFTSupportTools.clusterStart;
+            XFTSupportTools.clusterStart = function() {
+                return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
+            };
+            var cachedCheckVersion = XVM.checkVersion;
+            XVM.checkVersion = function() {
+                return PromiseHelper.reject();
+            };
+
+            $("#configStartNode").click();
+
+            UnitTest.testFinish(function() {
+                return $("#alertHeader .text").text() === MonitorTStr.StartNodes;
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
+                return UnitTest.testFinish(function() {
+                    return $("#alertHeader .text").text() === "Warning";
+                })
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle("Warning");
+                setTimeout(function() {
+                    done();
+                }, 100);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XFTSupportTools.clusterStart = cachedClusterStart;
+                XVM.checkVersion = cachedCheckVersion;
+            });
+        });
+
+        it("startNode fail should work", function(done) {
+            var cachedClusterStart = XFTSupportTools.clusterStart;
+            XFTSupportTools.clusterStart = function() {
+                return PromiseHelper.reject({});
+            };
+            var cachedCheckVersion = XVM.checkVersion;
+            XVM.checkVersion = function() {
+                return PromiseHelper.reject();
+            };
+
+            $("#configStartNode").click();
+
+            UnitTest.testFinish(function() {
+                return $("#alertHeader .text").text() === MonitorTStr.StartNodes;
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle(MonitorTStr.StartNodes, {confirm: true});
+                return UnitTest.testFinish(function() {
+                    return $("#alertHeader .text").text() === MonitorTStr.StartNodeFailed;
+                })
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle(MonitorTStr.StartNodeFailed, {confirm: true});
+                setTimeout(function() {
+                    done();
+                }, 100);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XFTSupportTools.clusterStart = cachedClusterStart;
+                XVM.checkVersion = cachedCheckVersion;
+            });
+        });
 
         it("stopNode should work", function(done) {
             var cached = XFTSupportTools.clusterStop;
@@ -380,19 +451,24 @@ describe("Admin Test", function() {
             })
             .then(function() {
                 UnitTest.hasAlertWithTitle(MonitorTStr.StopNodeFailed, {confirm: true});
-                XFTSupportTools.clusterStop = cached;
                 setTimeout(function() {
                     done();
                 }, 100);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XFTSupportTools.clusterStop = cached;
             });
         });
 
         it("restartNode should work", function(done) {
-            var cached1 = XFTSupportTools.clusterStart;
+            var cachedClusterStart = XFTSupportTools.clusterStart;
             XFTSupportTools.clusterStart = function() {
                 return PromiseHelper.reject({});
             };
-            var cached2 = XFTSupportTools.clusterStop;
+            var cachedClusterStop = XFTSupportTools.clusterStop;
             XFTSupportTools.clusterStop = function() {
                 return PromiseHelper.resolve({});
             };
@@ -404,11 +480,16 @@ describe("Admin Test", function() {
             })
             .then(function() {
                 UnitTest.hasAlertWithTitle(MonitorTStr.RestartFailed, {confirm: true});
-                XFTSupportTools.clusterStart = cached1;
-                XFTSupportTools.clusterStop = cached2;
                 setTimeout(function() {
                     done();
                 }, 100);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XFTSupportTools.clusterStart = cachedClusterStart;
+                XFTSupportTools.clusterStop = cachedClusterStop;
             });
         });
 

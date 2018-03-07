@@ -78,7 +78,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     var fileInfo = JSON.parse(msgs[row]);
                     for (var index = 0; index < fileInfo.errors.length; index++) {
                         errorData.push({
-                            "FileName": fileInfo.fullPath,
+                            "fileName": fileInfo.fullPath,
                             "recordNumber": fileInfo.errors[index].recordNumber,
                             "error": fileInfo.errors[index].error
                         });
