@@ -213,12 +213,14 @@
 
     xcHelper.fullTextRegExKey = function(searchKey) {
         // Make it a full-text regex search
-        return "(.*\/)?" + replaceDotForSearch(searchKey) + "$";
+        // return "(.*\/)?" + replaceDotForSearch(searchKey) + "$";
+        return searchKey + "$";
     };
 
     xcHelper.containRegExKey = function(searchKey) {
         // Make it a "contain" regex search, i.e. prepend .* and append .*
-        return "(.*" + replaceDotForSearch(searchKey) + "[^\/]*$)";
+        // return "(.*" + replaceDotForSearch(searchKey) + "[^\/]*$)";
+        return ".*" + searchKey + ".*";
     };
 
     function replaceDotForSearch(searchKey) {

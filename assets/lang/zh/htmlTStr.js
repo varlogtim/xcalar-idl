@@ -258,6 +258,7 @@ module.exports = {
     "common": {
         "Agree": "同意",
         "ADD": "添加",
+        "AddRegex": "添加正则匹配",
         "APPLY": "应用",
         "Advanced": "Advanced",
         "AdvancedOpts": "高级选项",

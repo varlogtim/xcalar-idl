@@ -4,6 +4,7 @@ module.exports = {
         "XD": "Xcalar Design",
         "Agree": "Agree",
         "ADD": "ADD",
+        "AddRegex": "Click to add regex",
         "Advanced": "Advanced",
         "AdvancedOpts": "Advanced Options",
         "APPLY": "APPLY",

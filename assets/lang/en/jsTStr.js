@@ -361,7 +361,7 @@ ErrTStr = {
     'LicenseExpire': 'Your license has expired on \"<date>\"',
     'ExtNotFound': 'Extension <module>::<fn> was not found.',
     'MaxPayload': 'Request size limit exceeded. Please select fewer files or ' +
-                  'recursively load the directory.',
+                  'recursively load the directory or use regex.',
     'MaxFiles': 'The number of files under the current directory exceeds the ' +
                 'limit. Please try to search in a child directory.',
 };

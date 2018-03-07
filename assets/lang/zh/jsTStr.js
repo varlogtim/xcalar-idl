@@ -328,7 +328,7 @@ ErrTStr = {
 'InUsedNoDelete': '该参数正在使用中，删除失败',
 'NoFolderPreview': '无法预览文件夹，请选择一个文件。',
 'DuplicateColNames': 'Duplicate column names were detected',
-'MaxPayload': '文件数量超出限制。请减少文件数量或者递归导入整个目录',
+'MaxPayload': '文件数量超出限制。请减少文件数量，或递归导入整个目录，或使用正则匹配',
 'MaxFiles': '文件数量超出限制。请尝试在子目录中进行搜索。',
 'CancelSearch': '搜索已取消',
 };

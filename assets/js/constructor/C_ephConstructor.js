@@ -157,6 +157,7 @@ DSFormController.prototype = {
          *      recursive: recursive or not
          *      dsToReplace: dsId that to replace
          *      dsName: dsName to restore
+         *      fileNamePattern: regex pattern that matches filename
          *  }
          */
         if (options.files != null) {
@@ -165,10 +166,6 @@ DSFormController.prototype = {
 
         if (options.format != null) {
             this.format = options.format;
-        }
-
-        if (options.pattern != null) {
-            this.pattern = options.pattern;
         }
     },
 
@@ -187,7 +184,6 @@ DSFormController.prototype = {
         delete this.targetName;
         delete this.path;
         delete this.format;
-        delete this.pattern;
         delete this.udfModule;
         delete this.udfFunc;
     },
@@ -304,10 +300,6 @@ DSFormController.prototype = {
         this.originalHeadersList = [];
     },
 
-    getPattern: function() {
-        return this.pattern;
-    },
-
     getArgStr: function() {
         var args = $.extend({}, this);
         delete args.previewingSource;
@@ -319,7 +311,7 @@ DSFormController.prototype = {
         return JSON.stringify(args);
     },
 
-    listFileInPath: function(path, recursive) {
+    listFileInPath: function(path, recursive, pattern) {
         // set local variable at first in case
         // in the middle of async call this.previewSet get reset
         var previewSet = this.previewSet;
@@ -330,7 +322,8 @@ DSFormController.prototype = {
             var options = {
                 "targetName": this.getTargetName(),
                 "path": path,
-                "recursive": recursive
+                "recursive": recursive,
+                "fileNamePattern" : pattern
             };
             XcalarListFiles(options)
             .then(function(res) {

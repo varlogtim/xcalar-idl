@@ -338,6 +338,11 @@ describe("Dataset-File Browser Test", function() {
                                                 .to.equal(testFiles.length - 1);
         });
 
+        it("add regex should work", function() {
+            $infoContainer.find(".addRegex span").click();
+            expect($pickedFileList.find("li").last().hasClass("regex"));
+        })
+
         it("submitForm should work", function() {
             $pathSection.find(".targetName").text(gDefaultSharedRoot);
             // submit by double-clicking a file
@@ -351,10 +356,11 @@ describe("Dataset-File Browser Test", function() {
             submitForm();
             expect(test).to.be.an("object");
             expect(test.targetName).to.equal(gDefaultSharedRoot);
-            expect(test.files.length).to.equal(testFiles.length - 1);
+            expect(test.files.length).to.equal(testFiles.length);
         });
 
         it("should toggle to remove and unpick all selected", function() {
+            $pickedFileList.find("li.regex .close").click();
             // Toggle to remove all
             FileBrowser.__testOnly__.togglePickedFiles($lastGrid);
             FileBrowser.__testOnly__.updatePickedFilesList(null,
@@ -397,7 +403,7 @@ describe("Dataset-File Browser Test", function() {
 
             $infoContainer.find(".selectAll").click();
             expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(1);
-            $infoContainer.find(".pickedFiles .xi-close").click();
+            $infoContainer.find(".selectAll").click();
             expect($infoContainer.find(".xi-ckbox-selected").length).to.equal(0);
         });
 
@@ -895,7 +901,7 @@ describe("Dataset-File Browser Test", function() {
             .then(function() {
                 $grids = $("#innerFileBrowserContainer").find(".grid-unit");
                 expect($grids.length).to.equal(0);
-                $input.val("re.*tbl").trigger("input");
+                $input.val(".*re.*tbl").trigger("input");
                 return FileBrowser.__testOnly__.applySearchPattern(
                                               $searchDropdown.find("li").eq(0))
             })

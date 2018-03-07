@@ -339,13 +339,21 @@ window.FileBrowser = (function($, FileBrowser) {
             cleanContainer();
             $fileBrowser.find(".pickedFileList").empty();
         });
-        $infoContainer.find(".pickedFiles .close").on("click", "span, i", function() {
-            // Uncheck all recursive flags
-            uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
+        $infoContainer.find(".pickedFiles .addRegex").on("click", "span", function() {
+            // Add a regex pattern to list
+            var html = createListElement();
+            var $span = $(html).appendTo($pickedFileList).find("span");
+            refreshFileListEllipsis($span, true);
+            updateButtons();
         });
         $infoContainer.on("click", ".selectAll", function() {
-            // Check all recursive flags
-            checkCkBox($infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)"));
+            // Toggle all recursive flags
+            var $unchecked = $infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)");
+            if ($unchecked.length > 0) {
+                checkCkBox($unchecked);
+            } else {
+                uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
+            }
         })
         $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
             // Uncheck single recursive flag
@@ -357,16 +365,20 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         });
         $infoContainer.on("click", ".pickedFileList .close", function() {
-            // Unselect single file from pickedFileList
             var $li = $(this).closest("li");
-            var fileName = $li.data("name");
-            var escName = xcHelper.escapeDblQuote(fileName);
-            var $grid = $fileBrowser
-                        .find('.fileName[data-name="' + escName + '"]')
-                        .closest(".grid-unit");
-            unselectSingleFile($grid);
-            // Just remove it, no need to call updatePickedFilesList
+            if (!$li.hasClass("regex")) {
+                // Unselect single file from pickedFileList
+                var fileName = $li.data("name");
+                var escName = xcHelper.escapeDblQuote(fileName);
+                var $grid = $fileBrowser
+                            .find('.fileName[data-name="' + escName + '"]')
+                            .closest(".grid-unit");
+                unselectSingleFile($grid);
+            }
+            // This for when there is no $grid, i.e. either it's regex or
+            // you are on another path
             $li.remove();
+            updateButtons();
         });
         $infoContainer.on("click", ".switch", function() {
             var $switch = $(this);
@@ -1057,6 +1069,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var targetName = getCurrentTarget();
         var size = 0;
         var files = [];
+        var invalidRegex = false;
         // load dataset
         if ($ds != null && $ds.length > 0) {
             var fileName = $ds.find(".fileName").data("name");
@@ -1070,25 +1083,57 @@ window.FileBrowser = (function($, FileBrowser) {
             var $fileList = $fileBrowser.find(".pickedFileList li");
             $fileList.each(function () {
                 var $li = $(this);
-                var fileName = $li.data("name");
-                var path = $li.data("fullpath");
-                var recursive = $li.find(".icon").eq(1)
-                                       .hasClass("xi-ckbox-selected");
-                var isFolder = ($li.data("type") === "Folder");
+                if ($li.hasClass("regex")) {
+                    var path = $li.data("path");
+                    var recursive = $li.find(".icon").eq(1)
+                                           .hasClass("xi-ckbox-selected");
+                    var searchKey = $li.find("input").val();
+                    var pattern;
+                    if (searchKey === "") {
+                        invalidRegex = true;
+                    } else {
+                        try {
+                            // Check if it's valid regex
+                            new RegExp(searchKey);
+                        } catch(e) {
+                            invalidRegex = true;
+                        }
+                        pattern = xcHelper.getFileNamePattern(searchKey, true);
+                    }
+                    if (invalidRegex) {
+                        StatusBox.show(ErrTStr.InvalidRegEx, $li.find("input"),
+                                       false, {"side": "left"});
+                        return;
+                    }
+                    files.push({
+                        path: path,
+                        recursive: recursive,
+                        fileNamePattern: pattern
+                    });
+                } else {
+                    var fileName = $li.data("name");
+                    var path = $li.data("fullpath");
+                    var recursive = $li.find(".icon").eq(1)
+                                           .hasClass("xi-ckbox-selected");
+                    var isFolder = ($li.data("type") === "Folder");
 
-                files.push({
-                    path: path,
-                    recursive: recursive,
-                    isFolder: isFolder
-                });
+                    files.push({
+                        path: path,
+                        recursive: recursive,
+                        isFolder: isFolder
+                    });
+                }
                 // Estimate the size of payload to avoid exceeding limits
                 size += path.length * 2; // Each char takes 2 bytes
                 size += 4 * 2;  // Each boolean takes 4 bytes
             });
         }
-
+        // Check all invalid cases
+        if (invalidRegex) {
+            return;
+        }
         var $confirmBtn = $fileBrowser.find(".confirm");
-        if (size > 4000000) {
+        if (size > 4000000 || files.length > 128) {
             // If it exceeds payload limits, display an error
             StatusBox.show(ErrTStr.MaxPayload, $confirmBtn, false, {
                 "side": "left"
@@ -1162,6 +1207,13 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             searchKey = xcHelper.containRegExKey(searchKey);
         }
+        var isValidRegex = true;
+        try {
+            // Check if it's valid regex
+            new RegExp(searchKey);
+        } catch(e) {
+            isValidRegex = false;
+        }
         var pattern = xcHelper.getFileNamePattern(searchKey, true);
         var path = getCurrentPath();
         $("#fileBrowserSearch input").addClass("xc-disabled");
@@ -1169,13 +1221,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
         searchId = xcHelper.randName("search");
         var cancelSearch = false;
-        var isValidRegex = true;
-        try {
-            // Check if it's valid regex
-            new RegExp(pattern);
-        } catch(e) {
-            isValidRegex = false;
-        }
 
         listFiles(path, {recursive: true, fileNamePattern: pattern})
         .fail(function(error) {
@@ -1678,9 +1723,9 @@ window.FileBrowser = (function($, FileBrowser) {
             toggleTooltip($label, name, ellipsis);
         });
     }
-    function refreshFileListEllipsis($fileName) {
-        var maxChar = 38;
-        var maxWidth = 280;
+    function refreshFileListEllipsis($fileName, hasRegex) {
+        var maxChar = hasRegex? 20 : 38;
+        var maxWidth = hasRegex? 170 : 280;
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         ctx.font = '700 13px Open Sans';
@@ -2154,33 +2199,43 @@ window.FileBrowser = (function($, FileBrowser) {
             previewDS($grid);
         }
     }
+
     function createListElement($grid, preChecked) {
-        var index = $grid.data("index");
-        var file = curFiles[index];
-        file.isPicked = true;
-        var name = file.name;
-        var escName = xcHelper.escapeDblQuoteForHTML(name);
-        var isFolder = file.attr.isDirectory;
-        var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
-        var fileIcon;
-        var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
-        if (preChecked) {
-            ckBoxClass = "xi-ckbox-selected";
-        }
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         var curDir = getCurrentPath();
         var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
+        if ($grid != null) {
+            var index = $grid.data("index");
+            var file = curFiles[index];
+            file.isPicked = true;
+            var name = file.name;
+            var escName = xcHelper.escapeDblQuoteForHTML(name);
+            var isFolder = file.attr.isDirectory;
+            var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
+            var fileIcon;
+            var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
+            if (preChecked) {
+                ckBoxClass = "xi-ckbox-selected";
+            }
 
-        return '<li data-name="' + escName + '"' +
-               ' data-fullpath="' + escDir + escName + '"' +
-               ' data-type="' + fileType + '">' +
-                    '<i class="icon xi-close close"></i>' +
-                    '<i class="icon ' + ckBoxClass + '"></i>' +
-                    '<span>' + curDir + name + '</span>' +
-                '</li>';
-
-
+            return '<li data-name="' + escName + '"' +
+                   ' data-fullpath="' + escDir + escName + '"' +
+                   ' data-type="' + fileType + '">' +
+                        '<i class="icon xi-close close"></i>' +
+                        '<i class="icon ' + ckBoxClass + '"></i>' +
+                        '<span>' + curDir + name + '</span>' +
+                    '</li>';
+        } else {
+            // For the case where we add input box for regex
+            return '<li class="regex" data-path="' + escDir + '">' +
+                        '<i class="icon xi-close close"></i>' +
+                        '<i class="icon xi-ckbox-empty"></i>' +
+                        '<span>' + curDir + '</span>' +
+                        '<input class="xc-input" value=".*$"></input>' +
+                   '</li>';
+        }
     }
+
     function updatePickedFilesList($grid, options) {
         // options: clearAll, isRemove
         var path = getCurrentPath();
@@ -2218,6 +2273,10 @@ window.FileBrowser = (function($, FileBrowser) {
                 refreshFileListEllipsis($span);
             }
         }
+        updateButtons();
+    }
+
+    function updateButtons() {
         var len = $pickedFileList.find("li").length;
         var $switch = $infoContainer.find(".switch").eq(0);
         // Enable / disable switch
@@ -2238,6 +2297,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $infoContainer.find(".fileInfoBottom .btn").removeClass("xc-disabled");
         }
     }
+
     function selectSingleFile($grid) {
         $grid.addClass('active selected');
         if ($grid.data("index") != null) {
@@ -2249,6 +2309,7 @@ window.FileBrowser = (function($, FileBrowser) {
             previewDS($grid);
         }
     }
+
     function unselectSingleFile($grid) {
         if ($grid.length > 0) {
             curFiles[$grid.data("index")].isSelected = false;
@@ -2263,12 +2324,15 @@ window.FileBrowser = (function($, FileBrowser) {
             updatePickedFilesList($grid, {isRemove: true});
         }
     }
+
     function checkCkBox($checkBox) {
         $checkBox.removeClass("xi-ckbox-empty").addClass("xi-ckbox-selected");
     }
+
     function uncheckCkBox($checkBox) {
         $checkBox.removeClass("xi-ckbox-selected").addClass("xi-ckbox-empty");
     }
+
     function togglePickedFiles($grid) {
         var $allSelected = $innerContainer.find(".grid-unit.selected");
         if (!$grid) {
@@ -2292,6 +2356,7 @@ window.FileBrowser = (function($, FileBrowser) {
             checkCkBox($allSelected.find(".checkBox .icon"));
         }
     }
+
     function checkPicked(files, path) {
         // Can be optimized later
         var escPath = xcHelper.escapeDblQuote(path);

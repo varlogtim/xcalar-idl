@@ -1582,7 +1582,7 @@ table.datasetTable {
                     display: flex;
                     margin-bottom: 2px;
                 }
-                .close {
+                .close, .addRegex {
                     margin-left: auto;
                     display: flex;
                     align-items: center;
@@ -1594,7 +1594,7 @@ table.datasetTable {
                     cursor: pointer;
                 }
                 .pickedFiles {
-                    &, .close {
+                    &, .addRegex {
                         color: @color-font-softBlue;
                     }
                     .qMark {
@@ -1610,7 +1610,10 @@ table.datasetTable {
                 .fileList {
                     overflow: auto;
                     height: ~"calc(100% - 40px)";
-                    width: ~"calc(100% + 20px)";
+                    width: 340px;
+                    ul {
+                        width: 100%;
+                    }
                     li {
                         display: flex;
                         align-items: center;
@@ -1627,6 +1630,13 @@ table.datasetTable {
                         span {
                             color: @color-font-greyish-brown;
                             text-transform: none;
+                        }
+                        input {
+                            height: 16px;
+                            margin: 0 5px;
+                            padding: 0 5px;
+                            font-size: 13px;
+                            min-width: 80px;
                         }
                     }
                 }

@@ -1533,7 +1533,6 @@ window.DSPreview = (function($, DSPreview) {
         var multiDS = loadArgs.multiDS;
         var files = loadArgs.files;
         var targetName = loadArgs.getTargetName();
-        var fileNamePatttern = loadArgs.getPattern();
         var promises = [];
         var getSource = function(file) {
             if (DSTargetManager.isSparkParquet(targetName)) {
@@ -1552,7 +1551,7 @@ window.DSPreview = (function($, DSPreview) {
                 targetName: targetName,
                 path: file.path,
                 recursive: file.recursive,
-                fileNamePatttern: fileNamePatttern
+                fileNamePattern: file.fileNamePattern
             };
         };
 
@@ -2934,6 +2933,7 @@ window.DSPreview = (function($, DSPreview) {
                         '<i class="icon xi-radio-selected"></i>';
                 data += ' data-path="' + file.path + '"';
             }
+            var pattern = file.fileNamePattern || "";
             html += '<li class="' + classes + '" ' + data + '>' +
                         '<div class="label tooltipOverflow"' +
                         ' data-toggle="tooltip"' +
@@ -2941,7 +2941,7 @@ window.DSPreview = (function($, DSPreview) {
                         ' data-placement="top"' +
                         ' data-title="' + file.path + '">' +
                             icons +
-                            file.path +
+                            file.path + pattern +
                         '</div>' +
                     '</li>' +
                     '<div class="subPathList" data-index="' + index + '"' + '>' +
@@ -3056,7 +3056,7 @@ window.DSPreview = (function($, DSPreview) {
         var path = file.path;
         var curPreviewId = previewId;
 
-        loadArgs.listFileInPath(path, file.recursive)
+        loadArgs.listFileInPath(path, file.recursive, file.fileNamePattern)
         .then(function(res) {
             if (!isValidPreviewId(curPreviewId)) {
                 return deferred.reject();
