@@ -280,7 +280,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             $lastFocusedInput = $(this);
         });
 
-        $workbookSection.on("click", ".vertBarBtn .btn", function() {
+        $workbookSection.on("click", ".vertBarBtn", function() {
             xcTooltip.hideAll();
             StatusBox.forceHide();
         });

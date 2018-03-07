@@ -8,9 +8,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // initial setup
     WorkbookManager.setup = function() {
-        var deferred = jQuery.Deferred();
         initializeVariable();
         setupSessionCancel();
+        return setupWorkbooks();
+    };
+
+    function setupWorkbooks() {
+        var deferred = jQuery.Deferred();
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
         .then(activateWorkbook)
@@ -31,7 +35,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
-    };
+    }
 
     WorkbookManager.upgrade = function(oldWkbks) {
         if (oldWkbks == null) {
@@ -1366,6 +1370,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         WorkbookManager.__testOnly__.progressCycle = progressCycle;
         WorkbookManager.__testOnly__.endProgressCycle = endProgressCycle;
         WorkbookManager.__testOnly__.countdown = countdown;
+        WorkbookManager.__testOnly__.setupWorkbooks = setupWorkbooks;
     }
     /* End Of Unit Test Only */
 

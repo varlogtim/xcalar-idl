@@ -98,6 +98,24 @@ describe("Workbook- Workbook Pane Test", function() {
             expect($("#container").hasClass("setupMode")).to.be.false;
         });
 
+        it("should go to setup with firstTouch", function() {
+            var oldFunc = MonitorConfig.refreshParams;
+            var testArg = null;
+            MonitorConfig.refreshParams = function(arg) {
+                testArg = arg;
+            };
+            $("#monitor-setup").addClass("firstTouch");
+            WorkbookPanel.goToSetup();
+            expect($("#monitor-setup").hasClass("firstTouch")).to.be.false;
+            expect(testArg).to.equal(true);
+            expect($("#container").hasClass("setupMode")).to.be.true;
+
+            $("#monitorPanel .backToWB").click();
+            expect($("#container").hasClass("setupMode")).to.be.false;
+
+            MonitorConfig.refreshParams = oldFunc;
+        });
+
         it("should mouseenter to triger tooltipoverflow", function() {
             var $div = $('<div class="tooltipOverflow"><input></div>');
             var $workbookSection = $workbookPanel.find(".bottomSection");
@@ -393,6 +411,32 @@ describe("Workbook- Workbook Pane Test", function() {
             });
         });
 
+        it("should handle duplicate error", function(done) {
+            var selector = ".workbookBox:not(.loading)";
+            var wkbkNum = $workbookPanel.find(selector).length;
+            var $box = $workbookPanel.find(".workbookBox").eq(0);
+            var oldFunc = WorkbookManager.copyWKBK;
+
+            WorkbookManager.copyWKBK = function() {
+                return PromiseHelper.reject("test");
+            };
+            $box.find(".duplicate").click();
+
+            UnitTest.testFinish(function() {
+                return $("#statusBox").is(":visible");
+            })
+            .then(function() {
+                UnitTest.hasStatusBoxWithError("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                WorkbookManager.copyWKBK = oldFunc;
+            });
+        });
+
         it("Should duplicate workbook", function(done) {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
@@ -444,19 +488,6 @@ describe("Workbook- Workbook Pane Test", function() {
             WorkbookPanel.hide = oldHide;
         });
 
-        // it("Should activate inactive workbook", function() {
-        //     var oldSwitch = WorkbookManager.switchWKBK;
-        //     var test = false;
-        //     WorkbookManager.switchWKBK = function() {
-        //         test = true;
-        //         return PromiseHelper.resolve();
-        //     };
-
-        //     var $box = $workbookPanel.find(".workbookBox:not(.active)").eq(0);
-        //     $box.find(".activate").click();
-        //     expect(test).to.be.true;
-        //     WorkbookManager.switchWKBK = oldSwitch;
-        // });
         it("should handle pause workbook error", function(done) {
             var oldPause = WorkbookManager.pause;
             WorkbookManager.pause = function() {
@@ -604,6 +635,20 @@ describe("Workbook- Workbook Pane Test", function() {
                 WorkbookManager.switchWKBK = oldSwitch;
                 WorkbookManager.getActiveWKBK = oldGet;
             });
+        });
+
+        it("should modify workbook", function() {
+            var oldFunc = WorkbookInfoModal.show;
+            var test = false;
+            var $box = $workbookPanel.find('[data-workbook-id="' +
+                                            activeWkbkId + '"]');
+
+            WorkbookInfoModal.show = function() {
+                test = true;
+            };
+            $box.find(".modify").click();
+            expect(test).to.be.true;
+            WorkbookInfoModal.show = oldFunc;
         });
 
         it("Should delete workbook", function(done) {

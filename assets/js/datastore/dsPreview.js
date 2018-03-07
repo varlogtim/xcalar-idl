@@ -4624,13 +4624,13 @@ window.DSPreview = (function($, DSPreview) {
                     "this dataset. There are column names in this dataset " +
                     "that are not allowed. " +
                     "To fix this, please select Custom Format and " +
-                    "apply default:cleanseDataset. This function will " +
+                    "apply default:standardizeColumnNamesAndTypes. This function will " +
                     "also auto-detect column types.";
             } else {
                 msg = "There are over " + gMaxDSColsSpec + " columns in this " +
                     "dataset. All columns will be read as strings. " +
                     "If you want to auto-detect column types, please select " +
-                    "Custom Format and apply default:cleanseDataset.";
+                    "Custom Format and apply default:standardizeColumnNamesAndTypes.";
             }
 
             Alert.show({

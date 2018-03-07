@@ -42,6 +42,25 @@ describe("WorkbookManager Test", function() {
             generateKey = WorkbookManager.__testOnly__.generateKey;
         });
 
+        it("setupWorkbooks should handle error case", function(done) {
+            var oldFunc = WorkbookManager.getWKBKsAsync;
+            WorkbookManager.getWKBKsAsync = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            WorkbookManager.__testOnly__.setupWorkbooks()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            })
+            .always(function() {
+                WorkbookManager.getWKBKsAsync = oldFunc;
+            });
+        });
+
         it("generateKey should work", function() {
             var res = generateKey();
             expect(res).not.to.exist;
