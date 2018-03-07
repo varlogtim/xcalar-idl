@@ -4240,7 +4240,7 @@
                     return "closeMenu";
                 }
                 updateTableDropdown($menu, options);
-                if (gTables[tableId].isNoDelete()) {
+                if (gTables[tableId] && gTables[tableId].isNoDelete()) {
                     xcHelper.disableMenuItem($("#tableMenu .deleteTable"),
                                     {"title": TooltipTStr.CannotDropLocked});
                     $subMenu.find(".removeNoDelete").show();
