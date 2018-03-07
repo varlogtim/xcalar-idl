@@ -946,6 +946,9 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
         'site/genHTML.js',
         "'/xcalar-design'", // common bld names, in case you've blt in to src under these names in past.. dont copy that in..
         "'/xcalar-insight'", // """ ""
+        "'/xcalar-infra'", // Jenkins jobs XDTestSuite whill clone xcalar-infra in to workspace, and grunt called later in the process.
+            // therefore if the workspace is xcalar-gui, xcalar-infra will get built in to it, and then when grunt is called,
+            // will end up in tarred build output if not excluded
         'frommake',
         "'/xcalar-gui'", // "" ""
     ];
