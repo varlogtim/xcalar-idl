@@ -184,7 +184,6 @@ module.exports = {
     },
     "UDF": {
         "ADD": "添加UDF",
-        "App": "XPU应用",
         "BlankFunc": "新模块",
         "Browse": "浏览文件",
         "Editor": "编辑",

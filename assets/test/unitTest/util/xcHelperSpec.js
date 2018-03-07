@@ -1817,11 +1817,6 @@ describe("xcHelper Test", function() {
         expect(res.length).to.equal(9);
     });
 
-    it("xcHelper.getTempUDFPrefix should work", function() {
-        var res = xcHelper.getTempUDFPrefix();
-        expect(res).to.equal("_xcalar_" + XcSupport.getUser());
-    });
-
     it("xcHelper.sortVals should work", function() {
         var func = xcHelper.sortVals;
         var asc = ColumnSortOrder.ascending;

@@ -368,7 +368,6 @@ module.exports = {
 
     "UDF": {
         "ADD": "ADD UDF",
-        "App": "XPU App",
         "Browse": "Browse File",
         "BlankFunc": "New Module",
         "Editor": "Editor",

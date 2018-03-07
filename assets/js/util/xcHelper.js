@@ -2898,10 +2898,6 @@
         });
     };
 
-    xcHelper.getTempUDFPrefix = function() {
-        return "_xcalar_" + XcSupport.getUser();
-    };
-
     /**
      * sortVals
      * @param  {string} a     [first value]
@@ -4136,7 +4132,7 @@
         // adds 1 to first digit (round up) if rounding down creates too many buckets
         firstDigit = (max - min) / (firstDigit * Math.pow(10, numDigits)) > numRows ? firstDigit + 1 : firstDigit;
         return firstDigit * Math.pow(10, numDigits);
-    }
+    };
 
     /*
     options: {
