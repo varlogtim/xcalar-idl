@@ -5832,6 +5832,19 @@ html.microsoft {
             height: @rowHeight;
             border-bottom: 1px solid @color-border-pinkish-grey2;
         }
+
+        .tempRow {
+            background: @color-white !important;
+            height: @rowHeight * 2;
+            position: relative;
+            border-bottom: none;
+            cursor: progress;
+
+            .waitingIcon {
+                .center-align;
+                display: block;
+            }
+        }
     }
 
     // left tab
@@ -5860,31 +5873,19 @@ html.microsoft {
             .size(@height: ~"calc(100% - 36px)");
             overflow: auto; // allow vert scrollbar
             position: relative;
-            // width: 90%;
-            &::-webkit-scrollbar {
-                display: none;
-            }
+
             &.scrolling {
                 cursor: wait;
             }
+            &.full {
+                .tempRow {
+                    display: none;
+                }
+            }
         }
 
-        .scrollBar {
-            .position(absolute, @top: 36px, @right: 0px);
-            overflow: auto;
-            z-index: 1;
-            height: ~"calc(100% - 36px)";
-            &::-webkit-scrollbar-thumb {
-                min-height: 30px;
-            }
-
-            &::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            &.bulkFetch {
-                pointer-events: none;
-            }
+        .tempRow {
+            cursor: progress;
         }
 
         .row {
@@ -5894,16 +5895,14 @@ html.microsoft {
             cursor: pointer;
             .flex-display;
 
-            &:hover {
-                background-color: rgba(221, 234, 242, 0.5);
-            }
 
-            &.tempRow {
-                cursor: progress;
-            }
 
             &:nth-child(odd) {
                 background-color: @color-bg-white-seven;
+            }
+
+            &:hover {
+                background-color: rgba(221, 234, 242, 0.5);
             }
 
             &.type-record {
@@ -6015,10 +6014,6 @@ html.microsoft {
             .row {
                 min-height: @rowHeight;
                 .flex-display;
-
-                &.tempRow {
-                    cursor: progress;
-                }
 
                 &:nth-child(odd) {
                     background-color: @color-bg-white-seven;
