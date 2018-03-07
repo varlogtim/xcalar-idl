@@ -116,7 +116,7 @@ define(function() {
                         } else if (stubName === "importUDF" && args.includeStub) {
                             var $button = $('<input class="udfToDSPreview" type="button" ' +
                                             'style="width:calc(100% - 13.2ex);margin-left:13.3ex;" ' +
-                                            'value="Apply UDF on Dataset Panel"/>');
+                                            'value="Apply UDF"/>');
                             $(".cell").eq(index + 1).append($button);
                         }
                     }

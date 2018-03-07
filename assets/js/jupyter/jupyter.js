@@ -349,10 +349,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
             $("#dsForm-applyUDF").click();
         } else {
             Alert.show({
-                title: "Error",
-                msg: "Please select" +
-                " a dataset to import in the Dataset Panel and select 'Custom Format' as the" +
-                " current format.",
+                title: ErrorMessageTStr.title,
+                msg: JupyterTStr.DSFormInactive,
                 isAlert: true
             });
         }
@@ -360,7 +358,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     function udfRefreshFail() {
         Alert.show({
-            title: "Error",
+            title: ErrorMessageTStr.title,
             msg: "Could not update UDF list.",
             isAlert: true
         });

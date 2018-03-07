@@ -1390,6 +1390,7 @@ LoginConfigTStr = {
 JupyterTStr = {
     "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "Object and array type columns cannot be renamed",
+    "DSFormInactive": "From the Dataset panel, select a dataset and apply the Custom Format type.",
     // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };

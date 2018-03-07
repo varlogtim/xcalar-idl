@@ -1175,6 +1175,7 @@ LoginConfigTStr = {
 JupyterTStr = {
     "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "对象和数组类型的列无法重命名",
+    "DSFormInactive": "From the Dataset panel, select a dataset and apply the Custom Format type.",
       // with replace
     "SampleNumError": "请选择1至<number>的行作为样本。"
 };
