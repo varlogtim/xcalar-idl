@@ -207,7 +207,7 @@ DSFormController.prototype = {
     },
 
     useHeader: function() {
-        return this.hasHeader;
+        return this.hasHeader || false;
     },
 
     setHeader: function(hasHeader) {

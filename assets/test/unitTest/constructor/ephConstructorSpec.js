@@ -122,53 +122,48 @@ describe("Ephemeral Constructor Test", function() {
     });
 
     describe("DSFormController Constructor Test", function() {
-        it("DSFormController Should be a constructor", function() {
+        it("DSFormController should be a constructor", function() {
             var controller = new DSFormController();
-            expect(controller).to.be.an("object");
+            expect(controller).to.be.instanceof(DSFormController);
             expect(Object.keys(controller).length).to.equal(0);
+        });
 
+
+        it("should set options", function() {
+            var controller = new DSFormController();
             controller.set({
-                "targetName": "testTarget",
-                "files": [{path: "tesstPath"}],
-                "format": "testFormat",
-                "multiDS": true
+                targetName: "testTarget",
+                files: [{path: "tesstPath"}],
+                format: "testFormat",
+                multiDS: true
             });
 
-            expect(controller.getTargetName()).to.equal("testTarget");
-            expect(controller.getFormat()).to.equal("testFormat");
+            expect(Object.keys(controller).length).to.equal(8);
+            expect(controller).to.have.property("previewSet");
+            expect(controller).to.have.property("headersList");
+            expect(controller).to.have.property("originalHeadersList");
+            expect(controller).to.have.property("suggestHeadersList");
+            expect(controller).to.have.property("files");
             expect(controller.files.length).to.equal(1);
-            expect(controller.multiDS).to.equal(true);
+            expect(controller).to.have.property("targetName")
+            .and.to.equal("testTarget");
+            expect(controller).to.have.property("multiDS")
+            .and.to.equal(true);
+            expect(controller).to.have.property("format")
+            .and.to.equal("testFormat");
+        });
 
-            // set format
-            controller.setFormat("testFormat2");
-            expect(controller.getFormat()).to.equal("testFormat2");
-
-            // set header
-            controller.setHeader(false);
-            expect(controller.useHeader()).to.be.false;
-
-            controller.setHeader();
-            expect(controller.useHeader()).to.be.true;
-
-            // set field delim
-            controller.setFieldDelim(",");
-            expect(controller.getFieldDelim()).to.be.equal(",");
-
-            // set line delim
-            controller.setLineDelim("\n");
-            expect(controller.getLineDelim()).to.be.equal("\n");
-
-            // set quote
-            controller.setQuote("\'");
-            expect(controller.getQuote()).to.be.equal("\'");
-
-            // set and get preview file
-            controller.setPreviewingSource(0, "testFile");
-            expect(controller.getPreviewFile()).to.equal("testFile");
-
+        it("should reset", function() {
+            var controller = new DSFormController();
+            controller.set({
+                targetName: "testTarget",
+                files: [{path: "tesstPath"}],
+                format: "testFormat",
+                multiDS: true
+            });
             controller.reset();
 
-            expect(Object.keys(controller).length).to.equal(9);
+            expect(Object.keys(controller).length).to.equal(10);
             expect(controller.getTargetName()).to.be.undefined;
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
@@ -179,8 +174,278 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.headersList).to.be.an("array");
             expect(controller.originalHeadersList).to.be.an("array");
             expect(controller.files.length).to.equal(0);
-            expect(controller.getArgStr())
-            .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
+        });
+
+        it("should get target name", function() {
+            var controller = new DSFormController();
+            controller.set({targetName: "testTarget"});
+            expect(controller.getTargetName()).to.equal("testTarget");
+        });
+
+        it("should get file", function() {
+            var controller = new DSFormController();
+            controller.set({files: [{path: "testPath"}]});
+            var res = controller.getFile(0);
+            expect(res).to.be.an("object");
+            expect(res.path).to.equal("testPath");
+        });
+
+        it("should get format", function() {
+            var controller = new DSFormController();
+            controller.set({format: "testFormat"});
+            expect(controller.getFormat()).to.equal("testFormat");
+        });
+
+        it("should set format", function() {
+            var controller = new DSFormController();
+            controller.set({format: "testFormat"});
+            controller.setFormat("testFormat2");
+            expect(controller.getFormat()).to.equal("testFormat2");
+        });
+
+        
+        it("should get header", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.useHeader()).to.be.false;
+        });
+
+        it("should set header", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.useHeader()).to.be.false;
+            // case 1
+            controller.setHeader();
+            expect(controller.useHeader()).to.be.true;
+            // case 2
+            controller.setHeader();
+            expect(controller.useHeader()).to.be.false;
+            // case 3
+            controller.setHeader(false);
+            expect(controller.useHeader()).to.be.false;
+        });
+
+        it("should get field delimiter", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.getFieldDelim()).to.be.undefined;
+        });
+
+        it("should set field delimiter", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setFieldDelim(",");
+            expect(controller.getFieldDelim()).to.be.equal(",");
+        });
+
+        it("should get line delimiter", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.getLineDelim()).to.be.undefined;
+        });
+
+        it("should set line delimiter", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setLineDelim("\n");
+            expect(controller.getLineDelim()).to.be.equal("\n");
+        });
+
+        it("should get quote", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.getQuote()).to.be.undefined;
+        });
+
+        it("should set quote", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setQuote("\'");
+            expect(controller.getQuote()).to.be.equal("\'");
+        });
+
+        it("should get preview source", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.getPreviewingSource()).to.be.undefined;
+        });
+
+        it("should set preview source", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setPreviewingSource(0, "testFile");
+            expect(controller.getPreviewFile()).to.equal("testFile");
+        });
+
+        it("should get preview index", function() {
+            var controller = new DSFormController();
+            controller.set();
+            expect(controller.getPreivewIndex()).to.be.null;
+            // case 2
+            controller.setPreviewingSource(1, "testFile");
+            expect(controller.getPreivewIndex()).to.equal(1);
+        });
+
+        it("should get preview headersList", function() {
+            var controller = new DSFormController();
+            controller.set();
+            var res = controller.getPreviewHeaders(0);
+            expect(res).to.undefined;
+        });
+
+        it("should set preview headers list", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setPreviewHeaders(0, ["a"]);
+            var res = controller.getPreviewHeaders(0);
+            expect(res[0]).to.equal("a");
+        });
+
+        it("should preview headers should be the same in single ds case", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setPreviewHeaders(0, ["a"]);
+            controller.setPreviewHeaders(1, ["b"]);
+            var res = controller.getPreviewHeaders(0);
+            var res2 = controller.getPreviewHeaders(1);
+            expect(res[0]).to.equal("b");
+            expect(res2[0]).to.equal("b");
+        });
+
+        it("should preview headers should not be the same in multi ds case", function() {
+            var controller = new DSFormController();
+            controller.set({multiDS: true});
+            controller.setPreviewHeaders(0, ["a"]);
+            controller.setPreviewHeaders(1, ["b"]);
+            var res = controller.getPreviewHeaders(0);
+            var res2 = controller.getPreviewHeaders(1);
+            expect(res[0]).to.equal("a");
+            expect(res2[0]).to.equal("b");
+        });
+
+        it("should get original headers", function() {
+            var controller = new DSFormController();
+            controller.set();
+            var res = controller.getOriginalHeaders(0);
+            expect(res).to.be.an("array");
+            expect(res.length).to.equal(0);
+        });
+
+        it("should set original headers", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setPreviewingSource(0, "testFile");
+            controller.setOriginalHeaders(["a"]);
+            var res = controller.getOriginalHeaders(0);
+            expect(res[0]).to.be.equal("a");
+        });
+
+        it("should get suggest headers", function() {
+            var controller = new DSFormController();
+            controller.set();
+            var res = controller.getSuggestHeaders(0);
+            expect(res).to.be.undefined;
+        });
+
+        it("should set suggest headers list", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setSuggestHeaders(0, ["a"], ["string"]);
+            var res = controller.getSuggestHeaders(0);
+            expect(res[0]).to.be.an("object");
+            expect(res[0].colName).to.equal("a");
+            expect(res[0].colType).to.equal("string");
+        });
+
+        it("should reset cached headers", function() {
+            var controller = new DSFormController();
+            controller.set();
+            controller.setPreviewHeaders(0, ["a"]);
+            controller.setOriginalHeaders(0, ["b"]);
+            controller.setSuggestHeaders(0, ["c"], ["string"]);
+
+            controller.resetCachedHeaders();
+            var res1 = controller.getPreviewHeaders(0);
+            var res2 = controller.getOriginalHeaders(0);
+            var res3 = controller.getSuggestHeaders(0);
+            expect(res1).to.be.undefined;
+            expect(res2).to.be.an("array");
+            expect(res2.length).to.equal(0);
+            expect(res3).to.be.undefined;
+        });
+
+        it("should check if has multi files", function() {
+            var controller = new DSFormController();
+            controller.set();
+            // single ds case
+            expect(controller.hasPreviewMultipleFiles()).to.be.false;
+            // multi ds case 1
+            controller.set({multiDS: true});
+            expect(controller.hasPreviewMultipleFiles()).to.be.false;
+            // multi ds case 2
+            controller.setPreviewingSource(0, "testFile");
+            expect(controller.hasPreviewMultipleFiles()).to.be.false;
+            // multi ds case 3
+            controller.setPreviewHeaders(0, ["a"]);
+            expect(controller.hasPreviewMultipleFiles()).to.be.false;
+            // multi ds case 3
+            controller.setPreviewHeaders(1, ["b"]);
+            expect(controller.hasPreviewMultipleFiles()).to.be.true;
+
+        });
+
+        it("should get args", function() {
+            var controller = new DSFormController();
+            controller.reset();
+            var res = controller.getArgStr();
+            expect(res).to.equal('{"fieldDelim":"","lineDelim":"\\n","hasHeader":false,"quote":"\\""}');
+        });
+        
+        it("should list file in path", function(done) {
+            var oldFunc = XcalarListFiles;
+            XcalarListFiles = function() {
+                return PromiseHelper.resolve("test");
+            };
+
+            var controller = new DSFormController();
+            controller.set();
+
+            controller.listFileInPath("testPath")
+            .then(function(res) {
+                expect(res).to.equal("test");
+                expect(controller.previewSet.testPath).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListFiles = oldFunc;
+            });
+        });
+
+        it("should return cached res from list file in path", function(done) {
+            var oldFunc = XcalarListFiles;
+            XcalarListFiles = function() {
+                return PromiseHelper.resolve("test");
+            };
+
+            var controller = new DSFormController();
+            controller.set();
+            controller.previewSet.testPath = "test2";
+
+            controller.listFileInPath("testPath")
+            .then(function(res) {
+                expect(res).to.equal("test2");
+                expect(controller.previewSet.testPath).to.equal("test2");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListFiles = oldFunc;
+            });
         });
     });
 
