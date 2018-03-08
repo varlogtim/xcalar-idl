@@ -155,6 +155,12 @@ describe("Workbook- Workbook Pane Test", function() {
             });
         });
 
+        it("Should not show dataset hint", function() {
+            $("#homeBtn").click();
+            expect($("#showDatasetHint").length)
+            .to.equal(0);
+        });
+
         it("Should close workbook", function(done) {
             $("#homeBtn").click();
 

@@ -30,6 +30,9 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             var $container = $("#container");
             var $dialogWrap = $("#dialogWrap");
 
+            //remove the dataset hint
+            $("#showDatasetHint").remove();
+
             if (WorkbookPanel.isWBMode()) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
