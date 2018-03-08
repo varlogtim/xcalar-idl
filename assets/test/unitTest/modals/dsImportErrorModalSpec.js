@@ -215,7 +215,7 @@ describe("DSImportErrorModal Test", function() {
             expect(called).to.be.true;
             expect(downloaded).to.be.true;
 
-            xcHelper.downloadedAsFile = cachedHelper;
+            xcHelper.downloadAsFile = cachedHelper;
         });
     });
 

@@ -1,5 +1,5 @@
 // A basic test
-mocha.timeout(40000);
+mocha.timeout(50000);
 describe("Mocha Setup Test", function() {
     before(function() {
         UnitTest.onMinMode();
