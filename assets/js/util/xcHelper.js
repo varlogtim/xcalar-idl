@@ -158,9 +158,15 @@
             {
                 type = ColumnType.mixed;
             }
+        } else if (val == null &&
+                    oldType !== null &&
+                    oldType !== ColumnType.undefined) {
+            // XXX Bug 11348, if column has null, we treat it as mixed type
+            // wait for better typeing system
+            type = ColumnType.mixed;
         }
 
-        return (type);
+        return type;
     };
 
     xcHelper.parseDSFormat = function(ds) {

@@ -128,6 +128,9 @@ describe("xcHelper Test", function() {
         // case 9
         res = xcHelper.parseColType(1, "string");
         expect(res).to.equal("mixed");
+        // case 10
+        res = xcHelper.parseColType(null, "string");
+        expect(res).to.equal("mixed");
     });
 
     it("xcHelper.prefixRegExKey should work", function() {
