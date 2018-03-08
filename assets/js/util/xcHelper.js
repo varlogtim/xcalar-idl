@@ -1433,7 +1433,9 @@
             var oldHtml = $btn.data("oldhtml");
             $btn.removeClass("btnInProgress");
             if (success) {
-                html = '<span class="text center-button-text">' + oldHtml + '</span><i class="icon xi-tick xi-tick-fade-in"></i>';
+                html = '<span class="text center-button-text">' + oldHtml +
+                        '</span>' +
+                        '<i class="icon xi-tick xi-tick-fade-in"></i>';
                 $btn.html(html);
                 setTimeout(function() {
                     $btn.html(oldHtml)
