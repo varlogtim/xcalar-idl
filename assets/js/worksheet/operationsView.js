@@ -2638,7 +2638,7 @@ window.OperationsView = (function($, OperationsView) {
         if (!gTables[tableId] && !isEditMode) {
             statusBoxShowHelper(ErrTStr.TableNotExists,
                             $activeOpSection.find('.tableList'));
-            return deferred.reject().promise();
+            return PromiseHelper.reject();
         }
         if (!isEditMode && !gTables[tableId].isActive()) {
             statusBoxShowHelper(TblTStr.NotActive,
@@ -2663,14 +2663,14 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
-            return deferred.reject().promise();
+            return PromiseHelper.reject();
         }
 
         var invalidInputs = [];
 
         if (!checkIfBlanksAreValid(invalidInputs)) {
             handleInvalidBlanks(invalidInputs);
-            return deferred.reject().promise();
+            return PromiseHelper.reject();
         }
 
         var multipleArgSets = [];
@@ -2692,7 +2692,7 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
-            return deferred.reject().promise();
+            return PromiseHelper.reject();
         }
 
         formHelper.disableSubmit();

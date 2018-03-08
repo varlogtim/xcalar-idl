@@ -2790,13 +2790,6 @@
                 return false;
             }
             if (colName[0] === gColPrefix) {
-                for (var j = 1; j < colName.length; j++) {
-                    if (colName[j] === gColPrefix &&
-                        !xcHelper.isCharEscaped(colName, j)) {
-                        // shouldn't have non escaped colprefix in colname
-                        return false;
-                    }
-                }
                 hasPrefix = true;
             } else {
                 return false;

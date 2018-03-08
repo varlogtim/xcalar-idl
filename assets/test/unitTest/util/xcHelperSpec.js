@@ -2152,7 +2152,7 @@ describe("xcHelper Test", function() {
         $container.remove();
     });
 
-    it ("xcHelper.hasValidColPrefix(str) should work", function() {
+    it("xcHelper.hasValidColPrefix(str) should work", function() {
         var func = xcHelper.hasValidColPrefix;
         expect(func(gColPrefix)).to.equal(false);
         expect(func('\\' + gColPrefix)).to.equal(false);
@@ -2160,14 +2160,15 @@ describe("xcHelper Test", function() {
         expect(func('a\\' + gColPrefix + 'blah')).to.equal(false);
         expect(func(',a\\' + gColPrefix + 'blah')).to.equal(false);
         expect(func(gColPrefix+ 'blah,   \\' + gColPrefix + 'blah')).to.equal(false);
-        expect(func(gColPrefix + 'blah ' + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah ' + gColPrefix + 'blah')).to.equal(true);
         expect(func(gColPrefix + 'blah, a' + gColPrefix + 'blah')).to.equal(false);
-        expect(func(gColPrefix + 'blah, ' + gColPrefix + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + gColPrefix + 'blah')).to.equal(true);
         expect(func(gColPrefix + 'blah, \\' + gColPrefix + 'blah')).to.equal(false);
-        expect(func(gColPrefix + 'blah, ' + gColPrefix + '\\' + gColPrefix + gColPrefix + 'blah')).to.equal(false);
+        expect(func(gColPrefix + 'blah, ' + gColPrefix + '\\' + gColPrefix + gColPrefix + 'blah')).to.equal(true);
         expect(func(gColPrefix + 'blah, ' + gColPrefix + 'bl,ah')).to.equal(false);
 
         expect(func(gColPrefix + 'blah blah')).to.equal(true); // allow column names with spaces
+        expect(func(gColPrefix + 'blah' + gColPrefix + 'blah')).to.equal(true); // allow column name to have $ in middle of name
         expect(func(gColPrefix + 'a')).to.equal(true);
         expect(func(gColPrefix + 'blah')).to.equal(true);
         expect(func(gColPrefix + 'blah, ' + gColPrefix + 'blah')).to.equal(true);
