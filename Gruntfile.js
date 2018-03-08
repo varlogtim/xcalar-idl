@@ -5395,7 +5395,7 @@ module.exports = function(grunt) {
             + ("\n\tgrunt " + DEV
             + " --" + BLD_OP_SRC_REPO + "=" + dummysrc
             + " --" + BLD_OP_PRODUCT + "=XI"
-            + " watch "
+            + " watch --"
             + WATCH_TARGET_LESS).yellow).bold);
         grunt.log.writeln("\n\t(Generate a dev build of the XI flavor, from the xalar-gui src code at"
             + "\n\t" + dummysrc + ", then watch the src for changes in any less"
