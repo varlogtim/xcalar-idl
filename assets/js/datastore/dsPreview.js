@@ -749,11 +749,11 @@ window.DSPreview = (function($, DSPreview) {
                 if (dfType) {
                     xcTypeIcon = xcHelper.getColTypeIcon(dfType);
                 } else {
-                    switch (ret.schema[schemaKey].xcalarType){
-                        case("DfObject"):
+                    switch (ret.schema[schemaKey].xcalarType) {
+                        case ("DfObject"):
                             xcTypeIcon = "xi-object";
                             break;
-                        case("DfArray"):
+                        case ("DfArray"):
                             xcTypeIcon = "xi-array";
                             break;
                     }
@@ -1876,16 +1876,14 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (!hasNonPartition) {
-            xcHelper.validate([
-            {
+            xcHelper.validate([{
                 "$ele": $selectedColList,
                 "error": ErrTStr.ParquetMustSelectNonPartitionCol,
                 "formMode": true,
                 "check": function() {
                     return true;
                 }
-            }
-            ]);
+            }]);
             return null;
         }
 
@@ -1893,21 +1891,19 @@ window.DSPreview = (function($, DSPreview) {
 
         var $inputs = $(".parquetSection .partitionList input");
         for (var i = 0; i < $inputs.length; i++) {
-            isValid = xcHelper.validate([
-            {
+            isValid = xcHelper.validate([{
                 "$ele": $inputs.eq(i),
                 "error": ErrTStr.NoEmpty,
                 "formMode": true,
                 "check": function() {
                     return $inputs.eq(i).val().trim().length === 0;
                 }
-            }
-            ]);
+            }]);
+
             if (!isValid) {
                 return null;
             }
         }
-
 
         return {columns: names};
     }
@@ -4650,6 +4646,7 @@ window.DSPreview = (function($, DSPreview) {
             var recTypes = suggestColumnHeadersType($tbody);
             var recNames = suggestColumnHeadersNames();
             changeColumnHeaders(recTypes, recNames);
+            loadArgs.setSuggestHeaders(sourceIndex, recNames, recTypes);
         }
     }
 
@@ -4737,12 +4734,29 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function showHeadersWarning() {
-        $("#dsForm-warning").removeClass("xc-hidden");
+        if (shouldShowHeadersWarning()) {
+            $("#dsForm-warning").removeClass("xc-hidden");
+        } else {
+            hideHeadersWarning();
+        }
+
         loadArgs.resetCachedHeaders();
     }
 
     function hideHeadersWarning() {
         $("#dsForm-warning").addClass("xc-hidden");
+    }
+
+    function shouldShowHeadersWarning() {
+        if (loadArgs.hasPreviewMultipleFiles()) {
+            // multi DS case and other files has been previewed
+            return true;
+        }
+        // other case, detect if header has been changed
+        var headers = getColumnHeaders();
+        var sourceIndex = loadArgs.getPreivewIndex();
+        var suggestHeaders = loadArgs.getSuggestHeaders(sourceIndex);
+        return hasTypedColumnChange(suggestHeaders, headers);
     }
 
     function getValidNameSet(allNames) {

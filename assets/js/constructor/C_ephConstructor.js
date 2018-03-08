@@ -140,6 +140,7 @@ DSFormController.prototype = {
         this.previewSet = {};
         this.headersList = [];
         this.originalHeadersList = [];
+        this.suggestHeadersList = [];
         this.files = this.files || [];
 
         if (options.targetName != null) {
@@ -178,6 +179,7 @@ DSFormController.prototype = {
         this.previewSet = {};
         this.headersList = [];
         this.originalHeadersList = [];
+        this.suggestHeadersList = [];
         this.files = [];
 
         delete this.multiDS;
@@ -295,9 +297,42 @@ DSFormController.prototype = {
         return this.originalHeadersList[index] || [];
     },
 
+    setSuggestHeaders: function(sourceIndex, colNames, colTypes) {
+        var colInfos = colNames.map(function(colName, index) {
+            return {
+                colName: colName,
+                colType: colTypes[index]
+            };
+        });
+        var index = this._getPreviewHeadersIndex(sourceIndex);
+        this.suggestHeadersList[index] = colInfos;
+    },
+
+    getSuggestHeaders: function(index) {
+        index = this._getPreviewHeadersIndex(index);
+        return this.suggestHeadersList[index];
+    },
+
     resetCachedHeaders: function() {
         this.headersList = [];
         this.originalHeadersList = [];
+        this.suggestHeadersList = [];
+    },
+
+    hasPreviewMultipleFiles: function() {
+        if (!this.multiDS) {
+            return false;
+        }
+
+        var previewIndex = this.getPreivewIndex();
+        var otherHeaders = [];
+
+        if (previewIndex != null) {
+            otherHeaders = this.headersList.filter(function(header, index) {
+                return header != null && index !== previewIndex;
+            });
+        }
+        return otherHeaders.length > 0;
     },
 
     getArgStr: function() {
@@ -308,6 +343,7 @@ DSFormController.prototype = {
         delete args.previewSet;
         delete args.headersList;
         delete args.originalHeadersList;
+        delete args.suggestHeadersList;
         return JSON.stringify(args);
     },
 
@@ -315,6 +351,7 @@ DSFormController.prototype = {
         // set local variable at first in case
         // in the middle of async call this.previewSet get reset
         var previewSet = this.previewSet;
+
         if (previewSet.hasOwnProperty(path)) {
             return PromiseHelper.resolve(previewSet[path]);
         } else {
@@ -323,7 +360,7 @@ DSFormController.prototype = {
                 "targetName": this.getTargetName(),
                 "path": path,
                 "recursive": recursive,
-                "fileNamePattern" : pattern
+                "fileNamePattern": pattern
             };
             XcalarListFiles(options)
             .then(function(res) {

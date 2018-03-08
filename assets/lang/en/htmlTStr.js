@@ -737,7 +737,7 @@ module.exports = {
         "EndOfPreview": "End of the file to preview",
         "Tab": "Tab",
         "MoreRows": "Show more rows",
-        "HeaderChangeWarn": "Warning! Dataset headers were changed and any previous modifications to the headers were discarded."
+        "HeaderChangeWarn": "Warning! Changes to the import configurations, below, override your custom modifications to headers."
     },
 
     "dsExport": {
