@@ -661,7 +661,7 @@ window.DagFunction = (function($, DagFunction) {
 
     function getAllNamesFromStart(tree, startTreeNodes) {
         // Recursively go down the tree of all children until we hit the end
-        // Returns list of all xids that we have seen in this traversal
+        // Returns list of all names that we have seen in this traversal
         // This terminates due to the graph being a DAG
         var mapOfNames = {};
         for (var i = 0; i < startTreeNodes.length; i++) {
@@ -678,6 +678,8 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
+    // returns a map of the nodes that already existed in the dataflow before
+    // new nodes were inserted
     function getNonInvolvedRerunNames(tree, startTreeNodes, newNodes) {
         var seen = {};
         var mapOfNames = {};
@@ -698,13 +700,10 @@ window.DagFunction = (function($, DagFunction) {
                 // ignore newly created nodes
                 for (var n in newNodes) {
                     var nameList = newNodes[n];
-                    for (var j = 0; j < nameList.length; j++) {
-                        if (nameList[j].args.dest === name) {
-                            newNodeFound = true;
-                            break;
-                        }
-                    }
-                    if (newNodeFound) {
+                    newNodeFound = nameList.find(function(node) {
+                        return node.args.dest === name;
+                    });
+                    if (newNodefound) {
                         break;
                     }
                 }
@@ -1152,7 +1151,7 @@ window.DagFunction = (function($, DagFunction) {
                 struct.delaySort = false;
                 struct.dhtName = "";
                 struct.key = indexNode.keys;
-                struct.prefix = ""; // XXX check what to use here
+                struct.prefix = "";
                 struct.source = indexNode.src;
                 struct.dest = xcHelper.getTableName(indexNode.src) + ".index" +
                               Authentication.getHashId();
@@ -1172,14 +1171,12 @@ window.DagFunction = (function($, DagFunction) {
                     parents: parentNames,
                     parentNames: parentNames
                 };
+
                 var node = new TreeValue(values);
-                var dest;
-                for (var j = 0; j < valueArray.length; j++) {
-                    if (valueArray[j].name === name) {
-                        dest = valueArray[j];
-                        break;
-                    }
-                }
+                var dest = valueArray.find(function(val) {
+                    return val.name === name;
+                });
+
                 if (typeof dest.struct.source === "string") {
                     dest.struct.source = struct.dest;
                     dest.parentNames = [dest.struct.source];
@@ -1202,19 +1199,18 @@ window.DagFunction = (function($, DagFunction) {
     function insertNewNodesIntoValArray(newNodes, valueArray, newNodesArray) {
         for (var name in newNodes) {
             var nodes = newNodes[name];
-            var dest;
+            var dest = valueArray.find(function(val) {
+                return val.name === name;
+            });
 
-            for (var i = 0; i < valueArray.length; i++) {
-                if (valueArray[i].name === name) {
-                    dest = valueArray[i];
-                    if (dest.struct.source) {
-                        if (typeof dest.struct.source === "string") {
-                            dest.parentNames = [dest.struct.source];
-                        } else {
-                            dest.parentNames = dest.struct.source;
-                        }
-                    }
-                    break;
+            if (dest.struct.source) {
+                // give parentNames property to the node so when constructing
+                // tree, will look at parentNames for parent first, instead of
+                // dagnodeId, which we don't have for new nodes we're inserting
+                if (typeof dest.struct.source === "string") {
+                    dest.parentNames = [dest.struct.source];
+                } else {
+                    dest.parentNames = dest.struct.source;
                 }
             }
 
@@ -1235,7 +1231,7 @@ window.DagFunction = (function($, DagFunction) {
                     inputName: inputName,
                     name: struct.dest,
                     numParents: 1,
-                    parents: parentNames, // XXX
+                    parents: parentNames,
                     parentNames: parentNames,
                     tag: dest.tag,
                     comment: ""
@@ -1263,10 +1259,10 @@ window.DagFunction = (function($, DagFunction) {
         return deferred.promise();
     }
 
+    // nameToTagsMap {newTableName: [tag#oldId, otherTag#oldId2]}
+    // tagHeaders {tag#oldId: tag#newId}
+    // nonInvolvedNames {oldTableName: valueStruct}
     function tagNodesAfterEdit(nameToTagsMap, tagHeaders, nonInvolvedNames) {
-        //tagHeaders {tag#oldId: tag#newId}
-        // nameToTagsMap {newTableName: [tag#oldId, otherTag#oldId2]}
-        // nonInvolvedNames {oldTableName: valueStruct}
         var tagMap = {};
         var newTag;
         for (var name in nameToTagsMap) {
@@ -1379,10 +1375,7 @@ window.DagFunction = (function($, DagFunction) {
         var parentTree = null;
         if (!node) {
             return; // xx temporarily muting
-            console.error(valArray);
-            console.error(alreadySeen);
-            console.error(child);
-            console.error(endPoints);
+            console.error(valArray, alreadySeen, child, endPoints);
             return;
         }
 
@@ -1495,7 +1488,7 @@ window.DagFunction = (function($, DagFunction) {
         return sets;
     }
 
-    // remove immediates that are not present in the new table, add new immediates
+    // remove immediates that are not present in the new table, adds new immediates.
     // immediates that are present in before and after will change user string
     // to pull instead of map
     function setColumnsAfterEdit(finalTableName, table) {
@@ -1589,6 +1582,19 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
     }
+
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DagFunction.__testOnly__ = {};
+        DagFunction.__testOnly__insertNewNodesIntoValArray = insertNewNodesIntoValArray;
+        DagFunction.__testOnly__insertIndexNodesIntoValArray = insertIndexNodesIntoValArray;
+        DagFunction.__testOnly__tagNodesAfterEdit = tagNodesAfterEdit;
+        DagFunction.__testOnly__recommentAfterEdit = recommentAfterEdit;
+        DagFunction.__testOnly__setColumnsAfterEdit = setColumnsAfterEdit;
+        DagFunction.__testOnly__includeDroppedNodesInStartNodes = includeDroppedNodesInStartNodes;
+    }
+    /* End Of Unit Test Only */
 
     return DagFunction;
 }(jQuery, {}));
