@@ -7,8 +7,18 @@ describe("Dataset-DSExport Test", function() {
     var $fileFormatMenu;
     var testTargetName = "unitTestTarget";
     var url = "mnt/nfsshare/xcalar/export";
+    var wasAdmin;
+    var oldIsAdmin;
 
     before(function(done) {
+        wasAdmin = Admin.isAdmin();
+        oldIsAdmin = Admin.isAdmin();
+        Admin.isAdmin = function() {
+            return true;
+        };
+        $("#datastorePanel").removeClass("noAdmin");
+        $("#datastoreMenu").removeClass("noAdmin");
+
         UnitTest.onMinMode();
         $nameInput = $("#targetName");
         $submitBtn = $("#exportFormSubmit");
@@ -27,6 +37,9 @@ describe("Dataset-DSExport Test", function() {
         .then(function(path) {
             url = path;
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -706,6 +719,12 @@ describe("Dataset-DSExport Test", function() {
     });
 
     after(function(done) {
+        Admin.isAdmin = oldIsAdmin;
+        if (!wasAdmin) {
+            $("#datastorePanel").addClass("noAdmin");
+            $("#datastoreMenu").addClass("noAdmin");
+        }
+
         // delete even if already deleted to make sure, ignore error messages
         XcalarRemoveExportTarget(testTargetName, ExTargetTypeT.ExTargetSFType)
         .always(function() {
