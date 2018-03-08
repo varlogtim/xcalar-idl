@@ -740,6 +740,9 @@ window.xcSuggest = (function($, xcSuggest) {
         var edgeCase2 = true;
         var edgeCase3 = true;
         var sum = 0;
+        if (len > 1 && nums[0] === nums[1]) {
+            edgeCase1 = edgeCase2 = edgeCase3 = false;
+        }
         if (nums[0] !== 0) {
             edgeCase1 = false;
         } else {
@@ -755,7 +758,7 @@ window.xcSuggest = (function($, xcSuggest) {
             if (nums[i] !== nums[i+1]) {
                 // Break all edgeCases
                 edgeCase1 = edgeCase2 = edgeCase3 = false;
-            } else if (nums[i] === 0 && nums[i+1] === 0){
+            } else if (nums[i] === 0) {
                 // All 0, break edgeCase3
                 edgeCase3 = false;
             } else {
