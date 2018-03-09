@@ -169,6 +169,7 @@
     };
 
     var tablePrefix = "XC_TABLENAME_";
+    var passthroughPrefix = "XCEPASSTHROUGH";
 
     function assert(st, message) {
         if (!st) {
@@ -2473,6 +2474,8 @@
                 if (opName === "expressions.XCEPassThrough") {
                     assert(condTree.value.name !== undefined);
                     outStr += "sql:" + condTree.value.name + "(";
+                    assert(acc.hasOwnProperty("udfs"));
+                    acc.udfs.push(condTree.value.name.toUpperCase());
                 } else {
                     outStr += opLookup[opName] + "(";
                 }
@@ -2538,7 +2541,7 @@
                     var treeNode = SQLCompiler.genExpressionTree(undefined,
                         evalList[i].slice(1), genTreeOpts);
                 }
-                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0};
+                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0, udfs: []};
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
 
                 if (options && options.groupby) {
@@ -2547,6 +2550,8 @@
                     var newColName = cleanseColName(evalList[i][0].name, true);
                     colStruct.colId = evalList[i][0].exprId.id;
                 }
+                // XCEPASSTHROUGH -> UDF_NAME
+                newColName = replaceUDFName(newColName, acc.udfs);
                 colStruct.colName = newColName;
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
@@ -2749,6 +2754,19 @@
             name = name.replace(/(::)/g, "--");
         }
         return name.replace(/[().]/g, "_").toUpperCase();
+    }
+
+    function replaceUDFName(name, udfs) {
+        var i = 0;
+        var re = new RegExp(passthroughPrefix, "g");
+        return name.toUpperCase().replace(re, function(match) {
+            if (i === udfs.length) {
+                // Should always match, otherwise throw an error
+                assert(0);
+                return match;
+            }
+            return udfs[i++];
+        });
     }
 
     function isMathOperator(expression) {
