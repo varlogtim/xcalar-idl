@@ -2680,15 +2680,19 @@ window.DSPreview = (function($, DSPreview) {
 
             $loadHiddenSection.removeClass("hidden");
 
+            var hasSmartDetect = false;
             if (!noDetect) {
                 var currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
+                    hasSmartDetect = true;
                     smartDetect();
                 }
             }
 
-            getPreviewTable();
+            if (hasSmartDetect || loadArgs.getFormat() === format) { // check
+                getPreviewTable();
+            }
 
             // not cache to sql log, only show when fail
             Transaction.done(txId, {
