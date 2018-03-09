@@ -2,6 +2,7 @@ describe("Dataset-DSPreview Test", function() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
+    var $previewCard;
     var $previewTable;
     var $form;
     var $formatText;
@@ -23,7 +24,8 @@ describe("Dataset-DSPreview Test", function() {
 
     var $mainTabCache;
 
-    before(function(){
+    before(function() {
+        $previewCard = $("#dsForm-preview");
         $previewTable = $("#previewTable");
         $form = $("#importDataForm");
         $formatText = $("#fileFormat .text");
@@ -491,6 +493,37 @@ describe("Dataset-DSPreview Test", function() {
                 loadArgs.setPreviewingSource(oldPreviewSource.index, oldPreviewSource.file);
             }
         });
+
+        it("getTerminationOptions should work", function() {
+            var getTerminationOptions = DSPreview.__testOnly__.getTerminationOptions;
+            var $btns = $form.find(".advanceSection .termOptions .radioButton");
+            var tests = [{
+                option: "stop",
+                allowRecordErrors: false,
+                allowFileErrors: false
+            }, {
+                option: "continue",
+                allowRecordErrors: true,
+                allowFileErrors: true
+            }, {
+                option: "stoprecord",
+                allowRecordErrors: false,
+                allowFileErrors: true
+            }];
+
+            tests.forEach(function(test) {
+                var option = test.option;
+                $btns.removeClass("active");
+                $btns.filter(function() {
+                    return $(this).data("option") === option;
+                }).addClass("active");
+
+                var res = getTerminationOptions();
+                expect(res).to.be.an("object");
+                expect(res.allowRecordErrors).to.equal(test.allowRecordErrors);
+                expect(res.allowFileErrors).to.equal(test.allowFileErrors);
+            });
+        });
     });
 
     describe("Preview Public API Test", function() {
@@ -507,9 +540,8 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("DSPreview.clear shoule resolve if view is hidden", function(done) {
-            var $view = $("#dsForm-preview");
-            var isHidden = $view.hasClass("xc-hidden");
-            $view.addClass("xc-hidden");
+            var isHidden = $previewCard.hasClass("xc-hidden");
+            $previewCard.addClass("xc-hidden");
 
             DSPreview.clear()
             .then(function(res) {
@@ -521,7 +553,7 @@ describe("Dataset-DSPreview Test", function() {
             })
             .always(function() {
                 if (!isHidden) {
-                    $view.removeClass("xc-hidden");
+                    $previewCard.removeClass("xc-hidden");
                 }
             });
         });
@@ -1058,8 +1090,8 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("Format Change Test", function() {
         before(function() {
-            $("#dsForm-preview").removeClass("xc-hidden")
-                                .siblings().addClass("xc-hidden");
+            $previewCard.removeClass("xc-hidden")
+                        .siblings().addClass("xc-hidden");
         });
 
         beforeEach(function() {
@@ -1151,6 +1183,19 @@ describe("Dataset-DSPreview Test", function() {
             assert.isTrue($form.find(".elementXPath").is(":visible"), "has xml paths");
         });
 
+        it("Format should be PARQUET", function() {
+            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.set({files: [{}]});
+            var oldFunc = XcalarAppExecute;
+            XcalarAppExecute = function() { return PromiseHelper.reject("test") };
+            $previewCard.removeClass("format-parquet");
+            DSPreview.__testOnly__.toggleFormat("PARQUET");
+            expect($previewCard.hasClass("format-parquet")).to.be.treu;
+            UnitTest.hasAlertWithTitle("Error Parsing Parquet Dataset");
+            loadArgs.reset();
+            XcalarAppExecute = oldFunc;
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
             DSForm.show({"noReset": true});
@@ -1161,8 +1206,8 @@ describe("Dataset-DSPreview Test", function() {
         var isUseUDFWithFunc;
 
         before(function() {
-            $("#dsForm-preview").removeClass("xc-hidden")
-                                .siblings().addClass("xc-hidden");
+            $previewCard.removeClass("xc-hidden")
+                        .siblings().addClass("xc-hidden");
             isUseUDFWithFunc = DSPreview.__testOnly__.isUseUDFWithFunc;
         });
 
@@ -1240,73 +1285,76 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("Validate Form Test", function() {
         var validateForm;
+        var loadArgs;
 
         before(function() {
             validateForm = DSPreview.__testOnly__.validateForm;
 
-            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
             loadArgs.set({files: [{}]});
         });
 
-        it("Should validate name", function() {
+        it("should validate ds names", function() {
             loadArgs.setFormat("CSV");
-            var $dsName = $form.find(".dsName").eq(0);
-            $dsName.val("");
 
             // test1
+            var $dsName = $form.find(".dsName").eq(0);
+            $dsName.val("");
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
 
             // test2
             var name = new Array(350).join("a");
             $dsName.val(name);
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.TooLong);
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.TooLong);
 
             // test3
+            $dsName.val("1test");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.DSStartsWithLetter);
+
+            // test4
             var oldhas = DS.has;
             DS.has = function() {return true; };
             $dsName.val("test");
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.DSNameConfilct);
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.DSNameConfilct);
             DS.has = oldhas;
 
-            // test4
+            // test5
             $dsName.val("test*test");
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoSpecialCharOrSpace);
-            StatusBox.forceHide();
-
-            // test5
-            $dsName.val("test_test");
-            expect(validateForm()).not.to.be.null;
-            assert.isFalse($statusBox.is(":visible"));
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoSpecialCharOrSpace);
 
             // test6
-            $dsName.val("test-test");
-            expect(validateForm()).not.to.be.null;
-            assert.isFalse($statusBox.is(":visible"));
+            $dsName.val("test_test");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.dsNames[0]).to.equal("test_test");
 
+            // test7
+            $dsName.val("test-test");
+            res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.dsNames[0]).to.equal("test-test");
+
+            // restore
             $dsName.val(xcHelper.randName("test"));
         });
 
-        it("Should validate format", function() {
+        it("should validate format", function() {
             loadArgs.setFormat(null);
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             loadArgs.setFormat("CSV");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.be.equal("CSV");
         });
 
-        it("Should validate UDF", function() {
+        it("should validate UDF", function() {
             DSPreview.__testOnly__.toggleFormat("UDF");
             $udfModuleList.find("input").val("");
 
@@ -1332,7 +1380,6 @@ describe("Dataset-DSPreview Test", function() {
             $udfModuleList.find("input").val("");
             $udfFuncList.find("input").val("");
             DSPreview.__testOnly__.toggleFormat("CSV");
-            expect(validateForm()).not.to.be.null;
         });
 
         it("should validate delimiter", function() {
@@ -1385,11 +1432,164 @@ describe("Dataset-DSPreview Test", function() {
         it("should validate Excel case", function() {
             loadArgs.set({format: "Excel"});
 
+            // test1
+            $("#dsForm-skipRows").val("");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            //test2
+            $("#dsForm-skipRows").val("-1");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoNegativeNumber);
+
+            //test3
+            $("#dsForm-skipRows").val("0");
+            $("#dsForm-excelIndex").val("");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            //test4
+            $("#dsForm-excelIndex").val("-1");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoNegativeNumber);
+
+            //test5
+            $("#dsForm-excelIndex").val("1");
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("Excel");
             expect(res.udfModule).to.equal("default");
             expect(res.udfFunc).to.equal("openExcel");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.skipRows).to.equal(0);
+            expect(res.udfQuery.sheetIndex).to.equal(1);
+            expect(res.udfQuery.withHeader).to.equal(loadArgs.useHeader());
+            // restore
+            $("#dsForm-excelIndex").val("0");
+        });
+
+        it("should validte XML case", function() {
+            loadArgs.set({format: "XML"});
+
+            $("#dsForm-xPaths").val("");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            $("#dsForm-xPaths").val("test");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("XML");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("xmlToJson");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.xPath).to.equal("test");
+            expect(res.udfQuery).to.have.property("matchedPath");
+            expect(res.udfQuery).to.have.property("withPath");
+            // restore
+            $("#dsForm-xPaths").val("");
+        });
+
+        it("should validte PARQUET case", function() {
+            var $parquetSection = $form.find(".parquetSection"); 
+            var $selectedColList = $parquetSection.find(".selectedColSection .colList");
+            var $partiontoinList = $parquetSection.find(".partitionList");
+            loadArgs.set({format: "PARQUET"});
+
+            // test1
+            $selectedColList.html('<li class="mustSelect"></li>');
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.ParquetMustSelectNonPartitionCol);
+
+            // test2
+            $selectedColList.html('<li><div class="colName">test1</div></li>');
+            $partiontoinList.html('<input value="">');
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            // test3
+            $partiontoinList.html('<input value="test1">');
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("PARQUET");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("parseParquet");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.columns).to.be.an("array");
+            expect(res.udfQuery.columns.length).to.equal(1);
+            expect(res.udfQuery.columns[0]).to.equal("test1");
+        
+            // restore
+            $selectedColList.empty();
+            $partiontoinList.empty();
+        });
+
+        it("should validte PARQUETFILE case", function() {
+            loadArgs.set({format: "PARQUETFILE"});
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("PARQUETFILE");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("parseParquet");
+        });
+
+        it("should validate invalid col name in advanced section", function(done) {
+            var $advanceSection = $form.find(".advanceSection");
+            var $fileName = $advanceSection.find(".fileName");
+            var oldFunc = xcHelper.validateColName;
+            
+            $fileName.find(".checkbox").addClass("checked");
+            xcHelper.validateColName = function() {
+                return "test error";
+            };
+
+            var res = validateForm();
+
+            UnitTest.testFinish(function() {
+                // it has dealy
+                return $("#statusBox").is(":visible");
+            })
+            .then(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.InvalidColName);
+                expect(res).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                $fileName.find(".checkbox").removeClass("checked");
+                xcHelper.validateColName = oldFunc;
+            });
+        });
+
+        it("should validate invalid col name in advanced section", function(done) {
+            var $advanceSection = $form.find(".advanceSection");
+            var $rowNum = $advanceSection.find(".rowNumber");
+            var oldFunc = xcHelper.validateColName;
+            
+            $rowNum.find(".checkbox").addClass("checked");
+            $rowNum.find("input").val("test");
+            $("#previewTable").html('<input class="editableHead" value="test">');
+
+            var res = validateForm();
+
+            UnitTest.testFinish(function() {
+                // it has dealy
+                return $("#statusBox").is(":visible");
+            })
+            .then(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.ColumnConflict);
+                expect(res).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                $("#previewTable").empty();
+                $rowNum.find(".checkbox").removeClass("checked");
+                xcHelper.validateColName = oldFunc;
+            });
         });
 
         after(function() {
@@ -1397,22 +1597,100 @@ describe("Dataset-DSPreview Test", function() {
         });
     });
 
-    describe("Restore Form Test", function() {
+    describe("Validate Preview Test", function() {
+        var validatePreview;
+        var loadArgs;
+
         before(function() {
-            DSPreview.__testOnly__.resetForm();
+            validatePreview = DSPreview.__testOnly__.validatePreview;
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.set({files: [{}]});
         });
 
-        it("Should restore form", function() {
-            DSPreview.__testOnly__.restoreForm({
-                "dsName": "test",
-                "moduleName": "default",
-                "funcName": "openExcel",
-                "format": "UDF",
-                "hasHeader": true,
-                "fieldDelim": "",
-                "lineDelim": "\n",
-                "quoteChar": "\"",
-                "skipRows": 1
+        it("should validate format", function() {
+            loadArgs.setFormat(null);
+            expect(validatePreview()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
+
+            loadArgs.setFormat("CSV");
+            var res = validatePreview();
+            expect(res).to.be.an("object");
+            expect(res.format).to.be.equal("CSV");
+        });
+
+        it("should validate UDF", function() {
+            DSPreview.__testOnly__.toggleFormat("UDF");
+            $udfModuleList.find("input").val("");
+
+            // empty module test
+            expect(validatePreview()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
+
+            // empty func test
+            $udfModuleList.find("input").val("default");
+            $udfFuncList.find("input").val("openExcel");
+            var res = validatePreview();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("UDF");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("openExcel");
+
+            // remove UDF checkbox
+            $udfModuleList.find("input").val("");
+            $udfFuncList.find("input").val("");
+            DSPreview.__testOnly__.toggleFormat("CSV");
+        });
+
+        it("should validate Excel case", function() {
+            loadArgs.set({format: "Excel"});
+
+            // test1
+            $("#dsForm-skipRows").val("");
+            expect(validatePreview()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            //test2
+            $("#dsForm-skipRows").val("0");
+            var res = validatePreview();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("Excel");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("openExcel");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.skipRows).to.equal(0);
+        });
+
+        it("should validte PARQUETFILE case", function() {
+            loadArgs.set({format: "PARQUETFILE"});
+            var res = validatePreview();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("PARQUETFILE");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("parseParquet");
+        });
+    });
+
+    describe("Restore Form Test", function() {
+        var resetForm;
+        var loadArgs;
+
+        before(function() {
+            DSPreview.__testOnly__.resetForm();
+            resetForm = DSPreview.__testOnly__.restoreForm;
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+        });
+
+        it("should restore form with UDF format", function() {
+            resetForm({
+                dsName: "test",
+                moduleName: "default",
+                funcName: "openExcel",
+                format: "UDF",
+                hasHeader: true,
+                fieldDelim: "",
+                lineDelim: "\n",
+                quoteChar: "\"",
+                skipRows: 1
             });
 
             expect($form.find(".dsName").eq(0).val()).to.equal("test");
@@ -1428,17 +1706,114 @@ describe("Dataset-DSPreview Test", function() {
             expect($("#dsForm-skipRows").val()).to.equal("1");
         });
 
+        it("should restore special json", function() {
+            resetForm({
+                dsName: "test",
+                moduleName: "default",
+                funcName: "convertNewLineJsonToArrayJson",
+                format: "JSON"
+            });
+
+            var detectArgs = DSPreview.__testOnly__.get().detectArgs;
+            expect(detectArgs.isSpecialJSON).to.be.true;
+            expect(loadArgs.getFormat()).to.equal("JSON");
+        });
+
+        it("should restore excel", function() {
+            resetForm({
+                dsName: "test",
+                moduleName: "default",
+                funcName: "openExcel",
+                format: "Excel",
+                udfQuery: {
+                    sheetIndex: 1,
+                    skipRows: 1
+                }
+            });
+
+            expect(loadArgs.getFormat()).to.equal("Excel");
+            expect($("#dsForm-excelIndex").val()).to.equal("1");
+            expect($("#dsForm-skipRows").val()).to.equal("1");
+
+            // restore
+            $("#dsForm-excelIndex").val("");
+            $("#dsForm-skipRows").val("");
+        });
+
+        it("should restore XML", function() {
+            resetForm({
+                dsName: "test",
+                format: "XML",
+                udfQuery: {
+                    xPath: "test"
+                }
+            });
+
+            expect(loadArgs.getFormat()).to.equal("XML");
+            expect($("#dsForm-xPaths").val()).to.equal("test");
+
+            // restore
+            $("#dsForm-xPaths").val("");
+        });
+
+        it("should restore PARQUET", function() {
+            var oldFunc = XcalarAppExecute;
+            window.a = true
+            XcalarAppExecute = function() { return PromiseHelper.reject("test") };
+            resetForm({
+                dsName: "test",
+                format: "PARQUET",
+                files: [{path: "test?abc"}],
+            });
+
+            expect(loadArgs.getFormat()).to.equal("PARQUET");
+
+            UnitTest.hasAlertWithTitle("Error Parsing Parquet Dataset");
+            XcalarAppExecute = oldFunc;
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+            loadArgs.reset();
+        });
+    });
+
+    describe("Error Section Test", function() {
+        var loadArgs;
+
+        before(function() {
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+        });
+
+        it("should click suggest to change format", function() {
+            var $errorSection = $previewCard.find(".errorSection");
+            DSPreview.__testOnly__.toggleFormat("JSON");
+            $errorSection.find(".content").html('<div class="suggest" data-format="CSV"></div>');
+            $errorSection.find(".suggest").click();
+            expect(loadArgs.getFormat()).to.equal("CSV");
+            $errorSection.find(".content").empty();
+        });
+
+        it("should click debugUDF to debug", function() {
+            loadArgs.set({files: [{}]});
+            loadArgs.setPreviewingSource(0, "test");
+            var oldFunc = JupyterPanel.autofillImportUdfModal;
+            var test = false;
+            JupyterPanel.autofillImportUdfModal = function() {
+                test = true;
+            };
+            $("#dsPreview-debugUDF").click();
+            expect(test).to.be.true;
+            JupyterPanel.autofillImportUdfModal = oldFunc;
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
         });
     });
 
     describe("Preview UI Behavior Test", function() {
-        var $previewCard;
-
         before(function() {
-            $previewCard = $("#dsForm-preview");
-
             DSPreview.__testOnly__.restoreForm({
                 "dsName": "test",
                 "moduleName": "default",
@@ -1593,6 +1968,43 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
+        it("should click .tooltipOverflow to trigger auto tooltip", function() {
+            var $fakeDiv = $('<div class="tooltipOverflow"></div>');
+            var oldAdd = xcTooltip.add;
+            var oldAuto = xcTooltip.auto;
+            var test1 = false;
+            var test2 = false;
+            xcTooltip.add = function() {
+                test1 = true;
+            };
+            xcTooltip.auto = function() {
+                test2 = true;
+            };
+            $("#dsPreviewWrap").append($fakeDiv);
+            $fakeDiv.trigger(fakeEvent.mouseenter);
+            expect(test1).to.be.true;
+            expect(test2).to.be.true;
+
+            $fakeDiv.remove();
+            xcTooltip.add = oldAdd;
+            xcTooltip.auto = oldAuto;
+        });
+
+        it("should click .cancelLoad to cancel preview load", function() {
+            var $fakeBtn = $('<div class="cancelLoad"></div>');
+            var oldFunc = QueryManager.cancelQuery;
+            var test = false;
+            QueryManager.cancelQuery = function() {
+                test = true;
+            };
+            $("#dsPreviewWrap").append($fakeBtn);
+            $fakeBtn.click();
+            expect(test).to.be.true;
+
+            $fakeBtn.remove();
+            QueryManager.cancelQuery = oldFunc;
+        });
+
         it("should change format", function() {
             loadArgs.set({format: "CSV"});
             $("#fileFormatMenu").find("li[name=JSON]").trigger(fakeEvent.mouseup);
@@ -1653,6 +2065,107 @@ describe("Dataset-DSPreview Test", function() {
         after(function() {
             DSPreview.__testOnly__.set();
             DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Preview file change Test", function() {
+        var oldHTML;
+        var $previewFile;
+        var $ul;
+        var loadArgs;
+        var oldPreview;
+        var oldListFile;
+        var listTest;
+
+        before(function() {
+            $previewFile = $("#preview-file");
+            $ul = $previewFile.find("ul");
+            oldHTML = $ul.html();
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.set();
+            loadArgs.files = [{path: "path1"}, null, {path: "path4"}];
+
+
+            var fakeHtml = '<li class="hint active">Hint</li>' +
+                            '<li class="mainPath test1" data-path="path1" data-index="0">path1</li>' +
+                            '<li class="mainPath singlePath test2" data-index="1">path2</li>' +
+                            '<div class="subPathList test3" data-index="0"></div>' +
+                            '<div class="subPathList" data-index="2">' +
+                                '<li class="test4">path4</li>' +
+                            '</div>';
+            $ul.html(fakeHtml);
+            loadArgs.setPreviewingSource(0, "path1");
+
+            oldPreview = XcalarPreview;
+            oldListFile = XcalarListFiles;
+            XcalarPreview = function() {
+                return PromiseHelper.reject();
+            };
+            XcalarListFiles = function() {
+                listTest = true;
+                return PromiseHelper.resolve({
+                    numFiles: 1,
+                    files: [{
+                        name: "test",
+                        attr: {
+                            isDirectory: false
+                        }
+                    }]
+                });
+            };
+        });
+
+        it("open menu should set active preview file", function() {
+            $previewFile.click();
+            expect($ul.find(".test1").hasClass("active")).to.be.true;
+            // close menu
+            $previewFile.click();
+        });
+
+        it("click hint should have nothing happens", function() {
+            $ul.find(".active").removeClass("active");
+            $ul.find(".hint").trigger(fakeEvent.mouseup);
+            expect($ul.find(".active").length).to.equal(0);
+        });
+
+        if ("should collapse main path", function() {
+            var $li = $ul.find(".test1");
+            $li.trigger(fakeEvent.mouseup);
+            expect($li.hasClass("collapse")).to.be.true;
+        });
+
+        it("should select main path", function(done) {
+            var $li = $ul.find(".test1").addClass("collapse");
+            $li.trigger(fakeEvent.mouseup);
+            expect($li.hasClass("collapse")).to.be.false;
+
+            UnitTest.testFinish(function() {
+                return listTest === true;
+            })
+            .then(function() {
+                expect($ul.find(".test3").text()).not.to.be.empty;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should select single path", function() {
+            $ul.find(".test2").trigger(fakeEvent.mouseup);
+            expect(loadArgs.getPreivewIndex()).to.equal(1);
+        });
+
+        it("should select sub path", function() {
+            $ul.find(".test4").trigger(fakeEvent.mouseup);
+            expect(loadArgs.getPreivewIndex()).to.equal(2);
+        });
+
+        after(function() {
+            $ul.html(oldHTML);
+            loadArgs.reset();
+            XcalarPreview = oldPreview;
+            XcalarListFiles = oldListFile;
         });
     });
 
@@ -1728,7 +2241,7 @@ describe("Dataset-DSPreview Test", function() {
         it("rename input blur with invalid should not change column name", function () {
             $("#importColRename").val("5b");
             expect($("#importColRename").length).equal(1);
-            $("#dsForm-preview").find(".previewSection").scrollLeft(1).scroll();
+            $previewCard.find(".previewSection").scrollLeft(1).scroll();
             expect($("#importColRename").length).equal(0);
             expect($previewTable.find(".editableHead").eq(0).val()).to.equal("column0");
         });
@@ -1763,19 +2276,19 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("cast dropdown should show on click", function() {
-            expect($("#dsForm-preview").find(".castDropdown").is(":visible")).to.be.false;
+            expect($previewCard.find(".castDropdown").is(":visible")).to.be.false;
             $previewTable.find(".editable").eq(0).find(".flex-left").click();
-            expect($("#dsForm-preview").find(".castDropdown").is(":visible")).to.be.true;
+            expect($previewCard.find(".castDropdown").is(":visible")).to.be.true;
         });
 
         it("cast dropdown li should work", function() {
             expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.true;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
-            $("#dsForm-preview").find(".castDropdown").find(".type-boolean").trigger(fakeEvent.mouseup);
+            $previewCard.find(".castDropdown").find(".type-boolean").trigger(fakeEvent.mouseup);
             expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.false;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.true;
 
-            $("#dsForm-preview").find(".castDropdown").find(".type-integer").trigger(fakeEvent.mouseup);
+            $previewCard.find(".castDropdown").find(".type-integer").trigger(fakeEvent.mouseup);
             expect($previewTable.find(".header").eq(1).hasClass("type-integer")).to.be.true;
             expect($previewTable.find(".header").eq(1).hasClass("type-boolean")).to.be.false;
         });
@@ -1810,7 +2323,7 @@ describe("Dataset-DSPreview Test", function() {
 
     describe("resizing bottomcard", function() {
         it("should resize", function() {
-            var $bar = $("#dsForm-preview .cardBottom .ui-resizable-n").eq(0);
+            var $bar = $previewCard.find(".cardBottom .ui-resizable-n").eq(0);
             var pageX = $bar.offset().left;
             var pageY = $bar.offset().top;
 
@@ -1826,6 +2339,186 @@ describe("Dataset-DSPreview Test", function() {
             $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
             $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
             expect($bar.offset().top === pageY);
+        });
+    });
+
+    describe("Auto Header Check Test", function() {
+        var loadArgs;
+
+        before(function() {
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.set();
+        });
+
+        it("slowPreviewCheck should alert when too many files", function(done) {
+            loadArgs.files = new Array(20);
+            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            UnitTest.hasAlertWithTitle(DSFormTStr.ImportMultiple);
+            def
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        it("slowPreviewCheck should alert when it's slow target", function(done) {
+            var oldFunc = DSTargetManager.isSlowPreviewTarget;
+            var test = false;
+            DSTargetManager.isSlowPreviewTarget = function() {
+                test = true;
+                return true;
+            };
+
+            loadArgs.files = [];
+            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            UnitTest.hasAlertWithTitle(DSFormTStr.ImportMultiple, {confirm: true});
+            def
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSTargetManager.isSlowPreviewTarget = oldFunc;
+            });
+        });
+
+        it("slowPreviewCheck should not alert in normal case", function(done) {
+            loadArgs.files = [];
+            var def = DSPreview.__testOnly__.slowPreviewCheck();
+            def
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("autoDetectSourceHeaderTypes should work", function(done) {
+            var oldPreview = XcalarPreview;
+            var typedColumnsList = [];
+            var dsArgs = {
+                lineDelim: "\n",
+                fieldDelim: ",",
+                hasHeader: true,
+                quoteChar: "\""
+            };
+            XcalarPreview = function() {
+                var buffer = 'header\n1\n1\n2\n3';
+                return PromiseHelper.resolve({buffer: buffer});
+            };
+
+            DSPreview.__testOnly__.autoDetectSourceHeaderTypes(null, 0, typedColumnsList, dsArgs)
+            .then(function() {
+                expect(typedColumnsList.length).to.equal(1);
+                var typedColumns = typedColumnsList[0];
+                expect(typedColumns).to.be.an("array");
+                expect(typedColumns.length).to.equal(1);
+                var colInfo = typedColumns[0];
+                expect(colInfo.colName).to.equal("header");
+                expect(colInfo.colType).to.equal(ColumnType.integer);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
+            });
+        });
+
+        it("autoDetectSourceHeaderTypes should handle fail case", function(done) {
+            var oldPreview = XcalarPreview;
+            var typedColumnsList = [];
+            var dsArgs = {
+                lineDelim: "\n",
+                fieldDelim: ",",
+                hasHeader: true,
+                quoteChar: "\""
+            };
+            XcalarPreview = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            DSPreview.__testOnly__.autoDetectSourceHeaderTypes(null, 0, typedColumnsList, dsArgs)
+            .then(function() {
+                expect(typedColumnsList.length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
+            });
+        });
+
+        it("getTypedColumnsList should resolve with non CSV format", function(done) {
+            var dsArgs = {format: "JSON"};
+            DSPreview.__testOnly__.getTypedColumnsList([], dsArgs)
+            .then(function(typedColumnsList) {
+                expect(typedColumnsList).to.be.an("array");
+                expect(typedColumnsList.length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("getTypedColumnsList should resolve with non multi source case", function(done) {
+            var typedColumns = [{colName: "test", colType: ColumnType.integer}];
+            var dsArgs = {format: "CSV"};
+            loadArgs.multiDS = false;
+
+            DSPreview.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
+            .then(function(typedColumnsList) {
+                expect(typedColumnsList).to.be.an("array");
+                expect(typedColumnsList.length).to.equal(1);
+                expect(typedColumnsList[0][0].colName).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("getTypedColumnsList should auto detect", function(done) {
+            var typedColumns = [{colName: "test", colType: ColumnType.integer}];
+            var dsArgs = {format: "CSV"};
+            loadArgs.multiDS = true;
+            loadArgs.setPreviewingSource(0, "testFile");
+            loadArgs.headersList[1] = [{colName: "test2", colType: ColumnType.integer}];
+            loadArgs.files = [{}, {}, {}];
+
+            var oldPreview = XcalarPreview;
+            XcalarPreview = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            DSPreview.__testOnly__.getTypedColumnsList(typedColumns, dsArgs)
+            .then(function(typedColumnsList) {
+                expect(typedColumnsList).to.be.an("array");
+                expect(typedColumnsList.length).to.equal(2);
+                expect(typedColumnsList[0][0].colName).to.equal("test");
+                expect(typedColumnsList[1][0].colName).to.equal("test2");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
+            });
+        });
+
+        after(function() {
+            loadArgs.reset();
         });
     });
 

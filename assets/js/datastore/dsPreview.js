@@ -405,7 +405,7 @@ window.DSPreview = (function($, DSPreview) {
             $(this).blur();
             var moduleName = $("#udfArgs-moduleList input").val();
             var funcName = $("#udfArgs-funcList input").val();
-            var pathIndex = loadArgs.getPreviewingSource().index;
+            var pathIndex = loadArgs.getPreivewIndex();
             var path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                                 path, false,
@@ -789,24 +789,25 @@ window.DSPreview = (function($, DSPreview) {
 
         })
         .fail(function(error) {
-            var errorS = {error: "The dataset that you have selected cannot be " +
+            var errorS = {
+                error: "The dataset that you have selected cannot be " +
                              "parsed as a parquet dataset. Click the " +
-                             "BACK button and select another folder."};
+                             "BACK button and select another folder."
+            };
             try {
                 errorS.log = error.output.errStr;
             } catch (e) {
             }
 
-            Alert.error("Error Parsing Parquet Dataset",
-                        errorS,
-                        {buttons: [{
-                            name: "BACK",
-                            className: "confirm",
-                            func: function() {
-                                $form.find(".cancel").click();
-                            }
-                        }]
-                        });
+            Alert.error("Error Parsing Parquet Dataset", errorS, {
+                buttons: [{
+                    name: "BACK",
+                    className: "confirm",
+                    func: function() {
+                        $form.find(".cancel").click();
+                    }
+                }]
+            });
             deferred.reject();
         });
         return deferred.promise();
@@ -1204,12 +1205,13 @@ window.DSPreview = (function($, DSPreview) {
             for (var i = 0; i < partitions.length; i++) {
                 var value = partitions[i].split("=")[1];
                 // partition keys must be in order
-                $(".partitionAdvanced .partitionList .row input").eq(i)
-                    .val(decodeURIComponent(value));
+                $form.find(".partitionAdvanced .partitionList .row input").eq(i)
+                     .val(decodeURIComponent(value));
             }
         }
         // Nothing to do for PARQUET FILE since it's just one thing
         options.format = format;
+        loadArgs.set(options);
         toggleFormat(format);
 
         // header
@@ -1236,8 +1238,6 @@ window.DSPreview = (function($, DSPreview) {
             "quote": options.quoteChar,
             "isSpecialJSON": isSpecialJSON
         };
-
-        loadArgs.set(options);
     }
 
     function submitForm(toCreateTable) {
@@ -1834,15 +1834,15 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function validateXMLArgs() {
-        var $xPaths = $("#dsForm-xPaths");
-        var xPaths = $("#dsForm-xPaths").val().trim();
+        var $xPath = $("#dsForm-xPaths");
+        var xPath = $xPath.val().trim();
         var isValid = xcHelper.validate([
             {
-                "$ele": $xPaths,
+                "$ele": $xPath,
                 "error": ErrTStr.NoEmpty,
                 "formMode": true,
                 "check": function() {
-                    return xPaths.length === 0;
+                    return xPath.length === 0;
                 }
             }
         ]);
@@ -1856,15 +1856,15 @@ window.DSPreview = (function($, DSPreview) {
         var elementXPath = $form.find(".elementXPath")
                                 .find(".checkbox").hasClass("checked");
         return {
-            xPath: xPaths,
+            xPath: xPath,
             matchedPath: matchedXPath,
             withPath: elementXPath
         };
     }
 
     function validateParquetArgs() {
-        var $selectedColList = $(".parquetSection .selectedColSection " +
-                                 ".colList");
+        var $parquetSection = $form.find(".parquetSection");
+        var $selectedColList = $parquetSection.find(".selectedColSection .colList");
         var $cols = $selectedColList.find("li");
         var names = [];
         var hasNonPartition = false;
@@ -1889,7 +1889,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var isValid = true;
 
-        var $inputs = $(".parquetSection .partitionList input");
+        var $inputs = $parquetSection.find(".partitionList input");
         for (var i = 0; i < $inputs.length; i++) {
             isValid = xcHelper.validate([{
                 "$ele": $inputs.eq(i),
@@ -2002,6 +2002,9 @@ window.DSPreview = (function($, DSPreview) {
                 allowRecordErrors = false;
                 allowFileErrors = true;
                 break;
+            default:
+                console.error("error case");
+                break;
         }
         return {
             allowRecordErrors: allowRecordErrors,
@@ -2041,7 +2044,7 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = parquetFunc;
         }
 
-        terminationOptions = getTerminationOptions();
+        var terminationOptions = getTerminationOptions();
 
         return {
             "format": format,
@@ -4859,6 +4862,12 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.validateUDFFunc = validateUDFFunc;
         DSPreview.__testOnly__.resetUdfSection = resetUdfSection;
 
+        DSPreview.__testOnly__.slowPreviewCheck = slowPreviewCheck;
+        DSPreview.__testOnly__.autoDetectSourceHeaderTypes = autoDetectSourceHeaderTypes;
+        DSPreview.__testOnly__.getTypedColumnsList = getTypedColumnsList;
+
+        DSPreview.__testOnly__.getTerminationOptions = getTerminationOptions;
+        DSPreview.__testOnly__.validatePreview = validatePreview;
         DSPreview.__testOnly__.validateForm = validateForm;
         DSPreview.__testOnly__.submitForm = submitForm;
 

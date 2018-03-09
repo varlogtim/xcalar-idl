@@ -203,7 +203,6 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.getFormat()).to.equal("testFormat2");
         });
 
-        
         it("should get header", function() {
             var controller = new DSFormController();
             controller.set();
@@ -400,7 +399,7 @@ describe("Ephemeral Constructor Test", function() {
             var res = controller.getArgStr();
             expect(res).to.equal('{"fieldDelim":"","lineDelim":"\\n","hasHeader":false,"quote":"\\""}');
         });
-        
+
         it("should list file in path", function(done) {
             var oldFunc = XcalarListFiles;
             XcalarListFiles = function() {
