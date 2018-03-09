@@ -900,7 +900,7 @@ var END_OF_BUILD_WARNINGS = []; // some warnings that might be bugs we collect o
                             /** BLACKLISTS */
 
     // dont do HTML prettification on these (obj so key lookup for filter rather than iter. list for every single html file to check)
-var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html"],
+var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html", "datasetPanelTutA1.html", "importDatasourceTutA2.html", "browseDatasourceTutA3.html", "browseDatasource2TutA4"],
     // a list of files and/or directories, not to template (for dirs, won't template any files within those dirs)
     DONT_TEMPLATE_HTML = htmlMapping.required, // MAKE THESE REL PATHS to src/bld
     /**
@@ -2869,7 +2869,11 @@ module.exports = function(grunt) {
         var tutorMap = {
             "datastoreTut1.html": "datastoreTut1",
             "datastoreTut2.html": "datastoreTut2",
-            "workbookTut.html": "workbookTut"
+            "workbookTut.html": "workbookTut",
+            "datasetPanelTutA1.html": "datasetPanelTutA1",
+            "importDatasourceTutA2.html": "importDatasourceTutA2",
+            "browseDatasourceTutA3.html": "browseDatasourceTutA3",
+            "browseDatasource2TutA4.html": "browseDatasource2TutA4"
         };
 
         if ( !srcRoot ) {
@@ -3120,6 +3124,11 @@ module.exports = function(grunt) {
             "unitTestInstaller.html": ["unitTestInstaller.html"],
             "userManagement.html": ["assets/htmlFiles/userManagement.html"],
             "workbookTut.html": ["assets/htmlFiles/walk/workbookTut.html"],
+            "datasetPanelTutA1.html": ["assets/htmlFiles/walk/datasetPanelTutA1.html"],
+            "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
+            "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
+            "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"]
+
         };
 
         var templatedFilepathList = [];

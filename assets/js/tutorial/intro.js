@@ -86,6 +86,7 @@ window.Intro = (function($, Intro) {
         }
         createHighlightBox();
         createPopover();
+        createWatermark();
         nextStep();
         $(window).resize(winResize);
         // temp
@@ -207,6 +208,9 @@ window.Intro = (function($, Intro) {
         }
 
         $('body').keydown(keypressAction);
+    }
+    function createWatermark() {
+        $('body').append('<p id="intro-watermark">' + introTStr.watermark +'<br/><span id="intro-watermark-sub">' + introTStr.subWatermark +'</span></p>');
     }
 
     /* controls nextStep whether it be forward, backwards or skipping
@@ -348,7 +352,10 @@ window.Intro = (function($, Intro) {
 
         var $popoverNumber = $popover.find('.intro-number');
         $popoverNumber.removeClass('left right');
-        $popoverNumber.find('.innerNumber').text(steps.currentStep + 1);
+        if($stepElems.length < 10)
+            $popoverNumber.find('.innerNumber').text(String(steps.currentStep + 1) + "/" + $stepElems.length);
+        else
+            $popoverNumber.find('.innerNumber').text(steps.currentStep + 1);
         var $infoArrow = $popover.find('.intro-arrow');
         $infoArrow.removeClass('top bottom left right');
         $infoArrow.css({'top': 0, 'bottom': 'auto'});
@@ -528,6 +535,7 @@ window.Intro = (function($, Intro) {
         $popover.css('opacity', 0).remove();
         $('#intro-highlightBox').remove();
         $('#intro-elementLayer').remove();
+        $('#intro-watermark').remove();
         $('.intro-highlightedElement').removeClass('intro-highlightedElement');
         $(window).off('resize', winResize);
         $('body').off('keydown', keypressAction);

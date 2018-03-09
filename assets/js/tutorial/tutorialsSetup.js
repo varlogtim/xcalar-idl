@@ -21,7 +21,8 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
                 onNextStep: "",
                 onPrevStep: "",
                 onSkipToEnd: "",
-                onSkipToStart: ""
+                onSkipToStart: "",
+                includeNumbering: "true"
             };
 
             // XX set options for video
@@ -104,6 +105,87 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
             introHelper('datastoreTut2', WalkThroughTStr.w3, options);
         });
 
+        $('#datasetPanelWA1').click(function() {
+            var options = {
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
+                onSkipToStart: "",
+                includeNumbering: "true"
+
+            };
+            /*var options = {
+                ignoreHidden: true,
+                onNextStep: function(introObj) {
+                    if (introObj.currentStep === 5) {
+                        dsA1ToggleMenu(true);
+                    }
+                },
+                onPrevStep: function(introObj) {
+                    if (introObj.currentStep === 4) {
+                        dsA1ToggleMenu(false);
+                    }
+                },
+                onSkipToEnd: function() {
+                    dsA1ToggleMenu(true);
+                },
+                onSkipToStart: function() {
+                    dsA1ToggleMenu(false);
+                }
+            };*/
+            introHelper('datasetPanelTutA1', WalkThroughTStr.wa1, options);
+        });
+
+        $('#importDatasourceWA2').click(function() {
+            var options = {
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
+                onSkipToStart: "",
+                includeNumbering: "true"
+            };
+            introHelper('importDatasourceTutA2', WalkThroughTStr.wa2, options);
+        });
+
+        $('#browseDatasourceWA3').click(function() {
+            var options = {
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
+                onSkipToStart: "",
+                includeNumbering: "false"
+            };
+            introHelper('browseDatasourceTutA3', WalkThroughTStr.wa3, options);
+        });
+
+        $('#browseDatasource2WA4').click(function() {
+            var options = {
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
+                onSkipToStart: "",
+                includeNumbering: "true"
+            };
+            introHelper('browseDatasource2TutA4', WalkThroughTStr.wa4, options);
+        });
+        //callback to display menu
+        function dsA1ToggleMenu(showPreview) {
+            if (showPreview) {
+                $('#wa1Menu').removeClass("xc-hidden");
+                $('#gridViewMenu').css("display", "block");
+            } else {
+                $('#gridViewMenu').addClass('xc-hidden');
+            }
+        }
+
         function dsDemo1ToggleForm(showPreview) {
             if (showPreview) {
                 $('#demoScreen').find('#dsForm-preview')
@@ -125,7 +207,6 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
             $.extend(userOptions, options);
         }
         Intro.setOptions(userOptions);
-
         $('body').append('<div id="demoScreen"></div>');
 
         $('#demoScreen').load(paths[demoType],

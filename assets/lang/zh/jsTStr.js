@@ -1180,3 +1180,8 @@ JupyterTStr = {
       // with replace
     "SampleNumError": "请选择1至<number>的行作为样本。"
 };
+
+introTStr = {
+        "watermark": "Tutorial",
+        "subWatermark": "You will be returned to your work when the tutorial completes."
+};

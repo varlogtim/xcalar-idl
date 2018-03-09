@@ -7,7 +7,12 @@ dicts = require('../../assets/lang/' + lang + '/htmlTStr.js');
 var tutorMap = {
     "datastoreTut1.html": "datastoreTut1",
     "datastoreTut2.html": "datastoreTut2",
-    "workbookTut.html": "workbookTut"
+    "workbookTut.html": "workbookTut",
+    "datasetPanelTutA1.html": "datasetPanelTutA1",
+    "importDatasourceTutA2.html": "importDatasourceTutA2",
+    "browseDatasourceTutA3.html": "browseDatasourceTutA3",
+    "browseDatasource2TutA4.html": "browseDatasource2TutA4"
+
 };
 
 function genHTML(srcDir, destMap, product, replaceJsFiles) {

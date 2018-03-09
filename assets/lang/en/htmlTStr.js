@@ -1122,6 +1122,18 @@ module.exports = {
         "datastoreTut2": {
             "tab": "Viewing Datasets"
         },
+        "datasetPanelTutA1": {
+            "tab": "Viewing Datasets"
+        },
+        "importDatasourceTutA2": {
+            "tab": "Viewing Datasets"
+        },
+        "browseDatasourceTutA3": {
+            "tab": "Viewing Datasets"
+        },
+        "browseDatasource2TutA4": {
+            "tab": "Viewing Datasets"
+        },
         "workbookTut": {
             "tab": "Viewing Worksheet"
         }
@@ -1230,5 +1242,12 @@ module.exports = {
         "CodeSnippets": "Code Snippets",
         "SelectSampleRows": "Select the number of rows to sample from this table",
         "NumRows": "number of rows"
+    },
+
+    "introTStr": {
+        "wa1Tip": "Start datasets walkthrough",
+        "wa2Tip": "Start import datasource walkthrough",
+        "wa3Tip": "Start browse datasource walkthrough",
+        "wa4Tip": "Start browse datasource walkthrough two"
     }
 };

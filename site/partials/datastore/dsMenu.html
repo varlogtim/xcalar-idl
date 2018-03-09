@@ -1,12 +1,12 @@
 <!-- dataset menu -->
 <div class="iconSection">
   <!-- import data button -->
-  <% if (dicts.tutor.name !== "datastoreTut1") { %>
+  <% if (dicts.tutor.name !== "datasetPanelTutA1") { %>
   <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
     <i class="icon xi-add-data"></i>
   </div>
   <% } else { %>
-  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="w2-newDs">
+  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
     <i class="icon xi-add-data"></i>
   </div>
   <% } %>
@@ -36,13 +36,14 @@
     <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">0</span>)</span>
     <% } else if (dicts.tutor.name === "datastoreTut2") { %>
     <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">1</span>)</span>
+    <% } else if (dicts.tutor.name === "datasetPanelTutA1" || dicts.tutor.name === "importDatasourceTutA2" || dicts.tutor.name == "browseDatasourceTutA3" || dicts.tutor.name == "browseDatasource2TutA4") { %>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">20</span>)</span>
     <% } else { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)
-      <div class="hint csHelp" data-topic="manageDatasetRef" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
-        <i class="white icon xi-help fa-12"></i>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)<% } %>
+      <div class="hint intro-icon" id="datasetPanelWA1" data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa1Tip %>" data-placement="top">
+        <i class="white icon xi_smart fa-16"></i>
       </div>
     </span>
-    <% } %>
   </header>
 </div>
 <div id="dsListSection" class="mainSection">
@@ -57,7 +58,7 @@
       </div>
     </div>
     <!-- path -->
-    <% if (dicts.tutor.name !== "datastoreTut2") { %>
+    <% if (!dicts.isTutor) { %>
     <div class="pathSection"></div>
     <% } else { %>
     <div class="pathSection">Home/ </div>
@@ -78,9 +79,15 @@
     <div class="gridView gridItems xc-grid">
       <% if (dicts.tutor.name === "datastoreTut2") { %>
         include "../demo/dsDemo2-gridView.html"
+      <% } else if (dicts.tutor.name === "datasetPanelTutA1" || dicts.tutor.name === "importDatasourceTutA2" || dicts.tutor.name == "browseDatasourceTutA3" || dicts.tutor.name == "browseDatasource2TutA4") { %>
+        include "../demo/wa1/wa1-gridView.html"
       <% } %>
     </div>
   </div>
   <input id="dsListFocusTrakcer">
 </div>
+<% if (dicts.tutor.name == "datasetPanelTutA1") { %>
+  
+<% } else {%>
 include "gridViewMenu.html"
+<% } %>

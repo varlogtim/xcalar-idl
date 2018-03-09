@@ -1,8 +1,17 @@
 <!-- File Browser -->
+<% if (dicts.tutor.name == "browseDatasourceTutA3") { %>
+<div id="fileBrowser" class="cardContainer active fileBrowser">
+<% } else { %>
 <div id="fileBrowser" class="cardContainer xc-hidden fileBrowser">
+<% } %>
   <!-- File Browser Header -->
   <header class="cardHeader">
-    <div class="title"><%= dicts.fileBrowser.header %></div>
+    <div class="title"><%= dicts.fileBrowser.header %>
+      <div class="hint intro-icon" id="browseDatasourceWA3"   data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa3Tip %>" data-placement="top">
+        <i class="white icon xi_smart fa-16"></i>
+      </div>
+    </div>
+    
     <div class="headerClose">
       <i class="icon xc-action xi-close cancel"></i>
     </div>
@@ -19,11 +28,15 @@
     <!-- Location -->
     <div class="label"><%= dicts.common.Location %>:</div>
     <!-- up -->
+    <% if (dicts.tutor.name == 'browseDatasourceTutA3') { %>
+    <button id="fileBrowserUp" class="btn btn-small icon-up" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa3-parentDir">
+    <% } else { %>
     <button id="fileBrowserUp" class="btn btn-small icon-up disabled" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body">
+    <% } %>
       <i class="icon xi-upload-folder"></i>
     </button>
     <div id="fileBrowserPath" class="dropDownList">
-      <div class="targetName"></div>
+      <div class="targetName"><%= (dicts.tutor.name == 'browseDatasourceTutA3') ? 'Default Shared Root/datastores/misc' : '' %></div>
       <input class="text" spellcheck="false">
       <div class="iconWrapper" title="<%= dicts.fileBrowser.filePathHint %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <i class="icon xi-arrow-down"></i>
@@ -31,7 +44,7 @@
       <ul id="fileBrowserPathMenu" class="list"></ul>
     </div>
     <!-- search section -->
-    <div id="fileBrowserSearch" class="searchSection dropDownList">
+    <div id="fileBrowserSearch" class="searchSection dropDownList" <%= (dicts.tutor.name == 'browseDatasourceTutA3') ? 'data-introstep="wa3-fileSearch"' : '' %>>
       <input type="text" placeholder="<%= dicts.fileBrowser.SearchHint %>" spellcheck="false">
       <div class="clear">
         <i class="icon fa-14 xi-close xc-action"></i>
@@ -84,6 +97,9 @@
   <section class="cardMain">
     <!-- File Browser Main Section -->
     <div id="fileBrowserMain" class="xc-grid leftMain gridView fileBrowserMain">
+      <% if (dicts.tutor.name == "browseDatasourceTutA3") { %>
+        include "../../demo/wa1/wa-Browse.html"
+      <% } else { %>
         <!-- Loading Sectoin -->
         <section class="loadingSection">
           <div class="waitingIcon"></div>
@@ -223,6 +239,7 @@
           </div>
         </section>
     </div>
+    <% } %>
     <div id="fileBrowserPreview" class="rightMain xc-hidden">
       include "filePreviewer.html"
     </div>

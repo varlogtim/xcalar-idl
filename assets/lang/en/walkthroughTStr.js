@@ -83,4 +83,59 @@ var WalkThroughTStr = {
         'w2-refresh': 'If you have chosen a UDF or changed advanced optoins and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
         'w2-dsConfirm': 'After you are satisfied with your selections, click on refresh preview to make sure that the selection is valid and then click on finalize.'
     },
+    'wa1': {
+       // Datasets Panel
+       // Following struct defines order which the steps get played.
+       // If step's name is not here, it will not get played!
+       '_order': ['wa1-datasetsList', 'wa1-importDs', 'wa1-sharedDs', 'wa1-lockedDs', 'wa1-selectFile', 'wa1-contextMenu'],
+       'wa1-datasetsList': 'Before you import a new dataset, check the datasets list and folders for your dataset.',
+       'wa1-importDs': 'To import a dataset from one or more data source files, click the "Import Data Source" button.',
+       'wa1-sharedDs': 'The "Shared" folder contains all datasets shared by cluster users.',
+       'wa1-lockedDs': 'A dataset added as a table into one or more active workbooks is automatically locked.',
+       'wa1-selectFile': 'To preview a dataset, click on its icon in the datasets list.',
+       'wa1-contextMenu': 'To open the context menu containing actions you can perform, right-click or control-click the dataset.'
+       //NOTE: wa1-contextMenu step is not yet implemented. When displaying the contextMenu in the tutorial any clicks will hide the element.
+    },
+    'wa2': {
+       // Import Data Source First Screen
+       // Following struct defines order which the steps get played.
+       // If step's name is not here, it will not get played!
+       '_order': ['wa2-selectDt', 'wa2-pastePath', 'wa2-nextDs', 'wa2-browseDs'],
+       'wa2-selectDt': 'Select the data target, which is the storage location for your data source files.',
+       'wa2-pastePath': 'Enter the path to the directory where your data source files reside.',
+       'wa2-nextDs': 'If you entered the complete path to the data source, click "NEXT".',
+       'wa2-browseDs': 'If you entered a partial path or no path, then click "BROWSE" to find your way to the files.'
+    },
+    'wa3': {
+        // Browse Data Source Screen
+        // Following struct defines order which the steps get played.
+        // If step's name is not here, it will not get played!
+    '_order': ['wa3-selectDir', 'wa3-parentDir', 'wa3-selectFile', 'wa3-fileDetails', 'wa3-fileSearch', 'wa3-multFiles', 'wa3-multDirs', 'wa3-selectedRecursive', 'wa3-multDs', 'wa3-clickNext'],
+    'wa3-selectDir': 'To see a directory\'s contents, double-click on a directory.',
+    'wa3-parentDir': 'To go up a directory-level, click the "Go To Parent Directory" button.', 
+    'wa3-selectFile': 'To select a file as your data source and preview your data source, double-click on a file.',
+    'wa3-fileDetails': 'To see details about a data source file, single-click the file. To view the file as raw data, click the "VIEW RAW DATA" button.',
+    'wa3-fileSearch': 'You can search for data source files or folders five ways: simple string search, regex match, regex contains, glob wildcard matching, or glob contains searches.',
+    'wa3-multFiles': 'To highlight a group of files, click on one and shift-click on another. To add a highlighted group of files to your new dataset, click any highlighted file\'s checkbox.',
+    'wa3-multDirs': 'Highlight a group of directories by clicking on one and shift-clicking on another. To add all files in these directories to your dataset, click a highlighted directory\'s checkbox.',
+    'wa3-selectedRecursive': 'To add all files in a directory\'s subdirectories, add a check to the directory\'s recursive checkbox.',
+    'wa3-multDs': 'When importing multiple data source files, to import all files as separate datasets, click the "Multiple Datasets" toggle.',
+    'wa3-clickNext': 'Once you have selected all the files and folders to add to your dataset, click "NEXT".'
+     },
+    'wa4': {
+        // Browse Data Source Second Screen, Preview.
+        // Following struct defines order which the steps get played.
+        // If step's name is not here, it will not get played!
+    '_order': ['wa4-previewDs', 'wa4-previewChoice', 'wa4-previewMoreRows', 'wa4-importPrefs',
+           'wa4-columnRename', 'wa4-castData', 'wa4-addCols', 'wa4-errorTol', 'wa4-createDs'],
+    'wa4-previewDs': 'Xcalar Design parses the file and determines the format and import preferences. Verify the preview renders cleanly in tabular form.',
+    'wa4-previewChoice': 'Confirm the format is correct by previewing one or more files from your import.',
+    'wa4-previewMoreRows': 'If needed, preview more rows from your dataset.',
+    'wa4-importPrefs': 'If your data doesn\'t cleanly render as a table, consider adjusting the import preferences.',
+    'wa4-columnRename': 'For CSV data sources, you can rename columns.',
+    'wa4-castData': 'Depending on encoding of data errors, you may wish to select the proper data type during import, or use modeling tools to process data before casting data to the proper type.',
+    'wa4-addCols': 'Adding the file name or the record number to each record in a dataset can be the only way to achieve some modeling tasks.',
+    'wa4-errorTol': 'Choose the appropriate error tolerance for your data. For example, if data errors imply you should report the errors to the generator and not model with the data, select low tolerance.', 
+    'wa4-createDs': 'To complete the dataset creation process and start creating a table from the dataset, click CREATE DATASET.',
+     }
 };

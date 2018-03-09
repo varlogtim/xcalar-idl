@@ -1395,3 +1395,7 @@ JupyterTStr = {
     // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };
+introTStr = {
+        "watermark": "Tutorial",
+        "subWatermark": "You will be returned to your work when the tutorial completes."
+};

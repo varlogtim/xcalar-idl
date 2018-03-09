@@ -18,6 +18,10 @@ destMap = {
     "datastoreTut1.html": "assets/htmlFiles/walk/datastoreTut1.html",
     "datastoreTut2.html": "assets/htmlFiles/walk/datastoreTut2.html",
     "workbookTut.html": "assets/htmlFiles/walk/workbookTut.html",
+    "importDatasourceTutA2.html": "assets/htmlFiles/walk/importDatasourceTutA2.html",
+    "browseDatasourceTutA3.html": "assets/htmlFiles/walk/browseDatasourceTutA3.html",
+    "browseDatasource2TutA4.html": "assets/htmlFiles/walk/browseDatasource2TutA4.html",
+    "datasetPanelTutA1.html": "assets/htmlFiles/walk/datasetPanelTutA1.html",
     "login.html": "assets/htmlFiles/login.html",
     "dologout.html": "assets/htmlFiles/dologout.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
@@ -34,7 +38,7 @@ replaceProductJsFiles = {
     "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
 };
 
-var noPrettify = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html"];
+var noPrettify = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html", "datasetPanelTutA1.html", "importDatasourceTutA2.html", "browseDatasourceTutA3", "browseDatasource2TutA4"];
 
 htmlMinOptions = {};
 

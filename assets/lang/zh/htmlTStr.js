@@ -1002,6 +1002,18 @@ module.exports = {
         "datastoreTut2": {
             "tab": "查看数据集"
         },
+        "datasetPanelTutA1": {
+            "tab": "查看数据集"
+        },
+        "importDatasourceTutA2": {
+            "tab": "查看数据集"
+        },
+        "browseDatasourceTutA3": {
+            "tab": "查看数据集"
+        },
+        "browseDatasource2TutA4": {
+            "tab": "查看数据集"
+        },
         "meta": {},
         "user": "约翰·史密斯",
         "wkbk": "教程",
@@ -1141,5 +1153,12 @@ module.exports = {
         "CodeSnippets": "代码段",
         "SelectSampleRows": "请从表中选择要作为样本的行数",
         "NumRows": "行数"
+    },
+
+    "introTStr": {
+        "wa1Tip": "Start datasets walkthrough",
+        "wa2Tip": "Start import datasource walkthrough",
+        "wa3Tip": "Start browse datasource walkthrough",
+        "wa4Tip": "Start browse datasource walkthrough two"
     }
 }
