@@ -1161,7 +1161,7 @@ UDFTStr = {
     // Must be kept consistent with htmlTStr.UDF
     "NameHint": "Module name (lowercase)",
     "NoTemplate": "Cannot find the module",
-    "InValidName": "Module name should start with a letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
+    "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)"
 };
 
