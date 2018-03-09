@@ -4974,30 +4974,6 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function getColTypeIcon(type) {
-        var icon = "xi-mixed";
-        switch (type) {
-            case (DfFieldTypeT.DfInt32):
-            case (DfFieldTypeT.DfInt64):
-            case (DfFieldTypeT.DfUInt32):
-            case (DfFieldTypeT.DfUInt64):
-            case (DfFieldTypeT.DfFloat32):
-            case (DfFieldTypeT.DfFloat64):
-                icon = "xi-integer";
-                break;
-            case (DfFieldTypeT.DfString):
-                icon = "xi-string";
-                break;
-            case (DfFieldTypeT.DfBoolean):
-                icon = "xi-boolean";
-                break;
-            default:
-                // DfScalarObj will be mixed
-                break;
-        }
-        return icon;
-    }
-
     /* Unit Test Only */
     if (window.unitTestMode) {
         OperationsView.__testOnly__ = {};

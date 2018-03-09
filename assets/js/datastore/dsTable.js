@@ -852,15 +852,15 @@ window.DSTable = (function($, DSTable) {
         }
 
         // if (!dsObj.advancedArgs) {
-            var datasetName = dsObj.getFullName();
-            lastDSToSample = datasetName;
-            dsObj.addAdvancedArgs()
-            .then(function() {
-                if (lastDSToSample !== datasetName) {
-                    return;
-                }
-                showIcon();
-            }); // if fail, keep hidden
+        var datasetName = dsObj.getFullName();
+        lastDSToSample = datasetName;
+        dsObj.addAdvancedArgs()
+        .then(function() {
+            if (lastDSToSample !== datasetName) {
+                return;
+            }
+            showIcon();
+        }); // if fail, keep hidden
         // } else {
         //     showIcon();
         // }

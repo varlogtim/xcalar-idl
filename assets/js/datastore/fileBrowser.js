@@ -9,12 +9,14 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
-    var $searchSection    // $("#fileBrowserSearch");
+    var $searchSection;    // $("#fileBrowserSearch");
     var $searchDropdown;  // $("#fileSearchDropdown")
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
     var searchId;
+
+    var dragInfo = {};
 
     /* Contants */
     var defaultSortKey  = "name"; // default is sort by name;
@@ -339,6 +341,7 @@ window.FileBrowser = (function($, FileBrowser) {
             cleanContainer();
             $fileBrowser.find(".pickedFileList").empty();
         });
+
         $infoContainer.find(".pickedFiles .addRegex").on("click", "span", function() {
             // Add a regex pattern to list
             var html = createListElement();
@@ -346,6 +349,7 @@ window.FileBrowser = (function($, FileBrowser) {
             refreshFileListEllipsis($span, true);
             updateButtons();
         });
+
         $infoContainer.on("click", ".selectAll", function() {
             // Toggle all recursive flags
             var $unchecked = $infoContainer.find(".xi-ckbox-empty:not(.xc-disabled)");
@@ -354,7 +358,8 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 uncheckCkBox($infoContainer.find(".xi-ckbox-selected"));
             }
-        })
+        });
+
         $infoContainer.on("click", ".xi-ckbox-selected, .xi-ckbox-empty", function() {
             // Uncheck single recursive flag
             var $checkBox = $(this);
@@ -364,6 +369,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 checkCkBox($checkBox);
             }
         });
+
         $infoContainer.on("click", ".pickedFileList .close", function() {
             var $li = $(this).closest("li");
             if (!$li.hasClass("regex")) {
@@ -380,6 +386,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $li.remove();
             updateButtons();
         });
+
         $infoContainer.on("click", ".switch", function() {
             var $switch = $(this);
             if ($switch.hasClass("on")) {
@@ -392,6 +399,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 $switch.next().addClass("highlighted");
             }
         });
+
         $infoContainer.on("click", ".switchLabel", function() {
             var $label = $(this);
             if (!$label.hasClass("highlighted")) {
@@ -405,6 +413,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 $label.addClass("highlighted");
             }
         });
+
         $infoContainer.on("click", ".fileRawData .btn", function() {
             var $grid = getFocusedGridEle();
             previewDS($grid);
@@ -540,7 +549,6 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function addSearchSectionEvents() {
-        var timer;
         searchDropdownMenu = new MenuHelper($searchSection, {
             "onlyClickIcon": false,
             "onSelect": applySearchPattern,
@@ -881,10 +889,6 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathSection.find(".targetName").text(targetName);
     }
 
-    function getHistoryPath(targetName) {
-        return historyPathCache[targetName] || "/";
-    }
-
     function setHistoryPath() {
         var path = getCurrentPath();
         if (path !== defaultPath) {
@@ -1096,7 +1100,7 @@ window.FileBrowser = (function($, FileBrowser) {
                         try {
                             // Check if it's valid regex
                             new RegExp(searchKey);
-                        } catch(e) {
+                        } catch (e) {
                             invalidRegex = true;
                         }
                         pattern = xcHelper.getFileNamePattern(searchKey, true);
@@ -1112,7 +1116,6 @@ window.FileBrowser = (function($, FileBrowser) {
                         fileNamePattern: pattern
                     });
                 } else {
-                    var fileName = $li.data("name");
                     var path = $li.data("fullpath");
                     var recursive = $li.find(".icon").eq(1)
                                            .hasClass("xi-ckbox-selected");
@@ -1174,7 +1177,6 @@ window.FileBrowser = (function($, FileBrowser) {
             $container.find(".filePathBottom .content").text(searchInfo);
             return deferred.resolve().promise();
         }
-        var regEx = null;
         var fullTextMatch = false;
         searchInfo = "Searching";
         var origKey = searchKey;
@@ -1212,7 +1214,7 @@ window.FileBrowser = (function($, FileBrowser) {
         try {
             // Check if it's valid regex
             new RegExp(searchKey);
-        } catch(e) {
+        } catch (e) {
             isValidRegex = false;
         }
         var pattern = xcHelper.getFileNamePattern(searchKey, true);
@@ -1773,12 +1775,9 @@ window.FileBrowser = (function($, FileBrowser) {
     function toggleTooltip($text, name, isEllipsis) {
         // GridView may have different ellipsis than listView
         if (isEllipsis) {
-            $text.attr({"data-toggle": "tooltip", "data-container": "body",
-                        "data-title": name, "data-placement": "top",
-                        "data-original-title": "", "title":""});
+            xcTooltip.add($text, {title: name});
         } else {
-            $text.removeAttr("data-toggle data-container data-title " +
-                             "data-placement data-original-title title");
+            xcTooltip.remove($text);
         }
     }
 
@@ -1851,10 +1850,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function addResizeEvent() {
         var timeout;
-        $(window).on("resize.fileBrowserResize", function(event) {
+        $(window).on("resize.fileBrowserResize", function() {
             refreshFilePathEllipsis(false);
             clearTimeout(timeout);
-            setTimeout(function() {
+            timeout = setTimeout(function() {
                 if ($container.hasClass("manyFiles")) {
                     showScrolledFiles();
                 }
@@ -2128,9 +2127,9 @@ window.FileBrowser = (function($, FileBrowser) {
         var name = file.name;
         var path = getCurrentPath() + name;
         var mTime = moment(file.attr.mtime * 1000).format("h:mm:ss A ll");
-        var cTime = file.attr.ctime ?
-                    moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
-                    "--";
+        // var cTime = file.attr.ctime ?
+        //             moment(file.attr.ctime * 1000).format("h:mm:ss A ll") :
+        //             "--";
         var isFolder = file.attr.isDirectory;
         var size = isFolder ? "--" : xcHelper.sizeTranslator(file.attr.size);
         var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
@@ -2215,7 +2214,6 @@ window.FileBrowser = (function($, FileBrowser) {
             var escName = xcHelper.escapeDblQuoteForHTML(name);
             var isFolder = file.attr.isDirectory;
             var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
-            var fileIcon;
             var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
             if (preChecked) {
                 ckBoxClass = "xi-ckbox-selected";
@@ -2373,7 +2371,6 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    var dragInfo = {};
     function startColResize($el, event) {
         dragInfo.$header = $el.closest(".title");
         dragInfo.$header.addClass("dragging");
@@ -2392,7 +2389,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $('body').addClass('tooltipOff').append(cursorStyle);
         $(document).on('mousemove.onColResize', onColResize);
         $(document).on('mouseup.endColResize', endColResize);
-    };
+    }
 
     function onColResize(event) {
         var newWidth = (event.pageX - dragInfo.mouseStart) + dragInfo.startWidth;

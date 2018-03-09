@@ -341,7 +341,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return (allStats);
     }
 
-    function updateGraph(allStats, numNodes) {
+    function updateGraph(allStats) {
         var unit;
         var yMaxes = [];
         var yMax;

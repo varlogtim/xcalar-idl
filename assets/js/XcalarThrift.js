@@ -1333,7 +1333,7 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
         });
         if (Transaction.isSimulate(txId)) {
             newKeys = keyArray.map(function(key) {
-               return key.name;
+                return key.name;
             });
         }
         var workItem = xcalarIndexWorkItem(unsortedSrcTablename,

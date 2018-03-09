@@ -711,7 +711,7 @@ window.Admin = (function($, Admin) {
         .then(function(startFlag) {
             if (startFlag) {
                 Alert.show({msg: AlertTStr.AlreadyStart, isAlert: true});
-            }else {
+            } else {
                 supportPrep('startNode')
                 .then(XFTSupportTools.clusterStart)
                 .then(function(ret) {

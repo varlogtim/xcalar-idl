@@ -85,7 +85,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         "defaultAdminConfig": {},
         "supportBundles": false,
         "enableHotPatches": false
-    }
+    };
     var finalStruct = Object.assign({}, finalStructPrototype);
     var installStatus = {
         "Error": -1,
@@ -301,7 +301,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             } else {
                 if (!withoutPrivHost && (privNameOrIp.length > 0)) {
                     return {
-                        "error":[
+                        "error": [
                             "No public name",
                             "You must provide a public name for all private names"
                         ]
@@ -312,7 +312,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
 
         if (allHosts.length === 0) {
             return {
-                "error":[
+                "error": [
                     "No hosts",
                     "You must install on at least 1 host"
                 ]
@@ -322,7 +322,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         if (allPrivHosts.length !== 0 &&
             allPrivHosts.length !== allHosts.length) {
             return {
-                "error":[
+                "error": [
                     "Private / Public Hostname Error",
                     "Either provide private hostnames / IPs for all or none of the hosts"
                 ]
@@ -333,7 +333,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         for (i = 0; i < allHosts.length; i++) {
             if (allHosts.indexOf(allHosts[i], i+1) > -1) {
                 return {
-                    "error":[
+                    "error": [
                         "Duplicate Hosts",
                         "Public Hostname " + allHosts[i] + " is a duplicate"
                     ]
@@ -343,7 +343,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (!withoutPrivHost) {
                 if (allPrivHosts.indexOf(allPrivHosts[i], i+1) > -1) {
                     return {
-                        "error":[
+                        "error": [
                             "Duplicate Hosts",
                             "Private Hostname " + allPrivHosts[i] + " is a duplicate"
                         ]
@@ -367,7 +367,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         var installationDirectory = getVal($form.find(".installationDirectorySection input"));
         if (installationDirectory.length === 0) {
             return {
-                "error":[
+                "error": [
                     "Empty Installation Directory",
                     "Please assign a value to Installation Directory"
                 ]
@@ -393,7 +393,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     InstallerCommon.validateSupportBundles = function($form) {
         var res = {};
         res.supportBundles = $form.find(".checkbox.supportBundles")
-            .hasClass("checked");
+                                  .hasClass("checked");
         return res;
     };
 
@@ -412,7 +412,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         for (var i = 0; i < $hostInputs.length; i++) {
             if ($hostInputs.eq(i).val().trim().length === 0) {
                 return {
-                    "error":[
+                    "error": [
                         "Empty Username / Port",
                         "Your SSH username / port cannot be empty."
                     ]
@@ -426,7 +426,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             case ("password"):
                 if ($form.find(".hostPassword input").val().length === 0) {
                     return {
-                        "error":[
+                        "error": [
                             "Empty Password",
                             "For passwordless ssh, upload your ssh key"
                         ]
@@ -439,7 +439,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             case ("sshKey"):
                 if (getVal($form.find(".hostSshKey textarea")).length === 0) {
                     return {
-                        "error":[
+                        "error": [
                             "Empty Ssh Key",
                             "Your ssh key is generally located at ~/.ssh/id_rsa"
                         ]
@@ -454,7 +454,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 return res;
             default:
                 return {
-                    "error":[
+                    "error": [
                         "Illegal Password Option",
                         "Not a legal password option"
                     ]
@@ -470,14 +470,24 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             InstallerCommon.validateDefaultAdminUser
         ];
         return callSyncFunctions($form, funcs);
-    }
+    };
 
     function callSyncFunctions($form, funcs, inputArgs) {
         var deferred = jQuery.Deferred();
         var result = {};
-        var res = null;
         var hasError = false;
         var errorArg = null;
+
+        function checkError(validateRes) {
+            if (validateRes.hasOwnProperty("error")) {
+                errorArg = validateRes.error;
+                return true;
+            } else {
+                jQuery.extend(result, validateRes);
+                return false;
+            }
+        }
+
         for (var i in funcs) {
             var func = funcs[i];
             if (hasError) {
@@ -497,16 +507,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             deferred.resolve();
         }
         return deferred.promise();
-
-        function checkError(validateRes) {
-            if (validateRes.hasOwnProperty("error")) {
-                errorArg = validateRes.error;
-                return true;
-            } else {
-                jQuery.extend(result, validateRes);
-                return false;
-            }
-        }
     }
 
     InstallerCommon.validateLdap = function($form) {
@@ -524,7 +524,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 return handleConfigLdapLater();
             default:
                 return {
-                    "error":[
+                    "error": [
                         "Illegal LDAP Option",
                         "Not a legal ldap option"
                     ]
@@ -540,7 +540,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             var $params = $form.find(".ldapParams.xcalarLdapOptions input");
             if (!checkPopulated($params)) {
                 return {
-                    "error":[
+                    "error": [
                         "Blank arguments",
                         "Please populate all fields"
                     ]
@@ -550,7 +550,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if ($params.eq(1).val() !==
                 $params.eq(2).val()) {
                 return {
-                    "error":[
+                    "error": [
                         "Passwords different",
                         "Passwords must be the same"
                     ]
@@ -569,7 +569,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             var $params = $form.find(".ldapParams.customerLdapOptions input");
             if (!$form.find("#ADChoice .active").length) {
                 return {
-                    "error":[
+                    "error": [
                         "AD or OpenLDAP",
                         "Please select AD or OpenLDAP"
                     ]
@@ -577,7 +577,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             }
             if (!checkPopulated($params.find(":not(.ADOnly)"))) {
                 return {
-                    "error":[
+                    "error": [
                         "Blank arguments",
                         "Please populate all fields"
                     ]
@@ -656,7 +656,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             var passwordStrength = getPasswordStrength(password, userName);
             if (passwordStrength.strength === "invalid") {
                 return {
-                    "error":[
+                    "error": [
                         LoginConfigTStr.invalid,
                         "The password is invalid, try another password"
                     ]
@@ -1101,16 +1101,6 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         });
         return deferred.promise();
 
-        function checkError(validateRes) {
-            if (validateRes.hasOwnProperty("error")) {
-                errorArg = validateRes.error;
-                return true;
-            } else {
-                jQuery.extend(result, validateRes);
-                return false;
-            }
-        }
-
         function appendHostsHtml(hosts) {
             var html = "";
             for (var i = 0; i < hosts.length; i++) {
@@ -1260,7 +1250,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 success: function(ret) {
                     deferred.resolve("Request is handled successfully", ret);
                 },
-                error: function(xhr, textStatus, err) {
+                error: function(xhr) {
                     if (xhr.responseJSON) {
                         // under this case, server sent the response and set
                         // the status code

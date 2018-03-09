@@ -221,7 +221,6 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 return deferred.promise();
             }
 
-            var worksheet = WSManager.getWSFromTable(tableId);
             var sql = {
                 "operation": SQLOps.Finalize,
                 "tableName": tableName,

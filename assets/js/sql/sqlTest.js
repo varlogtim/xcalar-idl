@@ -311,13 +311,13 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 "numOfRows": "7"}
     };
     var tpchTables = {
-      dataSource: "tpch_sf1/",
-      tableNames: ["customer", "lineitem", "nation", "orders", "part",
+        dataSource: "tpch_sf1/",
+        tableNames: ["customer", "lineitem", "nation", "orders", "part",
                    "partsupp", "region", "supplier"]
     };
     var tpcdsTables = {
-      dataSource: "tpcds_sf1/",
-      tableNames: ["call_center", "catalog_page", "catalog_returns",
+        dataSource: "tpcds_sf1/",
+        tableNames: ["call_center", "catalog_page", "catalog_returns",
                    "catalog_sales", "customer", "customer_address",
                    "customer_demographics", "date_dim", "dbgen_version",
                    "household_demographics", "income_band", "inventory", "item",
@@ -345,7 +345,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var tableNames = tpcdsTables.tableNames;
             var checkList = [];
             for (var i = 0; i < tableNames.length; i++) {
-              checkList.push("#previewTable td:eq(1):contains('')");
+                checkList.push("#previewTable td:eq(1):contains('')");
             }
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];

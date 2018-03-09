@@ -2,8 +2,6 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
     var $modal;    // $("#jupyterUDFTemplateModal")
     var modalHelper;
     var cols = [];
-    var $udfModuleList;
-    var $udfFnList;
     var $targetList;
 
     JupyterUDFModal.setup = function() {

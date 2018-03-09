@@ -172,11 +172,13 @@ window.FileListModal = (function(FileListModal, $) {
         var innerHeight = $treeWrap.outerHeight();
         var wrapHeight = $modal.find(".modalMain").height();
         var diff = innerHeight - wrapHeight;
+        var winDiff;
+
         var change = false;
         if (diff > 0) {
             var modalHeight = $modal.height();
             var winHeight = $(window).height() - 10;
-            var winDiff = winHeight - modalHeight;
+            winDiff = winHeight - modalHeight;
             if (winDiff > 0) {
                 var heightToAdd = Math.min(winDiff, diff);
                 $modal.height(modalHeight + heightToAdd);
@@ -186,11 +188,11 @@ window.FileListModal = (function(FileListModal, $) {
 
         var innerWidth = $treeWrap.outerWidth();
         var wrapWidth = $modal.find(".modalMain").width();
-        var diff = innerWidth - wrapWidth;
+        diff = innerWidth - wrapWidth;
         if (diff > 0) {
             var modalWidth = $modal.width();
             var winWidth = $(window).width() - 10;
-            var winDiff = winWidth - modalWidth;
+            winDiff = winWidth - modalWidth;
             if (winDiff > 0) {
                 var widthToAdd = Math.min(winDiff, diff);
                 $modal.width(modalWidth + widthToAdd);
@@ -305,7 +307,7 @@ window.FileListModal = (function(FileListModal, $) {
             var numEntries = result.numEntries;
             var maxPerCall = hasFileErrors ? 100 : 10;
             return XcalarFetchData(curResultSetId, 0, numEntries, numEntries,
-                    null, null, maxPerCall)
+                                    null, null, maxPerCall);
         })
         .then(function(results) {
             if ($.isEmptyObject(results)) {
@@ -339,8 +341,8 @@ window.FileListModal = (function(FileListModal, $) {
                 roots: roots,
                 curResultSetId: curResultSetId,
                 modalId: modalId
-            }
-        }
+            };
+        };
     }
     /* End Of Unit Test Only */
 

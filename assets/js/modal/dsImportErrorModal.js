@@ -10,7 +10,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     var rowHeight = 44;
     var curResultSetId;
     var curDSName;
-    var modalOpen = false;
     var files = {};
     var activePath = null;
     var hasRecordErrors = false;
@@ -98,7 +97,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             return;
         }
 
-        modalOpen = true;
         curResultSetId = null;
         modalHelper.setup();
         modalId = Date.now();
@@ -136,7 +134,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             })
             .fail(function() {
                 // only fails if modal has been closed or changed
-            })
+            });
         });
     };
 
@@ -309,8 +307,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         DSImportErrorModal.__testOnly__fetchRows = fetchRows;
         DSImportErrorModal.__testOnly__.getScrollmeta = function() {
             return scrollMeta;
-        }
-
+        };
     }
     /* End Of Unit Test Only */
 

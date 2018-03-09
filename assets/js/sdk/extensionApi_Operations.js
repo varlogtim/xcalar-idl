@@ -108,7 +108,7 @@ window.XcSDK.Extension.prototype = (function() {
                 return {
                     name: colName,
                     ordering: order
-                }
+                };
             });
 
             XIApi.sort(txId, colInfo, tableName, newTableName)
