@@ -192,11 +192,11 @@
                                         </ul>
                                         <h2>Filtering and excluding FNF</h2>
                                         <p>You can use a cell option to filter or exclude FNF, just as you would other values.</p>
-                                        <h2><a name="Sorting"></a>Sorting a table by a column containing FNF</h2>
-                                        <p>If a table contains a column with FNF, sorting the table by this column results in a table that excludes the rows with FNF. For example, if row 1 contains FNF in the EmployeeID column, after you sort the table by EmployeeID, the resultant table does not include row 1 of the table before the sort.</p>
-                                        <p>Do not sort a table by a column that contains FNF&#160;in all rows. Doing so results in an error message because the result of the sort would be an empty table.</p>
+                                        <h2><a name="Sorting"></a>Sorting a table on a column containing FNF</h2>
+                                        <p>You can sort a table on a column with FNF. If you sort in ascending order, the cells with FNF are displayed before all others; if you sort in descending order, the cells with FNF are displayed last. </p>
                                         <h2>Standardizing data in a column with FNF</h2>
-                                        <p>One of the purposes of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future operations. Mapping FNF&#160;to another value also enables a sort to include all rows in the resultant table. The following example illustrates how you can standardize data in an integer column having FNF cells.</p>
+                                        <p>One of the purposes of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future operations. Without changing FNF&#160;to a value, some operations cannot produce meaningful results. For example, when you use the gt (greater than) function to compare two columns, the function cannot do a comparison for an FNF, and the resultant value is an FNF instead of the expected Boolean value. </p>
+                                        <p>The following example illustrates how you can standardize data in an integer column having FNF cells.</p>
                                         <p>To change all occurrences of FNF in this column  to an integer, follow these steps:</p>
                                         <ol>
                                             <li value="1">Start the Map function in the EmployeeID column to display the <span class="UIelement">MAP</span>&#160;panel.</li>
@@ -210,10 +210,10 @@
                                             <li value="9">Accept the resultant column name (EmployeeID_exists_if).</li>
                                             <li value="10">
                                                 <p>Click <span class="UIelement">MAP</span>. The EmployeeID_exists_if column shows the original integer in EmployeeID  if one exists. For each row containing FNF in the EmployeeID column, the cell displays -1.</p>
-                                                <p>Now the EmployeeID_exists_if column is identical to the EmployeeID column except that FNF is replaced with an integer (-1). If you sort the table by this column, all rows are displayed after the sort.</p>
+                                                <p>Now the EmployeeID_exists_if column is identical to the EmployeeID column except that FNF is replaced with an integer (-1). </p>
                                             </li>
                                         </ol>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The string or numeric value you map FNF to depends on your specific operation. The exact Map function used for changing FNF&#160;to another value might be different from the one described in this example.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;Select an appropriate string or numeric value to which you map FNF, depending on your specific needs. It can be a value different from the one used in this example.</div>
                                         <h2>Counting occurrences of FNF in a column</h2>
                                         <p>Use the <span class="UIelement">Profile</span> option in the column drop-down menu to count the occurrences of FNF. In the <span class="UIelement">Profile</span> modal window, FNF&#160;is shown as <span class="UIelement">null</span>. The bar graph for null is displayed in red. For more information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a>.</p>
                                     </div>

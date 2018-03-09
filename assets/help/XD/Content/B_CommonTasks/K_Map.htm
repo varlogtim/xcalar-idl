@@ -185,29 +185,30 @@
                                         <ol>
                                             <li value="1">
                                                 <p>Right click the header of the column from which you want to create new values. In the drop-down menu, select <span class="UIelement">Map…</span>. The <span class="UIelement">MAP</span>&#160;panel is displayed. </p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
+                                                        <p>For selecting columns:</p>
                                                         <ul>
-                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
-                                                            <li value="2">When typing a column name, always start with the dollar sign ($).</li>
-                                                            <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
-                                                            <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
-                                                            <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
-                                                            <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
-                                                            <li value="10">
-                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
-                                                                <ul>
-                                                                    <li value="1">backslash (\)</li>
-                                                                    <li value="2">double quote mark (")</li>
-                                                                    <li value="3">dollar sign ($) if it is the first character</li>
-                                                                    <li value="4">caret (^) if it is the first character</li>
-                                                                </ul>
-                                                            </li>
-                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
+                                                            <li value="2">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to select the desired column.</li>
+                                                            <li value="3">If the column you want to select is not in the table, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
                                                         </ul>
+                                                        <p>For typing a column name:</p>
+                                                        <ul>
+                                                            <li value="1">Always start with the dollar sign ($).</li>
+                                                            <li value="2">Always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
+                                                            <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                            <li value="4">To avoid mistakes when typing a column name, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered for you.</li>
+                                                            <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                        </ul>
+                                                        <p>For typing an operand value:</p>
+                                                        <ul>
+                                                            <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel:&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
+                                                            <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                            <li value="3">The $ character has special meaning in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
+                                                            <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
+                                                        </ul>
+                                                        <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
                                                     </div>
                                                 </div>
                                                 <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>

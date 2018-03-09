@@ -18,12 +18,20 @@ var helpHashTags = [
         "title": "Preparing the data source"
     },
     {
+        "url": "../help/user/Content/A_GettingStarted/B3_CreateWorkspace.htm",
+        "title": "Creating the workspace"
+    },
+    {
         "url": "../help/user/Content/A_GettingStarted/C_EasySteps.htm",
-        "title": "Easy steps for importing data to Xcalar Design (with default settings)"
+        "title": "Easy steps for importing data (with default settings)"
     },
     {
         "url": "../help/user/Content/A_GettingStarted/D_DetailedStepsForPointing.htm",
-        "title": "Detailed steps for importing data to Xcalar Design (with custom settings)"
+        "title": "Selecting a data source"
+    },
+    {
+        "url": "../help/user/Content/A_GettingStarted/E_SpecifyHowToImport.htm",
+        "title": "Importing a data source"
     },
     {
         "url": "../help/user/Content/A_GettingStarted/GettingStarted.htm",
@@ -115,7 +123,7 @@ var helpHashTags = [
     },
     {
         "url": "../help/user/Content/B_CommonTasks/R_UsingJupyter.htm",
-        "title": "Using Xcalar Design with Jupyter"
+        "title": "Using Xcalar Design with Jupyter Notebook"
     },
     {
         "url": "../help/user/Content/C_AdvancedTasks/A_Extensions.htm",
@@ -214,6 +222,14 @@ var helpHashTags = [
         "title": "Understanding and changing login configuration (Xcalar admin only)"
     },
     {
+        "url": "../help/user/Content/C_AdvancedTasks/M_Working with Parquet Files.htm",
+        "title": "Working with  Parquet Datasets and Files"
+    },
+    {
+        "url": "../help/user/Content/C_AdvancedTasks/M_Working with Spark Parquet Files.htm",
+        "title": "Working with  Parquet Datasets and Files"
+    },
+    {
         "url": "../help/user/Content/CompanyInfo.htm",
         "title": "Company information"
     },
@@ -287,7 +303,7 @@ var helpHashTags = [
     },
     {
         "url": "../help/user/Content/Home.htm",
-        "title": "Welcome to Xcalar Design's online help for Version 1.3.0!"
+        "title": "Welcome to Xcalar Design's online help for Version 1.3.1!"
     },
     {
         "url": "../help/user/Content/Search.htm",

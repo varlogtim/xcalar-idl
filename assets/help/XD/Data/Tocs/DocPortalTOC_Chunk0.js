@@ -1,1 +1,0 @@
-define({'/Content/DocPortalHome.htm':{i:[0],t:['Welcome to the Xcalar Documentation Portal!'],b:['']}});

@@ -196,7 +196,7 @@
                                         </ul>
                                         <p>To instruct <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> to import the files that meet the requirements, use file name pattern matching to limit the files to be processed.</p>
                                         <h2><a name="Before"></a>Creating a first row as column headers</h2>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The information about creating a first row as column headers is not applicable if the data to be imported is in JSON&#160;format.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The information about creating a first row as column headers is not applicable if the data format  is JSON,&#160;XML, or user defined format.</div>
                                         <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the first row of your data file as column headers. If the values are not appropriate as column headers, create a first row, which you can promote as column headers. For information about naming conventions for column headers, see <a href="#Preparin" class="MCXref xref" xrefformat="{para}">Preparing the first row as column header</a>. (If you do not provide the column headers, <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> uses  column0, column1, and so on, as default column headers.)</p>
                                         <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you import a directory, the first row created must be the same for <em>each file</em> in the directory. <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> processes data files in parallel; the order of the files being processed is not predetermined. If all the files contain the same first row,  the desired column headers will be used when <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> promotes the first row.</div>
                                         <p>Column headers improve readability of the tables created by <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>. In addition, if you  use an import UDF, be aware that after <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports the data, the table columns are ordered differently than the columns in the data source. (A UDF for parsing data when <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> imports the data is called an import UDF.) If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
@@ -227,7 +227,10 @@
                                                     <li value="3">The name must not begin or end with a space.</li>
                                                     <li value="4">The name must not begin with a number.</li>
                                                     <li value="5">Length must not exceed 255 characters.</li>
-                                                    <li value="6">The name must not be <span class="UIelement">DATA</span>. Because the name is case sensitive, <span class="UIelement">data</span> or <span class="UIelement">Data</span> is acceptable.</li>
+                                                    <li value="6">
+                                                        <p>The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</p>
+                                                    </li>
+                                                    <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -249,9 +252,9 @@
                                         <div class="Note"><span class="label">NOTE</span>:&#160; The MaxInteractiveDataSize parameter takes effect only when you use <span class="GeneralProductName3">Xcalar</span> for modeling. When you run a batch dataflow, importing the data source is not affected by the setting of this parameter.</div>
                                         <h2>Next step</h2>
                                         <p>Import a data source by following the instructions in one of these topics:</p>
-                                        <p><a href="C_EasySteps.htm" class="MCXref xref" xrefformat="{para}">Easy steps for importing data to Xcalar Design (with default settings)</a>
+                                        <p><a href="C_EasySteps.htm" class="MCXref xref" xrefformat="{para}">Easy steps for importing data (with default settings)</a>
                                         </p>
-                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Detailed steps for importing data to Xcalar Design (with custom settings)</a>
+                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref" xrefformat="{para}">Selecting a data source</a>
                                         </p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

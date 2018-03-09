@@ -261,7 +261,10 @@
                                                             <li value="3">The name must not begin or end with a space.</li>
                                                             <li value="4">The name must not begin with a number.</li>
                                                             <li value="5">Length must not exceed 255 characters.</li>
-                                                            <li value="6">The name must not be <span class="UIelement">DATA</span>. Because the name is case sensitive, <span class="UIelement">data</span> or <span class="UIelement">Data</span> is acceptable.</li>
+                                                            <li value="6">
+                                                                <p>The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</p>
+                                                            </li>
+                                                            <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
                                                         </ul>
                                                     </div>
                                                 </div>

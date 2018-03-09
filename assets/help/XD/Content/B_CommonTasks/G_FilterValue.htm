@@ -194,36 +194,37 @@
                                             <img src="../Resources/Images/XD_screenshots/filter-multiple-values.png" />
                                         </p>
                                         <h2><a name="Filterin"></a>Filtering based on a condition</h2>
-                                        <p>You can filter based on a condition. For example, for a selected column, you can filter depending on whether the string contains a particular substring.</p>
+                                        <p>You can filter based on a condition. For example, for a selected column, you can filter depending on whether the string contains a particular substring. If the result of the filter function is true, the value is kept in the column. If the result of the filter function is false, the value is excluded from the column.</p>
                                         <p>You can also filter based on multiple conditions. For information about filtering on multiple conditions, see <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
                                         <p> To filter based on a condition, follow these steps:</p>
                                         <ol>
                                             <li value="1">Right click the heading of the column containing the value to filter. A drop-down menu appears.</li>
                                             <li value="2">
                                                 <p>Select <span class="UIelement">Filter...</span> from the menu. The <span class="UIelement">FILTER</span> panel appears.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
+                                                        <p>For selecting columns:</p>
                                                         <ul>
-                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
-                                                            <li value="2">When typing a column name, always start with the dollar sign ($).</li>
-                                                            <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
-                                                            <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
-                                                            <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
-                                                            <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
-                                                            <li value="10">
-                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
-                                                                <ul>
-                                                                    <li value="1">backslash (\)</li>
-                                                                    <li value="2">double quote mark (")</li>
-                                                                    <li value="3">dollar sign ($) if it is the first character</li>
-                                                                    <li value="4">caret (^) if it is the first character</li>
-                                                                </ul>
-                                                            </li>
-                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
+                                                            <li value="2">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to select the desired column.</li>
+                                                            <li value="3">If the column you want to select is not in the table, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
                                                         </ul>
+                                                        <p>For typing a column name:</p>
+                                                        <ul>
+                                                            <li value="1">Always start with the dollar sign ($).</li>
+                                                            <li value="2">Always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
+                                                            <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                            <li value="4">To avoid mistakes when typing a column name, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered for you.</li>
+                                                            <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                        </ul>
+                                                        <p>For typing an operand value:</p>
+                                                        <ul>
+                                                            <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel:&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
+                                                            <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                            <li value="3">The $ character has special meaning in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
+                                                            <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
+                                                        </ul>
+                                                        <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
                                                     </div>
                                                 </div>
                                             </li>
@@ -235,29 +236,36 @@
                                                             <li value="1">and</li>
                                                             <li value="2">between</li>
                                                             <li value="3">contains</li>
-                                                            <li value="4">eq</li>
-                                                            <li value="5">exists</li>
-                                                            <li value="6">ge</li>
-                                                            <li value="7">gt</li>
-                                                            <li value="8">isBoolean</li>
-                                                            <li value="9">isFloat</li>
-                                                            <li value="10">isInf</li>
-                                                            <li value="11">isInteger</li>
-                                                            <li value="12">isNull</li>
-                                                            <li value="13">ifStr</li>
-                                                            <li value="14">le</li>
-                                                            <li value="15">like</li>
-                                                            <li value="16">lt</li>
-                                                            <li value="17">not</li>
-                                                            <li value="18">or</li>
-                                                            <li value="19">regex</li>
+                                                            <li value="4">endsWith</li>
+                                                            <li value="5">eq</li>
+                                                            <li value="6">exists</li>
+                                                            <li value="7">ge</li>
+                                                            <li value="8">gt</li>
+                                                            <li value="9">isBoolean</li>
+                                                            <li value="10">isFloat</li>
+                                                            <li value="11">isInf</li>
+                                                            <li value="12">isInteger</li>
+                                                            <li value="13">isNull</li>
+                                                            <li value="14">isString</li>
+                                                            <li value="15">le</li>
+                                                            <li value="16">like</li>
+                                                            <li value="17">lt</li>
+                                                            <li value="18">neq</li>
+                                                            <li value="19">not</li>
+                                                            <li value="20">or</li>
+                                                            <li value="21">regex</li>
+                                                            <li value="22">startsWith</li>
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function that is not applicable to the data type of the column, an error message is displayed. For example, if the data type of the Distance column is String, and you try to run the gt (greater than) function on the column, an error message is displayed. You can change the data type in the <span class="UIelement">Cast</span> field to either Integer or Float, which enables the function to run properly.&#160;However, this data type change is temporary.&#160;The column (the Distance column) remains as a String column.  </div>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function not applicable to the data type of the column, an error message is displayed. For example, the data type of the Distance column is String, and you use the between function to filter values that lie between two integers. A message is displayed, indicating that the string type must be changed to a numeric type. Use the <span class="UIelement">Cast</span> field to change the type to either Integer or Float to enable the function to run.&#160;This data type change is temporary.&#160;The column (the Distance column) remains as a String column. </div>
                                             </li>
-                                            <li value="4">Based on the description of the function, fill out the fields. </li>
-                                            <li value="5">Click <span class="UIelement">FILTER</span>.</li>
+                                            <li value="4">
+                                                <p>Based on the description of the function, fill out the fields. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The functions work in the same way as the Map functions in the conditional category. For information about these Map functions, see <a href="../D_Reference/I_MapFunctions.htm#Conditio" class="MCXref xref" xrefformat="{para}">Conditional functions</a>.</div>
+                                            </li>
+                                            <li value="5">If the function is for comparing strings, you can specify whether the string comparison is case sensitive. By default, the filter does not ignore the case. The comparison is case sensitive.</li>
+                                            <li value="6">Click <span class="UIelement">FILTER</span>.</li>
                                         </ol>
                                         <h2><a name="filterMultiple" class="ForCSH"></a>Filtering based on multiple conditions</h2>
                                         <p>You can specify multiple conditions for filtering. You must choose the operator for connecting the conditions as described in this list:</p>

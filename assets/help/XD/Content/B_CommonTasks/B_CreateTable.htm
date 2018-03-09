@@ -185,6 +185,57 @@
                                                 </p>
                                             </li>
                                         </ol>
+                                        <h2>Understanding the Dataset Preview window</h2>
+                                        <p>The <span class="UIelement">Dataset Preview</span> window provides you with the following information:</p>
+                                        <ul>
+                                            <li value="1">Data source path relative to the data target</li>
+                                            <li value="2">Date of the dataset creation</li>
+                                            <li value="3">Number of records in the dataset</li>
+                                            <li value="4">Size of the dataset</li>
+                                            <li value="5">Data format</li>
+                                            <li value="6">UDF used for parsing the data when the dataset was created</li>
+                                        </ul>
+                                        <p>You can perform the following tasks in this window:</p>
+                                        <ul>
+                                            <li value="1">View the file system structure containing the data source.</li>
+                                            <li value="2">View the data target name and type.</li>
+                                            <li value="3">Copy the data source path.</li>
+                                            <li value="4">View the errors that occurred during dataset creation.</li>
+                                            <li value="5">Create a table from the columns shown in the preview.</li>
+                                        </ul>
+                                        <h2>Viewing the file system structure containing the data source</h2>
+                                        <p>If you want to see the structure of the file system containing the  data source path, click the following button in the <span class="UIelement">Dataset Preview</span> window:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/dataset-preview-click-to-view.png" />
+                                        </p>
+                                        <h2>Viewing the data target name and type</h2>
+                                        <p>To view the data target name and type, move the cursor over the data source path. A tooltip is displayed with the data target name and type.</p>
+                                        <h2>Copying the data source path</h2>
+                                        <p>To copy the data source path to your computer's clipboard, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>Move the cursor over the data source path. The copy icon is displayed as shown in the following partial screenshot:</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/dataset-preview-copy-data-source-path.png" />
+                                                </p>
+                                            </li>
+                                            <li value="2">Click anywhere on the data source path. After a check mark is displayed briefly to replace the copy icon, the path is copied to your computer's clipboard.</li>
+                                        </ol>
+                                        <h2><a name="Viewing"></a>Viewing the errors that occurred during dataset creation</h2>
+                                        <p>A yellow or red icon displayed in the <span class="UIelement">Dataset Preview</span> window indicates that there were errors during the import process, even though the dataset was successfully created. The following partial screenshot shows the location of the error icon.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/dataset-preview-errors-modal.png" />
+                                        </p>
+                                        <p>The color of the error icon depends on how you specify the <span class="UIelement">Stop&#160;Import</span> option in the <span class="UIelement">Import Data Source</span> window, as explained in the following list:</p>
+                                        <ul>
+                                            <li value="1">If you selected <span class="UIelement">Import every file, logging all errors</span>, the error icon is yellow, alerting you to the errors encountered when <span class="GeneralProductName3">Xcalar</span> imported all records except the erroneous ones.</li>
+                                            <li value="2">If you selected <span class="UIelement">Import every file, stopping each file on first erroneous record</span>, the error icon is red, alerting you to the errors encountered when <span class="GeneralProductName3">Xcalar</span> imported records in all files up to the first error in each file. A maximum of 1 error per file is in this modal because <span class="GeneralProductName3">Xcalar</span> stops importing as soon as it detects the first error in each file.</li>
+                                        </ul>
+                                        <p>To view the error messages, click the error icon. The <span class="UIelement">Dataset Import Error</span> modal window is displayed. For each error message, the following information is also displayed:</p>
+                                        <ul>
+                                            <li value="1">data source path</li>
+                                            <li value="2"> the record number in the data source file that caused the error</li>
+                                        </ul>
                                         <h2>Create a table from the columns in the Dataset Preview window</h2>
                                         <p>In the <span class="UIelement">Dataset Preview</span> window, follow these steps to create a table:</p>
                                         <ol>

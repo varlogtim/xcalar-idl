@@ -186,7 +186,7 @@
                                         <div class="Note"><span class="label">IMPORTANT</span>: Leave the parameters at their defaults unless you are told otherwise by <span class="GeneralProductName3">Xcalar</span> technical support or by the instructions in this topic. </div>
                                         <p>If a <span class="UIelement">Config Parameter Name</span> field does not contain a name,  you can enter a parameter name in the field, but do so only if you are under the guidance of <span class="GeneralCompanyNameShort">Xcalar</span> technical support. </p>
                                         <h3>When changes take effect</h3>
-                                        <p> Changes to parameter values take effect after you restart the cluster.</p>
+                                        <p> A check mark in the <span class="UIelement">Restart Required</span> field indicates that the change to the parameter value takes effect after you restart the cluster. Otherwise, the change takes effect immediately after you save it.</p>
                                         <h3><a name="Paramete"></a>Parameter descriptions</h3>
                                         <p>The following table explains the parameters:</p>
                                         <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
@@ -235,12 +235,12 @@
                                         <h3>Steps for changing parameter values</h3>
                                         <p>If you are instructed by <span class="GeneralCompanyNameShort">Xcalar</span> to configure the parameters, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel. </li>
+                                            <li value="1">Click <span class="UIelement">Setup</span>, which is one of the icons listed under <img src="../Resources/Images/XD_assets/xd-monitor.png" />. </li>
                                             <li value="2">
                                                 <p>In the <span class="UIelement">Configure Parameter</span> window,  enter the new value of a parameter in the <span class="UIelement">New Value</span> field and then click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>.</p>
                                                 <p> If you want to restore the parameter to its default value, click <img src="../Resources/Images/XD_assets/xd-param-default.png" />. </p>
                                             </li>
-                                            <li value="3">Restart the cluster to make the changes take effect.</li>
+                                            <li value="3">If required, restart the cluster to make the changes take effect.</li>
                                         </ol>
                                         <h2>Stopping and starting the cluster</h2>
                                         <p> After you install <span class="GeneralProductName3">Xcalar</span>, the cluster is started automatically. You need to start the cluster manually in these situations:</p>
@@ -265,13 +265,12 @@
                                             </li>
                                             <li value="2">Operations  in progress are canceled.</li>
                                         </ul>
-                                        <h3>Steps for starting the cluster</h3>
-                                        <p>The cluster can be started  if the cluster is currently stopped (that is, if all the nodes are stopped). To start the cluster, follow these steps:</p>
+                                        <h3>Steps for starting or restarting the cluster</h3>
+                                        <p>To start or restart the cluster, follow these steps:</p>
                                         <ol>
                                             <li value="1">Click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel to display a menu.</li>
-                                            <li value="2">Click <span class="UIelement">Start Cluster</span>.</li>
+                                            <li value="2">If the cluster is currently stopped (that is, if all the nodes are stopped), click <span class="UIelement">Start Cluster</span>. If the cluster is running or if some nodes are running, and you want to start the cluster again, click <span class="UIelement">Restart cluster</span>.</li>
                                         </ol>
-                                        <p>If the cluster is running or if some nodes are running, and you want to start the cluster again, click <span class="UIelement">Restart cluster</span>.</p>
                                         <h2>Updating the license</h2>
                                         <p>In the Setup panel, you can click Cluster Status to display a modal window with status information.&#160;Report the information to <span class="GeneralCompanyNameShort">Xcalar</span> technical support if needed.</p>
                                         <p>To update a license, click <span class="UIelement">Update License</span>. Paste the license key given to you by <span class="GeneralProductName3">Xcalar</span> in the modal window and then click <span class="UIelement">CONFIRM</span>.</p>

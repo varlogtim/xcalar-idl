@@ -176,10 +176,11 @@
                                         <p>This topic is applicable for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span> only.</p>
                                         <p><span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> supports parameterization of operations. This feature enables you to re-use an existing dataflow with customized values, eliminating the need for building a dataflow from scratch. Specifically, you can take advantage of an existing batch dataflow to accomplish the following goals:</p>
                                         <ul>
-                                            <li value="1">Apply the entire series of operations defined by a batch dataflow to another dataset.</li>
-                                            <li value="2">Substitute a filter function for an existing one in a batch dataflow.</li>
-                                            <li value="3">Name the export file created by a batch dataflow.</li>
-                                            <li value="4">Export the result of a batch dataflow to an export target with custom settings.</li>
+                                            <li value="1">Change the import operation.</li>
+                                            <li value="2">Apply the entire series of operations defined by a batch dataflow to another dataset.</li>
+                                            <li value="3">Substitute a filter function for an existing one in a batch dataflow.</li>
+                                            <li value="4">Name the export file created by a batch dataflow.</li>
+                                            <li value="5">Export the result of a batch dataflow to an export target with custom settings.</li>
                                         </ul>
                                         <p>This section assumes that you have already created a batch dataflow and you are familiar with the concept of exporting a table. The following topics provide information about dataflows and exporting tables:</p>
                                         <ul>
@@ -221,8 +222,8 @@
                                             <li value="1">Click <img src="../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Dataflows</span> panel. Then select the batch dataflow that you want to parameterize. &#160;The dataflow graph for the selected batch dataflow is displayed.</li>
                                             <li value="2">
                                                 <p>In the dataflow graph, locate the operation you want to parameterize, right click the icon, and select <span class="UIelement">Create parameterized operation</span>.</p>
-                                                <p>The <span class="UIelement">Parameterize Operation</span> modal window is displayed, as shown in the following screenshot.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/create-param-in-batch-df-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1197" data-mc-height="812" src="../Resources/Images/XD_screenshots/create-param-in-batch-df-graph_thumb_0_150.png" tabindex="" /></a>
+                                                <p>The <span class="UIelement">Parameterize Operation</span> modal window is displayed. The exact contents of this window depend on the operation being parameterized. But you create a parameter in the same way, as shown in the following example:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/create-param-in-batch-df-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="794" data-mc-height="533" src="../Resources/Images/XD_screenshots/create-param-in-batch-df-graph_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">In the section for the current parameter list, type the name of the new parameter.</li>
@@ -232,7 +233,7 @@
                                         <h2><a name="Displayi"></a>Displaying parameters for a batch dataflow</h2>
                                         <p>In the <span class="UIelement">Parameterize Operation</span> modal window, you can see the list of parameters created for the batch dataflow. Alternatively, follow these steps to display the parameters and their values:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Dataflows</span> panel. Then select the batch dataflow to display the dataflow graph.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Batch Dataflows</span> panel. Then select the batch dataflow to display the dataflow graph.</li>
                                             <li value="2">Click <span class="UIelement">Parameters</span> in the dataflow graph's title bar to display the parameters table.</li>
                                         </ol>
                                         <h2>Deleting a parameter</h2>
@@ -250,14 +251,18 @@
                                             <li value="1">Click <img src="../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Dataflows</span> panel. Then select the batch dataflow that you want to parameterize. &#160;The dataflow graph for the selected batch dataflow is displayed.</li>
                                             <li value="2">In the dataflow graph, locate an operation that can be parameterized, right click the icon, and select <span class="UIelement">Create parameterized operation</span>.</li>
                                             <li value="3">In the current parameters list, locate the parameter to be deleted.</li>
-                                            <li value="4">Move the cursor over the parameter name button, and then click the Delete icon in the upper right corner of the name button.</li>
+                                            <li value="4">
+                                                <p>Move the cursor over the parameter name button, and then click the Delete icon in the upper right corner of the name button, as shown in the following screenshot:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/parameter-delete.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="807" data-mc-height="186" src="../Resources/Images/XD_screenshots/parameter-delete_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
                                         </ol>
                                         <h2><a name="Passing"></a>Passing a parameter </h2>
                                         <p>When you pass a parameter, you substitute the parameter value for the value originally used in the batch dataflow. You can pass a parameter at different stages of a batch dataflow:</p>
                                         <ul>
                                             <li value="1">when importing a data source</li>
                                             <li value="2">when performing a filter operation</li>
-                                            <li value="3">when exporting a table to a file. </li>
+                                            <li value="3">when exporting the result of the dataflow</li>
                                         </ul>
                                         <p>The exact steps for passing a parameter depend on what you want to parameterize.</p>
                                         <p>Follow these steps to pass a parameter:</p>
@@ -325,20 +330,36 @@
                                             <li value="4">An export file is created with all the columns.</li>
                                         </ul>
                                         <h3>Parameterizing the data source</h3>
-                                        <p>You can parameterize the data source in a batch dataflow, which enables you to substitute a new pathname to the data source for the one currently used. You must, however, make sure that the parameterized data source has the same schema as the original data source.</p>
+                                        <p>You can parameterize the data source in a batch dataflow. For example, when you created the batch dataflow, you imported data from an on-premises data source. To apply the same batch dataflow to a data source in the cloud, you can parameterize the import operation in this batch dataflow.</p>
+                                        <p>The following requirements must be met to ensure that the batch dataflow can run successfully after you parameterize the data source:</p>
+                                        <ul>
+                                            <li value="1">
+                                                <p>The specified data target and data source path exist and are accessible when you run the parameterized batch dataflow. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The data target and the data source path need not exist and be accessible at the time you parameterize the batch dataflow. For example, if the current cluster does not have a data target named dataTarget1, you can still specify this data target when parameterizing. The import operation looks for  dataTarget1 only when you run the parameterized batch dataflow.</div>
+                                            </li>
+                                            <li value="2">The parameterized data source  have the same schema as the original data source.</li>
+                                        </ul>
                                         <p>Follow these steps to parameterize the data source:</p>
                                         <ol>
-                                            <li value="1">In the FlightInfo dataflow graph, click the first icon (dataset icon)&#160;and then click <span class="UIelement">Create parameterized operation</span>. The <span class="UIelement">Parameterize Operation</span> modal window is displayed.</li>
-                                            <li value="2">In the <span class="UIelement">Parameterize Operation</span> modal window, create a parameter named AnnualAirlinesData.</li>
-                                            <li value="3">In the <span class="UIelement">Parameterize Operation</span> modal window, drag and drop the AnnualAirlinesData parameter to the <span class="UIelement">File Path</span> field in the <span class="UIelement">Parameterized Operation</span> section, which is used as the file name suffix. The file from this path will be the source file that <span class="GeneralProductName3">Xcalar</span> imports when running the batch dataflow.</li>
-                                            <li value="4">Assign an appropriate value to the AnnualAirlinesData parameter. For example, if you want to import data from a source file with 2016 as the file name suffix, enter 2016 as the parameter value.</li>
+                                            <li value="1">
+                                                <p>In the FlightInfo dataflow graph, click the first icon (dataset icon)&#160;and then click <span class="UIelement">Create parameterized operation</span>. The <span class="UIelement">Parameterize Operation</span> modal window is displayed.</p>
+                                                <p>The <span class="UIelement">Original Operation</span> section shows the data target name and the data source path, which is a path relative to the location of the data target. If a matching pattern is used for selecting the data source files, the pattern is displayed as well.</p>
+                                            </li>
+                                            <li value="2">In the <span class="UIelement">Parameterize Operation</span> modal window, create a parameter.</li>
+                                            <li value="3">In the <span class="UIelement">Parameterize Operation</span> section, select the appropriate data target or type a data target name. </li>
+                                            <li value="4">To parameterize the data target, drag and drop the parameter to the data target name. </li>
                                             <li value="5">
-                                                <p>(Optional) If the original dataflow includes a matching pattern for selecting files in a data source folder during the import, the pattern is displayed in the <span class="UIelement">Pattern</span> field. You can remove or modify the pattern for the parameterized batch dataflow. To use a regular expression as the pattern, precede the pattern with the <span class="UIelement">re:</span> string.</p>
-                                                <div class="Example"><span class="label">EXAMPLE</span>: Suppose the batch dataflow imports from the folder at /datasets/flights and you want to import only from files with names matching a regular expression, enter re:airlines(A|B) as the pattern. When the batch dataflow is run, only files named airlinesA.csv and airlinesB.csv are imported to <span class="GeneralProductName3">Xcalar</span>; files named airlinesU.csv and airlinesX.csv are not. The following screenshot illustrates how to enter a regular expression when parameterizing a data source.</div>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/parameterized-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="883" data-mc-height="678" src="../Resources/Images/XD_screenshots/parameterized-data-source_thumb_0_150.png" tabindex="" /></a>
+                                                <p>To parameterize the path, drag and drop the parameter to the <span class="UIelement">File Path</span> field in the <span class="UIelement">Parameterized Operation</span> section. <span class="UIelement">File Path</span> is the data source path relative to the data target specified in the preceding step.</p>
+                                                <p>For example, you can create a parameter to be used as the file name suffix. The file at this path will be the data source that <span class="GeneralProductName3">Xcalar</span> imports when running the batch dataflow.</p>
+                                            </li>
+                                            <li value="6">Assign an appropriate value to the AnnualAirlinesData parameter. For example, if you want to import data from a source file with 2016 as the file name suffix, enter 2016 as the parameter value.</li>
+                                            <li value="7">
+                                                <p>(Optional) If the original dataflow includes a matching pattern for selecting files in a data source folder during the import, the pattern is displayed in the <span class="UIelement">Pattern</span> field. You can keep, remove, or modify the pattern. To use a regular expression as the pattern, precede the pattern with the <span class="UIelement">re:</span> string.</p>
+                                                <div class="Example"><span class="label">EXAMPLE</span>: Suppose the batch dataflow imports from the folder at /datasets/flights, and you want to import only from files with names matching a regular expression, enter re:airlines(A|B) as the pattern. When the batch dataflow is run, only files named airlinesA.csv and airlinesB.csv are imported to <span class="GeneralProductName3">Xcalar</span>; files named airlinesU.csv and airlinesX.csv are not. The following screenshot illustrates how to enter a regular expression when parameterizing a data source.</div>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/parameterized-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="795" data-mc-height="520" src="../Resources/Images/XD_screenshots/parameterized-data-source_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="6">
+                                            <li value="8">
                                                 <p>Click <span class="UIelement">SAVE</span>. The first icon in the batch dataflow graph is displayed with a green border to indicate that it is parameterized.</p>
                                             </li>
                                         </ol>
@@ -390,7 +411,7 @@
                                         <div class="Note"><span class="label">Recommendation</span>:&#160;Before you run the batch dataflow, click the <span class="UIelement">Create parameterized operation</span> pop-up for each parameterized icon to verify that the parameters are defined properly. </div>
                                         <h3> Customizing the export operation by using advanced export settings</h3>
                                         <p>The <span class="UIelement">Parameterize Operation</span> modal window offers  advanced export settings for you to customize the export file if you export the batch dataflow result to an export target, not a <span class="GeneralProductName3">Xcalar</span> table. The following table explains the options.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The <span class="UIelement">Record Delimiter</span>, <span class="UIelement">Field Delimiter</span>, and <span class="UIelement">Quote&#160;Character</span> options work in the same way as the advanced options for importing data. For more information about these options, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#About" class="MCXref xref">About advanced options</a>.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The <span class="UIelement">Record Delimiter</span>, <span class="UIelement">Field Delimiter</span>, and <span class="UIelement">Quote&#160;Character</span> options work in the same way as they do in the <span class="UIelement">Import Data Source</span> window, as described in <a href="../A_GettingStarted/E_SpecifyHowToImport.htm#Specifyi2" class="MCXref xref">Specifying how data is imported</a>.</div>
                                         <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />

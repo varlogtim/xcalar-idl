@@ -347,7 +347,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h2>Conditional functions</h2>
+                                        <h2><a name="Conditio"></a>Conditional functions</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -381,100 +381,128 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">eq</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 and operand 2 are equal.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any (but operands must be of the same type)</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                        <p>endsWith</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                        <p>Tests if operand 1 ends with the specified pattern. The pattern matching is case-sensitive by default. If you select the <span class="UIelement">IgnoreCase</span> option (that is, set the option to true), the pattern matching is case-insensitive.</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                        <p>String</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                        <p>Boolean</p>
+                                                    </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">exists</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if a value exists in the input column.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">eq</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 and operand 2 are equal.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but operands must be of the same type)</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ge</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is greater than or equal to operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">exists</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if a value exists in the input column.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ge</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is greater than or equal to operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, float, or boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">gt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is greater than operand 2.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer, float, or boolean</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">gt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is greater than operand 2.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, float, or boolean</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isBoolean</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input data type is boolean.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isFloat</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input data type is float.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isBoolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input data type is boolean.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isInf</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input value is infinity.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isInt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input data type is integer.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isStr</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input data type is string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isFloat</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input data type is float.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">le</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is less than or equal to operand 2.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, float, or boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isInf</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input value is infinity.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">like</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is similar to operand 2. The strings in the operands are case sensitive. The result is true only if the strings are a complete match. You can include an asterisk (*) as a wild card character. For example, if operand 1 is ABC and operand 2 is A*C, the result is true. If operand 1 is ABC and operand 2 is AB, the result is false.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isInteger</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input data type is integer.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">lt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is less than operand 2.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, float, or boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isString</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input data type is string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">neq</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is not equal to operand 2.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any (but operands must be of the same type)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">le</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is less than or equal to operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer, float, or boolean</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">not</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the logical NOT&#160;value of the input.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">like</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is similar to operand 2. The strings in the operands are case sensitive. The result is true only if the strings are a complete match. You can include an asterisk (*) as a wild card character. For example, if operand 1 is ABC and operand 2 is A*C, the result is true. If operand 1 is ABC and operand 2 is AB, the result is false.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">or</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the result of the OR operation on operand 1 and operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">lt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 is less than operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer, float, or boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">neq</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is not equal to operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but operands must be of the same type)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">not</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the logical NOT&#160;value of the input.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Boolean</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">regex</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Tests if operand 1 matches operand 2, which can be a regular expression.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">String</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">or</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the result of the OR operation on operand 1 and operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Boolean</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">regex</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if operand 1 matches operand 2, which is a regular expression.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                        <p>startsWith</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
+                                                        <p>Tests if operand 1 starts with the specified pattern. The pattern matching is case-sensitive by default. If you select the <span class="UIelement">IgnoreCase</span> option (that is, set the option to true), the pattern matching is case-insensitive.</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                        <p>String</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                        <p>Boolean</p>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>

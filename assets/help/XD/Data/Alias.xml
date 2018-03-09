@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CatapultAliasFile>
-    <Map Name="Home" Link="Home.htm" ResolvedId="1" />
+    <Map Name="tablesList" Link="B_CommonTasks/N_ChangeTableStatus.htm" ResolvedId="1010" />
+    <Map Name="meaningOfImport" Link="A_GettingStarted/B_BasicConcepts.htm#pointToDataSource" ResolvedId="1000" />
+    <Map Name="manageDataset" Link="B_CommonTasks/A_ManageDatasets.htm" ResolvedId="1001" />
+    <Map Name="filterMultipleConditions" Link="B_CommonTasks/G_FilterValue.htm#filterMultiple" ResolvedId="1002" />
+    <Map Name="joinTypes" Link="B_CommonTasks/I_JoinTables.htm" ResolvedId="1003" />
+    <Map Name="manageWorksheet" Link="B_CommonTasks/O_ManageWorksheet.htm" ResolvedId="1004" />
+    <Map Name="understandDataflowGraph" Link="C_AdvancedTasks/E_UnderstandDFandBatchDF.htm" ResolvedId="1005" />
+    <Map Name="useBatchDataflow" Link="C_AdvancedTasks/F_UseBatchDataflow.htm" ResolvedId="1006" />
+    <Map Name="dropTablesModal" Link="C_AdvancedTasks/I_UnderstandMemoryUse.htm#dropTablesModal" ResolvedId="1007" />
+    <Map Name="dataBrowserContents" Link="D_Reference/D_DataBrowser.htm" ResolvedId="1008" />
+    <Map Name="mapFunctions" Link="D_Reference/I_MapFunctions.htm" ResolvedId="1009" />
+    <Map Name="useUDF" Link="C_AdvancedTasks/C_UDFTasks.htm" ResolvedId="1011" />
+    <Map Name="schedBatchDataflow" Link="C_AdvancedTasks/F1_ScheduleBatchDataflow.htm" ResolvedId="1012" />
+    <Map Name="createExportTarget" Link="C_AdvancedTasks/G_ExportTable.htm#Creating" ResolvedId="1013" />
+    <Map Name="monitorOpStatus" Link="C_AdvancedTasks/K_Monitor.htm#Monitoring" ResolvedId="1014" />
+    <Map Name="generalSettings" Link="C_AdvancedTasks/K_Monitor.htm#Setting" ResolvedId="1015" />
 </CatapultAliasFile>

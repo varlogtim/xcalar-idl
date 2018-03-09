@@ -172,25 +172,35 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Sorting a column and finding quartiles</h1>
-                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible that the resultant table contains fewer rows than before the sort. For more information about FNF, see <a href="P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a table containing FNF</a>.</p>
+                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. </p>
                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;Sorting only affects how the rows are displayed. Subsequent operations do not preserve the result of the sort. For example, you can sort on a column named <span class="UIelement">Age</span> to display rows ordered by age. Later if you perform an arithmetic function to sum two other columns, the resultant table displayed after the function is in the original, unsorted order. The rows are no longer sorted by age.</div>
-                                        <p>After you sort a column, you can determine the quartiles for the values in the column.</p>
-                                        <h2>Sorting values in a column</h2>
+                                        <h2><a name="Sorting"></a>Sorting values in a column</h2>
                                         <p>Follow these steps to sort a column:</p>
                                         <ol>
-                                            <li value="1">In the column drop-down menu, select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether to sort in ascending or descending order.</li>
+                                            <li value="1">
+                                                <p>Follow one of these steps:</p>
+                                                <ul>
+                                                    <li value="1">In the column drop-down menu, select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether the values are sorted in ascending or descending order. </li>
+                                                    <li value="2">
+                                                        <p>In the column header, click one of the triangles, which indicates the direction of the sort, as shown in the following screenshot:</p>
+                                                        <p>
+                                                            <img src="../Resources/Images/XD_screenshots/sort-direction-in-col-header.png" />
+                                                        </p>
+                                                    </li>
+                                                </ul>
+                                            </li>
                                             <li value="2">
-                                                <p>If the data type of the column is&#160;String and <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> decides that most of the values in the column are numbers, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Alphabetically</span> or <span class="UIelement">Numerically</span>. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, the data type of the column is changed to integer.</div>
+                                                <p>If the data type of the column is&#160;String and <span class="GeneralGUIName1" data-mc-conditions="General.XDHelp">Xcalar Design</span> determines that most of the values in the column are numeric, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Alphabetically</span> or <span class="UIelement">Numerically</span>. </p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, a derived column is created based on the original column, with its data type  set to Integer or Float, depending on whether <MadCap:conditionalText data-mc-conditions="General.XDHelp"><span class="GeneralGUIName1">Xcalar Design</span></MadCap:conditionalText> detects a significant number of values in floating point format.</div>
                                             </li>
                                         </ol>
-                                        <p>The column header includes an arrow indicating the column is sorted. The following screenshot shows a part of the Distance_integer column that is sorted.</p>
+                                        <p>The column header  for a sorted column shows the direction of the sort. The following screenshot shows the column header of a column  sorted in descending order.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/column-sorted-ascending.png" />
                                         </p>
-                                        <h2>Sorting values in multiple columns</h2>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;Columns of String type in a multi-column sort are always sorted alphabetically.</div>
-                                        <p>Follow these steps to sort multiple columns:</p>
+                                        <h2>Sorting a table on multiple columns</h2>
+                                        <p>To sort a table on multiple columns, repeat the steps in <a href="#Sorting" class="MCXref xref" xrefformat="{para}">Sorting values in a column</a> for each column. Alternatively, use the method described in this section, in which you select all the columns before the sort takes place. If you use this method, you are not given the option to sort a String column numerically.</p>
+                                        <p>Follow these steps to sort a table on multiple columns:</p>
                                         <ol>
                                             <li value="1">To sort a particular column first, display the column options from that column. Then select <span class="UIelement">Sort</span> to display the  pop-up. </li>
                                             <li value="2">Click <span class="UIelement">Advanced …</span> in the pop-up to display the <span class="UIelement">Sort</span> panel. The column name is displayed in the <span class="UIelement">Sort</span> panel.</li>
@@ -205,15 +215,24 @@
                                             <li value="4">In the <span class="UIelement">Sort</span> panel, for each selected column, specify whether the sort is in ascending or descending order.</li>
                                             <li value="5">Click <span class="UIelement">SORT</span>.</li>
                                         </ol>
-                                        <h2>How quartile values are affected by sorting a string column</h2>
-                                        <p>If a column being sorted contains FNF (field not found), the FNF rows are removed from the resultant table. (For more information about FNF, see <a href="P_UnderstandFNF.htm#Sorting" class="MCXref xref" xrefformat="{para}">Sorting a table by a column containing FNF</a>.) If sorting a string column gives you a choice of sorting numerically or alphabetically, your choice affects how many rows will contain FNF after the sort. As a result, you might get different quartile values from the same column, depending on whether the column is sorted numerically or alphabetically. </p>
-                                        <div class="Example"><span class="label">Example</span>: In a table with 10 rows, suppose a string column called Age contains NA in 4 rows and numbers in other rows. If you sort values in this column alphabetically, the resultant table contains 10 rows just as it did before sorting. If you sort numerically, because the rows containing NA cannot be converted to integer, they now contain FNF and are not included in the resultant table. The table after sorting contains 6 rows. After you generate the quartile values, you can see that the values from the 10-row table are different from those from the 6-row table.</div>
+                                        <p>The following screenshot is an example showing the column headers after a multi-column sort:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/sort-key-number-in-col-header.png" />
+                                        </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The column you sort on most recently becomes the primary sort key. For example, after sorting on the DayOfWeek and AirTime columns, if you sort on the Distance column, <span class="GeneralProductName3" data-mc-conditions="General.XDHelp">Xcalar</span> updates the numbers in the column headers: The sort key number for Distance is 1, the sort key number for DayOfWeek is 2, and the sort key number for AirTime is 3. </div>
+                                        <h2>Using a single sort key again after sorting with multiple keys</h2>
+                                        <p>Suppose your table is currently sorted on two column. If you want to sort the table only on one of these columns instead, sort the column again in the same direction as you did. </p>
+                                        <div class="Example"><span class="label">EXAMPLE</span>: if the table is currently sorted on the DayOfWeek and AirTime columns, but you want to change the table such that it is sorted on DayOfWeek only, you can sort DayOfWeek in the same direction (for example, in ascending order) as before. Doing so keeps the DayOfWeek column sorted but removes AirTime as a sort key.&#160;The values in AirTime are no longer unsorted.</div>
+                                        <div class="Example"><span class="label">NOTE</span>:&#160;You can re-sort a table on a column in the same direction as before if the column is one of the multiple sort keys.&#160;If the table is sorted only on one column, trying to re-sort the table on this column in the same direction generates a message, indicating that the table is already sorted.</div>
+                                        <h2>Reverting a table to the unsorted state</h2>
+                                        <p>If you no longer want the table to be sorted on any column, from the dataflow graph, select a table before the table was sorted and put the table back in the worksheet.</p>
+                                        <p>For information about how to revert to a particular table, see <a href="F_UndoRedo.htm#Using" class="MCXref xref" xrefformat="{para}">Using the dataflow graph</a>.</p>
                                         <h2>Finding quartiles in a column</h2>
-                                        <p>After you sort a column, follow these steps to determine the quartiles for the values in the column:</p>
+                                        <p>Follow these steps to determine the quartiles  in a column:</p>
                                         <ol>
                                             <li value="1"> Right click the column header to display the column drop-down menu.</li>
                                             <li value="2">
-                                                <p>Click <span class="UIelement">Profile…</span> in the drop-down menu. The <span class="UIelement">Profile</span> modal window containing the quartile summary section is displayed. Click <span class="UIelement">Generate</span> for the quartile summary. The following screenshot shows an example of the quartile summary.</p>
+                                                <p>Click <span class="UIelement">Profile…</span> in the drop-down menu. The <span class="UIelement">Profile</span> modal window containing the quartile summary section is displayed. If the column is already sorted, the quartiles are displayed automatically. Otherwise, click <span class="UIelement">Generate</span> to create the quartile summary. The following screenshot shows an example of the quartile summary.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/quartile-summary.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="677" data-mc-height="479" src="../Resources/Images/XD_screenshots/quartile-summary_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>

@@ -200,7 +200,7 @@
                                             <li value="1">From a table that you want to add to a union, click the header of a column that you want to include in the union output. The column drop-down menu is displayed.</li>
                                             <li value="2">
                                                 <p>Select <span class="UIelement">Union…</span> to display the <span class="UIelement">UNION</span>&#160;panel, as shown in the following screenshot:</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/union-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1272" data-mc-height="630" src="../Resources/Images/XD_screenshots/union-panel_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/union-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="781" data-mc-height="580" src="../Resources/Images/XD_screenshots/union-panel_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">In the <span class="UIelement">Mode</span> field, specify whether you want to use Union All or Union.</li>
@@ -209,16 +209,22 @@
                                             <li value="6">(Optional) Click <span class="UIelement">Add&#160;Table</span> to include another table in the union. Repeat this step for each additional table.</li>
                                             <li value="7">(Optional)&#160;Change the resultant column's name. By default, the resultant column's name is the same as the name of the column in the first input table.</li>
                                             <li value="8">
-                                                <p>In the <span class="UIelement">To be Dropped</span> section, the panel displays a list of columns from each input table. Select the columns that will make up the resultant column by following these guidelines:</p>
+                                                <p>The <span class="UIelement">To be Dropped</span> section provides a  list for each input table. The list shows the columns that can potentially be in the union table.  Select the columns that will make up the resultant column by following these guidelines:</p>
                                                 <ul>
                                                     <li value="1">The column from which you display the panel is automatically selected as an input column from Table 1 (the first table in the union). You can, however, replace it with another column. </li>
                                                     <li value="2">
-                                                        <p>From the <span class="UIelement">To be Dropped</span> section, click the Plus icon next to a column name to add any column from an input table to create a resultant column that will contain the clicked column. To locate a column in the input table, click the column name on the list.</p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;A resultant column in the output can be made of fewer columns than input tables. For example, a resultant table named DayOfWeek can be made of the column named DayOfWeek in Table1 and no column from Table 2. The rows from Table 2 in the resultant DayOfWeek column will show&#160;FNF.</div>
+                                                        <p>In the <span class="UIelement">To be Dropped</span> section, click a column name or the Plus icon preceding the name to create a resultant column that will contain the clicked column.</p>
+                                                        <div class="Note"><span class="label">TIP</span>:&#160;To make sure that the selected column is the intended column, move the cursor over the column name in the list in the <span class="UIelement">To be Dropped</span> section. Click the focus icon to locate the column  in the worksheet. This enables you to verify that the column is the appropriate one.</div>
                                                     </li>
+                                                    <li value="3">You can create a column in the union table that consists of fewer columns than input tables. For example, in the union table, a column named DayOfWeek can be made of the  DayOfWeek column in Table1 and no column from Table 2. The rows from Table 2 in the DayOfWeek column of the union table will show&#160;FNF.</li>
                                                 </ul>
                                             </li>
-                                            <li value="9">In the <span class="UIelement">Columns in Union Table</span> section, click the Down arrow for each input table column to display a drop-down list. From this list, select a column that will make up the resultant column. To locate a column in the input table, click the column name on the list.</li>
+                                            <li value="9">
+                                                <p>The <span class="UIelement">Columns in Union Table</span> section shows the columns that already exist in the union table. In this section, you can select a column from each input table that will make up the column in the union table.</p>
+                                                <p>For each input table, click a column name or the Down arrow next to it to display a drop-down list. From this list, select a column that will make up the resultant column.</p>
+                                                <div class="Note"><span class="label">TIP</span>:&#160;To make sure that the selected column is the intended column, move the cursor over the column name in the drop-down list. Click the focus icon to locate the column  in the worksheet. This enables you to verify that the column is the appropriate one.</div>
+                                                <p>Repeat this step for each column in the union table.</p>
+                                            </li>
                                             <li value="10">Click <span class="UIelement">UNION&#160;ALL</span>&#160;or <span class="UIelement">UNION</span>. If a resultant column consists of columns of mismatched types, an error message is displayed. You must specify the data type of the resultant column, and then click <span class="UIelement">UNION&#160;ALL</span>&#160;or <span class="UIelement">UNION</span> again.</li>
                                         </ol>
                                     </div>
