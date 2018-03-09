@@ -427,6 +427,7 @@ window.DagEdit = (function($, DagEdit) {
             if (query[query.length - 1] === ",") {
                 query = query.slice(0, -1);
             }
+
             query = JSON.parse("[" + query + "]");
 
             if (query.length > 1) {
@@ -1047,7 +1048,9 @@ window.DagEdit = (function($, DagEdit) {
             $dagTableWrap.addClass("aggError hasError");
 
             var tip = '<div class="dagTableTip error">' +
-                        '<div>Aggregate(s) not found: ' + xcHelper.listToEnglish(unknownAggs) + '</div>' +
+                        '<div>Aggregate(s) not found: ' +
+                            xcHelper.listToEnglish(unknownAggs) +
+                        '</div>' +
                       '</div>';
             $dagTableWrap.find(".actionType").find(".dagTableTip").remove();
             $dagTableWrap.find(".actionType").append(tip);

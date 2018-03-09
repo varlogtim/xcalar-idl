@@ -676,6 +676,59 @@ describe("DagEdit Test", function() {
             });
         });
 
+        it("DagEdit.storeJoin should work", function() {
+            var called = false;
+            var joinCache = XIApi.join;
+            XIApi.join = function() {
+                return PromiseHelper.resolve();
+            }
+            var storeCache = DagEdit.store;
+            DagEdit.store = function(struct) {
+                expect(struct).to.equal("test2");
+            };
+
+            var transactionCache = Transaction.done;
+            Transaction.done = function(id, options) {
+                expect(Math.round(id)).to.not.equal(id);
+                expect(options.noSql).to.be.true;
+                called = true;
+                return '"test1","test2",';
+            };
+
+            var table1 = new TableMeta({
+                "tableId": "test1",
+                "tableName": "test1",
+                "status": TableType.Active,
+                "tableCols": []
+            });
+
+            var table2 = new TableMeta({
+                "tableId": "test2",
+                "tableName": "test2",
+                "status": TableType.Active,
+                "tableCols": []
+            });
+
+            gTables["test1"] = table1;
+            gTables["test2"] = table2;
+
+            DagEdit.storeJoin("innerJoin", {tableId: "test1", colNums: []},
+                        {tableId: "test2", colNums: []}, "newTable", {});
+            var info = DagEdit.getInfo();
+
+            expect(Object.keys(info.insertedNodes).length).to.equal(1);
+            for (var i in info.insertedNodes) {
+                expect(info.insertedNodes[i].length).to.equal(1);
+                expect(info.insertedNodes[i][0]).to.equal("test1");
+            }
+
+            XIApi.join = joinCache;
+            DagEdit.store = storeCache;
+            Transaction.done = transactionCache;
+            delete gTables["test1"];
+            delete gTables["test2"];
+        });
+
         it("store should work", function() {
             var editInfo = DagEdit.getInfo();
             expect(editInfo.structs).to.be.empty;
@@ -781,6 +834,38 @@ describe("DagEdit Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("DagEdit.storeUnion should work", function() {
+            var called = false;
+            var unionCache = XIApi.union;
+            XIApi.union = function() {
+                return PromiseHelper.resolve();
+            }
+            var storeCache = DagEdit.store;
+            DagEdit.store = function(struct) {
+                expect(struct).to.equal("test2");
+            };
+
+            var transactionCache = Transaction.done;
+            Transaction.done = function(id, options) {
+                expect(Math.round(id)).to.not.equal(id);
+                expect(options.noSql).to.be.true;
+                called = true;
+                return '"test1","test2",';
+            };
+
+            DagEdit.storeUnion();
+            var info = DagEdit.getInfo();
+            expect(Object.keys(info.insertedNodes).length).to.equal(1);
+            for (var i in info.insertedNodes) {
+                expect(info.insertedNodes[i].length).to.equal(1);
+                expect(info.insertedNodes[i][0]).to.equal("test1");
+            }
+
+            XIApi.union = unionCache;
+            DagEdit.store = storeCache;
+            Transaction.done = transactionCache;
         });
 
         it("store should work", function() {
@@ -892,6 +977,7 @@ describe("DagEdit Test", function() {
         });
     });
 
+    // testing fail
     describe("run procedure function test", function() {
         it("run procedure should work", function() {
             var cachedFn = XcalarQueryWithCheck;
