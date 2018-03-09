@@ -2082,10 +2082,21 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function generateUnionTooltip(parentNames, fields) {
-        var tooltip;
-        tooltip = "Union between tables: <br>" +
+        var columns = "";
+        for (var i = 0; i < fields[0].length; i++) {
+            if (i > 0) {
+                columns += ", ";
+            }
+            for (var j = 0; j < fields.length; j++) {
+                if (j > 0) {
+                    columns += " = ";
+                }
+                columns += fields[j][i];
+            }
+        }
+        var tooltip = "Union between tables: <br>" +
                 xcHelper.escapeHTMLSpecialChar(parentNames.join(", ")) +
-                "<br>Columns : " + xcHelper.escapeHTMLSpecialChar(fields.join("="));
+                "<br>Columns : " + xcHelper.escapeHTMLSpecialChar(columns);
         return tooltip;
     }
 
@@ -2211,8 +2222,6 @@ window.DagDraw = (function($, DagDraw) {
 
     function getUnionSrcCols(node) {
         var srcColSets = [];
-        // var lSrcCols = [];
-        // var rSrcCols = [];
         var parents = getGroupLeaves(node); // gets leaves within a tagged group
 
         for (var i = 0; i < parents.length; i++) {
