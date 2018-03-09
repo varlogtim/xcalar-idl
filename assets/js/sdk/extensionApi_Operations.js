@@ -94,14 +94,23 @@ window.XcSDK.Extension.prototype = (function() {
                                           prefix);
         },
 
-        sort: function(order, colName, tableName, newTableName) {
+
+        sort: function(orders, colNames, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
-            var colInfo = [{
-                name: colName,
-                ordering: order
-            }];
+
+            orders = (orders instanceof Array) ? orders : [orders];
+            colNames = (colNames instanceof Array) ? colNames : [colNames];
+
+            var colInfo = orders.map(function(order, index) {
+                var colName = colNames[index];
+                return {
+                    name: colName,
+                    ordering: order
+                }
+            });
+
             XIApi.sort(txId, colInfo, tableName, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
