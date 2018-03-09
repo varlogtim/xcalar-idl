@@ -744,26 +744,31 @@ window.ProfileEngine = (function(ProfileEngine) {
         var minAgg = runAgg(txId, "min", tableName, profileInfo);
         PromiseHelper.when(maxAgg, minAgg)
         .then(function() {
-            // if max = 100, min = 0, numRowsToFetch = 20,
-            // (max - min) / numRowsToFetch will get bucketSize 5
-            // but range [100, 105) is the 21th size,
-            // so we should do (max + min + numRowsToFetch) / numRowsToFetch
             var max = profileInfo.aggInfo.max;
             var min = profileInfo.aggInfo.min;
-            var bucketSize = (max - min
-                              + numRowsToFetch) / numRowsToFetch;            
-            if (bucketSize >= 1) {
-                bucketSize = xcHelper.roundToSignificantFigure(bucketSize, numRowsToFetch, max, min);
-            }
-            else if (bucketSize >= 0.01) {
-                // have mostly two digits after decimal
-                bucketSize = Math.round(bucketSize * 100) / 100;
-            }
+            var bucketSize = calcFitAllBucketSize(numRowsToFetch, max, min);
             deferred.resolve(bucketSize);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function calcFitAllBucketSize(numRowsToFetch, max, min) {
+        // if max = 100, min = 0, numRowsToFetch = 20,
+        // (max - min) / numRowsToFetch will get bucketSize 5
+        // but range [100, 105) is the 21th size,
+        // so we should do (max + min + numRowsToFetch) / numRowsToFetch
+        var bucketSize = (max - min
+                              + numRowsToFetch) / numRowsToFetch;
+        if (bucketSize >= 1) {
+            bucketSize = xcHelper.roundToSignificantFigure(bucketSize, numRowsToFetch, max, min);
+        }
+        else if (bucketSize >= 0.01) {
+            // have mostly two digits after decimal
+            bucketSize = Math.round(bucketSize * 100) / 100;
+        }
+        return bucketSize;
     }
 
     function isValidBucketSize(bucketSize) {
@@ -895,6 +900,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     if (window.unitTestMode) {
         ProfileEngine.__testOnly__ = {};
         ProfileEngine.__testOnly__.getProfileResultSetId = getProfileResultSetId;
+        ProfileEngine.__testOnly__.calcFitAllBucketSize = calcFitAllBucketSize;
     }
     /* End Of Unit Test Only */
 

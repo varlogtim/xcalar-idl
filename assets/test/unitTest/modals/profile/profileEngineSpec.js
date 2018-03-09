@@ -458,6 +458,27 @@ describe("Profile-Profile Engins Test", function() {
         });
     });
 
+    it("calcFitAllBucketSize should return correct bucket size", function() {
+        // function parameters are: numRowsToFetch, max, min
+        var bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 600, 100);
+        expect(bucketSize).to.equal(30);
+
+        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 2700, -2700);
+        expect(bucketSize).to.equal(300);
+
+        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 46000);
+        expect(bucketSize).to.equal(400);
+
+        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 46064);
+        expect(bucketSize).to.equal(400);
+
+        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 45950);
+        expect(bucketSize).to.equal(500);
+
+        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 2700000, 100);
+        expect(bucketSize).to.equal(200000);
+    });
+
     after(function() {
         XIApi.index = oldIndex;
         XIApi.getNumRows = oldGetNumRows;

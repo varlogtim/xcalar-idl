@@ -540,6 +540,20 @@ describe("Profile-Profile Test", function() {
             });
         });
 
+        it("Should have correct fit all range values", function() {
+            var $rangeValues = $("#profileModal g tspan");
+            expect($rangeValues.size()).to.equal(6);
+            var previousVal = 0;
+            if ($rangeValues.size() > 1) {
+                previousVal = parseInt($rangeValues[0].innerHTML);
+            }
+            for (var i = 1; i < $rangeValues.size(); i++) {
+                var currVal = parseInt($rangeValues[i].innerHTML);
+                expect(previousVal).to.equal(currVal - 1);
+                previousVal = currVal;
+            }
+        });
+
         it("Should back to single bucket", function(done) {
             var $single = $dropdown.find('li[name="single"]');
             $single.trigger(fakeEvent.mouseup);
