@@ -74,7 +74,8 @@
         "expressions.ShiftRightUnsigned": null,
         "expressions.Hypot": null,
         "expressions.Logarithm": null,
-        "expressions.Round": "round",
+        "expressions.Round": null,
+        "expressions.xcRound": "round",
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
@@ -266,6 +267,36 @@
                 "num-children": 2,
                 "left": 0,
                 "right": 1
+            });
+        }
+        function multiplyNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Multiply",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
+            });
+        }
+        function divideNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Divide",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
+            });
+        }
+        function powerNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Pow",
+                "num-children": 2,
+                "left": 0,
+                "right": 1
+            });
+        }
+        function roundNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.xcRound",
+                "num-children": 1
             });
         }
         function stringReplaceNode() {
@@ -654,6 +685,19 @@
                 newNode.children.push(childNode,
                                       node.children[0], node.children[1]);
                 node = newNode;
+                break;
+            // XXX need to avoid reuse issue
+            case ("expressions.Round"):
+                var mulNode = multiplyNode();
+                var divNode = divideNode();
+                var powNode = powerNode();  // Reused
+                var ronNode = roundNode();
+                var tenNode = literalNumberNode(10);  // Reused
+                mulNode.children = [node.children[0], powNode];
+                divNode.children = [ronNode, powNode];
+                powNode.children = [tenNode, node.children[1]];
+                ronNode.children = [mulNode];
+                node = divNode;
                 break;
             default:
                 break;
@@ -2740,7 +2784,7 @@
         if (isNewCol) {
             name = name.replace(/(::)/g, "--");
         }
-        return name.replace(/[().]/g, "_").toUpperCase();
+        return xcHelper.stripColName(name,true).toUpperCase();
     }
 
     function replaceUDFName(name, udfs) {
