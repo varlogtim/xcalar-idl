@@ -995,6 +995,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 clearTimeout(timer);
                 $loadSection.hide();
                 $searchLoadingSection.hide();
+                searchId = null;
             }
         });
 
@@ -1632,7 +1633,9 @@ window.FileBrowser = (function($, FileBrowser) {
         // this is faster than $container.html
 
         if (len === 0) {
-            html += '<div class="hint">' + DSTStr.EmptyDirectory + '</div>';
+            var emptyMsg = searchId == null ?
+                           DSTStr.EmptyDirectory : DSTStr.EmptySearch;
+            html += '<div class="hint">' + emptyMsg + '</div>';
         }
         document.getElementById('innerFileBrowserContainer').innerHTML = html;
         refreshEllipsis();
