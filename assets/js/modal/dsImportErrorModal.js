@@ -87,7 +87,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 xcHelper.downloadAsFile(curDSName + "_err.json", JSON.stringify(errorData, null, 2));
             })
             .fail(function(err) {
-                Alert.error(ErrTStr.ErrorModalDownloadFailure);
+                Alert.error(ErrTStr.ErrorModalDownloadFailure, err);
             });
         });
     };
