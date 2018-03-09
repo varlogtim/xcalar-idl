@@ -376,14 +376,14 @@
                 <div class="qMarkHeight">
                   <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopAll %>" data-placement="top"></i>
                 </div>
-                <div class="qMarkHeight">
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
-                </div>
 <!--                 <div class="qMarkHeight">
                   <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopFile %>" data-placement="top"></i>
                 </div> -->
                 <div class="qMarkHeight">
                   <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermStopRecord %>" data-placement="top"></i>
+                </div>
+                <div class="qMarkHeight">
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSAdvTermAllow %>" data-placement="top"></i>
                 </div>
               </div>
               <div class="multiLine termOptions">
@@ -395,13 +395,6 @@
                       <i class="icon xi-radio-empty"></i>
                     </div>
                     <span><%= dicts.dsForm.TerminateOnError %></span>
-                  </div>
-                  <div class="radioButton xc-action" data-option="continue">
-                    <div class="radio">
-                      <i class="icon xi-radio-selected"></i>
-                      <i class="icon xi-radio-empty"></i>
-                    </div>
-                    <span><%= dicts.dsForm.ContinueOnError %></span>
                   </div>
 <!--                   <div class="radioButton xc-action" data-option="stopfile">
                     <div class="radio">
@@ -416,6 +409,13 @@
                       <i class="icon xi-radio-empty"></i>
                     </div>
                     <span><%= dicts.dsForm.StopRecord %></span>
+                  </div>
+                  <div class="radioButton xc-action" data-option="continue">
+                    <div class="radio">
+                      <i class="icon xi-radio-selected"></i>
+                      <i class="icon xi-radio-empty"></i>
+                    </div>
+                    <span><%= dicts.dsForm.ContinueOnError %></span>
                   </div>
                 </div>
               </div>
