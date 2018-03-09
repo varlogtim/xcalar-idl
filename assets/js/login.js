@@ -15,6 +15,7 @@ $(document).ready(function() {
     var isWaadResolved = false;
     var splashMissedHiding = false;
     setupHostName();
+    xcSessionStorage.removeItem("xcalar-username");
 
     waadSetup()
     .then(function(waadLoggedIn) {
