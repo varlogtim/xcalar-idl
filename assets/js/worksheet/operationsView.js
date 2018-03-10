@@ -1629,10 +1629,25 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // scrolls to target before showing statusbox
-    function statusBoxShowHelper(text, $input) {
-        $input.get(0).scrollIntoView();
+    // delayhide is milliseconds to delay allow hiding, optional
+    function statusBoxShowHelper(text, $input, delayHide) {
+        // scroll into view if not in view
+        var inputTop = $input.closest(".row").offset().top;
+        var $mainContent = $activeOpSection.closest(".mainContent");
+        var sectionTop = $mainContent.offset().top;
+        var scrollTop = $mainContent.scrollTop();
+        if (inputTop < sectionTop) { // above view
+            $mainContent.scrollTop(scrollTop - (sectionTop - inputTop));
+        } else if (inputTop + $input.closest(".row").height() >
+            (sectionTop + $mainContent.height())) { // below view
+            var diff = (inputTop + $input.closest(".row").height()) -
+                        (sectionTop + $mainContent.height());
+            $mainContent.scrollTop(scrollTop + diff + 40);
+        }
+
         xcTooltip.hideAll();
-        StatusBox.show(text, $input, false, {preventImmediateHide: true});
+        StatusBox.show(text, $input, false, {preventImmediateHide: true,
+            delayHide: delayHide});
     }
 
     // for map
@@ -1940,7 +1955,8 @@ window.OperationsView = (function($, OperationsView) {
                 $input.addClass("variableArgs");
                 $row.after(
                     '<div class="addArgWrap addArgWrapLarge">' +
-                        '<button class="btn addArg addMapArg">' +
+                        '<button class="btn addArg addMapArg" data-typeid="' +
+                            typeId + '">' +
                           '<i class="icon xi-plus"></i>' +
                           '<span class="text">ADD ANOTHER ARGUMENT</span>' +
                         '</button>' +
@@ -3140,7 +3156,7 @@ window.OperationsView = (function($, OperationsView) {
                     if ($castDropdown.length) {
                         $errorInput = $castDropdown.find('input');
                     }
-                    statusBoxShowHelper(errorText, $errorInput);
+                    statusBoxShowHelper(errorText, $errorInput, 500);
                 }
             });
             if (castIsVisible) {
@@ -3150,7 +3166,7 @@ window.OperationsView = (function($, OperationsView) {
                 if ($castDropdown.length) {
                     $errorInput = $castDropdown.find('input');
                 }
-                statusBoxShowHelper(errorText, $errorInput);
+                statusBoxShowHelper(errorText, $errorInput, 500);
             }
         } else {
             resetCastOptions($errorInput);
@@ -3231,24 +3247,14 @@ window.OperationsView = (function($, OperationsView) {
         $castDropdowns.addClass('hidden');
         var lis;
         var castAvailable = false;
-        var start = 0;
-        if (operatorName === "group by") {
-            // ignore "index on" args
-            // start = allColTypes.length - 1;
-        }
         var inputNum;
-        for (var i = start; i < allColTypes.length; i++) {
+        for (var i = 0; i < allColTypes.length; i++) {
             if (allColTypes[i].filteredTypes &&
                 allColTypes[i].filteredTypes.length &&
                 inputsToCast.indexOf(allColTypes[i].inputNum) > -1) {
                 castAvailable = true;
                 lis = "<li class='default'>default</li>";
                 inputNum = allColTypes[i].inputNum;
-                // if (operatorName === "group by") {
-                //     // have to adjust because in groupby, cast dropdowns
-                //     // and args indexes don't match up
-                //     inputNum -= (allColTypes.length - 1);
-                // }
                 $castDropdowns.eq(inputNum).removeClass('hidden');
                 for (var j = 0; j < allColTypes[i].filteredTypes.length; j++) {
                     lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
@@ -4608,19 +4614,6 @@ window.OperationsView = (function($, OperationsView) {
 
     function addGroupOnArg(index) {
         var html = getArgInputHtml();
-        html = '<div class="row gbOnRow extraArg clearfix">' + html +
-                    '<div class="cast new">' +
-                        '<span class="label">Cast: </span>' +
-                        '<div class="dropDownList hidden">' +
-                            '<input class="text nonEditable" value="default"' +
-                                ' disabled>' +
-                            '<div class="iconWrapper dropdown">' +
-                                '<i class="icon xi-arrow-down"></i>' +
-                            '</div>' +
-                            '<ul class="list"></ul>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
         var $group = $activeOpSection.find(".group").eq(index);
         $group.find('.gbOnRow').last().after(html);
         $group.find('.gbOnArg').last().focus();
@@ -4692,13 +4685,15 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function addMapArg($btn) {
-        var html = getArgInputHtml();
-        $btn.parent().prev().find('.inputWrap').last().after(html);
-        $btn.parent().prev().find('.inputWrap').last().find('input').focus();
+        var typeId = $btn.data("typeid");
+        var html = getArgInputHtml(typeId);
+        $btn.parent().before(html);
+        $btn.parent().prev().find('.inputWrap').find('input').focus();
         formHelper.refreshTabbing();
 
-        var $ul = $btn.parent().prev().find('.inputWrap').last().find(".list");
+        var $ul = $btn.parent().prev().find('.inputWrap').find(".list");
         addSuggestListForExtraArg($ul);
+        addCastDropDownListener();
     }
 
     function addSuggestListForExtraArg($ul) {
@@ -4716,32 +4711,47 @@ window.OperationsView = (function($, OperationsView) {
         $ul.removeClass('new');
     }
 
-    function getArgInputHtml() {
+    function getArgInputHtml(typeId) {
+        if (typeId == null) {
+            typeId = -1;
+        }
         var inputClass = "";
-        var wrapClass = "";
         if (operatorName === "map") {
-            wrapClass = "extraArg";
             inputClass = "mapExtraArg";
         } else if (operatorName === "group by") {
             inputClass = "gbOnArg";
         }
-        var html = '<div class="inputWrap ' + wrapClass + '">' +
-                        '<div class="dropDownList">' +
-                          '<input class="arg ' + inputClass +
-                          '" type="text" tabindex="10" ' +
-                            'spellcheck="false" data-typeid="-1">' +
-                          '<div class="list hint new">' +
-                           '<ul></ul>' +
-                            '<div class="scrollArea top">' +
-                              '<i class="arrow icon xi-arrow-up"></i>' +
-                            '</div>' +
-                            '<div class="scrollArea bottom">' +
-                              '<i class="arrow icon xi-arrow-down"></i>' +
-                            '</div>' +
-                         '</div>' +
+        var html =
+            '<div class="row gbOnRow extraArg clearfix">' +
+                '<div class="inputWrap">' +
+                    '<div class="dropDownList">' +
+                      '<input class="arg ' + inputClass +
+                      '" type="text" tabindex="10" ' +
+                        'spellcheck="false" data-typeid="' + typeId + '">' +
+                      '<div class="list hint new">' +
+                       '<ul></ul>' +
+                        '<div class="scrollArea top">' +
+                          '<i class="arrow icon xi-arrow-up"></i>' +
                         '</div>' +
-                        '<i class="icon xi-cancel"></i>' +
-                    '</div>';
+                        '<div class="scrollArea bottom">' +
+                          '<i class="arrow icon xi-arrow-down"></i>' +
+                        '</div>' +
+                     '</div>' +
+                    '</div>' +
+                    '<i class="icon xi-cancel"></i>' +
+                '</div>' +
+                '<div class="cast new">' +
+                    '<span class="label">Cast: </span>' +
+                    '<div class="dropDownList hidden">' +
+                        '<input class="text nonEditable" value="default"' +
+                            ' disabled>' +
+                        '<div class="iconWrapper dropdown">' +
+                            '<i class="icon xi-arrow-down"></i>' +
+                        '</div>' +
+                        '<ul class="list"></ul>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
         return html;
     }
 
@@ -5022,4 +5032,3 @@ window.OperationsView = (function($, OperationsView) {
 
     return (OperationsView);
 }(jQuery, {}));
-

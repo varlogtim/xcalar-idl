@@ -22,6 +22,7 @@ window.StatusBox = (function($, StatusBox){
      *      persist: if set true, the box will not hide unless click
      *               on close button,
      *      detail: string, extra information text to display
+     *      delayHide: number of milliseconds to delay ability to hide box
      */
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
@@ -124,9 +125,15 @@ window.StatusBox = (function($, StatusBox){
         }
 
         if (options.preventImmediateHide) {
+            var delay;
+            if (options.delayHide) {
+                delay = options.delayHide;
+            } else {
+                delay = 0;
+            }
             setTimeout(function() {
                 open = true;
-            });
+            }, delay);
         } else {
             open = true;
         }
