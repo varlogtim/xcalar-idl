@@ -3195,6 +3195,8 @@ module.exports = function(grunt) {
             removeDebug(jsFile);
             grunt.log.ok();
         }
+        // XXX HACK
+        removeDebug(DESTDIR + "index.html");
         grunt.task.run(DISPLAY_SUMMARY);
     });
 
@@ -3218,6 +3220,7 @@ module.exports = function(grunt) {
         }
         contents = fs.readFileSync(filepath, "utf8");
         contents = contents.replace(/\/\*\* START DEBUG ONLY \*\*\/(.|\n)*?\/\*\* END DEBUG ONLY \*\*\//g, "");
+        contents = contents.replace(/<!--!START DEBUG ONLY -->(.|\n)*?<!--!END DEBUG ONLY -->/g, "");
         fs.writeFileSync(filepath, contents);
     }
 
