@@ -645,7 +645,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#dsForm-writeUDF").click(function() {
             $(this).blur();
-            var pathIndex = loadArgs.getPreviewingSource().index;
+            var pathIndex = loadArgs.getPreivewIndex();
             var path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                                 path, true);
@@ -1603,10 +1603,10 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getColumnHeaders() {
+    function getColumnHeaders(isCSV) {
         var headers = [];
         var $ths = $previewTable.find("th:not(.rowNumHead):not(.extra)");
-        if (loadArgs.getFormat() === formatMap.CSV) {
+        if (isCSV || loadArgs.getFormat() === formatMap.CSV) {
             $ths.each(function() {
                 var $th = $(this);
                 var type = $th.data("type") || "string";
@@ -2415,7 +2415,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (hasChangeFormat) {
             if (oldFormat === formatMap.CSV) {
-                showHeadersWarning();
+                showHeadersWarning(true);
             } else {
                 hideHeadersWarning();
             }
@@ -4740,8 +4740,8 @@ window.DSPreview = (function($, DSPreview) {
         showHeadersWarning();
     }
 
-    function showHeadersWarning() {
-        if (shouldShowHeadersWarning()) {
+    function showHeadersWarning(isCSV) {
+        if (shouldShowHeadersWarning(isCSV)) {
             $("#dsForm-warning").removeClass("xc-hidden");
         } else {
             hideHeadersWarning();
@@ -4754,13 +4754,13 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-warning").addClass("xc-hidden");
     }
 
-    function shouldShowHeadersWarning() {
+    function shouldShowHeadersWarning(isCSV) {
         if (loadArgs.hasPreviewMultipleFiles()) {
             // multi DS case and other files has been previewed
             return true;
         }
         // other case, detect if header has been changed
-        var headers = getColumnHeaders();
+        var headers = getColumnHeaders(isCSV);
         var sourceIndex = loadArgs.getPreivewIndex();
         var suggestHeaders = loadArgs.getSuggestHeaders(sourceIndex);
         return hasTypedColumnChange(suggestHeaders, headers);

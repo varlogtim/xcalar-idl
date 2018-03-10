@@ -2062,6 +2062,21 @@ describe("Dataset-DSPreview Test", function() {
             FileBrowser.show = oldFileBrowser;
         });
 
+        it("should click dsForm-writeUDF to trigger jupyer", function() {
+            var loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            var test = false;
+            var oldFunc = JupyterPanel.autofillImportUdfModal;
+            JupyterPanel.autofillImportUdfModal = function() {
+                test = true;
+            };
+
+            loadArgs.set({files: [{}]});
+            loadArgs.setPreviewingSource(0, "testFile");
+            $("#dsForm-writeUDF").click();
+            expect(test).to.be.true;
+            JupyterPanel.autofillImportUdfModal = oldFunc;
+        });
+
         after(function() {
             DSPreview.__testOnly__.set();
             DSPreview.__testOnly__.resetForm();
