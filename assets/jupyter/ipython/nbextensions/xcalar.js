@@ -180,31 +180,35 @@ define(function() {
                         }
                         text += '# Xcalar Map UDF Template\n' +
                                 '#\n' +
-                                '# A function definition to contain your Map UDF Python code. The sample Python\n' +
-                                '# code concatenates all of your parameters into one string, and returns that \n' +
-                                '# string.\n' +
-                                '# \n' +
-                                '# To create your own map UDF, edit the function definition below, named \n' +
-                                '# <' + fnName +'>. \n' +
+                                '# This is a function definition for a Python Map UDF written to apply to \n' +
+                                '# table: <' + args.tableName + '> columns: <' + colsArg + '>.\n' +
                                 '#\n' +
-                                '# To test your map UDF, run this cell to define your UDF \n' +
-                                '# and use the cell beneath this one. \n' +
+                                '# Module name: <' + moduleName + '>\n' +
+                                '# Function name: <' + fnName + '>\n' +
                                 '#\n' +
-                                '# To copy this UDF to the Xcalar UDF editor, click the Copy to UDF Editor \n' +
-                                '# button at the bottom of this cell, name your module, and click SAVE. \n' +
+                                '# REQUIREMENTS: Map UDF functions take one or more columns as arguments, and\n' +
+                                '# return a string. \n' +
                                 '#\n' +
-                                '# REQUIREMENT: Map UDF functions must return a string value.\n' +
+                                '# To create a map UDF, edit the function definition below, named <' + fnName + '>. \n' +
+                                '#\n' +
+                                '# To test your map UDF, run this cell. (Hit <control> + <enter>.) \n' +
+                                '#\n' +
+                                '# To apply the <' + moduleName + '> module to your table <' + args.tableName + '> \n' +
+                                '# click the "Use UDF on Table ' + args.tableName + '" button. \n' +
+                                '#\n' +
+                                '# NOTE: Use discipline before replacing this module. Consider whether previous \n' +
+                                '# uses of this map UDF could be broken by new changes. If so, versioning this \n' +
+                                '# module may be appropriate. \n' +
                                 '#\n' +
                                 '# Best practice is to name helper functions by starting with __. Such \n' +
                                 '# functions will be considered private functions and will not be directly \n' +
-                                '# invokable from Xcalar Design.\n' +
-                                '\n' +
+                                '# invokable from Xcalar tools.\n' +
+                                '#' +
                                 '# Map UDF function definition.\n' +
                                 'def ' + fnName + '(' + colsArg + '):\n' +
-                               '    # You can modify the function name.\n' +
-                               '    # Your code starts from here. This is an example code.\n' +
-                               '    return ' + retStr + '\n\n' +
-
+                                '    # You can modify the function name.\n' +
+                                '    # Your code starts from here. This is an example code.\n' +
+                                '    return ' + retStr + '\n\n' +
                                 '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
                                 'from xcalar.compute.api.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
@@ -222,17 +226,7 @@ define(function() {
                                 '        if e.status == StatusT.StatusUdfModuleAlreadyExists:\n' +
                                 '            Udf(xcalarApi).update("'+ moduleName + '", sourceCode)\n' +
                                 '\n' : '') +
-                                '# Test Map UDF Template \n' +
-                                '#\n' +
-                                '# Creates a pandas dataframe containing a sample of the \n' +
-                                '# selected table when you clicked CODE SNIPPETS --> Create Map UDF, and \n' +
-                                '# invokes your Map UDF function.\n' +
-                                '# \n' +
-                                '# To test your UDF, run your Map UDF function cell, and then run this cell. \n' +
-                                '#\n' +
-                                '# Best practice is to not modify this code. However, if you modify the \n' +
-                                '# function name or parameters in your Map UDF template, then you should\n' +
-                                '# carefully make the same modifications at bottom.\n' +
+                                '\n' +
                                tableStub +
                                'for index, row in ' + dfName + '.iterrows():\n' +
                                '    assert(type(' + fnName + '(' + assertStr + ')).__name__ == \'str\')\n' +
@@ -241,38 +235,58 @@ define(function() {
                         texts.push(text);
                         break;
                     case ("importUDF"):
-                        text =  '# Xcalar Import UDF Template\n' +
-                                '# \n' +
-                                '# This is a function definition for your import UDF named <' + args.fnName + '>. \n' +
+                        text =  (args.includeStub ?
+                                '# Xcalar Import UDF Template\n' +
+                                '#\n' +
+                                '# This is a function definition for a Python UDF to import external data source\n' +
+                                '# file <' + args.target + ":" + args.url + '>\n' +
+                                '#\n' +
+                                '# Module name: <' + args.moduleName + '>\n' +
+                                '# Function name: <' + args.fnName + '>\n' +
                                 '#\n' +
                                 '# REQUIREMENTS: Import UDF functions take two arguments...\n' +
-                                '#   inp: The file path to the data source file being imported.\n' +
-                                '#   ins: A file stream for the data source file.\n' +
+                                '#   fullPath: The file path to the data source file being imported.\n' +
+                                '#   inStream: A binary stream of the data source file.\n' +
                                 '#\n' +
-                                '#   Your Import UDF function must be a generator, a Python function which \n' +
-                                '#   processes and returns a stream of data. \n' +
-                                '# \n' +
-                                '# To create an import UDF, replace the "pass" instruction with the Python \n' +
-                                '# code for your Import UDF function. \n' +
+                                '#   Your Import UDF function must be a generator, a Python function which\n' +
+                                '#   processes and returns a stream of data.\n' +
                                 '#\n' +
-                                '# To define your import UDF, run this cell.\n' +
-                                '# \n' +
-                                '# To test whether this import UDF is a generator, or to view a sample import \n' +
-                                '# UDF, use the cell beneath this one.\n' +
-                                '# \n' +
-                                '# To copy this UDF to the Xcalar UDF editor, click the Copy to UDF Editor \n' +
-                                '# button at the bottom of this cell, name your module, and save the UDF. \n' +
+                                '# To create an import UDF, modify the function definition immediately below this\n' +
+                                '# comment, as necessary.\n' +
                                 '#\n' +
-                                '# To test this import UDF with an external file, click the Copy to UDF Editor \n' +
-                                '# button at the bottom of this cell, enter a module name, and click SAVE. \n' +
-                                '# Then, click CODE SNIPPETS --> Test Existing Import UDF.\n' +
+                                '# To test your UDF, run this cell. (Hit <control> + <enter>.)\n' +
                                 '#\n' +
-                                '# Best practice is to name helper functions by starting with __. Such \n' +
-                                '# functions will be considered private functions and will not be directly \n' +
-                                '# invokable from Xcalar Design.\n' +
+                                '# To apply it to your dataset, click the "Apply UDF on Dataset Panel" button.\n' +
+                                '#\n\n' :
+                                '# Xcalar Debug Import UDF\n' +
                                 '#\n' +
-                                '# The sample Python code below does reads your file and prints it out with a line \n' +
-                                '# number \n' +
+                                '# This snippet is used to debug the following Python UDF function from a module in the\n' +
+                                '# User Defined Function editor.\n' +
+                                '#\n' +
+                                '# Module name: <' + args.moduleName + '>\n' +
+                                '# Function name: <' + args.fnName + '>\n' +
+                                '#\n' +
+                                '# REQUIREMENTS: Import UDF functions take two arguments...\n' +
+                                '#   fullPath: The file path to the data source file being imported.\n' +
+                                '#   inStream: A binary stream of the data source file.\n' +
+                                '#\n' +
+                                '#   Your Import UDF function must be a generator, a Python function which\n' +
+                                '#   processes and returns a stream of data.\n' +
+                                '#\n' +
+                                '# To debug your import UDF, modify the function definition in the User Defined Function\n' +
+                                '# editor panel.\n' +
+                                '#\n' +
+                                '# To test your UDF, click ADD UDF in the editor and then run this cell. (Hit <control> +\n' +
+                                '# <enter>.)\n' +
+                                '#\n\n'
+                            ) +
+                                '# NOTE: Use discipline before replacing this module. Consider whether the import of older\n' +
+                                '# data source files using this UDF will be affected by this change. If so, versioning this\n' +
+                                '# module may be appropriate.\n' +
+                                '#\n' +
+                                '# Best practice is to name helper functions by starting with __. Such\n' +
+                                '# functions will be considered private functions and will not be directly\n' +
+                                '# invokable from Xcalar tools.\n' +
                                 '\n' +
                                 (args.includeStub ?
                                 '# Function definition for your Import UDF.\n' +
@@ -291,17 +305,6 @@ define(function() {
                                 '        lineNumber += 1\n' +
                                 '\n' : '') +
                                 '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
-
-                                '# Xcalar Import UDF Test\n' +
-                                '#\n' +
-                                '# This Python code tests whether your UDF <' + args.fnName + '> will function on \n' +
-                                '# external data source file <' + args.target + ":" + args.url + '>\n' +
-                                '#\n' +
-                                '# To test your import UDF, update the version in your UDF editor by clicking \n' +
-                                '# the Copy to UDF Editor button, and clicking SAVE. Then, run this cell.\n' +
-                                '#\n' +
-                                '# Best practice is to use a file containing a sample of your total data \n' +
-                                '# source file, because this Python code will output all of the results inline.\n\n' +
                                 'from xcalar.compute.api.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
                                 'from xcalar.compute.api.Udf import Udf\n' +
