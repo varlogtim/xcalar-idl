@@ -901,9 +901,9 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         $form.find(".redirect").click(function() {
             if (isTarball) {
                 // tarball installer
-                window.location = "https://" + hostname + ":" + tarballPort;
+                window.location = "https://" + hostname + ":" + tarballPort + "/assets/htmlFiles/login.html";
             } else {
-                window.location = "https://" + hostname + ":" + port;
+                window.location = "https://" + hostname + ":" + port + "/assets/htmlFiles/login.html";
             }
         });
         $form.find(".section").hide();
