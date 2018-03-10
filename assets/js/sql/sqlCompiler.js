@@ -1113,7 +1113,7 @@
                 }
                 if (curNode.value.class ===
                     "org.apache.spark.sql.catalyst.plans.logical.Sort") {
-                    return {ordering: curNode.ordering, name: curNode.sortColName};
+                    return {ordering: curNode.order, name: curNode.sortColName};
                 } else {
                     if (curNode.children.length > 1) {
                         // Sort order doesn't make sense if > 1 children
@@ -2277,9 +2277,9 @@
                        xcHelper.arraySubset(attributeReferencesTwo,
                                             leftRDDCols)) {
                 leftEvalStr = genEvalStringRecur(eqTree.children[1],
-                                                 rightAcc, rightOptions);
+                                                 rightAcc, leftOptions);
                 rightEvalStr = genEvalStringRecur(eqTree.children[0],
-                                                  leftAcc, leftOptions);
+                                                  leftAcc, rightOptions);
             } else {
                 // E.g. table1.col1.substring(2) + table2.col2.substring(2)
                 // == table1.col3.substring(2) + table2.col4.substring(2)
