@@ -34,16 +34,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
             try {
                 var s = JSON.parse(struct);
                 switch (s.action) {
-                    case ("resend"):
-                        JupyterPanel.sendInit();
-                        break;
-                    case ("newUntitled"):
-                        JupyterPanel.sendInit(true, s.publishTable, s.tableName,
-                                              s.numRows,
-                                              {noRenamePrompt: s.noRename});
-                        break;
-                    case ("updateLocation"):
-                        storeLocation(s);
+                    case ("alert"):
+                        if ($jupyterPanel.is(":visible")) {
+                            $("#alertModal").height(300);
+                            Alert.show(s.options);
+                        }
                         break;
                     case ("autofillImportUdf"):
                         // comes from xcalar.js if initial autofillimportudf
@@ -73,11 +68,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             console.log("mixpanel is not loaded");
                         }
                         break;
-                    case ("alert"):
-                        if ($jupyterPanel.is(":visible")) {
-                            $("#alertModal").height(300);
-                            Alert.show(s.options);
-                        }
+                    case ("newUntitled"):
+                        JupyterPanel.sendInit(true, s.publishTable, s.tableName,
+                                              s.numRows,
+                                              {noRenamePrompt: s.noRename});
+                        break;
+                    case ("resend"):
+                        JupyterPanel.sendInit();
                         break;
                     case ("udfToMapForm"):
                         UDF.refresh()
@@ -93,6 +90,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             showDSForm(s.moduleName, s.fnName);
                         })
                         .fail(udfRefreshFail);
+                        break;
+                    case ("updateLocation"):
+                        storeLocation(s);
                         break;
                     default:
                         console.error("Unsupported action:" + s.action);
@@ -285,9 +285,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 "offsetX": -7,
                 "toClose": function() {
                     return $jupMenu.is(":visible");
-                },
-                "callback": function() {
-
                 }
             });
         });
@@ -363,6 +360,21 @@ window.JupyterPanel = (function($, JupyterPanel) {
             isAlert: true
         });
     }
+
+        /* Unit Test Only */
+    if (window.unitTestMode) {
+        JupyterPanel.__testOnly__ = {};
+        JupyterPanel.__testOnly__showMapForm = showMapForm;
+        JupyterPanel.__testOnly__showDSForm = showDSForm;
+        JupyterPanel.__testOnly__.getCurNB = function() {
+            return currNotebook;
+        }
+        JupyterPanel.__testOnly__.setCurNB = function(nb) {
+            currNotebook = nb;
+        };
+    }
+    /* End Of Unit Test Only */
+
 
     return (JupyterPanel);
 }(jQuery, {}));
