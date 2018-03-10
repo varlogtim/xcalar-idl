@@ -24,6 +24,26 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         }]
     },
     {
+        "buttonText": "Rank Over",
+        "fnName": "rankOver",
+        "instruction": "This function creates rank over a specific column.",
+        "arrayOfFields": [{
+            "type": "column",
+            "name": "Rank Over",
+            "fieldClass": "rankOverCol",
+            "autofill": true,
+            "typeCheck": {
+                "columnType": ["number", "string", "boolean"]
+            }
+        },
+        {
+            "type": "string",
+            "name": "New Column Name",
+            "fieldClass": "rankOverColName",
+            "autofill": true
+        }]
+    },
+    {
         "buttonText": "Windowing",
         "fnName": "windowChain",
         "arrayOfFields": [{
@@ -77,10 +97,180 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return hPartitionExt();
             case ("windowChain"):
                 return windowExt();
+            case ("rankOver"):
+                return rankOverExt();
             default:
                 return null;
         }
     };
+
+    function rankOverExt() {
+        var ext = new XcSDK.Extension();
+
+        ext.start = function() {
+            var self = this;
+            var columns = ext.getTriggerTable().getColNamesAsArray();
+            var deferred = XcSDK.Promise.deferred();
+            var srcTable = ext.getTriggerTable().getName();
+            var keyColName = ext.getArgs().rankOverCol.getName();
+            var direction = XcSDK.Enums.SortType.Asc;
+            var roColName = ext.getArgs().rankOverColName;
+            columns =  columns.concat(roColName);
+            self.setAttribute("rank_over_col_name", roColName);
+
+            roGenRowNum(self, srcTable, "orig_order_")
+            .then(function(tableWithRowNum, oriRowNumColName) {
+                self.setAttribute("orig_order_col", oriRowNumColName);
+                columns = columns.concat(oriRowNumColName);
+                return roSortTable(self, tableWithRowNum, [keyColName, oriRowNumColName], [direction,direction]);
+            })
+            .then(function(tableAfterSort) {
+                return roGenRowNum(self, tableAfterSort, "new_order_");
+            })
+            .then(function(tableWithNewRowNum, newRowNumColName) {
+                self.setAttribute("new_order_col", newRowNumColName);
+                self.setAttribute("table_to_group_by", tableWithNewRowNum);
+                return roGroupBy(self, tableWithNewRowNum, keyColName, newRowNumColName);
+            })
+            .then(function(groupByTableName, rkeyColName, rkeyType, rGBColName) {
+                self.setAttribute("GBColName", rGBColName);
+                return roJoinBack(self, self.getAttribute("table_to_group_by"), keyColName, groupByTableName, rkeyColName, rkeyType);
+            })
+            .then(function(tableAfterJoin) {
+                return roMap(self, tableAfterJoin, self.getAttribute("new_order_col"), self.getAttribute("GBColName"));
+            })
+            .then(function(dstTable) {
+                var table = ext.getTable(dstTable);
+                var newCol = new XcSDK.Column(roColName, "integer");
+                if (table != null) {
+                    table.addCol(newCol);
+                    return table.addToWorksheet();
+                }
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        };
+
+        return ext;
+    }
+
+    function roGenRowNum(ext, srcTable, colName) {
+        var deferred = XcSDK.Promise.deferred();
+        var newColName = colName + Math.floor(Math.random() * 100);
+        var dstTable = ext.createTempTableName();
+
+        ext.genRowNum(srcTable, newColName, dstTable)
+        .then(function(tableAfterGenRowNum) {
+            deferred.resolve(tableAfterGenRowNum, newColName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function roSortTable(ext, srcTable, sortColNames, directions) {
+        var deferred = XcSDK.Promise.deferred();
+        var dstTable = ext.createTempTableName();
+        ext.sort(directions, sortColNames, srcTable, dstTable)
+        .then(deferred.resolve)
+        .fail(function(error, sorted) {
+            if (sorted) {
+                // when already sort correctly on the column
+                deferred.resolve(srcTable);
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function roGroupBy(ext, srcTable, keyColName, groupByColName) {
+        var deferred = XcSDK.Promise.deferred();
+        var aggOp = XcSDK.Enums.AggType.Min;
+        var newGBColName = ext.createColumnName();
+        var options = {
+            "newTableName": ext.createTempTableName("GB.")
+        };
+
+        ext.groupBy(aggOp, keyColName, groupByColName, srcTable, newGBColName, options)
+        .then(function(tableAfterGroupBy, dstColumnsSDK) {
+            var keyColNameAfterGroupBy;
+            var keyColTypeAfterGroupBy;
+            dstColumnsSDK.forEach(function(col) {
+                var name = col.getName();
+                if (name !== "DATA" && name !== newGBColName) {
+                    keyColNameAfterGroupBy = name;
+                    keyColTypeAfterGroupBy = col.getType();
+                    return false;
+                }
+            });
+            deferred.resolve(tableAfterGroupBy, keyColNameAfterGroupBy, keyColTypeAfterGroupBy, newGBColName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function roJoinBack(ext, lTable, lColName, rTable, rColName, rColType) {
+        var deferred = XcSDK.Promise.deferred();
+        var joinType = XcSDK.Enums.JoinType.InnerJoin;
+        var lTableInfo = {
+            "tableName": lTable,
+            "columns": [lColName],
+        };
+        // XXX rename failed here
+        var rTableInfo = {
+            "tableName": rTable,
+            "columns": [rColName],
+            "rename": [{
+                "new": "extraKeyCol",
+                "old": rColName,
+                "type": rColType
+            }]
+        };
+        var joinOPs = {
+            "clean": true,
+            "newTableName": ext.createTempTableName()
+        };
+
+        ext.join(joinType, lTableInfo, rTableInfo, joinOPs)
+        .then(function(tableAfterJoin) {
+            deferred.resolve(tableAfterJoin);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function roMap(ext, srcTable, orderColName, minColName) {
+        var deferred = XcSDK.Promise.deferred();
+        var newColName = ext.getAttribute("rank_over_col_name");
+        var newTableName =  ext.createTableName();
+        var mapStr = "add(sub(" + orderColName + ", " + minColName + "), 1)";
+        ext.map(mapStr, srcTable, newColName, newTableName)
+        .then(function(dstTable) {
+            var table = ext.getTable(dstTable);
+            var minCol = new XcSDK.Column(minColName, "integer");
+            table.deleteCol(minCol);
+            deferred.resolve(dstTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function roProject(ext, srcTable, columns) {
+        var deferred = XcSDK.Promise.deferred();
+
+        ext.project(columns, srcTable, ext.createTableName())
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     function hPartitionExt() {
         var ext = new XcSDK.Extension();
