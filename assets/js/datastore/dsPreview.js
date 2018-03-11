@@ -1208,6 +1208,10 @@ window.DSPreview = (function($, DSPreview) {
                 $form.find(".partitionAdvanced .partitionList .row input").eq(i)
                      .val(decodeURIComponent(value));
             }
+        } else if (format === formatMap.CSV) {
+            // CSV preview don't use UDF
+            delete options.moduleName;
+            delete options.funcName;
         }
         // Nothing to do for PARQUET FILE since it's just one thing
         options.format = format;
@@ -1360,6 +1364,8 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function hasTypedColumnChange(prevTypedCols, currTypedCols) {
+        prevTypedCols = prevTypedCols || [];
+        currTypedCols = currTypedCols || [];
         for (var i = 0; i < currTypedCols.length; i++) {
             if (!prevTypedCols[i]) {
                 return true;
@@ -1555,15 +1561,35 @@ window.DSPreview = (function($, DSPreview) {
             };
         };
 
+        var getAutoDetectUDFArgs = function(dsArgs, file) {
+            if (dsArgs.format !== formatMap.CSV || !file.autoCSV) {
+                return null;
+            }
+
+            return {
+                moduleName: "default",
+                funcName: "standardizeColumnNamesAndTypes",
+                udfQuery: {
+                    withHeader: dsArgs.hasHeader,
+                    skipRows: dsArgs.skipRows,
+                    field: dsArgs.fieldDelim,
+                    record: dsArgs.lineDelim,
+                    quote: dsArgs.quoteChar,
+                    allowMixed: false
+                }
+            };
+        };
+
         if (multiDS) {
             files.forEach(function(file, index) {
                 // need {} to create a different copy than poinArgs
                 var source = getSource(file);
+                var extraUDFArgs = getAutoDetectUDFArgs(dsArgs, file);
                 var args = $.extend({}, dsArgs, {
                     "name": dsNames[index],
                     "sources": [source],
                     "typedColumns": typedColumnsList[index]
-                });
+                }, extraUDFArgs);
                 promises.push(DS.import(args, {
                     "createTable": toCreateTable
                 }));
@@ -1571,11 +1597,13 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.when.apply(this. promises);
         } else {
             var sources = files.map(getSource);
+            var previewIndex = loadArgs.getPreivewIndex();
+            var extraUDFArgs = getAutoDetectUDFArgs(dsArgs, files[previewIndex]);
             var multiLoadArgs = $.extend(dsArgs, {
                 "name": dsNames[0],
                 "sources": sources,
                 "typedColumns": typedColumnsList[0]
-            });
+            }, extraUDFArgs);
             var dsToReplace = files[0].dsToReplace || null;
             return DS.import(multiLoadArgs, {
                 "createTable": toCreateTable,
@@ -4610,43 +4638,44 @@ window.DSPreview = (function($, DSPreview) {
 
     // currently only being used for CSV
     function initialSuggest() {
+        var sourceIndex = loadArgs.getPreivewIndex();
+        var cachedHeaders = loadArgs.getPreviewHeaders(sourceIndex);
+
         if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
             $previewTable.find("th").addClass("nonEditable");
-            var headers = getColumnHeaders();
-            var hasInvalidName = false;
-            headers.forEach(function(header) {
-                var error = xcHelper.validateColName(header.colName);
-                if (error) {
-                    hasInvalidName = true;
-                    return false;
-                }
-            });
-            var msg;
-            if (hasInvalidName) {
-                msg = "There are over " + gMaxDSColsSpec + " columns in " +
-                    "this dataset. There are column names in this dataset " +
-                    "that are not allowed. " +
-                    "To fix this, please select Custom Format and " +
-                    "apply default:standardizeColumnNamesAndTypes. This function will " +
-                    "also auto-detect column types.";
-            } else {
-                msg = "There are over " + gMaxDSColsSpec + " columns in this " +
-                    "dataset. All columns will be read as strings. " +
-                    "If you want to auto-detect column types, please select " +
-                    "Custom Format and apply default:standardizeColumnNamesAndTypes.";
-            }
+            // var headers = getColumnHeaders();
+            // var hasInvalidName = false;
+            // headers.forEach(function(header) {
+            //     var error = xcHelper.validateColName(header.colName);
+            //     if (error) {
+            //         hasInvalidName = true;
+            //         return false;
+            //     }
+            // });
+            var msg = "There are over " + gMaxDSColsSpec + " columns in " +
+                    "this dataset. Modifications of column names and types are not allowed.";
+            // if (hasInvalidName) {
+            //     msg = "There are over " + gMaxDSColsSpec + " columns in " +
+            //         "this dataset. There are column names in this dataset " +
+            //         "that are not allowed. " +
+            //         "To fix this, please select Custom Format and " +
+            //         "apply default:standardizeColumnNamesAndTypes. This function will " +
+            //         "also auto-detect column types.";
+            // } else {
+            //     msg = "There are over " + gMaxDSColsSpec + " columns in this " +
+            //         "dataset. All columns will be read as strings. " +
+            //         "If you want to auto-detect column types, please select " +
+            //         "Custom Format and apply default:standardizeColumnNamesAndTypes.";
+            // }
 
             Alert.show({
                 title: ErrTStr.ColumnLimitExceeded,
                 msg: msg,
                 isAlert: true
             });
-            return;
-        }
 
-        var sourceIndex = loadArgs.getPreivewIndex();
-        var cachedHeaders = loadArgs.getPreviewHeaders(sourceIndex);
-        if (cachedHeaders && cachedHeaders.length > 0) {
+            loadArgs.files[sourceIndex].autoCSV = true;
+        } else if (cachedHeaders && cachedHeaders.length > 0) {
             restoreColumnHeaders(sourceIndex, cachedHeaders);
         } else {
             var $tbody = $previewTable.find("tbody").clone(true);

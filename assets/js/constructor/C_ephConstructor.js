@@ -159,6 +159,7 @@ DSFormController.prototype = {
          *      dsToReplace: dsId that to replace
          *      dsName: dsName to restore
          *      fileNamePattern: regex pattern that matches filename
+         *      autoCSV: if it needs to auto detect csv type or not
          *  }
          */
         if (options.files != null) {
