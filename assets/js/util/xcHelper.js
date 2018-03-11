@@ -158,7 +158,7 @@
             {
                 type = ColumnType.mixed;
             }
-        } else if (val == null &&
+        } else if (val === null &&
                     oldType !== null &&
                     oldType !== ColumnType.undefined) {
             // XXX Bug 11348, if column has null, we treat it as mixed type
