@@ -1448,7 +1448,9 @@ window.ColManager = (function($, ColManager) {
             }
 
             // define type of the column
-            progCol.updateType(tdValue);
+            if (!knf) {
+                progCol.updateType(tdValue);
+            }
 
             // class for textAlign
             if (progCol.textAlign === "Left") {
