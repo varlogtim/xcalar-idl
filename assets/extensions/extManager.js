@@ -1428,7 +1428,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var argInfo = extFields[i];
             // check table type first
             if (argInfo.type === "table") {
-                var res = checkTableArg($(this));
+                var res = checkTableArg($(this), argInfo);
                 if (!res.valid) {
                     invalidArg = true;
                     return false;
@@ -1471,9 +1471,17 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
-    function checkTableArg($input) {
+    function checkTableArg($input, argInfo) {
         var arg = $input.val();
+        var typeCheck = argInfo.typeCheck || {};
         if (arg === "") {
+            if (typeCheck.allowEmpty) {
+                return {
+                    "valid": true,
+                    "arg": null
+                }
+            }
+
             StatusBox.show(ErrTStr.NoEmpty, $input);
             return { "vaild": false };
         }
