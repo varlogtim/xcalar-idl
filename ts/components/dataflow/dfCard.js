@@ -620,7 +620,7 @@ window.DFCard = (function($, DFCard) {
         $dagWrap.find(".export.dagTable").each(function() {
             var $exportTable = $(this);
             var exportId = $exportTable.attr("data-nodeid");
-            for (i = 0; i < expRetNodes.length; i++) {
+            for (var i = 0; i < expRetNodes.length; i++) {
                 if (expRetNodes[i].dagNodeId === exportId) {
                     var expInput = expRetNodes[i].input.exportInput;
                     var fileName = expInput.fileName || "";

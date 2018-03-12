@@ -201,8 +201,8 @@ window.StatusMessage = (function($, StatusMessage) {
                         // and will breaak it if not do the check
                         if (ws) {
                             $("#pageStatusMenu").html(WSManager.getWSLists(true));
-                            WSName = xcHelper.escapeHTMLSpecialChar(WSManager.getWSName(ws));
-                            panelName = WSTStr.Ws + ": " + WSName +
+                            var wsName = xcHelper.escapeHTMLSpecialChar(WSManager.getWSName(ws));
+                            panelName = WSTStr.Ws + ": " + wsName +
                                         '<div class="menuIcon xc-action clickable" ' +
                                         'data-toggle="tooltip" ' +
                                         'data-placement="top" ' +

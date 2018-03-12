@@ -7,7 +7,6 @@
     var txIdCount = 1;
     var isDeleting = false;
 
-    var root = this;
     var has_require = (typeof require !== "undefined");
 
     Transaction.start = function(options) {
@@ -425,6 +424,6 @@
         }
         exports.Transaction = Transaction;
     } else {
-        root.Transaction = Transaction;
+        window.Transaction = Transaction;
     }
 }());

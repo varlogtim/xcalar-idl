@@ -3974,7 +3974,7 @@ window.DSPreview = (function($, DSPreview) {
         var i = loadArgs.useHeader() ? 1 : 0;
         // not showing too much rows
         var len = Math.min(datas.length, rowsToFetch);
-        for (j = 0; i < len; i++, j++) {
+        for (var j = 0; i < len; i++, j++) {
             tbody += '<tr>' +
                         '<td class="lineMarker">' +
                             (j + 1) +

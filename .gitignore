@@ -1,4 +1,4 @@
-/assets/js/config.js
+/assets/ts/config.js
 /assets/stylesheets/**/*.css
 /assets/widget/*.css
 /assets/customerPortal/*.css
@@ -42,3 +42,12 @@ install-tarball.html
 *.tar.gz
 /assets/help/user
 .vscode
+/assets/js/shared/
+/assets/js/components/
+/assets/js/external/
+/assets/js/installer/
+/assets/js/login/
+/assets/js/sdk/
+/assets/js/thrift/
+/assets/js/*.js
+/assets/js/*.js.map

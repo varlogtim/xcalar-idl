@@ -67,7 +67,7 @@ module.exports = function(grunt) {
     // tags is for dev use only
     tags: {
       index: {
-        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css', 'assets/js/mixpanel.js'],
+        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css', 'assets/js/classes/mixpanel/mixpanel.js'],
         dest: 'index.html'
       },
       login: {
@@ -75,7 +75,7 @@ module.exports = function(grunt) {
         dest: destMap["login.html"]
       },
       mixpanelAzure: {
-        src: ['assets/js/mixpanelAzure.js'],
+        src: ['assets/js/classes/mixpanel/mixpanelAzure.js'],
         dest: 'index.html'
       }
     },

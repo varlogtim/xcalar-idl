@@ -20,6 +20,7 @@ window.xcManager = (function(xcManager, $) {
         CSHelp.setup();
         MainMenu.setup();
         setupWorkspaceBar();
+        StatusBox.setup();
         StatusMessage.setup();
         BottomMenu.setup();
         DataStore.setup();

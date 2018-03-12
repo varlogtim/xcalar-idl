@@ -4,6 +4,7 @@
 window.DSTable = (function($, DSTable) {
     var $dsTableContainer; // $("#dsTableContainer")
     var $tableWrap;   // $("#dsTableWrap")
+    var $dsInfoPath; //$("#dsInfo-path");
 
     var currentRow = 0;
     var totalRows = 0;

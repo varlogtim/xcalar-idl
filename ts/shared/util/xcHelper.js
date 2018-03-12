@@ -1,7 +1,5 @@
 (function() {
     var xcHelper = {};
-    var root = this;
-
     xcHelper.reload = function(hardLoad) {
         // override heartbeat check function so that it cannot run during reload
         XcSupport.heartbeatCheck = function() {};
@@ -1363,7 +1361,7 @@
                 continue;
             }
 
-            mark = "<" + key + ">";
+            var mark = "<" + key + ">";
             txt = txt.replace(mark, str);
         }
 
@@ -3400,7 +3398,6 @@
             var udf = modules[i].split(":");
             var moduleName = udf[0];
             var fnName = udf[1];
-            listClass = "";
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
                 if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
@@ -4577,10 +4574,10 @@
         }
         exports.xcHelper = xcHelper;
     } else {
-        root.xcHelper = xcHelper;
+        window.xcHelper = xcHelper;
 
         /* Unit Test Only */
-        if (root.unitTestMode) {
+        if (window.unitTestMode) {
             xcHelper.__testOnly__ = {};
             xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                                   toggleUnnestandJsonOptions;

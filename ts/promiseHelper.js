@@ -1,6 +1,5 @@
 (function() {
     var PromiseHelper = {};
-    var root = this;
     /**
     oneIter: Function that returns a promise. It represents one iteration of the
     loop.
@@ -173,7 +172,7 @@
         }
         exports.PromiseHelper = PromiseHelper;
     } else {
-        root.PromiseHelper = PromiseHelper;
+        window.PromiseHelper = PromiseHelper;
     }
 
 }());

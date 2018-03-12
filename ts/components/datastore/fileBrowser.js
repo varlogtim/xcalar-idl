@@ -1569,7 +1569,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function genDateHtml(fileTime, type) {
         var time = moment(fileTime * 1000);
         var date = time.calendar();
-        dateTip = xcTimeHelper.getDateTip(time);
+        var dateTip = xcTimeHelper.getDateTip(time);
         return '<div class="fileDate ' + type + '">' +
                     '<span ' + dateTip + '>' +
                         date +

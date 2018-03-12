@@ -2,8 +2,6 @@
     var XIApi = {};
     var aggOps = null;
 
-    var root = this;
-
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
         if (txId == null || fltStr == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in filter");
@@ -2307,6 +2305,6 @@
         }
         exports.XIApi = XIApi;
     } else {
-        root.XIApi = XIApi;
+        window.XIApi = XIApi;
     }
 }());
