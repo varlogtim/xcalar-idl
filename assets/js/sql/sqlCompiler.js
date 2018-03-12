@@ -144,11 +144,15 @@
         "expressions.IsNull": null, // XXX we have to put not(exists)
 
         // datetimeExpressions.scala
-        "expressions.Year": "cut", // Split string and extract year
-        "expressions.Month": "cut",
-        "expressions.DayOfMonth": "cut",
-        "expressions.convertDate": "convertDate", // This is for date casting
-        "expressions.convertFromUnixTS": "convertFromUnixTS",
+        "expressions.Cut": "cut", // Split string and extract year
+        "expressions.Year": null,
+        "expressions.Month": null,
+        "expressions.DayOfMonth": null,
+        "expressions.DateAdd": null,
+        "expressions.DateSub": null,
+        "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong
+        "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS
+        "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function
 
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
@@ -308,7 +312,6 @@
                 "right": 1
             });
         }
-
         function ifStrNode() {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.IfStr",
@@ -341,12 +344,12 @@
         }
         function stringToDateNode(origNode) {
             var node = new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.convertDate",
+                "class": "org.apache.spark.sql.catalyst.expressions.convertFormats",
                 "num-children": 3
             });
             node.children = [origNode,
                              literalStringNode("%Y-%m-%d"),
-                             literalStringNode("%Y-%m-%d")];
+                             literalStringNode("")];
             origNode.parent = node;
             return node;
         }
@@ -357,6 +360,21 @@
             });
             node.children = [origNode, literalStringNode("%Y-%m-%d")];
             origNode.parent = node;
+            return node;
+        }
+        function dateToTimestampNode(origNode) {
+            var node = new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.convertToUnixTS",
+                "num-children": 2
+            });
+            node.children = [origNode, literalStringNode("")];
+            origNode.parent = node;
+        }
+        function cutNode() {
+            var node = new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Cut",
+                "num-children": 3
+            });
             return node;
         }
         function castNode(xcType) {
@@ -658,11 +676,11 @@
                                SQLTStr.YMDIllegal + childNode.value.dataType);
                     }
                 }
-                node.children = [dateNode, cutIndexNode, delimNode];
-                node.value["num-children"] = 3;
+                var cuNode = cutNode();
+                cuNode.children = [dateNode, cutIndexNode, delimNode];
 
                 var intCastNode = castNode("int");
-                intCastNode.children = [node, literalNumberNode(10)];
+                intCastNode.children = [cuNode, literalNumberNode(10)];
                 intCastNode.value["num-children"] = 2;
 
                 node = intCastNode;
@@ -686,7 +704,6 @@
                                       node.children[0], node.children[1]);
                 node = newNode;
                 break;
-            // XXX need to avoid reuse issue
             case ("expressions.Round"):
                 var mulNode = multiplyNode();
                 var divNode = divideNode();
@@ -698,6 +715,26 @@
                 powNode.children = [tenNode, node.children[1]];
                 ronNode.children = [mulNode];
                 node = divNode;
+                break;
+            // XXX if format %Y-%m, UDF assume day is 13
+            // And 1995-10-29 + 1 day = 1995-10-29
+            case("expressions.DateAdd"):
+            case("expressions.DateSub"):
+                var asNode;
+                if(opName === "expressions.DateAdd") {
+                    asNode = addNode();
+                } else {
+                    asNode = subtractNode();
+                }
+                var tstdNode = timestampToDateNode(asNode);
+                var mulNode = multiplyNode();
+                var numNode = literalNumberNode(86400);
+                var caNode = castNode("float");
+                var dttsNode = dateToTimestampNode(node.children[0]);
+                mulNode.children = [node.children[1], numNode];
+                caNode.children = [dttsNode]
+                asNode.children = [caNode, mulNode];
+                node = tstdNode;
                 break;
             default:
                 break;
