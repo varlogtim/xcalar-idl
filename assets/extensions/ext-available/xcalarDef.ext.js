@@ -40,7 +40,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             "type": "string",
             "name": "New Column Name",
             "fieldClass": "rankOverColName",
-            "autofill": true
+            "autofill": "XcalarRankOver"
         }]
     },
     {
@@ -109,20 +109,12 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         ext.start = function() {
             var self = this;
-            var columns = ext.getTriggerTable().getColNamesAsArray();
             var deferred = XcSDK.Promise.deferred();
-            var srcTable = ext.getTriggerTable().getName();
             var keyColName = ext.getArgs().rankOverCol.getName();
-            var direction = XcSDK.Enums.SortType.Asc;
-            var roColName = ext.getArgs().rankOverColName;
-            columns =  columns.concat(roColName);
-            self.setAttribute("rank_over_col_name", roColName);
 
-            roGenRowNum(self, srcTable, "orig_order_")
+            roGenRowNum(self, ext.getTriggerTable().getName(), "orig_order_")
             .then(function(tableWithRowNum, oriRowNumColName) {
-                self.setAttribute("orig_order_col", oriRowNumColName);
-                columns = columns.concat(oriRowNumColName);
-                return roSortTable(self, tableWithRowNum, [keyColName, oriRowNumColName], [direction,direction]);
+                return roSortTable(self, tableWithRowNum, [keyColName, oriRowNumColName]);
             })
             .then(function(tableAfterSort) {
                 return roGenRowNum(self, tableAfterSort, "new_order_");
@@ -140,8 +132,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return roMap(self, tableAfterJoin, self.getAttribute("new_order_col"), self.getAttribute("GBColName"));
             })
             .then(function(dstTable) {
+                // Make the result table and rankOver column visible
                 var table = ext.getTable(dstTable);
-                var newCol = new XcSDK.Column(roColName, "integer");
+                var newCol = new XcSDK.Column(ext.getArgs().rankOverColName, "integer");
                 if (table != null) {
                     table.addCol(newCol);
                     return table.addToWorksheet();
@@ -170,9 +163,13 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         return deferred.promise();
     }
 
-    function roSortTable(ext, srcTable, sortColNames, directions) {
+    function roSortTable(ext, srcTable, sortColNames) {
         var deferred = XcSDK.Promise.deferred();
         var dstTable = ext.createTempTableName();
+        var directions = sortColNames.map(function() {
+            return XcSDK.Enums.SortType.Asc;
+        });
+        
         ext.sort(directions, sortColNames, srcTable, dstTable)
         .then(deferred.resolve)
         .fail(function(error, sorted) {
@@ -217,17 +214,18 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
     function roJoinBack(ext, lTable, lColName, rTable, rColName, rColType) {
         var deferred = XcSDK.Promise.deferred();
         var joinType = XcSDK.Enums.JoinType.InnerJoin;
+        var newColName = "extraKeyCol-" + Math.floor(Math.random() * 100);
         var lTableInfo = {
             "tableName": lTable,
             "columns": [lColName],
         };
-        // XXX rename failed here
+        
         var rTableInfo = {
             "tableName": rTable,
             "columns": [rColName],
             "rename": [{
-                "new": "extraKeyCol",
-                "old": rColName,
+                "new": newColName,
+                "orig": rColName,
                 "type": rColType
             }]
         };
@@ -238,6 +236,10 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         ext.join(joinType, lTableInfo, rTableInfo, joinOPs)
         .then(function(tableAfterJoin) {
+            // Hide the extra key column for join table and all succeeding tables
+            var table = ext.getTable(tableAfterJoin);
+            var oldNameCol = new XcSDK.Column(rColName, ext.getArgs().rankOverCol.getType());
+            table.deleteCol(oldNameCol);
             deferred.resolve(tableAfterJoin);
         })
         .fail(deferred.reject);
@@ -247,26 +249,17 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     function roMap(ext, srcTable, orderColName, minColName) {
         var deferred = XcSDK.Promise.deferred();
-        var newColName = ext.getAttribute("rank_over_col_name");
+        var newColName = ext.getArgs().rankOverColName;
         var newTableName =  ext.createTableName();
         var mapStr = "add(sub(" + orderColName + ", " + minColName + "), 1)";
         ext.map(mapStr, srcTable, newColName, newTableName)
         .then(function(dstTable) {
+            // Hide intermediate min column
             var table = ext.getTable(dstTable);
             var minCol = new XcSDK.Column(minColName, "integer");
             table.deleteCol(minCol);
             deferred.resolve(dstTable);
         })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function roProject(ext, srcTable, columns) {
-        var deferred = XcSDK.Promise.deferred();
-
-        ext.project(columns, srcTable, ext.createTableName())
-        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
