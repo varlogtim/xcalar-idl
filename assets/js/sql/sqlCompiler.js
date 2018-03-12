@@ -234,8 +234,7 @@
     }
 
     // Options: extractAggregates -- change aggregate nodes to a different tree
-    function secondTraverse(node, idx, options) {
-        var retNode = node;
+    function secondTraverse(node, options, isRoot) {
         // The second traverse convert all substring, left, right stuff
         function literalNumberNode(num) {
             return new TreeNode({
@@ -344,7 +343,12 @@
         }
 
         // This function traverses the tree for a second time.
-        // To process expressions such as Substring, Left, Right, etc.
+        // To process expressions such as Substring, Case When, etc.
+
+        // If the current node is already visited, return it
+        if (node.visited) {
+            return node;
+        }
         var opName = node.value.class.substring(
             node.value.class.indexOf("expressions."));
         switch (opName) {
@@ -364,7 +368,6 @@
                     } else {
                         var addN = addNode();
                         addN.children.push(node.children[1], node.children[2]);
-                        addN.parent = node;
                         node.children[2] = addN;
                     }
                 } else {
@@ -374,27 +377,19 @@
                     var addN = addNode();
                     addN.children.push(subNode, node.children[2]);
                     node.children[1] = subNode;
-                    subNode.parent = node;
                     node.children[2] = addN;
-                    addN.parent = node;
                 }
                 break;
-            case ("expressions.Left"):
-            case ("expressions.Right"):
-                var parent = node.parent;
-                parent.children[idx] = node.children[2];
-                node.children[2].parent = parent;
-                break;
+            // Left & Right are now handled by UDFs
+            // case ("expressions.Left"):
+            // case ("expressions.Right"):
             case ("expressions.Like"):
                 assert(node.children.length === 2, SQLTStr.LikeTwoChildren + node.children.length);
                 var strNode = node.children[1];
                 var stringRepNode = stringReplaceNode();
 
-                strNode.parent = stringRepNode;
                 var pctNode = literalStringNode("%");
-                pctNode.parent = stringRepNode;
                 var starNode = literalStringNode("*");
-                starNode.parent = stringRepNode;
 
                 stringRepNode.children.push(strNode);
                 stringRepNode.children.push(pctNode);
@@ -455,19 +450,17 @@
                 }
                 var newNode = getNewNode();
                 var curNode = newNode;
+                var lastNode;
                 // Time to reassign the children
                 for (var i = 0; i < Math.floor(node.children.length/2); i++) {
                     curNode.children.push(node.children[i*2]);
                     curNode.children.push(node.children[i*2+1]);
-                    node.children[i*2].parent = curNode;
-                    node.children[i*2+1].parent = curNode;
                     var nextNode = getNewNode();
-                    nextNode.parent = curNode;
                     curNode.children.push(nextNode);
+                    lastNode = curNode;
                     curNode = nextNode;
                 }
 
-                var lastNode = curNode.parent;
                 assert(lastNode.children.length === 3,
                        SQLTStr.CaseWhenLastNode + lastNode.children.length);
 
@@ -475,9 +468,6 @@
                 if (node.children.length % 2 === 1) {
                     lastNode.children[2] =
                                           node.children[node.children.length-1];
-                    // important here. otherwise in following secondTraverse we
-                    // are not able to refer to this retNode by node.parent
-                    node.children[node.children.length-1].parent = lastNode;
                 } else {
                     // no else clause
                     // We need to create our own terminal condition
@@ -487,17 +477,10 @@
                     } else {
                         litNode = literalNumberNode(0.1337);
                     }
-                    litNode.parent = lastNode;
                     lastNode.children[2] = litNode;
                 }
-                if (node.parent) {
-                    assert(idx !== undefined, SQLTStr.CaseWhenParent);
-                    node.parent.children[idx] = newNode;
-                } else {
-                    assert(idx === undefined, SQLTStr.CaseWhenIdx + idx);
-                    // This must be the first level call
-                    retNode = newNode;
-                }
+
+                node = newNode;
                 break;
             case ("expressions.In"):
                 // XXX TODO Minor. When the list gets too long, we are forced
@@ -509,44 +492,32 @@
                        SQLTStr.InChildrenLength + node.children.length);
                 var prevOrNode;
                 var newEqNode;
-                retNode = undefined;
+                var newNode;
                 for (var i = 0; i < node.children.length - 1; i++) {
                     newEqNode = eqNode();
                     newEqNode.children.push(node.children[0]);
                     newEqNode.children.push(node.children[i+1]);
-                    node.children[0].parent = newEqNode;
-                    node.children[i+1].parent = newEqNode;
                     if (i < node.children.length - 2) {
                         var newOrNode = orNode();
                         newOrNode.children.push(newEqNode);
-                        newEqNode.parent = newOrNode;
                         if (prevOrNode) {
                             prevOrNode.children.push(newOrNode);
-                            newOrNode.parent = prevOrNode;
                         } else {
-                            retNode = newOrNode;
+                            newNode = newOrNode;
                         }
                         prevOrNode = newOrNode;
                     } else {
                         if (prevOrNode) {
                             prevOrNode.children.push(newEqNode);
-                            newEqNode.parent = prevOrNode;
                         }
                     }
                 }
-                if (!retNode) {
+                if (!newNode) {
                     // Edge case where it's in just one element
                     // e.g. a in [1]
-                    retNode = newEqNode;
+                    newNode = newEqNode;
                 }
-
-                if (node.parent) {
-                    assert(idx !== undefined, SQLTStr.CaseWhenParent);
-                    node.parent.children[idx] = retNode;
-                } else {
-                    assert(idx === undefined, SQLTStr.CaseWhenIdx + idx);
-                    // This must be the first level call
-                }
+                node = newNode;
                 break;
             case ("expressions.Cast"):
                 var type = node.value.dataType;
@@ -557,7 +528,7 @@
             case ("expressions.aggregate.AggregateExpression"):
                 // If extractAggregates is true, then we need to cut the tree
                 // here and construct a different tree
-                if (idx !== undefined && options && options.extractAggregates) {
+                if (!isRoot && options && options.extractAggregates) {
                     assert(node.children.length === 1,
                          SQLTStr.AggregateExpressionOne + node.children.length);
                     assert(node.children[0].value.class
@@ -571,7 +542,6 @@
                     // having a child, remove the child and assign it as an
                     // aggregateTree
                     var aggNode = node.children[0];
-                    aggNode.parent = undefined;
                     node.children = [];
                     node.value["num-children"] = 0;
                     node.aggTree = aggNode;
@@ -646,7 +616,6 @@
                             // Convert it to int and then to timestamp
                             var timestampNode = castNode("float");
                             timestampNode.children = [childNode.children[0]];
-                            childNode.children[0].parent = timestampNode;
                             dateNode = timestampToDateNode(timestampNode);
                         } else {
                             dateNode = timestampToDateNode(childNode.children[0]);
@@ -658,24 +627,13 @@
                     }
                 }
                 node.children = [dateNode, cutIndexNode, delimNode];
-                dateNode.parent = node;
-                cutIndexNode.parent = node;
-                delimNode.parent = node;
                 node.value["num-children"] = 3;
 
                 var intCastNode = castNode("int");
                 intCastNode.children = [node, literalNumberNode(10)];
                 intCastNode.value["num-children"] = 2;
 
-                if (node.parent) {
-                    assert(idx !== undefined, SQLTStr.DayOfMonth);
-                    intCastNode.parent = node.parent;
-                    node.parent.children[idx] = intCastNode;
-                } else {
-                    assert(idx === undefined, SQLTStr.DayOfMonth + idx);
-                    // This must be the first level call
-                    retNode = intCastNode;
-                }
+                node = intCastNode;
                 break;
             case ("expressions.Coalesce"):
                 // XXX It's a hack. It should be compiled into CASE WHEN as it
@@ -694,15 +652,7 @@
                 childNode.children.push(node.children[0]);
                 newNode.children.push(childNode,
                                       node.children[0], node.children[1]);
-                if (node.parent) {
-                    assert(idx !== undefined, SQLTStr.Coalesce);
-                    newNode.parent = node.parent;
-                    node.parent.children[idx] = newNode;
-                } else {
-                    assert(idx === undefined, SQLTStr.Coalesce + idx);
-                    // This must be the first level call
-                    retNode = newNode;
-                }
+                node = newNode;
                 break;
             default:
                 break;
@@ -712,19 +662,17 @@
         // Expression case, where we want to cut the tree at the top most
         // Aggregate Expression
         for (var i = 0; i < node.children.length; i++) {
-            secondTraverse(node.children[i], i, options);
-            // Notice that we ignore the return. This is because we only want
-            // to return the top node
+            node.children[i] = secondTraverse(node.children[i], options);
         }
 
         if (node.aggTree) {
             // aggTree's root node is expressions.aggregate.*
             // so it won't hit any of the cases in second traverse
             // however, its grandchildren might be substring, etc.
-            secondTraverse(node.aggTree, undefined, options);
+            node.aggTree = secondTraverse(node.aggTree, options, true);
         }
-
-        return retNode;
+        node.visited = true;
+        return node;
     }
     function sendPost(struct) {
         var deferred = jQuery.Deferred();
@@ -840,8 +788,7 @@
     }
 
     SQLCompiler.genExpressionTree = function(parent, array, options) {
-        return secondTraverse(SQLCompiler.genTree(parent, array), undefined,
-                              options);
+        return secondTraverse(SQLCompiler.genTree(parent, array), options, true);
     };
     function traverseAndPushDown(self, node) {
         var promiseArray = [];
