@@ -249,8 +249,9 @@ var INIT = 'init',
     TEMPLATE_HTML = 'templateHTML',
     PROCESS_HTML = 'processHTML',
     CLEAN_HTML_SRC = 'cleanHTMLSrc',
+    BUILD_JS = "buildJs",
     MINIFY_JS = "minifyJs",
-    REMOVE_JS_DEBUG_COMMENTS = 'removeDebugComments',
+    REMOVE_DEBUG_COMMENTS = 'removeDebugComments',
     CLEAN_JS_SRC_POST_MINIFICATION = 'cleanJsSrc',
     UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME = 'updateEssentialJsFilesWithCorrectProductName',
     UPDATE_SCRIPT_TAGS = 'updateScriptTags',
@@ -848,6 +849,12 @@ var htmlStagingDirI = "htmlStaingtmp/", // rel. to DESTDIR
 var HTML_STAGING_I_ABS, HTML_STAGING_II_ABS; // abs path gets set after cmd params read in
 var htmlWaste = []; // collects stale HTML files during bld process (files with templating code, etc. that don't get overwritten during bld process) which will get removed at cleanup
 
+// remove debug comments from these files only.  paths rel to source root
+var REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES = {
+    "html": [htmlMapping.src + 'index.html'],
+    "js": [jsMapping.src + 'login.js'],
+};
+
 var HTML_BUILD_FILES = []; // a final list of all the bld files, rel. to bld dest (need this for final prettification after minification in installer blds since we're mapping bld html to bld root)
 
 //var DONT_CHMOD = ['assets/stylesheets/css/xu.css'];
@@ -967,8 +974,6 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
     DONT_MINIFY = ['3rd', 'assets/js/unused', 'assets/js/worker', 'config.js'],
     // at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
     DONT_CHMOD = ['xu.css'],
-    // dont remove debug comments from these files when runnign with --rc
-    JS_FILES_NOT_TO_REMOVE_DEBUG_COMMENTS_FROM = [],
     /** project src files and dirs to explicitally exclude from bld.
         Anything specified here will be EXCLUDED during initial rsync of src code in to build root
         Paths should be relative to SRC ROOT.
@@ -1379,13 +1384,14 @@ module.exports = function(grunt) {
 
         // cleanup bld HTML such as indenting inner HTML
         prettify: {
+            options: {
+                "wrap_line_length": 80,
+                "preserve_newlines": true,
+                "max_preserve_newlines": 2
+            },
+
             //dist: {
             stagingII: {
-                options: {
-                    "wrap_line_length": 80,
-                    "preserve_newlines": true,
-                    "max_preserve_newlines": 2
-                },
                 //cwd: DESTDIR + htmlMapping.dest,
                 cwd: HTML_STAGING_II_ABS,
                 src: '<%= ' + HTML_TEMPLATE_KEY + ' %>',//**/*.html',
@@ -1411,12 +1417,7 @@ module.exports = function(grunt) {
                 So you're going through and prettifying EVERYTHING starting from that dir
             */
             cheerio: {
-                options: {
-                    "wrap_line_length": 80,
-                    "preserve_newlines": true,
-                    "max_preserve_newlines": 2
-                },
-                cwd: DESTDIR + htmlMapping.dest,
+               cwd: DESTDIR + htmlMapping.dest,
                 src: "**/*.html",
                 expand: true,
                 dest: DESTDIR + htmlMapping.dest, // replace files
@@ -1959,6 +1960,7 @@ module.exports = function(grunt) {
             grunt.task.run(HELP_CONTENTS);
             grunt.task.run(BUILD_CSS);
             grunt.task.run(BUILD_HTML);
+            grunt.task.run(BUILD_JS);
             grunt.task.run(CONSTRUCTOR_FILES);
             /**
                 In XI builds, update essential js files where UI msgs reside,
@@ -2726,7 +2728,7 @@ module.exports = function(grunt) {
 
          // auto-generate additional script tags needed in to some html files, depending on bld type being run
         // do BEFORE htmlmin - 'scriptlinker' knows where to insert tags by scanning the html and looking
-        // for comment <!-- start auto template tags -->; this comment will get removed during htmlmin    
+        // for comment <!-- start auto template tags -->; this comment will get removed during htmlmin
         if ( IS_WATCH_TASK || BLDTYPE == DEV ) {
             grunt.task.run('scriptlinker:indexDev');
             grunt.task.run('scriptlinker:loginDev');
@@ -2734,8 +2736,12 @@ module.exports = function(grunt) {
         else {
             grunt.task.run('scriptlinker:indexNonDev');
         }
-        grunt.task.run('prettify:stagingII');
+        // if bld flag given for rc option, remove debug comments first
+        if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
+            grunt.task.run(REMOVE_DEBUG_COMMENTS + ':html'); // passes positional arg 'html' to the task's function
+        }
         grunt.task.run('htmlmin:stagingII'); // staging area II now has all, and only, completed bld files
+        grunt.task.run('prettify:stagingII'); // prettify AFTER htmlmin! prettiy indents the HTML readably, htmlmin will remove a lot of that indentation
 
         /**
             Extra step:
@@ -3159,6 +3165,17 @@ module.exports = function(grunt) {
 
 
                                                                 // ======== JS SECTION ======= //
+
+    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function() {
+
+        // if bld flag given for rc option, remove debug comments first, before js minification
+        if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
+            grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
+        }
+
+    });
+
+
     /**
         This task drives javascript minification and associated clean up tasks.
 
@@ -3171,10 +3188,6 @@ module.exports = function(grunt) {
 
         configureUglify(); // configure ethe uglify plugin to determine filepath mappings for minification
 
-        // if bld flag given for rc option, remove debug comments first, before js minification
-        if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
-            grunt.task.run(REMOVE_JS_DEBUG_COMMENTS);
-        }
         grunt.task.run('uglify'); // do minification on all but excluded js files
         grunt.task.run(UPDATE_SCRIPT_TAGS); // update the build HTML to reflect new js filepaths
         grunt.task.run('prettify:cheerio'); // using cheerio to remove script tags causes empty whitespaces; prettify again
@@ -3186,38 +3199,50 @@ module.exports = function(grunt) {
     });
 
     /**
-        Remove debug comments from certain javascript files
-        This happens PRIOR to minification, so make sure the file paths
+        Remove debug comments from certain files of type depending on arg.
+        For JS, this happens PRIOR to minification, so make sure the file paths
         are the original paths, not the post minification paths
     */
-    grunt.registerTask(REMOVE_JS_DEBUG_COMMENTS, function() {
+    grunt.registerTask(REMOVE_DEBUG_COMMENTS, function(fileType) {
 
-        grunt.log.writeln("Remove debug comments from js build files, prior to minification");
+        grunt.log.writeln("Remove debug comments from specified files of type " + fileType);
 
-        // get all of the js src code. expand will return abs filepath if abs globbing path supplied
-        var jsFiles = grunt.file.expand(DESTDIR + jsMapping.src + "**/*.js");
-        var absfilepath, jsFile;
-        for ( jsFile of jsFiles ) {
-            if ( JS_FILES_NOT_TO_REMOVE_DEBUG_COMMENTS_FROM.indexOf(jsFile) !== -1 ) {
-                continue;
+        filePaths = [];
+        if (REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES.hasOwnProperty(fileType)) {
+            filePaths = REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES[fileType];
+        } else {
+            grunt.fail.fatal("Invalid filetype to remove debug comments from: " + fileType);
+        }
+
+        var filePath, absFilePath, fileName, fileExt, i;
+        for (var i = 0; i<filePaths.length; i++) {
+            filePath = filePaths[i];
+            fileExt = path.extname(filePath);
+            // remove debug for html files done when html files in staging; dirs will be flattened
+            if (fileExt === '.html') {
+                fileName = path.basename(filePath);
+                absFilePath = HTML_STAGING_II_ABS + fileName;
+            } else {
+                absFilePath = DESTDIR + filePath;
             }
-            grunt.log.write("Remove debug comments from : " + jsFile + " ... ");
-            removeDebug(jsFile);
+            grunt.log.write("Remove debug comments from : " + absFilePath + " ... ");
+            removeDebug(absFilePath);
             grunt.log.ok();
         }
-        // XXX HACK
-        removeDebug(DESTDIR + "index.html");
-        grunt.task.run(DISPLAY_SUMMARY);
     });
 
     /**
-        Scan through .js file and remove any code block that begins with
+        Scan through file and remove any code block that begins with
 
         /** START DEBUG ONLY **/
         //and ends with
         /** END DEBUG ONLY **/
-
     /**
+            or:
+        <!--!START DEBUG ONLY -->
+        and ends with
+        <!--!END DEBUG ONLY -->
+
         @filepath : path to file to remove debug comments from
             If rel., will be rel. to current operating directory of Grunt
     */
@@ -3225,7 +3250,7 @@ module.exports = function(grunt) {
         if ( !grunt.file.isPathAbsolute(filepath) ) {
             grunt.log.warn("Filepath "
                 + filepath
-                + " for js file to remove debug comments from not abs;"
+                + " for file to remove debug comments from not abs;"
                 + " will get rel. to current operating dir");
         }
         contents = fs.readFileSync(filepath, "utf8");
