@@ -80,7 +80,19 @@ describe("DF Test", function() {
         });
 
         it("DF.getExportTarget", function() {
-            var df = {retinaNodes: [{input: {exportInput: {meta: {target: {name: ""}}}}}]};
+            var df = {retinaNodes: {
+                "1":
+                    {
+                        type: "XcalarApiExport",
+                        args: {
+                            meta: {
+                                target: {
+                                    name: ""
+                                }
+                            }
+                        }
+                    }
+                }};
             var cache1 = DF.getDataflow;
             DF.getDataflow = function() {
                 return df;

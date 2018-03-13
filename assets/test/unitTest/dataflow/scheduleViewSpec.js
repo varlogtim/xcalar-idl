@@ -672,6 +672,7 @@ function viewRelatedFunctionTest() {
         dfName = "df1";
         Scheduler.hide();
         oldGetRetinaFunc = XcalarGetRetina;
+        oldGetRetinaFunc2 = XcalarGetRetinaJson;
         oldDeleteRetinaFunc = XcalarDeleteRetina;
         UnitTest.onMinMode();
 
@@ -751,6 +752,59 @@ function viewRelatedFunctionTest() {
             return PromiseHelper.resolve(fakeRetInfo);
         };
 
+         XcalarGetRetinaJson = function() {
+            var fakeRetInfo = {
+                "query": [
+                            {
+                                "operation":"XcalarApiExport",
+                                "comment": "",
+                                "dagNodeId": "428",
+                                "args": {
+                                    "dest": ".XcalarLRQExport.test2",
+                                    "source": "test2"
+                                }
+                            },
+                            {
+                                "operation":"XcalarApiIndex",
+                                "comment": "",
+                                "dagNodeId": "427",
+                                "args": {
+                                    "dest": "test2",
+                                    "source": "test1",
+                                    "key": [{
+                                        "keyFieldName": "test2-xcalarRecordNum",
+                                        "name": "xcalarRecordNum",
+                                        "ordering": "Unordered",
+                                        "type": "DfInt64"
+                                    }]
+                                }
+                            },
+                            {
+                                "operation":"XcalarApiBulkLoad",
+                                "comment": "",
+                                "dagNodeId": "426",
+                                "args": {
+                                        "dagNodeId": "418",
+                                        "dest": "test1",
+                                        "loadArgs": {
+                                            "sourceArgs": {
+                                                "fileNamePattern": "",
+                                                "path": "/netstore/datasets/unittest/test_yelp.json",
+                                                "recursive": false,
+                                                "targetName": "Default Shared Root"
+                                            },
+                                            "parseArgs": {
+                                                "parserArgJson": "{}",
+                                                "parserFnName": "default:parseJson"
+                                            }
+                                        }
+                                    }
+                            }
+                        ]
+            }
+            return PromiseHelper.resolve(fakeRetInfo);
+        };
+
         XcalarDeleteRetina = function() {
             return PromiseHelper.resolve();
         };
@@ -781,6 +835,7 @@ function viewRelatedFunctionTest() {
             done();
         })
         .fail(function() {
+            debugger;
             done("fail");
         });
     });
@@ -813,12 +868,10 @@ function viewRelatedFunctionTest() {
 
     it("unparamaterized export file name should show alert", function() {
         var dfObj = DF.getDataflow("df1");
-        dfObj.retinaNodes[0].api = XcalarApisT.XcalarApiExport;
-        dfObj.retinaNodes[0].input = {
-            "exportInput": {
+        dfObj.retinaNodes[".XcalarLRQExport.test2"].type = "XcalarApiExport";
+        dfObj.retinaNodes[".XcalarLRQExport.test2"].args = {
                 fileName: "fakeFileName",
                 targetName: "Default"
-            }
         };
         $("#modScheduleForm-save").click();
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
@@ -1046,6 +1099,7 @@ function viewRelatedFunctionTest() {
 
     after(function(done) {
         XcalarGetRetina = oldGetRetinaFunc;
+        XcalarGetRetinaJson = oldGetRetinaFunc2;
         XcalarDeleteRetina = oldDeleteRetinaFunc;
         UnitTest.offMinMode();
         StatusBox.forceHide();

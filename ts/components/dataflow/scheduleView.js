@@ -748,13 +748,16 @@ window.Scheduler = (function(Scheduler, $) {
     function checkExportFileName(dataflowName) {
         var deferred = PromiseHelper.deferred();
         var dfObj = DF.getDataflow(dataflowName);
-        var exportNodes = dfObj.retinaNodes.filter(function(a) {
-            return XcalarApisT.XcalarApiExport === a.api;
-        });
+        var exportNodes = [];
+        for (var tName in dfObj.retinaNodes) {
+            if (dfObj.retinaNodes[tName].operation === XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+                exportNodes.push(dfObj.retinaNodes[tName]);
+            }
+        }
+
         var notFound = false;
         for (var i = 0; i < exportNodes.length; i++) {
-            var exportInfo = exportNodes[0].input.exportInput;
-            var fileName = exportInfo.fileName;
+            var fileName = exportNodes[i].args.fileName;
             var sysParamFound = false;
             for (var paramName in systemParams) {
                 var sysParam = "<" + paramName + ">";

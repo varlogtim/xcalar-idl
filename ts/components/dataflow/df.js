@@ -89,13 +89,30 @@ window.DF = (function($, DF) {
         lastCreatedDF = dfName;
     };
 
+    // calls XcalarGetRetina and XcalarGetRetinaJson
+    function getRetinaAndJson(retName) {
+        var deferred = jQuery.Deferred();
+        PromiseHelper.when(XcalarGetRetina(retName), XcalarGetRetinaJson(retName))
+        .then(function(retStruct, retJson) {
+            var retinaInfo = {
+                name: retName,
+                retStruct: retStruct.retina.retinaDag,
+                retJson: retJson
+            };
+            deferred.resolve(retinaInfo);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     DF.refresh = function(retMeta) {
         // This call now has to return a promise
         var deferred = PromiseHelper.deferred();
-        var retArray = [];
 
         XcalarListRetinas()
         .then(function(list) {
+            var promises = [];
             for (var i = 0; i < list.numRetinas; i++) {
                 var retName = list.retinaDescs[i].retinaName;
                 if (retName.indexOf("#") > -1) {
@@ -104,23 +121,21 @@ window.DF = (function($, DF) {
                     // We do not allow uploading or creation of retinas with #
                     continue;
                 }
-                retArray.push(XcalarGetRetina(retName));
+                promises.push(getRetinaAndJson(retName));
             }
 
-            return PromiseHelper.alwaysResolve(PromiseHelper.when.apply({}, retArray));
+            return PromiseHelper.alwaysResolve(PromiseHelper.when.apply({}, promises));
         })
         .then(function() {
-            dataflows = {}; // Reset dataflow cache
             var retStructs = arguments;
+            dataflows = {}; // Reset dataflow cache
             for (var i = 0; i < retStructs.length; i++) {
-                if (retStructs[i] == null) {
+                if (retStructs[i] == null || !retStructs[i].name) {
                     continue;
                 }
-                if (!retStructs[i].retina) {
-                    continue;
-                }
+
                 // Populate node information
-                var retName = retStructs[i].retina.retinaDesc.retinaName;
+                var retName = retStructs[i].name;
                 if (retName in retMeta) {
                     dataflows[retName] = retMeta[retName];
                 } else {
@@ -176,6 +191,7 @@ window.DF = (function($, DF) {
         for (var df in deepCopy) {
             delete deepCopy[df].nodeIds;
             delete deepCopy[df].retinaNodes;
+            delete deepCopy[df].nodes;
             delete deepCopy[df].columns;
             delete deepCopy[df].schedule;
         }
@@ -191,16 +207,16 @@ window.DF = (function($, DF) {
         options = options || {};
         var deferred = PromiseHelper.deferred();
 
-        var innerDef;
+        var promise;
         if (options.isUpload) {
-            innerDef = PromiseHelper.resolve();
+            promise = PromiseHelper.resolve();
         } else {
-            innerDef = createRetina(dataflowName, exportTables, srcTables);
+            promise = createRetina(dataflowName, exportTables, srcTables);
         }
 
-        innerDef
+        promise
         .then(function() {
-            return XcalarGetRetina(dataflowName);
+            return getRetinaAndJson(dataflowName);
         })
         .then(function(retInfo) {
             dataflows[dataflowName] = dataflow;
@@ -371,13 +387,22 @@ window.DF = (function($, DF) {
     DF.updateDF = function(dfName) {
         var deferred = PromiseHelper.deferred();
         var df = dataflows[dfName];
+        var nodesCache;
 
-        XcalarGetRetina(dfName)
+        getRetinaAndJson(dfName)
         .then(function(retStruct) {
             updateDFInfo(retStruct);
+            nodesCache = df.nodes;
             return df.updateParamMapInUsed();
         })
-        .then(deferred.resolve)
+        .then(function(ret) {
+            if (!dataflows[dfName].nodes || !dataflows[dfName].nodes.length) {
+                // node info can get deleted during the asyn call
+                dataflows[dfName].nodes = nodesCache;
+            }
+            deferred.resolve(ret);
+        })
+        // .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -420,16 +445,30 @@ window.DF = (function($, DF) {
 
     // called after retina is created to update the ids of dag nodes
     function updateDFInfo(retInfo) {
-        var retina = retInfo.retina;
-        var retName = retina.retinaDesc.retinaName;
-        var dataflow = dataflows[retName];
-        var nodes = retina.retinaDag.node;
+        var retName = retInfo.name;
+        var dataflow = DF.getDataflow(retName);
+        dataflow.nodes = retInfo.retStruct.node; // used to construct graph then deleted
+        dataflow.retinaNodes = {};
 
-        dataflow.retinaNodes = nodes;
+        var nodeArgs = retInfo.retJson.query;
+        for (var i = 0; i < nodeArgs.length; i++) {
+            var tableName = nodeArgs[i].args.dest;
+            dataflow.retinaNodes[tableName] = nodeArgs[i];
+        }
 
-        for (var i = 0; i < retina.retinaDag.numNodes; i++) {
-            var tableName = nodes[i].name.name;
-            dataflow.addNodeId(tableName, nodes[i].dagNodeId);
+        for (var i in dataflow.parameterizedNodes) {
+            // check if using nodeid instead of tablename,
+            // if so, then replace with tname
+            if (parseInt(i) > 0) {
+                for (var j = 0; j < dataflow.nodes.length; j++) {
+                    if (dataflow.nodes[j].dagNodeId === i) {
+                        var tName = dataflow.nodes[j].name.name;
+                        var params = dataflow.parameterizedNodes[i];
+                        dataflow.parameterizedNodes[tName] = params;
+                        delete dataflow.parameterizedNodes[i];
+                    }
+                }
+            }
         }
     }
 
@@ -494,7 +533,14 @@ window.DF = (function($, DF) {
             if (df) {
                 var retinaNodes = df.retinaNodes;
                 try {
-                    exportTarget = retinaNodes[0].input.exportInput.targetName;
+                    var exportNode;
+                    for (var name in retinaNodes) {
+                        if (retinaNodes[name].type === "XcalarApiExport") {
+                            exportNode = retinaNodes[name];
+                            break;
+                        }
+                    }
+                    exportTarget = exportNode.args.targetName;
                     var exportTargetObj = DSExport.getTarget(exportTarget);
                     options.exportTarget = exportTargetObj.info.name;
                     options.exportLocation = exportTargetObj.info.formatArg;

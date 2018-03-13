@@ -190,30 +190,6 @@ describe("DFParamModal Test", function() {
             expect(DFParamModal.__testOnly__.strToSpecialChar("a")).to.equal("a");
         });
 
-        it("get export options should work", function() {
-            var prefix = ".exportSettingTable .innerEditableRow";
-            var createRule = $modal.find(prefix + ".createRule input").val();
-            var recordDelim = $modal.find(prefix + ".recordDelim input").val();
-            var fieldDelim = $modal.find(prefix + ".fieldDelim input").val();
-            var quoteDelim = $modal.find(prefix + ".quoteDelim input").val();
-            var headerType = $modal.find(prefix + ".headerType input").val();
-            var sorted = $modal.find(prefix + ".sorted input").val();
-            var splitRule = $modal.find(prefix + ".splitRule input").val();
-            var exportOptions = DFParamModal.__testOnly__.getExportOptions();
-
-            expect(createRule).to.equal("Do Not Overwrite");
-            expect(exportOptions.createRule).to.equal("createOnly");
-            expect(exportOptions.fieldDelim).to
-            .equal(DFParamModal.__testOnly__.strToSpecialChar(fieldDelim));
-            expect(exportOptions.recordDelim).to
-            .equal(DFParamModal.__testOnly__.strToSpecialChar(recordDelim));
-            expect(headerType).to.equal("Every File");
-            expect(exportOptions.headerType).to.equal("every");
-            expect(exportOptions.sorted).to.equal(sorted === "True");
-            expect(splitRule).to.equal("Multiple Files");
-            expect(exportOptions.splitRule).to.equal("none");
-        });
-
         describe("export submit with invalid file name", function() {
             it("extension in param should work", function(done) {
                 var cachedFn = XcalarUpdateRetina;
@@ -253,7 +229,7 @@ describe("DFParamModal Test", function() {
             DF.getDataflow(testDfName).addParameter(paramName);
             DFCard.__testOnly__.addParamToRetina(paramName);
 
-            DFParamModal.show($dfWrap.find(".actionType.filter"))
+            DFParamModal.show($dfWrap.find(".operationTypeWrap.filter"))
             .then(function() {
                 done();
             })
@@ -267,19 +243,10 @@ describe("DFParamModal Test", function() {
         });
 
         it("inputs should be correct", function() {
-            expect($modal.find(".template .boxed").length).to.equal(3);
-            expect($modal.find(".template").text()).to.equal("filter:" + colName + "bygt3");
+            expect($modal.find(".template .boxed").length).to.equal(1);
+            expect($modal.find(".template").text()).to.equal("Filter:gt(" + colName + ", 3)");
             var $inputs = $modal.find("input");
-            expect($inputs.length).to.equal(7);
-            expect($inputs.eq(1).val()).to.equal(colName);
-            expect($inputs.eq(2).val()).to.equal("gt");
-            expect($inputs.eq(3).val()).to.equal("3");
-        });
-
-        it("filter dropdown should be correct", function() {
-            var $list = $modal.find(".tdWrapper.dropDownList");
-            expect($list.find("li").eq(0).text()).to.equal("and");
-            expect($list.find("li").last().text()).to.equal("startsWith");
+            expect($inputs.length).to.equal(5);
         });
 
         it("param should be present", function() {
@@ -417,49 +384,6 @@ describe("DFParamModal Test", function() {
             expect(fn('\\"(\\"')).to.be.true;
         });
 
-        it("suggest should work", function() {
-            var fn = DFParamModal.__testOnly__.suggest;
-            var $list = $modal.find(".list");
-            var $input = $list.siblings("input");
-
-            $input.val("o");
-            fn($input);
-            expect($list.find("li:visible").text()).to.equal("orcontainsisBooleanisFloatnot");
-            $list.hide();
-
-            $input.val(" ");
-            fn($input);
-            expect($list.find("li:visible").length).to.equal(22);
-
-            $input.val("abcd");
-            fn($input);
-            expect($list.find("li:visible").length).to.equal(0);
-        });
-
-        it("updateNumArgs should work", function() {
-            var $list = $modal.find(".list");
-            var $li1 = $list.find("li").eq(0);
-            var $li2 = $list.find("li").eq(1);
-            expect($li1.text()).to.equal("and");
-            expect($li2.text()).to.equal("between");
-
-            expect($modal.find(".editableParamQuery input").length).to.equal(3);
-
-            $li2.trigger(fakeEvent.mouseup);
-            expect($modal.find(".editableParamQuery input").length).to.equal(4);
-
-            $li1.trigger(fakeEvent.mouseup);
-            expect($modal.find(".editableParamQuery input").length).to.equal(3);
-        });
-
-        it("setParamDivToDefault should work", function() {
-            $modal.find(".editableTable .defaultParam").click();
-            var $inputs = $modal.find(".editableParamQuery input");
-            expect($inputs.eq(0).val()).to.equal(colName);
-            expect($inputs.eq(1).val()).to.equal("gt");
-            expect($inputs.eq(2).val()).to.equal("3");
-        });
-
         it("editableParamDiv on input should work", function(done) {
             var paramName = "testParam";
             var $input = $modal.find(".editableParamQuery input").eq(0);
@@ -489,7 +413,7 @@ describe("DFParamModal Test", function() {
         });
 
         it("invalid bracket should be detected", function(done) {
-            $modal.find(".editableParamQuery input").eq(2).val("<test");
+            $modal.find(".editableParamQuery input").eq(0).val("<test");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
                 done("fail");
@@ -501,7 +425,7 @@ describe("DFParamModal Test", function() {
         });
 
         it("invalid param should be detected", function(done) {
-            $modal.find(".editableParamQuery input").eq(2).val("<te?st>");
+            $modal.find(".editableParamQuery input").eq(0).val("<te?st>");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
                 done("fail");
@@ -513,10 +437,9 @@ describe("DFParamModal Test", function() {
         });
 
         it("empty param value should be detected", function(done) {
-            $modal.find(".editableParamQuery input").eq(0).val(colName);
-            $modal.find(".editableParamQuery input").eq(1).val("lt");
-            $modal.find(".editableParamQuery input").eq(2).val("<testParam>");
-            DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(2));
+            $modal.find(".editableParamQuery input").eq(0).val("lt(" + colName + ", <testParam>)");
+
+            DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(0));
 
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
@@ -529,27 +452,13 @@ describe("DFParamModal Test", function() {
             });
         });
 
-        it("wrong filter type should not work", function(done) {
-            $modal.find(".editableParamQuery input").eq(1).val("garbage");
-            DFParamModal.__testOnly__.storeRetina()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(){
-                UnitTest.hasStatusBoxWithError(ErrTStr.FilterTypeNoSupport);
-                $modal.find(".paramVal").eq(0).val("4");
-                done();
-            });
-        });
-
         it("submit should work", function(done) {
-            $modal.find(".editableParamQuery input").eq(1).val("lt");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
                 var df = DF.getDataflow(testDfName);
                 expect(df.paramMap.testParam).to.equal("4");
-                expect($dfWrap.find(".actionType.filter").text()).to.equal("filter<Parameterized>");
-                expect($dfWrap.find(".actionType.filter").hasClass("hasParam")).to.be.true;
+                expect($dfWrap.find(".operationTypeWrap.filter").text()).to.equal("filter<Parameterized>");
+                expect($dfWrap.find(".operationTypeWrap.filter").hasClass("hasParam")).to.be.true;
                 done();
             })
             .fail(function(){
@@ -558,10 +467,10 @@ describe("DFParamModal Test", function() {
         });
 
         it("submit with default param should work", function(done) {
-            DFParamModal.show($dfWrap.find(".actionType.filter"))
+            DFParamModal.show($dfWrap.find(".operationTypeWrap.filter"))
             .then(function() {
-                $modal.find(".editableParamQuery input").eq(2).val("<N>");
-                DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(2));
+                $modal.find(".editableParamQuery input").eq(0).val("lt(" + colName + ", <N>)");
+                DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(0));
                 return DFParamModal.__testOnly__.storeRetina();
             })
             .then(function() {

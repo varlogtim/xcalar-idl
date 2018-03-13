@@ -2717,22 +2717,18 @@ describe("Persistent Constructor Test", function() {
             $("#dataflowPanel").append($node);
         });
 
-        it("should have 10 attributes", function() {
+        it("should have 8 attributes", function() {
             expect(df).to.be.an.instanceof(Dataflow);
-            expect(Object.keys(df).length).to.equal(10);
+            expect(Object.keys(df).length).to.equal(8);
             expect(df).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(df).to.have.property("name")
             .and.to.equal("testRet");
-            expect(df).to.have.property("columns")
-            .and.to.be.an("array");
             expect(df).to.have.property("parameters")
             .and.to.be.an("array");
             expect(df).to.have.property("paramMap")
             .and.to.be.an("object");
             expect(df).to.have.property("paramMapInUsed")
-            .and.to.be.an("object");
-            expect(df).to.have.property("nodeIds")
             .and.to.be.an("object");
             expect(df).to.have.property("parameterizedNodes")
             .and.to.be.an("object");
@@ -2785,27 +2781,16 @@ describe("Persistent Constructor Test", function() {
             expect(df.checkParamInUse("a")).to.be.false;
         });
 
-        it("should getNodeId", function() {
-            expect(df.getNodeId("testTable")).not.to.exist;
-        });
-
         it("should getParameterizedNode", function() {
             expect(df.getParameterizedNode(nodeId)).not.to.exist;
-        });
-
-        it("should add node id", function() {
-            df.addNodeId("testTable", nodeId);
-            expect(df.getNodeId("testTable")).to.equal(nodeId);
         });
 
         it("should add parameterizedNode", function() {
             df.addParameterizedNode(nodeId, {
                 "paramType": "test",
-                "paramValue": "test",
-                "paramQuery": ["load <a>"]
+                "paramValue": "load <a>",
             }, {"paramValue": "testVal"});
             expect(df.checkParamInUse("a")).to.be.true;
-            expect($node.data("paramValue")).to.equal("testVal");
             expect(df.getParameterizedNode(nodeId)).to.exist;
         });
 

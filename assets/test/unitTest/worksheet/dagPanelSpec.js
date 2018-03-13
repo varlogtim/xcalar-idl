@@ -586,7 +586,7 @@ describe("Dag Panel Test", function() {
         // test right-most table
         it("menu should open", function() {
             expect($menu.is(":visible")).to.be.false;
-            smallTable.$dagWrap.find(".actionTypeWrap").first().click();
+            smallTable.$dagWrap.find(".operationType").first().click();
             expect($menu.is(":visible")).to.be.true;
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.unavailable:visible").length).to.equal(0);
@@ -595,12 +595,12 @@ describe("Dag Panel Test", function() {
         });
 
         it("menu on index table should be correct", function() {
-            smallTable.$dagWrap.find(".actionTypeWrap").eq(1).click();
+            smallTable.$dagWrap.find(".operationType").eq(1).click();
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.unavailable:visible").length).to.equal(1);
             expect($menu.find("li.editOp").hasClass("unavailable")).to.be.true;
 
-            smallTable.$dagWrap.find(".actionTypeWrap").first().click();
+            smallTable.$dagWrap.find(".operationType").first().click();
         });
 
         describe("operation menu actions", function() {
@@ -708,7 +708,7 @@ describe("Dag Panel Test", function() {
 
         describe("li hovering", function() {
             it("collapseTag mouseover should work", function() {
-                groupTable.$dagWrap.find(".actionTypeWrap").first().click();
+                groupTable.$dagWrap.find(".operationType").first().click();
                 // the reveal li is visible, the collapse is hidden
                 expect($menu.find("li:visible").length).to.equal(3);
 
@@ -1219,9 +1219,9 @@ describe("Dag Panel Test", function() {
         });
 
         it("Action mouseovers should work", function(done) {
-            var createActionWrap = $smallDagWrap.find(".actionTypeWrap").eq(0);
-            var reduceActionWrap = $smallDagWrap.find(".actionTypeWrap").eq(1);
-            var mapActionWrap = $largeDagWrap.find(".actionTypeWrap").first();
+            var createActionWrap = $smallDagWrap.find(".operationType").eq(0);
+            var reduceActionWrap = $smallDagWrap.find(".operationType").eq(1);
+            var mapActionWrap = $largeDagWrap.find(".operationType").first();
 
             expect(createActionWrap.attr("aria-describedby")).to.be.undefined;
             createActionWrap.trigger(fakeEvent.mouseenter);
@@ -1431,14 +1431,13 @@ describe("Dag Panel Test", function() {
                     return PromiseHelper.reject();
                 };
 
-                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(0);
-                // var tId = $actionType.next().data("id");
-                var tName = $actionType.next().data("tablename");
+                var $operationTypeWrap = groupTable.$dagWrap.find(".operationTypeWrap.groupBy").eq(0);
+                var tName = $operationTypeWrap.next().data("tablename");
 
                 Dag.generateIcvTable(
                     groupTable.$dagWrap.data("id"),
                     tName,
-                    $actionType.next())
+                    $operationTypeWrap.next())
                 .then(function() {
                     done("fail");
                 })
@@ -1467,14 +1466,14 @@ describe("Dag Panel Test", function() {
                     return PromiseHelper.resolve();
                 };
 
-                var $actionType = groupTable.$dagWrap.find(".actionType.groupBy").eq(0);
-                var tId = $actionType.next().data("id");
-                var tName = $actionType.next().data("tablename");
+                var $operationTypeWrap = groupTable.$dagWrap.find(".operationTypeWrap.groupBy").eq(0);
+                var tId = $operationTypeWrap.next().data("id");
+                var tName = $operationTypeWrap.next().data("tablename");
 
                 Dag.generateIcvTable(
                     groupTable.$dagWrap.data("id"),
                     tName,
-                    $actionType.next())
+                    $operationTypeWrap.next())
                 .then(function() {
                     return UnitTest.timeoutPromise(1);
                 })
@@ -1721,7 +1720,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("groupby icv", function(done) {
-                var $dagTable = $(".actionType.groupBy").eq(0).siblings(".dagTable");
+                var $dagTable = $(".operationTypeWrap.groupBy").eq(0).siblings(".dagTable");
                 var $icon = $dagTable.find(".dagTableIcon");
                 $icon.click();
                 expect($menu.find("li.generateIcv").hasClass("unavailable"))
@@ -1765,7 +1764,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("complement table", function(done) {
-                var $dagTable = $dagPanel.find(".actionType.filter").last().siblings(".dagTable");
+                var $dagTable = $dagPanel.find(".operationTypeWrap.filter").last().siblings(".dagTable");
                 var $icon = $dagTable.find(".dagTableIcon");
                 var origId = $dagTable.data("id");
                 var origTablename = $dagTable.data("tablename");
@@ -1840,8 +1839,8 @@ describe("Dag Panel Test", function() {
             var numTables = $tables.length;
 
             expect(numTables).to.be.gt(1);
-            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("data-original-title", oldTableName);
-            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("title", oldTableName);
+            $dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("data-original-title", oldTableName);
+            $dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("title", oldTableName);
             $dagPanel.find(".opInfoText").eq(0).text(oldTableName);
 
             Dag.renameAllOccurrences(oldTableName, newTableName);
@@ -1854,14 +1853,14 @@ describe("Dag Panel Test", function() {
             var $newTables = $("#dagPanel .dagTable").filter(function() {
                 return $(this).data("tablename") === newTableName;
             });
-            expect($dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("data-original-title")).to.equal(newTableName);
+            expect($dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("data-original-title")).to.equal(newTableName);
             expect($newTables.length).to.equal(numTables);
 
-            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("data-original-title", "");
-            $dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("title", newTableName);
+            $dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("data-original-title", "");
+            $dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("title", newTableName);
 
             Dag.renameAllOccurrences(newTableName, oldTableName);
-            expect($dagPanel.find(".opInfoText").eq(0).closest(".actionTypeWrap").attr("title")).to.equal(oldTableName);
+            expect($dagPanel.find(".opInfoText").eq(0).closest(".operationType").attr("title")).to.equal(oldTableName);
         });
     });
 
@@ -2179,7 +2178,6 @@ describe("Dag Panel Test", function() {
             var info = {};
             fn(info, "not(x)", ["abc"]);
             expect(info.opText).to.equal("x");
-            expect(info.eval).to.equal("not(x)");
             expect(info.tooltip).to.equal("Filtered table \"abc\": not(x)");
             expect(info.subType).to.equal("filternot");
         });
@@ -2471,12 +2469,12 @@ describe("Dag Panel Test", function() {
             expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
             $tagIcon.trigger(fakeEvent.mouseenter);
             expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
-            $tagIcon.closest(".actionType").removeClass("collapsed");
+            $tagIcon.closest(".operationTypeWrap").removeClass("collapsed");
             $tagIcon.trigger(fakeEvent.mouseenter);
             expect($joinDagWrap.find(".tagHighlighted").length).to.be.gt(1);
             $tagIcon.trigger(fakeEvent.mouseleave);
             expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
-            $tagIcon.closest(".actionType").addClass("collapsed");
+            $tagIcon.closest(".operationTypeWrap").addClass("collapsed");
             $tagIcon.trigger(fakeEvent.mouseleave);
             expect($joinDagWrap.find(".tagHighlighted").length).to.equal(0);
         });

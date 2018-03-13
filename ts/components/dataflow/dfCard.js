@@ -225,7 +225,6 @@ window.DFCard = (function($, DFCard) {
                                 df.paramMapInUsed[paramName]);
             }
         });
-
         $retTabSection.removeClass("hidden");
     };
 
@@ -293,7 +292,7 @@ window.DFCard = (function($, DFCard) {
         $(".tabWrap").addClass(xdpMode);
         // Remove focus when click other places other than retinaArea
         // add new retina
-        $retTabSection.on('click', '.retPopUp', function(event){
+        $retTabSection.on('click', '.retPopUp', function(event) {
             event.stopPropagation();
         });
 
@@ -527,7 +526,7 @@ window.DFCard = (function($, DFCard) {
     function drawDF(dataflowName) {
         var deferred = PromiseHelper.deferred();
         var html =
-        '<div class="dagWrap clearfix" '+
+        '<div class="dagWrap clearfix" ' +
             'data-dataflowName="' + dataflowName + '">' +
             '<div class="header clearfix">' +
                 '<div class="btn btn-small infoIcon">' +
@@ -568,9 +567,12 @@ window.DFCard = (function($, DFCard) {
         $dagWrap.remove();
         $dfCard.find('.cardMain').append(html);
 
-        var nodes = DF.getDataflow(dataflowName).retinaNodes;
+        var dataflow = DF.getDataflow(dataflowName);
+        var nodes = dataflow.nodes;
         $dagWrap = getDagWrap(dataflowName);
         DagDraw.createDagImage(nodes, $dagWrap);
+        delete dataflow.nodes; // reference to nodes only needed for creating
+        // dataflow graph
 
         if ($dagWrap.hasClass("hasUnexpectedNode")) {
             $dfCard.addClass("hasUnexpectedNode");
@@ -610,74 +612,53 @@ window.DFCard = (function($, DFCard) {
         // zation later.
 
         var dataflow = DF.getDataflow(dataflowName);
-        var retNodes = dataflow.retinaNodes;
-        var paramValue = '';
+        var allNodes = dataflow.retinaNodes;
+        var parameterizedNodes = dataflow.parameterizedNodes;
+        var paramStructs = {};
 
-        var expRetNodes = retNodes.filter(function(node) {
-            return node.api === XcalarApisT.XcalarApiExport;
-        });
-
-        $dagWrap.find(".export.dagTable").each(function() {
-            var $exportTable = $(this);
-            var exportId = $exportTable.attr("data-nodeid");
-            for (var i = 0; i < expRetNodes.length; i++) {
-                if (expRetNodes[i].dagNodeId === exportId) {
-                    var expInput = expRetNodes[i].input.exportInput;
-                    var fileName = expInput.fileName || "";
-                    var targetName = expInput.targetName || "";
-                    var targetType = expInput.targetType || "";
-                                 //xx specInput.odbcInput.tableName no longer exists
-                    paramValue = [fileName, targetName, targetType];
+        for (var tName in allNodes) {
+            var node = allNodes[tName];
+            var struct = node.args;
+            var type = XcalarApisT[node.operation];
+            if (type === XcalarApisT.XcalarApiExport) {
+                var fileName = struct.fileName || "";
+                paramStructs[tName] = struct;
                     // uploaded retinas do not have params in export node
+                var $exportTable = $dagWrap.find(".dagTable[data-tablename='" +
+                                                 tName + "']");
 
-                    $exportTable.addClass("export").data("type", "export")
-                        .attr("data-table", $exportTable.attr("data-tablename"))
-                        .data("paramValue", paramValue)
-                        .attr("data-advancedOpts", "default");
+                $exportTable.addClass("export").data("type", "export")
+                    .attr("data-table", $exportTable.attr("data-tablename"))
+                    .attr("data-advancedOpts", "default");
 
-                    var $elem = $exportTable.find(".tableTitle");
-                    var expName = xcHelper.stripCSVExt(paramValue[0]);
-                    $elem.text(expName);
-                    xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
-                    break;
-                }
+                var $elem = $exportTable.find(".tableTitle");
+                var expName = xcHelper.stripCSVExt(fileName);
+                $elem.text(expName);
+                xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
+            } else if (type === XcalarApisT.XcalarApiFilter) {
+                paramStructs[tName] = struct;
+            } else if (type === XcalarApisT.XcalarApiBulkLoad) {
+                paramStructs[tName] = struct;
             }
-        });
+        }
 
         // Data table moved so that the hasParam class is added correctly
-        $dagWrap.find(".actionType.export").attr("data-table", "");
-
-        // Add data-paramValue tags to all parameterizable nodes
-        var $loadNodes = $dagWrap.find(".dagTable.dataStore");
-        $loadNodes.each(function(idx, val) {
-            var $val = $(val);
-            var paramValue = [$val.data("targetname"),
-                              decodeURI($val.data("url")),
-                              decodeURI($val.data("pattern"))];
-            $val.data("paramValue", paramValue);
-        });
-
-        var $opNodes = $dagWrap.find(".actionType.dropdownBox");
-        $opNodes.each(function(idx, val) {
-            var $op = $(val);
-            $op.data("paramValue", [$op.attr("data-info")]);
-        });
+        $dagWrap.find(".operationTypeWrap.export").attr("data-table", "");
 
         var selector = '.dagTable.export, .dagTable.dataStore, ' +
-                       '.actionType.filter';
+                       '.operationTypeWrap.filter';
         // Attach styling to all nodes that have a dropdown
         $dagWrap.find(selector).addClass("parameterizable");
 
-        for (var nodeId in dataflow.parameterizedNodes) {
-            var $tables = $dagWrap.find('[data-nodeid="' + nodeId + '"]');
-            if ($tables.prev().hasClass("filter")) {
-                $tables = $tables.prev();
-            }
-            var paramVal = $tables.data("paramValue");
-            if (isParameterized(paramVal)) {
-                var $tableNode = dataflow.colorNodes(nodeId);
-                var type = dataflow.parameterizedNodes[nodeId]
-                               .paramType;
+        for (var tName in parameterizedNodes) {
+            var struct = paramStructs[tName];
+            if (isParameterized(struct)) {
+                var name = tName;
+                if (name.indexOf(gDSPrefix) === 0) {
+                    name = name.substring(gDSPrefix.length);
+                }
+                var $tableNode = dataflow.colorNodes(name);
+                var type = parameterizedNodes[tName].paramType;
                 if (type === XcalarApisT.XcalarApiFilter) {
                     $tableNode.find(".opInfoText")
                               .text("<Parameterized>");
@@ -712,7 +693,7 @@ window.DFCard = (function($, DFCard) {
         } else {
             selector = '.dataStore .dataStoreIcon, ' +
                         '.export .dagTableIcon, ' +
-                        '.actionType.filter .actionTypeWrap';
+                        '.operationTypeWrap.filter .operationType';
         }
 
         var $icons = $dfCard.find(selector).filter(function() {
@@ -730,7 +711,7 @@ window.DFCard = (function($, DFCard) {
         var $menu = $dagArea.find('.dagDropDown');
 
         $dagArea[0].oncontextmenu = function(e) {
-            var $target = $(e.target).closest('.actionType');
+            var $target = $(e.target).closest('.operationTypeWrap');
             var prevent = false;
             if ($(e.target).closest('.dagTable.dataStore').length) {
                 $target = $(e.target).closest('.dagTable.dataStore');
@@ -752,7 +733,7 @@ window.DFCard = (function($, DFCard) {
         };
 
         var selector = '.dagTable.export, .dagTable.dataStore,' +
-                       ' .actionType.filter';
+                       ' .operationTypeWrap.filter';
 
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
@@ -877,7 +858,7 @@ window.DFCard = (function($, DFCard) {
             $menu.css({'top': top, 'left': left});
             $menu.show();
 
-            //positioning if dropdown menu is on the right side of screen
+            // positioning if dropdown menu is on the right side of screen
             if ($menu[0].getBoundingClientRect().right >
                 $(window).width() - 5) {
                 left = $(window).width() - $menu.width() - 7;
@@ -935,7 +916,7 @@ window.DFCard = (function($, DFCard) {
 
         $popup.css({'top': top, 'left': left});
 
-        //positioning if menu is on the right side of screen
+        // positioning if menu is on the right side of screen
         if ($popup[0].getBoundingClientRect().right >
             $(window).width() - 5) {
             left = $(window).width() - $popup.width() - 7;
@@ -1008,8 +989,17 @@ window.DFCard = (function($, DFCard) {
             paramsArray.push(p);
         }
 
-        var dagNode = dfObj.retinaNodes[0];
-        var exportStruct = dagNode.input.exportInput;
+        var exportNode;
+        var retNodes = dfObj.retinaNodes;
+        for (var tName in retNodes) {
+            if (XcalarApisT[retNodes[tName].operation] ===
+                XcalarApisT.XcalarApiExport) {
+                exportNode = retNodes[tName];
+                break;
+            }
+        }
+
+        var exportStruct = exportNode.args;
         var targetName = exportStruct.targetName;
         var targetType = exportStruct.targetType;
         var fileName = parseFileName(exportStruct, paramsArray);
@@ -1618,52 +1608,63 @@ window.DFCard = (function($, DFCard) {
         StatusBox.forceHide();
     }
 
-    function restoreParameterizedNode(dataflowName) {
+    // only called if UI does not have any cache of parameters, this happens
+    // when a batch dataflow is uploaded or if it's a brand new dataflow
+    function restoreParameterizedNodes(dataflowName) {
         var df = DF.getDataflow(dataflowName);
-        var $dagWrap = $(getDagWrap(dataflowName));
-        for (var key in df.nodeIds) {
-            var dagNodeId = df.nodeIds[key];
-            var $dagNode = $dagWrap.find('[data-nodeid="' + dagNodeId + '"]');
-            if ($dagNode.prev().hasClass("filter")) {
-                $dagNode = $dagNode.prev();
-            }
-            if (!$dagNode.length) {
-                continue;
-            }
-            var paramVal = $dagNode.data().paramValue;
-            var type = $dagNode.data().type;
-            // uploaded retinas do not have params in export node / paramVal
-            if (isParameterized(paramVal)) {
-                var paramType;
-                if (type === "filter") {
-                    paramType = XcalarApisT.XcalarApiFilter;
-                } else if (type === "dataStore") {
-                    paramType = XcalarApisT.XcalarApiBulkLoad;
-                } else if (type === "export"){
-                    paramType = XcalarApisT.XcalarApiExport;
-                }
+        for (var tName in df.retinaNodes) {
+            var node = df.retinaNodes[tName];
+            var struct = node.args;
+            var type = XcalarApisT[node.operation];
 
+            if (isParameterized(struct)) {
                 var val = {
-                    "paramType": paramType,
-                    "paramValue": paramVal
+                    "paramType": type,
+                    "paramValue": struct
                 };
-
-                var paramInfo = val;
-                df.addParameterizedNode(dagNodeId, val, paramInfo);
+                // oldinfo is same as newinfo since we don't have hold info
+                df.addParameterizedNode(tName, val, val);
             }
         }
     }
 
-    function isParameterized(paramValue) {
-        if (paramValue !== undefined) {
-            for (var i = 0; i < paramValue.length; i++) {
-                if (typeof paramValue[i] === 'string'
-                    && paramValue[i].indexOf('<') !== -1) {
+    function isParameterized(value) {
+        if (!value) {
+            return false;
+        }
+        if (typeof value !== "object") {
+            if (typeof value === "string") {
+                var openIndex = value.indexOf("<");
+                if (openIndex > -1 && value.lastIndexOf(">") > openIndex) {
                     return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            if ($.isEmptyObject(value)) {
+                return false;
+            }
+            if (value.constructor === Array) {
+                for (var i = 0; i < value.length; i++) {
+                    if (isParameterized(value[i])) {
+                        return true;
+                    }
+                }
+            } else {
+                for (var i in value) {
+                    if (!value.hasOwnProperty(i)) {
+                        continue;
+                    }
+                    if (isParameterized(value[i])) {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     function focusOnDF(dataflowName) {
@@ -1676,10 +1677,12 @@ window.DFCard = (function($, DFCard) {
         var promise;
         var html;
         var $dagWrap = getDagWrap(dataflowName);
-        if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
+
+        if (!$dagWrap.length && (!df.nodes || $.isEmptyObject(df.nodes)) ||
+            $.isEmptyObject(df.retinaNodes)) {
             promise = DF.updateDF(dataflowName);
             closeRetTab();
-            html = '<div class="dagWrap clearfix" '+
+            html = '<div class="dagWrap clearfix" ' +
                        'data-dataflowName="' + dataflowName + '"></div>';
             $dfCard.find(".cardMain").append(html);
             $dagWrap = getDagWrap(dataflowName);
@@ -1688,7 +1691,7 @@ window.DFCard = (function($, DFCard) {
             promise = PromiseHelper.resolve();
             $dagWrap = getDagWrap(dataflowName);
             if (!$dagWrap.length) {
-                html = '<div class="dagWrap clearfix" '+
+                html = '<div class="dagWrap clearfix" ' +
                        'data-dataflowName="' + dataflowName + '"></div>';
                 $dfCard.find(".cardMain").append(html);
             }
@@ -1706,11 +1709,15 @@ window.DFCard = (function($, DFCard) {
         promise
         .then(function() {
             var $dagWrap = getDagWrap(dataflowName);
-            if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length ||
+            if ($.isEmptyObject(df.retinaNodes) ||
+                ($.isEmptyObject(df.nodes) && !$dagWrap.length) ||
+                !$dagWrap.length ||
                 $dagWrap.hasClass("error")) {
                 return; // may have gotten cleared
             }
             if (!$dagWrap.find(".dagImage").length) {
+                var dataflow = DF.getDataflow(dataflowName);
+                var nodes = dataflow.nodes;
                 // first time creating image
                 drawDF(dataflowName);
                 $dagWrap = getDagWrap(dataflowName);
@@ -1747,7 +1754,7 @@ window.DFCard = (function($, DFCard) {
             var $dagWrap = getDagWrap(dataflowName);
             if ($.isEmptyObject(df.parameterizedNodes) &&
                 !$dagWrap.hasClass("error")) {
-                restoreParameterizedNode(dataflowName);
+                restoreParameterizedNodes(dataflowName);
             }
         });
     }
@@ -1764,7 +1771,7 @@ window.DFCard = (function($, DFCard) {
         DFCard.__testOnly__.showExportCols = showExportCols;
         DFCard.__testOnly__.parseFileName = parseFileName;
         DFCard.__testOnly__.applyDeltaTagsToDag = applyDeltaTagsToDag;
-        DFCard.__testOnly__.restoreParameterizedNode = restoreParameterizedNode;
+        DFCard.__testOnly__.restoreParameterizedNode = restoreParameterizedNodes;
         DFCard.__testOnly__.setCanceledRun = function(run) {
             canceledRuns = {};
             canceledRuns[run] = true;

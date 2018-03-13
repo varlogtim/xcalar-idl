@@ -2468,15 +2468,66 @@
             <%= addVersion %>
 
             if (<%= checkFunc %>(options)) {
+                var paramValue = self.paramValue;
+                var paramType = self.paramType;
                 // changing paramValue from string to array of values
-                if (!Array.isArray(self.paramValue)) {
-                    self.paramValue = [self.paramValue];
-                    if (self.paramType === XcalarApisT.XcalarApiBulkLoad) {
+                if (typeof paramValue !== "object" &&
+                    !Array.isArray(paramValue)) {
+
+                    self.paramValue = [paramValue];
+
+                    if (paramType === XcalarApisT.XcalarApiBulkLoad) {
                         self.paramValue.push("");
-                    } else if (self.paramType ===
-                        XcalarApisT.XcalarApiExport)
-                    {
+                    } else if (paramType === XcalarApisT.XcalarApiExport) {
                         self.paramValue.push("Default");
+                    }
+                } else if (Array.isArray(paramValue)) {
+                    var struct;
+                    if (paramType === XcalarApisT.XcalarApiBulkLoad) {
+                        self.paramValue = new XcalarApiBulkLoadInputT();
+                        self.paramValue.loadArgs = new XcalarApiDfLoadArgsT();
+                        self.paramValue.loadArgs.sourceArgsList = [];
+                        if (Array.isArray(paramValue[0])) {
+                            for (var i = 0; i < paramValue.length; i++) {
+                                fillSourceArgsList(paramValue[i])
+                            }
+                        } else {
+                            fillSourceArgsList(paramValue);
+                        }
+                        function fillSourceArgsList(paramVal) {
+                            var sourceArgs = new DataSourceArgsT();
+                            sourceArgs.targetName = paramVal[0];
+                            sourceArgs.path = paramVal[1];
+                            sourceArgs.fileNamePattern = paramVal[2];
+                            self.paramValue.loadArgs.sourceArgsList.push(sourceArgs);
+                        }
+
+                    } else if (paramType === XcalarApisT.XcalarApiExport &&
+                        typeof paramValue[0] === "string") { // XXX temporary, do not need to check for string
+                        self.paramValue = new XcalarApiExportInputT();
+                        self.paramValue.fileName = paramValue[0];
+                        self.paramValue.targetName = paramValue[1];
+                        self.paramValue.targetType = paramValue[2];
+                    } else if (paramType === XcalarApisT.XcalarApiFilter) {
+                        self.paramValue = new XcalarApiFilterInputT();
+                        self.paramValue.eval = [];
+                        var evalStr = new XcalarApiEvalT();
+
+                        if (paramValue.length === 1) {
+                            evalStr.evalString = paramValue[0];
+                        } else {
+                            // eval string is split up into an array, put
+                            // it back together
+                            var op = paramValue[1];
+                            var arg1 = paramValue[0];
+                            var additionalArgs = "";
+                            for (var i = 2; i < paramValue.length; i++) {
+                                additionalArgs += "," + paramValue[i];
+                            }
+                            evalStr.evalString = op + "(" + arg1 +
+                                                 additionalArgs + ")";
+                        }
+                        self.paramValue.eval.push(evalStr);
                     }
                 }
             }
@@ -2512,6 +2563,8 @@
                 self.parameterizedNodes = restoreInfos.parameterizedNodes;
                 self.schedule = restoreInfos.schedule;
                 self.paramMapInUsed = restoreInfos.paramMapInUsed || {};
+                delete self.nodeIds; // no longer needed
+                delete self.columns; // no longer needed
             }
             return self;
         }
@@ -2519,35 +2572,61 @@
         __extends(Dataflow<%= v %>, _super, {
             <% if (isCurCtor) {%>
 
-            addNodeId: function(tableName, nodeId) {
-                this.nodeIds[tableName] = nodeId;
+            addParameterizedNode: function(tableName, oldParamInfo, newParamInfo, noParams) {
+                this.parameterizedNodes[tableName] = new RetinaNode(oldParamInfo);
+                this.updateParameterizedNode(tableName, newParamInfo, noParams);
             },
 
-            getNodeId: function(tableName) {
-                return this.nodeIds[tableName];
-            },
-
-            addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo, noParams) {
-                this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
-                this.updateParameterizedNode(dagNodeId, null, paramInfo, noParams);
-            },
-
-            colorNodes: function(dagNodeId, noParams) {
-                var tableName;
-                for (var name in this.nodeIds) {
-                    if (this.nodeIds[name] === dagNodeId) {
-                        tableName = name;
-                        break;
+             // this does not change the value of this.paramterizedNodes[tName]
+            updateParameterizedNode: function(tableName, paramInfo, noParams) {
+                var name = tableName;
+                if (name.indexOf(gDSPrefix) === 0) {
+                    name = name.substring(gDSPrefix.length);
+                }
+                var $tableNode = this.colorNodes(name, noParams);
+                if ($tableNode == null) {
+                    // error case
+                    return;
+                }
+                if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
+                    if (this.activeSession) {
+                        updateExportName($tableNode, this.newTableName);
+                        return;
+                    } else {
+                        updateExportName($tableNode, paramInfo.paramValue.fileName);
+                    }
+                } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
+                {
+                    if (noParams) {
+                        $tableNode.find(".opInfoText")
+                                  .text($tableNode.data("column"));
+                    } else {
+                        $tableNode.find(".opInfoText")
+                                  .text("<Parameterized>");
                     }
                 }
 
+                function updateExportName($tableNode, exportName) {
+                    var $elem = $tableNode.find(".tableTitle");
+                    var expName = xcHelper.stripCSVExt(exportName);
+                    $elem.text(expName);
+                    var text = xcHelper.convertToHtmlEntity(expName);
+                    xcTooltip.changeText($elem, text);
+                }
+            },
+
+            colorNodes: function(tableName, noParams) {
                 if (!tableName) {
                     console.info("update must be called after add. Noop.");
                     return null;
                 }
 
+                var dfName = this.name;
                 var $nodeOrAction = $("#dataflowPanel")
-                                    .find('[data-nodeid="' + dagNodeId + '"]');
+                                    .find('.dagWrap[data-dataflowname="' +
+                                            dfName + '"]')
+                                    .find('[data-tablename="' + tableName +
+                                          '"]');
                 // Exception is for export.
                 // XXX Consider attaching the id to the table
                 // node instead of the operation during draw dag.
@@ -2564,52 +2643,8 @@
                 return $nodeOrAction;
             },
 
-            updateParameterizedNode: function(oldNodeId, newDagNodeId, paramInfo, noParams) {
-                var dagNodeId;
-                if (newDagNodeId) {
-                    // update nodeId
-                    var paramValue = this.parameterizedNodes[oldNodeId];
-                    delete this.parameterizedNodes[oldNodeId];
-                    this.parameterizedNodes[newDagNodeId] = paramValue;
-                    dagNodeId = newDagNodeId;
-                } else {
-                    dagNodeId = oldNodeId;
-                }
-                var $tableNode = this.colorNodes(dagNodeId, noParams);
-                if ($tableNode == null) {
-                    // error case
-                    return;
-                }
-                if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
-                    if (this.activeSession) {
-                        updateExportName($tableNode, this.newTableName);
-                        return;
-                    } else {
-                        updateExportName($tableNode, paramInfo.paramValue[0]);
-                    }
-                } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
-                {
-                    if (noParams) {
-                        $tableNode.find(".opInfoText")
-                                  .text($tableNode.data("column"));
-                    } else {
-                        $tableNode.find(".opInfoText")
-                                  .text("<Parameterized>");
-                    }
-                }
-                $tableNode.data("paramValue", paramInfo.paramValue);
-
-                function updateExportName($tableNode, exportName) {
-                    var $elem = $tableNode.find(".tableTitle");
-                    var expName = xcHelper.stripCSVExt(exportName);
-                    $elem.text(expName);
-                    var text = xcHelper.convertToHtmlEntity(expName);
-                    xcTooltip.changeText($elem, text);
-                }
-            },
-
-            getParameterizedNode: function(dagNodeId) {
-                return this.parameterizedNodes[dagNodeId];
+            getParameterizedNode: function(tableName) {
+                return this.parameterizedNodes[tableName];
             },
 
             addParameter: function(name) {
@@ -2691,15 +2726,52 @@
                 var str = "<" + paramName + ">";
                 var paramNodes = this.parameterizedNodes;
 
-                for (var dagNodeId in paramNodes) {
-                    var dagQuery = paramNodes[dagNodeId].paramQuery || [];
-                    for (var i = 0, len = dagQuery.length; i < len; i++) {
-                        if (dagQuery[i].indexOf(str) >= 0) {
-                            return true;
-                        }
+                for (var tName in paramNodes) {
+                    var paramValue = paramNodes[tName].paramValue || [];
+                    if (isParameterized(paramValue)) {
+                        return true;
                     }
                 }
+
                 return false;
+
+                function isParameterized(value) {
+                    if (!value) {
+                        return false;
+                    }
+                    if (typeof value !== "object") {
+                        if (typeof value === "string") {
+                            if (value.indexOf(str) > -1) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        if ($.isEmptyObject(value)) {
+                            return false;
+                        }
+                        if (value.constructor === Array) {
+                            for (var i = 0; i < value.length; i++) {
+                                if (isParameterized(value[i])) {
+                                    return true;
+                                }
+                            }
+                        } else {
+                            for (var i in value) {
+                                if (!value.hasOwnProperty(i)) {
+                                    continue;
+                                }
+                                if (isParameterized(value[i])) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    }
+                }
             },
 
             removeParameter: function(name) {

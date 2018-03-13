@@ -204,8 +204,8 @@ window.Dag = (function($, Dag) {
         });
 
         $dagOpText.text(newTableName);
-        var $actionTypes = $dagOpText.closest('.actionTypeWrap');
-        $actionTypes.each(function() {
+        var $operationTypeWraps = $dagOpText.closest('.operationType');
+        $operationTypeWraps.each(function() {
             var tooltipText = $(this).attr('data-original-title');
             var newText;
             if (tooltipText) {
@@ -985,7 +985,7 @@ window.Dag = (function($, Dag) {
 
         $dagWrap.on("mouseenter", ".groupTagIcon", function() {
             var $icon = $(this);
-            if ($icon.closest(".actionType").hasClass("collapsed")) {
+            if ($icon.closest(".operationTypeWrap").hasClass("collapsed")) {
                 return;
             }
             var tagId = $icon.data("tagid");
@@ -1000,7 +1000,7 @@ window.Dag = (function($, Dag) {
 
         $dagWrap.on("mouseleave", ".groupTagIcon", function() {
             var $icon = $(this);
-            if ($icon.closest(".actionType").hasClass("collapsed")) {
+            if ($icon.closest(".operationTypeWrap").hasClass("collapsed")) {
                 return;
             }
             $dagWrap.find(".tagHighlighted").removeClass("tagHighlighted");
@@ -1010,7 +1010,7 @@ window.Dag = (function($, Dag) {
             if (!$dagWrap.closest("#dagPanel").length) {
                 return;
             }
-            var $opIcon = $(this).closest(".actionType");
+            var $opIcon = $(this).closest(".operationTypeWrap");
             DFCommentModal.show($opIcon, $opIcon.data("id"));
         });
 
@@ -1026,7 +1026,7 @@ window.Dag = (function($, Dag) {
             return tableInfo;
         }
 
-        tableInfo.type = $dagTable.siblings(".actionType").data("type");
+        tableInfo.type = $dagTable.siblings(".operationTypeWrap").data("type");
         tableInfo.isIcv = $dagTable.find(".icv").length > 0;
         tableInfo.generatingIcv = $dagTable.hasClass("generatingIcv");
         tableInfo.hasDroppedParent = Dag.isParentDropped($dagTable);
@@ -1089,7 +1089,7 @@ window.Dag = (function($, Dag) {
         var $tableWrap = $dagTable.closest(".dagTableWrap");
         var alreadyHasEdit = $tableWrap.hasClass("hasEdit");
         $tableWrap.addClass("hasEdit");
-        var $opIcon = $tableWrap.addClass("hasEdit").find(".actionType");
+        var $opIcon = $tableWrap.addClass("hasEdit").find(".operationTypeWrap");
 
         // var tip = '<div class="dagTableTip">' +
         //             '<div>' + JSON.stringify(param, null, 2) + '</div>' +
@@ -1110,7 +1110,7 @@ window.Dag = (function($, Dag) {
         var $dagWrap = $("#dagWrap-" + dagWrapId);
         var $dagTable = Dag.getTableIcon($dagWrap, editingNode.value.dagNodeId);
         var $opIcon = $dagTable.closest(".dagTableWrap").removeClass("hasEdit")
-                                                        .find(".actionType");
+                                                        .find(".operationTypeWrap");
         $opIcon.find(".dagTableTip").remove();
         $dagTable.closest(".dagTableWrap").removeClass("aggError hasError");
         if (indexNodes) {
@@ -2396,8 +2396,14 @@ window.Dag = (function($, Dag) {
         }
         var $tableIcon = $("#dagPanel").find(".dagTable[data-tablename='" +
                                             tableName + "']");
+        var $dagWrap = $tableIcon.eq(0).closest(".dagWrap");
+        var nodeId = $tableIcon.data("nodeid");
         var $tableWrap = $tableIcon.closest(".dagTableWrap");
-        var evalStr = $tableWrap.find(".actionType").data("info");
+        var nodeIdMap = $tableWrap.closest(".dagWrap").data("allDagInfo")
+                                                      .nodeIdMap;
+        var node = nodeIdMap[nodeId];
+        var evalStr = node.value.struct.eval[0].evalString;
+
         // remove or add not() for complement
         if (evalStr.indexOf("not(") === 0 &&
             evalStr[evalStr.length - 1] === ")") {
@@ -2413,10 +2419,7 @@ window.Dag = (function($, Dag) {
             complement: true,
             worksheet: worksheet
         };
-        var nodeId = $tableIcon.data("index");
-        var nodeIdMap = $tableWrap.closest(".dagWrap").data("allDagInfo")
-                                                      .nodeIdMap;
-        var node = nodeIdMap[nodeId];
+      
         var parentNode = node.parents[0];
         var srcTableId = xcHelper.getTableId(parentNode.value.name);
         $tableIcon.addClass("generatingComplement");

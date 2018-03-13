@@ -569,7 +569,7 @@ window.DagPanel = (function($, DagPanel) {
 
             // to check if aggregate table, in which case we disallow
             // many options
-            var operator = $dagTable.siblings('.actionType').data('type');
+            var operator = $dagTable.siblings('.operationTypeWrap').data('type');
             if (operator === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
                             '.addNoDelete, .makeTempTable').addClass('hidden');
@@ -628,14 +628,14 @@ window.DagPanel = (function($, DagPanel) {
         xcMenu.add($menu);
         dagOpDropDownActions($menu);
 
-        $dagPanel.on('click', '.actionTypeWrap', function(event) {
+        $dagPanel.on('click', '.operationType', function(event) {
             $('.menu').hide().removeClass('leftColMenu');
             xcMenu.removeKeyboardNavigation();
             $('#dagSchema').removeClass("active");
             var $dagWrap = $(this).closest(".dagWrap");
 
             var $opIcon = $(this);
-            var $opWrap = $opIcon.closest(".actionType");
+            var $opWrap = $opIcon.closest(".operationTypeWrap");
 
             var $dagTable = $opIcon.closest(".dagTableWrap").find(".dagTable");
             var tableName = $opWrap.data("table");
@@ -783,8 +783,8 @@ window.DagPanel = (function($, DagPanel) {
             if ($target.length) {
                 $target.trigger('click');
                 return false;
-            } else if ($(e.target).closest(".actionTypeWrap").length) {
-                $(e.target).closest(".actionTypeWrap").trigger("click");
+            } else if ($(e.target).closest(".operationType").length) {
+                $(e.target).closest(".operationType").trigger("click");
                 return false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');

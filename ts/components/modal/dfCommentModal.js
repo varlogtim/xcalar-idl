@@ -86,7 +86,7 @@ window.DFCommentModal = (function(DFCommentModal, $) {
                 $dagTableTitles.each(function() {
                     var $dagTable = $(this).closest(".dagTable");
                     var nodeId = $dagTable.data("index");
-                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
+                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
                     var $dagWrap = $opIcon.closest(".dagWrap");
                     var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
 
@@ -97,7 +97,7 @@ window.DFCommentModal = (function(DFCommentModal, $) {
                 $dagTableTitles.each(function() {
                     var $dagTable = $(this).closest(".dagTable");
                     var nodeId = $dagTable.data("index");
-                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".actionType");
+                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
                     $opIcon.removeClass("hasComment");
                     $opIcon.find(".commentIcon").remove();
                     var $dagWrap = $opIcon.closest(".dagWrap");

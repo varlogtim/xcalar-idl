@@ -1164,7 +1164,7 @@ window.ColManager = (function($, ColManager) {
                 if (res.tdClass !== "") {
                     tdClass += " " + res.tdClass;
                 }
-              
+
                 tBodyHTML += '<td class="' + tdClass + '">' +
                                 res.td +
                             '</td>';
@@ -1488,7 +1488,7 @@ window.ColManager = (function($, ColManager) {
         var tdValLen = formatVal.length;
         var truncated = (tdValLen > limit);
 
-     
+
         if (truncated) {
             var truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +

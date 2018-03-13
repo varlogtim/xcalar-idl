@@ -3275,6 +3275,30 @@ XcalarGetRetina = function(retName) {
     return (deferred.promise());
 };
 
+XcalarGetRetinaJson = function(retName) {
+    if (retName === "" || retName == null ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarGetRetinaJson(tHandle, retName)
+    .then(function(ret) {
+        var json = JSON.parse(ret.retinaJson);
+        deferred.resolve(json);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetRetinaJson", error);
+        Log.errorLog("Get Retina Json", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+};
+
 // XXX TODO THIS NEEDS TO HAVE Log.add
 
 // paramType must be either of the following:
@@ -3299,52 +3323,53 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    xcalarGetRetinaJson(tHandle, retName)
-    .then(function(res) {
-        var retJson = JSON.parse(res.retinaJson);
+    XcalarGetRetinaJson(retName)
+    .then(function(retJson) {
         var queries = retJson.query;
 
         for (var i = 0; i < queries.length; i++) {
             var args = queries[i].args;
             if (args.dest === tableName) {
-                switch (paramType) {
-                    case (XcalarApisT.XcalarApiBulkLoad):
-                        for (var i = 0; i < paramValues.length; i++) {
-                            if (!args.loadArgs.sourceArgsList[i]) {
-                                args.loadArgs.sourceArgsList[i] = new DataSourceArgsT();
-                                args.loadArgs.sourceArgsList[i].recursive = false;
-                            }
-                            args.loadArgs.sourceArgsList[i].fileNamePattern =
-                                                    paramValues[i].fileNamePattern;
-                            args.loadArgs.sourceArgsList[i].path = paramValues[i].path;
-                            args.loadArgs.sourceArgsList[i].targetName =
-                                                    paramValues[i].targetName;
-                        }
-                        args.loadArgs.sourceArgsList.length = paramValues.length;
+                queries[i].args = paramValues;
+                // switch (paramType) {
+                //     case (XcalarApisT.XcalarApiBulkLoad):
+                //         for (var i = 0; i < paramValues.length; i++) {
+                //             if (!args.loadArgs.sourceArgsList[i]) {
+                //                 args.loadArgs.sourceArgsList[i] = new DataSourceArgsT();
+                //                 args.loadArgs.sourceArgsList[i].recursive = false;
+                //             }
+                //             args.loadArgs.sourceArgsList[i].fileNamePattern =
+                //                                     paramValues[i].fileNamePattern;
+                //             args.loadArgs.sourceArgsList[i].path = paramValues[i].path;
+                //             args.loadArgs.sourceArgsList[i].targetName =
+                //                                     paramValues[i].targetName;
+                //         }
+                //         args.loadArgs.sourceArgsList.length = paramValues.length;
 
-                        break;
-                    case (XcalarApisT.XcalarApiFilter):
-                        args.eval[0].evalString = paramValues.filterStr;
-                        break;
-                    case (XcalarApisT.XcalarApiExport):
-                        args.createRule = paramValues.createRule;
-                        args.fieldDelim = paramValues.fieldDelim;
-                        args.fileName = paramValues.fileName;
-                        args.headerType = paramValues.headerType;
-                        args.quoteDelim = paramValues.quoteDelim;
-                        args.recordDelim = paramValues.recordDelim;
-                        args.sorted = paramValues.sorted;
-                        args.splitRule = paramValues.splitRule;
-                        args.targetName = paramValues.targetName;
-                        args.targetType = paramValues.targetType;
-                        break;
-                    default:
-                        deferred.reject({error: "Invalid param type"});
-                        return deferred.promise();
-                }
+                //         break;
+                //     case (XcalarApisT.XcalarApiFilter):
+                //         args.eval[0].evalString = paramValues.filterStr;
+                //         break;
+                //     case (XcalarApisT.XcalarApiExport):
+                //         args.createRule = paramValues.createRule;
+                //         args.fieldDelim = paramValues.fieldDelim;
+                //         args.fileName = paramValues.fileName;
+                //         args.headerType = paramValues.headerType;
+                //         args.quoteDelim = paramValues.quoteDelim;
+                //         args.recordDelim = paramValues.recordDelim;
+                //         args.sorted = paramValues.sorted;
+                //         args.splitRule = paramValues.splitRule;
+                //         args.targetName = paramValues.targetName;
+                //         args.targetType = paramValues.targetType;
+                //         break;
+                //     default:
+                //         deferred.reject({error: "Invalid param type"});
+                //         return deferred.promise();
+                // }
                 break;
             }
         }
+
         return xcalarUpdateRetina(tHandle, retName, JSON.stringify(retJson));
     })
     .then(deferred.resolve)
@@ -3355,6 +3380,8 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
 
     return deferred.promise();
 };
+
+
 
 // Don't call this for now. When bohan's change for 8137 is fixed, we will
 // no longer call updateRetina for export changes and instead switch to this

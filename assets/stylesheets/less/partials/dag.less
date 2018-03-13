@@ -233,7 +233,7 @@ html.firefox, html.microsoft {
             .rounded(1px);
         }
 
-        .actionTypeWrap {
+        .operationType {
             margin-top: 0px;
             width: 64px;
             height: 21px;
@@ -266,7 +266,7 @@ html.firefox, html.microsoft {
     }
 
     .operationArea {
-        .actionTypeWrap {
+        .operationType {
             position: static;
             cursor: auto;
         }
@@ -327,7 +327,7 @@ html.firefox, html.microsoft {
     float: left;
 }
 
-.actionTypeWrap {
+.operationType {
     .position(absolute);
     .size(@width: 100px, @height: 32px,
           @max-width: 119px, @max-height: 70px);
@@ -562,12 +562,12 @@ html.firefox, html.microsoft {
             .dagTableIcon, .dataStoreIcon {
                 box-shadow: 0px 0px 8px 2px @color-dag-glowing;
             }
-            .actionTypeWrap {
+            .operationType {
                 box-shadow: 0px 0px 6px 1px @color-dag-glowing;
             }
         }
         &.tagDiscovered {
-            .actionTypeWrap, .dagTableIcon, .dataStoreIcon {
+            .operationType, .dagTableIcon, .dataStoreIcon {
                 .transition(all 3s);
                 box-shadow: none;
             }
@@ -576,7 +576,7 @@ html.firefox, html.microsoft {
                 .dagTableIcon, .dataStoreIcon {
                     box-shadow: 0px 0px 15px 4px @color-dag-glowing;
                 }
-                .actionTypeWrap {
+                .operationType {
                     box-shadow: 0px 0px 8px 2px @color-dag-glowing;
                 }
             }
@@ -587,9 +587,9 @@ html.firefox, html.microsoft {
         }
 
         &.isAncestor, &.isDescendant:not(.editingChild) {
-            .actionType {
+            .operationTypeWrap {
                 background-color: @color-white;
-                .actionTypeWrap {
+                .operationType {
                     .disabledStyle;
                 }
                 &:after {
@@ -610,9 +610,9 @@ html.firefox, html.microsoft {
             .disabledStyle {
                 opacity: 0.6;
             }
-            // .actionType {
+            // .operationTypeWrap {
             //     background-color: @color-white;
-            //     .actionTypeWrap {
+            //     .operationType {
             //         .disabledStyle;
             //     }
             //     &:after {
@@ -627,9 +627,9 @@ html.firefox, html.microsoft {
         }
 
         &.isSource {
-            .actionType {
+            .operationTypeWrap {
                 background-color: @color-white;
-                .actionTypeWrap {
+                .operationType {
                     .disabledStyle;
                 }
             }
@@ -911,7 +911,7 @@ html.firefox, html.microsoft {
         }
     }
 
-    .actionType {
+    .operationTypeWrap {
         .size(@width: 100px, @height: 32px);
         display: inline-block;
         line-height: 30px;
@@ -921,7 +921,7 @@ html.firefox, html.microsoft {
         cursor: pointer;
 
         &.tagHeader {
-            .actionTypeWrap {
+            .operationType {
                 border: 1px solid @color-bg-select-blue;
             }
 
@@ -1010,7 +1010,7 @@ html.firefox, html.microsoft {
         .groupTagIcon, .commentIcon {
             .size(14px, 18px);
             float: right;
-            z-index: 1; // so ::after is in front of .actionType
+            z-index: 1; // so ::after is in front of .operationTypeWrap
             position: relative;
 
             .icon {
@@ -1584,7 +1584,7 @@ html.firefox, html.microsoft {
                     border: 3px solid @color-error-border;
                 }
 
-                .actionType {
+                .operationTypeWrap {
                     &:after {
                         top: -2px;
                         left: 14px;
@@ -1611,7 +1611,7 @@ html.firefox, html.microsoft {
 
                 .dagTableWrap {
                     &.hasEdit {
-                        .actionType {
+                        .operationTypeWrap {
                             &:after {
                                 .hasParamMixin;
                             }
@@ -1627,7 +1627,7 @@ html.firefox, html.microsoft {
                         }
                     }
                     &.hasError {
-                        .actionType {
+                        .operationTypeWrap {
                             &:after {
                                 .hasErrorMixin;
                             }

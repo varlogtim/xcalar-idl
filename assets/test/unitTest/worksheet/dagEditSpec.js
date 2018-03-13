@@ -161,7 +161,7 @@ describe("DagEdit Test", function() {
         it("map pre form should show", function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             var node = nodeIdMap[nodeId];
 
             var cachedFn = TblManager.findAndFocusTable;
@@ -197,7 +197,7 @@ describe("DagEdit Test", function() {
 
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             var node = nodeIdMap[nodeId];
 
             DagEdit.editOp(node);
@@ -212,7 +212,7 @@ describe("DagEdit Test", function() {
         it("clicking on row should prompt edit", function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             var node = nodeIdMap[nodeId];
 
             var called = false;
@@ -275,7 +275,7 @@ describe("DagEdit Test", function() {
         after(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             var node = nodeIdMap[nodeId];
             DagEdit.undoEdit(node);
         });
@@ -287,7 +287,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -358,7 +358,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Group by";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -444,7 +444,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "filter";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -544,7 +544,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "aggregate";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -625,7 +625,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Join";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -781,7 +781,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "union";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -906,7 +906,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "project";
-            }).closest(".actionType").data("id");
+            }).closest(".operationTypeWrap").data("id");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -1019,7 +1019,7 @@ describe("DagEdit Test", function() {
             $dagWrap.find(".editBtn:visible").click();
             expect($dagWrap.hasClass("editMode")).to.be.true;
 
-            var nodeId = $dagWrap.find(".actionType").eq(0).data("id");
+            var nodeId = $dagWrap.find(".operationTypeWrap").eq(0).data("id");
             var node = nodeIdMap[nodeId];
 
             var editInfo = DagEdit.getInfo();

@@ -635,42 +635,6 @@ describe("DFCard Test", function() {
     });
 
     describe("various functions", function() {
-        it("restore parameterized node should work", function() {
-            var paramCalled = false;
-            $("#dataflowPanel").append(
-                '<div class="dagWrap" data-dataflowName="' + testDfName + 1 + '"></div>');
-            var $dagWrap = $("#dataflowPanel").find('.dagWrap[data-dataflowName="' +
-                                            testDfName + 1 + '"]');
-            $dagWrap.append('<div data-nodeid="a" data-type="filter" paramValue="<a>"></div>');
-            $dagWrap.append('<div data-nodeid="b" data-type="dataStore" paramValue="<a>"></div>');
-            $dagWrap.append('<div data-nodeid="c" data-type="export" paramValue="<a>"></div>');
-            $dagWrap.find("div").eq(0).data("paramValue", ["<a>"]);
-            $dagWrap.find("div").eq(1).data("paramValue", ["<b>"]);
-            $dagWrap.find("div").eq(2).data("paramValue", ["<c>"]);
-
-            var cache1 = DF.getDataflow;
-            var paramInfo = [];
-            var df = {
-                nodeIds: {"a": "a", "b": "b", "c": "c"},
-                addParameterizedNode: function(nodeId, val, paramInf) {
-                    paramCalled = true;
-                    paramInfo.push(val);
-                }
-            };
-
-            DF.getDataflow = function() {
-                return df;
-            };
-
-            DFCard.__testOnly__.restoreParameterizedNode(testDfName + 1);
-            expect(paramCalled).to.be.true;
-            expect(paramInfo.length).to.equal(3);
-            expect(paramInfo[0].paramType).to.equal(XcalarApisT.XcalarApiFilter);
-            expect(paramInfo[0].paramValue[0]).to.equal("<a>");
-
-            DF.getDataflow = cache1;
-        });
-
         it("parseFileName should work", function() {
             var paramArray = [{paramName: "test", paramValue: "val"}];
             var exportInfo = {fileName: "<test>.csv"};
@@ -710,25 +674,22 @@ describe("DFCard Test", function() {
 
             DFCard.__testOnly__.applyDeltaTagsToDag("", $wrap);
             expect($wrap.find(".dagTable").hasClass("parameterizable")).to.be.true;
-            expect($wrap.find(".dagTable").data("paramValue")[0]).to.equal("<b>");
             DF.getDataflow = cache1;
         });
 
         it("applyDeltaTagsToDag should work with filter", function() {
             var $wrap = $('<div class="dagWrap"></div>');
-            $wrap.append('<div class="actionType dropdownBox filter" data-info="<c>"></div><div class="dagTable filter" data-nodeid="a"><div class="opInfoText"></div></div>');
+            $wrap.append('<div class="operationTypeWrap dropdownBox filter"></div><div class="dagTable filter" data-nodeid="a"><div class="opInfoText"></div></div>');
             var cache1 = DF.getDataflow;
             var df = {
-                retinaNodes: [{
-                    dagNodeId: "a",
-                    input: {
-                        exportInput: {
-                            fileName: "<b>"
-                        }
-                    },
-                    api: XcalarApisT.XcalarApiFilter,
-                    name: {name: "testName"}
-                }],
+                retinaNodes: {
+                    "a" : {
+                        dagNodeId: "a",
+                        args: {eval: [{evalString: "<c>"}]},
+                        operation: "XcalarApiFilter",
+                        name: {name: "testName"}
+                    }
+                },
                 parameterizedNodes: {
                     "a": {
                         paramType: XcalarApisT.XcalarApiFilter
@@ -742,10 +703,8 @@ describe("DFCard Test", function() {
                 return df;
             };
 
-
             DFCard.__testOnly__.applyDeltaTagsToDag("", $wrap);
-            expect($wrap.find(".actionType").hasClass("parameterizable")).to.be.true;
-            expect($wrap.find(".actionType").data("paramValue")[0]).to.equal("<c>");
+            expect($wrap.find(".operationTypeWrap").hasClass("parameterizable")).to.be.true;
             expect($wrap.find(".dagTable .opInfoText").text()).to.equal("<Parameterized>");
             DF.getDataflow = cache1;
         });

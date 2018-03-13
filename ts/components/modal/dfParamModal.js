@@ -249,7 +249,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $toggle.next().remove();
                 $toggle.remove();
                 $dfParamModal.find(".editableParamQuery .toggleGroupRow").each(function(index) {
-                    $(this).find(".toggleText").text("Source Arguments " + ( index + 1));
+                    $(this).find(".toggleText").text("Source Arguments " + (index + 1));
                 });
                 return;
             }
@@ -280,12 +280,8 @@ window.DFParamModal = (function($, DFParamModal){
         altTableName = $currentIcon.data("altname");
         var dfName = DFCard.getCurrentDF();
         var df = DF.getDataflow(dfName);
-        var id = df.getNodeId(tableName);
 
-        $dfParamModal.data({
-            "id": id,
-            "df": dfName
-        });
+        $dfParamModal.data("df", dfName);
 
         $dfParamModal.removeClass("type-dataStore type-filter type-export " +
                                  "multiExport");
@@ -302,8 +298,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
-        var defaultParam = getParamValues(df, id);
-        setupInputText(defaultParam);
+        setupInputText();
         $("#dfParamModal .editableRow .defaultParam").click();
         var draggableInputs = "";
         DF.getDataflow(dfName).parameters.forEach(function(paramName) {
@@ -312,15 +307,15 @@ window.DFParamModal = (function($, DFParamModal){
             }
         });
 
-        var createNewParam = '<div class="inputSection">'+
+        var createNewParam = '<div class="inputSection">' +
                              '<input class="newParam" type="text" placeholder="' +
                               DFTStr.EnterNewParam +
-                             '"style="display:none" spellcheck="false">'+
+                             '"style="display:none" spellcheck="false">' +
                              '<div class="btn btn-icon addParam">' +
                              '<i class="icon xi-plus"></i>' +
-                             '<div class="message">'+
+                             '<div class="message">' +
                              DFTStr.NewParam +
-                             '</div>'+
+                             '</div>' +
                              '</div>' +
                              '</div>';
         $dfParamModal.find('.draggableParams.currParams')
@@ -333,7 +328,7 @@ window.DFParamModal = (function($, DFParamModal){
                        .removeClass("hint")
                             .html(draggableInputs);
         fillUpRows(); // parameterlist table
-        populateSavedFields(id, dfName); // template section
+        populateSavedFields(dfName); // top template section
 
         modalHelper.setup();
         setupDummyInputs();
@@ -345,8 +340,6 @@ window.DFParamModal = (function($, DFParamModal){
         } else {
             if (type === "export") {
                 exportSetup();
-                var retName = $dfParamModal.data("df");
-                var df = DF.getDataflow(retName);
                 if (df && df.activeSession) {
                     $dfParamModal.find(".innerEditableRow.filename input").val(df.newTableName);
                     $paramLists.empty();
@@ -568,7 +561,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $lis.prependTo($list.find('ul'));
                 $list.find('ul').width($list.width() - 1);
 
-                //XXX 10-19-2016 need to shake it or it doesn't show up
+                // XXX 10-19-2016 need to shake it or it doesn't show up
                 $list.find('.scrollArea.bottom').css('bottom', 1);
                 setTimeout(function() {
                     $list.find('.scrollArea.bottom').css('bottom', 0);
@@ -678,10 +671,10 @@ window.DFParamModal = (function($, DFParamModal){
         '<i class="icon xi-close"></i>' +
         '<i class="icon xi-minus"></i>' +
         '</i></div>' +
-        '<div class="paramGroup">'+
+        '<div class="paramGroup">' +
             '<div class="innerEditableRow targetName">' +
                 '<div class="static">' +
-                    'Target Name' + ':' +
+                    'Target Name:' +
                 '</div>' +
                 getParameterInputHTML(0, "large", {hasDropdown: true}) +
             '</div>' +
@@ -693,7 +686,7 @@ window.DFParamModal = (function($, DFParamModal){
             '</div>' +
             '<div class="innerEditableRow">' +
                 '<div class="static">' +
-                    'Pattern' + ':' +
+                    'Pattern:' +
                 '</div>' +
                 getParameterInputHTML(2, "large allowEmpty") +
             '</div>' +
@@ -704,13 +697,21 @@ window.DFParamModal = (function($, DFParamModal){
 
     // options:
     //      defaultPath: string, for export
-    function setupInputText(paramValue) {
+    function setupInputText() {
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized
                                 // Query:
         var advancedOpts = "";
-        if (type === "dataStore") {
-            for (var i = 0; i < paramValue.length; i++) {
+        var retName = $dfParamModal.data("df");
+        var df = DF.getDataflow(retName);
+        var node = df.retinaNodes[tableName];
+        var type = XcalarApisT[node.operation];
+        var struct = node.args;
+
+        if (type === XcalarApisT.XcalarApiBulkLoad) {
+            var sourceArgs;
+            for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
+                sourceArgs = struct.loadArgs.sourceArgsList[i];
                 var collapsedState = i === 0 ? "expanded firstGroup" : "collapsed";
                 defaultText += '<div class="toggleGroupRow ' + collapsedState +
                         ' xc-action">' +
@@ -719,7 +720,8 @@ window.DFParamModal = (function($, DFParamModal){
                         ' (Click to expand)</span>' +
                         '<i class="icon xi-close"></i>' +
                         '<i class="icon xi-minus"></i>' +
-                        '</div>';
+                        '</div>' +
+                        '<div class="paramGroup">';
                 editableText += '<div class="toggleGroupRow group' + i + ' ' + collapsedState +
                         ' xc-action">' +
                         '<i class="icon xi-plus"></i><span class="toggleText">Source Arguments ' +
@@ -727,17 +729,15 @@ window.DFParamModal = (function($, DFParamModal){
                         ' (Click to expand)</span>' +
                         '<i class="icon xi-close"></i>' +
                         '<i class="icon xi-minus"></i>' +
-                        '</i></div>';
-                defaultText += '<div class="paramGroup">';
-                editableText += '<div class="paramGroup">';
+                        '</i></div>' +
+                        '<div class="paramGroup">';
 
-                var params = paramValue[i];
                 defaultText += '<div class="templateRow">' +
                                 '<div>' +
-                                    'Target Name' + ':' +
+                                    'Target Name:' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(params[0]) +
+                                    xcHelper.escapeHTMLSpecialChar(sourceArgs.targetName) +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
@@ -745,21 +745,21 @@ window.DFParamModal = (function($, DFParamModal){
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(params[1]) +
+                                    xcHelper.escapeHTMLSpecialChar(sourceArgs.path) +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
                                 '<div>' +
-                                    'Pattern' + ':' +
+                                    'Pattern:' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(params[2]) +
+                                    xcHelper.escapeHTMLSpecialChar(sourceArgs.fileNamePattern) +
                                 '</div>' +
                             '</div>';
 
                 editableText += '<div class="innerEditableRow targetName">' +
                                 '<div class="static">' +
-                                    'Target Name' + ':' +
+                                    'Target Name:' +
                                 '</div>' +
                                 getParameterInputHTML(0, "large", {hasDropdown: true}) +
                             '</div>' +
@@ -771,7 +771,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
                             '<div class="innerEditableRow">' +
                                 '<div class="static">' +
-                                    'Pattern' + ':' +
+                                    'Pattern:' +
                                 '</div>' +
                                 getParameterInputHTML(2, "large allowEmpty") +
                             '</div>';
@@ -779,16 +779,15 @@ window.DFParamModal = (function($, DFParamModal){
                 editableText += '</div>';
             }
             clearExportSettingTable();
-        } else if (type === "export") {
+        } else if (type === XcalarApisT.XcalarApiExport) {
             defaultText += '<div class="paramGroup">';
             editableText += '<div class="paramGroup">';
-            var struct = paramValue[3];
             var path = struct.defaultPath || "";
             if (path[path.length - 1] !== "/") {
                 path += "/";
             }
             var expName = xcHelper.stripCSVExt(xcHelper
-                                        .escapeHTMLSpecialChar(paramValue[0]));
+                                        .escapeHTMLSpecialChar(struct.fileName));
             defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.ExportTo + ':' +
@@ -799,10 +798,10 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
                             '<div class="templateRow">' +
                                 '<div>' +
-                                    'Target' + ':' +
+                                    'Target:' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
+                                    xcHelper.escapeHTMLSpecialChar(struct.targetName) +
                                 '</div>' +
                             '</div>';
             exportSettingText = getDefaultExportSetting(struct);
@@ -815,7 +814,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
                             '<div class="innerEditableRow target">' +
                                 '<div class="static">' +
-                                    'Target' + ':' +
+                                    'Target:' +
                                 '</div>' +
                                 getParameterInputHTML(1, "medium-small", {hasDropdown: true}) +
                             '</div>' +
@@ -854,74 +853,29 @@ window.DFParamModal = (function($, DFParamModal){
             editableText += '</div>';
             setUpExportSettingTable(struct);
         } else { // not a datastore but a table (filter)
-            defaultText += '<div class="paramGroup">';
-            editableText += '<div class="paramGroup">';
-            paramValue = paramValue[0];
-            if (!checkForOneParen(paramValue)) {
-                defaultText += '<div>' +
-                                'Filter' + ':' +
-                            '</div>' +
+            var param = struct.eval[0].evalString;
+
+            defaultText += '<div class="paramGroup">' +
+                            '<div>Filter:</div>' +
                             '<div class="boxed large">' +
-                                xcHelper.escapeHTMLSpecialChar(paramValue) +
+                                xcHelper.escapeHTMLSpecialChar(param) +
+                            '</div>' +
                             '</div>';
 
-                editableText += '<div class="static">' +
-                                'Filter' + ':' +
-                            '</div>' +
-                            getParameterInputHTML(0, "large");
-            } else {
-                var retStruct = xcHelper.extractOpAndArgs(paramValue);
-
-                defaultText += '<div>' + type + ':</div>' +
-                                '<div class="boxed medium">' +
-                                    xcHelper.escapeHTMLSpecialChar(
-                                        retStruct.args[0]) +
-                                '</div>';
-
-                editableText += '<div class="static">' +
-                                    type + ':' +
-                                '</div>';
-
-                if (type === "filter") {
-
-                    defaultText += '<div class="static">by</div>' +
-                                    '<div class="boxed small">' +
-                                    xcHelper.escapeHTMLSpecialChar(retStruct.op) +
-                                    '</div>';
-                    for (var i = 1; i < retStruct.args.length; i++) {
-                        defaultText += '<div class="boxed medium">' +
-                                            xcHelper.escapeHTMLSpecialChar(
-                                                retStruct.args[i]) +
-                                        '</div>';
-                    }
-
-                    editableText +=
-                            getParameterInputHTML(0, "medium") +
-                            '<div class="static">by</div>' +
-                            getParameterInputHTML(1, "small", {hasDropdown: true});
-                    for (var i = 1; i < retStruct.args.length; i++) {
-                        editableText +=
-                                getParameterInputHTML(1 + i, "medium allowEmpty");
-                    }
-                } else {
-                    // index, sort, map etc to be added in later
-                    defaultText += '<div class="static">by</div>';
-                }
-                clearExportSettingTable();
-            }
-            defaultText += '</div>';
-            editableText += '</div>';
+            editableText += '<div class="paramGroup">' +
+                                '<div class="static">Filter:</div>' +
+                                getParameterInputHTML(0, "large") +
+                            '</div>';
+            clearExportSettingTable();
         }
 
         $dfParamModal.find('.template').html(defaultText);
         $editableRow.html(editableText);
-        if (type === "export") {
+        if (type === XcalarApisT.XcalarApiExport) {
             $advancedOpts.html(advancedOpts);
             $dfParamModal.find('.exportSettingParamSection').html(exportSettingText);
             $dfParamModal.addClass("export");
-            var retName = $dfParamModal.data("df");
-            var df = DF.getDataflow(retName);
-            if (df && df.activeSession) {
+            if (df.activeSession) {
                 $dfParamModal.find(".advancedOpts [data-option='import']").click();
             } else {
                 $dfParamModal.find(".advancedOpts [data-option='default']").click();
@@ -1054,14 +1008,14 @@ window.DFParamModal = (function($, DFParamModal){
         // var maxSize = (options.splitSize == null) ? "" : (options.splitSize + "");
 
         var defaultText = '<div class="heading exportSettingButton">' +
-                          '<i class="icon xi-plus-circle-outline advancedIcon'+
+                          '<i class="icon xi-plus-circle-outline advancedIcon' +
                           ' minimized" data-container="body"' +
-                          ' data-toggle="tooltip" title="" '+
-                          'data-original-title="Toggle advanced options"></i>'+
-                          '<i class="icon xi-minus-circle-outline advancedIcon'+
+                          ' data-toggle="tooltip" title="" ' +
+                          'data-original-title="Toggle advanced options"></i>' +
+                          '<i class="icon xi-minus-circle-outline advancedIcon' +
                           ' minimized" data-container="body"' +
-                          ' data-toggle="tooltip" title="" '+
-                          'data-original-title="Toggle advanced options"></i>'+
+                          ' data-toggle="tooltip" title="" ' +
+                          'data-original-title="Toggle advanced options"></i>' +
                           '<span class="text">Advanced Export Settings</span>' +
                           '</div>';
 
@@ -1153,9 +1107,9 @@ window.DFParamModal = (function($, DFParamModal){
         switch (input) {
             case "\\t":
                 return "\t";
-            case '\"':
+            case '"':
                 return '"';
-            case "\'":
+            case "'":
                 return "'";
             case "\\n":
                 return "\n";
@@ -1182,41 +1136,6 @@ window.DFParamModal = (function($, DFParamModal){
             default:
                 return input;
         }
-    }
-
-    function getExportOptions() {
-        var exportOptions = {};
-        var prefix = ".exportSettingTable .innerEditableRow";
-        var inputSuffix = ' input';
-        // var buttonSuffix = ' .radioButton.active';
-        var createRule = $dfParamModal
-                          .find(prefix + ".createRule" + inputSuffix).val();
-        var recordDelim = $dfParamModal
-                          .find(prefix + ".recordDelim" + inputSuffix).val();
-        var fieldDelim = $dfParamModal
-                         .find(prefix + ".fieldDelim" + inputSuffix).val();
-        var quoteDelim = $dfParamModal
-                         .find(prefix + ".quoteDelim" + inputSuffix).val();
-        var headerType = $dfParamModal
-                         .find(prefix + ".headerType" + inputSuffix).val();
-        var sorted = $dfParamModal
-                         .find(prefix + ".sorted" + inputSuffix).val();
-        var splitRule = $dfParamModal
-                         .find(prefix + ".splitRule" + inputSuffix).val();
-        // var maxSize = $dfParamModal
-        //                  .find(prefix + ".maxSize" + inputSuffix).val();
-        exportOptions.createRule = strToSpecialChar(createRule);
-        exportOptions.recordDelim = strToSpecialChar(recordDelim);
-        exportOptions.fieldDelim = strToSpecialChar(fieldDelim);
-        exportOptions.quoteDelim = strToSpecialChar(quoteDelim);
-        exportOptions.headerType = strToSpecialChar(headerType);
-        exportOptions.sorted = strToSpecialChar(sorted);
-        exportOptions.splitRule = strToSpecialChar(splitRule);
-        // if (exportOptions.splitRule == "none" && $.isNumeric(maxSize)) {
-        //     exportOptions.splitRule = "size";
-        // }
-        // exportOptions.maxSize = (exportOptions.splitRule === "size") ? Number(maxSize) : null;
-        return exportOptions;
     }
 
     // returns true if exactly 1 open paren exists
@@ -1529,15 +1448,15 @@ window.DFParamModal = (function($, DFParamModal){
     }
     // submit
     function submitForm() {
-        //XX need to check if all default inputs are filled
+        // XXX need to check if all default inputs are filled
         var deferred = PromiseHelper.deferred();
         var $paramPart = $dfParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfParamModal.find('input.editableParamDiv');
         var isValid = true;
         var params;
-        var dagNodeId = $dfParamModal.data("id");
         var retName = $dfParamModal.data("df");
+        var df = DF.getDataflow(retName);
         var radioButton = $dfParamModal.find(".advancedOpts .radioButton.active");
         var btn = $('#dfViz').find(".runNowBtn");
 
@@ -1561,8 +1480,7 @@ window.DFParamModal = (function($, DFParamModal){
                     "newTableName": newTableName
                 };
                 DF.saveAdvancedExportOption(retName, activeSessionOptions);
-                df = DF.getDataflow(retName);
-                df.updateParameterizedNode(dagNodeId, null, {"paramType": XcalarApisT.XcalarApiExport}, true);
+                df.updateParameterizedNode(tableName, {"paramType": XcalarApisT.XcalarApiExport}, true);
                 closeDFParamModal();
                 xcHelper.showSuccess(SuccessTStr.ChangesSaved);
                 deferred.resolve();
@@ -1613,8 +1531,7 @@ window.DFParamModal = (function($, DFParamModal){
 
             params = [];
             var $invalidTr;
-            var retName = $dfParamModal.data("df");
-            var df = DF.getDataflow(retName);
+
             $paramLists.find(".row:not(.unfilled)").each(function() {
                 var $row = $(this);
                 var name = $row.find(".paramName").text();
@@ -1668,6 +1585,8 @@ window.DFParamModal = (function($, DFParamModal){
 
             var paramInfo;
             btn.addClass('xc-disabled');
+            var prevNode = df.retinaNodes[tableName];
+
             updateRetina()
             .then(function(paramInformation) {
                 // store meta
@@ -1680,13 +1599,17 @@ window.DFParamModal = (function($, DFParamModal){
             })
             .then(function() {
                 DFCard.updateRetinaTab(retName);
-                var noParams = params.length === 0;
-                if (!df.getParameterizedNode(dagNodeId)) {
-                    var val = genOrigQueryStruct();
-                    df.addParameterizedNode(paramInfo.newNodeId, val, paramInfo, noParams);
+                var noParams = (params.length === 0);
+                if (!df.getParameterizedNode(tableName)) {
+                    var paramObj =  {
+                        "paramType": XcalarApisT[prevNode.operation],
+                        "paramValue": prevNode.args
+                    };
+                    df.addParameterizedNode(tableName, paramObj, paramInfo, noParams);
                 } else {
                     // Only updates view. Doesn't change any stored information
-                    df.updateParameterizedNode(dagNodeId, paramInfo.newNodeId, paramInfo, noParams);
+
+                    df.updateParameterizedNode(tableName, paramInfo, noParams);
                 }
 
                 if (DF.hasSchedule(retName)) {
@@ -1717,105 +1640,44 @@ window.DFParamModal = (function($, DFParamModal){
             });
         }
 
-        function genOrigQueryStruct() {
-            var $oldVals = $dfParamModal.find(".template .boxed");
-            var paramType;
-            var paramValue;
-            var paramQuery;
-            switch (type) {
-                case ("filter"):
-                    paramType = XcalarApisT.XcalarApiFilter;
-                    if ($oldVals.length === 1) {
-                        paramValue = $.trim($oldVals.eq(0).text());
-                        paramQuery = [paramValue];
-                    } else {
-                        var filterText = $.trim($oldVals.eq(1).text());
-                        var str1 = $.trim($oldVals.eq(0).text());
-                        var arg;
-                        paramQuery = [str1, filterText];
-                        for (var i = 2; i < $oldVals.length; i++) {
-                            arg = $.trim($oldVals.eq(i).text());
-                            paramQuery.push(arg);
-                        }
-                    }
-                    break;
-                case ("dataStore"):
-                    paramType = XcalarApisT.XcalarApiBulkLoad;
-                    paramQuery = [];
-                    $dfParamModal.find(".template .paramGroup").each(function() {
-                        $oldVals = $(this).find(".boxed");
-                        var targetName = $.trim($oldVals.eq(0).text());
-                        var url = $.trim($oldVals.eq(1).text());
-                        var pattern =  $.trim($oldVals.eq(2).text());
-                        var args = [targetName, url, pattern];
-                        paramQuery.push(args);
-                    });
-
-                    break;
-                case ("export"):
-                    paramType = XcalarApisT.XcalarApiExport;
-                    var fileName = $.trim($oldVals.eq(0).text());
-                    var targetName = $.trim($oldVals.eq(1).text());
-                    fileName += ".csv";
-                    paramQuery = [fileName, targetName];
-                    break;
-            }
-
-            return {
-                "paramType": paramType,
-                "paramValue": paramQuery
-            };
-        }
-
         // will close the modal if passes checks
         function updateRetina() {
             var deferred = PromiseHelper.deferred();
+            var node = df.retinaNodes[tableName];
+            var updatedInfo = getUpdateInfo($editableDivs, params, node);
 
-            var updatedInfo = getUpdateInfo($editableDivs, params);
             if (updatedInfo.error) {
                 return PromiseHelper.reject(updatedInfo.error);
             }
 
             var paramType = updatedInfo.paramType;
-            var paramValues = updatedInfo.paramValues;
-            var paramQuery = updatedInfo.paramQuery;
+            var paramStruct = updatedInfo.struct;
 
             closeDFParamModal(true);
-
+            var tName;
             if (paramType === XcalarApisT.XcalarApiExport) {
                 tName = altTableName;
             } else {
                 tName = tableName;
             }
-            var oldNodes = DF.getDataflow(retName).retinaNodes;
 
-            XcalarUpdateRetina(retName, tName, paramType, paramValues)
+            XcalarUpdateRetina(retName, tName, paramType, paramStruct)
             .then(function() {
-                return XcalarGetRetina(retName);
+                return XcalarGetRetinaJson(retName);
             })
             .then(function(retStruct) {
                 var dataflow = DF.getDataflow(retName);
-                dataflow.retinaNodes = retStruct.retina.retinaDag.node;
-                dataflow.nodeIds = {};
-                var curNodeId;
-                var newNodeId;
-                var $df = $("#dfViz").find('.dagWrap[data-dataflowName="' + retName + '"]');
-                for (var i = 0; i < dataflow.retinaNodes.length; i++) {
-                    var tName = dataflow.retinaNodes[i].name.name;
-                    curNodeId = dataflow.retinaNodes[i].dagNodeId;
-                    dataflow.addNodeId(tName, curNodeId);
-                    if (tName === tableName) {
-                        newNodeId = curNodeId;
-                    }
 
-                    $df.find('[data-nodeid="' + oldNodes[i].dagNodeId + '"]')
-                       .attr("data-nodeid", curNodeId)
-                       .data("nodeid", curNodeId);
+                var nodeArgs = retStruct.query;
+                dataflow.retinaNodes = {};
+                for (var i = 0; i < nodeArgs.length; i++) {
+                    var tableName = nodeArgs[i].args.dest;
+                    dataflow.retinaNodes[tableName] = nodeArgs[i];
                 }
+
                 var paramInfo = {
                     "paramType": paramType,
-                    "paramValue": paramQuery,
-                    "newNodeId": newNodeId
+                    "paramValue": paramStruct
                 };
 
                 deferred.resolve(paramInfo);
@@ -1826,79 +1688,46 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function getUpdateInfo($editableDivs, params) {
-        var paramType = null;
-        var paramValues = {};
-        var paramQuery;
+    function getUpdateInfo($editableDivs, params, node) {
         var error = false;
+        var struct = xcHelper.deepCopy(node.args);
+        var type = XcalarApisT[node.operation];
         switch (type) {
-            case ("filter"):
-                paramType = XcalarApisT.XcalarApiFilter;
-                var filterStr;
-                if ($editableDivs.length === 1) {
-                    filterStr = $.trim($editableDivs.eq(0).val());
-                } else {
-                    var filterText = $.trim($editableDivs.eq(1).val());
-                    var str1 = $.trim($editableDivs.eq(0).val());
-                    var filterExists = checkIfValidFilter(filterText,
-                                                          $editableDivs.eq(1),
-                                                          params);
-
-                    if (!filterExists) {
-                        return {error: ErrTStr.FilterTypeNoSupport};
-                    }
-
-                    var additionalArgs = "";
-                    var arg;
-                    for (var i = 2; i < $editableDivs.length; i++) {
-                        arg = $.trim($editableDivs.eq(i).val());
-                        additionalArgs += arg + ",";
-                    }
-                    additionalArgs = additionalArgs.slice(0, -1);
-                    if (additionalArgs.length) {
-                        additionalArgs = "," + additionalArgs;
-                    }
-
-                    filterStr = filterText + "(" + str1 +
-                                                additionalArgs + ")";
-                }
-                paramValues.filterStr = filterStr;
-                paramQuery = [filterStr];
+            case (XcalarApisT.XcalarApiFilter):
+                var filterStr = $.trim($editableDivs.eq(0).val());
+                struct.eval[0].evalString = filterStr;
                 break;
-            case ("dataStore"):
-                paramType = XcalarApisT.XcalarApiBulkLoad;
-                // var numGroups = $editableRow.find(".paramGroup");
-                paramQuery = [];
-                paramValues = [];
-                $editableRow.find(".paramGroup").each(function() {
-                    var paramGroup = {};
+            case (XcalarApisT.XcalarApiBulkLoad):
+                $editableRow.find(".paramGroup").each(function(i) {
                     $editableDivs = $(this).find("input.editableParamDiv");
                     var url = $.trim($editableDivs.eq(1).val());
                     var pattern = $.trim($editableDivs.eq(2).val());
-                    paramGroup.path = url;
-                    paramGroup.fileNamePattern = pattern;
                     var targetName = $.trim($editableDivs.eq(0).val());
-                    paramGroup.targetName = targetName;
-                    paramValues.push(paramGroup);
-                    paramQuery.push([targetName, url, pattern]);
+
+                    if (!struct.loadArgs.sourceArgsList[i]) {
+                        struct.loadArgs.sourceArgsList[i] = new DataSourceArgsT();
+                        struct.loadArgs.sourceArgsList[i].recursive = false;
+                    }
+                    struct.loadArgs.sourceArgsList[i].fileNamePattern =
+                                            pattern;
+                    struct.loadArgs.sourceArgsList[i].path = url;
+                    struct.loadArgs.sourceArgsList[i].targetName = targetName;
                 });
+                struct.loadArgs.sourceArgsList.length = $editableRow.find(".paramGroup").length;
                 break;
-            case ("export"):
-                paramType = XcalarApisT.XcalarApiExport;
-                var fileName = $.trim($editableDivs.eq(0).val());
-                fileName += ".csv";
+            case (XcalarApisT.XcalarApiExport):
+                var partialStruct = {};
+                var fileName = $.trim($editableDivs.eq(0).val()) + ".csv";
                 var targetName = $.trim($editableDivs.eq(1).val());
 
-                paramValues.fileName = fileName;
-                paramValues.targetName = targetName;
+                partialStruct.fileName = fileName;
+                partialStruct.targetName = targetName;
                 var paramTargetName = getTargetName(targetName, params);
                 // XXX Fix this when exportTargets become real targets
                 var target = DSExport.getTarget(paramTargetName);
                 if (target) {
-                    paramValues.targetType = ExTargetTypeTStr[target.type];
-                    paramQuery = [fileName, targetName, target.type];
-                    var expOptions = getExportOptions();
-                    paramValues = $.extend(paramValues, expOptions);
+                    partialStruct.targetType = ExTargetTypeTStr[target.type];
+                    struct = $.extend(struct, partialStruct);
                 } else {
                     error = "target not found";
                 }
@@ -1908,9 +1737,8 @@ window.DFParamModal = (function($, DFParamModal){
                 break;
         }
         var res = {
-            paramValues: paramValues,
-            paramQuery: paramQuery,
-            paramType: paramType,
+            struct: struct,
+            paramType: type,
             error: error
         };
 
@@ -1934,30 +1762,6 @@ window.DFParamModal = (function($, DFParamModal){
         } else {
             Alert.error(DFTStr.UpdateParamFail, error);
         }
-    }
-
-    function checkIfValidFilter(filterText, $input, params) {
-        var numParams = params.length;
-        var find;
-        var rgx;
-        var param;
-        var val;
-        var filterParamText = filterText;
-        for (var i = 0; i < numParams; i++) {
-            param = params[i].name;
-            val = params[i].val;
-            find = "<" + xcHelper.escapeRegExp(param) + ">";
-            rgx = new RegExp(find, 'g');
-            filterParamText = filterParamText.replace(rgx, val);
-        }
-
-        // Check if filterParamText matches a filter type from dropdown list
-        var $lis = $input.siblings('.list').find('li');
-        var filterExists = $lis.filter(function() {
-            return ($(this).text() === filterParamText);
-        }).length;
-
-        return (filterExists);
     }
 
     function getTargetName(targetName, params) {
@@ -2070,9 +1874,9 @@ window.DFParamModal = (function($, DFParamModal){
         return html;
     }
 
-    function populateSavedFields(dagNodeId, retName) {
+    function populateSavedFields(retName) {
         var df = DF.getDataflow(retName);
-        var retinaNode = df.getParameterizedNode(dagNodeId);
+        var retinaNode = df.getParameterizedNode(tableName);
         var paramMap = df.paramMap;
         var nameMap = {};
         // Here's what we are doing:
@@ -2085,47 +1889,31 @@ window.DFParamModal = (function($, DFParamModal){
         // parameterization by moving the template values to the new values,
         // and setting the template values to the ones that are stored inside
         // paramMap.
+
         if (retinaNode != null && retinaNode.paramValue != null) {
             var $templateVals = $dfParamModal.find(".template .boxed");
-            var i = 0;
+
             var parameterizedVals = [];
-            var paramVal;
 
             $templateVals.each(function() {
-                parameterizedVals.push(decodeURI($(this).text()));
+                parameterizedVals.push($(this).text());
             });
 
-            for (; i < retinaNode.paramValue.length; i++) {
-                if (retinaNode.paramType === XcalarApisT.XcalarApiExport &&
-                    i > 1) {
-                    // no need to add export's 3rd param which is export type
-                    break;
-                }
-                if (!$templateVals.eq(i).length) {
-                    // more params than there are divs
-                    var html = '<div class="boxed medium"></div>';
-                    $dfParamModal.find(".template").append(html);
-                    $templateVals = $dfParamModal.find(".template .boxed");
-                }
-                paramVal = retinaNode.paramValue[i];
-                if (retinaNode.paramType === XcalarApisT.XcalarApiExport &&
-                    i === 0) {
-                    paramVal = xcHelper.stripCSVExt(paramVal);
-                }
-                // datastores has nested arrays
-                if (typeof paramVal === "object") {
-                    for (var j = 0; j < paramVal.length; j++) {
-                        $templateVals.eq(i * paramVal.length + j).text(paramVal[j]);
-                    }
-                } else {
-                    $templateVals.eq(i).text(paramVal);
+            var struct = retinaNode.paramValue;
+
+            if (retinaNode.paramType === XcalarApisT.XcalarApiFilter) {
+                $templateVals.eq(0).text(struct.eval[0].evalString);
+            } else if (retinaNode.paramType === XcalarApisT.XcalarApiExport) {
+                $templateVals.eq(0).text(xcHelper.stripCSVExt(struct.fileName));
+                $templateVals.eq(1).text(struct.targetType);
+            } else if (retinaNode.paramType === XcalarApisT.XcalarApiBulkLoad) {
+                for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
+                    var sourceArgs = struct.loadArgs.sourceArgsList[i];
+                    $templateVals.eq(i * 3).text(sourceArgs.targetName);
+                    $templateVals.eq((i * 3) + 1).text(sourceArgs.path);
+                    $templateVals.eq((i * 3) + 2).text(sourceArgs.fileNamePattern);
                 }
             }
-            // $dfParamModal.find(".template .boxed:gt(" +
-            //                 (retinaNode.paramValue.length - 1) + ")").remove();
-            // if ($dfParamModal.find(".template .boxed").length === 1) {
-            //     $dfParamModal.find(".template").find(".static").remove();
-            // }
 
             var $editableDivs = $editableRow.find("input.editableParamDiv");
 
@@ -2164,8 +1952,8 @@ window.DFParamModal = (function($, DFParamModal){
 
             // keep the order of paramName the in df.parameters
             df.parameters.forEach(function(paramName) {
-                if (nameMap.hasOwnProperty(paramName)
-                    && (!systemParams.hasOwnProperty(paramName))) {
+                if (nameMap.hasOwnProperty(paramName) &&
+                    !systemParams.hasOwnProperty(paramName)) {
                     addParamToLists(paramName, paramMap[paramName], false);
                 }
             });
@@ -2215,37 +2003,6 @@ window.DFParamModal = (function($, DFParamModal){
         isOpen = false;
     }
 
-    function getParamValues(df, nodeId) {
-        var paramValues = [];
-        var node = df.retinaNodes.find(function(node) {
-            return node.dagNodeId === nodeId;
-        });
-        var apiString = XcalarApisTStr[node.api];
-        var inputName = DagFunction.getInputType(apiString);
-        var struct = node.input[inputName];
-        switch (type) {
-            case ("filter"):
-                paramValues = [struct.eval[0].evalString];
-                break;
-            case ("dataStore"):
-                var sourceArgs;
-                for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
-                    sourceArgs = struct.loadArgs.sourceArgsList[i];
-                    paramValues.push([sourceArgs.targetName, sourceArgs.path,
-                                    sourceArgs.fileNamePattern]);
-                }
-                break;
-            case ("export"):
-                paramValues = [struct.fileName, struct.targetName,
-                               struct.targetType, struct];
-                break;
-            default:
-                break;
-        }
-        return paramValues;
-    }
-
-
     /* Unit Test Only */
     if (window.unitTestMode) {
         DFParamModal.__testOnly__ = {};
@@ -2254,7 +2011,6 @@ window.DFParamModal = (function($, DFParamModal){
         DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
         DFParamModal.__testOnly__.suggest = suggest;
         DFParamModal.__testOnly__.checkInputForParam = checkInputForParam;
-        DFParamModal.__testOnly__.getExportOptions = getExportOptions;
         DFParamModal.__testOnly__.strToSpecialChar = strToSpecialChar;
         DFParamModal.__testOnly__.setDragElems = function(a, b) {
             crt = a;

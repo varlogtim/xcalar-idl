@@ -1052,8 +1052,8 @@ window.DagEdit = (function($, DagEdit) {
                             xcHelper.listToEnglish(unknownAggs) +
                         '</div>' +
                       '</div>';
-            $dagTableWrap.find(".actionType").find(".dagTableTip").remove();
-            $dagTableWrap.find(".actionType").append(tip);
+            $dagTableWrap.find(".operationTypeWrap").find(".dagTableTip").remove();
+            $dagTableWrap.find(".operationTypeWrap").append(tip);
         } else {
             $dagTableWrap.removeClass("aggError hasError");
             $dagTableWrap.find(".dagTableTip").remove();

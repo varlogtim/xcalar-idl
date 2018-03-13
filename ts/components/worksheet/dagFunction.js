@@ -419,6 +419,13 @@ window.DagFunction = (function($, DagFunction) {
         return (inputVal);
     };
 
+    DagFunction.getInputStruct = function(node) {
+        var apiString = XcalarApisTStr[node.api];
+        var inputName = DagFunction.getInputType(apiString);
+        var inputStruct = node.input[inputName];
+        return inputStruct;
+    };
+
     DagFunction.getAll = function() {
         return (dagLineage);
     };
