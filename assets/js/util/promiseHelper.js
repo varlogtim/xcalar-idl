@@ -53,7 +53,7 @@
         if (numProm === 0) {
             return PromiseHelper.resolve(null);
         }
-        var mainDeferred = jQuery.Deferred();
+        var mainDeferred = PromiseHelper.deferred();
 
         var numDone = 0;
         var returns = [];
@@ -148,21 +148,21 @@
 
     /* Always resolve when passed in promise is done */
     PromiseHelper.alwaysResolve = function(def) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         def.always(deferred.resolve);
         return deferred.promise();
     };
 
     /* return a promise with resvoled value */
     PromiseHelper.resolve = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.resolve.apply(this, arguments);
         return deferred.promise();
     };
 
     /* return a promise with rejected error */
     PromiseHelper.reject = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.reject.apply(this, arguments);
         return deferred.promise();
     };

@@ -434,7 +434,7 @@ window.DagFunction = (function($, DagFunction) {
     DagFunction.printDagCli = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
         // var toPrint;
-        // var deferred = jQuery.Deferred();
+        // var deferred = PromiseHelper.deferred();
         if (dagLineage[tableId]) {
             getXcalarQueryCli(dagLineage[tableId].orderedPrintArray);
         } else {
@@ -522,7 +522,7 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     DagFunction.addTable = function(tableId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var wsId = WSManager.getActiveWS();
         var tableType = TableType.Orphan;
 
@@ -566,7 +566,7 @@ window.DagFunction = (function($, DagFunction) {
     // used after a transaction is complete and before constructing dag
     // finalTableId is optional
     DagFunction.tagNodes = function(txId, finalTableId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tables = QueryManager.getAllDstTables(txId, true);
 
         if (!tables.length) {
@@ -603,7 +603,7 @@ window.DagFunction = (function($, DagFunction) {
     // get indexed tables that were used but not logged in a transaction
     // and append tagName
     function retagIndexedTables(txId, tagName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var indexTables = QueryManager.getIndexTables(txId);
         var promises = [];
         for (var i = 0; i < indexTables.length; i++) {
@@ -1245,7 +1245,7 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     function recommentAfterEdit(commentsToNamesMap) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
 
         for (var comment in commentsToNamesMap) {
@@ -1302,7 +1302,7 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var tag in tagMap) {
             promises.push(XcalarTagDagNodes(tag, tagMap[tag]));
@@ -1492,7 +1492,7 @@ window.DagFunction = (function($, DagFunction) {
     // immediates that are present in before and after will change user string
     // to pull instead of map
     function setColumnsAfterEdit(finalTableName, table) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var progCols = table.tableCols;
 
         XcalarGetTableMeta(finalTableName)

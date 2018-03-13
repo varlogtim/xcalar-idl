@@ -115,7 +115,7 @@ window.UExtTableau = (function(UExtTableau, $) {
     }
 
     function waitForUpdate(waitTime) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $waitTime = $("#extContent .waitingTime .text");
         var $progressContainer = $("#extContent .progressContainer");
         var $progressBar = $progressContainer.find(".progressBar");

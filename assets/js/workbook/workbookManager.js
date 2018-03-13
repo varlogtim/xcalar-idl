@@ -14,7 +14,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     function setupWorkbooks() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
         .then(activateWorkbook)
@@ -52,7 +52,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.commit = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // if activeWKBK is null, then it's creating a new WKBK
         if (activeWKBKId != null) {
             var wkbk = wkbkSet.get(activeWKBKId);
@@ -85,7 +85,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.getWKBKsAsync = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var sessionInfo;
         var wkbk;
 
@@ -133,7 +133,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var copySrcName = isCopy ? copySrc.name : null;
         var username = XcSupport.getUser();
 
@@ -208,7 +208,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                                                   "workbook"});
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var fromWkbkName;
         var toWkbkName;
 
@@ -303,7 +303,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         if (!$("#monitorTopBar").find(".wkbkTitle").is(":visible")) {
             return PromiseHelper.resolve();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var time = 3;
         var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
             time: time
@@ -327,7 +327,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function isActiveWorkbook(workbookName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarListWorkbooks(workbookName)
         .then(function(ret) {
@@ -342,7 +342,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function checkIfStillActiveWorkbook(workbookName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var activeWorkbook = wkbkSet.get(activeWKBKId);
         if (activeWKBKId != null && activeWorkbook.name === workbookName) {
             isActiveWorkbook(workbookName)
@@ -366,7 +366,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function switchWorkBookHelper(toName, fromName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var queryName = XcSupport.getUser() + ":" + toName;
         progressCycle(queryName, checkInterval);
         $("#initialLoadScreen").data("curquery", queryName);
@@ -424,7 +424,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // copy workbook
     WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newId;
         var promise = (activeWKBKId == null)
                       ? PromiseHelper.resolve() // no active workbook
@@ -460,7 +460,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcSupport.stopHeartbeatCheck();
 
         $("#initialLoadScreen").show();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         commitActiveWkbk()
         .then(function() {
@@ -493,7 +493,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcSupport.stopHeartbeatCheck();
 
         $("#initialLoadScreen").show();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarDeactivateWorkbook(wkbk.getName())
         .then(function() {
@@ -513,7 +513,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.inActiveAllWKBK = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
 
         XcalarListWorkbooks("*")
@@ -543,7 +543,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.updateDescription = function(wkbkId, description) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var wkbk = wkbkSet.get(wkbkId);
         wkbk.description = description;
         wkbk.update();
@@ -566,7 +566,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.reject(errStr);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isCurrentWKBK = (srcWKBKId === activeWKBKId);
         var srcWKBK = wkbkSet.get(srcWKBKId);
 
@@ -636,7 +636,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.reject(WKBKTStr.DelErr);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isCurrentWKBK = (workbookId === activeWKBKId);
 
         // 1. Stop heart beat check (Heartbeat key may change due to active
@@ -667,7 +667,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // bring KVStore.commit() back if it's buggy
             return WorkbookManager.commit();
 
-            // var innerDeferred = jQuery.Deferred();
+            // var innerDeferred = PromiseHelper.deferred();
             // KVStore.commit()
             // .then(innerDeferred.resolve)
             // .fail(function(error) {
@@ -813,7 +813,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // sync sessionInfo with wkbkInfo
     function syncSessionInfo(oldWorkbooks, sessionInfo, isWrongNode) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         try {
             var loseOldMeta = false;
@@ -858,7 +858,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // resolve if it's wrong node or not
     function checkSessionWritable(sessionInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var activeWorkbooks = getActiveWorkbooks(sessionInfo);
         var shouldCheck = (activeWorkbooks.length === 1);
 
@@ -880,7 +880,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function checkActiveWorkbook(activeWorkbooks, loseOldMeta, isWrongNode) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var storedActiveId;
 
         getActiveWorkbookId(loseOldMeta)
@@ -1030,7 +1030,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function activateWorkbook(wkbkId, sessionInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         try {
             var numSessions = sessionInfo.numSessions;
@@ -1084,7 +1084,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function resetActiveWKBK(newWKBKId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         setupKVStore(newWKBKId);
         // rehold the session as KVStore's key changed
@@ -1101,7 +1101,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // helper for WorkbookManager.copyWKBK
     function copyHelper(srcId, newId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var oldWkbkScopeKeys = getWkbkScopeKeys(srcId, currentVersion);
         var newWkbkScopeKeys = getWkbkScopeKeys(newId, currentVersion);
 
@@ -1117,7 +1117,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         function copyAction(key, scope) {
             // copy all info to new key
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var oldKey = oldWkbkScopeKeys[key];
             var newKey = newWkbkScopeKeys[key];
 
@@ -1135,7 +1135,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function delWKBKHelper(wkbkId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var wkbkScopeKeys = getWkbkScopeKeys(wkbkId, currentVersion);
 
@@ -1158,7 +1158,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function removeActiveWKBKKey() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK)
         .then(function() {
             activeWKBKId = null;
@@ -1170,7 +1170,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function commitActiveWkbk() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = TblManager.freeAllResultSetsSync();
 
         PromiseHelper.alwaysResolve(promise)
@@ -1205,7 +1205,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function switchWorkbookAnimation(failed) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!failed) {
             progressComplete();
         }
@@ -1301,7 +1301,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getProgress(queryName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarQueryState(queryName)
         .then(function(ret) {
             var state;

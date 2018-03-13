@@ -39,7 +39,7 @@ window.DSUploader = (function($, DSUploader) {
             !pendingUploads) {
             return PromiseHelper.resolve();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
 
         for (var i = 0; i < pendingUploads.length; i++) {
@@ -62,7 +62,7 @@ window.DSUploader = (function($, DSUploader) {
     };
 
     DSUploader.refreshFiles = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!dsUploaderEnabled) {
             deferred.resolve();
             return deferred.promise();
@@ -108,7 +108,7 @@ window.DSUploader = (function($, DSUploader) {
     // stores pending uploads in kvstore so that on refresh we can target these
     // interrupted uploads and delete them
     function commit() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var pendingFiles = [];
         for (var name in uploads) {
             pendingFiles.push(name);
@@ -474,7 +474,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function deleteFileConfirm($icon) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var name = decodeURI($icon.data("name"));
         var msg = xcHelper.replaceMsg(DSTStr.DelUploadMsg, {"filename": name});
 
@@ -492,7 +492,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function deleteFile($icon, name) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $icon.addClass("isDeleting");
         XcalarDemoFileDelete(name)
         .then(function() {

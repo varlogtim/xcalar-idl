@@ -232,7 +232,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function getHost() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $inputSection = $logCard.find(".inputSection");
         var hostnamePattern = $inputSection.find(".hostnamePattern .xc-input")
                               .val().trim();
@@ -482,7 +482,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function flushLog() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarLogLevelSet(9, 1)
         .then(function() {
             deferred.resolve();

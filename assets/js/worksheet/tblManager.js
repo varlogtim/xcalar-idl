@@ -31,7 +31,7 @@ window.TblManager = (function($, TblManager) {
             return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableName = newTableNames[0];
         var newTableId = xcHelper.getTableId(newTableName);
         var tablesToRemove = [];
@@ -219,7 +219,7 @@ window.TblManager = (function($, TblManager) {
     */
     TblManager.parallelConstruct = function(tableId, tableToReplace, options) {
         options = options || {};
-        var deferred  = jQuery.Deferred();
+        var deferred  = PromiseHelper.deferred();
         var deferred1 = startBuildTable(tableId, tableToReplace, options);
         var deferred2 = createDag(tableId, tableToReplace, options);
         var table = gTables[tableId];
@@ -308,7 +308,7 @@ window.TblManager = (function($, TblManager) {
     //
 
     TblManager.sendTableToOrphaned = function(tableId, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         options = options || {};
         if (options.remove) {
             removeTableDisplay(tableId);
@@ -337,7 +337,7 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.sendTableToTempList = function(tableIds, workSheets, tableNames) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (tableIds.length <= 1){
             workSheets = [WSManager.getWSFromTable(tableIds[0])];
@@ -364,7 +364,7 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.moveTableToTempList = function(tableIds){
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!tableIds.length) {
             deferred.resolve();
@@ -381,7 +381,7 @@ window.TblManager = (function($, TblManager) {
 
         tableIds.forEach(function(tableId) {
             promises.push((function() {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
 
                 var options = {
                     removeAfter: true,
@@ -423,7 +423,7 @@ window.TblManager = (function($, TblManager) {
     //      remove: boolean, if true will remove table display from ws immediately
     //      force: boolean, if true will change table meta before async returns
     TblManager.sendTableToUndone = function(tableId, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         options = options || {};
         if (options.remove) {
             removeTableDisplay(tableId);
@@ -457,7 +457,7 @@ window.TblManager = (function($, TblManager) {
     // searches for this table in active and temp list and brings it to the
     // active WS if needed and focuses on it
     TblManager.findAndFocusTable = function(tableName, noAnimate) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var wsId;
         var tableType;
@@ -587,7 +587,7 @@ window.TblManager = (function($, TblManager) {
     //      lockedToTemp: boolean, if true will send locked tables to temp list
     TblManager.deleteTables = function(tables, tableType, noAlert, noLog, options) {
         // XXX not tested yet!!!
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         options = options || {};
 
         // tables is an array, it might be modifed
@@ -1558,7 +1558,7 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.freeAllResultSetsSync = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
 
         // if table does not exist and free the resultSetId, it crash the backend
@@ -1687,7 +1687,7 @@ window.TblManager = (function($, TblManager) {
         -noTag: boolean, if true will not tag nodes
     */
     function addTable(newTableName, tablesToReplace, tablesToRemove, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(newTableName);
         var oldId = xcHelper.getTableId(tablesToReplace[0]);
         options = options || {};
@@ -1782,7 +1782,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function animateTableId(tableId, oldId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $hashName = $("#xcTheadWrap-" + tableId).find(".hashName");
         var oldText = $hashName.text();
         var hashPart = "#" + tableId.substring(0, 2); // first 2 chars
@@ -1874,7 +1874,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function setTableMeta(tableName, tableCols) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = xcHelper.getTableId(tableName);
         var table;
 
@@ -1944,7 +1944,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function createDag(tableId, tableToReplace, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise;
         if (options.txId != null && !options.noTag) {
             promise = DagFunction.tagNodes(options.txId);
@@ -1971,7 +1971,7 @@ window.TblManager = (function($, TblManager) {
         wsId
     */
     function startBuildTable(tableId, tableToReplace, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var $table;
         options = options || {};
@@ -3246,7 +3246,7 @@ window.TblManager = (function($, TblManager) {
 
     // for deleting active tables
     function delTableHelper(tableId, tableType, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var table = gTables[tableId];
         var tableName = table.getName();
@@ -3286,7 +3286,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function delOrphanedHelper(tableName, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XIApi.deleteTable(txId, tableName)
         .then(function() {
@@ -3304,7 +3304,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function delUndoneTableHelper(tableId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
 

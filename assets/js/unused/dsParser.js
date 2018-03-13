@@ -72,7 +72,7 @@ window.DSParser = (function($, DSParser) {
 
     DSParser.show = function(options) {
         options = options || {};
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $btn = $("#preview-parser");
         xcHelper.disableSubmit($btn);
 
@@ -92,7 +92,7 @@ window.DSParser = (function($, DSParser) {
     };
 
     function checkFileSize(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarListFiles(options)
         .then(function(res) {
@@ -123,7 +123,7 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         Alert.show({
             "msg": DSParserTStr.FileSizeWarn,
             "hideButtons": ["cancel"],
@@ -412,7 +412,7 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.reject();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         val = Math.min(previewMeta.totalLines, val);
         val = Math.max(1, val);
@@ -671,7 +671,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function previewContent(pageNum, numPages, scrollTop, noDetect) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newContent = (previewMeta == null);
 
         $parserCard.removeClass("error");
@@ -794,7 +794,7 @@ window.DSParser = (function($, DSParser) {
 
     // used for scrolling and appending or prepending 1 block
     function fetchRows(meta, newOffset, up) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (newOffset >= meta.numChar || newOffset < 0) {
             return PromiseHelper.resolve();
@@ -864,7 +864,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function showPreviewMode(pageNum, numPages, scrollTop) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = deferred.promise();
         var format = getFormat();
         var $box = $("#previewModeBox");
@@ -995,7 +995,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function beautifier(url) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var path = url.split(/^.*:\/\//)[1];
         var format = getFormat();
 
@@ -1540,7 +1540,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function detectFormat(args) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var numBytes = 500;
         XcalarPreview(args, numBytes, 0)
         .then(function(res) {
@@ -1606,7 +1606,7 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = deferred.promise();
         var udfName;
 
@@ -1874,7 +1874,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function alertHelper() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         Alert.show({
             "title": DSParserTStr.Submit,
             "msg": DSParserTStr.SubmitMsg,
@@ -1885,7 +1885,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function parseHelper() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var format = getFormat();
         var app;
 

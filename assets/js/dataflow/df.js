@@ -4,7 +4,7 @@ window.DF = (function($, DF) {
     var lastCreatedDF;
 
     DF.restore = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var retMeta;
         var numRetinas;
 
@@ -91,7 +91,7 @@ window.DF = (function($, DF) {
 
     DF.refresh = function(retMeta) {
         // This call now has to return a promise
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var retArray = [];
 
         XcalarListRetinas()
@@ -189,7 +189,7 @@ window.DF = (function($, DF) {
     DF.addDataflow = function(dataflowName, dataflow, exportTables, srcTables,
                               options) {
         options = options || {};
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var innerDef;
         if (options.isUpload) {
@@ -218,7 +218,7 @@ window.DF = (function($, DF) {
     };
 
     DF.removeDataflow = function(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var hasRemoveSched = false;
 
         DF.removeScheduleFromDataflow(dataflowName)
@@ -265,7 +265,7 @@ window.DF = (function($, DF) {
     };
 
     DF.addScheduleToDataflow = function(dataflowName, allOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dataflow = dataflows[dataflowName];
         var schedule;
         var substitutions;
@@ -312,7 +312,7 @@ window.DF = (function($, DF) {
     };
 
     DF.updateScheduleForDataflow = function(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dataflow = dataflows[dataflowName];
 
         if (!dataflow) {
@@ -343,7 +343,7 @@ window.DF = (function($, DF) {
             return PromiseHelper.reject(error);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarDeleteSched(dataflowName)
         .then(function() {
             dataflow.schedule = null;
@@ -369,7 +369,7 @@ window.DF = (function($, DF) {
     };
 
     DF.updateDF = function(dfName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var df = dataflows[dfName];
 
         XcalarGetRetina(dfName)

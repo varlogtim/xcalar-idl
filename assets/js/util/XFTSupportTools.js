@@ -169,7 +169,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
 
     function sendRequest(action, url, content) {
         var data = prePraseSendData(action, content);
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $.ajax({
             "type": action,
             "data": data,

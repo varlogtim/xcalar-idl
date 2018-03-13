@@ -97,7 +97,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         modalHelper.setup({
             "open": function() {
@@ -134,7 +134,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     function closeModal() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         modalHelper.clear({
             "close": function() {
                 $modalBg.removeClass("locked");
@@ -168,7 +168,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var orphanDef = deleteTableHelper(TableType.Orphan);
         var activeDef = deleteTableHelper(TableType.Active);
@@ -242,7 +242,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function getTableSizeMap() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetTables("*")
         .then(function(result) {
             var sizeMap = {};

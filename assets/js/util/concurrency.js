@@ -14,7 +14,7 @@ window.Concurrency = (function($, Concurrency) {
     // NOTE: This function can only be called ONCE by ONE instance.
     // Otherwise you are going to run into races
     Concurrency.initLock = function(lock) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!lock) {
             console.error(ConcurrencyEnum.NoLock);
             return PromiseHelper.reject(ConcurrencyEnum.NoLock);
@@ -50,7 +50,7 @@ window.Concurrency = (function($, Concurrency) {
             return s.charAt(Math.floor(Math.random() * s.length));
         }).join('');
         var backoff = backoffBasis;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (startBackoffBasis) {
             backoff = startBackoffBasis;
@@ -92,7 +92,7 @@ window.Concurrency = (function($, Concurrency) {
 
     // XXX FIXME move lockString as a property of the mutex
     Concurrency.unlock = function(lock, lockString) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!lock) {
             console.error(ConcurrencyEnum.NoLock);
             return PromiseHelper.reject(ConcurrencyEnum.NoLock);
@@ -141,7 +141,7 @@ window.Concurrency = (function($, Concurrency) {
     };
 
     Concurrency.isLocked = function(lock) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!lock) {
             console.error(ConcurrencyEnum.NoLock);
             return PromiseHelper.reject(ConcurrencyEnum.NoLock);

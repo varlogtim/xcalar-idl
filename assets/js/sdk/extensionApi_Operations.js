@@ -11,7 +11,7 @@ window.XcSDK.Extension.prototype = (function() {
     var prototype = {
         // api for operations
         filter: function(fltStr, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -26,7 +26,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
         // dstAggName is optional and can be left blank (will autogenerate)
         aggregate: function(aggOp, colName, tableName, dstAggName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = this.txId;
             XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName)
@@ -56,7 +56,7 @@ window.XcSDK.Extension.prototype = (function() {
             // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
             // fieldDelim, recordDelim, hasHeader, quoteChar,
             // moduleName, funcName
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var txId = this.txId;
             dsName = xcHelper.wrapDSName(dsName);
 
@@ -70,7 +70,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         index: function(colToIndex, tableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -96,7 +96,7 @@ window.XcSDK.Extension.prototype = (function() {
 
 
         sort: function(orders, colNames, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -122,7 +122,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         sortAscending: function(colName, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -137,7 +137,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         sortDescending: function(colName, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -152,7 +152,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         map: function(mapStrs, tableName, newColNames, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -194,7 +194,7 @@ window.XcSDK.Extension.prototype = (function() {
                 clean: boolean, remove intermediate table if set true
         */
         join: function(joinType, lTableInfo, rTableInfo, options) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -229,7 +229,7 @@ window.XcSDK.Extension.prototype = (function() {
                     }]
         */
         union: function(tableInfos, dedup, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -262,7 +262,7 @@ window.XcSDK.Extension.prototype = (function() {
          *  clean: true/false, if set true, will remove intermediate tables
          */
         groupBy: function(operator, groupByCols, aggColName, tableName, newColName, options) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
             options = options || {};
@@ -292,7 +292,7 @@ window.XcSDK.Extension.prototype = (function() {
             newTableName(optional): new table's name
         */
         project: function(columns, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -349,7 +349,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         genRowNum: function(tableName, newColName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
@@ -365,7 +365,7 @@ window.XcSDK.Extension.prototype = (function() {
 
         getNumRows: function(tableName, options) {
             options = options || {};
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var useConstant = options.useConstant;
             var isTempConstant = false;
@@ -443,7 +443,7 @@ window.XcSDK.Extension.prototype = (function() {
             if (targetName.startsWith("licenseMgr_")) {
                 return XIApi.deleteDataTarget(targetName);
             } else {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 deferred.reject("Delete target operation is not supported yet");
                 return deferred.promise();
             }

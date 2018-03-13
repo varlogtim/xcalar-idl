@@ -319,7 +319,7 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function removeSchedule(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $list = DFCard.getDFListItem(dataflowName);
         var $icon = $list.find(".addScheduleToDataflow");
 
@@ -345,7 +345,7 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function updateSchedule() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var schedule = DF.getSchedule(currentDataFlowName);
         XcalarListSchedules(currentDataFlowName)
         .then(function(data) {
@@ -364,7 +364,7 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function pauseSchedule(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarPauseSched(dataflowName)
         .then(function() {
@@ -385,7 +385,7 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function resumeSchedule(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarResumeSched(dataflowName)
         .then(function() {
@@ -618,7 +618,7 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function saveScheduleForm(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isValid;
         var currentTime;
         var options;
@@ -746,7 +746,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     // alert if export name does not contain system parameter
     function checkExportFileName(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dfObj = DF.getDataflow(dataflowName);
         var exportNodes = dfObj.retinaNodes.filter(function(a) {
             return XcalarApisT.XcalarApiExport === a.api;
@@ -796,7 +796,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
         // other case, will restart and ingore old fetching result
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $refreshBtn = $("#modScheduleForm-refresh");
 
         $historySection.html("");

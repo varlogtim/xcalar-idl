@@ -373,14 +373,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     }
     // All helper functions
     function runAllQueries(queries) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promiseArray = [];
         var failedQueries = "";
 
         function runQuery(queryName, sqlString) {
             console.log("Query name: " + queryName);
             console.log(sqlString);
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             SQLEditor.getEditor().setValue(sqlString);
             SQLEditor.executeSQL()
             .then(function() {
@@ -447,7 +447,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 .then(deleteTables, deleteTables);
     }
     function prepareData(test, tableName, randId, dataPath, check) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // Load datasets
         loadDatasets(test, tableName, randId, dataPath, check)
         .then(function() {
@@ -499,7 +499,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         if (colTypeInfos.length > 0) {
             return ColManager.changeType(colTypeInfos, tableId);
         } else {
-            return jQuery.Deferred().resolve().promise();
+            return PromiseHelper.deferred().resolve().promise();
         }
     }
     function finalizeTables(tableId) {

@@ -16,7 +16,7 @@ window.RowManager = (function($, RowManager) {
     // assuming we're fetching 20 rows
     RowManager.addRows = function(startIndex, numRowsToAdd, direction, info) {
         // rowNumber is checked for validity before calling RowManager.addRows
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = info.tableId;
         var table = gTables[tableId];
 
@@ -59,7 +59,7 @@ window.RowManager = (function($, RowManager) {
 
     function fetchRows(startIndex, numRowsToAdd, direction, info,
                         rowToPrependTo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = info.tableId;
         var table = gTables[tableId];
 
@@ -276,7 +276,7 @@ window.RowManager = (function($, RowManager) {
             return PromiseHelper.resolve(jsons);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise;
 
         if (rowPosition == null) {
@@ -321,7 +321,7 @@ window.RowManager = (function($, RowManager) {
 
     // resets invalid resultsetIds
     function getNextPage(table, numRowsToFetch, retry) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetNextPage(table.resultSetId, numRowsToFetch)
         .then(deferred.resolve)
@@ -346,7 +346,7 @@ window.RowManager = (function($, RowManager) {
 
     // resets invalid resultsetIds
     function setAbsolute(table, rowPosition, retry) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var resultSetId = String(table.resultSetId);
 
         XcalarSetAbsolute(resultSetId, rowPosition)

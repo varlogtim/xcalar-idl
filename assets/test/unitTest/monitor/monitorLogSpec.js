@@ -61,7 +61,7 @@ describe("MonitorLog Test", function() {
                     matchHosts: ["testHost"],
                     matchNodeIds: [0]
                 };
-                return jQuery.Deferred().resolve(ret).promise();
+                return PromiseHelper.deferred().resolve(ret).promise();
             };
             MonitorLog.__testOnly__.getHost()
             .then(function() {
@@ -84,7 +84,7 @@ describe("MonitorLog Test", function() {
                 return PromiseHelper.resolve();
             };
             XFTSupportTools.getMatchHosts = function() {
-                return jQuery.Deferred().reject(unknowError).promise();
+                return PromiseHelper.deferred().reject(unknowError).promise();
             };
             $logCard.find(".getRecentLogs").click();
             expect($("#alertContent").is(":visible")).to.equal(true);
@@ -102,10 +102,10 @@ describe("MonitorLog Test", function() {
             };
 
             XFTSupportTools.getMatchHosts = function() {
-                return jQuery.Deferred().resolve(retHosts).promise();
+                return PromiseHelper.deferred().resolve(retHosts).promise();
             };
             XFTSupportTools.getRecentLogs = function() {
-                return jQuery.Deferred().resolve(recentLog).promise();
+                return PromiseHelper.deferred().resolve(recentLog).promise();
             };
 
             var keyEvent = $.Event("keydown", {which: keyCode.Enter});
@@ -128,7 +128,7 @@ describe("MonitorLog Test", function() {
             };
 
             XFTSupportTools.getMatchHosts = function() {
-                return jQuery.Deferred().resolve(retHosts).promise();
+                return PromiseHelper.deferred().resolve(retHosts).promise();
             };
             XFTSupportTools.monitorLogs = function(filePath, fileName, hosts,
                                                 errCallback) {
@@ -150,7 +150,7 @@ describe("MonitorLog Test", function() {
                 return PromiseHelper.resolve();
             };
             XFTSupportTools.getMatchHosts = function() {
-                return jQuery.Deferred().reject(unknowError).promise();
+                return PromiseHelper.deferred().reject(unknowError).promise();
             };
 
             $logCard.find(".startStream").click();
@@ -174,7 +174,7 @@ describe("MonitorLog Test", function() {
                 return PromiseHelper.resolve();
             };
             XFTSupportTools.getMatchHosts = function() {
-                return jQuery.Deferred().resolve(retHosts).promise();
+                return PromiseHelper.deferred().resolve(retHosts).promise();
             };
             XFTSupportTools.monitorLogs = function(filePath, fileName, hosts,
                                                 errCallback, successCallback) {

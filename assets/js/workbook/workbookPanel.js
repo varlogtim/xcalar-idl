@@ -171,7 +171,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         if (oldWorkbookName === newName && oldDescription === description) {
             return PromiseHelper.resolve();
         } else {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var promise;
             if (oldWorkbookName === newName) {
                 // only update description
@@ -181,7 +181,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             }
             $workbookBox.addClass("loading")
                             .find(".loadSection .text").text(WKBKTStr.Updating);
-            var loadDef = jQuery.Deferred();
+            var loadDef = PromiseHelper.deferred();
             setTimeout(function() {
                 // if only update description, it could blink the UI if update
                 // is too fast, so use this to slow it down.
@@ -536,7 +536,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     }
 
     function createLoadingCard($sibling) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // placeholder
         var workbook = new WKBK({
             "id": "",
@@ -609,7 +609,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     }
 
     function alertActivate(activeWKBKId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (activeWKBKId == null) {
             deferred.resolve();
         } else {

@@ -73,7 +73,7 @@ window.ColManager = (function($, ColManager) {
     ColManager.hideCol = function(colNums, tableId, options) {
         options = options || {};
         // deletes an array of columns
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var $table = $('#xcTable-' + tableId);
         var colNames = [];
@@ -146,7 +146,7 @@ window.ColManager = (function($, ColManager) {
 
     // specifically used for json modal
     ColManager.pullCol = function(colNum, tableId, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         options = options || {};
 
@@ -198,7 +198,7 @@ window.ColManager = (function($, ColManager) {
             type: new type to change to
      */
     ColManager.changeType = function(colTypeInfos, tableId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var worksheet = WSManager.getWSFromTable(tableId);
         var table = gTables[tableId];
         var tableName = table.getName();
@@ -321,7 +321,7 @@ window.ColManager = (function($, ColManager) {
         // isAlertOn is a flag to alert too many column will generate
         // when do replay, this flag is null, so no alert
         // since we assume user want to replay it.
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var splitAll = (numColToGet == null);
         var numNewCols = null;
 
@@ -420,7 +420,7 @@ window.ColManager = (function($, ColManager) {
                 return alertHelper(userNumColToGet);
             }
 
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var mapStr = 'countChar(' + backColName + ', "' + delimiter + '")';
             var fieldName = xcHelper.randName("mappedCol");
             var newTableName = null;
@@ -443,7 +443,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         function alertHelper(numToSplit, numDelim) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             if (isAlertOn && numToSplit > 15) {
                 var msg = xcHelper.replaceMsg(ColTStr.SplitColWarnMsg, {
                     "num": numToSplit
@@ -701,7 +701,7 @@ window.ColManager = (function($, ColManager) {
     // args:
     // noLog: boolean, if true, no sql will be logged
     ColManager.execCol = function(operation, usrStr, tableId, colNum, args) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
 
         switch (operation) {
@@ -896,7 +896,7 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.minimizeCols = function(colNums, tableId) {
         // for multiple columns
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $table = $("#xcTable-" + tableId);
         var table = gTables[tableId];
         var colNames = [];
@@ -931,7 +931,7 @@ window.ColManager = (function($, ColManager) {
 
             var $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
             if (!gMinModeOn && !noAnim) {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
 
                 $cells.addClass("animating");
                 $th.animate(animOpt, 250, "linear", function() {
@@ -972,7 +972,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.maximizeCols = function(colNums, tableId, noAnim) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $table = $("#xcTable-" + tableId);
         var tableWidth = $table.width();
         var table = gTables[tableId];
@@ -1001,7 +1001,7 @@ window.ColManager = (function($, ColManager) {
             var $cell = $table.find("th.col" + colNum + ",td.col" + colNum);
 
             if (!gMinModeOn && !noAnim) {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 var animOpt = {"width": originalColWidth};
 
                 $cell.addClass("animating");
@@ -1956,7 +1956,7 @@ window.ColManager = (function($, ColManager) {
     }
 
     function delColHelper(colNum, tableId, multipleCols, colId, noAnim) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var numCols = table.getNumCols();
         var $tableWrap = $("#xcTableWrap-" + tableId);

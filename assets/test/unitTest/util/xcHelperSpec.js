@@ -670,7 +670,7 @@ describe("xcHelper Test", function() {
     it("xcHelper.downloadAsFile should work", function(done) {
         var fileName = "fileName";
         var fileContent = "test";
-        var deferrd = jQuery.Deferred();
+        var deferrd = PromiseHelper.deferred();
         function clickEvent (event) {
             event.preventDefault();
             var $a = $(event.target);
@@ -699,7 +699,7 @@ describe("xcHelper Test", function() {
     it("xcHelper.downloadAsFile with raw data should work", function(done) {
         var fileName = "fileName";
         var fileContent = "test";
-        var deferrd = jQuery.Deferred();
+        var deferrd = PromiseHelper.deferred();
         function clickEvent (event) {
             event.preventDefault();
             var $a = $(event.target);

@@ -1,7 +1,7 @@
 window.JenkinsTestData = (function(JenkinsTestData) {
     // Fetch parameters for the last build
     JenkinsTestData.getParamsForLastBuild = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
         function(json) {
             $.getJSON(json.lastBuild.url+'api/json/', function(json) {
@@ -17,7 +17,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
 
     // Refresh each user status
     JenkinsTestData.getEachUserStatus = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
         function(json) {
             $.get(json.lastBuild.url+'consoleText', function(text) {
@@ -80,7 +80,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
 
     // Historical run data, will return the top 10 results
     JenkinsTestData.getHistoricalRuns = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var numOutstanding = -1;
         $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
         function(json) {

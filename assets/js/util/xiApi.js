@@ -9,7 +9,7 @@
             return PromiseHelper.reject("Invalid args in filter");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
@@ -25,7 +25,7 @@
     };
 
     XIApi.genAggStr = function(fieldName, op) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (op && op.length) {
             op = op.slice(0, 1).toLowerCase() + op.slice(1);
         }
@@ -51,7 +51,7 @@
             return PromiseHelper.resolve(aggOps);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var index = FunctionCategoryT.FunctionCategoryAggregate;
         var category = FunctionCategoryTStr[index];
         XcalarListXdfs("*", category)
@@ -105,7 +105,7 @@
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XIApi.genAggStr(colName, aggOp)
         .then(function(evalStr) {
@@ -125,7 +125,7 @@
             return PromiseHelper.reject("Invalid args in aggregate");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var toDelete = false;
 
         if (!isValidAggName(dstAggName)) {
@@ -188,7 +188,7 @@
             return PromiseHelper.resolve(null, []);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetTableMeta(tableName)
         .then(function(tableMeta) {
@@ -261,7 +261,7 @@
     };
 
     XIApi.indexFromDataset = function(txId, dsName, newTableName, prefix) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (txId == null || dsName == null) {
             return PromiseHelper.reject("Invalid args in indexFromDataset");
         }
@@ -292,7 +292,7 @@
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         colToIndex = (colToIndex instanceof Array) ? colToIndex : [colToIndex];
         checkTableIndex(colToIndex, tableName, txId, true)
         .then(function(res) {
@@ -310,7 +310,7 @@
             return PromiseHelper.reject("Invalid args in multisort");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = xcHelper.getTableId(tableName);
         for (var i = 0; i < sortColsAndOrder.length; i++) {
             if (!sortColsAndOrder[i].type) {
@@ -385,7 +385,7 @@
             return PromiseHelper.reject("Invalid args in map");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
@@ -505,7 +505,7 @@
 
         var newTableName = options.newTableName;
         var clean = options.clean || false;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tempTables = [];
         var joinedCols;
 
@@ -662,7 +662,7 @@
 
         gbArgs = opArray;
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var tempTables = [];
         var indexedTable;
@@ -755,7 +755,7 @@
     XIApi.union = function(txId, tableInfos, dedup, newTableName) {
         dedup = dedup || false;
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tempTables = [];
 
         if (txId == null || tableInfos == null ||
@@ -823,11 +823,11 @@
     };
 
     function unionCast(txId, tableInfos) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var castRes = [];
         var tempTables = [];
         var caseHelper = function(tableInfo, index) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var tableName = tableInfo.tableName;
             var columns = tableInfo.columns;
             var colNames = [];
@@ -876,7 +876,7 @@
     }
 
     function unionAllIndex(txId, tableInfos) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tempTables = [];
         var promises = [];
         var indexColName = xcHelper.randName("XC_UNION_INDEX");
@@ -900,7 +900,7 @@
         // step 1: change all columns to type string(null will become FNF)
         // step 2: concat all columns
         // step 3: index on the concat column
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableName = tableInfo.tableName;
         var curTableName = tableName;
         var colNames = [];
@@ -973,7 +973,7 @@
             return PromiseHelper.reject("Invalid args in project");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
@@ -1017,7 +1017,7 @@
             return PromiseHelper.reject("Invalid args in get row num");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
@@ -1065,7 +1065,7 @@
             return PromiseHelper.reject("Invalid args in fetch data");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var resultSetId;
         var finalData;
 
@@ -1102,7 +1102,7 @@
 
     XIApi.fetchDataAndParse = function(tableName, startRowNum, rowsToFetch) {
         // similar with XIApi.fetchData, but will parse the value
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XIApi.fetchData(tableName, startRowNum, rowsToFetch)
         .then(function(data) {
@@ -1131,7 +1131,7 @@
             return PromiseHelper.reject("Invalid args in fetch data");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XIApi.fetchData(tableName, startRowNum, rowsToFetch)
         .then(function(data) {
@@ -1165,7 +1165,7 @@
         // hostType: python for python app, presumably cpp for cpp app
         // duty: leave blank, or possibly "load"
         // execStr: body of the app
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (txId == null || name == null) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
@@ -1211,7 +1211,7 @@
             return PromiseHelper.reject("Invalid args in delete table");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarDeleteTable(tableName, txId)
         .then(deferred.resolve)
@@ -1227,7 +1227,7 @@
     };
 
     XIApi.deleteTableAndMeta = function(txId, tableName, toIgnoreError) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XIApi.deleteTable(txId, tableName, toIgnoreError)
         .then(function() {
@@ -1263,7 +1263,7 @@
     };
 
     function joinCast(txId, lInfo, rInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var lColNames = lInfo.columns;
         var lTableName = lInfo.tableName;
@@ -1321,7 +1321,7 @@
         casts: an array of type to cast
      */
     function castMap(txId, tableName, colNames, casts, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var castInfo = getCastInfo(tableName, colNames, casts, options);
         var newColNames = castInfo.newColNames;
         var newTypes = castInfo.newTypes;
@@ -1427,7 +1427,7 @@
     }
 
     function joinIndexCheck(joinInfo, removeNulls, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var deferred1;
         var deferred2;
         var lColNames = joinInfo.lColNames;
@@ -1564,8 +1564,8 @@
     }
 
     function selfJoinIndex(colNames, tableName, txId) {
-        var deferred1 = jQuery.Deferred();
-        var deferred2 = jQuery.Deferred();
+        var deferred1 = PromiseHelper.deferred();
+        var deferred2 = PromiseHelper.deferred();
 
         checkTableIndex(colNames, tableName, txId)
         .then(function(res) {
@@ -1597,7 +1597,7 @@
     function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
                             newTableName, joinType, lRename, rRename,
                             tempTables, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // TODO: switch left and right and support right semi joins
         var antiJoinTableName;
         var newColName = xcHelper.randName("XC_GB_COL");
@@ -1650,7 +1650,7 @@
         }
      */
     function checkTableIndex(colNames, tableName, txId, isApiCall) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
         var table = null;
@@ -1768,7 +1768,7 @@
 
 
     function checkIfNeedIndex(colsToIndex, tableName, tableKeys, order, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var shouldIndex = false;
         var tempTables = [];
 
@@ -1862,7 +1862,7 @@
     }
 
     function getTableKeys(tableName, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XIApi.checkOrder(tableName, txId)
         .then(function(ordering, keys) {
             if (keys.length === 0) {
@@ -2035,7 +2035,7 @@
             });
             return PromiseHelper.resolve(finalCols);
         } else {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             getTableKeys(finalTableName)
             .then(function(keys) {
                 keys.forEach(function(key, index) {
@@ -2061,7 +2061,7 @@
         {
         // The below is an optimization. If multiple aggOps are operating on the
         // same column, we only need do that groupby once
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var aggCols = {};
         for (var i = 0; i < distinctColArray.length; i++) {
             var aggCol = distinctColArray[i].aggColName;
@@ -2102,7 +2102,7 @@
     function computeDistinctGroupby(origTableName, groupOnCols, distinctCol,
                                     aggEvalStrArray, tempTableArray, tempCols,
                                     distinctGbTableNames, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var reuseIndex = false;
 
         if (groupOnCols.indexOf(distinctCol) === -1) {
@@ -2186,7 +2186,7 @@
         }
 
         var promiseArray = [];
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         tempTableArray.push(origGbTable);
 
         var finalJoinedTable;

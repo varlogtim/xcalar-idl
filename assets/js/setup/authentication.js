@@ -2,7 +2,7 @@ window.Authentication = (function(jQuery, Authentication) {
     var authInfo;
 
     Authentication.setup = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         KVStore.getAndParse(KVStore.gAuthKey, gKVScope.AUTH)
         .then(function(oldAuthInfo) {
             if (oldAuthInfo == null) {

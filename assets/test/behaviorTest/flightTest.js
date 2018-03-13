@@ -525,7 +525,7 @@ window.FlightTest = (function(FlightTest, $) {
     }
 
     function changeTypeToInteger(tableId, col) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $header;
 
         if (tableId == null) {
@@ -574,7 +574,7 @@ window.FlightTest = (function(FlightTest, $) {
 
         test.loadDS(dsName, url, check)
         .then(function() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             // XXX there is a import ds error when not do setTimeout
             // need to fix later
             setTimeout(function() {

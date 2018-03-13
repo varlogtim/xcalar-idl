@@ -356,7 +356,7 @@ DSFormController.prototype = {
         if (previewSet.hasOwnProperty(path)) {
             return PromiseHelper.resolve(previewSet[path]);
         } else {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var options = {
                 "targetName": this.getTargetName(),
                 "path": path,
@@ -934,7 +934,7 @@ ModalHelper.prototype = {
 
     setup: function(extraOptions) {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $modal = this.$modal;
         var options = $.extend(this.options, extraOptions) || {};
 
@@ -1077,7 +1077,7 @@ ModalHelper.prototype = {
     },
 
     clear: function(extraOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var options = $.extend(this.options, extraOptions) || {};
         var $modal = this.$modal;
         var numModalsOpen = $('.modalContainer:visible:not(#aboutModal):not(#liveHelpModal)').length;
@@ -1685,7 +1685,7 @@ FormHelper.prototype = {
 
     // called everytime the form opens
     setup: function(extraOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var self = this;
         var $form = self.$form;
         var options = $.extend(self.options, extraOptions) || {};
@@ -1940,7 +1940,7 @@ FormHelper.prototype = {
     },
 
     clear: function(extraOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var self = this;
         var options = $.extend(self.options, extraOptions) || {};
         var $form = self.$form;
@@ -3217,7 +3217,7 @@ DSFileUpload.prototype = {
     },
     __stream: function() {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         self.status = "inProgress";
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
@@ -3331,7 +3331,7 @@ var XcSubQuery = (function() {
 
         getProgress: function() {
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             if (!self.dstTable || self.name.indexOf("drop") === 0) {
                 // XXX This happens if the call is a "drop"
                 // Since we don't have a dstDag call, we will just return 50%

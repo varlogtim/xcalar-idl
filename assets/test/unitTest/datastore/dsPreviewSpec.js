@@ -2575,7 +2575,7 @@ describe("Dataset-DSPreview Test", function() {
                 $grid = DS.getGridByName(testDS);
                 expect($grid).not.to.be.null;
 
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 // dealy delete ds since show the sample table needs time
                 setTimeout(function() {
                     var dsObj = DS.getDSObj($grid.data("dsid"));

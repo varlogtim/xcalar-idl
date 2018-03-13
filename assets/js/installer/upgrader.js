@@ -36,7 +36,7 @@ window.Upgrader = (function(Upgrader, $) {
         if (isTarball) {
             switch (stepId) {
                 case (0):
-                    return jQuery.Deferred().resolve().promise();
+                    return PromiseHelper.deferred().resolve().promise();
                 case (1):
                     return InstallerCommon.validateKey($form);
                 case (2):
@@ -49,12 +49,12 @@ window.Upgrader = (function(Upgrader, $) {
                     return executeFinalArray($form);
                 default:
                     console.error("Unexpected step");
-                    return jQuery.Deferred().reject().promise();
+                    return PromiseHelper.deferred().reject().promise();
             }
         } else {
             switch (stepId) {
                 case (0):
-                    return jQuery.Deferred().resolve().promise();
+                    return PromiseHelper.deferred().resolve().promise();
                 case (1):
                     return InstallerCommon.validateKey($form);
                 case (2):
@@ -65,13 +65,13 @@ window.Upgrader = (function(Upgrader, $) {
                     return executeFinalArray($form);
                 default:
                     console.error("Unexpected step");
-                    return jQuery.Deferred().reject().promise();
+                    return PromiseHelper.deferred().reject().promise();
             }
         }
     }
 
     function executeFinalArray($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var prevString = "UPGRADE";
         var doingString = "UPGRADING...";
         var doingLower = "Upgrading...";

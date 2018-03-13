@@ -24,7 +24,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
 
     function readAndUploadFile() {
         var reader = new FileReader();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         reader.readAsBinaryString(file);
         reader.onload = function(event) {

@@ -4,7 +4,7 @@ window.Redo = (function($, Redo) {
     Redo.run = function(xcLog) {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var options = xcLog.getOptions();
         var operation = xcLog.getOperation();
@@ -79,7 +79,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.Join] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tablesToReplace = [];
         var joinOptions = options.options || {};
         if (!joinOptions.keepTables) {
@@ -330,7 +330,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ActiveTables] = function(options) {
         // redo sent to worksheet
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableNames = options.tableNames;
         var $tableList;
         var tableType = options.tableType;

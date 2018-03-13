@@ -481,7 +481,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function deleteDataflow(dfName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $card = $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]');
         var $list = DFCard.getDFListItem(dfName);
         var html = '<div class="animatedEllipsisWrapper">' +
@@ -525,7 +525,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function drawDF(dataflowName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var html =
         '<div class="dagWrap clearfix" '+
             'data-dataflowName="' + dataflowName + '">' +
@@ -603,7 +603,7 @@ window.DFCard = (function($, DFCard) {
         if ($dagWrap.hasClass("error")) {
             return PromiseHelper.reject();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // This function adds the different tags between a regular dag
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
@@ -994,7 +994,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function runDF(retName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var cancelErr = "canceled";
 
         var paramsArray = [];
@@ -1130,7 +1130,7 @@ window.DFCard = (function($, DFCard) {
                 return PromiseHelper.resolve();
             }
 
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var msgArray = [];
 
             if (hasSysParam) {
@@ -1159,7 +1159,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function checkIfHasSystemParam(retName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarListParametersInRetina(retName)
         .then(function(res) {
             var length = res.numParameters;
@@ -1263,7 +1263,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var statusesToIgnore;
         if (ignoreNoExist) {
             statusesToIgnore = [StatusT.StatusQrQueryNotExist];
@@ -1465,7 +1465,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     DFCard.cancelDF = function(retName, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var $dagWrap = getDagWrap(retName);
         var $btn = $dagWrap.find(".runNowBtn");
@@ -1518,7 +1518,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function addTableToWS(tableName, exportStruct, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var worksheet = WSManager.getActiveWS();
         var metaCols = [];
         if (exportStruct && exportStruct.columns) {
@@ -1558,7 +1558,7 @@ window.DFCard = (function($, DFCard) {
 
     // returns promise with boolean True if duplicate found
     function checkExistingFileName(fileName, targetName, targetType) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var extensionDotIndex = fileName.lastIndexOf(".");
         if (fileName.includes("/")) {
             return PromiseHelper.reject(DFTStr.InvalidExportPath);

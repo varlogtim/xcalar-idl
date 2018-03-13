@@ -25,7 +25,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     ExtensionManager.install = function() {
         initInstall();
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
 
         $extOpsView.addClass("loading");
@@ -72,7 +72,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function loadExtensions(htmlString) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         var $tag = $('<div>' + htmlString + '</div>');
         $tag.find("script").each(function() {
@@ -94,7 +94,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function loadScript($script) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var src = $script.attr("src");
         var extName = parseExtNameFromSrc(src);
         cacheEnabledExtension(extName);
@@ -190,7 +190,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function loadAndStorePython(extName) {
         // python name need to be lowercase
         var pyModName = extName.toLowerCase();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         jQuery.ajax({
             type: "GET",
@@ -223,7 +223,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarUploadPython(pyModName, data)
         .then(function() {
@@ -381,7 +381,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         options = options || {};
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var worksheet;
         var table;
         var tableName;

@@ -116,7 +116,7 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     FileBrowser.show = function(targetName, path, restore) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!restore) {
             clearAll();
         }
@@ -525,7 +525,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         retrievePaths(path)
         .then(deferred.resolve)
         .fail(function(error) {
@@ -836,7 +836,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function redirectHandler(path) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         setTimeout(function() {
             // do this because fadeIn has 300 dealy,
@@ -928,7 +928,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function listFiles(path, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $loadSection = $fileBrowserMain.find(".loadingSection");
         var $searchLoadingSection = $fileBrowserMain.find(".searchLoadingSection");
         var targetName = getCurrentTarget();
@@ -1021,7 +1021,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function goToPath($newPath) {
         // for unit test, use promise
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if ($newPath == null || $newPath.length === 0) {
             deferred.resolve();
@@ -1164,7 +1164,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function searchFiles(searchKey, type) {
         // for unit test, use promise
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
         if (type == null) {
@@ -1544,7 +1544,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return PromiseHelper.reject({"error": ErrTStr.InvalidFilePath});
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         listFiles(paths[0])
         .then(function() {

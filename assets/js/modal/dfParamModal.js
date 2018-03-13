@@ -268,7 +268,7 @@ window.DFParamModal = (function($, DFParamModal){
     };
 
     DFParamModal.show = function($currentIcon) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (isOpen) {
             deferred.reject();
             return deferred.promise();
@@ -546,7 +546,7 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function filterSetup() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $list = $dfParamModal.find('.tdWrapper.dropDownList');
 
         dropdownHelper = new MenuHelper($list, {
@@ -1530,7 +1530,7 @@ window.DFParamModal = (function($, DFParamModal){
     // submit
     function submitForm() {
         //XX need to check if all default inputs are filled
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $paramPart = $dfParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfParamModal.find('input.editableParamDiv');
@@ -1769,7 +1769,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         // will close the modal if passes checks
         function updateRetina() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             var updatedInfo = getUpdateInfo($editableDivs, params);
             if (updatedInfo.error) {

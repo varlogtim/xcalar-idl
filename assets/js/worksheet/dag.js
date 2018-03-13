@@ -18,7 +18,7 @@ window.Dag = (function($, Dag) {
         atStartup: boolean, if true, will append instead of positioning image
     */
     Dag.construct = function(tableId, tableToReplace, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var tableName = table.tableName;
         $dagPanel = $('#dagPanel');
@@ -1273,7 +1273,7 @@ window.Dag = (function($, Dag) {
     }
 
     function getSchemaNumRows($schema, schemaId, tableName, table) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetTableMeta(tableName)
         .then(function(meta) {
             if ($schema.data("id") !== schemaId) {
@@ -2180,7 +2180,7 @@ window.Dag = (function($, Dag) {
             // error case, should already handled
             return PromiseHelper.reject();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var xcalarInput = icvDagInfo.xcalarInput;
         var op = icvDagInfo.op;
 

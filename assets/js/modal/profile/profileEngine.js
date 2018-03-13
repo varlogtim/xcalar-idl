@@ -29,7 +29,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     };
 
     ProfileEngine.genProfile = function(profileInfo, table) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var tableName = table.getName();
         var groupbyTable;
@@ -65,7 +65,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return XIApi.index(txId, colName, tableAfterFilter);
         })
         .then(function(indexedTableName, indexArgs) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             if (!indexArgs.isCache) {
                 tablesToDelete[indexedTableName] = true;
             }
@@ -145,7 +145,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     };
 
     ProfileEngine.checkProfileTable = function(tableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetTables(tableName)
         .then(function(tableInfo) {
@@ -158,7 +158,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     };
 
     ProfileEngine.setProfileTable = function(tableName, rowsToFetch) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         ProfileEngine.clear()
         .then(function() {
@@ -182,7 +182,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return PromiseHelper.resolve(profileData);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var resultSetId = getProfileResultSetId();
 
         XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRowNum, [],
@@ -220,7 +220,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     ProfileEngine.sort = function(order, bucketNum, profileInfo) {
         profileInfo.groupByInfo.isComplete = "running";
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var sql = {
             "operation": SQLOps.ProfileSort,
             "order": order,
@@ -257,7 +257,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     ProfileEngine.bucket = function(bucketNum, tableName, profileInfo, fitAll) {
         profileInfo.groupByInfo.isComplete = "running";
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var sql = {
             "operation": SQLOps.ProfileBucketing,
             "tableName": tableName,
@@ -305,7 +305,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     };
 
     ProfileEngine.genAggs = function(tableName, profileInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         var sql = {
             "operation": SQLOps.ProfileAgg,
@@ -337,7 +337,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return runStats(tableName, profileInfo);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var colName = profileInfo.colName;
         var sortTable = null;
         var sql = {
@@ -425,7 +425,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     }
 
     function sortGroupby(txId, sortCol, srcTable, finalTable) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var keyInfo = {
             name: sortCol,
             ordering: XcalarOrderingT.XcalarOrderingAscending
@@ -441,7 +441,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     }
 
     function aggInGroupby(txId, colName, tableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var def1 = getAggResult(txId, aggMap.max, colName, tableName);
         var def2 = getAggResult(txId, aggMap.sum, colName, tableName);
 
@@ -458,7 +458,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
     function getAggResult(txId, aggOp, colName, tableName) {
         if (aggOp === "sd") {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             // standard deviation
             XIApi.getNumRows(tableName)
             .then(function(totalNum) {
@@ -482,7 +482,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var fieldName = profileInfo.colName;
         var aggrOp = aggMap[aggkey];
         var res;
@@ -526,7 +526,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isNum = (profileInfo.type === "integer" ||
                      profileInfo.type === "float");
         XIApi.checkOrder(tableName)
@@ -550,7 +550,7 @@ window.ProfileEngine = (function(ProfileEngine) {
                 profileInfo.statsInfo.key = profileInfo.colName;
             }
 
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var zeroKey = statsKeys.zeroQuartile;
             var lowerKey = statsKeys.lowerQuartile;
             var medianKey = statsKeys.median;
@@ -599,7 +599,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
         function getMedian(tableResultsetId, tableKeys, startRow, endRow,
                            statsKey) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var numRows = endRow - startRow + 1;
             var rowNum;
             var rowsToFetch;
@@ -690,7 +690,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var tableName = tableInfo.table;
         var newTableName = getNewName(tableName, "." + order);
@@ -738,7 +738,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     }
 
     function getFitAllBucketSize(txId, tableName, profileInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var numRowsToFetch = Profile.getNumRowsToFetch();
         var maxAgg = runAgg(txId, "max", tableName, profileInfo);
         var minAgg = runAgg(txId, "min", tableName, profileInfo);
@@ -797,7 +797,7 @@ window.ProfileEngine = (function(ProfileEngine) {
     */
 
     function runBucketing(txId, bucketNum, profileInfo) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var buckets = profileInfo.groupByInfo.buckets;
         var curBucket = buckets[bucketNum];
 

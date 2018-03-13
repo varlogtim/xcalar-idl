@@ -20,7 +20,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     function readRetinaFromFile(file, retName) {
         var reader = new FileReader();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         reader.onload = function(event) {
             var entireString;
@@ -83,7 +83,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return PromiseHelper.reject();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $btn = $card.find(".confirm");
         xcHelper.disableSubmit($btn);
 

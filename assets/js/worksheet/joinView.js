@@ -1337,7 +1337,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function estimateJoinSize() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!validTableNameChecker()) {
             deferred.reject();
             return deferred.promise();
@@ -1656,7 +1656,7 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         formHelper.disableSubmit();
 
@@ -1717,7 +1717,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var joinType = getJoinType();
         var newTableName = $joinTableName.val().trim();

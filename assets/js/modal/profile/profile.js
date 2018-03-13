@@ -118,7 +118,7 @@ window.Profile = (function($, Profile, d3) {
     };
 
     Profile.show = function(tableId, colNum) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var table = gTables[tableId];
         var progCol = table.tableCols[colNum - 1];
@@ -549,7 +549,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function generateProfile(table) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         var curStatsCol = statsCol;
 
@@ -561,7 +561,7 @@ window.Profile = (function($, Profile, d3) {
             // check if the groupbyTable is not deleted
             // use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var groupbyTable = curStatsCol.groupByInfo.buckets[bucketNum].table;
 
             ProfileEngine.checkProfileTable(groupbyTable)
@@ -671,7 +671,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function refreshGroupbyInfo(curStatsCol, resetRefresh) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $loadHiddens = $modal.find(".loadHidden");
         var $loadDisables = $modal.find(".loadDisabled");
 
@@ -828,7 +828,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function genStats(sort) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var curStatsCol = statsCol;
         var table = gTables[curTableId];
         var tableName = table.getName();
@@ -860,7 +860,7 @@ window.Profile = (function($, Profile, d3) {
             return PromiseHelper.reject("Invalid bucket num");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         ProfileEngine.genProfile(curStatsCol, table)
         .then(function() {
             // modal is open and is for that column
@@ -1071,7 +1071,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function positionScrollBar(rowPercent, rowNum, forceUpdate) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var left;
         var isFromInput = false;
         var $section = $modal.find(".scrollSection");
@@ -1558,7 +1558,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function downloadProfileAsPNG() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var node = $modal.get(0);
 
         domtoimage.toPng(node, {

@@ -189,7 +189,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     }
 
     function fetchRows(startIndex, numRowsToAdd) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var curId = modalId;
         $fileList.addClass("scrolling");
 
@@ -221,7 +221,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
     }
 
     function fetchHelper(curResultSetId, startIndex, numRowsNeeded) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var numRowsFound = 0;
         var allFiles = [];
 
@@ -233,7 +233,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         return deferred.promise();
 
         function fetch(sIndex, numRowsToAdd) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var curId = modalId;
             XcalarFetchData(curResultSetId, sIndex, numRowsToAdd,
                             scrollMeta.numRecords, [], 0, 0)

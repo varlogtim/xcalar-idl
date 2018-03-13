@@ -23,7 +23,7 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.initialize = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         initializeUDFList(true)
         .then(function(listXdfsObj) {
@@ -105,7 +105,7 @@ window.UDF = (function($, UDF) {
     };
 
     function initializeUDFList(isSetup, doNotClear) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         // update udf
         UDF.list()
@@ -378,7 +378,7 @@ window.UDF = (function($, UDF) {
     }
 
     function refreshUDF(isInBg, doNotClear) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $udfManager = $("#udf-manager");
         $udfManager.addClass("loading");
         if (!isInBg) {
@@ -502,7 +502,7 @@ window.UDF = (function($, UDF) {
             return PromiseHelper.reject(error);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var entireString = storedUDF[moduleName];
         if (entireString == null) {
@@ -541,7 +541,7 @@ window.UDF = (function($, UDF) {
     }
 
     function downloadUDF(moduleName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         getEntireUDF(moduleName)
         .then(function(entireString) {
             if (entireString == null) {
@@ -641,7 +641,7 @@ window.UDF = (function($, UDF) {
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (storedUDF.hasOwnProperty(moduleName)) {
             var msg = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {

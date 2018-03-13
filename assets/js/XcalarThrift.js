@@ -337,7 +337,7 @@ getUnsortedTableName = function(tableName, otherTableName, txId, colsToIndex) {
     }
 
     var getUnsortedTableHelper = function(table) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var originalTableName = table;
         var srcTableName = table;
 
@@ -391,7 +391,7 @@ getUnsortedTableName = function(tableName, otherTableName, txId, colsToIndex) {
                 // if this is a sorted retina node, then it doesn't have
                 // parents we can use to index on, so we index on the retina
                 // node itself
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 XcalarGetTableMeta(table)
                 .then(function(ret) {
                     var keyAttrs = ret.keyAttr;
@@ -460,7 +460,7 @@ XcalarGetVersion = function(connectionCheck) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -484,7 +484,7 @@ XcalarGetLicense = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -505,7 +505,7 @@ XcalarGetNodeName = function(nodeId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -527,7 +527,7 @@ XcalarUpdateLicense = function(newLicense) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -558,7 +558,7 @@ XcalarPreview = function(sourceArgs, numBytesRequested, offset) {
         offset = 0;
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -715,7 +715,7 @@ XcalarLoad = function(datasetName, options, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -880,7 +880,7 @@ XcalarAddLocalFSExportTarget = function(targetName, path, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -908,7 +908,7 @@ XcalarAddUDFExportTarget = function(targetName, path, udfName, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -937,7 +937,7 @@ XcalarRemoveExportTarget = function(targetName, targetType) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var hdr = new ExExportTargetHdrT();
     hdr.name = targetName;
     hdr.type = targetType;
@@ -958,7 +958,7 @@ XcalarListExportTargets = function(typePattern, namePattern) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -979,7 +979,7 @@ XcalarExport = function(tableName, exportName, targetName, numColumns,
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -1130,7 +1130,7 @@ XcalarLockDataset = function(dsName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     dsName = parseDS(dsName);
     xcalarLockDataset(tHandle, dsName)
     .then(deferred.resolve)
@@ -1149,7 +1149,7 @@ XcalarUnlockDataset = function(dsName, txId) {
 
     dsName = parseDS(dsName);
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var srcType = SourceTypeT.SrcDataset;
     var workItem = xcalarDeleteDagNodesWorkItem(dsName, srcType);
     var def;
@@ -1195,7 +1195,7 @@ XcalarDestroyDataset = function(dsName, txId) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var dsNameBeforeParse = dsName;
     dsName = parseDS(dsName);
 
@@ -1222,7 +1222,7 @@ XcalarDestroyDataset = function(dsName, txId) {
 
     function releaseAllResultsets() {
         // always resolve to continue the deletion
-        var innerDeferred = jQuery.Deferred();
+        var innerDeferred = PromiseHelper.deferred();
 
         XcalarGetDatasetMeta(dsNameBeforeParse)
         .then(function(res) {
@@ -1248,7 +1248,7 @@ XcalarIndexFromDataset = function(datasetName, key, tableName, prefix, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -1299,7 +1299,7 @@ XcalarIndexFromTable = function(srcTablename, keys, dstTableName, txId, unsorted
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -1375,7 +1375,7 @@ XcalarDeleteTable = function(tableName, txId, isRetry) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -1427,7 +1427,7 @@ XcalarDeleteConstants = function(constantPattern, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -1468,7 +1468,7 @@ XcalarDeleteConstants = function(constantPattern, txId) {
 };
 
 function forceDeleteTable(tableName, txId) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarGetTableMeta(tableName)
     .then(function(res) {
         if (res && res.resultSetIds) {
@@ -1496,7 +1496,7 @@ XcalarRenameTable = function(oldTableName, newTableName, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -1531,7 +1531,7 @@ XcalarRenameTable = function(oldTableName, newTableName, txId) {
 
 function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, totalRows,
                          data, tryCnt) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     // row position start with 0
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function() {
@@ -1582,7 +1582,7 @@ function fetchDataHelper(resultSetId, rowPosition, rowsToFetch, totalRows,
 
 XcalarFetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows,
                            data, tryCnt, maxNumRowsPerCall) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (tryCnt == null) {
         tryCnt = 0;
     }
@@ -1621,7 +1621,7 @@ XcalarGetConfigParams = function() {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1642,7 +1642,7 @@ XcalarSetConfigParams = function(pName, pValue) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1660,7 +1660,7 @@ XcalarSetConfigParams = function(pName, pValue) {
 
 // XXX NOT TESTED
 XcalarGetDatasetCount = function(dsName) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1691,7 +1691,7 @@ XcalarGetDatasetMeta = function(dsName) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1710,7 +1710,7 @@ XcalarGetDatasetMeta = function(dsName) {
 };
 
 XcalarGetTableMeta = function(tableName) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1733,7 +1733,7 @@ XcalarGetTableMeta = function(tableName) {
 
 // Not being called. We just use make result set's output
 XcalarGetTableCount = function(tableName) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1764,7 +1764,7 @@ XcalarGetDatasets = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1790,7 +1790,7 @@ XcalarGetDatasetUsers = function(dsName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1833,7 +1833,7 @@ XcalarGetConstants = function(constantName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1866,7 +1866,7 @@ XcalarGetTables = function(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1894,7 +1894,7 @@ XcalarGetDSNode = function(datasetName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1929,7 +1929,7 @@ XcalarShutdown = function(force) {
     if (force == null) {
         force = false;
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1949,7 +1949,7 @@ XcalarStartNodes = function(numNodes) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1970,7 +1970,7 @@ XcalarGetStats = function(nodeId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -1990,7 +1990,7 @@ XcalarGetTableRefCount = function(tableName) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2011,7 +2011,7 @@ XcalarMakeResultSetFromTable = function(tableName) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2032,7 +2032,7 @@ XcalarMakeResultSetFromDataset = function(datasetName, getErrorDataset) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2060,7 +2060,7 @@ XcalarSetAbsolute = function(resultSetId, position) {
         return PromiseHelper.resolve(0);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2081,7 +2081,7 @@ XcalarGetNextPage = function(resultSetId, numEntries) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2102,7 +2102,7 @@ XcalarSetFree = function(resultSetId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2172,7 +2172,7 @@ XcalarFilter = function(evalStr, srcTablename, dstTablename, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2227,7 +2227,7 @@ XcalarMapWithInput = function(txId, inputStruct) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2291,7 +2291,7 @@ XcalarMap = function(newFieldNames, evalStrs, srcTablename, dstTablename,
         }
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var d;
     var query;
     if (!doNotUnsort) {
@@ -2343,7 +2343,7 @@ XcalarAggregate = function(evalStr, dstAggName, srcTablename, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2407,7 +2407,7 @@ XcalarJoin = function(left, right, dst, joinType, leftColInfos, rightColInfos,
     }
     var coll = true;
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2470,7 +2470,7 @@ XcalarJoin = function(left, right, dst, joinType, leftColInfos, rightColInfos,
 };
 
 XcalarGroupByWithInput = function(txId, inputStruct) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2516,7 +2516,7 @@ XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
     incSample = incSample || false;
     icvMode = icvMode || false;
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
 
     newColNames = (newColNames instanceof Array) ? newColNames : [newColNames];
@@ -2597,7 +2597,7 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
 };
 
 XcalarProject = function(columns, tableName, dstTableName, txId) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2645,7 +2645,7 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2656,7 +2656,7 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
 
     var query;
     var getUnsortedTablesInUnion = function() {
-        var innerDeferred = jQuery.Deferred();
+        var innerDeferred = PromiseHelper.deferred();
         var unsortedTables = [];
 
         var promises = tableNames.map(function(tableName, index) {
@@ -2714,7 +2714,7 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
 
 
 XcalarGenRowNum = function(srcTableName, dstTableName, newFieldName, txId) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2750,7 +2750,7 @@ XcalarGenRowNum = function(srcTableName, dstTableName, newFieldName, txId) {
 };
 
 XcalarArchiveTable = function(srcTableNames) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2794,7 +2794,7 @@ XcalarQuery = function(queryName, queryString, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         console.info('cancelation detected');
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2826,7 +2826,7 @@ XcalarQueryState = function(queryName, statusesToIgnore) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -2873,7 +2873,7 @@ XcalarQueryCheck = function(queryName, canceling) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -2921,7 +2921,7 @@ XcalarQueryCheck = function(queryName, canceling) {
 };
 
 XcalarQueryWithCheck = function(queryName, queryString, txId) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -2965,7 +2965,7 @@ XcalarQueryCancel = function(queryName, statusesToIgnore) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -2990,7 +2990,7 @@ XcalarQueryDelete = function(queryName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3017,7 +3017,7 @@ XcalarCancelOp = function(dstTableName, statusesToIgnore) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3039,7 +3039,7 @@ XcalarGetDag = function(tableName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3060,7 +3060,7 @@ XcalarTagDagNodes = function(tagName, dagNodeNames) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3092,7 +3092,7 @@ XcalarCommentDagNodes = function(comment, dagNodeNames) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3124,7 +3124,7 @@ XcalarListFiles = function(args) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3153,7 +3153,7 @@ XcalarSynthesize = function(srcTableName, dstTableName, columns, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var query;
 
     if (Transaction.checkCanceled(txId)) {
@@ -3217,7 +3217,7 @@ XcalarMakeRetina = function(retName, tableArray, srcTables, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3239,7 +3239,7 @@ XcalarListRetinas = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3260,7 +3260,7 @@ XcalarGetRetina = function(retName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3294,7 +3294,7 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3364,7 +3364,7 @@ XcalarUpdateRetinaExport = function(retName, dagNodeId, target, specInput,
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3392,7 +3392,7 @@ XcalarExecuteRetina = function(retName, params, options, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3445,7 +3445,7 @@ XcalarListParametersInRetina = function(retName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3465,7 +3465,7 @@ XcalarDeleteRetina = function(retName, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3484,7 +3484,7 @@ XcalarImportRetina = function(retinaName, overwrite, retina, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3504,7 +3504,7 @@ XcalarExportRetina = function(retName, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
@@ -3527,7 +3527,7 @@ XcalarDeleteSched = function(scheduleKey) {
         "scheduleKey": scheduleKey
     };
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarAppExecute("ScheduleDelete", true, JSON.stringify(deleteInput))
     .then(function(result) {
         var innerParsed;
@@ -3601,7 +3601,7 @@ XcalarCreateSched = function(scheduleKey, retName, substitutions, options, timin
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarAppExecute("ScheduleCreate", true, JSON.stringify(appInObj))
     .then(function(result) {
         var innerParsed;
@@ -3678,7 +3678,7 @@ XcalarUpdateSched = function(scheduleKey, retName, substitutions, options, timin
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarAppExecute("ScheduleUpdate", true, JSON.stringify(appInObj))
     .then(function(result) {
         var innerParsed;
@@ -3726,7 +3726,7 @@ XcalarListSchedules = function(scheduleKey, hasRunResults) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3776,7 +3776,7 @@ XcalarPauseSched = function(scheduleKey) {
         "scheduleKey": scheduleKey
     };
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarAppExecute("SchedulePause", true, JSON.stringify(pauseInput))
     .then(function(result) {
         var innerParsed;
@@ -3821,7 +3821,7 @@ XcalarResumeSched = function(scheduleKey) {
         "scheduleKey": scheduleKey
     };
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     XcalarAppExecute("ScheduleResume", true, JSON.stringify(resumeInput))
     .then(function(result) {
         var innerParsed;
@@ -3862,7 +3862,7 @@ XcalarKeyLookup = function(key, scope) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3896,7 +3896,7 @@ XcalarKeyList = function(keyRegex, scope) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3921,7 +3921,7 @@ XcalarKeyPut = function(key, value, persist, scope) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3950,7 +3950,7 @@ XcalarKeyDelete = function(key, scope) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -3981,7 +3981,7 @@ XcalarKeySetIfEqual = function(scope, persist, keyCompare, oldValue, newValue) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4009,7 +4009,7 @@ XcalarKeySetBothIfEqual = function(scope, persist, keyCompare, oldValue, newValu
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4038,7 +4038,7 @@ XcalarKeyAppend = function(key, stuffToAppend, persist, scope) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4075,7 +4075,7 @@ XcalarGetOpStats = function(dstTableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4098,7 +4098,7 @@ XcalarApiTop = function(measureIntervalInMs) {
     measureIntervalInMs = measureIntervalInMs ||
                           XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs;
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4118,7 +4118,7 @@ XcalarGetMemoryUsage = function(userName, userId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4138,7 +4138,7 @@ XcalarGetAllTableMemory = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4164,7 +4164,7 @@ XcalarListXdfs = function(fnNamePattern, categoryPattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4192,7 +4192,7 @@ XcalarUploadPythonRejectDuplicate = function(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4217,7 +4217,7 @@ XcalarUploadPython = function(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4270,7 +4270,7 @@ XcalarUpdatePython = function(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4296,7 +4296,7 @@ XcalarDeletePython = function(moduleName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4315,7 +4315,7 @@ XcalarDownloadPython = function(moduleName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     // fromWhichWorkbook can be null
     xcalarApiUdfGet(tHandle, moduleName)
     .then(function(output) {
@@ -4333,7 +4333,7 @@ XcalarMemory = function() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
@@ -4358,7 +4358,7 @@ XcalarGetQuery = function(workItem) {
 //     if ([null, undefined].indexOf(tHandle) !== -1) {
 //         return PromiseHelper.resolve(null);
 //     }
-//     var deferred = jQuery.Deferred();
+//     var deferred = PromiseHelper.deferred();
 //     if (insertError(arguments.callee, deferred)) {
 //         return (deferred.promise());
 //     }
@@ -4374,7 +4374,7 @@ XcalarNewWorkbook = function(newWorkbookName, isCopy, copyFromWhichWorkbook) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
                         copyFromWhichWorkbook)
@@ -4393,7 +4393,7 @@ XcalarDeleteWorkbook = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarApiSessionDelete(tHandle, workbookName)
     .then(function(output) {
@@ -4411,7 +4411,7 @@ XcalarDeactivateWorkbook = function(workbookName, noCleanup) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarApiSessionInact(tHandle, workbookName, noCleanup)
     .then(function(output) {
@@ -4429,7 +4429,7 @@ XcalarListWorkbooks = function(pattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarApiSessionList(tHandle, pattern)
     .then(function(output) {
@@ -4447,7 +4447,7 @@ XcalarSaveWorkbooks = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarApiSessionPersist(tHandle, workbookName)
     .then(deferred.resolve)
@@ -4463,7 +4463,7 @@ XcalarSwitchToWorkbook = function(toWhichWorkbook, fromWhichWorkbook) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     // fromWhichWorkbook can be null
     xcalarApiSessionSwitch(tHandle, toWhichWorkbook, fromWhichWorkbook,
                            gSessionNoCleanup)
@@ -4482,7 +4482,7 @@ XcalarRenameWorkbook = function(newName, oldName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     // fromWhichWorkbook can be null
     xcalarApiSessionRename(tHandle, newName, oldName)
     .then(function(output) {
@@ -4503,7 +4503,7 @@ XcalarGetStatGroupIdMap = function(nodeId, numGroupId) {
         return PromiseHelper.resolve();
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (insertError(arguments.callee, deferred)) {
         return deferred.promise();
@@ -4524,7 +4524,7 @@ XcalarSupportGenerate = function(miniBundle, supportId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarApiSupportGenerate(tHandle, miniBundle, supportId)
     .then(function(ret) {
         console.log("Support bundle path: " + ret.bundlePath);
@@ -4544,7 +4544,7 @@ XcalarAppSet = function(name, hostType, duty, execStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarAppSet(tHandle, name, hostType, duty, execStr)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4559,7 +4559,7 @@ XcalarAppRun = function(name, isGlobal, inStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarAppRun(tHandle, name, isGlobal, inStr)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4574,7 +4574,7 @@ XcalarAppReap = function(name, appGroupId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarAppReap(tHandle, appGroupId)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4595,7 +4595,7 @@ XcalarAppReap = function(name, appGroupId) {
 };
 
 XcalarAppExecute = function(name, isGlobal, inStr) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     XcalarAppRun(name, isGlobal, inStr)
     .then(function(ret) {
@@ -4609,7 +4609,7 @@ XcalarAppExecute = function(name, isGlobal, inStr) {
 };
 
 XcalarDemoFileCreate = function(fileName) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     xcalarDemoFileCreate(tHandle, fileName)
     .then(function(retJson) {
@@ -4632,7 +4632,7 @@ XcalarDemoFileCreate = function(fileName) {
 
 // Max size 45MB
 XcalarDemoFileAppend = function(fileName, fileContents) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     if (fileContents.length > gUploadChunkSize) {
         return PromiseHelper.reject("File chunk must be less than 45MB");
     }
@@ -4657,7 +4657,7 @@ XcalarDemoFileAppend = function(fileName, fileContents) {
 };
 
 XcalarDemoFileDelete = function(fileName) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarDemoFileDelete(tHandle, fileName)
     .then(function(retJson) {
         if (retJson && retJson.error && retJson.error.length > 0) {
@@ -4678,7 +4678,7 @@ XcalarDemoFileDelete = function(fileName) {
 };
 
 XcalarLogLevelGet = function() {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarLogLevelGet(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4690,7 +4690,7 @@ XcalarLogLevelGet = function() {
 };
 
 XcalarLogLevelSet = function(loglevel, logFlush) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarLogLevelSet(tHandle, loglevel, logFlush)
     .then(function(output) {
         deferred.resolve(output);
@@ -4713,7 +4713,7 @@ XcalarTargetCreate = function(targetType, targetName, targetParams) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarTargetCreate(tHandle, targetType, targetName, targetParams)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4729,7 +4729,7 @@ XcalarTargetDelete = function(targetName) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarTargetDelete(tHandle, targetName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4745,7 +4745,7 @@ XcalarTargetList = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarTargetList(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4761,7 +4761,7 @@ XcalarTargetTypeList = function() {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     xcalarTargetTypeList(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {

@@ -457,7 +457,7 @@
             },
 
             getMeta: function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var self = this;
 
                 XcalarGetTableMeta(self.tableName)
@@ -572,7 +572,7 @@
             },
 
             updateResultset: function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var self = this;
 
                 freeResultSetHelper()
@@ -594,7 +594,7 @@
                 return deferred.promise();
 
                 function freeResultSetHelper() {
-                    var innerDeferred = jQuery.Deferred();
+                    var innerDeferred = PromiseHelper.deferred();
 
                     self.freeResultset()
                     .always(innerDeferred.resolve);
@@ -604,7 +604,7 @@
             },
 
             getMetaAndResultSet: function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var self = this;
 
                 self.updateResultset()
@@ -618,7 +618,7 @@
             },
 
             freeResultset: function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var self = this;
 
                 if (self.resultSetId === -1) {
@@ -2124,7 +2124,7 @@
 
             _makeResultSet: function() {
                 var self = this;
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
 
                 XcalarMakeResultSetFromDataset(self.fullName)
                 .then(function(result) {
@@ -2143,7 +2143,7 @@
                 if (resultSetId == null) {
                     return PromiseHelper.resolve();
                 }
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 XcalarSetFree(resultSetId)
                 .then(function() {
                     self.resultSetId = null;
@@ -2157,7 +2157,7 @@
             fetch: function(rowToGo, rowsToFetch) {
                 // rowToGo stats from 0
                 var self = this;
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
 
                 fetchHelper()
                 .then(parseHelper)
@@ -2167,7 +2167,7 @@
                 return deferred.promise();
 
                 function fetchHelper() {
-                    var innerDeferred = jQuery.Deferred();
+                    var innerDeferred = PromiseHelper.deferred();
 
                     self._makeResultSet()
                     .then(function() {
@@ -2201,7 +2201,7 @@
                         return PromiseHelper.reject({"error": DSTStr.NoRecords});
                     }
 
-                    var innerDeferred = jQuery.Deferred();
+                    var innerDeferred = PromiseHelper.deferred();
                     var value;
                     var json;
                     var uniqueJsonKey = {}; // store unique Json key
@@ -2426,7 +2426,7 @@
             // used if advancedArgs property is missing
             addAdvancedArgs: function() {
                 var self = this;
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
 
                 XcalarGetDag(gDSPrefix + self.fullName)
                 .then(function(result) {
@@ -2647,7 +2647,7 @@
                 var parameters = this.parameters;
                 var paramMap = this.paramMap;
                 var paramMapInUsed = this.paramMapInUsed;
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
 
                 for (var name in paramMapInUsed) {
                     paramMapInUsed[name] = false;
@@ -2988,7 +2988,7 @@
 
             check: function() {
                 var self = this;
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 if (self.type === "xcQuery") {
                     XcalarQueryState(self.fullName)
                     .then(function(res) {

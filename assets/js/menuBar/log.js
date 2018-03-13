@@ -58,7 +58,7 @@ window.Log = (function($, Log) {
     };
 
     Log.restore = function(oldLogCursor, isKVEmpty) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (isKVEmpty) {
             updateUndoRedoState();
@@ -156,7 +156,7 @@ window.Log = (function($, Log) {
     };
 
     Log.commit = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         commitLogs()
         .then(function() {
@@ -177,7 +177,7 @@ window.Log = (function($, Log) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tmpLog = errToCommit;
         errToCommit = "";
 
@@ -260,7 +260,7 @@ window.Log = (function($, Log) {
     };
 
     Log.undo = function(step) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         xcAssert((isUndo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
@@ -333,7 +333,7 @@ window.Log = (function($, Log) {
         if ($("#redo").hasClass("locked")) {
             return PromiseHelper.reject();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var logLen = logs.length;
         if (!logLen || logCursor !== logLen - 1) {
             return PromiseHelper.resolve();
@@ -348,7 +348,7 @@ window.Log = (function($, Log) {
     };
 
     Log.redo = function(step) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         xcAssert((isRedo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
@@ -561,7 +561,7 @@ window.Log = (function($, Log) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tmpLog = logToCommit;
         logToCommit = "";
         // should change logToCommit before async call
@@ -606,7 +606,7 @@ window.Log = (function($, Log) {
 
     // restore logs
     function restoreLogs(oldLogCursor) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         KVStore.get(KVStore.gLogKey, gKVScope.LOG)
         .then(function(rawLog) {
             var oldLogs = parseRawLog(rawLog);
@@ -644,7 +644,7 @@ window.Log = (function($, Log) {
 
     // restore error logs
     function restoreErrors() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         KVStore.get(KVStore.gErrKey, gKVScope.ERR)
         .then(function(rawLog) {
             var oldErrors = parseRawLog(rawLog);
@@ -671,7 +671,7 @@ window.Log = (function($, Log) {
     }
 
     function restoreOverwrittenLogs() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         KVStore.get(KVStore.gOverwrittenLogKey, gKVScope.LOG)
         .then(function(rawLog) {
             var oldOverwrites = parseRawLog(rawLog);
@@ -796,7 +796,7 @@ window.Log = (function($, Log) {
     function undoLog(xcLog, cursor) {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var logLen = logs.length;
         var isMostRecent = (cursor === (logLen - 1));
@@ -818,7 +818,7 @@ window.Log = (function($, Log) {
     function redoLog(xcLog, cursor) {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var logLen = logs.length;
         Redo.run(xcLog)
@@ -1313,7 +1313,7 @@ window.Log = (function($, Log) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tmpLog = overwrittenToCommit;
         overwrittenToCommit = "";
 

@@ -417,7 +417,7 @@ Thrift.TXHRTransport.prototype = {
      */
     jqRequest: function(client, postData, args, recv_method) {
         if (typeof jQuery === 'undefined' ||
-            typeof jQuery.Deferred === 'undefined') {
+            typeof PromiseHelper.deferred === 'undefined') {
             throw 'Thrift.js requires jQuery 1.5+ to use asynchronous requests';
         }
 

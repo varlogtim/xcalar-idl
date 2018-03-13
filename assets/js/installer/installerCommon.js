@@ -167,7 +167,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.validateKey = function($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var finalKey = $form.find(".licenseKey").val();
         // only for upgrader
         if ($form.hasClass("upgrade")) {
@@ -209,7 +209,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.validatePreConfig = function($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var preConfigOption = $form.find(".radioButton.active").data("option");
         var res = {};
         res.preConfig = false;
@@ -229,7 +229,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.validateNfs = function($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var res = {};
         res.nfsOption = {};
         if ($form.hasClass("upgrade") && $form.find(".checkbox.checked").length === 0) {
@@ -473,7 +473,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     function callSyncFunctions($form, funcs, inputArgs) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var result = {};
         var hasError = false;
         var errorArg = null;
@@ -753,7 +753,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     };
 
     InstallerCommon.getStatus = function($form, statusApi) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var intervalTimer;
         var checkInterval = 2000;
         clearInterval(intervalTimer);
@@ -1053,7 +1053,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     }
 
     InstallerCommon.validateDiscover = function($form, $forms) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var prevString = "DISCOVER";
         var doingString = "DISCOVERING...";
         $form.find("input.next").val(doingString).addClass("inactive");
@@ -1240,7 +1240,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
 
     // The hint is the first parameter, while the return JSON object is the second parameter
     function sendViaHttps(action, url, arrayToSend) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         try {
             jQuery.ajax({
                 method: action,

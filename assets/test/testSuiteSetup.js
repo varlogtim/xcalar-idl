@@ -37,7 +37,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     };
 
     TestSuiteSetup.initialize = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // in case of the auto login trigger of short cuts
         xcLocalStorage.removeItem("autoLogin");
 
@@ -147,7 +147,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function createWorkbook() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
             if ($('#workbookPanel').is(':visible')) {
@@ -173,7 +173,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function activeWorkbook(wbName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
             var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
@@ -194,7 +194,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoRunTestSuite() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var params = getUrlParameters();
         var delay = Number(params.delay);
 

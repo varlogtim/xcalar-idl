@@ -140,7 +140,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.testFinish = function(checkFunc, interval) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var checkTime = interval || 200;
         var outCnt = 80;
         var timeCnt = 0;
@@ -170,7 +170,7 @@ window.UnitTest = (function(UnitTest, $) {
 
     UnitTest.addDS = function(testDSObj, dsName) {
         console.clear();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (dsName == null) {
             dsName = "uniteTest";
         }
@@ -194,7 +194,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.addTable = function(dsName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!$("#dataStoresTab").hasClass("active")) {
             $("#dataStoresTab").click();
@@ -218,7 +218,7 @@ window.UnitTest = (function(UnitTest, $) {
     // add both ds and table
     // deferred dsName, tableName
     UnitTest.addAll = function(testDSObj, dsName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var testDS;
 
         UnitTest.addDS(testDSObj, dsName)
@@ -249,7 +249,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.deleteDS = function(dsName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $grid = DS.getGridByName(dsName);
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
@@ -269,7 +269,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.deleteAll = function(table, ds) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         UnitTest.deleteTable(table)
         .then(function() {
@@ -284,7 +284,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.deleteAllTables = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         DeleteTableModal.show(true)
         .then(function() {
@@ -373,7 +373,7 @@ window.UnitTest = (function(UnitTest, $) {
     };
 
     UnitTest.removeOrphanTable = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         TableList.refreshOrphanList()
         .then(function() {

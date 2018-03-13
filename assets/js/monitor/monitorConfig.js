@@ -14,7 +14,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
     // updateOnly will not wipe out new rows
     MonitorConfig.refreshParams = function(firstTouch) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetConfigParams()
         .then(function(res) {
             var params = res.parameter;

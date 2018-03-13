@@ -702,7 +702,7 @@ describe('OperationsView Test', function() {
 
                 // need timeouts to open and close statusboxes
                 function promise($input, timeout) {
-                    var deferred = jQuery.Deferred();
+                    var deferred = PromiseHelper.deferred();
                     setTimeout(function() {
                         StatusBox.forceHide();
                         expect($("#statusBox").is(":visible")).to.be.false;
@@ -2199,7 +2199,7 @@ describe('OperationsView Test', function() {
             });
 
             function runMap(options) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var category = options.category;
                 var func = options.func;
                 var args = options.args;
@@ -2221,7 +2221,7 @@ describe('OperationsView Test', function() {
                 }
 
                 var promise = function() {
-                    var innerDeferred = jQuery.Deferred();
+                    var innerDeferred = PromiseHelper.deferred();
                     setTimeout(function() {
                         // quotes/parsing doesn't get applied til 200 ms after inputed
                         var previewStr = $strPreview.find('.descArgs').text();
@@ -2515,7 +2515,7 @@ describe('OperationsView Test', function() {
             });
 
             function runAgg(options) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 var func = options.func;
                 var args = options.args;
 

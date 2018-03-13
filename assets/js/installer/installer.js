@@ -154,7 +154,7 @@ window.Installer = (function(Installer, $) {
         if (isTarball) {
             switch (stepId) {
                 case (0):
-                    return jQuery.Deferred().resolve().promise();
+                    return PromiseHelper.deferred().resolve().promise();
                 case (1):
                     return InstallerCommon.validateKey($form);
                 case (2):
@@ -167,12 +167,12 @@ window.Installer = (function(Installer, $) {
                     return validateInstall($form);
                 default:
                     console.error("Unexpected step");
-                    return jQuery.Deferred().reject().promise();
+                    return PromiseHelper.deferred().reject().promise();
             }
         } else {
             switch (stepId) {
                 case (0):
-                    return jQuery.Deferred().resolve().promise();
+                    return PromiseHelper.deferred().resolve().promise();
                 case (1):
                     return InstallerCommon.validateKey($form);
                 case (2):
@@ -183,13 +183,13 @@ window.Installer = (function(Installer, $) {
                     return validateInstall($form);
                 default:
                     console.error("Unexpected step");
-                    return jQuery.Deferred().reject().promise();
+                    return PromiseHelper.deferred().reject().promise();
             }
         }
     }
 
     function validateInstall($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         InstallerCommon.validateSettings($form)
         .then(function() {
             return executeFinalArray($form);
@@ -201,7 +201,7 @@ window.Installer = (function(Installer, $) {
     }
 
     function executeFinalArray($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var prevString = "INSTALL";
         var doingString = "INSTALLING...";
         var doingLower = "Installing...";

@@ -15,7 +15,7 @@ window.Replay = (function($, Replay) {
     var checkTime = 500; // time interval of 500ms
 
     Replay.runWithSql = function(sqls, noAlert) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isArray = (sqls instanceof Array);
 
         if (typeof sqls === "object" && !isArray) {
@@ -87,7 +87,7 @@ window.Replay = (function($, Replay) {
     };
 
     Replay.run = function(sqls, noAlert) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isArray = (sqls instanceof Array);
 
         if (typeof sqls === "object" && !isArray) {
@@ -153,7 +153,7 @@ window.Replay = (function($, Replay) {
     };
 
     Replay.execSql = function(sql, prevSql, nextSql) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var options = sql.options;
 
         if (options == null) {
@@ -253,7 +253,7 @@ window.Replay = (function($, Replay) {
     }
 
     function execSql(operation, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (replayFuncs.hasOwnProperty(operation)) {
             replayFuncs[operation](options)
@@ -290,7 +290,7 @@ window.Replay = (function($, Replay) {
     //     return PromiseHelper.chain(promises);
 
     //     function delTable(table) {
-    //         var deferred = jQuery.Deferred();
+    //         var deferred = PromiseHelper.deferred();
     //         var resultSetId = table.resultSetId;
     //         var tableName = table.tableName;
 
@@ -362,7 +362,7 @@ window.Replay = (function($, Replay) {
         // XXX TODO: fix the idCount mismatch issue
         return PromiseHelper.reject("Temporary not support");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var oldTableName = table.getName();
 
@@ -472,7 +472,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.IndexDS] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // this is a UI simulation replay
         var dsId = options.dsId;
         // XXX TODO: fix this temporary fix
@@ -562,7 +562,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.Aggr] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var args = getArgs(options);
         // this is a UI simulation replay
         xcFunction.aggregate.apply(window, args)
@@ -621,7 +621,7 @@ window.Replay = (function($, Replay) {
         } else if (tableType === TableType.Unknown){
             // XXX not sure if it's good
             // XXX not test yet
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var tableName = changeTableName(options.tableName);
 
             XcalarDeleteTable(tableName, options)
@@ -638,7 +638,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DestroyDS] = function(options) {
         // UI simulation replay
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $gridView = $("#dsListSection").find(".gridItems");
         var $ds = DS.getGrid(options.dsId);
 
@@ -675,7 +675,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.ExportTable] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         options.tableName = changeTableName(options.tableName);
 
@@ -811,7 +811,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.RevertTable] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = getTableId(options.tableId);
         var newTableName = gTables[newTableId].tableName;
         var oldTableId = getTableId(options.oldTableId);
@@ -880,7 +880,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.AddWS] = function() {
         // UI simulation
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var originWSLen = WSManager.getNumOfWS();
 
         $("#addWorksheet").click();
@@ -917,7 +917,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.SwitchWS] = function(options) {
         // UI simulation
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var wsIndex = options.newWorksheetIndex;
         var wsId = WSManager.getWSByIndex(wsIndex);
 
@@ -953,7 +953,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DelWS] = function(options) {
         // UI simulation
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var originWSLen = WSManager.getNumOfWS();
         var wsIndex = options.worksheetIndex;
         var delType = options.delType;
@@ -1031,7 +1031,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.ActiveTables] = function(options) {
          // redo sent to worksheet
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var tableNames = options.tableNames;
         var tableIds = [];
@@ -1127,7 +1127,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.Profile] = function(options, keepOpen) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId  = getTableId(options.tableId);
         var colNum   = options.colNum;
 
@@ -1161,7 +1161,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.ProfileSort] = function(options, keepOpen) {
         // UI simulation
-        var deferred   = jQuery.Deferred();
+        var deferred   = PromiseHelper.deferred();
         var order      = options.order;
         var bucketSize = options.bucketSize;
 
@@ -1208,7 +1208,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.ProfileBucketing] = function(options, keepOpen) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var bucketSize = options.bucketSize;
 
         options = $.extend(options, {
@@ -1259,7 +1259,7 @@ window.Replay = (function($, Replay) {
     }
 
     replayFuncs[SQLOps.QuickAgg] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var args = getArgs(options);
 
         AggModal.quickAgg.apply(window, args)
@@ -1276,7 +1276,7 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.Corr] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var args = getArgs(options);
 
         AggModal.corrAgg.apply(window, args)
@@ -1366,7 +1366,7 @@ window.Replay = (function($, Replay) {
     }
 
     function checkHelper(checkFunc, msg) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var timeCnt = 0;
         var timer = setInterval(function() {
             if (msg != null) {
@@ -1396,7 +1396,7 @@ window.Replay = (function($, Replay) {
     }
 
     function delayAction(callback, msg, time) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (time === null) {
             time = 5000;
         }

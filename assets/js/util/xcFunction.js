@@ -17,7 +17,7 @@ window.xcFunction = (function($, xcFunction) {
     //      formOpenTime: number,
     //      worksheet: (optional) wsId
     xcFunction.filter = function(colNum, tableId, fltOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var table = gTables[tableId];
         var tableName = table.getName();
@@ -94,7 +94,7 @@ window.xcFunction = (function($, xcFunction) {
     // aggregate table column
     // aggName is optional and can be left blank (will autogenerate)
     xcFunction.aggregate = function(colNum, tableId, aggrOp, aggStr, aggName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var hasAggName = (aggName && aggName[0] === gAggVarPrefix);
         var table = gTables[tableId];
@@ -231,7 +231,7 @@ window.xcFunction = (function($, xcFunction) {
     // options:
     //      formOpenTime: number
     xcFunction.sort = function(tableId, colInfo, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         options = options || {};
         var table = gTables[tableId];
         var tableName = table.getName();
@@ -412,7 +412,7 @@ window.xcFunction = (function($, xcFunction) {
             if (!mapStrs.length) {
                 return PromiseHelper.resolve(tableName, newColInfos, tableCols);
             }
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             sql.typeToCast = typesToCast;
 
             XIApi.map(txId, mapStrs, tableName, mapColNames)
@@ -444,7 +444,7 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo, newTableName,
                                options)
     {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var joinType = joinLookUp[joinStr];
         newTableName = newTableName + Authentication.getHashId();
 
@@ -594,7 +594,7 @@ window.xcFunction = (function($, xcFunction) {
                     // }
 
     xcFunction.union = function(tableInfos, dedup, newTableName, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         // current workshhet index
         var curWS = WSManager.getActiveWS();
@@ -707,7 +707,7 @@ window.xcFunction = (function($, xcFunction) {
 
         options = options || {};
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isIncSample = options.isIncSample || false;
         var isJoin = options.isJoin || false;
         var isKeepOriginal = options.isKeepOriginal || false;
@@ -922,7 +922,7 @@ window.xcFunction = (function($, xcFunction) {
                 }
             }
             if (mapStrs.length) {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 XIApi.map(txId, mapStrs, tableName, newCastNames)
                 .then(function(castTableName) {
                     TblManager.setOrphanTableMeta(castTableName, castTableCols);
@@ -942,7 +942,7 @@ window.xcFunction = (function($, xcFunction) {
         function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample,
                                     renamedGBCols) {
 
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
 
             var joinType = JoinOperatorT.FullOuterJoin;
             var jonTable = xcHelper.getTableName(nTable) +
@@ -1029,7 +1029,7 @@ window.xcFunction = (function($, xcFunction) {
     //                              used for undo
     xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions,
                               icvMode) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         mapOptions = mapOptions || {};
 
@@ -1105,7 +1105,7 @@ window.xcFunction = (function($, xcFunction) {
                                       numCols, backColumns, frontColumns,
                                       keepOrder, dontShowModal, options) {
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var retName  = $(".retTitle:disabled").val();
 
         if (!retName || retName === "") {
@@ -1205,7 +1205,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     xcFunction.rename = function(tableId, newTableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (tableId == null || newTableName == null) {
             deferred.reject("Invalid renaming parameters");
@@ -1267,7 +1267,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     xcFunction.project = function(colNames, tableId, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         options = options || {};
         var formOpenTime = options.formOpenTime;

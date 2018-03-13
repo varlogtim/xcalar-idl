@@ -79,7 +79,7 @@ window.XVM = (function(XVM) {
     };
 
     XVM.checkVersion = function(connectionCheck) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetVersion(connectionCheck)
         .then(function(result) {
@@ -117,7 +117,7 @@ window.XVM = (function(XVM) {
     }
 
     XVM.checkVersionAndLicense = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var err;
 
         var passed = true;
@@ -213,7 +213,7 @@ window.XVM = (function(XVM) {
 
     // check KVStore's version to see if need upgrade
     XVM.checkKVVersion = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var needUpgrade = false;
         var firstUser = false;
         KVStore.get(kvVersionKey, gKVScope.VER)
@@ -252,7 +252,7 @@ window.XVM = (function(XVM) {
 
     function firstUserCheck() {
         var isFreeTrail = false;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = isFreeTrail ? EULAModal.show() : PromiseHelper.resolve();
 
         promise

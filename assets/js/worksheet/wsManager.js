@@ -202,7 +202,7 @@ window.WSManager = (function($, WSManager) {
                 return PromiseHelper.reject();
             }
         } else if (delType === DelWSType.Del) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             deleteTableHelper(wsId)
             .always(function() {
                 deferred.resolve();
@@ -325,7 +325,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.unhideWS = function(wsIds, prevWsIndex) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!(wsIds instanceof Array)) {
             wsIds = [wsIds];
         }
@@ -647,7 +647,7 @@ window.WSManager = (function($, WSManager) {
     // Move temporary table to another worksheet
     WSManager.moveTemporaryTable = function(tableId, newWSId, tableType,
                                             waitForAnim, noAnim) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newWS = worksheetGroup.get(newWSId);
 
         // this sql will be modified in findTableListHelper()
@@ -681,7 +681,7 @@ window.WSManager = (function($, WSManager) {
         return deferred.promise();
 
         function findTableListHelper() {
-            var innerDeferrd = jQuery.Deferred();
+            var innerDeferrd = PromiseHelper.deferred();
 
             if (tableType === TableType.Orphan) {
                 // when it's from Orphan table
@@ -983,7 +983,7 @@ window.WSManager = (function($, WSManager) {
     // will not drop undone tables if isNoDelete, instead will change table
     // to orphaned
     WSManager.dropUndoneTables = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tables = [];
         var table;
         for (var tableId in gTables) {
@@ -1530,7 +1530,7 @@ window.WSManager = (function($, WSManager) {
 
     // Helper function to delete tables in a worksheet
     function deleteTableHelper(wsId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var activeTables = worksheetGroup.get(wsId).tables;
         var errors;

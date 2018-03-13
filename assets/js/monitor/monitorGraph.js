@@ -135,7 +135,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function getStatsAndUpdateGraph() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (count % 10 === 0) {
             xGridVals.push(numXGridMarks * xGridWidth);
@@ -206,7 +206,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     // will always resolve
     function getMemUsage() {
         hasTableUsageChange = false;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetMemoryUsage(userIdName, userIdUnique)
         .then(function(userMemory) {
             lastTableUsageTime = Date.now();

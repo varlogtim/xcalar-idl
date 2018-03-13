@@ -7,7 +7,7 @@ describe("JupyterPanel Test", function() {
         $("body").append($iframe);
         $("#jupyterTab .mainTab").click();
         sendMessage = function(msg) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var strMsg = JSON.stringify(msg);
             $iframe.contents().find("html").html('<script>parent.postMessage(JSON.stringify(' + strMsg + '), "*")</script>');
             setTimeout(function() {

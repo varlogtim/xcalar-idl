@@ -10,19 +10,19 @@ window.Uninstaller = (function(Uninstaller, $) {
     function validateStep(stepId, $form) {
         switch (stepId) {
             case (0):
-                return jQuery.Deferred().resolve().promise();
+                return PromiseHelper.deferred().resolve().promise();
             case (1):
                 return InstallerCommon.validateDiscover($form, $forms);
             case (2):
                 return executeFinalArray($form);
             default:
                 console.error("Unexpected step");
-                return jQuery.Deferred().reject().promise();
+                return PromiseHelper.deferred().reject().promise();
         }
     }
 
     function executeFinalArray($form) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var prevString = "UNINSTALL";
         var doingString = "UNINSTALLING...";
         var doingLower = "Uninstalling...";

@@ -554,7 +554,7 @@ window.ProjectView = (function($, ProjectView) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isValid = xcHelper.validate([
             {
                 "$ele": $projectView.find('.tableList').find(".text"),

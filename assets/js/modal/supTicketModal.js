@@ -41,7 +41,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     };
 
     function getTickets() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var reqStr = JSON.stringify({userId: userIdUnique});
         XFTSupportTools.getTickets(reqStr)
@@ -92,7 +92,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     SupTicketModal.restore = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         modalHelper.addWaitingBG();
         // always resolves
         getTickets()
@@ -111,7 +111,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     };
 
     function getComments(oldTickets) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var i = 0; i < oldTickets.length; i++) {
             var ticket = oldTickets[i];
@@ -355,7 +355,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     function submitForm(download) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var genBundle = false;
         var issueType = getIssueType();
         var ticketId;
@@ -642,7 +642,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
     }
     function submitBundle(ticketId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $("#userMenu").find(".supTicket").addClass("xc-disabled");
         var mgmtdRet;
         // xcalarSupportGenerate has an alert on success
@@ -652,7 +652,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             deferred.resolve(ret.bundlePath, ret.supportId,
                              ret.supportBundleSent);
         }, function() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             jQuery.ajax({
                 "type": "POST",
                 "contentType": "application/json",
@@ -698,7 +698,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     SupTicketModal.getTicket = function(ticketId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var reqStr = JSON.stringify({ticketId: ticketId});
         XFTSupportTools.getTickets(reqStr)
@@ -919,7 +919,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     SupTicketModal.submitTicket = function (ticketObj, licenseObj, noTop, noLog) {
         ticketObj.license = licenseObj;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         PromiseHelper.alwaysResolve(XcalarApiTop(1000))
         .then(function(ret) {
             if (!noTop) {
@@ -941,7 +941,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     };
 
     SupTicketModal.fetchLicenseInfo = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XFTSupportTools.getLicense()
         .then(function(data) {
             var key = data.logs;

@@ -88,7 +88,7 @@ describe("Mocha Setup Test", function() {
     });
 
     function simplePromiseTest() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         setTimeout(function() {
             deferred.resolve("pass");

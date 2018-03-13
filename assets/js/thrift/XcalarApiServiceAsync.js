@@ -71,7 +71,7 @@ XcalarApiServiceClient.prototype.send_queueWorkAsync = function(workItem) {
 };
 
 XcalarApiServiceClient.prototype.recv_queueWorkAsync = function() {
-  var deferred = jQuery.Deferred();
+  var deferred = PromiseHelper.deferred();
 
   var ret = this.input.readMessageBegin();
   var fname = ret.fname;

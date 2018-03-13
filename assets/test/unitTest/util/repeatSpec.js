@@ -563,7 +563,7 @@ describe("Repeat Test", function() {
         it("delete should work", function(done) {
             TblManager.deleteTables([tableId], TableType.Active, true)
             .then(function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
 
                 var wsToFocus = WSManager.getWSFromTable(tableId2);
                 var activeWS = WSManager.getActiveWS();

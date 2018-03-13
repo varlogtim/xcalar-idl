@@ -32,7 +32,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         $modal.removeClass("error").addClass("loading");
         modalId = xcHelper.randName("previewFile");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var path = options.path;
         var currentId = modalId;
 

@@ -134,7 +134,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     }
 
     function submitDefaultAdminConfig() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var defaultAdminEnabled = $("#loginConfigEnableDefaultAdmin").find(".checkbox").hasClass("checked");
         var adminUsername = $("#loginConfigAdminUsername").val();
@@ -182,7 +182,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     }
 
     function submitMSALConfig() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var msalEnabled = $("#loginConfigEnableMSAL").find(".checkbox").hasClass("checked");
         var azureScopes = $("#loginConfigMSALAzureScopes").val();
         var msal = {
@@ -227,7 +227,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     }
 
     function submitLdapConfig() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var ldapConfigEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox").hasClass("checked");
         var activeDir = (ldapChoice === "ad") ? true : false;
         var ldap_uri = $("#loginConfigLdapUrl").val();

@@ -100,7 +100,7 @@ window.DSExport = (function($, DSExport) {
     };
 
     DSExport.refresh = function(noWaitIcon) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!noWaitIcon) {
             xcHelper.showRefreshIcon($("#dsExportListSection"));
         }
@@ -195,7 +195,7 @@ window.DSExport = (function($, DSExport) {
         if (defaultPath) { // if cached
             PromiseHelper.resolve(defaultPath);
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var path;
         if (exportTargets.length === 0) {
             DSExport.refresh()
@@ -536,7 +536,7 @@ window.DSExport = (function($, DSExport) {
     }
 
     function submitForm(targetType, name, formatSpecificArg, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $targetTypeInput = $("#targetTypeList").find(".text");
         var $formatSpecificInput = $form.find(".active .formatSpecificArg");
         var isValid = xcHelper.validate([
@@ -633,7 +633,7 @@ window.DSExport = (function($, DSExport) {
     }
 
     function addUDFExportTarget(name, formatSpecificArg, udfName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise;
         var newPath;
         if (formatSpecificArg === "") {

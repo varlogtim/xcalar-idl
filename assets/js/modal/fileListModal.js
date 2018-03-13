@@ -299,7 +299,7 @@ window.FileListModal = (function(FileListModal, $) {
 
 
     function getList(dsName, hasFileErrors) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarMakeResultSetFromDataset(dsName, true)
         .then(function (result) {

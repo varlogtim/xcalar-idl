@@ -208,7 +208,7 @@ window.ExportView = (function($, ExportView) {
     };
 
     ExportView.show = function(tablId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         isOpen = true;
         formHelper.showView();
 
@@ -320,7 +320,7 @@ window.ExportView = (function($, ExportView) {
     };
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isValid = xcHelper.validate([
             {
                 "$ele": $exportView.find('.tableList').find(".text"),
@@ -519,7 +519,7 @@ window.ExportView = (function($, ExportView) {
 
     // if duplicate is found, returns true
     function checkDuplicateExportName(name, advancedOptions) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (advancedOptions.createRule !==
             ExExportCreateRuleT.ExExportCreateOnly) {
             deferred.resolve(false);

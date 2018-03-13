@@ -4,7 +4,7 @@ window.Upgrader = (function(Upgrader, $) {
     var wkbksCache;
 
     Upgrader.exec = function(version) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         initialize();
         WorkbookManager.getWKBKsAsync()
         .then(function(oldWorkbooks, sessionInfo, isWrongNode) {
@@ -32,7 +32,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function execUpgrade(currentKeys, upgradeKeys) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $text = $("#initialLoadScreen .text");
         var oldText = $text.text();
 
@@ -86,7 +86,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeEphMeta(gEphStorageKey) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         upgradeHelper(gEphStorageKey, gKVScope.EPHM, "EMetaConstructor")
         .then(function(eMeta) {
@@ -99,7 +99,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeGenSettings(gSettingsKey) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         upgradeHelper(gSettingsKey, gKVScope.GLOB, "GenSettings")
         .then(function(genSettings) {
@@ -126,7 +126,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeAuth(gAuthKey) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         upgradeHelper(gAuthKey, gKVScope.AUTH, "XcAuth")
         .then(function(auth) {
@@ -139,7 +139,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeUserSettings(gUserKey) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         upgradeHelper(gUserKey, gKVScope.USER, "UserInfoConstructor")
         .then(function(userSettings) {
@@ -158,7 +158,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeWKBkSet(wkbkKey) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.getAndParse(wkbkKey, gKVScope.WKBK)
         .then(function(oldWkbks) {
@@ -207,7 +207,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeStorageMeta(gStorageKey, wkbkContainer) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         upgradeHelper(gStorageKey, gKVScope.META, "METAConstructor")
         .then(function(meta) {
@@ -221,7 +221,7 @@ window.Upgrader = (function(Upgrader, $) {
 
     // Special case: after upgrade, Log.upgrade already return a string
     function upgradeLogMeta(gLogKey, wkbkContainer) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.get(gLogKey, gKVScope.LOG)
         .then(function(oldLog) {
@@ -235,7 +235,7 @@ window.Upgrader = (function(Upgrader, $) {
 
     // Special case: after upgrade, Log.upgrade already return a string
     function upgradeErrorLogMeta(gErrKey, wkbkContainer) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.get(gErrKey, gKVScope.ERR)
         .then(function(oldErrorLog) {
@@ -248,7 +248,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function upgradeHelper(key, scope, consctorName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.getAndParse(key, scope)
         .then(function(meta) {
@@ -338,7 +338,7 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     function checkAndWrite(key, value, scope, needMutex) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.get(key, scope)
         .then(function(oldValue) {

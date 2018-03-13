@@ -143,7 +143,7 @@
             if ([null, undefined].indexOf(tHandle) !== -1) {
                 return PromiseHelper.resolve(null);
             }
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             if (insertError(arguments.callee, deferred)) {
                 return deferred.promise();
             }
@@ -176,7 +176,7 @@
             if (retName === "" || retName == null || [null, undefined].indexOf(tHandle) !== -1) {
                 return PromiseHelper.resolve(null);
             }
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             if (insertError(arguments.callee, deferred)) {
                 return deferred.promise();
             }

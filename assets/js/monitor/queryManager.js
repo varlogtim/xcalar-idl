@@ -282,7 +282,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (Transaction.isSimulate(id)) {
             return;
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var mainQuery = queryLists[id];
         if (mainQuery == null) {
             // error case
@@ -748,7 +748,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         function check() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             mainQuery.check()
             .then(function(res) {
@@ -852,7 +852,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         function check() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
             outerQueryCheckHelper(id, queryName)
@@ -1267,7 +1267,7 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (subQuery.state === QueryStatus.Done) {
             clearIntervalHelper(id);
             return PromiseHelper.reject();

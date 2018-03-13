@@ -980,7 +980,7 @@ window.DagEdit = (function($, DagEdit) {
 
     // will always resolve
     function focusEditingTable(tableName, results) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         TblManager.findAndFocusTable(tableName, true)
         .then(function(ret) {
             results[tableName] = ret;

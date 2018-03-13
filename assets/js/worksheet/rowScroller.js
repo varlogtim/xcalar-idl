@@ -266,7 +266,7 @@ window.RowScroller = (function($, RowScroller) {
                 return;
             }
 
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             if (needsFocusing) {
                 needsFocusing = false;

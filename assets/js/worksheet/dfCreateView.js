@@ -892,7 +892,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dfName = $.trim($newNameInput.val());
         var invalidTableFound = false;
         var invalidColFound = false;
@@ -1030,7 +1030,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function checkNoDuplicateDFName(dfName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetRetina(dfName)
         .then(function() {
             deferred.reject("duplicate name");

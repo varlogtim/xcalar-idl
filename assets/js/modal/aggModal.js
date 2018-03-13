@@ -96,7 +96,7 @@ window.AggModal = (function($, AggModal) {
 
     // use horColNums to match the horColumns in corr
     AggModal.quickAgg = function(tableId, horColNums) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
 
@@ -132,7 +132,7 @@ window.AggModal = (function($, AggModal) {
     };
 
     AggModal.corrAgg = function(tableId, vertColNums, horColNums, profileColNum) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
         // If this is triggered from a column profile then we want to track
@@ -633,7 +633,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableName = gTables[tableId].getName();
 
         XIApi.aggregate(txId, opString, fieldName, tableName)
@@ -693,7 +693,7 @@ window.AggModal = (function($, AggModal) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableName = gTables[tableId].getName();
 
         XIApi.aggregateWithEvalStr(txId, evalStr, tableName)

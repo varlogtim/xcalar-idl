@@ -15,7 +15,7 @@ window.UserSettings = (function($, UserSettings) {
     // prevSettings/genSettings has the settings that are editable in the
     // settings panel such as monitor interval time
     UserSettings.restore = function(oldUserInfos, prevSettings) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         setup();
         userInfos = oldUserInfos;
         userPrefs = userInfos.getPrefInfo();
@@ -40,7 +40,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.commit = function(showSuccess) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
             // and userPrefs has not been set up.

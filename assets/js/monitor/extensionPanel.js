@@ -250,7 +250,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function enableExtension(extName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
         $.ajax({
             "type": "POST",
@@ -271,7 +271,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function disableExtension(extName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
         $.ajax({
             "type": "POST",
@@ -322,7 +322,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function generateInstalledExtList() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
         $.ajax({
             "type": "GET",

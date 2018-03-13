@@ -4,7 +4,7 @@ window.xcManager = (function(xcManager, $) {
     xcManager.setup = function() {
         setupStatus = SetupStatus.Setup;
         // use promise for better unit test
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
         $("#favicon").attr("href", paths.favicon);
@@ -308,14 +308,14 @@ window.xcManager = (function(xcManager, $) {
         }
 
         function actualOneTimeSetup(force) {
-            var def = jQuery.Deferred();
+            var def = PromiseHelper.deferred();
             var markAsAlreadyInit = function() {
                 return XcalarKeyPut(GlobalKVKeys.InitFlag,
                                         InitFlagState.AlreadyInit, false,
                                         gKVScope.INIT);
             };
             var initPhase = function() {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 initLocks()
                 .then(function() {
                     return markAsAlreadyInit();
@@ -400,7 +400,7 @@ window.xcManager = (function(xcManager, $) {
             });
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
         .then(function(ret) {
             if (ret && ret.value === InitFlagState.AlreadyInit) {
@@ -454,7 +454,7 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function setupSession() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         WorkbookManager.setup()
         .then(XcSupport.holdSession)
@@ -468,7 +468,7 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function setupConfigParams() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         MonitorConfig.refreshParams(true)
         .then(function(params) {
@@ -663,7 +663,7 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function restoreActiveTable(tableId, worksheetId, failures) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var passedUpdate = false;
 
@@ -694,7 +694,7 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function initializeTable() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var failures = [];
         var hasTable = false;
         var noMetaTables = [];

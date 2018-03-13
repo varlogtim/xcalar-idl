@@ -304,7 +304,7 @@ window.DagDraw = (function($, DagDraw) {
     };
 
     DagDraw.createSavableCanvas = function($dagWrap) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         var fullCanvas = true;
         var canvasClone = $dagWrap.find('canvas')[0];
@@ -409,7 +409,7 @@ window.DagDraw = (function($, DagDraw) {
     };
 
     function loadImage(img) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         img.onload = function() {
             deferred.resolve();
         };
@@ -470,7 +470,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var img = new Image();
         img.src = paths.dagBackground;
         img.onload = function() {
@@ -553,7 +553,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function drawDagActionTypeToCanvas($actionType, ctx, top, left) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         left += 35;
         top += 50;
         var $dagIcon = $actionType.find('.dagIcon');

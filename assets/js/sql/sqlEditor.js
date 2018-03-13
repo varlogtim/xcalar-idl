@@ -12,7 +12,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     };
 
     SQLEditor.fakeCompile = function(numSteps) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $sqlButton.addClass("btn-disabled");
         $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
 
@@ -95,7 +95,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     SQLEditor.executeSQL = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var sql = editor.getValue();
         sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
         var sqlCom = new SQLCompiler();

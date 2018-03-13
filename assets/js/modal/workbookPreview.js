@@ -94,7 +94,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function showTableInfo(workbookId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var nodeInfo;
         var curId = id;
         var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
@@ -139,7 +139,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     }
 
     function getTableKVStoreMeta(workbookId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var key = WorkbookManager.getStorageKey(workbookId);
         KVStore.getAndParse(key, gKVScope.META)
         .then(function(res) {
@@ -321,7 +321,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     // }
 
     function showDag(tableName, workbookName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var curId = id;
         var html = '<div class="dagWrap clearfix">' +
                     '<div class="header clearfix">' +

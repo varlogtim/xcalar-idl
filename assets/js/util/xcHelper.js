@@ -458,7 +458,7 @@
     xcHelper.getUnusedTableName = function(datasetName) {
         // checks dataset names and tablenames and tries to create a table
         // called dataset1 if it doesnt already exist or dataset2 etc...
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableNames = {};
         // datasets has it's unique format, no need to check
         XcalarGetTables()
@@ -1719,7 +1719,7 @@
     };
 
     xcHelper.getBackTableSet = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetTables()
         .then(function(backEndTables) {
@@ -2009,7 +2009,7 @@
     //      alignLeft: boolean, if true, will align table to left of screen
     //      noClear: boolean, if true, will not deselect text
     xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $tableWrap;
         var tableId;
         if (typeof tableWrapOrId === "string") {
@@ -3823,7 +3823,7 @@
     // resolves an array of keyInfos
     xcHelper.getKeyInfos = function(keys, tableName) {
         keys = (keys instanceof Array) ? keys : [keys];
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         getColMetaHelper(tableName)
         .then(function (colMeta, hasTableMeta) {
@@ -3877,7 +3877,7 @@
     };
 
     function getColMetaHelper(tableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
         var colMeta;

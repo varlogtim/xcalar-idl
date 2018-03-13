@@ -340,7 +340,7 @@ describe("XcalarThrift Test", function() {
         var oldXcalarLoad = XcalarLoad;
 
         xcalarLoad = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "xcalarStatus": 1,
@@ -350,7 +350,7 @@ describe("XcalarThrift Test", function() {
             return deferred.promise();
         };
         XcalarGetQuery = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "status": 2,
@@ -365,7 +365,7 @@ describe("XcalarThrift Test", function() {
         XcalarLoad = function() {
             var def1 = xcalarLoad();
             var def2 = XcalarGetQuery();
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             PromiseHelper.when(def1, def2)
             .then(function(ret1, ret2) {
                 return deferred.resolve(ret1, ret2);
@@ -408,7 +408,7 @@ describe("XcalarThrift Test", function() {
         var oldXcalarLoad = XcalarLoad;
 
         xcalarLoad = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "xcalarStatus": 1,
@@ -418,7 +418,7 @@ describe("XcalarThrift Test", function() {
             return deferred.promise();
         };
         XcalarGetQuery = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "status": 2,
@@ -435,7 +435,7 @@ describe("XcalarThrift Test", function() {
         XcalarLoad = function() {
             var def1 = xcalarLoad();
             var def2 = XcalarGetQuery();
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             PromiseHelper.when(def1, def2)
             .then(function(ret1, ret2) {
                 return deferred.resolve(ret1, ret2);
@@ -481,7 +481,7 @@ describe("XcalarThrift Test", function() {
         var oldXcalarLoad = XcalarLoad;
 
         xcalarLoad = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.resolve({});
             }, 100);
@@ -489,7 +489,7 @@ describe("XcalarThrift Test", function() {
         };
 
         XcalarGetQuery = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "status": 2,
@@ -504,7 +504,7 @@ describe("XcalarThrift Test", function() {
         XcalarLoad = function() {
             var def1 = xcalarLoad();
             var def2 = XcalarGetQuery();
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             PromiseHelper.when(def1, def2)
             .then(function(ret1, ret2) {
                 return deferred.resolve(ret1, ret2);
@@ -549,7 +549,7 @@ describe("XcalarThrift Test", function() {
         var oldXcalarLoad = XcalarLoad;
 
         xcalarLoad = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.reject({
                     "xcalarStatus": 1,
@@ -560,7 +560,7 @@ describe("XcalarThrift Test", function() {
         };
 
         XcalarGetQuery = function() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             setTimeout(function(){
                 deferred.resolve({});
             }, 100);
@@ -570,7 +570,7 @@ describe("XcalarThrift Test", function() {
         XcalarLoad = function() {
             var def1 = xcalarLoad();
             var def2 = XcalarGetQuery();
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             PromiseHelper.when(def1, def2)
             .then(function(ret1, ret2) {
                 return deferred.resolve(ret1, ret2);

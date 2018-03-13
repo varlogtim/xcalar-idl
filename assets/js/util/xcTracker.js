@@ -2,7 +2,7 @@ window.xcTracker = (function(xcTracker) {
     var cache = "";
 
     xcTracker.commit = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (hasCachedData()) {
             commitCachedData()
@@ -49,7 +49,7 @@ window.xcTracker = (function(xcTracker) {
     }
 
     function commitCachedData() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // XXX TODO: add ajax call to expServer
 
         console.log(cache, "is commited");

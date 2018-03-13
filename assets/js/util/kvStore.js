@@ -24,7 +24,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.get = function(key, scope) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarKeyLookup(key, scope)
         .then(function(value) {
@@ -43,7 +43,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.getAndParse = function(key, scope) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarKeyLookup(key, scope)
         .then(function(value) {
             // "" can not be JSON.parse
@@ -76,7 +76,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.put = function(key, value, persist, scope) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcSupport.commitCheck()
         .then(function() {
             return XcalarKeyPut(key, value, persist, scope);
@@ -91,7 +91,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.putWithMutex = function(key, value, persist, scope, noCommitCheck) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var lock = KVStore.genMutex(key, scope);
 
         commitCheck()
@@ -120,7 +120,7 @@ window.KVStore = (function($, KVStore) {
         }
 
         function lockAndPut() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var lockString;
 
             Concurrency.tryLock(lock)
@@ -152,7 +152,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.append = function(key, value, persist, scope) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcSupport.commitCheck()
         .then(function() {
@@ -165,7 +165,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.delete = function(key, scope) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarKeyDelete(key, scope)
         .then(deferred.resolve)
@@ -178,7 +178,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.commit = function(atStartUp) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $autoSaveBtn = $("#autoSaveBtn");
         var $userSettingsSave = $("#userSettingsSave");
         var currentCnt = commitCnt;
@@ -296,7 +296,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.restore = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var gInfosUser = {};
         var gInfosSetting = {};
@@ -324,7 +324,7 @@ window.KVStore = (function($, KVStore) {
         });
 
         function restore() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
 
             var userInfos = new UserInfoConstructor(gInfosUser);
             UserSettings.restore(userInfos, gInfosSetting)
@@ -378,7 +378,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     function getInfo(infoKey, infoScope, ignoreFail) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         KVStore.getAndParse(infoKey, infoScope)
         .then(function(info) {

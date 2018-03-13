@@ -334,7 +334,7 @@ window.MainMenu = (function($, MainMenu) {
 
 
     function checkMenuAnimFinish() {
-        var menuAnimDeferred = jQuery.Deferred();
+        var menuAnimDeferred = PromiseHelper.deferred();
         menuAnimCheckers.push(menuAnimDeferred);
 
         return menuAnimDeferred.promise();

@@ -9,7 +9,7 @@ window.XcSocket = (function(XcSocket) {
         var options = {
             "reconnectionAttempts": 10
         };
-        initDeferred = jQuery.Deferred();
+        initDeferred = PromiseHelper.deferred();
         socket = io.connect(url, options);
         addAuthenticationEvents();
     };
@@ -19,7 +19,7 @@ window.XcSocket = (function(XcSocket) {
     };
 
     XcSocket.checkUserExists = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // time out after 15s
         checkConnection(initDeferred, 15000);
         initDeferred.promise()

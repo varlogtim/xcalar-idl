@@ -53,7 +53,7 @@ window.DSTable = (function($, DSTable) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var timer;
         var $dsTable = $("#dsTable");
 
@@ -316,7 +316,7 @@ window.DSTable = (function($, DSTable) {
 
             $("#dsTable").addClass("fetching");
             var dsId = $("#dsTable").data("dsid");
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             scrollSampleAndParse(dsId, currentRow, numRowsToFetch)
             .then(deferred.resolve)
@@ -342,7 +342,7 @@ window.DSTable = (function($, DSTable) {
             return PromiseHelper.reject("No DS");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         dsObj.fetch(rowToGo, rowsToFetch)
         .then(function(jsons) {

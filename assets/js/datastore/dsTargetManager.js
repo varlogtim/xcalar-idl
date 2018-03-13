@@ -54,7 +54,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.refreshTargets = function(noWaitIcon) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var updateTargetMenu = function(targets) {
             var html = targets.map(function(targetName) {
                 return "<li>" + targetName + "</li>";
@@ -96,7 +96,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.getTargetTypeList = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var updateTargetType = function(typeList) {
             var html = typeList.map(function(typeId) {
                 return '<li data-id="' + typeId + '">' +
@@ -503,7 +503,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $form = $("#dsTarget-form");
         $form.find("input").blur();
         var $submitBtn = $("#dsTarget-submit").blur();
@@ -555,7 +555,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         function checkMountPoint() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             if ((!args) || (args[0] !== "shared")) {
                 innerDeferred.resolve();
             } else {

@@ -176,7 +176,7 @@ window.DS = (function ($, DS) {
     DS.addOtherUserDS = function(fullDSName, options) {
         // 1. add as shared ds
         // 3. notify the owner of the ds to refresh
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
@@ -211,7 +211,7 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dsId = $grid.data("dsid");
 
         $gridView.find(".active").removeClass("active");
@@ -365,7 +365,7 @@ window.DS = (function ($, DS) {
     // Remove dataset/folder
     DS.remove = function($grids) {
         xcAssert($grids != null && $grids.length !== 0);
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         alertDSRemove($grids)
         .then(function() {
@@ -387,7 +387,7 @@ window.DS = (function ($, DS) {
 
     DS.cancel = function($grid) {
         xcAssert(($grid != null && $grid.length !== 0));
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if ($grid.hasClass("active")) {
             focusOnForm();
@@ -632,7 +632,7 @@ window.DS = (function ($, DS) {
     }
 
     function shareAndUnshareHelper(dsId, newName, isShare) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dirId = isShare ? DSObjTerm.SharedFolderId : DSObjTerm.homeDirId;
         var dsObj = DS.getDSObj(dsId);
         removeDS(dsId);
@@ -685,7 +685,7 @@ window.DS = (function ($, DS) {
     }
 
     function startChangeSharedDSInfo(versionId, arg) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var callback = function(success) {
             if (success) {
                 deferred.resolve();
@@ -704,7 +704,7 @@ window.DS = (function ($, DS) {
     }
 
     function endChangeSharedDSInfo(versionId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var callback = function(success) {
             if (success) {
                 deferred.resolve();
@@ -722,7 +722,7 @@ window.DS = (function ($, DS) {
     }
 
     function errorChangeSharedDSInfo(versionId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcSocket.sendMessage("ds", {
             event: "changeError",
             id: versionId
@@ -731,7 +731,7 @@ window.DS = (function ($, DS) {
     }
 
     function commitSharedFolderChange(arg, noRefresh) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var versionId = dsInfoMeta.updateVersionId();
         var sharedDir = DS.getSharedDir(true);
         var hasCommit = false;
@@ -814,7 +814,7 @@ window.DS = (function ($, DS) {
     };
 
     function importHelper(dsObj, createTable, sql) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dsName = dsObj.getName();
         var $grid = DS.getGrid(dsObj.getId());
         var updateDSMeta = function(dsMeta, ds, $ds) {
@@ -942,7 +942,7 @@ window.DS = (function ($, DS) {
                         false);
         var failToShow = options.failToShow || false;
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         $grid.removeClass("active")
              .addClass("inactive deleting")
@@ -1010,7 +1010,7 @@ window.DS = (function ($, DS) {
     }
 
     function checkDSUse(dsName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var currentUser = XcSupport.getUser();
 
         XcalarGetDatasetUsers(dsName)
@@ -1041,7 +1041,7 @@ window.DS = (function ($, DS) {
     }
 
     function alertDSRemove($grids) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var title;
         var msg;
         var isAlert = false;
@@ -1213,7 +1213,7 @@ window.DS = (function ($, DS) {
     }
 
     function destroyDataset(dsName, txId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarDestroyDataset(dsName, txId)
         .then(deferred.resolve)
@@ -1234,7 +1234,7 @@ window.DS = (function ($, DS) {
     }
 
     function removeDSHandler(dsIds) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var failures = [];
         var promises = [];
         var datasets = [];
@@ -1312,7 +1312,7 @@ window.DS = (function ($, DS) {
 
             return PromiseHelper.resolve();
         } else {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var $grid = DS.getGrid(dsId);
             var isCanel = ($grid.data("txid") != null);
             var def = isCanel
@@ -1429,7 +1429,7 @@ window.DS = (function ($, DS) {
     }
 
     function restoreDS(oldHomeFolder, atStartUp) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var datasets;
         var lockMeta;
         var dsBasicInfo;
@@ -1470,7 +1470,7 @@ window.DS = (function ($, DS) {
     }
 
     function getDSBasicInfo(datasetName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetDatasetsInfo(datasetName)
         .then(function(res) {
             try {
@@ -1501,7 +1501,7 @@ window.DS = (function ($, DS) {
     }
 
     function getDSLockMeta() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var userName = XcSupport.getUser();
         XcalarGetUserDatasets(userName)
         .then(function(res) {
@@ -1741,7 +1741,7 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XcalarGetDSNode()
         .then(function(ret) {
             var numNodes = ret.numNodes;
@@ -1769,7 +1769,7 @@ window.DS = (function ($, DS) {
     }
 
     function createTableHelper($grid, dsObj) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var colsToPull;
 
         dsObj.fetch(0, 40)
@@ -2661,7 +2661,7 @@ window.DS = (function ($, DS) {
     function lockDS(dsIds) {
         dsIds = (dsIds instanceof Array) ? dsIds : [dsIds];
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
         var promises = dsIds.map(function(dsId) {
@@ -2694,7 +2694,7 @@ window.DS = (function ($, DS) {
     }
 
     function lockOneDSHelper(dsId, failures, datasets) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
             return PromiseHelper.resolve();
@@ -2735,7 +2735,7 @@ window.DS = (function ($, DS) {
     function unlockDS(dsIds) {
         dsIds = (dsIds instanceof Array) ? dsIds : [dsIds];
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
         var dsInUse = [];
@@ -2768,7 +2768,7 @@ window.DS = (function ($, DS) {
     }
 
     function unlockOneDSHelper(dsId, failures, datasets, dsInUse) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
             return PromiseHelper.resolve();

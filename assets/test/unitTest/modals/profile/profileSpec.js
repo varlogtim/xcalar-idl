@@ -777,7 +777,7 @@ describe("Profile-Profile Test", function() {
         });
 
         function cleanUp() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             UnitTest.removeOrphanTable()
             .always(function() {

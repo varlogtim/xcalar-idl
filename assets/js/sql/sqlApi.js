@@ -111,7 +111,7 @@
         },
 
         _getQueryTableCols: function(tableName, allCols) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {
@@ -157,7 +157,7 @@
         },
 
         _refreshTable: function(txId, tableName, allCols) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             this._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
@@ -173,7 +173,7 @@
         },
 
         run: function(query, tableName, allCols) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var txId = !isSqlMode && Transaction.start({
                 "operation": "Execute SQL"
@@ -210,7 +210,7 @@
 
         // newTableName is operation
         filter: function(fltStr, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -228,7 +228,7 @@
         },
         // dstAggName is optional and can be left blank (will autogenerate)
         aggregate: function(aggOp, colName, tableName, dstAggName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -247,7 +247,7 @@
         },
 
         aggregateWithEvalStr: function(evalStr, tableName, dstAggName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -266,7 +266,7 @@
         },
 
         sort: function(sortColsAndOrder, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -296,7 +296,7 @@
         },
 
         map: function(mapStr, tableName, newColName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -342,7 +342,7 @@
                 evalString: for crossJoins only. filter string after crossjoin
         */
         join: function(joinType, lTableInfo, rTableInfo, options) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -381,7 +381,7 @@
                 }]
         */
         union: function(tableInfos, dedup, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -410,7 +410,7 @@
          *  clean: true/false, if set true, will remove intermediate tables
          */
         groupBy: function(groupByCols, gbArgs, tableName, options) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -440,7 +440,7 @@
             newTableName(optional): new table's name
         */
         project: function(columns, tableName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -458,7 +458,7 @@
         },
 
         genRowNum: function(tableName, newColName, newTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -476,7 +476,7 @@
         },
 
         deleteTable: function(tableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
@@ -510,7 +510,7 @@
         //     // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
         //     // fieldDelim, recordDelim, hasHeader, quoteChar,
         //     // moduleName, funcName
-        //     var deferred = jQuery.Deferred();
+        //     var deferred = PromiseHelper.deferred();
         //     var txId = this.txId;
         //     dsName = xcHelper.wrapDSName(dsName);
 
@@ -533,7 +533,7 @@
         // },
 
         // sortAscending: function(colName, tableName, newTableName) {
-        //     var deferred = jQuery.Deferred();
+        //     var deferred = PromiseHelper.deferred();
         //     var self = this;
         //     var txId = self.txId;
 
@@ -548,7 +548,7 @@
         // },
 
         // sortDescending: function(colName, tableName, newTableName) {
-        //     var deferred = jQuery.Deferred();
+        //     var deferred = PromiseHelper.deferred();
         //     var self = this;
         //     var txId = self.txId;
 
@@ -572,7 +572,7 @@
         //     return XIApi.query(txId, queryName, queryStr);
         // },
         // getNumRows: function(tableName, options) {
-        //     var deferred = jQuery.Deferred();
+        //     var deferred = PromiseHelper.deferred();
         //     var self = this;
         //     var useConstant = options.useConstant;
         //     var isTempConstant = false;

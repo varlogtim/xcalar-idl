@@ -3,7 +3,7 @@ window.EULAModal = (function(EULAModal, $) {
     var logInDeferred;
 
     EULAModal.show = function() {
-        logInDeferred = jQuery.Deferred();
+        logInDeferred = PromiseHelper.deferred();
         setup();
         $("#container").hide();
         $modal.show();

@@ -80,7 +80,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
         if ([null, undefined].indexOf(tHandle) !== -1) {
             return PromiseHelper.resolve(null);
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         xcalarApiStartFuncTest(tHandle, parallel, runOnAllNodes,
                                runAllTests, testNamePatterns)
         .then(function(output) {
@@ -97,7 +97,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
         if ([null, undefined].indexOf(tHandle) !== -1) {
             return PromiseHelper.resolve(null);
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         xcalarApiListFuncTest(tHandle, namePattern)
         .then(function(output) {

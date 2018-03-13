@@ -57,7 +57,7 @@ window.DSInfoModal = (function(DSInfoModal, $) {
     }
 
     function addUsedByInfo(dsName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $userList = $modal.find(".infoSection .user .content");
 
         $modal.addClass("fetching");

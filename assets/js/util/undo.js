@@ -5,7 +5,7 @@ window.Undo = (function($, Undo) {
     Undo.run = function(xcLog, isMostRecent) {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var options = xcLog.getOptions();
         var operation = xcLog.getOperation();
@@ -39,7 +39,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
@@ -65,7 +65,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
@@ -101,7 +101,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Query] =function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
@@ -123,7 +123,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Map] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
@@ -159,7 +159,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Join] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var joinOptions = options.options || {};
         if (joinOptions.keepTables) {
             var tableId = xcHelper.getTableId(options.newTableName);
@@ -278,7 +278,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Union] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var unionOptions = options.options || {};
         var promises = [];
         var tableId = xcHelper.getTableId(options.newTableName);
@@ -323,7 +323,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.GroupBy] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = xcHelper.getTableId(options.newTableName);
         var promise;
         if (options.options && options.options.isJoin ||
@@ -380,7 +380,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.Project] = function(options, isMostRecent) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
@@ -444,7 +444,7 @@ window.Undo = (function($, Undo) {
         var extOptions = options.options || {};
         // undo new append table, just hide newTables
         var promises = [];
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         newTables.forEach(function(newTableName) {
             var newTableId = xcHelper.getTableId(newTableName);
@@ -649,7 +649,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.RevertTable] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var worksheet = WSManager.getWSFromTable(options.tableId);
         TblManager.refreshTable([options.oldTableName], null,
@@ -746,7 +746,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tableId = options.tableId;
         var tableType = options.tableType;
 
@@ -783,13 +783,13 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MakeTemp] = function(options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var promises = [];
         var failures = [];
         options.tableNames.forEach(function(tableName, index) {
             promises.push((function() {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
 
                 var refreshOptions = {
                     "isUndo": true,

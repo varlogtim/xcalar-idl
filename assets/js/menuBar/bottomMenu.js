@@ -340,7 +340,7 @@ window.BottomMenu = (function($, BottomMenu) {
     }
 
     function checkMenuAnimFinish() {
-        var menuAnimDeferred = jQuery.Deferred();
+        var menuAnimDeferred = PromiseHelper.deferred();
         menuAnimCheckers.push(menuAnimDeferred);
         return menuAnimDeferred.promise();
     }

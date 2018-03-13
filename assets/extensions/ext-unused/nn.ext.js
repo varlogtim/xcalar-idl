@@ -85,7 +85,7 @@ window.UExtNN = (function(UExtNN) {
                 console.log("Starting Neural Network Testing");
             }
 
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var ext = this;
             // XXX hack of args
             var input = ext.getTriggerTable().getName();
@@ -292,7 +292,7 @@ window.UExtNN = (function(UExtNN) {
                 console.log("Starting Neural Network Training");
             }
 
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var ext = this;
             // XXX hack of args
             var tableName = ext.getTriggerTable().getName();
@@ -428,7 +428,7 @@ window.UExtNN = (function(UExtNN) {
                 var done;
                 var queryStr = "";
                 var totalError = "";
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 for (var dataNum = 1; dataNum <= inputSize; dataNum++) {
                     var input = "input_" + dataNum + tmpTableTag +
                         Authentication.getHashId();

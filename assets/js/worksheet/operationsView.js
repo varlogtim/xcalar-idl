@@ -759,7 +759,7 @@ window.OperationsView = (function($, OperationsView) {
             // overwritten
             return PromiseHelper.reject();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!options.restore) {
             operatorName = operator.toLowerCase().trim();
         }
@@ -2648,7 +2648,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var isPassing = true;
 
         if (!gTables[tableId] && !isEditMode) {
@@ -2733,7 +2733,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function submitFinalForm(args, hasMultipleSets) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var func = funcName;
         var funcLower = func;
         var isPassing;
@@ -2822,7 +2822,7 @@ window.OperationsView = (function($, OperationsView) {
 
     // new column name duplication & validity check
     function newColNameCheck(args) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $nameInput;
         var isPassing;
 
@@ -3176,7 +3176,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function showCastRow(allColTypes, groupNum, inputsToCast) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         getProperCastOptions(allColTypes);
 
         var isCastAvailable = displayCastOptions(allColTypes, groupNum, inputsToCast);
@@ -3305,7 +3305,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function aggregate(aggrOp, args, colTypeInfos) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var aggColNum;
         var tableCol;
         var aggStr;
@@ -3357,7 +3357,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function filter(operator, args, colTypeInfos, hasMultipleSets, andOr) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var filterColNum;
         var firstArg;
         if (hasMultipleSets) {
@@ -3414,7 +3414,7 @@ window.OperationsView = (function($, OperationsView) {
         // 2. grouby col(cols)
         // 3. new col name
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         colTypeInfos = colTypeInfos || [];
         var gbArgs = [];
         var groupByCols = [];
@@ -3595,7 +3595,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function map(operator, args, colTypeInfos) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var numArgs = args.length;
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
@@ -3899,7 +3899,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function checkAggregateNameValidity() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // Name input is always the 2nd input
         var $input = $activeOpSection.find('.arg').eq(1);
         var val = $input.val().trim();

@@ -6,7 +6,7 @@ var ldapConfig;
 var ldapConfigEnabled = false;
 
 function setMSALConfig(hostname, msalEnabledIn, msalIn) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var msalConfigOut = {
         msalEnabled: msalEnabledIn,
         msal: msalIn
@@ -38,7 +38,7 @@ function setMSALConfig(hostname, msalEnabledIn, msalIn) {
 }
 
 function getMSALConfig(hostname) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (msalEnabled) {
         return deferred.resolve(msalConfig).promise();
@@ -87,7 +87,7 @@ function getMsalConfigFromLocalStorage() {
 }
 
 function setDefaultAdminConfig(hostname, defaultAdminEnabledIn, adminUsername, adminPassword, adminEmail) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var defaultAdminConfigOut = {
         defaultAdminEnabled: defaultAdminEnabledIn,
         username: adminUsername,
@@ -123,7 +123,7 @@ function setDefaultAdminConfig(hostname, defaultAdminEnabledIn, adminUsername, a
 }
 
 function getDefaultAdminConfig(hostname) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (defaultAdminEnabled) {
         return deferred.resolve(defaultAdminConfig).promise();
@@ -155,7 +155,7 @@ function getDefaultAdminConfig(hostname) {
 
 function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, searchFilter,
                        activeDir, serverKeyFile, adUserGroup, adAdminGroup, adDomain, adSubGroupTree) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var ldapConfigOut = {
         ldapConfigEnabled: ldapConfigEnabledIn,
         ldap_uri: ldap_uri,
@@ -214,7 +214,7 @@ function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, 
 }
 
 function getLdapConfig(hostname) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
 
     if (ldapConfigEnabled) {
         return deferred.resolve(ldapConfig).promise();

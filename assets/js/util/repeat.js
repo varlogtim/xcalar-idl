@@ -10,7 +10,7 @@ window.Repeat = (function($, Repeat) {
     Repeat.run = function(xcLog) {
         xcAssert((xcLog != null), "invalid log");
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var options = xcLog.getOptions();
         var operation = xcLog.getOperation();
@@ -231,7 +231,7 @@ window.Repeat = (function($, Repeat) {
     };
 
     repeatFuncs[SQLOps.DeleteTable] = function (options, colNums, tableId) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var table = gTables[tableId];
         var tableName = table.tableName;
 

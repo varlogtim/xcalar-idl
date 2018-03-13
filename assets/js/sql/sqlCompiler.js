@@ -675,7 +675,7 @@
         return node;
     }
     function sendPost(struct) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'POST',
             data: JSON.stringify(struct),
@@ -804,7 +804,7 @@
             }
         }
         function pushDown(treeNode) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var retStruct;
             SQLEditor.updateProgress();
             var treeNodeClass = treeNode.value.class.substring(
@@ -882,7 +882,7 @@
             KVStore.commit = function(atStartUp) {
                 return PromiseHelper.resolve();
             };
-            var outDeferred = jQuery.Deferred();
+            var outDeferred = PromiseHelper.deferred();
             var self = this;
             var cached = SQLCache.getCached(sqlQueryString);
 
@@ -899,7 +899,7 @@
 
             promise
             .then(function(jsonArray, hasPlan) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 if (hasPlan) {
                     var plan = JSON.parse(jsonArray.plan);
                     var finalTableName = SQLCache.setNewTableNames(plan,
@@ -987,7 +987,7 @@
             // Pre: Project must only have 1 child and its child should've been
             // resolved already
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
                    SQLTStr.ProjectOneChild + node.children.length);
             var tableName = node.children[0].newTableName;
@@ -1047,7 +1047,7 @@
 
         _pushDownGlobalLimit: function(node) {
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
                    SQLTStr.GLChild + node.children.length);
             assert(node.value.limitExpr.length === 1,
@@ -1114,7 +1114,7 @@
 
         _pushDownFilter: function(node) {
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
                    SQLTStr.FilterLength + node.children.length);
             var treeNode = SQLCompiler.genExpressionTree(undefined,
@@ -1240,7 +1240,7 @@
             // 4 - f(f) => Not valid syntax. For gb you need to have g somewhere
             var self = this;
             var cli = "";
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
@@ -1527,7 +1527,7 @@
         _pushDownJoin: function(node) {
             var self = this;
             assert(node.children.length === 2); // It's a join. So 2 kids only
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
 
             // Some helper functions to make the code easier to read
             function isSemiOrAntiJoin(n) {
@@ -1647,7 +1647,7 @@
 
             var sqlObj = self.sqlObj;
             // Resolving firstDeferred will start the domino fall
-            var firstDeferred = jQuery.Deferred();
+            var firstDeferred = PromiseHelper.deferred();
             var promise = firstDeferred.promise();
 
             while (andSubtrees.length > 0) {
@@ -1827,7 +1827,7 @@
 
     // Deferred Helper functions for join
     function __generateRowNumber(globalStruct, joinNode) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var self = this; // This is the SqlObject
 
         // Since the grn call is done prior to the join, both tables must exist
@@ -1857,7 +1857,7 @@
         var self = this;
 
         function handleMaps(mapStrArray, origTableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             if (mapStrArray.length === 0) {
                 return deferred.resolve({newTableName: origTableName,
                                          colNames: []});
@@ -1885,7 +1885,7 @@
         var leftCols = globalStruct.leftCols;
         var rightCols = globalStruct.rightCols;
         var cliArray = [];
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var leftTableName = globalStruct.leftTableName;
         var rightTableName = globalStruct.rightTableName;
         PromiseHelper.when(handleMaps(leftMapArray, leftTableName),
@@ -1993,7 +1993,7 @@
 
     function __catchAllJoin(globalStruct, joinNode, condTree) {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // Since this is before the join, both tables must exist
         assert(globalStruct.leftTableName);
         assert(globalStruct.rightTableName);
@@ -2061,7 +2061,7 @@
 
     function __groupByLeftRowNum(globalStruct, joinNode, incSample) {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // This is called after the join, so newTableName must exist, and join
         // would've removed leftTableName and rightTableName
         assert(!globalStruct.leftTableName);
@@ -2094,7 +2094,7 @@
 
     function __joinBackFilter(globalStruct, joinNode) {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // This is post join, so assert that left and right tables no longer
         // exist
         assert(!globalStruct.leftTableName);
@@ -2146,7 +2146,7 @@
 
     function __filterJoinedTable(globalStruct, joinNode, filterSubtrees) {
         var self = this;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var joinTablename = globalStruct.newTableName;
         var filterEvalStrArray = [];
@@ -2539,7 +2539,7 @@
         }
     }
     function produceSubqueryCli(self, subqueryArray) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (subqueryArray.length === 0) {
             return PromiseHelper.resolve("");
         }
@@ -2568,7 +2568,7 @@
     }
 
     function produceAggregateCli(self, aggEvalStrArray, tableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var cliStatements = "";
         var promiseArray = [];
 
@@ -2578,7 +2578,7 @@
         function handleAggStatements(aggEvalStr, aggSrcTableName,
                                      aggVarName) {
             var that = this;
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             that.sqlObj.aggregateWithEvalStr(aggEvalStr, aggSrcTableName,
                                              aggVarName)
             .then(function(retStruct) {

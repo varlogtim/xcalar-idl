@@ -739,7 +739,7 @@ window.DSPreview = (function($, DSPreview) {
         $partitionList.empty();
         $availableColList.empty();
         $selectedColList.empty();
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         getParquetInfo(path, targetName)
         .then(function(ret) {
             for (var schemaKey in ret.schema) {
@@ -814,7 +814,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getParquetInfo(path, targetName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var appName = "XcalarParquet";
         var pathToParquetDataset = path;
         var args = {func: "getInfo",
@@ -957,7 +957,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function listUDFSection(listXdfsObj) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         if (!listXdfsObj) {
             // update python module list
@@ -1250,7 +1250,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Checking Invalid");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var dsNames = res.dsNames;
         var format = res.format;
 
@@ -1341,7 +1341,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.resolve([typedColumns]);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var typedColumnsList = getCacheHeadersList(sourceIndex, typedColumns);
 
         slowPreviewCheck()
@@ -1392,7 +1392,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function slowPreviewCheck() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var previewLimit = 10;
         var targetName = loadArgs.getTargetName();
         var shouldAlert = true;
@@ -1429,7 +1429,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getTypedColumnsListHelper(typedColumnsList, dsArgs) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var files = loadArgs.files;
         var targetName = loadArgs.getTargetName();
         var promises = [];
@@ -1456,7 +1456,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function autoDetectSourceHeaderTypes(args, index, typedColumnsList, dsArgs) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // fetch data
         XcalarPreview(args, numBytesRequest, 0)
         .then(function(res) {
@@ -1617,7 +1617,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         Alert.show({
             "title": DSFormTStr.CreateWarn,
             "msg": DSFormTStr.CreateWarnMsg,
@@ -2509,7 +2509,7 @@ window.DSPreview = (function($, DSPreview) {
     // prevTableName is optional, if not provided will default to tableName
     // if provided, then will not reset tableName
     function clearPreviewTable(prevTableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
         rawData = null;
@@ -2571,7 +2571,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function previewData(options, clearPreview) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         options = options || {};
         var isFirstTime = options.isFirstTime || false;
@@ -2926,7 +2926,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.resolve(index, loadArgs.files[index].path);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var firstFile = loadArgs.files[index];
 
         previewFileSelect(index, true)
@@ -3064,7 +3064,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function previewFileSelect(fileIndex, noWaitBg) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         $previewWrap.find(".inputWaitingBG").remove();
         var waitingBg = '<div class="inputWaitingBG">' +
@@ -3104,7 +3104,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function loadData(args) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var curPreviewId = previewId;
         var buffer;
         var totalDataSize = null;
@@ -3150,7 +3150,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.resolve(null, true);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var offSet = previewOffset;
         var curPreviewId = previewId;
 
@@ -3202,7 +3202,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getDataFromLoadUDF(datasetName, startRow, rowsToShow) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var resultSetId;
 
         var rowPosition = startRow - 1;
@@ -3232,7 +3232,7 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
 
         function parseResult(result) {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
 
             if (!result) {
                 innerDeferred.resolve(null);
@@ -3274,7 +3274,7 @@ window.DSPreview = (function($, DSPreview) {
 
     // load with UDF always return JSON format
     function loadDataWithUDF(txId, dsName, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
@@ -3298,7 +3298,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function showMoreRows() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var rowsToAdd = minRowsToShow;
         var $section = $previewTable.closest(".datasetTbodyWrap");
         var scrollPos = $section.scrollTop();
@@ -4466,7 +4466,7 @@ window.DSPreview = (function($, DSPreview) {
             return checkBulkDuplicateNames(headers);
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var msg;
         if (loadArgs.getFormat() === formatMap.CSV) {
@@ -4580,7 +4580,7 @@ window.DSPreview = (function($, DSPreview) {
         if (!errorNames.length) {
             return PromiseHelper.resolve();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         errorNames.sort(function(a, b) {
             if (a.indices[0] >= b.indices[0]) {

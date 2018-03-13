@@ -76,7 +76,7 @@ window.Aggregates = (function(Aggregates, $) {
 
     // deletes from backend
     Aggregates.deleteAggs = function(aggNames) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!(aggNames instanceof Array)) {
             aggNames = [aggNames];
         }

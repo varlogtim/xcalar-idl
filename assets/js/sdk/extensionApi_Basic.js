@@ -45,7 +45,7 @@ if (window.XcSDK.Extension == null) {
 window.XcSDK.Extension.prototype = (function() {
     // inner helper function
     function deleteTempTable(txId, tableName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XIApi.deleteTableAndMeta(txId, tableName)
         .then(function() {
             Dag.makeInactive(tableName, true);
@@ -201,7 +201,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         dropTable: function(tableName) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var self = this;
             deleteTempTable(self.txId, tableName)
             .then(function() {
@@ -271,7 +271,7 @@ window.XcSDK.Extension.prototype = (function() {
             // Important: User cannot change this function!!!
             // this will trigger afterFinish()
             // and delete all tables that starts with .temp
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var afterFinishDeferred = this.afterFinish();
             var self = this;
             var txId = self.txId;

@@ -57,7 +57,7 @@ window.XcSupport = (function(XcSupport, $) {
     };
 
     XcSupport.holdSession = function(alreadyStarted) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = (alreadyStarted === true)
                       ? PromiseHelper.resolve(false)
                       : XcSocket.checkUserExists();
@@ -79,7 +79,7 @@ window.XcSupport = (function(XcSupport, $) {
     };
 
     function sessionHoldAlert(userExist) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (userExist) {
             var lastLogInTime = xcSessionStorage.getItem(XcSupport.getUser());
             lastLogInTime = Number(lastLogInTime);
@@ -126,7 +126,7 @@ window.XcSupport = (function(XcSupport, $) {
     }
 
     XcSupport.releaseSession = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise;
 
         if (xcManager.getStatus() === SetupStatus.Fail) {
@@ -148,7 +148,7 @@ window.XcSupport = (function(XcSupport, $) {
     };
 
     XcSupport.commitCheck = function(isFromHeatbeatCheck) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (KVStore.commitKey == null ||
             WorkbookManager.getActiveWKBK() == null) {
             // when workbook is not set up yet or no workbook yet
@@ -189,7 +189,7 @@ window.XcSupport = (function(XcSupport, $) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         isCheckingMem = true;
 
@@ -396,7 +396,7 @@ window.XcSupport = (function(XcSupport, $) {
 
     XcSupport.checkStats = function(stats) {
         var data = {};
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         getStatsMap()
         .then(function() {
             var statsMapArray = [];
@@ -603,7 +603,7 @@ window.XcSupport = (function(XcSupport, $) {
         if (statsMap != null) {
             return PromiseHelper.resolve();
         }
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         XcalarGetStatGroupIdMap(0, 100)
         .then(function(res) {

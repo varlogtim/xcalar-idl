@@ -54,7 +54,7 @@ window.FileInfoModal = (function($, FileInfoModal) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $count = $modal.find(".count .text");
         $count.text("...").addClass("animatedEllipsis");
 

@@ -198,7 +198,7 @@ window.DSCart = (function($, DSCart) {
             return PromiseHelper.reject("Wrong args");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var newTableCols = [];
         var dsName = cart.getDSName();
@@ -562,7 +562,7 @@ window.DSCart = (function($, DSCart) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         subQuery.getProgress()
         .then(function(res) {
@@ -949,7 +949,7 @@ window.DSCart = (function($, DSCart) {
             }
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $btn = $("#dataCart-submit");
         xcHelper.disableSubmit($btn);
 

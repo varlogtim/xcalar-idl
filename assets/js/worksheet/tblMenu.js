@@ -1085,7 +1085,7 @@ window.TblMenu = (function(TblMenu, $) {
 
         var suggType = xcSuggest.suggestType(datas, type, 0.9);
         if (suggType === "integer" || suggType === "float") {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
                 "type": suggType
             });

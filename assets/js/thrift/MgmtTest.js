@@ -54,7 +54,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         if (numProm === 0) {
             return PromiseHelper.resolve(null);
         }
-        var mainDeferred = jQuery.Deferred();
+        var mainDeferred = PromiseHelper.deferred();
 
         var numDone = 0;
         var returns = [];
@@ -103,7 +103,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     Chains the promises such that only after promiseArray[i] completes, then
     promiseArray[i+1] will start.
 
-    Usage: for example, you have a = jQuery.deferred(); b = jQuery.deferred();
+    Usage: for example, you have a = PromiseHelper.deferred(); b = PromiseHelper.deferred();
     You want to run a, then after it's done, run b.
     var promiseArray = [a,b];
     promiseArray
@@ -127,14 +127,14 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     /* return a promise with resolved value */
     PromiseHelper.resolve = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.resolve.apply(this, arguments);
         return deferred.promise();
     };
 
     /* return a promise with rejected error */
     PromiseHelper.reject = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.reject.apply(this, arguments);
         return deferred.promise();
     };
@@ -156,7 +156,7 @@ window.Function.prototype.bind = function() {
 (function($, TestSuite) {
     "use strict";
 
-    if (!jQuery || typeof jQuery.Deferred !== "function") {
+    if (!jQuery || typeof PromiseHelper.deferred !== "function") {
         throw "Requires jQuery 1.5+ to use asynchronous requests.";
     }
 
@@ -217,7 +217,7 @@ window.Function.prototype.bind = function() {
     startNodesState = TestCaseEnabled;
 
     function TestObj(options) {
-        this.deferred = options.deferred || jQuery.Deferred();
+        this.deferred = options.deferred || PromiseHelper.deferred();
         if (options.hasOwnProperty("currentTestNumber")) {
             this.currentTestNumber = options.currentTestNumber;
         } else {
@@ -299,7 +299,7 @@ window.Function.prototype.bind = function() {
 
     function getDatasetCount(datasetName) {
         var numRows = -1;
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         xcalarMakeResultSetFromDataset(thriftHandle, datasetPrefix+datasetName, false)
         .then(function(ret) {
             numRows = ret.numEntries;
@@ -318,7 +318,7 @@ window.Function.prototype.bind = function() {
     function addTestCase(testFn, testName, timeout, testCaseEnabled, witness)
     {
         testCases.push(new TestObj({
-            "deferred": jQuery.Deferred(),
+            "deferred": PromiseHelper.deferred(),
             "currentTestNumber": testCases.length + 1,
             "testName": testName,
             "testFn": testFn,
@@ -3399,7 +3399,7 @@ window.Function.prototype.bind = function() {
         var source2 = "def bar(c):\n return 'bar'\n";
 
         function udfCleanup() {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             xcalarApiUdfDelete(thriftHandle, "mgmttest*")
             .always(deferred.resolve);
             return deferred.promise();
@@ -3596,7 +3596,7 @@ window.Function.prototype.bind = function() {
             }
         }
         function testApi(apiFunc) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             apiFunc(thriftHandle)
             .always(deferred.resolve);
             return deferred.promise();

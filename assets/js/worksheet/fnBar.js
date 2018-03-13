@@ -627,7 +627,7 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function functionBarEnter() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var fnBarVal = editor.getValue().trim();
         var $colInput = $lastColInput;
@@ -715,7 +715,7 @@ window.FnBar = (function(FnBar, $) {
             deferred.reject();
         } else {
             confirmFunc = function() {
-                var innerDeferred = jQuery.Deferred();
+                var innerDeferred = PromiseHelper.deferred();
                 ColManager.execCol(operation, newFuncStr, tableId, colNum)
                 .then(function(ret) {
                     if (ret === "update") {

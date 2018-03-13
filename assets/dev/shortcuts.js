@@ -233,7 +233,7 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     Shortcuts.createWorkbook = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
             if ($('#workbookPanel').is(':visible')) {
@@ -259,7 +259,7 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     function activeWorkbook(wbName) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
             var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
@@ -653,7 +653,7 @@ window.Shortcuts = (function($, Shortcuts) {
     }
 
     function checkExists(elemSelectors, timeLimit, options) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var intervalTime = 100;
         var timeLimit = timeLimit || 10000;
         var timeElapsed = 0;

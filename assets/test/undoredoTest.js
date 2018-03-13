@@ -7,7 +7,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     // kick off the replay and then the undo, then redo, then undo, then redo
     // operationTypes can be tableOps, frontEnd, or worksheet
     UndoRedoTest.run = function(operationType, clearTables, noAlert) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (operationType == null) {
             operationType = "tableOps";
             // operationType = "frontEnd";
@@ -27,7 +27,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         .then(function(ret) {
             if (ret.numNodes !== 0) {
                 if (clearTables) {
-                    var def = jQuery.Deferred();
+                    var def = PromiseHelper.deferred();
 
                     deleteAllTables()
                     .then(function() {
@@ -70,7 +70,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         })
         .then(function() {
             gMinModeOn = true;
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             setTimeout(function() {
                 innerDeferred.resolve();
             }, 500);
@@ -84,7 +84,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return (undoAll());
         })
         .then(function() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             setTimeout(function() {
                 var numUndoneTables = 0;
                 for (var id in gTables) {
@@ -114,7 +114,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return (undoAll(true));
         })
         .then(function() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             setTimeout(function() {
                redoAll()
                .then(function() {
@@ -156,7 +156,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     };
 
     function fetchLogs() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $.getJSON("/assets/test/json/testLogs.json")
         .done(function(data) {
             // replace "undoTestUser" in log files with actual user's name
@@ -199,7 +199,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function undoAll(secondPass) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var i = 0; i < operationsMap[opType].length; i++) {
             promises.push(undoAndRecord.bind(this, i, secondPass));
@@ -216,7 +216,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function redoAll() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var i = operationsMap[opType].length - 1; i >= 0; i--) {
             promises.push(redoAndCheck.bind(this, i));
@@ -232,7 +232,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function undoAndRecord(step, secondPass) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var currentReplayLog = replayLogs[replayLogs.length - step - 1];
 
         var activeTables = xcHelper.deepCopy(getActiveTables());
@@ -365,7 +365,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function redoAndCheck(step) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         Log.redo()
         .then(function() {
             var activeTables = xcHelper.deepCopy(getActiveTables());
@@ -436,11 +436,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function deleteAllTables() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         DeleteTableModal.show(true)
         .then(function() {
-            var def = jQuery.Deferred();
+            var def = PromiseHelper.deferred();
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');
             $("#deleteTableModal").find(".confirm").click();
@@ -470,7 +470,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function deleteDS() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var dsName;
         if (opType === "worksheet") {

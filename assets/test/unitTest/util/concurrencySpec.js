@@ -221,7 +221,7 @@ describe("Concurrency Test", function() {
                 return Concurrency.lock(mutex);
             })
             .then(function(ls) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 t1ls = ls;
                 setTimeout(function() {
                     Concurrency.unlock(mutex, t1ls)

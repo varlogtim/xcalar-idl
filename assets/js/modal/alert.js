@@ -211,7 +211,7 @@ window.Alert = (function($, Alert){
     }
 
     function closeHelper($modalContainer) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if ($modalContainer) {
             $modal.hide();
             $modalContainer.css("z-index", 40);

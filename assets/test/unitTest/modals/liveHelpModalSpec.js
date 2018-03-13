@@ -23,11 +23,11 @@ describe("LiveHelp Modal Test", function() {
         LiveHelpModal.__testOnly__.setSendMsgToSocket(function() {});
         LiveHelpModal.__testOnly__.setCloseSocket(function() {});
         SupTicketModal.fetchLicenseInfo = function() {
-            return jQuery.Deferred().resolve({"key":"test","expiration":"test"})
+            return PromiseHelper.deferred().resolve({"key":"test","expiration":"test"})
                    .promise();
         };
         SupTicketModal.submitTicket = function(){
-            return jQuery.Deferred()
+            return PromiseHelper.deferred()
                    .resolve({"logs":'{"ticketId":"test","admin":"test"}'})
                    .promise();
         };

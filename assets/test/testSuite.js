@@ -1,5 +1,5 @@
 window.TestSuite = (function($, TestSuite) {
-    if (!jQuery || typeof jQuery.Deferred !== "function") {
+    if (!jQuery || typeof PromiseHelper.deferred !== "function") {
         throw "Requires jQuery 1.5+ to use asynchronous requests.";
     }
 
@@ -92,8 +92,8 @@ window.TestSuite = (function($, TestSuite) {
                 self.slowInternetFactor = parseInt(timeDilation);
             }
 
-            var finalDeferred = jQuery.Deferred();
-            var errorCatchDeferred = jQuery.Deferred();
+            var finalDeferred = PromiseHelper.deferred();
+            var errorCatchDeferred = PromiseHelper.deferred();
             var minModeCache = gMinModeOn;
             var oldWindowErrFunc = window.onerror;
 
@@ -106,7 +106,7 @@ window.TestSuite = (function($, TestSuite) {
 
             var undoRedoTest = function() {
                 if (withUndo) {
-                    var innerDeferred = jQuery.Deferred();
+                    var innerDeferred = PromiseHelper.deferred();
                     UndoRedoTest.run("frontEnd", true, true)
                     .then(function() {
                         return UndoRedoTest.run("tableOps", true, true);
@@ -155,7 +155,7 @@ window.TestSuite = (function($, TestSuite) {
                         // Need to trap the value of testCase and ii
                         (function trapFn(testCase, currentTestNumber) {
                             return (function() {
-                                var localDeferred = jQuery.Deferred();
+                                var localDeferred = PromiseHelper.deferred();
                                 if (testCase.testCaseEnabled) {
                                     console.log("====================Test ",
                                     currentTestNumber, " Begin====================");
@@ -289,7 +289,7 @@ window.TestSuite = (function($, TestSuite) {
 
         loadDS: function(dsName, url, check) {
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             $("#importDataButton").click(); // button to initiate import dataset
             $("#dsForm-target input").val(gDefaultSharedRoot);
             $("#filePath").val(url);
@@ -332,7 +332,7 @@ window.TestSuite = (function($, TestSuite) {
             var self = this;
             var $grid = $(getDSIcon(dsName));
             var dsId = $grid.data("dsid");
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var tableName;
             var header;
             self.checkExists(getFinishDSIcon(dsName))
@@ -431,7 +431,7 @@ window.TestSuite = (function($, TestSuite) {
          */
         checkExists: function(elemSelectors, timeLimit, options) {
             var self = this;
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var noDilute = options && options.noDilute;
             if (noDilute) {
                 timeLimit = timeLimit || defaultCheckTimeout;
@@ -566,7 +566,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function cleanup(test) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         deleteTables()
         .then(function() {
@@ -588,7 +588,7 @@ window.TestSuite = (function($, TestSuite) {
 
     function deleteTables() {
         console.log("Delete Tables");
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var $workspaceMenu = $("#workspaceMenu");
         if (!$workspaceMenu.hasClass("active")) {
@@ -622,7 +622,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function deleteDS(test) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var minModeCache = gMinModeOn;
         gMinModeOn = true;
         $("#dataStoresTab .mainTab").click();
@@ -682,7 +682,7 @@ window.DemoTestSuite = (function($, DemoTestSuite) {
     };
 
     function addOrphanTable() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         // open tab
         $("#workspaceTab .mainTab").click();
         $("#tableListSectionTabs .tableListSectionTab").eq(2).click();
@@ -720,7 +720,7 @@ window.DemoTestSuite = (function($, DemoTestSuite) {
     }
 
     function filterTable() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var $table = $(".xcTableWrap").eq(0);
         var tableId = $table.data("id");
         var table = gTables[tableId];

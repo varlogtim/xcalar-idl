@@ -77,7 +77,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             return PromiseHelper.reject("invliad arguments");
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var perviewerId = getPreviewerId();
 
         var blockSize = calculateCharsPerLine();
@@ -383,7 +383,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             return PromiseHelper.resolve();
         }
 
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var normalizedOffset = normalizeOffset(offset);
         $skipToOffset.addClass("xc-disabled");
 

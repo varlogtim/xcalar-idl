@@ -13,7 +13,7 @@ describe("FileListModal Test", function() {
         it("should show the modal with error if resultset data fails", function(done) {
             var called = false;
             XcalarMakeResultSetFromDataset = function(dsName, forErrors) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 expect(dsName).to.equal("dsId");
                 expect(forErrors).to.equal(true);
 
@@ -57,7 +57,7 @@ describe("FileListModal Test", function() {
             };
 
             XcalarFetchData = function() {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 setTimeout(function() {
                     called = true;
                     deferred.reject({error:"test2", log: "logs"});

@@ -151,7 +151,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
         and array fields from the given input table.
     */
     function updateSchema(struct) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'PUT',
             data: JSON.stringify(struct),

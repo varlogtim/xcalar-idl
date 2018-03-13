@@ -51,7 +51,7 @@ window.Admin = (function($, Admin) {
 
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var username = XcSupport.getUser();
 
         KVStore.get(userListKey, gKVScope.GLOB)
@@ -364,7 +364,7 @@ window.Admin = (function($, Admin) {
     }
 
     function getMemUsage(username) {
-        var deferred  = jQuery.Deferred();
+        var deferred  = PromiseHelper.deferred();
         var userId = XcSupport.getUserIdUnique(username);
         XcalarGetMemoryUsage(username, userId)
         .then(function(origData) {
@@ -403,7 +403,7 @@ window.Admin = (function($, Admin) {
     }
 
     function getAllUsersMemory(sortByUsage) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var userId;
         var username;
         var promises = [];
@@ -508,7 +508,7 @@ window.Admin = (function($, Admin) {
 
     // xcalar put by default, or append if append param is true
     function storeUsername(username, append) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var entry = JSON.stringify(username) + ",";
         var promise;
         if (append) {
@@ -589,7 +589,7 @@ window.Admin = (function($, Admin) {
     };
 
     function refreshUserList(firstTime, sortByUsage) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         $userList.addClass("refreshing");
 
         KVStore.get(userListKey, gKVScope.GLOB)
@@ -733,7 +733,7 @@ window.Admin = (function($, Admin) {
     }
 
     function checkIfStart() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         XVM.checkVersion(true)
         .then(function() {
             deferred.resolve(true);
@@ -825,7 +825,7 @@ window.Admin = (function($, Admin) {
 
     // setup func called before startNode, stopNode, etc.
     function supportPrep(command) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         if (!Admin.isAdmin()) {
             deferred.reject({logs: MonitorTStr.NotAuth});
             return deferred.promise();

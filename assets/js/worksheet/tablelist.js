@@ -394,7 +394,7 @@ window.TableList = (function($, TableList) {
 
     TableList.activeTables = function(tableType, noSheetTables, wsToSent,
                                       destWS) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var sql = {
             "operation": SQLOps.ActiveTables,
             "tableType": tableType
@@ -423,7 +423,7 @@ window.TableList = (function($, TableList) {
     // adding or deleting tables from different lists
     TableList.tableBulkAction = function(action, tableType, wsId, destWS,
         resolveAfterAnim, noAnim) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var validAction = ["add", "delete"];
 
         // validation check
@@ -480,7 +480,7 @@ window.TableList = (function($, TableList) {
                 tables.forEach(function(tableName, index) {
                     var $li = lis[index];
                     promises.push((function() {
-                        var innerDeferred = jQuery.Deferred();
+                        var innerDeferred = PromiseHelper.deferred();
 
                         if (tableType === TableType.Orphan) {
                             TableList.lockTable(xcHelper.getTableId(tableName));
@@ -679,7 +679,7 @@ window.TableList = (function($, TableList) {
     function tooManyColAlertHelper(tableNames, tableType, action, destWS) {
 
         if (tableType === TableType.Orphan && action === "add" && !destWS) {
-            var deferred = jQuery.Deferred();
+            var deferred = PromiseHelper.deferred();
             var worksheet = WSManager.getActiveWS();
             var numWsCols = WSManager.getNumCols(worksheet);
             var numTableCols = 0;
@@ -759,7 +759,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.refreshOrphanList = function(prettyPrint) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         focusedListNum = null;
 
         var $section = $("#orphanedTableListSection");
@@ -978,7 +978,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.refreshConstantList = function(waitIcon) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var promise = generateConstList();
 
         focusedListNum = null;
@@ -1055,7 +1055,7 @@ window.TableList = (function($, TableList) {
 
     // moves orphaned table from temp list to worksheet
     function addOrphanedTable(tableName, destWS) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
 
         var tableId = xcHelper.getTableId(tableName);
         var newTableCols = [];
@@ -1100,7 +1100,7 @@ window.TableList = (function($, TableList) {
         }
 
         function renameOrphanIfNeeded() {
-            var innerDeferred = jQuery.Deferred();
+            var innerDeferred = PromiseHelper.deferred();
             var newTableName;
             if (tableId == null) {
                 newTableName = tableName + Authentication.getHashId();
@@ -1435,7 +1435,7 @@ window.TableList = (function($, TableList) {
     }
 
     function generateConstList(firstTime) {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var frontConsts = Aggregates.getAggs();
         var backConstsList = [];
         var allConsts = [];
@@ -1655,7 +1655,7 @@ window.TableList = (function($, TableList) {
     }
 
     function deleteConstants() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         var constNames = [];
         var constName;
         var $constSection = $('#constantsListSection');
@@ -1887,7 +1887,7 @@ window.TableList = (function($, TableList) {
         if (tableIsInActiveWS) {
             var $lastTable = $('.xcTableWrap:not(.inActive)').last();
             if ($lastTable.length > 0) {
-                var deferred = jQuery.Deferred();
+                var deferred = PromiseHelper.deferred();
                 xcHelper.centerFocusedTable($lastTable.data("id"), !noAnim)
                 .then(function() {
                     deferred.resolve();
