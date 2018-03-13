@@ -416,9 +416,6 @@ window.DFParamModal = (function($, DFParamModal){
             html = "";
             for (var i = 0; i < valLen; i++) {
                 chr = val[i];
-                if (chr === " ") {
-                    chr = "&nbsp;";
-                }
                 html += '<span class="line" ' +
                       'ondragover="DFParamModal.allowParamDrop(event)" ' +
                       'ondrop="DFParamModal.paramDropLine(event)">' + chr +
@@ -1116,7 +1113,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function specialCharToStr(input, className) {
-        // var space = "&nbsp;";
         switch (input) {
             case "\t":
                 return "\\t";
