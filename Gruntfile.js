@@ -401,6 +401,62 @@ var COMMON_WATCH_SRC_FILES = [htmlMapping.src + "index.html", htmlMapping.src + 
 var COMMON_WATCH_BLD_FILES = [htmlMapping.dest + 'index.html'];
 
 /**
+    ==================================================
+
+    IF YOU ARE A GUI DEVELOPER ADDING IN A NEW HTML FILE FOR TEMPLATING::::
+
+    add in a new key/value pair in to the following hash, for your new file
+
+    - key should be JUST the filename itself, regardless where the file is nested in your project source.
+    (because all the src html files will be taken and flattened in to a staging dir,
+    and the keys here are paths rel the staging dir.  Note - src html files are considered
+    those files in <project source>/site/)
+
+    - value should be a list, with one entry for each path you want the templated file to be mapped
+    to in the final build.  (Note that if you are running 'grunt dev' and not specifying any custom
+    --buildroot option, then these paths, in the final build, will be relative your project source itself,
+    because the build output itself is rooted at the project source.)
+
+    If you have adding in the new key/value pair but are NOT seeing your HTML file build::
+
+        1. make sure your new HTML file is stored in <project source>/site/
+        --> this is where src html will be taken from, to be transfered in to the staging dir
+
+        2. check if you have $XLRGUIDIR env variable set.
+            If this variable is set, Grunt will use it's value as the <project source>
+            (To override this behavior, you can supply --srcroot=<project source you want to build from>)
+
+        3. if still problems, contact jolsen@xcalar.com, ill help you
+        ==========================================================
+
+    mapping such that:
+    (key): path to unprocessed file in staging dir I
+    (val): path(s) you want in final bld of the processed, templated file
+    [some are two, because those files are files that when you template, you save in to 2 sep files]
+*/
+htmlTemplateMapping = {
+    "dashboard.html": ["dashboard.html"],
+    "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
+    "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
+    "dologout.html": ["assets/htmlFiles/dologout.html"],
+    "extensionUploader.html": ["services/appMarketplace/extensionUploader.html"],
+    "index.html": ["index.html"],
+    "install.html": ["install.html", "install-tarball.html"],
+    "login.html": ["assets/htmlFiles/login.html"],
+    "tableau.html": ["assets/htmlFiles/tableau.html"],
+    "testSuite.html": ["testSuite.html"],
+    "undoredoTest.html": ["undoredoTest.html"],
+    "unitTest.html": ["unitTest.html"],
+    "unitTestInstaller.html": ["unitTestInstaller.html"],
+    "userManagement.html": ["assets/htmlFiles/userManagement.html"],
+    "workbookTut.html": ["assets/htmlFiles/walk/workbookTut.html"],
+    "datasetPanelTutA1.html": ["assets/htmlFiles/walk/datasetPanelTutA1.html"],
+    "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
+    "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
+    "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"]
+};
+
+/**
 
         global vars FOR PARAM VALIDATION of cmd options..
         VALID_OPTIONS: keys are the valid CLI options, value is a hash specifying validation criteria for value
@@ -791,8 +847,6 @@ var htmlStagingDirI = "htmlStaingtmp/", // rel. to DESTDIR
     htmlStagingDirII = "funInTheSun/";
 var HTML_STAGING_I_ABS, HTML_STAGING_II_ABS; // abs path gets set after cmd params read in
 var htmlWaste = []; // collects stale HTML files during bld process (files with templating code, etc. that don't get overwritten during bld process) which will get removed at cleanup
-// autogenrate script tags for following files in to index.html during build process
-var ADDSCRIPTTAGS = ['assets/js/mixpanelAzure.js'];
 
 var HTML_BUILD_FILES = []; // a final list of all the bld files, rel. to bld dest (need this for final prettification after minification in installer blds since we're mapping bld html to bld root)
 
@@ -1433,19 +1487,27 @@ module.exports = function(grunt) {
             - This task will fail if you are watching an html file and rebld only that file
         */
         scriptlinker: {
-            // will add mixpanelAzure tags in to index.html
-            stagingII: {
-
-                options: {
-                    startTag: '<!-- start auto template tags -->',
-                    endTag: '<!-- end auto template tags -->',
-                    fileTmpl: '<script src="%s" type="text/javascript"></script>',
-                    appRoot: htmlMapping.dest,
-                },
+            options: {
+                startTag: '<!-- start auto template tags -->',
+                endTag: '<!-- end auto template tags -->',
+                fileTmpl: '<script src="%s" type="text/javascript"></script>',
+                appRoot: htmlMapping.dest,
+            },
+            indexNonDev: {
                 cwd: DESTDIR,
                 src: ['assets/js/mixpanelAzure.js'],
-                dest: HTML_STAGING_II_ABS + 'index.html'
-            }
+                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
+            },
+            indexDev: {
+                cwd: DESTDIR,
+                src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css', 'assets/js/mixpanel.js'],
+                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
+            },
+            loginDev: {
+                cwd: DESTDIR,
+                src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
+                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['login.html'],
+            },
         },
 
         /**
@@ -2662,9 +2724,16 @@ module.exports = function(grunt) {
             files were put here during templating.
         */
 
-        grunt.task.run('scriptlinker:stagingII'); // auto-generate additional script tags needed in to index.html (mixpanelAzure)
-            // do BEFORE htmlmin - 'scriptlinker' knows where to insert tags by scanning the html and looking
-            // for comment <!-- start auto template tags -->; this comment will get removed during htmlmin
+         // auto-generate additional script tags needed in to some html files, depending on bld type being run
+        // do BEFORE htmlmin - 'scriptlinker' knows where to insert tags by scanning the html and looking
+        // for comment <!-- start auto template tags -->; this comment will get removed during htmlmin    
+        if ( IS_WATCH_TASK || BLDTYPE == DEV ) {
+            grunt.task.run('scriptlinker:indexDev');
+            grunt.task.run('scriptlinker:loginDev');
+        }
+        else {
+            grunt.task.run('scriptlinker:indexNonDev');
+        }
         grunt.task.run('prettify:stagingII');
         grunt.task.run('htmlmin:stagingII'); // staging area II now has all, and only, completed bld files
 
@@ -3071,65 +3140,6 @@ module.exports = function(grunt) {
         (For now to make this work until genHTML optimized - return String or list)
     */
     function getTemplatingOutputFilepaths(filepath) {
-
-        /**
-
-            ==================================================
-
-            IF YOU ARE A GUI DEVELOPER ADDING IN A NEW HTML FILE FOR TEMPLATING::::
-
-            add in a new key/value pair in to the following hash, for your new file
-
-            - key should be JUST the filename itself, regardless where the file is nested in your project source.
-            (because all the src html files will be taken and flattened in to a staging dir,
-            and the keys here are paths rel the staging dir.  Note - src html files are considered
-            those files in <project source>/site/)
-
-            - value should be a list, with one entry for each path you want the templated file to be mapped
-            to in the final build.  (Note that if you are running 'grunt dev' and not specifying any custom
-            --buildroot option, then these paths, in the final build, will be relative your project source itself,
-            because the build output itself is rooted at the project source.)
-
-            If you have adding in the new key/value pair but are NOT seeing your HTML file build::
-
-                1. make sure your new HTML file is stored in <project source>/site/
-                --> this is where src html will be taken from, to be transfered in to the staging dir
-
-                2. check if you have $XLRGUIDIR env variable set.
-                    If this variable is set, Grunt will use it's value as the <project source>
-                    (To override this behavior, you can supply --srcroot=<project source you want to build from>)
-
-                3. if still problems, contact jolsen@xcalar.com, ill help you
-
-            ==========================================================
-
-            mapping such that:
-            (key): path to unprocessed file in staging dir I
-            (val): path(s) you want in final bld of the processed, templated file
-            [some are two, because those files are files that when you template, you save in to 2 sep files]
-        */
-        htmlTemplateMapping = {
-            "dashboard.html": ["dashboard.html"],
-            "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
-            "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
-            "dologout.html": ["assets/htmlFiles/dologout.html"],
-            "extensionUploader.html": ["services/appMarketplace/extensionUploader.html"],
-            "index.html": ["index.html"],
-            "install.html": ["install.html", "install-tarball.html"],
-            "login.html": ["assets/htmlFiles/login.html"],
-            "tableau.html": ["assets/htmlFiles/tableau.html"],
-            "testSuite.html": ["testSuite.html"],
-            "undoredoTest.html": ["undoredoTest.html"],
-            "unitTest.html": ["unitTest.html"],
-            "unitTestInstaller.html": ["unitTestInstaller.html"],
-            "userManagement.html": ["assets/htmlFiles/userManagement.html"],
-            "workbookTut.html": ["assets/htmlFiles/walk/workbookTut.html"],
-            "datasetPanelTutA1.html": ["assets/htmlFiles/walk/datasetPanelTutA1.html"],
-            "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
-            "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
-            "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"]
-
-        };
 
         var templatedFilepathList = [];
         if ( grunt.file.isPathAbsolute(filepath) ) {
