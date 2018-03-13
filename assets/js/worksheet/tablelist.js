@@ -530,20 +530,7 @@ window.TableList = (function($, TableList) {
                     // anything faile to alert
                     if (failures.length > 0) {
                         deferred.reject(failures.join("\n"));
-                    } else {
-                        if (tableType !== TableType.WSHidden) {
-                            if (resolveAfterAnim) {
-                                focusOnLastTable(tables, noAnim)
-                                .then(function() {
-                                    deferred.resolve();
-                                });
-                            } else {
-                                focusOnLastTable(tables, noAnim);
-                                deferred.resolve(tables, ws);
-                            }
-                        } else {
-                            deferred.resolve(tables, ws);
-                        }
+                    } else {  
                         var finalTables = tables.map(function(name) {
                             if (tableRenameMap[name]) {
                                 return tableRenameMap[name];
@@ -551,7 +538,20 @@ window.TableList = (function($, TableList) {
                                 return name;
                             }
                         });
-                        deferred.resolve(finalTables, ws);
+
+                        if (tableType !== TableType.WSHidden) {
+                            if (resolveAfterAnim) {
+                                focusOnLastTable(finalTables, noAnim)
+                                .then(function() {
+                                    deferred.resolve();
+                                });
+                            } else {
+                                focusOnLastTable(finalTables, noAnim);
+                                deferred.resolve(finalTables, ws);
+                            }
+                        } else {
+                            deferred.resolve(finalTables, ws);
+                        }
                     }
                 })
                 .fail(deferred.reject);
