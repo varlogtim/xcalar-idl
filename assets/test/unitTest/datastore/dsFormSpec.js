@@ -162,7 +162,7 @@ describe("Dataset-DSForm Test", function() {
             //  then second click to fill history list
             $filePath.click();
             $filePath.click();
-            expect($filePath.closest(".dropDownList").find("ul").text()).to.equal("/test");
+            expect($filePath.closest(".dropDownList").find("li").eq(0).text()).to.equal("/test");
         });
 
         after(function() {
