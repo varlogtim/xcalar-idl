@@ -45,7 +45,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
     DSTargetManager.isSlowPreviewTarget = function(targetName) {
         // azblobenviron, azblobfullaccount, gcsenviron
         var target = DSTargetManager.getTarget(targetName);
-        var idLists = ["azblobenviron", "azblobfullaccount", "gcsenviron"];
+        var idLists = ["gcsenviron"];
         if (target && idLists.includes(target.type_id)) {
             return true;
         } else {
