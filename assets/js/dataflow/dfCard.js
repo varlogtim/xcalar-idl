@@ -394,6 +394,12 @@ window.DFCard = (function($, DFCard) {
             });
         });
 
+        $listSection.on("click", ".addScheduleToDataflow", function() {
+            var dfName = $(this).closest(".dataFlowGroup").find(".groupName")
+                                                          .text();
+            Scheduler.show(dfName);
+        });
+
         $dfCard.on('click', '.addScheduleToDataflow', function() {
             if ($dfCard.hasClass("hasUnexpectedNode")) {
                 return showUnexpectedNodeTip(this);
