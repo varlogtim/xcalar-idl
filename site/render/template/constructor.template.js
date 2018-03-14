@@ -2068,7 +2068,7 @@
                     return CommonTxtTstr.NA;
                 } else {
                     var date = new Date(this.date);
-                    return moment(date).format('Y-M-D')
+                    return moment(date).format('Y-M-D');
                 }
             },
 

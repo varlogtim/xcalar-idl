@@ -38,10 +38,6 @@ var helpHashTags = [
         "title": "Getting started"
     },
     {
-        "url": "../help/user/Content/B_CommonTasks/A_ManageDatasetRef.htm",
-        "title": "Managing datasets"
-    },
-    {
         "url": "../help/user/Content/B_CommonTasks/A_ManageDatasets.htm",
         "title": "Managing datasets"
     },
@@ -146,28 +142,12 @@ var helpHashTags = [
         "title": "Using the function  bar"
     },
     {
-        "url": "../help/user/Content/C_AdvancedTasks/E_CreateBatchDataflow.htm",
-        "title": "Understanding and creating batch dataflows"
-    },
-    {
         "url": "../help/user/Content/C_AdvancedTasks/E_UnderstandDFandBatchDF.htm",
         "title": "Understanding dataflows and batch dataflows"
     },
     {
-        "url": "../help/user/Content/C_AdvancedTasks/E1_DfTaksAndBatchDfCreation.htm",
-        "title": "Performing dataflow tasks and creating batch dataflows"
-    },
-    {
         "url": "../help/user/Content/C_AdvancedTasks/E1_DfTasksAndBatchDfCreation.htm",
         "title": "Performing dataflow tasks and creating batch dataflows"
-    },
-    {
-        "url": "../help/user/Content/C_AdvancedTasks/E1_DisplayDFandCreateBatchDF.htm",
-        "title": "Displaying dataflows and creating batch dataflows"
-    },
-    {
-        "url": "../help/user/Content/C_AdvancedTasks/E1_PerformDFtasks.htm",
-        "title": "Performing tasks associated with dataflows"
     },
     {
         "url": "../help/user/Content/C_AdvancedTasks/E2_EditDataflow.htm",
@@ -298,10 +278,6 @@ var helpHashTags = [
         "title": "Reference"
     },
     {
-        "url": "../help/user/Content/DocPortalHome.htm",
-        "title": "Welcome to the Xcalar Documentation Portal!"
-    },
-    {
         "url": "../help/user/Content/Home.htm",
         "title": "Welcome to Xcalar Design's online help for Version 1.3.1!"
     },
@@ -323,7 +299,7 @@ var csLookup = {
     "worksheetsList": "B_CommonTasks/O_ManageWorksheet.htm#worksheetsList",
     "Using": "C_AdvancedTasks/C_UDFTasks.htm#Using",
     "dataflowGraph": "C_AdvancedTasks/E_UnderstandDFandBatchDF.htm#dataflowGraph",
-    "createBatchDataflow": "C_AdvancedTasks/E1_PerformDFtasks.htm#createBatchDataflow",
+    "createBatchDataflow": "C_AdvancedTasks/E1_DfTasksAndBatchDfCreation.htm#createBatchDataflow",
     "Specifying": "C_AdvancedTasks/F1_ScheduleBatchDataflow.htm#Specifying",
     "Creating": "C_AdvancedTasks/G_ExportTable.htm#Creating",
     "dropTablesModal": "C_AdvancedTasks/I_UnderstandMemoryUse.htm#dropTablesModal",

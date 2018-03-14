@@ -41,3 +41,4 @@ install-tarball.html
 /assets/lang/zh/jsTStrXI.js
 *.tar.gz
 /assets/help/user
+.vscode
