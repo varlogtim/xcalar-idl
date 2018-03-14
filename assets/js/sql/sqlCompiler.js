@@ -411,14 +411,15 @@
                 var backupType = "";
                 for (var i = 0; i < node.children.length; i++) {
                     if (i % 2 === 1) {
-                        if (node.children[i].value.class ===
+                        var exprClass = node.children[i].value.class;
+                        if (exprClass ===
                           "org.apache.spark.sql.catalyst.expressions.Literal" ||
-                            node.children[i].value.class ===
+                            exprClass ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                             type = node.children[i].value.dataType;
                             break;
-                        } else if (isMathOperator(node.children[i].value.class))
-                        {
+                        } else if (isMathOperator(exprClass) || exprClass ===
+                   "org.apache.spark.sql.catalyst.expressions.ScalarSubquery") {
                             backupType = "float"; // anything except for string
                         }
                     }
@@ -695,7 +696,7 @@
                     }
                 } catch (e) {
                     deferred.reject(data.stdout);
-                    // console.error(e);
+                    console.error(e);
                     // console.error(data.stdout);
                     // throw data.stdout;
                 }
@@ -844,13 +845,17 @@
             }
             retStruct
             .then(function(ret) {
-                if (ret.newTableName) {
-                    treeNode.newTableName = ret.newTableName;
-                }
-                treeNode.xccli = ret.cli;
-                for (var prop in ret) {
-                    if (prop !== "newTableName" && prop !== "cli") {
-                        treeNode[prop] = ret[prop];
+                if (ret) {
+                    if (ret.newTableName) {
+                        treeNode.newTableName = ret.newTableName;
+                    }
+                    if (ret.cli) {
+                        treeNode.xccli = ret.cli;
+                    }
+                    for (var prop in ret) {
+                        if (prop !== "newTableName" && prop !== "cli") {
+                            treeNode[prop] = ret[prop];
+                        }
                     }
                 }
                 // Pass cols to its parent
@@ -990,14 +995,23 @@
             var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
                    SQLTStr.ProjectOneChild + node.children.length);
+            if (node.value.projectList.length === 0) {
+                for (var i = 0; i < node.parent.children.length; i++) {
+                    if (node.parent.children[i] === node) {
+                        node.parent.children[i] = node.children[0];
+                        return deferred.resolve().promise();
+                    }
+                }
+            }
             var tableName = node.children[0].newTableName;
             // Find columns to project
             var columns = [];
             var evalStrArray = [];
             var aggEvalStrArray = [];
+            var subqueryArray = [];
             var options = {renamedColIds: node.renamedColIds};
             genMapArray(node.value.projectList, columns, evalStrArray,
-                        aggEvalStrArray, options);
+                        aggEvalStrArray, options, subqueryArray);
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0,
                    SQLTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
@@ -1017,6 +1031,7 @@
                 }
             }
 
+            var cliStatements = "";
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {
                     return o.evalStr;
@@ -1026,21 +1041,31 @@
                 });
                 var newTableName = xcHelper.getTableName(tableName) +
                                    Authentication.getHashId();
-                var cli;
 
-                self.sqlObj.map(mapStrs, tableName, newColNames,
-                    newTableName)
+                produceSubqueryCli(self, subqueryArray)
+                .then(function(cli) {
+                    cliStatements += cli;
+                    return self.sqlObj.map(mapStrs, tableName, newColNames,
+                                           newTableName);
+                })
                 .then(function(ret) {
-                    cli = ret.cli;
+                    cliStatements += ret.cli;
                     return self.sqlObj.project(colNames, newTableName);
                 })
                 .then(function(ret) {
                     deferred.resolve({newTableName: ret.newTableName,
-                                      cli: cli + ret.cli});
+                                      cli: cliStatements + ret.cli});
                 });
             } else {
-                self.sqlObj.project(colNames, tableName)
-                .then(deferred.resolve);
+                produceSubqueryCli(self, subqueryArray)
+                .then(function(cli) {
+                    cliStatements += cli;
+                    return self.sqlObj.project(colNames, tableName);
+                })
+                .then(function(ret) {
+                    deferred.resolve({newTableName: ret.newTableName,
+                                        cli: cliStatements + ret.cli});
+                });
             }
             return deferred.promise();
         },
@@ -1217,17 +1242,29 @@
             var self = this;
 
             assert(node.children.length === 1);
-            assert(node.value.groupingExpressions.length === 0);
             assert(node.value.aggregateExpressions.length === 1);
             assert(node.subqVarName);
-            assert(node.value.aggregateExpressions[0][0].class ===
-                "org.apache.spark.sql.catalyst.expressions.Alias");
+            var edgeCase = false;
+            // Edge case:
+            // SELECT DISTINCT col FROM tbl GROUP BY col1 WHERE col2 = XXX
 
+            // This is dangerous but Spark still compiles it to ScalarSubquery
+            // It seems that Spark expects user to enforce the "single val" rule
+            // In this case, col1 has a 1 to 1 mappping relation with col2.
+            // Thus we can give it any aggOperator, such as count.
+            if (node.value.groupingExpressions.length > 0) {
+                edgeCase = true;
+            }
+
+            var index = edgeCase ? 0 : 1;
             var tableName = node.children[0].newTableName;
             var treeNode = SQLCompiler.genExpressionTree(undefined,
-                           node.value.aggregateExpressions[0].slice(1));
+                           node.value.aggregateExpressions[0].slice(index));
             var options = {renamedColIds: node.renamedColIds};
             var evalStr = genEvalStringRecur(treeNode, undefined, options);
+            if (edgeCase) {
+                evalStr = "count(" + evalStr + ")";
+            }
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
                                                     node.subqVarName);
@@ -2470,7 +2507,7 @@
     }
 
     function genMapArray(evalList, columns, evalStrArray, aggEvalStrArray,
-                         options) {
+                         options, subqueryArray) {
         // Note: Only top level agg functions are not extracted
         // (idx !== undefined check). The rest of the
         // agg functions will be extracted and pushed into the aggArray
@@ -2488,7 +2525,10 @@
                     var treeNode = SQLCompiler.genExpressionTree(undefined,
                         evalList[i].slice(1), genTreeOpts);
                 }
-                var acc = {aggEvalStrArray: aggEvalStrArray, numOps: 0, udfs: []};
+                var acc = {aggEvalStrArray: aggEvalStrArray,
+                           numOps: 0,
+                           udfs: [],
+                           subqueryArray: subqueryArray};
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
 
                 if (options && options.groupby) {
