@@ -1477,8 +1477,32 @@ describe("xcHelper Test", function() {
                 "res": null
             },
             {
+                "str": "false",
+                "res":  ErrTStr.PreservedName
+            },
+            {
+                "str": "False",
+                "res":  ErrTStr.PreservedName
+            },
+            {
+                "str": "fAlse",
+                "res":  ErrTStr.PreservedName
+            },
+            {
                 "str": "0test",
-                "res": ColTStr.RenameStartNum
+                "res": ColTStr.RenameStartInvalid
+            },
+            {
+                "str": "$test",
+                "res": ColTStr.RenameStartInvalid
+            },
+            {
+                "str": "_test",
+                "res": null
+            },
+            {
+                "str": "-test",
+                "res": ColTStr.RenameStartInvalid
             },
             {
                 "str": "abc",
@@ -1573,6 +1597,12 @@ describe("xcHelper Test", function() {
 
         res = xcHelper.stripColName("a\\.b");
         expect(res).to.equal("a_b");
+
+        res = xcHelper.stripColName("9b");
+        expect(res).to.equal("_9b");
+
+        res = xcHelper.stripColName("^b");
+        expect(res).to.equal("b");
 
         // don't strip ::
         res = xcHelper.stripColName("a::b");

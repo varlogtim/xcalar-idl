@@ -1192,7 +1192,7 @@ ColTStr = {
                           'following characters: ^.\',":()[]{}\\',
     'ColNameInvalidCharSpace': 'Invalid name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\ or space',
-    'RenameStartNum': 'Invalid name: a name cannot begin with a number.',
+    'RenameStartInvalid': 'Invalid name: a name can only begin with a letter or underscore(_).',
     'ImmediateClash': 'Invalid name: this name already exists in at least one ' +
                       'DATA cell',
     'LongName': 'Column Name is too long. Please use fewer than 255 characters.',

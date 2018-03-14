@@ -999,7 +999,7 @@ ColTStr = {
 'RenameSpecialChar': '无效名称，名称只能包含字母数字， - ，_和空格，并且必须以字母开头。',
 'ColNameInvalidChar': '无效名称，请不要包含以下字符: ^.\',":()[]{}\\',
 'ColNameInvalidCharSpace': '无效名称，请不要包含以下字符: ^.\',":()[]{}\\ or space',
-'RenameStartNum': '无效名称，不能以数字开头。',
+'RenameStartInvalid': 'Invalid name: a name can only begin with a letter or underscore(_).',
 'ImmediateClash': '无效名称，该名称已被其他列使用',
 'LongName': '列名过长，请使用少于255个字符。',
 'NoOperateArray': '不能直接在整个数值上操作',

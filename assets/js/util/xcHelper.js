@@ -2359,15 +2359,23 @@
         }
     };
 
+    xcHelper.isColNameStartValid = function(columnName) {
+        if (!columnName || columnName.trim().length === 0) {
+            return false;
+        }
+        var firstChar = columnName.charAt(0);
+        return (xcHelper.isStartWithLetter(columnName) || firstChar === "_");
+    }
+
     xcHelper.validateColName = function(columnName, noSpace) {
         if (!columnName || columnName.trim().length === 0) {
             return ErrTStr.NoEmpty;
         }
 
         var error = null;
-        var firstrChar = columnName.charAt(0);
-        if (firstrChar >= "0" && firstrChar <= "9") {
-            error = ColTStr.RenameStartNum;
+
+        if (!xcHelper.isColNameStartValid(columnName)) {
+            error = ColTStr.RenameStartInvalid;
         } else if (columnName.length >
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
             error = ColTStr.LongName;
@@ -2377,8 +2385,12 @@
             } else {
                 error = ColTStr.ColNameInvalidChar;
             }
-        } else if (columnName === "DATA") {
-            error = ErrTStr.PreservedName;
+        } else {
+            var preservedNames = ["none", "false", "true"];
+            if (columnName === "DATA" || 
+                preservedNames.indexOf(columnName.toLowerCase()) > -1) {
+                error = ErrTStr.PreservedName;
+            } 
         }
         return error;
     };
@@ -2433,6 +2445,12 @@
             pattern = /[\^,{}'"()\[\]\.\\ ]/g;
         } else {
             pattern = /[\^,{}'"()\[\]\.\\]/g;
+        }
+        // if column name starts with a valid character but not one that it 
+        // should start with, then prepend underscore
+        if (!pattern.test(colName[0]) && 
+            !xcHelper.isColNameStartValid(colName)) {
+            colName = "_" + colName;
         }
         var res = colName.split(pattern).filter(function(str) {
             return (str !== "");

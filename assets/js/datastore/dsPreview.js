@@ -4529,7 +4529,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function invalidHeadersConversion(header, error) {
         var text = '<span>';
-        if (error === ColTStr.RenameStartNum) {
+        if (error === ColTStr.RenameStartInvalid) {
             text += '<b class="highlight">' + header.colName.slice(0, 1) +
                     '</b>' + header.colName.slice(1);
 
@@ -4835,7 +4835,7 @@ window.DSPreview = (function($, DSPreview) {
                 case (ErrTStr.PreservedName):
                     candidate = "column" + name.index;
                     break;
-                case (ColTStr.RenameStartNum):
+                case (ColTStr.RenameStartInvalid):
                     candidate = xcHelper.stripColName(delim + name.name);
                     break;
                 case (ColTStr.ColNameInvalidChar):
