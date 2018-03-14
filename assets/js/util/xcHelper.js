@@ -2962,7 +2962,7 @@
         var isJson = false;
         var parsedQuery;
         try {
-            parsedQuery = $.parseJSON(query);
+            parsedQuery = $.parseJSON('[' + query + ']');
             isJson = true;
         } catch (err) {
             // normal if using an old extension
@@ -2971,12 +2971,8 @@
             return parseQuery(query);
         } else {
             var queries = [];
-            if ($.isArray(parsedQuery)) {
-                for (var i = 0; i < parsedQuery.length; i++) {
-                    queries.push(getSubQueryObj(JSON.stringify(parsedQuery[i]), parsedQuery[i]));
-                }
-            } else {
-                queries.push(getSubQueryObj(query, parsedQuery));
+            for (var i = 0; i < parsedQuery.length; i++) {
+                queries.push(getSubQueryObj(JSON.stringify(parsedQuery[i]), parsedQuery[i]));
             }
             return queries;
         }

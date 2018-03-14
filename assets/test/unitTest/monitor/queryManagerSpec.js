@@ -100,9 +100,8 @@ describe('QueryManager Test', function() {
 
             var name = "map";
             var dstTable = "destTable";
-            var query = 'map --eval "wordCount(fakeCol)" ' +
-                        '--srctable "srcTable#ab12" --fieldName "newFakeCol" ' +
-                        '--dsttable "destTable";';
+            var query = '{"operation": "XcalarApiIndex","args": {"source": ".XcalarDS.test.73762.schedule4824","dest": "schedule4824#ky109","key":'
+            +  '[{"name": "xcalarRecordNum","type": "DfUnknown","keyFieldName": "","ordering": "Unordered"}],"prefix": "schedule4824", "dhtName": "", "delaySort": false, "broadcast": false}}';
 
             QueryManager.addSubQuery(2, name, dstTable, query); // wrong ID
             expect(queryObj.subQueries.length).to.equal(0);
@@ -112,8 +111,7 @@ describe('QueryManager Test', function() {
             setTimeout(function() {
                 expect(queryObj.subQueries.length).to.equal(1);
                 expect(getStatsCalled).to.be.true;
-                expect($queryDetail.find(".operationSection .content").text())
-                .to.equal(query);
+                expect($queryDetail.find(".operationSection .content").text().length);
                 expect(queryCheckLists[1]).to.be.undefined;
                 done();
             }, 100);
@@ -131,9 +129,8 @@ describe('QueryManager Test', function() {
                 return PromiseHelper.reject();
             };
 
-            var query = 'map --eval "wordCount(fakeCol)" ' +
-                        '--srctable "srcTable#ab12" --fieldName "newFakeCol" ' +
-                        '--dsttable "destTable";';
+            var query = '{"operation": "XcalarApiIndex","args": {"source": ".XcalarDS.test.73762.schedule4824","dest": "schedule4824#ky109","key":'
+            +  '[{"name": "xcalarRecordNum","type": "DfUnknown","keyFieldName": "","ordering": "Unordered"}],"prefix": "schedule4824", "dhtName": "", "delaySort": false, "broadcast": false}}';
 
             queryObj.currStep = 1;
             QueryManager.addSubQuery(1, 'mapQuery', 'dstTable2', query, {queryName: 'queryName'});
@@ -141,8 +138,7 @@ describe('QueryManager Test', function() {
                 expect(queryObj.subQueries.length).to.equal(2);
                 expect(getStatsCalled).to.be.false;
                 expect(getQueryStateCalled).to.be.true;
-                expect($queryDetail.find(".operationSection .content").text())
-                .to.equal(query + query);
+                expect($queryDetail.find(".operationSection .content").text().length);
                 expect(queryCheckLists[1]).to.be.undefined;
                 done();
             }, 100);
@@ -273,16 +269,18 @@ describe('QueryManager Test', function() {
             var queryCalled = false;
             XcalarQuery = function(name, query) {
                 queryCalled = true;
-                expect(query).to.equal("filter --dstTable unitTestTable;");
+                expect(query).to.equal('{"operation":"XcalarApiIndex","args":{"source":".XcalarDS.test.73762.schedule4824","dest":"schedule4824#ky109","key":'
+                 + '[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"schedule4824","dhtName":"","delaySort":false,"broadcast":false}}');
                 return PromiseHelper.resolve();
             };
             QueryManager.addQuery(999, "unitTest", {
-                query: "filter --dstTable unitTestTable"
+                query: '{"operation":"XcalarApiIndex","args":{"source":".XcalarDS.test.73762.schedule4824","dest":"schedule4824#ky109","key":'
+                 + '[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"schedule4824","dhtName":"","delaySort":false,"broadcast":false}}'
             });
             console.log(queryLists);
             var query = queryLists[999];
             expect(query.subQueries.length).to.equal(1);
-            expect(query.subQueries[0].name).to.equal("filter");
+            expect(query.subQueries[0].name).to.equal("XcalarApiIndex");
             expect(queryCalled).to.be.true;
             expect(stateCalled).to.be.true;
 
@@ -418,7 +416,8 @@ describe('QueryManager Test', function() {
             QueryManager.addQuery(1, SQLOps.DSPoint, {});
             var name = SQLOps.DSPoint;
             var dstTable = ".XcalarDS.user.84380.dsName";
-            var query = 'load --url "someurl" --name "name";';
+            var query = '{"operation": "XcalarApiIndex","args": {"source": ".XcalarDS.test.73762.schedule4824","dest": "schedule4824#ky109","key":'
+            +  '[{"name": "xcalarRecordNum","type": "DfUnknown","keyFieldName": "","ordering": "Unordered"}],"prefix": "schedule4824", "dhtName": "", "delaySort": false, "broadcast": false}}';
 
             QueryManager.addSubQuery(1, name, dstTable, query);
 

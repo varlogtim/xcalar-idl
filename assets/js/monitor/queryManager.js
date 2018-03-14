@@ -1087,16 +1087,15 @@ window.QueryManager = (function(QueryManager, $) {
 
     function updateQueryTextDisplay(query, blank, errorText) {
         var queryString = "";
-        if (query && query.trim().indexOf('export') !== 0) {
-            // export has semicolons between colnames and breaks most rules
-            // xx if semi-colon is in quotes split won't work properly
-            var querySplit = query.split(";");
+        if (query) {
+            var querySplit = JSON.parse('[' + query + ']');
             for (var i = 0; i < querySplit.length; i++) {
                 var subQuery = querySplit[i];
-                if (subQuery.trim() !== "") {
-                    subQuery = xcHelper.escapeHTMLSpecialChar(subQuery);
-                    queryString += '<div class="queryRow">' + subQuery +
-                                   ';</div>';
+                queryString += '<div class="queryRow"><pre>' + JSON.stringify(subQuery, null, 2);
+                if (i + 1 < querySplit.length) {
+                    queryString += ',</pre></div>';
+                } else {
+                    queryString += '</pre></div>';
                 }
             }
         } else if (!query && !blank) {

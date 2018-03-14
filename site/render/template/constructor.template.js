@@ -2880,7 +2880,10 @@
                 if (this.subQueries.length) {
                     var queries = "";
                     for (var i = 0; i < this.subQueries.length; i++) {
-                        queries += this.subQueries[i].query + ";";
+                        queries += this.subQueries[i].query;
+                        if (i + 1 != this.subQueries.length) {
+                            queries += ",";
+                        }
                     }
                     return queries;
                 } else {
