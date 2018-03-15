@@ -431,10 +431,11 @@ window.DSPreview = (function($, DSPreview) {
             backToFormCard = true;
         }
 
+        resetForm();
+
         if (restore) {
             restoreForm(options);
         } else {
-            resetForm();
             loadArgs.set(options);
         }
 
