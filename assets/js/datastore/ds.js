@@ -849,6 +849,10 @@ window.DS = (function ($, DS) {
             return XcalarLoad(datasetName, options, txId);
         })
         .then(function() {
+            // unlock ds by default
+            return unlockOneDSHelper(dsObj.getId(), [], [], []);
+        })
+        .then(function() {
             return getDSBasicInfo(datasetName);
         })
         .then(function(dsInfos) {
@@ -868,8 +872,7 @@ window.DS = (function ($, DS) {
                     });
                 }
             }
-            dsObj.lock();
-            $grid.addClass("locked");
+
             UserSettings.logChange();
             var msgOptions = {
                 "newDataSet": true,
