@@ -4369,7 +4369,8 @@
     // assumes cells from only 1 column are highlighted
     function isInvalidMixed(columnType, cells) {
         var filterTypes = ["string", "float", "integer", "boolean", "undefined",
-                            "null"];
+                            "mixed"];
+        var notAllowedCombTypes = ["string", "float", "integer", "boolean"];
         var type;
         var invalidFound = false;
         var typeFound;
@@ -4397,8 +4398,11 @@
                 // cannot filter more than 1 type
                 // XXX we won't need to do this check
                 // (disallow filtering mixed cell types) once GUI-7071 is fixed
-                invalidFound = true;
-                break;
+                if(notAllowedCombTypes.indexOf(type) !== -1 &&
+                    notAllowedCombTypes.indexOf(typeFound) !== -1) {
+                        invalidFound = true;
+                        break;
+                    }
             }
         }
 
