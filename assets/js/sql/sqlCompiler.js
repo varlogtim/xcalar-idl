@@ -1263,6 +1263,7 @@
             assert(node.children.length === 1);
             function genSortStruct(orderArray, options) {
                 var sortColsAndOrder = [];
+                var colNameSet = new Set();
                 for (var i = 0; i < orderArray.length; i++) {
                     var order = orderArray[i][0].direction.object;
                     assert(orderArray[i][0].class ===
@@ -1306,9 +1307,12 @@
                             break;
                     }
 
-                    sortColsAndOrder.push({name: colName,
-                                           type: type,
-                                           ordering: order});
+                    if (!colNameSet.has(colName)) {
+                        colNameSet.add(colName);
+                        sortColsAndOrder.push({name: colName,
+                                               type: type,
+                                               ordering: order});
+                    }
                 }
                 return sortColsAndOrder;
             }
