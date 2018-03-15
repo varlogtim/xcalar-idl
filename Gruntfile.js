@@ -1501,12 +1501,12 @@ module.exports = function(grunt) {
             },
             indexDev: {
                 cwd: DESTDIR,
-                src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css', 'assets/js/mixpanel.js'],
+                src: ['assets/dev/shortcuts.js', 'assets/js/mixpanel.js'],
                 dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
             },
             loginDev: {
                 cwd: DESTDIR,
-                src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
+                src: ['assets/dev/shortcuts.js'],
                 dest: HTML_STAGING_II_ABS + htmlTemplateMapping['login.html'],
             },
         },

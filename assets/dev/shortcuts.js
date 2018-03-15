@@ -1,4 +1,10 @@
 $(document).ready(function() {
+    $("<link/>", {
+       rel: "stylesheet",
+       type: "text/css",
+       href: "assets/dev/shortCutStyles.css"
+    }).appendTo("head");
+
     if (xcLocalStorage.getItem("shortcuts") != null) {
         if (window.location.pathname.indexOf('login.html') > -1) {
             Shortcuts.login();
