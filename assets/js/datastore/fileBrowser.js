@@ -1715,7 +1715,7 @@ window.FileBrowser = (function($, FileBrowser) {
         // is not static
         var isListView = $fileBrowserMain.hasClass("listView");
         var maxChar = isListView ? 40 : 8;
-        var maxWidth = isListView ? 500 : 52;
+        var maxWidth = isListView ? $innerContainer.find(".fileName").width() : 52;
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
@@ -1758,7 +1758,7 @@ window.FileBrowser = (function($, FileBrowser) {
             xcTooltip.remove($path);
         }
 
-        var name = $path.attr("data-title") || $path.text();
+        var name = $path.attr("data-original-title") || $path.text();
         var maxChar = 38;
         var maxWidth = $path.parent().width();
 
@@ -2410,6 +2410,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
         $('.tooltip').remove();
+        refreshEllipsis();
     }
 
     /* Unit Test Only */
