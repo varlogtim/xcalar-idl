@@ -2428,7 +2428,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.resolve({buffer: buffer});
             };
 
-            DSPreview.__testOnly__.autoDetectSourceHeaderTypes(null, 0, typedColumnsList, dsArgs)
+            DSPreview.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
             .then(function() {
                 expect(typedColumnsList.length).to.equal(1);
                 var typedColumns = typedColumnsList[0];
@@ -2460,7 +2460,7 @@ describe("Dataset-DSPreview Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.autoDetectSourceHeaderTypes(null, 0, typedColumnsList, dsArgs)
+            DSPreview.__testOnly__.autoDetectSourceHeaderTypes({}, "testTarget", dsArgs, typedColumnsList, 0)
             .then(function() {
                 expect(typedColumnsList.length).to.equal(0);
                 done();

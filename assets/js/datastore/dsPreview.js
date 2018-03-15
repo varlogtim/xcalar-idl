@@ -1441,11 +1441,9 @@ window.DSPreview = (function($, DSPreview) {
                 continue;
             }
 
-            var args = {
-                targetName: targetName,
-                path: files[i].path
-            };
-            promises.push(autoDetectSourceHeaderTypes(args, i, typedColumnsList, dsArgs));
+            var def = autoDetectSourceHeaderTypes(files[i], targetName, dsArgs,
+                                                  typedColumnsList, i);
+            promises.push(def);
         }
 
         PromiseHelper.when.apply(this, promises)
@@ -1456,13 +1454,17 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function autoDetectSourceHeaderTypes(args, index, typedColumnsList, dsArgs) {
+    function autoDetectSourceHeaderTypes(file, targetName, dsArgs, typedColumnsList, index) {
         var deferred = PromiseHelper.deferred();
         // fetch data
+        var args = {
+            targetName: targetName,
+            path: file.path,
+        };
         XcalarPreview(args, numBytesRequest, 0)
         .then(function(res) {
             if (res && res.buffer) {
-                typedColumnsList[index] = getTypedColumnsFromData(res.buffer, dsArgs);
+                typedColumnsList[index] = getTypedColumnsFromData(res.buffer, dsArgs, file);
             }
             deferred.resolve();
         })
@@ -1474,7 +1476,7 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getTypedColumnsFromData(data, dsArgs) {
+    function getTypedColumnsFromData(data, dsArgs, file) {
         var lineDelim = dsArgs.lineDelim;
         var fieldDelim = dsArgs.fieldDelim;
         var hasHeader = dsArgs.hasHeader;
@@ -1505,7 +1507,9 @@ window.DSPreview = (function($, DSPreview) {
             });
 
             if (columns.length > gMaxDSColsSpec) {
-                return null; // no cast
+                // auto detect case
+                file.autoCSV = true;
+                return null;
             }
 
             var columTypes = columns.map(function(datas) {
