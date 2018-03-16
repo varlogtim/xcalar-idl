@@ -1497,7 +1497,7 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/globals.js");
     require("../../../assets/js/enums.js");
 
-    global.PromiseHelper = PromiseHelper = require("../../../assets/js/util/promiseHelper.js");
+    global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
     global.xcHelper = xcHelper = require("../../../assets/js/util/xcHelper.js");
     global.Transaction = Transaction = require("../../../assets/js/util/transaction.js");
 
