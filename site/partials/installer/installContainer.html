@@ -477,115 +477,12 @@
             </span>
           </div>
         </div>
-        <% if (dicts.isTarballInstaller !== null) { %>
-          <div class="title hidden">
-            <div class="step">
-              <span>STEP 5B</span>
-              <span>Installation Directory</span>
-            </div>
-            <div class="hint">
-              <span></span>
-              <span>Input where Xcalar should be installed on all nodes</span>
-            </div>
-          </div>
-          <div class="section installationDirectorySection hidden">
-            <div class="installationDirectory">
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[/opt/xcalar/]" value="/opt/xcalar/">
-                <div class="bar">INSTALLATION DIRECTORY</div>
-              </div>
-            </div>
-          </div>
-        <% } %>
         <div class="title hidden">
           <div class="step">
             <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 5C</span>
+              <span>STEP 5B</span>
             <% } else { %>
               <span>STEP 4B</span>
-            <% } %>
-            <span>Serialization/Deserialization Directory</span>
-          </div>
-          <div class="hint">
-            <span></span>
-            <span>Input where Xcalar can temporarily save tables to disk on all nodes to free memory for other operations</span>
-          </div>
-        </div>
-        <div class="section serializationDirectorySection hidden">
-          <div class="installationDirectory">
-            <div class="inputWrap">
-              <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[Serialization Directory] (Optional)" value="">
-              <div class="bar">SERDES DIRECTORY</div>
-            </div>
-          </div>
-        </div>
-        <div class="title hidden">
-          <div class="step">
-            <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 5D</span>
-            <% } else { %>
-              <span>STEP 4C</span>
-            <% } %>
-            <span>Enable Hot Patches</span>
-          </div>
-          <div class="hint">
-            <span></span>
-            <span>Allow Xcalar to dynamically patch bug fix without upgrading to a new version</span>
-          </div>
-        </div>
-        <div class="section hotPatchSection hidden">
-          <div class="checkboxLine">
-            <div class="inputWrap">
-              <div class="checkbox selectHotPatch checked">
-                <i class="icon xi-ckbox-empty"></i>
-                <i class="icon xi-ckbox-selected"></i>
-              </div>
-              <div class="label">
-                <div class="name">
-                  Turn on Hot Patches for critical updates to Xcalar Design (highly recommended)
-                </div>
-                <div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="Turn on Hot Patches for critical updates to Xcalar Design.">
-                  <i class="white icon xi-help fa-12"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="title hidden">
-          <div class="step">
-            <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 5E</span>
-            <% } else { %>
-              <span>STEP 4D</span>
-            <% } %>
-            <span>Support Bundle Generation</span>
-          </div>
-          <div class="hint">
-            <span></span>
-            <span>Cause the cluster to automatically send support bundles to Xcalar every day</span>
-          </div>
-        </div>
-        <div class="section supportBundleSection hidden">
-          <div class="checkboxLine">
-            <div class="inputWrap">
-              <div class="checkbox supportBundles">
-                <i class="icon xi-ckbox-empty"></i>
-                <i class="icon xi-ckbox-selected"></i>
-              </div>
-              <div class="label">
-                <div class="name">
-                  Enable daily support bundles
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="title hidden">
-          <div class="step">
-            <% if (dicts.isTarballInstaller !== null) { %>
-              <span>STEP 5F</span>
-            <% } else { %>
-              <span>STEP 4E</span>
             <% } %>
             <span>Credentials</span>
           </div>
@@ -640,6 +537,109 @@
           </div>
           <div class="hostSshKey">
             <textarea rows="30" cols="68" autocomplete="off" placeholder="[Private SSH Key]"></textarea>
+          </div>
+        </div>
+        <% if (dicts.isTarballInstaller !== null) { %>
+          <div class="title hidden">
+            <div class="step">
+              <span>STEP 5C</span>
+              <span>Installation Directory</span>
+            </div>
+            <div class="hint">
+              <span></span>
+              <span>Input where Xcalar should be installed on all nodes</span>
+            </div>
+          </div>
+          <div class="section installationDirectorySection hidden">
+            <div class="installationDirectory">
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[/opt/xcalar/]" value="/opt/xcalar/">
+                <div class="bar">INSTALLATION DIRECTORY</div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        <div class="title hidden">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 5D</span>
+            <% } else { %>
+              <span>STEP 4C</span>
+            <% } %>
+            <span>Serialization/Deserialization Directory</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Input where Xcalar can temporarily save tables to disk on all nodes to free memory for other operations</span>
+          </div>
+        </div>
+        <div class="section serializationDirectorySection hidden">
+          <div class="installationDirectory">
+            <div class="inputWrap">
+              <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[Serialization Directory] (Optional)" value="">
+              <div class="bar">SERDES DIRECTORY</div>
+            </div>
+          </div>
+        </div>
+        <div class="title hidden">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 5E</span>
+            <% } else { %>
+              <span>STEP 4D</span>
+            <% } %>
+            <span>Enable Hot Patches</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Allow Xcalar to dynamically patch bug fix without upgrading to a new version</span>
+          </div>
+        </div>
+        <div class="section hotPatchSection hidden">
+          <div class="checkboxLine">
+            <div class="inputWrap">
+              <div class="checkbox selectHotPatch checked">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+              <div class="label">
+                <div class="name">
+                  Turn on Hot Patches for critical updates to Xcalar Design (highly recommended)
+                </div>
+                <div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="Turn on Hot Patches for critical updates to Xcalar Design.">
+                  <i class="white icon xi-help fa-12"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="title hidden">
+          <div class="step">
+            <% if (dicts.isTarballInstaller !== null) { %>
+              <span>STEP 5F</span>
+            <% } else { %>
+              <span>STEP 4E</span>
+            <% } %>
+            <span>Support Bundle Generation</span>
+          </div>
+          <div class="hint">
+            <span></span>
+            <span>Cause the cluster to automatically send support bundles to Xcalar every day</span>
+          </div>
+        </div>
+        <div class="section supportBundleSection hidden">
+          <div class="checkboxLine">
+            <div class="inputWrap">
+              <div class="checkbox supportBundles">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+              <div class="label">
+                <div class="name">
+                  Enable daily support bundles
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="section error">

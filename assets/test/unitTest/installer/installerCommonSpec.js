@@ -958,7 +958,7 @@ describe("InstallerCommon Common Test", function() {
             return {"e": "e"};
         }
 
-        InstallerCommon.validateSettings()
+        InstallerCommon.validateSettings($("#hostForm"))
         .always(function() {
             expect(InstallerCommon.__testOnly__.finalStruct.a).to.equal("a");
             expect(InstallerCommon.__testOnly__.finalStruct.b).to.equal("b");
