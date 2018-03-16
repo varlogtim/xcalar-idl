@@ -18,6 +18,7 @@ window.DS = (function ($, DS) {
     var $forwardFolderBtn; // $("#forwardFolderBtn")
     var $dsListFocusTrakcer; // $("#dsListFocusTrakcer");
     var sortKey = null;
+    var disableShare = false;
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
@@ -63,6 +64,10 @@ window.DS = (function ($, DS) {
         // restore list view if saved and ellipsis the icon
         var preference = UserSettings.getPref('datasetListView');
         toggleDSView(preference, true);
+    };
+
+    DS.toggleSharing = function(disable) {
+        disableShare = disable || false;
     };
 
     // Get home folder
@@ -2310,6 +2315,10 @@ window.DS = (function ($, DS) {
                     classes += " bgOpts";
                     $gridMenu.removeData("dsid");
                 }
+            }
+
+            if (disableShare) {
+                classes += " disableShare";
             }
 
             xcHelper.dropdownOpen($target, $gridMenu, {

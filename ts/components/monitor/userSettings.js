@@ -175,6 +175,9 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
+        if (!Admin.isAdmin()) {
+            $("#monitorGenSettingsCard .optionSet.admin").remove();
+        }
     }
 
     function saveLastPrefs() {
@@ -283,6 +286,19 @@ window.UserSettings = (function($, UserSettings) {
             UserSettings.logChange();
         });
 
+        $("#disableDSShare").click(function() {
+            var $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("disableDSShare", true, true);
+                DS.toggleSharing(true);
+            } else {
+                UserSettings.setPref("disableDSShare", false, true);
+                DS.toggleSharing(false);
+            }
+            UserSettings.logChange();
+        });
+
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal: 1,
@@ -334,6 +350,7 @@ window.UserSettings = (function($, UserSettings) {
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
         var hideSysOps = UserSettings.getPref("hideSysOps");
+        var disableDSShare = UserSettings.getPref("disableDSShare");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -353,6 +370,12 @@ window.UserSettings = (function($, UserSettings) {
             $("#hideSysOps").removeClass("checked");
         }
 
+        if (disableDSShare) {
+            $("#disableDSShare").addClass("checked");
+        } else {
+            $("#disableDSShare").removeClass("checked");
+        }
+        DS.toggleSharing(disableDSShare);
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
         setEnableCreateTable(enableCreateTable);

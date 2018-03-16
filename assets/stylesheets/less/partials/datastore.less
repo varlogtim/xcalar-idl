@@ -3772,6 +3772,13 @@ table.datasetTable {
             display: none;
         }
     }
+
+    &.disableShare {
+        .share {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
 }
 
 #gridViewSubMenu {
