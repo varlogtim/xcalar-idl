@@ -188,7 +188,7 @@ window.TblFunc = (function(TblFunc, $) {
                 iconPosition = mainFrameOffsetLeft - tableLeft;
                 iconPosition = Math.max(0, iconPosition);
                 iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
-                $startingTableHead.find(".lockIconWrap")
+                $startingTableHead.find(".lockIcon")
                                   .css("left", iconPosition + "px");
                 tablesAreVisible = false;
             } else { // right side of table is visible
@@ -196,7 +196,7 @@ window.TblFunc = (function(TblFunc, $) {
                 iconPosition = mainFrameOffsetLeft - tableLeft;
                 iconPosition = Math.max(0, iconPosition);
                 iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
-                $startingTableHead.find(".lockIconWrap")
+                $startingTableHead.find(".lockIcon")
                                   .css("left", iconPosition + "px");
                 $startingTableHead = $startingTableHead.closest('.xcTableWrap')
                                                        .next()
@@ -271,13 +271,13 @@ window.TblFunc = (function(TblFunc, $) {
                     center = Math.floor(center);
                     if (menuAnimating) {
                         $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
-                        $thead.find(".lockIconWrap").addClass("xc-hidden");
+                        $thead.find(".lockIcon").addClass("xc-hidden");
                         $tableTitle.addClass("animating");
                         $tableTitle.stop().animate({left: center}, animSpeed, function() {
                             $tableTitle.removeClass("animating");
                             $thead.find('.dropdownBox')
                                   .removeClass('dropdownBoxHidden');
-                            $thead.find(".lockIconWrap").removeClass("xc-hidden");
+                            $thead.find(".lockIcon").removeClass("xc-hidden");
                             TblFunc.moveTableDropdownBoxes();
                         });
                     } else {
@@ -353,10 +353,10 @@ window.TblFunc = (function(TblFunc, $) {
             }
             center = Math.floor(center);
             $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
-            $thead.find(".lockIconWrap").addClass("xc-hidden");
+            $thead.find(".lockIcon").addClass("xc-hidden");
             $tableTitle.animate({left: center}, speed, "linear", function() {
                 $thead.find('.dropdownBox').removeClass('dropdownBoxHidden');
-                $thead.find(".lockIconWrap").removeClass("xc-hidden");
+                $thead.find(".lockIcon").removeClass("xc-hidden");
                 TblFunc.moveTableDropdownBoxes();
                 // for tableScrollBar
                 TblFunc.moveFirstColumn();

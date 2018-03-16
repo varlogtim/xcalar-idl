@@ -983,7 +983,7 @@ window.xcManager = (function(xcManager, $) {
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
-                $(".xcTheadWrap").find(".lockIconWrap").addClass("xc-hidden");
+                $(".xcTheadWrap").find(".lockIcon").addClass("xc-hidden");
                 xcTooltip.hideAll();
                 $('.tableScrollBar').hide();
             }
@@ -1000,7 +1000,7 @@ window.xcManager = (function(xcManager, $) {
         function mainFrameScrollingStop() {
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
-            $(".xcTheadWrap").find(".lockIconWrap").removeClass("xc-hidden");
+            $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
             $('.tableScrollBar').show();
             TblFunc.moveFirstColumn();
             TblFunc.moveTableDropdownBoxes();

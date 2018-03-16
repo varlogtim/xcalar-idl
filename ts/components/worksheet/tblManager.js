@@ -725,16 +725,15 @@ window.TblManager = (function($, TblManager) {
         }
         table.addNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);
-        if (!$tableHeader.find(".lockIconWrap").length) {
+        if (!$tableHeader.find(".lockIcon").length) {
             $tableHeader.find(".tableTitle")
-                        .append('<div class="lockIconWrap">' +
-                                '<i class="lockIcon icon xi-lockwithkeyhole" ' +
-                                 'data-toggle="tooltip" ' +
+                        .append('<i class="lockIcon icon xi-lockwithkeyhole" ' +
+                                'data-toggle="tooltip" ' +
                                 'data-placement="top" ' +
                                 'data-container="body" ' +
                                 'data-original-title="' +
                                 TooltipTStr.UnlockTable + '"' +
-                                '></i></div>');
+                                '></i>');
             TblFunc.moveTableDropdownBoxes();
         }
         TableList.makeTableNoDelete(tableId);
@@ -745,7 +744,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         table.removeNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);
-        $tableHeader.find(".lockIconWrap").remove();
+        $tableHeader.find(".lockIcon").remove();
         TableList.removeTableNoDelete(tableId);
         return table;
     };
@@ -2134,8 +2133,8 @@ window.TblManager = (function($, TblManager) {
                              'style="top:0px;"></div>');
         var lockIcon = "";
         if (gTables[tableId].isNoDelete()) {
-            lockIcon = '<div class="lockIconWrap"><i class="lockIcon icon xi-lockwithkeyhole">' +
-                        '</i></div>';
+            lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole">' +
+                        '</i>';
         }
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
@@ -2238,7 +2237,7 @@ window.TblManager = (function($, TblManager) {
             event.preventDefault(); // prevent default browser's rightclick menu
         });
 
-        $xcTheadWrap.on("click", ".lockIconWrap", function() {
+        $xcTheadWrap.on("click", ".lockIcon", function() {
             Dag.removeNoDelete(tableId);
             TblManager.removeTableNoDelete(tableId);
             xcTooltip.hideAll();
@@ -2259,7 +2258,7 @@ window.TblManager = (function($, TblManager) {
         });
 
         // trigger open table menu on .tableGrab right-click
-        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text, .lockIconWrap', function(event) {
+        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text, .lockIcon', function(event) {
             var click = $.Event("click");
             click.rightClick = true;
             click.pageX = event.pageX;

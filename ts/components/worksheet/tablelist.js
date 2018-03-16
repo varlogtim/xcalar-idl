@@ -322,6 +322,13 @@ window.TableList = (function($, TableList) {
                 searchHelper.$arrows.hide();
             });
         });
+
+        $tableListSections.on("click", ".lockIcon", function() {
+            var tableId = $(this).closest('.tableInfo').attr('data-id');
+            Dag.removeNoDelete(tableId);
+            TblManager.removeTableNoDelete(tableId);
+            xcTooltip.hideAll();
+        });
     };
 
     TableList.initialize = function() {
@@ -885,7 +892,13 @@ window.TableList = (function($, TableList) {
         $listWrap = getListWrap(tableType);
         $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
         if (!$li.find(".lockIcon").length) {
-            $li.append('<i class="lockIcon icon xi-lockwithkeyhole"></i>');
+            $li.append( '<i class="lockIcon icon xi-lockwithkeyhole" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'data-original-title="' +
+                        TooltipTStr.UnlockTable + '"' +
+                        '></i>');
         }
     };
 
@@ -1260,7 +1273,13 @@ window.TableList = (function($, TableList) {
 
             var lockIcon = "";
             if (table.isNoDelete()) {
-                lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
+                lockIcon =  '<i class="lockIcon icon xi-lockwithkeyhole" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" ' +
+                            'data-container="body" ' +
+                            'data-original-title="' +
+                            TooltipTStr.UnlockTable + '"' +
+                            '></i>';
             }
 
             var html =
@@ -1408,7 +1427,13 @@ window.TableList = (function($, TableList) {
         }
         var lockIcon = "";
         if (gTables[tableId] && gTables[tableId].isNoDelete()) {
-            lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
+            lockIcon =  '<i class="lockIcon icon xi-lockwithkeyhole" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'data-original-title="' +
+                        TooltipTStr.UnlockTable + '"' +
+                        '></i>';
         }
         html += '<li class="clearfix tableInfo ' + liClass + '" ' +
                 'data-id="' + tableId + '"' +
