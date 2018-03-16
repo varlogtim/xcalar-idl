@@ -2960,7 +2960,11 @@
         var isJson = false;
         var parsedQuery;
         try {
-            parsedQuery = $.parseJSON('[' + query + ']');
+            if (query.trim().startsWith('[')) {
+                parsedQuery = $.parseJSON(query);
+            } else {
+                parsedQuery = $.parseJSON('[' + query + ']');
+            }
             isJson = true;
         } catch (err) {
             // normal if using an old extension
