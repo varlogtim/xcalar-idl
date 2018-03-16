@@ -235,7 +235,7 @@ var INIT = 'init',
     TYPESCRIPT = "typescriptJsGeneration",
     MINIFY_JS = "minifyJs",
     REMOVE_DEBUG_COMMENTS = 'removeDebugComments',
-	CLEAN_JS = "cleanJs",
+    CLEAN_JS = "cleanJs",
     CLEAN_JS_SRC_POST_MINIFICATION = 'cleanJsPostMini',
     UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME = 'updateEssentialJsFilesWithCorrectProductName',
     UPDATE_SCRIPT_TAGS = 'updateScriptTags',
@@ -3173,17 +3173,17 @@ module.exports = function(grunt) {
 
         // autocompile js from typescript ts files
         grunt.task.run(TYPESCRIPT);
-		grunt.task.run(CLEAN_JS);
+        grunt.task.run(CLEAN_JS);
 
     });
 
     grunt.task.registerTask(TYPESCRIPT, function() {
 
-		// check for existence of ts dir until https://gerrit.int.xcalar.com/#/c/8894/ checked in
-		if (!grunt.file.exists(typescriptMapping.src)) {
-			grunt.log.writeln("Typescript src " + typescriptMapping.src + " does not exit");
-			return;
-		}
+        // check for existence of ts dir until https://gerrit.int.xcalar.com/#/c/8894/ checked in
+        if (!grunt.file.exists(typescriptMapping.src)) {
+            grunt.log.writeln("Typescript src " + typescriptMapping.src + " does not exit");
+            return;
+        }
 
         var currCwd = process.cwd(),
             executeFrom = BLDROOT + typescriptMapping.src,
@@ -3311,11 +3311,13 @@ module.exports = function(grunt) {
 
         grunt.log.writeln(("\nDelete .ts files/dirs necessary for generating .js files, now that they have been generated\n").bold);
 
-        for ( requiredItem of typescriptMapping.required ) {
-            fullPath = BLDROOT + requiredItem;
-            grunt.log.write("Delete file/dir " + fullPath + " ... ");
-            grunt.file.delete(fullPath, {force:FORCE_DELETE_DANGEROUS});
-            grunt.log.ok();
+        if (BLDTYPE != DEV) {
+            for ( requiredItem of typescriptMapping.required ) {
+                fullPath = BLDROOT + requiredItem;
+                grunt.log.write("Delete file/dir " + fullPath + " ... ");
+                grunt.file.delete(fullPath, {force:FORCE_DELETE_DANGEROUS});
+                grunt.log.ok();
+            }
         }
     });
 
