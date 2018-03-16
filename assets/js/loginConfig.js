@@ -153,34 +153,23 @@ function getDefaultAdminConfig(hostname) {
     return deferred.promise();
 }
 
-function setLdapConfig(hostname, ldapConfigEnabledIn, ldap_uri, userDN, useTLS, searchFilter,
-                       activeDir, serverKeyFile, adUserGroup, adAdminGroup, adDomain, adSubGroupTree) {
+function setLdapConfig(hostname, ldapConfigEnabledIn, ldapIn) {
     var deferred = PromiseHelper.deferred();
-    var ldapConfigOut = {
-        ldapConfigEnabled: ldapConfigEnabledIn,
-        ldap_uri: ldap_uri,
-        userDN: userDN,
-        useTLS: useTLS,
-        searchFilter: searchFilter,
-        activeDir: activeDir,
-        serverKeyFile: serverKeyFile,
-    };
+    var ldapConfigOut = ldapIn;
+    ldapConfigOut.ldapConfigEnabled = ldapConfigEnabledIn;
 
     if (ldapConfigOut.activeDir) {
         var propArray = [ 'adUserGroup', 'adAdminGroup',
-                          'adDomain'];
-        var valArray = [ adUserGroup, adAdminGroup,
-                         adDomain ];
-
+                          'adDomain' ];
         for (var ii = 0; ii < propArray.length; ii++) {
-            if (valArray[ii] !== "" ) {
-                ldapConfigOut[propArray[ii]] = valArray[ii];
+            if (ldapConfigOut[propArray[ii]] === "" ) {
+                delete ldapConfigOut[propArray[ii]];
             }
         }
-        ldapConfigOut.adSubGroupTree = adSubGroupTree;
     } else {
         var propArray = [ 'adUserGroup', 'adAdminGroup',
-                          'adDomain', 'adSubGroupTree' ];
+                          'adDomain', 'adSubGroupTree',
+                          'adSearchShortName' ];
         for (var ii = 0; ii < propArray.length; ii++) {
             if (ldapConfigOut.hasOwnProperty(propArray[ii])) {
                 delete ldapConfigOut[propArray[ii]];

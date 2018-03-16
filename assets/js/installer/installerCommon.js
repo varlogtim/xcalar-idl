@@ -40,6 +40,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 "adAdminGroup: "m",       // only when xcalarInstall is false and activeDir is true
                 "adDomain": "n",          // only when xcalarInstall is false and activeDir is true
                 "adSubGroupTree": "o"     // only when xcalarInstall is false and activeDir is true
+                "adSearchShortName": "p"  // only where xcalarInstall is false and activeDir is true
             },
             "defaultAdminConfig": {
                 "defaultAdminEnabled": true/false  // whether to set the default admin
@@ -601,9 +602,11 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 res.ldap.adDomain = getVal($params.eq(6));
                 res.ldap.adSubGroupTree = $form.find(".checkbox.adSubGroupTree")
                     .hasClass("checked");
+                res.ldap.adSearchShortName = $form.find(".checkbox.adSearchShortName")
+                    .hasClass("checked");
 
                 var propArray = [ 'adUserGroup', 'adAdminGroup',
-                                  'adDomain', 'adSubGroupTree' ];
+                                  'adDomain' ];
                 for (var ii = 0; ii < propArray.length; ii++) {
                     if (res.ldap[propArray[ii]].length === 0) {
                         delete res.ldap[propArray[ii]];

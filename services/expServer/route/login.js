@@ -28,7 +28,7 @@ var msalFieldsOptionalTypes = [ "string", "string", "string", "array" ];
 var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
 var ldapConfigFieldsRequired = [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ];
-var ldapConfigFieldsAdOptional = [ "adUserGroup", "adAdminGroup", "adDomain", "adSubGroupTree" ];
+var ldapConfigFieldsAdOptional = [ "adUserGroup", "adAdminGroup", "adDomain", "adSubGroupTree", "adSearchShortName" ];
 var ldapConfig;
 var trustedCerts;
 
@@ -452,13 +452,18 @@ function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
             ldapConn.useSubGroupTree = ldapConfig.adSubGroupTree;
         }
 
+        ldapConn.searchName = (ldapConfig.hasOwnProperty("adSearchShortName") &&
+                               ldapConfig.adSearchShortName === true)
+                                 ? ldapConn.shortName
+                                 : ldapConn.username;
     } else {
         ldapConn.userDN = ldapConn.userDN.replace('%username%', ldapConn.username);
         ldapConn.username = ldapConn.userDN;
+        ldapConn.searchName = ldapConn.userDN;
     }
 
     var searchFilter = (ldapConn.searchFilter !== "")
-                     ? ldapConn.searchFilter.replace('%username%',ldapConn.username)
+                     ? ldapConn.searchFilter.replace('%username%',ldapConn.searchName)
                      : undefined;
 
     var activeDir = ldapConn.activeDir ? ['cn','mail','memberOf'] : ['cn','mail','employeeType'];

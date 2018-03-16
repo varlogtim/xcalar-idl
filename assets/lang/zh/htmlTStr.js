@@ -1100,6 +1100,7 @@ module.exports = {
         "adAdminGroup": "",
         "adDomain": "",
         "enableADGroupChain": "",
+        "enableADSearchShortName": "",
         "enableTLS": "启用传输层安全协议 (TLS)",
         "enableMSAL": "连接 Azure Active Directory (AAD)",
         "clientId": "客户端 ID (client_id)",

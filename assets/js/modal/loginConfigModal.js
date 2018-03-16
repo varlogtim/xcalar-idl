@@ -82,6 +82,9 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
                 if (ldapConfig.adSubGroupTree) {
                     $("#loginConfigEnableADGroupChain").addClass("checked");
                 }
+                if (ldapConfig.adSearchShortName) {
+                    $("#loginConfigEnableADSearchShortName").addClass("checked");
+                }
             } else {
                 $("#ldapChoice").find(".radioButton").eq(1).click();
             }
@@ -101,6 +104,10 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         });
 
         $("#loginConfigEnableADGroupChain").click(function() {
+            $(this).toggleClass("checked");
+        });
+
+        $("#loginConfigEnableADSearchShortName").click(function() {
             $(this).toggleClass("checked");
         });
 
@@ -229,17 +236,19 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     function submitLdapConfig() {
         var deferred = PromiseHelper.deferred();
         var ldapConfigEnabled = $("#loginConfigEnableLdapAuth").find(".checkbox").hasClass("checked");
-        var activeDir = (ldapChoice === "ad") ? true : false;
-        var ldap_uri = $("#loginConfigLdapUrl").val();
-        var userDN = $("#loginConfigLdapUserDn").val();
-        var searchFilter = $("#loginConfigLdapSearchFilter").val();
-        var enableTLS = $("#loginConfigLdapEnableTLS").hasClass("checked") ? true : false;
-        var serverKeyFile = $("#loginConfigLdapServerKeyFile").val();
-        var adUserGroup = $("#loginConfigADUserGroup").val();
-        var adAdminGroup = $("#loginConfigADAdminGroup").val();
-        var adDomain = $("#loginConfigADDomain").val();
-        var adSubGroupTree =
-            $("#loginConfigEnableADGroupChain").hasClass("checked") ? true : false;
+        var ldap = {
+            ldap_uri: $("#loginConfigLdapUrl").val(),
+            userDN: $("#loginConfigLdapUserDn").val(),
+            useTLS: $("#loginConfigLdapEnableTLS").hasClass("checked"),
+            searchFilter: $("#loginConfigLdapSearchFilter").val(),
+            activeDir: (ldapChoice === "ad") ? true : false,
+            serverKeyFile: $("#loginConfigLdapServerKeyFile").val(),
+            adUserGroup: $("#loginConfigADUserGroup").val(),
+            adAdminGroup: $("#loginConfigADAdminGroup").val(),
+            adDomain: $("#loginConfigADDomain").val(),
+            adSubGroupTree: $("#loginConfigEnableADGroupChain").hasClass("checked"),
+            adSearchShortName: $("#loginConfigEnableADSearchShortName").hasClass("checked")
+        };
 
         if (ldapConfig == null) {
             if (ldapConfigEnabled) {
@@ -249,20 +258,20 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             }
         }
 
-        if (ldapConfig.ldapConfigEnabled !== ldapConfigEnabled ||
-            ldapConfig.ldap_uri !== ldap_uri ||
-            ldapConfig.activeDir !== activeDir ||
-            ldapConfig.userDN !== userDN ||
-            ldapConfig.searchFilter !== searchFilter ||
-            ldapConfig.enableTLS !== enableTLS ||
-            ldapConfig.serverKeyFile !== serverKeyFile ||
-            ldapConfig.adUserGroup !== adUserGroup ||
-            ldapConfig.adAdminGroup !== adAdminGroup ||
-            ldapConfig.adDomain !== adDomain ||
-            ldapConfig.adSubGroupTree !== adSubGroupTree)
+        if (ldapConfig.ldapConfigEnabled !== ldap.ldapConfigEnabled ||
+            ldapConfig.ldap_uri !== ldap.ldap_uri ||
+            ldapConfig.activeDir !== ldap.activeDir ||
+            ldapConfig.userDN !== ldap.userDN ||
+            ldapConfig.searchFilter !== ldap.searchFilter ||
+            ldapConfig.enableTLS !== ldap.enableTLS ||
+            ldapConfig.serverKeyFile !== ldap.serverKeyFile ||
+            ldapConfig.adUserGroup !== ldap.adUserGroup ||
+            ldapConfig.adAdminGroup !== ldap.adAdminGroup ||
+            ldapConfig.adDomain !== ldap.adDomain ||
+            ldapConfig.adSubGroupTree !== ldap.adSubGroupTree ||
+            ldapConfig.adSearchShortName !== ldap.adSearchShortName)
         {
-            setLdapConfig(hostname, ldapConfigEnabled, ldap_uri, userDN, enableTLS, searchFilter,
-                          activeDir, serverKeyFile, adUserGroup, adAdminGroup, adDomain, adSubGroupTree)
+            setLdapConfig(hostname, ldapConfigEnabled, ldap)
             .then(deferred.resolve)
             .fail(function(errorMsg) {
                 deferred.reject(errorMsg, true);

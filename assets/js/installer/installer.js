@@ -20,6 +20,12 @@ window.Installer = (function(Installer, $) {
             return false;
         });
 
+        $forms.find(".checkbox.adSearchShortName").click(function() {
+            // If option is the same as before, ignore and return
+            $(this).toggleClass("checked");
+            return false;
+        });
+
         $forms.find(".checkbox.TLSChoice").click(function() {
             // If option is the same as before, ignore and return
             $(this).toggleClass("checked");

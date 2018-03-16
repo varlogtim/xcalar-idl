@@ -1199,6 +1199,7 @@ module.exports = {
         "adAdminGroup": "AD Admin Group",
         "adDomain": "AD Default Domain",
         "enableADGroupChain": "Enable Group Subtree Searching",
+        "enableADSearchShortName": "Search Using User Id Only",
         "enableTLS": "Enable Transportation Layer Security (TLS)",
         "enableMSAL": "Enable Azure v2.0 Common Authentication",
         "clientId": "Client Id",
