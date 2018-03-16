@@ -1493,12 +1493,12 @@ module.exports = function(grunt) {
             },
             indexNonDev: {
                 cwd: BLDROOT,
-                src: ['assets/js/classes/mixpanel/mixpanelAzure.js'],
+                src: ['assets/js/mixpanel/mixpanelAzure.js'],
                 dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
             },
             indexDev: {
                 cwd: BLDROOT,
-                src: ['assets/dev/shortcuts.js', 'assets/js/classes/mixpanel/mixpanel.js'],
+                src: ['assets/dev/shortcuts.js', 'assets/js/mixpanel/mixpanel.js'],
                 dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
             },
             loginDev: {

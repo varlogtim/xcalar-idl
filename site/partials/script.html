@@ -69,7 +69,6 @@
 <% } else { %>
 <script src="assets/lang/<%=lang%>/jsTStr.js" type="text/javascript"></script>
 <% } %>
-<script src="assets/js/shared/setup/enums.js" type="text/javascript"></script>
 <script src="assets/js/globalEnums.js" type="text/javascript"></script>
 <script src="assets/js/constructor/A_constructorVersion.js" type="text/javascript"></script>
 <script src="assets/js/constructor/B_constructorDefine.js" type="text/javascript"></script>
@@ -78,8 +77,9 @@
 <script src="assets/js/constructor/DB_persConstructorV2.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/constructor/E_persConstructor.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/shared/setup/compatible.js" type="text/javascript"></script>
-<script src="assets/js/shared/setup/globals.js" type="text/javascript"></script>
 <script src="assets/js/shared/setup/script.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/shared/setup/enums.js" type="text/javascript"></script>
+<script src="assets/js/shared/setup/xcGlobal.js" type="text/javascript"></script>
 <script src="assets/js/components/setup/xvm.js"></script>
 <script src="assets/js/components/setup/xcManager.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/setup/authentication.js" type="text/javascript" <%= tag %>></script>
@@ -205,7 +205,7 @@
 <script src="assets/js/shared/util/xcTimeHelper.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/shared/util/xcTooltip.js" type="text/javascript" <%= tag %>></script>
 <!-- api -->
-<script src="assets/js/shared/api/XcalarThrift.js" type="text/javascript"></script>
+<script src="assets/js/XcalarThrift.js" type="text/javascript"></script>
 <script src="assets/js/shared/api/xiApi.js" type="text/javascript"></script>
 <!-- end of shared file -->
 <script src="assets/js/promiseHelper.js" type="text/javascript" <%= tag %>></script>

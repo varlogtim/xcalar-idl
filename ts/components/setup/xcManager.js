@@ -10,6 +10,7 @@ window.xcManager = (function(xcManager, $) {
         $("#favicon").attr("href", paths.favicon);
 
         Compatible.check();
+        xcGolbal.setup();
         setupThrift();
         // XcSupport.setup() get username, so need to be at very early time
         XcSupport.setup();

@@ -13,60 +13,16 @@ mocha.setup({
 expect = chai.expect;
 assert = chai.assert;
 
-var testDatasets = {
-    "sp500": {
-        "targetName": gDefaultSharedRoot,
-        "path": "/netstore/datasets/sp500.csv",
-        "url": "netstore/datasets/sp500.csv",
-        "sources": [{
-            "targetName": gDefaultSharedRoot,
-            "path": "/netstore/datasets/sp500.csv"
-        }],
-        "format": "CSV",
-        "fieldDelim": "\t",
-        "lineDelim": "\n",
-        "hasHeader": false,
-        "moduleName": "",
-        "funcName": "",
-        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(20041101)"
-    },
-
-    "schedule": {
-        "targetName": gDefaultSharedRoot,
-        "path": "/netstore/datasets/indexJoin/schedule/",
-        "url": "netstore/datasets/indexJoin/schedule/",
-        "sources": [{
-            "targetName": gDefaultSharedRoot,
-            "path": "/netstore/datasets/indexJoin/schedule/"
-        }],
-        "format": "JSON",
-        "moduleName": "",
-        "funcName": "",
-        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(1)"
-    },
-
-    "fakeYelp": {
-        "targetName": gDefaultSharedRoot,
-        "path": "/netstore/datasets/unittest/test_yelp.json",
-        "url": "netstore/datasets/unittest/test_yelp.json",
-        "sources": [{
-            "targetName": gDefaultSharedRoot,
-            "path": "/netstore/datasets/unittest/test_yelp.json"
-        }],
-        "format": "JSON",
-        "moduleName": "",
-        "funcName": "",
-        "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable th:eq(1):contains(yelping_since)"
-    }
-};
+var testDatasets;
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;
     var test;
 
     UnitTest.setup = function() {
-
         $(document).ready(function() {
+            xcGolbal.setup();
+            setupTestDatasets();
             mocha.run(function(a, b) {
                 alert("Test Exited");
             });
@@ -138,6 +94,55 @@ window.UnitTest = (function(UnitTest, $) {
         //     $('#blanket-main').toggleClass('large');
         // });
     };
+
+    function setupTestDatasets() {
+        testDatasets = {
+            "sp500": {
+                "targetName": gDefaultSharedRoot,
+                "path": "/netstore/datasets/sp500.csv",
+                "url": "netstore/datasets/sp500.csv",
+                "sources": [{
+                    "targetName": gDefaultSharedRoot,
+                    "path": "/netstore/datasets/sp500.csv"
+                }],
+                "format": "CSV",
+                "fieldDelim": "\t",
+                "lineDelim": "\n",
+                "hasHeader": false,
+                "moduleName": "",
+                "funcName": "",
+                "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(20041101)"
+            },
+
+            "schedule": {
+                "targetName": gDefaultSharedRoot,
+                "path": "/netstore/datasets/indexJoin/schedule/",
+                "url": "netstore/datasets/indexJoin/schedule/",
+                "sources": [{
+                    "targetName": gDefaultSharedRoot,
+                    "path": "/netstore/datasets/indexJoin/schedule/"
+                }],
+                "format": "JSON",
+                "moduleName": "",
+                "funcName": "",
+                "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(1)"
+            },
+
+            "fakeYelp": {
+                "targetName": gDefaultSharedRoot,
+                "path": "/netstore/datasets/unittest/test_yelp.json",
+                "url": "netstore/datasets/unittest/test_yelp.json",
+                "sources": [{
+                    "targetName": gDefaultSharedRoot,
+                    "path": "/netstore/datasets/unittest/test_yelp.json"
+                }],
+                "format": "JSON",
+                "moduleName": "",
+                "funcName": "",
+                "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable th:eq(1):contains(yelping_since)"
+            }
+        }
+    }
 
     UnitTest.testFinish = function(checkFunc, interval) {
         var deferred = PromiseHelper.deferred();
