@@ -271,33 +271,6 @@ html.safari {
                 opacity: 0;
                 pointer-events: none;
             }
-
-            &.animate {
-                .xi-copy-clipboard {
-                    opacity: 0;
-                    transition: opacity 0.3s linear;
-                }
-                .xi-tick {
-                    opacity: 0;
-                    animation: fadeIn 0.5s, fadeOut 1s 0.5s;
-                    @keyframes fadeIn {
-                        from {
-                            opacity: 0;
-                        }
-                        to {
-                            opacity: 0.8;
-                        }
-                    }
-                    @keyframes fadeOut {
-                        from {
-                            opacity: 0.8;
-                        }
-                        to {
-                            opacity: 0;
-                        }
-                    }
-                }
-            }
         }
 
         #showFileListBtn {
@@ -2025,6 +1998,30 @@ table.datasetTable {
             background: @color-white;
             .position(absolute, @right: 0px, @bottom: 0px);
         }
+    }
+
+    #importDataForm-content > .topSection > .inputPart > .row {
+        position: relative;
+        min-width: 0px;
+        label {
+            .textOverflowOneLine;
+            cursor: pointer;
+        }
+
+        label:hover~.xi-copy-clipboard {
+            opacity: 0.8;
+        }
+
+        i {
+            float: right;
+            color: @color-font-select-blue;
+            background-color: @color-white;
+            position: absolute;
+            top: 4px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
     }
 }
 

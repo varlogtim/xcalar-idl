@@ -392,6 +392,18 @@ window.DSPreview = (function($, DSPreview) {
             }
         });
 
+        $("#importDataForm-content").on("click", ".inputPart .row label", function() {
+            // copies filepath to clipboard
+            var $filepathLabel = $(this);
+            var value = $filepathLabel.attr("data-original-title") || $filepathLabel.text();
+            xcHelper.copyToClipboard(value);
+
+            $filepathLabel.parent().addClass("copiableText");
+            setTimeout(function() {
+                $filepathLabel.parent().removeClass("copiableText");
+            }, 1800);
+        });
+
         setupPreviewErrorSection();
     };
 
@@ -2826,6 +2838,8 @@ window.DSPreview = (function($, DSPreview) {
                         '<label>' +
                             path +
                         '</label>' +
+                        '<i class="icon xi-copy-clipboard"></i>' +
+                        '<i class="icon xi-tick"></i>' +
                         '<div class="inputWrap">' +
                             '<input class="large dsName" type="text"' +
                             ' autocomplete="off" spellcheck="false"' +
@@ -2856,6 +2870,9 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $labels.width(width);
+        // positions clipboard/checkmark icons at the end of the label
+        var $icons = $inputPart.find(".icon");
+        $icons.css("left", width - 5);
 
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");

@@ -413,9 +413,9 @@ window.DSTable = (function($, DSTable) {
             var value = $dsInfoPath.text();
             xcHelper.copyToClipboard(value);
 
-            $dsInfoPath.parent().addClass("animate");
+            $dsInfoPath.parent().addClass("copiableText");
             setTimeout(function() {
-                $dsInfoPath.parent().removeClass("animate");
+                $dsInfoPath.parent().removeClass("copiableText");
             }, 1800);
         });
 

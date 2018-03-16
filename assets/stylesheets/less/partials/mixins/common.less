@@ -87,6 +87,33 @@
     white-space: nowrap;
 }
 
+.copiableText {
+    .xi-copy-clipboard {
+        opacity: 0;
+        transition: opacity 0.3s linear;
+    }
+    .xi-tick {
+        opacity: 0;
+        animation: fadeIn 0.5s, fadeOut 1s 0.5s;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 0.8;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 0.8;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    }
+}
+
 .noTransition {
     -webkit-transition: 0s !important;
     -moz-transition: 0s !important;
