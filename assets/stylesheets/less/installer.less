@@ -386,6 +386,23 @@ input:-webkit-autofill:focus {
             padding-top: 2px;
             margin-top: 14px;
             .input-placeholder(@color-white);
+
+            &::-webkit-input-placeholder {
+                opacity: 0.5 !important;
+            }
+
+            &:-moz-placeholder { /* Firefox 18- */
+               opacity: 0.5 !important;
+            }
+
+            &::-moz-placeholder {  /* Firefox 19+ */
+               opacity: 0.5 !important;
+            }
+
+            &:-ms-input-placeholder {
+               opacity: 0.5 !important;
+            }
+
             &::after {
                 content: "";
                 display: block;
