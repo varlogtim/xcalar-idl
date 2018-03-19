@@ -75,21 +75,21 @@ namespace StatusBox {
             }
         }
 
-        private setupListerers(): void {
-            const self = this;
-            $("#statusBox").mousedown(function(event) {
-                if (self.notPersist()) {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    self.forceHide();
-                }
-            });
-    
+        private setupListerers() {
+            $("#statusBox").mousedown(this._mousedownEvent.bind(this));
             $("#statusBox .detailAction").mousedown(function(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 $("#statusBox .detail").toggleClass("expand");
             });
+        }
+
+        private _mousedownEvent(event: JQueryEventObject) {
+            if (this.notPersist()) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.forceHide();
+            }
         }
         
         private setupBasicClasses(options: StatusDisplayerOpions): void {
