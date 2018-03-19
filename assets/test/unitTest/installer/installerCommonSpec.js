@@ -636,9 +636,26 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-        $form.find(".serializationDirectorySection input").val("");
+        $form.find('.radioButton[data-option="xcalarRootDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("");
         var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
         expect(res.serializationDirectory).to.equal(null);
+    });
+
+    it("Validate validateSerializationDirectory should work - empty case", function() {
+        var $form = $("#hostForm");
+        $forms.addClass("hidden");
+        $form.removeClass("hidden");
+        $("#hostForm .hint input").val(1);
+        var e = $.Event("keyup");
+        e.which = 13; //choose the one you want
+        e.keyCode = 13;
+        $("#numServers").trigger(e);
+        $form.find('.radioButton[data-option="otherDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("");
+        var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
+        expect(res["error"][0]).to.equal("Empty Serialization / Deserialization Directory");
+        expect(res["error"][1]).to.equal("Please assign a value to Serialization / Deserialization Directory");
     });
 
     it("Validate validateSerializationDirectory should work slash before end", function() {
@@ -650,7 +667,8 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-        $form.find(".serializationDirectorySection input").val("/abcd/");
+        $form.find('.radioButton[data-option="otherDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("/abcd/");
         var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
         expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
@@ -664,7 +682,8 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-        $form.find(".serializationDirectorySection input").val("abcd");
+        $form.find('.radioButton[data-option="otherDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("abcd");
         var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
         expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
@@ -678,7 +697,8 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-        $form.find(".serializationDirectorySection input").val("/abcd");
+        $form.find('.radioButton[data-option="otherDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("/abcd");
         var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
         expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
@@ -692,7 +712,8 @@ describe("InstallerCommon Common Test", function() {
         e.which = 13; //choose the one you want
         e.keyCode = 13;
         $("#numServers").trigger(e);
-        $form.find(".serializationDirectorySection input").val("abcd/");
+        $form.find('.radioButton[data-option="otherDirectory"]').click();
+        $form.find(".serializationDirectorySection .SERDESDirectory input").val("abcd/");
         var res = (InstallerCommon.validateSerializationDirectory($form)) || res;
         expect(JSON.stringify(res)).to.equal('{"serializationDirectory":"/abcd"}');
     });
@@ -941,6 +962,7 @@ describe("InstallerCommon Common Test", function() {
         var originValidateSerializationDirectory = InstallerCommon.validateSerializationDirectory;
         var originValidateCredentials = InstallerCommon.validateCredentials;
         var originSupportBundles = InstallerCommon.validateSupportBundles;
+        var originValidateEnableHotPatches = InstallerCommon.validateEnableHotPatches;
 
         InstallerCommon.validateHosts = function() {
             return {"a": "a"};
@@ -957,6 +979,9 @@ describe("InstallerCommon Common Test", function() {
         InstallerCommon.validateSupportBundles = function() {
             return {"e": "e"};
         }
+        InstallerCommon.validateEnableHotPatches = function() {
+            return {"f": "f"};
+        }
 
         InstallerCommon.validateSettings($("#hostForm"))
         .always(function() {
@@ -965,16 +990,19 @@ describe("InstallerCommon Common Test", function() {
             expect(InstallerCommon.__testOnly__.finalStruct.c).to.equal("c");
             expect(InstallerCommon.__testOnly__.finalStruct.d).to.equal("d");
             expect(InstallerCommon.__testOnly__.finalStruct.e).to.equal("e");
+            expect(InstallerCommon.__testOnly__.finalStruct.f).to.equal("f");
             delete InstallerCommon.__testOnly__.finalStruct.a;
             delete InstallerCommon.__testOnly__.finalStruct.b;
             delete InstallerCommon.__testOnly__.finalStruct.c;
             delete InstallerCommon.__testOnly__.finalStruct.d;
             delete InstallerCommon.__testOnly__.finalStruct.e;
+            delete InstallerCommon.__testOnly__.finalStruct.f;
             InstallerCommon.validateHosts = originValidateHosts;
             InstallerCommon.validateInstallationDirectory = originValidateInstallationDirectory;
             InstallerCommon.validateSerializationDirectory = originValidateSerializationDirectory;
             InstallerCommon.validateCredentials = originValidateCredentials;
             InstallerCommon.validateSupportBundles = originSupportBundles;
+            InstallerCommon.validateEnableHotPatches = originValidateEnableHotPatches;
             done();
         });
     });

@@ -382,12 +382,22 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     InstallerCommon.validateSerializationDirectory = function($form) {
         var res = {};
         res.serializationDirectory = null;
-        var serializationDirectory = getVal($form.find(".serializationDirectorySection input"));
-        if (serializationDirectory.length === 0) {
+        var serdesChoice = $form.find(".SERDESChoice .radioButton.active").data("option");
+        if (serdesChoice === "xcalarRootDirectory") {
             return res;
         } else {
-            res.serializationDirectory = removeDuplicateSlash(serializationDirectory);
-            return res;
+            var serializationDirectory = getVal($form.find(".serializationDirectorySection .SERDESDirectory input"));
+            if (serializationDirectory.length === 0) {
+                return {
+                    "error": [
+                        "Empty Serialization / Deserialization Directory",
+                        "Please assign a value to Serialization / Deserialization Directory"
+                    ]
+                };
+            } else {
+                res.serializationDirectory = removeDuplicateSlash(serializationDirectory);
+                return res;
+            }
         }
     };
 
@@ -841,6 +851,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             $form.find(".credentialSection").addClass("hidden");
             $form.find(".installationDirectorySection").addClass("hidden");
             $form.find(".serializationDirectorySection").addClass("hidden");
+            $form.find(".hotPatchSection").addClass("hidden");
+            $form.find(".supportBundleSection").addClass("hidden");
             $form.find(".title").addClass("hidden");
             $form.find(".title").eq(0).removeClass("hidden");
             $form.find(".row .curStatus").text("");
@@ -1048,6 +1060,19 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 }
                 break;
             case ("copyChoice"):
+                break;
+            case ("SERDESChoice"):
+                switch (radioOption) {
+                    case ("xcalarRootDirectory"):
+                        $form.find(".SERDESDirectory").addClass("hidden");
+                        break;
+                    case ("otherDirectory"):
+                        $form.find(".SERDESDirectory").removeClass("hidden");
+                        break;
+                    default:
+                        console.error("Unexpected option!");
+                        break;
+                }
                 break;
             default:
                 console.error("Unexpected radio group!");

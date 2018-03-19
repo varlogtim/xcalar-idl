@@ -571,13 +571,29 @@
           </div>
           <div class="hint">
             <span></span>
-            <span>Input where Xcalar can temporarily save tables to disk on all nodes to free memory for other operations</span>
+            <span>Choose where Xcalar can temporarily save tables to disk on all nodes to free memory for other operations</span>
           </div>
         </div>
         <div class="section serializationDirectorySection hidden">
           <div class="installationDirectory">
-            <div class="inputWrap">
-              <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[Serialization Directory] (Optional)" value="">
+            <div class="radioButtonGroup SERDESChoice" id="SERDESChoice">
+              <div class="radioButton active" data-option="xcalarRootDirectory">
+                <div class="radio">
+                  <i class="icon xi-radio-selected"></i>
+                  <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">Xcalar Root Directory</div>
+              </div>
+              <div class="radioButton" data-option="otherDirectory">
+                <div class="radio">
+                  <i class="icon xi-radio-selected"></i>
+                  <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">Other</div>
+              </div>
+            </div>
+            <div class="SERDESDirectory hidden">
+              <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" value="" placeholder="[Serialization Directory]">
               <div class="bar">SERDES DIRECTORY</div>
             </div>
           </div>
