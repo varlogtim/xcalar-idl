@@ -4496,6 +4496,48 @@ XcalarRenameWorkbook = function(newName, oldName) {
     return (deferred.promise());
 };
 
+XcalarUploadWorkbook = function(workbookName, workbookContent) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = PromiseHelper.deferred();
+
+    setTimeout(function() {
+        deferred.resolve({jobStatus: 0, output: {}});
+    }, 1000);
+
+    // XXX wire in once thrift change is in
+    // xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    // .then(deferred.resolve)
+    // .fail(function(error) {
+    //     var thriftError = thriftLog("XcalarUploadWorkbook", error);
+    //     Log.errorLog("Upload Workbook", null, null, thriftError);
+    //     deferred.reject(thriftError);
+    // });
+    return (deferred.promise());
+};
+
+XcalarDownloadWorkbook = function(workbookName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = PromiseHelper.deferred();
+
+    setTimeout(function() {
+        deferred.resolve({content: "someWorkbookInfo"});
+    }, 1000);
+
+    // XXX wire in once thrift change is in
+    // xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    // .then(deferred.resolve)
+    // .fail(function(error) {
+    //     var thriftError = thriftLog("XcalarUploadWorkbook", error);
+    //     Log.errorLog("Upload Workbook", null, null, thriftError);
+    //     deferred.reject(thriftError);
+    // });
+    return (deferred.promise());
+};
+
 XcalarGetStatGroupIdMap = function(nodeId, numGroupId) {
     // nodeId is the node (be 0, 1, 2, 3, 4)
     // numGroupId is the max number of statue you want to return
