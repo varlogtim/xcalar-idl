@@ -265,7 +265,7 @@ var WATCH_FLAG_ALL = "all"; // watch all files
     WATCH_TARGET_CSS = "css",
     WATCH_TARGET_CTOR = 'ctor',
     WATCH_TARGET_LESS = "less",
-    WATCH_TARGET_TYPESCRIPT = "typescript",
+    WATCH_TARGET_TYPESCRIPT = "ts",
     WATCH_TARGET_JS = "js",
     //WATCH_TARGET_JS_BLD = "bldJs",
     WATCH_FLAG_COMMON_FILES = "common", // watch a list of common files
@@ -3208,7 +3208,7 @@ module.exports = function(grunt) {
         grunt.file.setBase(currCwd); //  switch back before continuing
 
         // If this is a non-dev build, remove sourcemap if generated
-        if ( BLDTYPE != DEV ) {
+        if ( BLDTYPE != DEV && !IS_WATCH_TASK ) {
 
             grunt.log.writeln("This is a non-dev build; delete any generated map files");
             var mapfiles, mapfile;
@@ -4904,6 +4904,15 @@ module.exports = function(grunt) {
                         + " is one of the main js files to build - can skip length bld process\n").bold.green);
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
+                else if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
+                    determinedRebuildProcess = true;
+                    grunt.log.writeln(("\nFile @ : "
+                        + filepath
+                        + " is one of the src javascript files, but is in ts/ folder.\n"
+                        + "Will run 'tsc' on entire folder.\n").bold.green);
+                    grunt.file.copy(filepath, BLDROOT + filepathRelBld);
+                    taskList.push(TYPESCRIPT);
+                }
                 break;
             case WATCH_TARGET_HTML:
                 /**
@@ -5446,10 +5455,10 @@ module.exports = function(grunt) {
                     break;
                 case '.js':
                     // check for dest case first because it's nested in src
-                    if ( grunt.file.doesPathContain(BLDROOT + jsMapping.dest, filepath) ) {
-                        filetype = WATCH_TARGET_JS_BLD;
-                    }
-                    else if ( grunt.file.doesPathContain(SRCROOT + jsMapping.src, filepath) ) {
+                    //if ( grunt.file.doesPathContain(BLDROOT + jsMapping.dest, filepath) ) {
+                    //    filetype = WATCH_TARGET_JS_BLD;
+                    //}
+                    if ( grunt.file.doesPathContain(SRCROOT + jsMapping.src, filepath) || grunt.file.doesPathContain(SRCROOT + typescriptMapping.src, filepath) ) {
                         filetype = WATCH_TARGET_JS;
                     }
                     else {
@@ -5935,7 +5944,7 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
-        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js'];
+        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js', SRCROOT + typescriptMapping.src + "/**/*.js"];
 //        WATCH_FILETYPES[WATCH_TARGET_JS_BLD] = [BLDROOT + 'assets/js/**/*.js'];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
 
