@@ -1277,7 +1277,7 @@ module.exports = function(grunt) {
             */
             constructorFiles: {
                 options: {},
-                cwd: BLDROOT + constructorMapping.src,
+                cwd: SRCROOT + constructorMapping.src,
                 src: "*", // get ALL files at and nested within cwd.  THey will all be paths relative to cwd (retaining dir structure)
                 expand: true, // allows 'src' arg to be dynamically populated (so will fail without, if you're supplying a glob to 'src')
                 dest: BLDROOT + constructorMapping.dest,
@@ -2274,7 +2274,6 @@ module.exports = function(grunt) {
             + grunt.config('copy.constructorFiles.dest'));
 
         grunt.task.run(GENERATE_CURR_PERS_CONSTRUCTOR_FILE);
-
         // next constructor file is only to show info about the bld to users.
         // devs don't need in their build, and if you auto-gen it, it will
         // cause it to show up in their 'git status', so skip for dev blds
@@ -2331,10 +2330,10 @@ module.exports = function(grunt) {
     grunt.task.registerTask(GENERATE_CURR_PERS_CONSTRUCTOR_FILE, function() {
 
         // path of file to auto generate
-        var filepath = BLDROOT + constructorMapping.src + "E_persConstructor.js";
+        var filepath = SRCROOT + constructorMapping.src + "E_persConstructor.js";
 
         var templateSrc = "site/render/template/constructor.template.js"; // templating file to use to generate
-        var templateFilepathAbs = BLDROOT + templateSrc;
+        var templateFilepathAbs = SRCROOT + templateSrc;
 
         var str = fs.readFileSync(templateFilepathAbs).toString();
         var template = _.template(str);
