@@ -160,8 +160,8 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             return false;
         });
 
-        $forms.find("#defaultAdminPassword").on("keyup", function() {
-            calculatePasswordStrength($(this));
+        $forms.find(".defaultAdminParam input").on("keyup", function () {
+            calculatePasswordStrength();
         });
 
         ErrorMessage.setup();
@@ -1318,8 +1318,9 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         // }
         var lowerCasePass = password.toLowerCase();
         var lowerCaseUserName = userName.toLowerCase();
-        if ((lowerCaseUserName !== "") && (lowerCasePass === lowerCaseUserName ||
-            lowerCasePass.indexOf(lowerCaseUserName) !== - 1 ||
+        if ((lowerCaseUserName !== "") &&
+            (lowerCasePass === lowerCaseUserName ||
+            (lowerCasePass.indexOf(lowerCaseUserName) !== - 1 && lowerCaseUserName.length >= 3) ||
             (lowerCaseUserName.indexOf(lowerCasePass) !== - 1) && lowerCasePass.length >= 3)) {
             return {
                 "strength": "invalid",
