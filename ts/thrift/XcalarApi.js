@@ -70,7 +70,7 @@ xcalarGetNumNodesWorkItem = runEntity.xcalarGetNumNodesWorkItem = function() {
 };
 
 xcalarGetNumNodes = runEntity.xcalarGetNumNodes = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarGetNumNodes()");
@@ -113,7 +113,7 @@ xcalarGetVersionWorkItem = runEntity.xcalarGetVersionWorkItem = function() {
 };
 
 xcalarGetVersion = runEntity.xcalarGetVersion = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarGetVersion()");
@@ -155,7 +155,7 @@ xcalarGetLicenseWorkItem = runEntity.xcalarGetLicenseWorkItem = function() {
 };
 
 xcalarGetLicense = runEntity.xcalarGetLicense = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarGetLicense()");
@@ -191,7 +191,7 @@ xcalarGetConfigParamsWorkItem = runEntity.xcalarGetConfigParamsWorkItem = functi
 };
 
 xcalarGetConfigParams = runEntity.xcalarGetConfigParams = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarGetConfigParams()");
@@ -233,7 +233,7 @@ xcalarSetConfigParamWorkItem = runEntity.xcalarSetConfigParamWorkItem = function
 };
 
 xcalarSetConfigParam = runEntity.xcalarSetConfigParam = function(thriftHandle, paramName, paramValue) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarSetConfigParam(paramName = " + paramName +
                     ", paramValue = " + paramValue + ")");
@@ -305,7 +305,7 @@ xcalarAppSetWorkItem = runEntity.xcalarAppSetWorkItem = function(name, hostType,
 };
 
 xcalarAppSet = runEntity.xcalarAppSet = function(thriftHandle, name, hostType, duty, execStr) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppSet(name = " + name +
                     ", hostType = " + hostType + ", duty = " +
@@ -348,7 +348,7 @@ xcalarAppRunWorkItem = runEntity.xcalarAppRunWorkItem = function(name, isGlobal,
 };
 
 xcalarAppRun = runEntity.xcalarAppRun = function(thriftHandle, name, isGlobal, inStr) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppRun(name = " + name + ", isGlobal = " + isGlobal +
                     ", inStr = " + inStr + ")");
@@ -390,7 +390,7 @@ xcalarAppReapWorkItem = runEntity.xcalarAppReapWorkItem = function(appGroupId) {
 };
 
 xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppReap(appGroupId = " + appGroupId + ")");
     }
@@ -430,7 +430,7 @@ xcalarTargetWorkItem = runEntity.xcalarTargetWorkItem = function(inJson) {
 };
 
 xcalarTargetCreate = runEntity.xcalarTargetCreate = function(thriftHandle, targetTypeId, targetName, targetParams) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTargetCreate(targetTypeId = " + targetTypeId +
                                       " targetName = " + targetName +
@@ -473,7 +473,7 @@ xcalarTargetCreate = runEntity.xcalarTargetCreate = function(thriftHandle, targe
 };
 
 xcalarTargetDelete = runEntity.xcalarTargetDelete = function(thriftHandle, targetName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTargetDelete(targetName = " + targetName + ")");
     }
@@ -511,7 +511,7 @@ xcalarTargetDelete = runEntity.xcalarTargetDelete = function(thriftHandle, targe
 };
 
 xcalarTargetList = runEntity.xcalarTargetList = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTargetList()");
     }
@@ -546,7 +546,7 @@ xcalarTargetList = runEntity.xcalarTargetList = function(thriftHandle) {
 };
 
 xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTargetTypeList()");
     }
@@ -601,7 +601,7 @@ xcalarPreviewWorkItem = runEntity.xcalarPreviewWorkItem = function(sourceArgs, n
 };
 
 xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, sourceArgs, numBytesRequested, offset) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarPreview(sourceArgs = " + sourceArgs +
                     ", numBytesRequested = " + numBytesRequested +
@@ -660,7 +660,7 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgsLis
 
 // The caller may pass in whatever values they want
 xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgsList, parseArgs, maxSize) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarLoad(sourceArgsList = " + JSON.stringify(sourceArgsList) +
@@ -726,7 +726,7 @@ xcalarIndex = runEntity.xcalarIndexTable = function(thriftHandle,
                                                     keys,
                                                     prefix,
                                                     dhtName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarIndex(source = " +  source +
@@ -784,7 +784,7 @@ xcalarGetMetaWorkItem = runEntity.xcalarGetMetaWorkItem = function(datasetName, 
 };
 
 xcalarGetMetaInt = runEntity.xcalarGetMetaInt = function(thriftHandle, datasetName, tableName, isPrecise) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetMeta(tableName = " + tableName + ", " +
                     "datasetName =" + datasetName + ")");
@@ -833,7 +833,7 @@ xcalarShutdownWorkItem = runEntity.xcalarShutdownWorkItem = function(force) {
 };
 
 xcalarShutdown = runEntity.xcalarShutdown = function(thriftHandle, force) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarShutdown()");
     }
@@ -870,7 +870,7 @@ xcalarGetStatsWorkItem = runEntity.xcalarGetStatsWorkItem = function(nodeId) {
 };
 
 xcalarGetStats = runEntity.xcalarGetStats = function(thriftHandle, nodeId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarGetStats(nodeId = " + nodeId.toString() + ")");
@@ -913,7 +913,7 @@ xcalarRenameNodeWorkItem = runEntity.xcalarRenameNodeWorkItem = function(oldName
 };
 
 xcalarRenameNode = runEntity.xcalarRenameNode = function(thriftHandle, oldName, newName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarRenameNode(oldName = " + oldName +
                     ", newName = " + newName + ")");
@@ -955,7 +955,7 @@ xcalarTagDagNodesWorkItem = runEntity.xcalarTagDagNodesWorkItem = function(tag, 
 };
 
 xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, nodes) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarTagDagNodes(tag = " + tag +
                     ", nodes = " + nodes + ")");
@@ -998,7 +998,7 @@ xcalarCommentDagNodesWorkItem = runEntity.xcalarCommentDagNodesWorkItem = functi
 };
 
 xcalarCommentDagNodes = runEntity.xcalarCommentDagNodes = function(thriftHandle, comment, numNodes, nodeNames) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarCommentDagNodes(comment = " + comment +
                     ", nodeNames = " + nodeNames + ")");
@@ -1043,7 +1043,7 @@ xcalarGetStatsByGroupIdWorkItem = runEntity.xcalarGetStatsByGroupIdWorkItem = fu
 };
 
 xcalarGetStatsByGroupId = runEntity.xcalarGetStatsByGroupId = function(thriftHandle, nodeIdList, groupIdList) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetStatsByGroupId(nodeIds = " + nodeIdList.toString() +
                     ", numGroupIds = ", + groupIdList.length.toString() +
@@ -1086,7 +1086,7 @@ xcalarResetStatsWorkItem = runEntity.xcalarResetStatsWorkItem = function(nodeId)
 };
 
 xcalarResetStats = runEntity.xcalarResetStats = function(thriftHandle, nodeId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarResetStats(nodeId = " + nodeId.toString() + ")");
     }
@@ -1126,7 +1126,7 @@ xcalarGetStatGroupIdMapWorkItem = runEntity.xcalarGetStatGroupIdMapWorkItem = fu
 };
 
 xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHandle, nodeId, numGroupId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetStatGroupIdMap(nodeId = " + nodeId.toString() +
                     ", numGroupId = " + numGroupId.toString() + ")");
@@ -1171,7 +1171,7 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
 };
 
 xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
@@ -1212,7 +1212,7 @@ xcalarQueryStateWorkItem = runEntity.xcalarQueryStateWorkItem = function(queryNa
 };
 
 xcalarQueryState = runEntity.xcalarQueryState = function(thriftHandle, queryName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryState(query name = " + queryName + ")");
     }
@@ -1254,7 +1254,7 @@ xcalarQueryCancelWorkItem = runEntity.xcalarQueryCancelWorkItem = function(query
 };
 
 xcalarQueryCancel = runEntity.xcalarQueryCancel = function(thriftHandle, queryName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryCancel(query name = " + queryName + ")");
     }
@@ -1293,7 +1293,7 @@ xcalarQueryDeleteWorkItem = runEntity.xcalarQueryDeleteWorkItem = function(query
 };
 
 xcalarQueryDelete = runEntity.xcalarQueryDelete = function(thriftHandle, queryName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryDelete(query name = " + queryName + ")");
     }
@@ -1332,7 +1332,7 @@ xcalarGetOpStatsWorkItem = runEntity.xcalarGetOpStatsWorkItem = function(dstDagN
 };
 
 xcalarApiGetOpStats = runEntity.xcalarApiGetOpStats = function(thriftHandle, dstDagName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiGetOpStats(dstDagName = " + dstDagName + ")");
     }
@@ -1370,7 +1370,7 @@ xcalarCancellationWorkItem = runEntity.xcalarCancellationWorkItem = function(dst
 };
 
 xcalarApiCancelOp = runEntity.xcalarApiCancelOp = function(thriftHandle, dstDagName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiCancelOp(dstDagName = " + dstDagName + ")");
     }
@@ -1407,7 +1407,7 @@ xcalarDagWorkItem = runEntity.xcalarDagWorkItem = function(tableName) {
 };
 
 xcalarDag = runEntity.xcalarDag = function(thriftHandle, tableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDag(tableName = " + tableName + ")");
     }
@@ -1449,7 +1449,7 @@ xcalarListDagNodesWorkItem = runEntity.xcalarListDagNodesWorkItem = function(pat
 };
 
 xcalarListTables = runEntity.xcalarListTables = function(thriftHandle, patternMatch, srcType) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListTables(patternMatch = " + patternMatch +
                     ", srcType = " + srcType + ")");
@@ -1491,7 +1491,7 @@ xcalarListDatasetsWorkItem = runEntity.xcalarListDatasetsWorkItem = function() {
 };
 
 xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListDatasets()");
     }
@@ -1546,7 +1546,7 @@ xcalarGetDatasetsInfoWorkItem = runEntity.xcalarGetDatasetsInfoWorkItem = functi
 };
 
 xcalarGetDatasetsInfo = runEntity.xcalarGetDatasetsInfo = function(thriftHandle, datasetsNamePattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetDatasetsInfo(datasetsNamePattern = " + datasetsNamePattern + ")");
     }
@@ -1591,7 +1591,7 @@ xcalarListDatasetUsersWorkItem = runEntity.xcalarListDatasetUsersWorkItem = func
 };
 
 xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandle, datasetName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListDatasetUsers(datasetName = " + datasetName + ")");
     }
@@ -1645,7 +1645,7 @@ xcalarListUserDatasetsWorkItem = runEntity.xcalarListUserDatasetsWorkItem = func
 };
 
 xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandle, userIdName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListUserDatasets(userIdName = " + userIdName + ")");
     }
@@ -1701,7 +1701,7 @@ xcalarLockDatasetWorkItem = runEntity.xcalarLockDatasetWorkItem = function(datas
 };
 
 xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, datasetName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarLockDataset(datasetName = " + datasetName + ")");
     }
@@ -1744,7 +1744,7 @@ xcalarMakeResultSetFromTableWorkItem = runEntity.xcalarMakeResultSetFromTableWor
 };
 
 xcalarMakeResultSetFromTable = runEntity.xcalarMakeResultSetFromTable = function(thriftHandle, tableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeResultSetFromTable(tableName = " + tableName +
                     ")");
@@ -1794,7 +1794,7 @@ xcalarMakeResultSetFromDatasetWorkItem = runEntity.xcalarMakeResultSetFromDatase
 };
 
 xcalarMakeResultSetFromDataset = runEntity.xcalarMakeResultSetFromDataset = function(thriftHandle, datasetName, errorDs) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeResultSetFromDataset(datasetName = " +
                     datasetName + ")");
@@ -1841,7 +1841,7 @@ xcalarResultSetNextWorkItem = runEntity.xcalarResultSetNextWorkItem = function(r
 };
 
 xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, resultSetId, numRecords) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarResultSetNext(resultSetId = " +
@@ -1914,7 +1914,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
 
 xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType, leftColumns, rightColumns, evalString, collisionCheck) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarJoin(leftTableName = " + leftTableName +
@@ -1983,7 +1983,7 @@ xcalarUnion = runEntity.xcalarUnion = function(thriftHandle, sources,
                                                dest,
                                                columns,
                                                dedup) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarUnion(sources = " + sources +
@@ -2032,7 +2032,7 @@ xcalarProjectWorkItem = runEntity.xcalarProjectWorkItem = function(numColumns, c
 
 xcalarProject = runEntity.xcalarProject = function(thriftHandle, numColumns, columns,
                        srcTableName, dstTableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarProject(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName +
@@ -2087,7 +2087,7 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
 };
 
 xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTableName, dstTableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarFilter(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", filterStr = " +
@@ -2157,7 +2157,7 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
 };
 
 xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thriftHandle, workItem) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
@@ -2190,7 +2190,7 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
 };
 
 xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStrs, newFieldNames, includeSrcSample, icvMode, newKeyFieldName, groupAll) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", groupByEvalStrs = " +
@@ -2240,7 +2240,7 @@ xcalarResultSetAbsoluteWorkItem = runEntity.xcalarResultSetAbsoluteWorkItem = fu
 };
 
 xcalarResultSetAbsolute = runEntity.xcalarResultSetAbsolute = function(thriftHandle, resultSetId, position) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarResultSetAbsolute(resultSetId = " +
                     resultSetId + ", position = " +
@@ -2279,7 +2279,7 @@ xcalarFreeResultSetWorkItem = runEntity.xcalarFreeResultSetWorkItem = function(r
 };
 
 xcalarFreeResultSet = runEntity.xcalarFreeResultSet = function(thriftHandle, resultSetId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarFreeResultSet(resultSetId = " +
                     resultSetId + ")");
@@ -2320,7 +2320,7 @@ xcalarDeleteDagNodesWorkItem = runEntity.xcalarDeleteDagNodesWorkItem = function
 };
 
 xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, namePattern, srcType) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDeleteDagNodes(namePattern = " + namePattern + ")");
     }
@@ -2365,7 +2365,7 @@ xcalarArchiveTablesWorkItem = runEntity.xcalarArchiveTablesWorkItem = function(t
 };
 
 xcalarArchiveTables = runEntity.xcalarArchiveTables = function(thriftHandle, tableNames) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarArchiveTables(tables = " + tableNames + ")");
     }
@@ -2381,11 +2381,13 @@ xcalarArchiveTables = runEntity.xcalarArchiveTables = function(thriftHandle, tab
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-        if (status != StatusT.StatusOk) {
+        // If serDes is disabled then nothing is archived but the output reflects that
+        // fact (e.g. numNodes == 0)
+        if (status != StatusT.StatusOk && status != StatusT.StatusSerializationIsDisabled) {
             deferred.reject({xcalarStatus: status, log: log, output: archiveTablesOutput});
         } else {
             archiveTablesOutput.timeElapsed =
-            result.output.hdr.elapsed.milliseconds;
+                result.output.hdr.elapsed.milliseconds;
             deferred.resolve(archiveTablesOutput);
         }
     })
@@ -2398,7 +2400,7 @@ xcalarArchiveTables = runEntity.xcalarArchiveTables = function(thriftHandle, tab
 };
 
 xcalarUnarchiveTables = runEntity.xcalarUnarchiveTables = function(thriftHandle, tableNames) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarUnarchiveTables(tables = " + tableNames + ")");
     }
@@ -2414,7 +2416,7 @@ xcalarUnarchiveTables = runEntity.xcalarUnarchiveTables = function(thriftHandle,
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-        if (status != StatusT.StatusOk) {
+        if (status != StatusT.StatusOk && status != StatusT.StatusSerializationIsDisabled) {
             deferred.reject({xcalarStatus: status, log: log, output: archiveTablesOutput});
         } else {
             archiveTablesOutput.timeElapsed =
@@ -2442,7 +2444,7 @@ xcalarGetTableRefCountWorkItem = runEntity.xcalarGetTableRefCountWorkItem = func
 };
 
 xcalarGetTableRefCount = runEntity.xcalarGetTableRefCount = function(thriftHandle, tableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetTableRefCount(tableName = " + tableName + ")");
     }
@@ -2505,7 +2507,7 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStrs,
 };
 
 xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftHandle, workItem) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         var mapInput = workItem.input.mapInput;
         var newFieldNames = mapInput.newFieldNames;
@@ -2546,7 +2548,7 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
 xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
                                                  newFieldNames, evalStrs, srcTableName,
                                                  dstTableName, icvMode) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiMap(newFieldNames = " + newFieldNames +
                     ", evalStrs = " + evalStrs + ", srcTableName = " +
@@ -2599,7 +2601,7 @@ xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(s
 };
 
 xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName, dstTableName, columns) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSynthesize(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ")");
@@ -2647,7 +2649,7 @@ xcalarApiGetRowNumWorkItem = runEntity.xcalarApiGetRowNumWorkItem = function(src
 
 xcalarApiGetRowNum = runEntity.xcalarApiGetRowNum = function(thriftHandle, newFieldName, srcTableName,
                       dstTableName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiGetRowNum(newFieldName = " + newFieldName +
                     ", srcTableName = " + srcTableName +
@@ -2698,7 +2700,7 @@ xcalarAggregateWorkItem = runEntity.xcalarAggregateWorkItem = function(srcTableN
 };
 
 xcalarAggregate = runEntity.xcalarAggregate = function(thriftHandle, srcTableName, dstTableName, aggregateEvalStr) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAggregate(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName +
@@ -2742,7 +2744,7 @@ xcalarAddExportTargetWorkItem = runEntity.xcalarAddExportTargetWorkItem = functi
 };
 
 xcalarAddExportTarget = runEntity.xcalarAddExportTarget = function(thriftHandle, target) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAddExportTarget(target.hdr.name = " + target.hdr.name +
                     ", target.hdr.type = " + ExTargetTypeTStr[target.hdr.type] +
@@ -2783,7 +2785,7 @@ xcalarRemoveExportTargetWorkItem = runEntity.xcalarRemoveExportTargetWorkItem = 
 };
 
 xcalarRemoveExportTarget = runEntity.xcalarRemoveExportTarget = function(thriftHandle, targetHdr) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarRemoveExportTarget(targetHdr.name = " + targetHdr.name +
                     ", targetHdr.type = " + ExTargetTypeTStr[targetHdr.type] +
@@ -2826,7 +2828,7 @@ xcalarListExportTargetsWorkItem = runEntity.xcalarListExportTargetsWorkItem = fu
 };
 
 xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHandle, typePattern, namePattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     console.log("xcalarListExportTargets(typePattern = " + typePattern +
                 ", namePattern = " + namePattern + ")");
 
@@ -2919,7 +2921,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
 
 xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target, specInput, createRule,
                       sorted, numColumns, columns, exportName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + ExTargetTypeTStr[target.type] +
@@ -2971,7 +2973,7 @@ xcalarListFilesWorkItem = runEntity.xcalarListFilesWorkItem = function(sourceArg
 };
 
 xcalarListFiles = runEntity.xcalarListFiles = function(thriftHandle, sourceArgs) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(sourceArgs = " + sourceArgs + ")");
     }
@@ -3011,7 +3013,7 @@ xcalarApiDeleteRetinaWorkItem = runEntity.xcalarApiDeleteRetinaWorkItem = functi
 };
 
 xcalarApiDeleteRetina = runEntity.xcalarApiDeleteRetina = function(thriftHandle, retinaName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiDeleteRetina(retinaName = " + retinaName + ")");
     }
@@ -3058,7 +3060,7 @@ xcalarMakeRetinaWorkItem = runEntity.xcalarMakeRetinaWorkItem = function(retinaN
 };
 
 xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaName, tableArray, srcTables) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeRetina(retinaName = " + retinaName +
                     ", srcTables = " + JSON.stringify(srcTables) +
@@ -3094,7 +3096,7 @@ xcalarListRetinasWorkItem = runEntity.xcalarListRetinasWorkItem = function() {
 };
 
 xcalarListRetinas = runEntity.xcalarListRetinas = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListRetinas()");
     }
@@ -3135,7 +3137,7 @@ xcalarGetRetinaWorkItem = runEntity.xcalarGetRetinaWorkItem = function(retinaNam
 };
 
 xcalarGetRetina = runEntity.xcalarGetRetina = function(thriftHandle, retinaName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetRetina(retinaName = " + retinaName + ")");
     }
@@ -3174,7 +3176,7 @@ xcalarGetRetinaJsonWorkItem = runEntity.xcalarGetRetinaJsonWorkItem = function(r
 };
 
 xcalarGetRetinaJson = runEntity.xcalarGetRetinaJson = function(thriftHandle, retinaName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetRetinaJson(retinaName = " + retinaName + ")");
     }
@@ -3215,7 +3217,7 @@ xcalarUpdateRetinaWorkItem = runEntity.xcalarUpdateRetinaWorkItem = function(ret
 };
 
 xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retinaName, retinaJson) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarUpdateRetina(retinaName = " + retinaName + ", " +
                     "retinaJson = " + retinaJson + ")");
@@ -3268,7 +3270,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 
 xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, retinaName, parameters,
                              exportToActiveSession, newTableName, queryName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName +
                     ", exportToActiveSession = " + exportToActiveSession +
@@ -3316,7 +3318,7 @@ xcalarListParametersInRetinaWorkItem = runEntity.xcalarListParametersInRetinaWor
 };
 
 xcalarListParametersInRetina = runEntity.xcalarListParametersInRetina = function(thriftHandle, retinaName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListParametersInRetina(retinaName = " + retinaName +
                     ")");
@@ -3358,7 +3360,7 @@ xcalarKeyListWorkItem = runEntity.xcalarKeyListWorkItem = function(scope, keyReg
 };
 
 xcalarKeyList = runEntity.xcalarKeyList = function(thriftHandle, scope, keyRegex) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyList(scope = " + scope + ", keyRegex = " + keyRegex +
                     ")");
@@ -3400,7 +3402,7 @@ xcalarKeyLookupWorkItem = runEntity.xcalarKeyLookupWorkItem = function(scope, ke
 };
 
 xcalarKeyLookup = runEntity.xcalarKeyLookup = function(thriftHandle, scope, key) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyLookup(scope = " + scope + ", key = " + key +
                     ")");
@@ -3446,7 +3448,7 @@ xcalarKeyAddOrReplaceWorkItem = runEntity.xcalarKeyAddOrReplaceWorkItem = functi
 };
 
 xcalarKeyAddOrReplace = runEntity.xcalarKeyAddOrReplace = function(thriftHandle, scope, key, value, persist) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
             console.log("xcalarKeyAddOrReplace(source = " + scope + ", key = " +
@@ -3494,7 +3496,7 @@ xcalarUpdateLicenseWorkItem = runEntity.xcalarUpdateLicenseWorkItem = function(l
 };
 
 xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, licenseKey) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarUpdateLicense(licenseKey=" + licenseKey + ")");
     }
@@ -3534,7 +3536,7 @@ xcalarKeyAppendWorkItem = runEntity.xcalarKeyAppendWorkItem = function(scope, ke
 };
 
 xcalarKeyAppend = runEntity.xcalarKeyAppend = function(thriftHandle, scope, key, suffix) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
             console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
@@ -3596,7 +3598,7 @@ xcalarKeySetIfEqualWorkItem = runEntity.xcalarKeySetIfEqualWorkItem = function(s
 xcalarKeySetIfEqual = runEntity.xcalarKeySetIfEqual = function(thriftHandle, scope, persist, keyCompare,
                              valueCompare, valueReplace, keySecondary,
                              valueSecondary) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
             console.log("xcalarKeySetIfEqual(scope = " + scope +
@@ -3654,7 +3656,7 @@ xcalarKeyDeleteWorkItem = runEntity.xcalarKeyDeleteWorkItem = function(scope, ke
 };
 
 xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyDelete(scope = " + scope + ", key = " +
                     key + ")");
@@ -3697,7 +3699,7 @@ xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureInterval
 };
 
 xcalarApiTop = runEntity.xcalarApiTop = function(thriftHandle, measureIntervalInMs) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiTop(measureIntervalInMs = ", measureIntervalInMs,
                     ")");
@@ -3743,7 +3745,7 @@ xcalarApiGetMemoryUsageWorkItem = runEntity.xcalarApiGetMemoryUsageWorkItem =
 xcalarApiGetMemoryUsage = runEntity.xcalarApiGetMemoryUsage = function(thriftHandle,
                                                                        userName,
                                                                        userId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiGetMemoryUsage(userName = ", userName,
                     ")");
@@ -3788,7 +3790,7 @@ xcalarApiSessionNewWorkItem = runEntity.xcalarApiSessionNewWorkItem = function(s
 
 xcalarApiSessionNew = runEntity.xcalarApiSessionNew = function(thriftHandle, sessionName, fork,
                              forkedSessionName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionNew(sessionName = ", sessionName, ", ",
                     "fork = ", fork, ", ",
@@ -3832,7 +3834,7 @@ xcalarApiSessionDeleteWorkItem = runEntity.xcalarApiSessionDeleteWorkItem = func
 };
 
 xcalarApiSessionDelete = runEntity.xcalarApiSessionDelete = function(thriftHandle, pattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionDelete(pattern = " + pattern + ")");
     }
@@ -3874,7 +3876,7 @@ xcalarApiSessionInactWorkItem = runEntity.xcalarApiSessionInactWorkItem = functi
 // noCleanup = true means that the datasets and tables belonging to the
 // session will not be dropped when the session is made inactive
 xcalarApiSessionInact = runEntity.xcalarApiSessionInact = function(thriftHandle, name, noCleanup) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionInact(name = " + name + ")");
     }
@@ -3913,7 +3915,7 @@ xcalarApiSessionListWorkItem = runEntity.xcalarApiSessionListWorkItem = function
 };
 
 xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, pattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionList(pattern = " + pattern + ")");
     }
@@ -3957,7 +3959,7 @@ xcalarApiSessionPersistWorkItem = runEntity.xcalarApiSessionPersistWorkItem = fu
 };
 
 xcalarApiSessionPersist = runEntity.xcalarApiSessionPersist = function(thriftHandle, pattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionPersist(pattern = " + pattern + ")");
     }
@@ -4004,7 +4006,7 @@ xcalarApiSessionSwitchWorkItem = runEntity.xcalarApiSessionSwitchWorkItem = func
 
 xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandle, sessionName, origSessionName,
                                 noCleanup) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionSwitch(sessionName = ", sessionName, ", ",
                     "origSessionName = ", origSessionName,
@@ -4048,7 +4050,7 @@ xcalarApiSessionRenameWorkItem = runEntity.xcalarApiSessionRenameWorkItem = func
 };
 
 xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandle, sessionName, origSessionName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionRename(sessionName = ", sessionName, ", ",
                     "origSessionName = ", origSessionName);
@@ -4078,6 +4080,98 @@ xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandl
     return (deferred.promise());
 };
 
+xcalarApiSessionDownloadWorkItem = runEntity.xcalarApiSessionDownloadWorkItem = function(workbookName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiSessionDownload;
+    workItem.input.downloadWorkbookInput = new XcalarApiSessionDownloadInputT();
+    workItem.input.downloadWorkbookInput.workbookName = workbookName;
+    return (workItem);
+};
+
+xcalarApiSessionDownload = runEntity.xcalarApiSessionDownload = function(thriftHandle, workbookName) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarApiSessionDownload(workbookName = " + workbookName + ")");
+    }
+
+    var workItem = xcalarApiSessionDownloadWorkItem(workbookName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var downloadWorkbookOutput = result.output.outputResult.downloadWorkbookOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            downloadWorkbookOutput.workbookContent =
+                atob(downloadWorkbookOutput.workbookContent);
+            downloadWorkbookOutput.workbootContentCount =
+                downloadWorkbookOutput.workbookContentCount;
+
+            deferred.resolve(downloadWorkbookOutput);
+        }
+
+    })
+    .fail(function(error) {
+        console.log("xcalarSessionDownload() caught exception: ", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = function(workbookName, workbookContent) {
+    var workItem = new WorkItem();
+    var encodedWorkbook = btoa(workbookContent);
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiSessionUpload;
+    workItem.input.uploadWorkbookInput = new XcalarApiSessionUploadInputT();
+    workItem.input.uploadWorkbookInput.workbookName = workbookName;
+    workItem.input.uploadWorkbookInput.workbookContentCount = encodedWorkbook.length;
+    workItem.input.uploadWorkbookInput.workbookContent = encodedWorkbook;
+
+    return (workItem);
+};
+
+xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandle, workbookName, workbookContent) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarApiSessionUpload(workbookName = " + workbookName + ")");
+    }
+
+    var workItem = xcalarApiSessionUploadWorkItem(workbookName, workbookContent);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarSessionUpload() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarApiListXdfsWorkItem = runEntity.xcalarApiListXdfsWorkItem = function(fnNamePattern, categoryPattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -4090,7 +4184,7 @@ xcalarApiListXdfsWorkItem = runEntity.xcalarApiListXdfsWorkItem = function(fnNam
 };
 
 xcalarApiListXdfs = runEntity.xcalarApiListXdfs = function(thriftHandle, fnNamePattern, categoryPattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiListXdfs(fnNamePattern = ", fnNamePattern, ", ",
                     "categoryPattern = ", categoryPattern, ")");
@@ -4137,7 +4231,7 @@ xcalarApiUdfAddUpdateWorkItem = runEntity.xcalarApiUdfAddUpdateWorkItem = functi
 
 xcalarApiUdfAdd = runEntity.xcalarApiUdfAdd = function(thriftHandle, type, moduleName, source)
 {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiUdfAdd(type = ", type, ", moduleName = ",
                     moduleName, ", ", "source = ", source, ")");
@@ -4169,7 +4263,7 @@ xcalarApiUdfAdd = runEntity.xcalarApiUdfAdd = function(thriftHandle, type, modul
 
 xcalarApiUdfUpdate = runEntity.xcalarApiUdfUpdate = function(thriftHandle, type, moduleName, source)
 {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiUdfUpdate(moduleName = ", moduleName,
                     ", ", "source = ", source, ")");
@@ -4214,7 +4308,7 @@ xcalarApiUdfDeleteWorkItem = runEntity.xcalarApiUdfDeleteWorkItem = function(mod
 
 xcalarApiUdfDelete = runEntity.xcalarApiUdfDelete = function(thriftHandle, moduleName)
 {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiUdfDelete(moduleName = ", moduleName, ")");
     }
@@ -4256,7 +4350,7 @@ xcalarApiUdfGetWorkItem = runEntity.xcalarApiUdfGetWorkItem = function(moduleNam
 
 xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
 {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiUdfGet(moduleName = ", moduleName, ")");
     }
@@ -4344,7 +4438,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
 };
 
 xcalarApiGetQueryOld = runEntity.xcalarApiGetQueryOld = function(thriftHandle, workItem) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     workItem.origApi = workItem.api;
     workItem.api = XcalarApisT.XcalarApiGetQuery;
 
@@ -4388,7 +4482,7 @@ xcalarApiCreateDhtWorkItem = runEntity.xcalarApiCreateDhtWorkItem = function(dht
 };
 
 xcalarApiCreateDht = runEntity.xcalarApiCreateDht = function(thriftHandle, dhtName, upperBound, lowerBound, ordering) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiCreateDht(dhtName = " + dhtName + ", upperBound = " +
                     upperBound + ", lowerBound = " + lowerBound +
@@ -4431,7 +4525,7 @@ xcalarApiDeleteDhtWorkItem = runEntity.xcalarApiDeleteDhtWorkItem = function(dht
 };
 
 xcalarApiDeleteDht = runEntity.xcalarApiDeleteDht = function(thriftHandle, dhtName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiDeleteDht(dhtName = " + dhtName + ")");
     }
@@ -4474,7 +4568,7 @@ xcalarApiSupportGenerateWorkItem = runEntity.xcalarApiSupportGenerateWorkItem = 
 };
 
 xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftHandle, generateMiniBundle, supportCaseId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSupportGenerate(): generateMiniBundle = " + generateMiniBundle +
                     ", supportCaseId = " + supportCaseId);
@@ -4527,7 +4621,7 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
 };
 
 xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiImportRetina(retinaName = " + retinaName +
@@ -4572,7 +4666,7 @@ xcalarApiExportRetinaWorkItem = runEntity.xcalarApiExportRetinaWorkItem = functi
 };
 
 xcalarApiExportRetina = runEntity.xcalarApiExportRetina = function(thriftHandle, retinaName) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiExportRetina(retinaName = " + retinaName + ")");
@@ -4625,7 +4719,7 @@ xcalarApiStartFuncTestWorkItem = runEntity.xcalarApiStartFuncTestWorkItem = func
 };
 
 xcalarApiStartFuncTest = runEntity.xcalarApiStartFuncTest = function(thriftHandle, parallel, runOnAllNodes, runAllTests, testNamePatterns) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiStartFuncTest(parallel = ", parallel, ", runAllTests = ",
@@ -4671,7 +4765,7 @@ xcalarApiListFuncTestWorkItem = runEntity.xcalarApiListFuncTestWorkItem = functi
 };
 
 xcalarApiListFuncTest = runEntity.xcalarApiListFuncTest = function(thriftHandle, namePattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiListFuncTest(namePattern = ", namePattern, ")");
@@ -4715,7 +4809,7 @@ xcalarApiDeleteDatasetsWorkItem = runEntity.xcalarApiDeleteDatasetsWorkItem = fu
 };
 
 xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHandle, datasetNamePattern) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiDeleteDatasets(datasetNamePattern = ", datasetNamePattern, ")");
@@ -4764,7 +4858,7 @@ xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLe
 };
 
 xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel, logFlushLevel, logFlushPeriod) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() +
                     ", logFlushLevel = " + logFlushLevel + "logFlushPeriod = " +
@@ -4803,7 +4897,7 @@ xcalarLogLevelGetWorkItem = runEntity.xcalarLogLevelGetWorkItem = function() {
 };
 
 xcalarLogLevelGet = runEntity.xcalarLogLevelGet = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarLogLevelGet()");
     }
@@ -4846,7 +4940,7 @@ xcalarApiLocalTopWorkItem = runEntity.xcalarApiLocalTopWorkItem = function(measu
 };
 
 xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measureIntervalInMs) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiLocalTop(measureIntervalInMs = ", measureIntervalInMs,
                     ")");
@@ -4884,7 +4978,7 @@ xcalarGetCurrentXemConfigGetWorkItem = runEntity.xcalarGetCurrentXemConfigGetWor
 };
 
 xcalarGetCurrentXemConfig = runEntity.xcalarGetCurrentXemConfig = function(thriftHandle) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetCurrentXemConfig");
     }
@@ -4928,7 +5022,7 @@ xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
 };
 
 xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
-    var deferred = PromiseHelper.deferred();
+    var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetIpAddr(nodeId = " + nodeId.toString() + ")");
     }

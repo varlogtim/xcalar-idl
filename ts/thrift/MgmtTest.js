@@ -54,7 +54,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         if (numProm === 0) {
             return PromiseHelper.resolve(null);
         }
-        var mainDeferred = PromiseHelper.deferred();
+        var mainDeferred = jQuery.Deferred();
 
         var numDone = 0;
         var returns = [];
@@ -103,7 +103,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     Chains the promises such that only after promiseArray[i] completes, then
     promiseArray[i+1] will start.
 
-    Usage: for example, you have a = PromiseHelper.deferred(); b = PromiseHelper.deferred();
+    Usage: for example, you have a = jQuery.deferred(); b = jQuery.deferred();
     You want to run a, then after it's done, run b.
     var promiseArray = [a,b];
     promiseArray
@@ -127,14 +127,14 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     /* return a promise with resolved value */
     PromiseHelper.resolve = function() {
-        var deferred = PromiseHelper.deferred();
+        var deferred = jQuery.Deferred();
         deferred.resolve.apply(this, arguments);
         return deferred.promise();
     };
 
     /* return a promise with rejected error */
     PromiseHelper.reject = function() {
-        var deferred = PromiseHelper.deferred();
+        var deferred = jQuery.Deferred();
         deferred.reject.apply(this, arguments);
         return deferred.promise();
     };
@@ -156,7 +156,7 @@ window.Function.prototype.bind = function() {
 (function($, TestSuite) {
     "use strict";
 
-    if (!jQuery || typeof PromiseHelper.deferred !== "function") {
+    if (!jQuery || typeof jQuery.Deferred !== "function") {
         throw "Requires jQuery 1.5+ to use asynchronous requests.";
     }
 
@@ -217,7 +217,7 @@ window.Function.prototype.bind = function() {
     startNodesState = TestCaseEnabled;
 
     function TestObj(options) {
-        this.deferred = options.deferred || PromiseHelper.deferred();
+        this.deferred = options.deferred || jQuery.Deferred();
         if (options.hasOwnProperty("currentTestNumber")) {
             this.currentTestNumber = options.currentTestNumber;
         } else {
@@ -299,7 +299,7 @@ window.Function.prototype.bind = function() {
 
     function getDatasetCount(datasetName) {
         var numRows = -1;
-        var deferred = PromiseHelper.deferred();
+        var deferred = jQuery.Deferred();
         xcalarMakeResultSetFromDataset(thriftHandle, datasetPrefix+datasetName, false)
         .then(function(ret) {
             numRows = ret.numEntries;
@@ -318,7 +318,7 @@ window.Function.prototype.bind = function() {
     function addTestCase(testFn, testName, timeout, testCaseEnabled, witness)
     {
         testCases.push(new TestObj({
-            "deferred": PromiseHelper.deferred(),
+            "deferred": jQuery.Deferred(),
             "currentTestNumber": testCases.length + 1,
             "testName": testName,
             "testFn": testFn,
@@ -632,7 +632,7 @@ window.Function.prototype.bind = function() {
 
     function testListTargetTypes(test) {
         var typeId = "shared";
-        var typeName = "Shared Storage Mount";
+        var typeName = "Shared File System";
         var paramName = "mountpoint";
         // Add target
         xcalarTargetTypeList(thriftHandle)
@@ -3242,6 +3242,32 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testSessionDownload(test) {
+        // XXX
+        xcalarApiSessionDownload(thriftHandle, "helloWorld")
+        .done(function(res) {
+            printResult(res);
+            test.pass();
+        })
+        .fail(function(reason) {
+            // XXX
+            test.pass();
+            // test.fail(reason);
+        });
+    }
+
+    function testSessionUpload(test) {
+        // XXX
+        xcalarApiSessionUpload(thriftHandle, "GoodByeWorld", "content")
+        .done(function(res) {
+            printResult(res);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
     function testPerNodeOpStats() {
         xcalarApiGetPerNodeOpStats(thriftHandle)
         .done(function(res) {
@@ -3399,7 +3425,7 @@ window.Function.prototype.bind = function() {
         var source2 = "def bar(c):\n return 'bar'\n";
 
         function udfCleanup() {
-            var deferred = PromiseHelper.deferred();
+            var deferred = jQuery.Deferred();
             xcalarApiUdfDelete(thriftHandle, "mgmttest*")
             .always(deferred.resolve);
             return deferred.promise();
@@ -3596,7 +3622,7 @@ window.Function.prototype.bind = function() {
             }
         }
         function testApi(apiFunc) {
-            var deferred = PromiseHelper.deferred();
+            var deferred = jQuery.Deferred();
             apiFunc(thriftHandle)
             .always(deferred.resolve);
             return deferred.promise();
@@ -3737,7 +3763,7 @@ window.Function.prototype.bind = function() {
         var randomColumns = [];
         var randomPartitionKeyValue;
         var parquetDsName = "parquetDs";
-        var pathToParquetDataset = qaTestDir + "/parquet/spark/yelp-users";
+        var pathToParquetDataset = qaTestDir + "/parquet/spark/nestedPartitions.parquet";
         var expectedPartitionKeys = [ "type", "yelping_since" ]
         var possibleKeyValues;
         var schema;
@@ -3815,7 +3841,7 @@ window.Function.prototype.bind = function() {
             randomPartitionKeyValue = possibleKeyValues[Math.floor(Math.random() * possibleKeyValues.length)]
 
             var targetParams = { "backingTargetName": "Default Shared Root" } 
-            var targetArgs = { "targetTypeId": "sparkparquet", "targetName": parquetTargetName, 
+            var targetArgs = { "targetTypeId": "parquetds", "targetName": parquetTargetName, 
                                "targetParams": targetParams, "func": "addTarget" }
             return xcalarAppRun(thriftHandle, targetMgrAppName, false, JSON.stringify(targetArgs))
         })
@@ -3984,6 +4010,8 @@ window.Function.prototype.bind = function() {
     // !!! If you add a test above that creates a new table, be sure to bump up the
     // numNodes assert in the last .then clause
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled);
+    addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled);
+    addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled);
 
     // XXX Re-enable as soon as bug is fixed
     addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");

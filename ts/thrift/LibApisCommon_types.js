@@ -11124,6 +11124,207 @@ XcalarApiSessionRenameInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiSessionDownloadInputT = function(args) {
+  this.sessionName = null;
+  if (args) {
+    if (args.sessionName !== undefined && args.sessionName !== null) {
+      this.sessionName = args.sessionName;
+    }
+  }
+};
+XcalarApiSessionDownloadInputT.prototype = {};
+XcalarApiSessionDownloadInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiSessionDownloadInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiSessionDownloadInputT');
+  if (this.sessionName !== null && this.sessionName !== undefined) {
+    output.writeFieldBegin('sessionName', Thrift.Type.STRING, 1);
+    output.writeString(this.sessionName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiSessionDownloadOutputT = function(args) {
+  this.sessionContentCount = null;
+  this.sessionContent = null;
+  if (args) {
+    if (args.sessionContentCount !== undefined && args.sessionContentCount !== null) {
+      this.sessionContentCount = args.sessionContentCount;
+    }
+    if (args.sessionContent !== undefined && args.sessionContent !== null) {
+      this.sessionContent = args.sessionContent;
+    }
+  }
+};
+XcalarApiSessionDownloadOutputT.prototype = {};
+XcalarApiSessionDownloadOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.sessionContentCount = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionContent = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiSessionDownloadOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiSessionDownloadOutputT');
+  if (this.sessionContentCount !== null && this.sessionContentCount !== undefined) {
+    output.writeFieldBegin('sessionContentCount', Thrift.Type.I64, 1);
+    output.writeI64(this.sessionContentCount);
+    output.writeFieldEnd();
+  }
+  if (this.sessionContent !== null && this.sessionContent !== undefined) {
+    output.writeFieldBegin('sessionContent', Thrift.Type.STRING, 2);
+    output.writeString(this.sessionContent);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiSessionUploadInputT = function(args) {
+  this.sessionName = null;
+  this.sessionContentCount = null;
+  this.sessionContent = null;
+  if (args) {
+    if (args.sessionName !== undefined && args.sessionName !== null) {
+      this.sessionName = args.sessionName;
+    }
+    if (args.sessionContentCount !== undefined && args.sessionContentCount !== null) {
+      this.sessionContentCount = args.sessionContentCount;
+    }
+    if (args.sessionContent !== undefined && args.sessionContent !== null) {
+      this.sessionContent = args.sessionContent;
+    }
+  }
+};
+XcalarApiSessionUploadInputT.prototype = {};
+XcalarApiSessionUploadInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.sessionContentCount = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionContent = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiSessionUploadInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiSessionUploadInputT');
+  if (this.sessionName !== null && this.sessionName !== undefined) {
+    output.writeFieldBegin('sessionName', Thrift.Type.STRING, 1);
+    output.writeString(this.sessionName);
+    output.writeFieldEnd();
+  }
+  if (this.sessionContentCount !== null && this.sessionContentCount !== undefined) {
+    output.writeFieldBegin('sessionContentCount', Thrift.Type.I64, 2);
+    output.writeI64(this.sessionContentCount);
+    output.writeFieldEnd();
+  }
+  if (this.sessionContent !== null && this.sessionContent !== undefined) {
+    output.writeFieldBegin('sessionContent', Thrift.Type.STRING, 3);
+    output.writeString(this.sessionContent);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiGetQueryOutputT = function(args) {
   this.query = null;
   if (args) {
@@ -14496,6 +14697,8 @@ XcalarApiInputT = function(args) {
   this.getRetinaJsonInput = null;
   this.getDatasetsInfoInput = null;
   this.archiveTablesInput = null;
+  this.sessionDownloadInput = null;
+  this.sessionUploadInput = null;
   if (args) {
     if (args.loadInput !== undefined && args.loadInput !== null) {
       this.loadInput = new XcalarApiBulkLoadInputT(args.loadInput);
@@ -14748,6 +14951,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.archiveTablesInput !== undefined && args.archiveTablesInput !== null) {
       this.archiveTablesInput = new XcalarApiArchiveTablesInputT(args.archiveTablesInput);
+    }
+    if (args.sessionDownloadInput !== undefined && args.sessionDownloadInput !== null) {
+      this.sessionDownloadInput = new XcalarApiSessionDownloadInputT(args.sessionDownloadInput);
+    }
+    if (args.sessionUploadInput !== undefined && args.sessionUploadInput !== null) {
+      this.sessionUploadInput = new XcalarApiSessionUploadInputT(args.sessionUploadInput);
     }
   }
 };
@@ -15437,6 +15646,22 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 88:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.sessionDownloadInput = new XcalarApiSessionDownloadInputT();
+        this.sessionDownloadInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 89:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.sessionUploadInput = new XcalarApiSessionUploadInputT();
+        this.sessionUploadInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -15866,6 +16091,16 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.archiveTablesInput !== null && this.archiveTablesInput !== undefined) {
     output.writeFieldBegin('archiveTablesInput', Thrift.Type.STRUCT, 87);
     this.archiveTablesInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.sessionDownloadInput !== null && this.sessionDownloadInput !== undefined) {
+    output.writeFieldBegin('sessionDownloadInput', Thrift.Type.STRUCT, 88);
+    this.sessionDownloadInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.sessionUploadInput !== null && this.sessionUploadInput !== undefined) {
+    output.writeFieldBegin('sessionUploadInput', Thrift.Type.STRUCT, 89);
+    this.sessionUploadInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -18786,6 +19021,7 @@ XcalarApiOutputResultT = function(args) {
   this.getRetinaJsonOutput = null;
   this.getDatasetsInfoOutput = null;
   this.archiveTablesOutput = null;
+  this.sessionDownloadOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined && args.getVersionOutput !== null) {
       this.getVersionOutput = new XcalarApiGetVersionOutputT(args.getVersionOutput);
@@ -18984,6 +19220,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.archiveTablesOutput !== undefined && args.archiveTablesOutput !== null) {
       this.archiveTablesOutput = new XcalarApiDeleteDagNodeOutputT(args.archiveTablesOutput);
+    }
+    if (args.sessionDownloadOutput !== undefined && args.sessionDownloadOutput !== null) {
+      this.sessionDownloadOutput = new XcalarApiSessionDownloadOutputT(args.sessionDownloadOutput);
     }
   }
 };
@@ -19528,6 +19767,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 69:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.sessionDownloadOutput = new XcalarApiSessionDownloadOutputT();
+        this.sessionDownloadOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -19867,6 +20114,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.archiveTablesOutput !== null && this.archiveTablesOutput !== undefined) {
     output.writeFieldBegin('archiveTablesOutput', Thrift.Type.STRUCT, 68);
     this.archiveTablesOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.sessionDownloadOutput !== null && this.sessionDownloadOutput !== undefined) {
+    output.writeFieldBegin('sessionDownloadOutput', Thrift.Type.STRUCT, 69);
+    this.sessionDownloadOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

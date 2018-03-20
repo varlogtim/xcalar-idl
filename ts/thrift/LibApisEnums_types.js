@@ -131,7 +131,9 @@ XcalarApisT = {
   'XcalarApiGetRetinaJson' : 122,
   'XcalarApiGetDatasetsInfo' : 123,
   'XcalarApiArchiveTables' : 124,
-  'XcalarApiFunctionInvalid' : 125
+  'XcalarApiSessionDownload' : 125,
+  'XcalarApiSessionUpload' : 126,
+  'XcalarApiFunctionInvalid' : 127
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -259,7 +261,9 @@ XcalarApisTStr = {
   122 : 'XcalarApiGetRetinaJson',
   123 : 'XcalarApiGetDatasetsInfo',
   124 : 'XcalarApiArchiveTables',
-  125 : 'XcalarApiFunctionInvalid'
+  125 : 'XcalarApiSessionDownload',
+  126 : 'XcalarApiSessionUpload',
+  127 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -387,5 +391,7 @@ XcalarApisTFromStr = {
   'XcalarApiGetRetinaJson' : 122,
   'XcalarApiGetDatasetsInfo' : 123,
   'XcalarApiArchiveTables' : 124,
-  'XcalarApiFunctionInvalid' : 125
+  'XcalarApiSessionDownload' : 125,
+  'XcalarApiSessionUpload' : 126,
+  'XcalarApiFunctionInvalid' : 127
 };

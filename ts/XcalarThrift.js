@@ -4533,14 +4533,13 @@ XcalarUploadWorkbook = function(workbookName, workbookContent) {
         deferred.resolve({jobStatus: 0, output: {}});
     }, 1000);
 
-    // XXX wire in once thrift change is in
-    // xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
-    // .then(deferred.resolve)
-    // .fail(function(error) {
-    //     var thriftError = thriftLog("XcalarUploadWorkbook", error);
-    //     Log.errorLog("Upload Workbook", null, null, thriftError);
-    //     deferred.reject(thriftError);
-    // });
+    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUploadWorkbook", error);
+        Log.errorLog("Upload Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
     return (deferred.promise());
 };
 
@@ -4554,14 +4553,13 @@ XcalarDownloadWorkbook = function(workbookName) {
         deferred.resolve({content: "someWorkbookInfo"});
     }, 1000);
 
-    // XXX wire in once thrift change is in
-    // xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
-    // .then(deferred.resolve)
-    // .fail(function(error) {
-    //     var thriftError = thriftLog("XcalarUploadWorkbook", error);
-    //     Log.errorLog("Upload Workbook", null, null, thriftError);
-    //     deferred.reject(thriftError);
-    // });
+    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUploadWorkbook", error);
+        Log.errorLog("Upload Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
     return (deferred.promise());
 };
 
