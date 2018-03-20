@@ -11,6 +11,7 @@ window.xcManager = (function(xcManager, $) {
 
         Compatible.check();
         xcGolbal.setup();
+        xcTimeHelper.setup();
         setupThrift();
         // XcSupport.setup() get username, so need to be at very early time
         XcSupport.setup();

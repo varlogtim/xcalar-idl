@@ -67,7 +67,7 @@ namespace StatusBox {
             this.setupPosition(options.offsetX, options.offsetY);
             this.setupHideOption(options.preventImmediateHide, options.delayHide);
         }
-    
+
         public forceHide(): void {
             if (this.open) {
                 this.$target.off("keydown.statusBox").removeClass(this.type);
@@ -91,7 +91,7 @@ namespace StatusBox {
                 this.forceHide();
             }
         }
-        
+
         private setupBasicClasses(options: StatusDisplayerOpions): void {
             const $statusBox: JQuery = this.$statusBox;
             $statusBox.removeClass()
