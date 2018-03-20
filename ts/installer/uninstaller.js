@@ -5,6 +5,11 @@ window.Uninstaller = (function(Uninstaller, $) {
 
     Uninstaller.setup = function() {
         InstallerCommon.setupForms($forms, validateStep, "uninstall");
+
+        $forms.find(".backToInstall").click(function() {
+            window.onbeforeunload = null;
+            location.reload();
+        });
     };
 
     function validateStep(stepId, $form) {
