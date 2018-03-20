@@ -61,7 +61,12 @@ form {
     height: ~"calc(100% - 240px)";
     &.preConfig {
         .noPreConfig {
-            display: none;
+            display: none !important;
+        }
+    }
+    &:not(.preConfig) {
+        .preConfigOnly {
+            display: none !important;
         }
     }
 }
