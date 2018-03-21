@@ -403,7 +403,8 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("jupyterTab"):
                 $("#jupyterPanel").addClass("active");
-                JupyterPanel.sendInit();
+                JupyterPanel.sendInit(); // used to validate session if first
+                // time viewing a notebook
                 break;
             default:
                 $(".underConstruction").addClass("active");

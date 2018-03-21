@@ -16,7 +16,7 @@ namespace xcTooltip {
     };
 
     // xcTooltip.Attrs
-    export const Attrs: Object = ' data-toggle="tooltip" data-container="body" ' +
+    export const Attrs: String = ' data-toggle="tooltip" data-container="body" ' +
                                  'data-placement="auto top" ';
     
     // xcTooltip.setup

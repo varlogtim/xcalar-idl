@@ -21,3 +21,4 @@ var hostname = "https://skywalker.int.xcalar.com:8443";
 // var expHost = "https://dwillis-dev-vm.int.xcalar.com:12124";
 
 // var hostname = "https://joe-vm.int.xcalar.com"
+var hostname = "https://holmes.int.xcalar.com:8443";

@@ -155,6 +155,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
             wkbk = new WKBK(options);
             wkbkSet.put(wkbk.id, wkbk);
+            JupyterPanel.newWorkbook(wkbkName, wkbk.id);
 
             return saveWorkbook();
         })
@@ -665,6 +666,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarDeleteWorkbook(workbook.name)
         .then(function() {
+            return JupyterPanel.deleteWorkbook(workbookId);
+        })
+        .then(function() {
             var def = delWKBKHelper(workbookId);
             return PromiseHelper.alwaysResolve(def);
         })
@@ -1046,7 +1050,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function activateWorkbook(wkbkId, sessionInfo) {
         var deferred = PromiseHelper.deferred();
-
         try {
             var numSessions = sessionInfo.numSessions;
             // if no workbook, force displaying the workbook modal
@@ -1157,12 +1160,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var storageKey = wkbkScopeKeys.gStorageKey;
         var logKey = wkbkScopeKeys.gLogKey;
         var errorKey = wkbkScopeKeys.gErrKey;
+        var overwrittenLogKey = wkbkScopeKeys.gOverwrittenLogKey;
+        var notebookKey = wkbkScopeKeys.gNotebookKey;
 
         var def1 = XcalarKeyDelete(storageKey, gKVScope.META);
         var def3 = XcalarKeyDelete(logKey, gKVScope.LOG);
         var def2 = XcalarKeyDelete(errorKey, gKVScope.ERR);
+        var def4 = XcalarKeyDelete(overwrittenLogKey, gKVScope.WKBK);
+        var def5 = XcalarKeyDelete(notebookKey, gKVScope.WKBK);
 
-        PromiseHelper.when(def1, def2, def3)
+        PromiseHelper.when(def1, def2, def3, def4, def5)
         .then(deferred.resolve)
         .fail(function(error) {
             console.error("Delete workbook fails!", error);

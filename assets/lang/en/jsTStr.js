@@ -1393,6 +1393,7 @@ JupyterTStr = {
     "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "Object and array type columns cannot be renamed",
     "DSFormInactive": "From the Dataset panel, select a dataset and apply the Custom Format type.",
+    "NoSnippetOtherWkbk": "Cannot add snippets to a notebook belonging to another Xcalar workbook",
     // with replace
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };

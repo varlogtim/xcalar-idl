@@ -155,7 +155,7 @@ describe("JupyterPanel Test", function() {
             });
         });
 
-        it("resend should be triggered", function(done) {
+        it("enterNotebookList should be triggered", function(done) {
             var called = false;
             var cacheFn = JupyterPanel.sendInit;
             JupyterPanel.sendInit = function(isNew) {
@@ -163,7 +163,7 @@ describe("JupyterPanel Test", function() {
                 called = true;
             };
 
-            sendMessage({action: "resend"})
+            sendMessage({action: "enterNotebookList"})
             .then(function() {
                 expect(called).to.be.true;
                 JupyterPanel.sendInit = cacheFn;

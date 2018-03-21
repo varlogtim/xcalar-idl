@@ -83,7 +83,6 @@ window.xcManager = (function(xcManager, $) {
             OperationsView.restore();
             JoinView.restore();
             FileBrowser.restore();
-            JupyterPanel.initialize();
 
             WSManager.focusOnWorksheet();
             // This adds a new failure mode to setup.
@@ -173,6 +172,7 @@ window.xcManager = (function(xcManager, $) {
                         "noCancel": true
                     });
                 }
+                JupyterPanel.initialize(true);
             });
         } else if (error === WKBKTStr.Hold) {
             // when seesion is hold by others and user choose to log out
@@ -470,6 +470,7 @@ window.xcManager = (function(xcManager, $) {
 
         WorkbookManager.setup()
         .then(XcSupport.holdSession)
+        .then(JupyterPanel.initialize)
         .then(Authentication.setup)
         .then(KVStore.restore) // restores table info, dataset info, settings etc
         .then(initializeTable)

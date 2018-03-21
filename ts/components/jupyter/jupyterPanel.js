@@ -1,33 +1,51 @@
 window.JupyterPanel = (function($, JupyterPanel) {
     var $jupyterPanel;
-    var currNotebook;
+    var jupyterMeta;
+
+    function JupyterMeta(currentNotebook, folderName) {
+        this.currentNotebook = currentNotebook || null;
+        this.folderName = folderName || null;
+    };
+
+    JupyterMeta.prototype = {
+        setCurrentNotebook: function(currentNotebook) {
+            this.currentNotebook = currentNotebook;
+        },
+
+        getCurrentNotebook: function() {
+            return this.currentNotebook;
+        },
+
+        setFolderName: function(folderName) {
+            this.folderName = folderName;
+        },
+
+        getFolderName: function() {
+            return this.folderName;
+        },
+
+        getMeta: function() {
+            return {
+                currentNotebook: this.currentNotebook,
+                folderName: this.folderName
+            };
+        },
+
+        hasFolder: function() {
+            return (this.folderName != null);
+        }
+    };
 
     JupyterPanel.setup = function() {
         $jupyterPanel = $("#jupyterPanel");
-        setupTopBarDropdown();
+        JupyterStubMenu.setup();
     };
 
-    JupyterPanel.initialize = function() {
+    JupyterPanel.initialize = function(noRestore) {
+        var deferred = PromiseHelper.deferred();
         if (window.jupyterNode == null || window.jupyterNode === "") {
             window.jupyterNode = hostname + '/jupyter';
         }
-
-        KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
-        .then(function(lastLocation) {
-            var last;
-            try {
-                last = $.parseJSON(lastLocation);
-            } catch (err) {
-                console.error(err);
-            }
-            currNotebook = last || "";
-            toggleJupyterMenu();
-            loadJupyterNotebook(last);
-        })
-        .fail(function() {
-            loadJupyterNotebook();
-        });
-
 
         window.addEventListener("message", function(event) {
             var struct = event.data;
@@ -59,6 +77,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             UDF.selectUDFFuncList(s.moduleName);
                         }
                         break;
+                    case ("enterExistingNotebook"):
+                    case ("enterNotebookList"):
+                        JupyterPanel.sendInit();
+                        break;
                     case ("mixpanel"):
                         try {
                             if (xcMixpanel.forDev()) {
@@ -73,8 +95,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
                                               s.numRows,
                                               {noRenamePrompt: s.noRename});
                         break;
-                    case ("resend"):
-                        JupyterPanel.sendInit();
+                    case ("returnFolderName"):
+                        storeFolderName(s);
+                        break;
+                    case ("toggleMenu"):
+                        JupyterStubMenu.toggleAllow(s.allow);
                         break;
                     case ("udfToMapForm"):
                         UDF.refresh()
@@ -92,7 +117,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         .fail(udfRefreshFail);
                         break;
                     case ("updateLocation"):
-                        storeLocation(s);
+                        storeCurrentNotebook(s);
                         break;
                     default:
                         console.error("Unsupported action:" + s.action);
@@ -101,6 +126,20 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 console.error("Illegal message sent:" + event.data, e);
             }
         });
+
+        if (noRestore) {
+            jupyterMeta = new JupyterMeta();
+            loadJupyterNotebook()
+            .always(deferred.resolve);
+        } else {
+            restoreMeta()
+            .always(function() {
+                loadJupyterNotebook()
+                .always(deferred.resolve);
+            });
+        }
+
+        return deferred.promise();
     };
 
     JupyterPanel.sendInit = function(newUntitled, publishTable, tableName, numRows,
@@ -111,6 +150,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
         options = options || {};
         noRenamePrompt = options.noRenamePrompt || false;
+        var activeWBId = WorkbookManager.getActiveWKBK();
         var workbookStruct = {action: "init",
                 newUntitled: newUntitled,
                 noRenamePrompt: noRenamePrompt,
@@ -120,12 +160,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 numRows: numRows,
                 username: userIdName,
                 userid: userIdUnique,
-                sessionname: WorkbookManager.getWorkbook(
-                            WorkbookManager.getActiveWKBK()).name,
-                sessionid: WorkbookManager.getActiveWKBK()
+                sessionname: WorkbookManager.getWorkbook(activeWBId).name,
+                sessionid: WorkbookManager.getActiveWKBK(),
+                folderName: jupyterMeta.getFolderName()
         };
-        $("#jupyterNotebook")[0].contentWindow
-                      .postMessage(JSON.stringify(workbookStruct), "*");
+        sendMessageToJupyter(workbookStruct);
     };
 
     JupyterPanel.publishTable = function(tableName, numRows, hasVerifiedNames) {
@@ -139,7 +178,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             var tableId = xcHelper.getTableId(tableName);
             JupyterFinalizeModal.show(tableId, numRows);
         } else {
-            $("#jupyterTab").click();
+            MainMenu.openPanel("jupyterPanel");
             var tableStruct = {action: "publishTable",
                           tableName: tableName,
                           colNames: colNames,
@@ -151,8 +190,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             // file with a "newUntitled" action, which prompts
             // JupyterPanel.sendInit to send a message back to the notebook
             // with session information
-            $("#jupyterNotebook")[0].contentWindow.postMessage(
-                                      JSON.stringify(tableStruct), "*");
+            sendMessageToJupyter(tableStruct);
         }
     };
 
@@ -162,7 +200,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         MainMenu.openPanel("jupyterPanel");
 
-        if (!currNotebook) {
+        if (!jupyterMeta.getCurrentNotebook()) {
             var msgStruct = {
                 action: "autofillImportUdf",
                 target: target,
@@ -171,8 +209,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 moduleName: moduleName,
                 fnName: functionName
             };
-            $("#jupyterNotebook")[0].contentWindow.postMessage(
-                                      JSON.stringify(msgStruct), "*");
+            sendMessageToJupyter(msgStruct);
             // custom.js will create a new notebook and xcalar.js will
             // send a message back to here with an autofillImportUdf action
         } else {
@@ -191,6 +228,54 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 UDF.selectUDFFuncList(moduleName);
             }
         }
+    };
+
+    // called when we create a new xcalar workbook
+    // will create a new jupyter folder dedicated to this workbook
+    JupyterPanel.newWorkbook = function(wkbkName, wkbkId) {
+        var folderName = XcSupport.getUser() + "-" + wkbkName;
+        var msgStruct = {
+            action: "newWorkbook",
+            folderName: folderName,
+            wkbkId: wkbkId
+        };
+
+        sendMessageToJupyter(msgStruct);
+    };
+
+    // called when we create a new xcalar workbook
+    // will create a new jupyter folder dedicated to this workbook
+    JupyterPanel.deleteWorkbook = function(wkbkId) {
+        var deferred = PromiseHelper.deferred();
+
+        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+        KVStore.get(kvsKey, gKVScope.WKBK)
+        .then(function(jupMeta) {
+            var folderName;
+            if (jupMeta) {
+                try {
+                    var parsedMeta = $.parseJSON(jupMeta);
+                    if (typeof parsedMeta === "object") {
+                        folderName = parsedMeta.folderName;
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+            if (folderName) {
+                var msgStruct = {
+                    action: "deleteWorkbook",
+                    folderName: folderName
+                };
+                sendMessageToJupyter(msgStruct);
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+
+        return deferred.promise();
     };
 
     function showImportUdfModal(target, filePath) {
@@ -225,81 +310,139 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return false;
     }
 
-    function loadJupyterNotebook(lastLocation) {
+    function loadJupyterNotebook() {
+        var deferred = PromiseHelper.deferred();
+
         var url;
-        if (lastLocation) {
-            url = jupyterNode + "/notebooks/" + lastLocation + ".ipynb?kernel_name=python3#";
+        var treeUrl = jupyterNode + "/tree";
+        var currNotebook = jupyterMeta.getCurrentNotebook();
+        var folderName = jupyterMeta.getFolderName();
+        // try folder/currnotebook, else just go to the folder else root
+        // we do not send the user to a notebook that's not in their folder
+        if (currNotebook && folderName) {
+            url = jupyterNode + "/notebooks/" + folderName + "/" +
+                  currNotebook + ".ipynb?kernel_name=python3#";
+        } else if (folderName) {
+            url = treeUrl + "/" + folderName;
         } else {
-            url = jupyterNode + "/tree#";
+            url = treeUrl;
         }
 
-        $.ajax({
-            url: url,
-            dataType: "json",
-            timeout: 5000,
-            success: function() {
-                $("#jupyterNotebook").attr("src", url);
-            },
-            error: function(parsedjson) {
-                if (parsedjson.status === 200) {
-                    $("#jupyterNotebook").attr("src", url);
-                } else {
-                    $("#jupyterNotebook").attr("src", jupyterNode + "/tree#");
-                }
+        goToLocation(url)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            if (currNotebook && folderName) {
+                // notebook path failed, try to go to folder path
+                var folderPath = treeUrl + "/" + folderName
+                goToLocation(folderPath)
+                .then(deferred.resolve)
+                .fail(function() {
+                    $("#jupyterNotebook").attr("src", treeUrl);
+                    deferred.resolve();
+                });
+            } else {
+                $("#jupyterNotebook").attr("src", treeUrl);
+                deferred.resolve();
             }
         });
-    }
 
-    function storeLocation(info) {
-        if (info.location === "tree") {
-            currNotebook = "";
-        } else if (info.location === "notebook") {
-            currNotebook = info.lastNotebook;
+        function goToLocation(location) {
+            var innerDeferred = PromiseHelper.deferred();
+            $.ajax({
+                url: location,
+                dataType: "json",
+                timeout: 8000,
+                success: function() {
+                    $("#jupyterNotebook").attr("src", location);
+                    innerDeferred.resolve();
+                },
+                error: function(err) {
+                    if (err.status === 200) {
+                        $("#jupyterNotebook").attr("src", location);
+                        innerDeferred.resolve();
+                    } else {
+                        console.error("Jupyter load failed", err);
+                        innerDeferred.reject(err);
+                    }
+                }
+            });
+
+            return innerDeferred.promise();
         }
-        toggleJupyterMenu();
-        return KVStore.put(KVStore.gNotebookKey, JSON.stringify(currNotebook),
-                            true, gKVScope.WKBK);
+
+        return deferred.promise();
     }
 
-    function toggleJupyterMenu() {
-        if (currNotebook) {
-            $jupyterPanel.find(".topBar .rightArea").removeClass("xc-hidden");
+    function restoreMeta() {
+        var deferred = PromiseHelper.deferred();
+
+        KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
+        .then(function(jupMeta) {
+            var lastNotebook = null;
+            var folderName = null;
+
+
+            if (jupMeta) {
+                try {
+                    var parsedMeta = $.parseJSON(jupMeta);
+                    if (typeof parsedMeta === "string") {
+                        lastNotebook = parsedMeta;
+                    } else if (typeof parsedMeta === "object") {
+                        lastNotebook = parsedMeta.currentNotebook;
+                        folderName = parsedMeta.folderName;
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            jupyterMeta = new JupyterMeta(lastNotebook, folderName);
+            deferred.resolve();
+        })
+        .fail(function() {
+            jupyterMeta = new JupyterMeta();
+            deferred.reject.apply(null, arguments);
+        });
+
+        return deferred.promise();
+    }
+
+    function storeCurrentNotebook(info) {
+        var currNotebook;
+        if (info.location === "notebook") {
+            currNotebook = info.lastNotebook;
+        } else { // location is tree and we leave null
+            currNotebook = null;
+        }
+
+        jupyterMeta.setCurrentNotebook(currNotebook);
+        JupyterStubMenu.toggleVisibility(jupyterMeta.getCurrentNotebook());
+        return storeMeta();
+    }
+
+    function storeFolderName(folderInfo) {
+        jupyterMeta.setFolderName(folderInfo.newName);
+        return storeMeta(folderInfo.wkbkId);
+    }
+
+    function storeMeta(wkbkId) {
+        if (jupyterMeta.hasFolder()) {
+            var kvsKey = KVStore.gNotebookKey;
+            if (wkbkId) {
+                kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+            }
+            return KVStore.put(kvsKey, JSON.stringify(jupyterMeta.getMeta()),
+                               true, gKVScope.WKBK);
         } else {
-            $jupyterPanel.find(".topBar .rightArea").addClass("xc-hidden");
+            // don't save if
+            return PromiseHelper.reject();
         }
     }
 
     JupyterPanel.appendStub = function(stubName, args) {
         var stubStruct = {action: "stub", stubName: stubName, args: args};
-        $("#jupyterNotebook")[0].contentWindow.postMessage(JSON.stringify(stubStruct), "*");
+        sendMessageToJupyter(stubStruct);
     };
-
-    function setupTopBarDropdown() {
-        var $jupMenu = $jupyterPanel.find(".jupyterMenu");
-        xcMenu.add($jupMenu);
-
-        $jupyterPanel.on("click", ".topBar .dropdownBox", function() {
-            var $menuIcon = $(this);
-
-            xcHelper.dropdownOpen($menuIcon, $jupMenu, {
-                "offsetX": -7,
-                "toClose": function() {
-                    return $jupMenu.is(":visible");
-                }
-            });
-        });
-
-        $jupyterPanel.on("click", ".jupyterMenu li", function() {
-            var stubName = $(this).attr("data-action");
-            if (stubName === "basicUDF") {
-                JupyterUDFModal.show("map");
-            } else if (stubName === "importUDF") {
-                JupyterUDFModal.show("newImport");
-            } else {
-                JupyterPanel.appendStub(stubName);
-            }
-        });
-    }
 
     function showMapForm(tableName, columns, moduleName, fnName) {
         var tableId = xcHelper.getTableId(tableName);
@@ -361,16 +504,27 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     }
 
+    // function sendMessageToJupyter(msgStruct, newFolder) {
+    function sendMessageToJupyter(msgStruct) {
+        var messageInfo = {
+            fromXcalar: true,
+        };
+        msgStruct = $.extend(messageInfo, msgStruct);
+        var msg = JSON.stringify(msgStruct);
+
+        $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
+    }
+
         /* Unit Test Only */
     if (window.unitTestMode) {
         JupyterPanel.__testOnly__ = {};
         JupyterPanel.__testOnly__showMapForm = showMapForm;
         JupyterPanel.__testOnly__showDSForm = showDSForm;
         JupyterPanel.__testOnly__.getCurNB = function() {
-            return currNotebook;
+            return jupyterMeta.getCurrentNotebook();
         }
         JupyterPanel.__testOnly__.setCurNB = function(nb) {
-            currNotebook = nb;
+            jupyterMeta.setCurrentNotebook(nb);
         };
     }
     /* End Of Unit Test Only */

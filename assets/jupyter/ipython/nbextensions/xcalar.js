@@ -1,8 +1,15 @@
 // this file maps to xcalar/.ipython/nbextensions/xcalar.js
-define(function() {
+define(['base/js/utils'], function(utils) {
     return {
         load_ipython_extension: function() {
+            var username;
+            var userid;
+            var sessionName;
+            var sessionId;
+            var wkbkFolderName = "";
+
             console.log("ipython extension has been loaded");
+
             var request = {
                 action: "updateLocation",
                 location: "notebook",
@@ -12,9 +19,10 @@ define(function() {
             var urlQuery = window.location.search;
             urlQuery = urlQuery.slice(urlQuery.indexOf("?") + 1);
             var params = parseQueryString(urlQuery);
-            modifyElements();
-            addListeners();
-            setupEvents();
+            overwriteElementsAndListeners();
+            addXDButtonListeners();
+            setupJupyterEventListeners();
+            window.addEventListener("message", receiveMessage, false);
 
             if (params.needsTemplate === "true") {
                 // brand new workbook
@@ -52,24 +60,36 @@ define(function() {
                     parent.postMessage(JSON.stringify(request), "*");
                 }
             } else {
-                // accessing an existing notebook
-                var request = {action: "resend"};
+                // accessing an existing notebook, let XD know so it can send
+                // back session information
+                var request = {action: "enterExistingNotebook"};
                 parent.postMessage(JSON.stringify(request), "*");
             }
-            var username;
-            var userid;
-            var sessionName;
-            var sessionId;
+
             function receiveMessage(event) {
                 window.alert = function() {};
                 alert = function() {};
-                var struct = JSON.parse(event.data);
+                if (!event.data) {
+                    return;
+                }
+                var struct;
+                try {
+                    struct = JSON.parse(event.data);
+                    if (!struct.fromXcalar) {
+                        return;
+                    }
+                } catch (error) {
+                    console.log(error);
+                    return;
+                }
+
                 switch (struct.action) {
                     case ("init"):
                         username = struct.username;
                         userid = struct.userid;
                         sessionName = struct.sessionname;
                         sessionId = struct.sessionid;
+                        wkbkFolderName = struct.folderName || "";
                         if (struct.newUntitled) {
                             prependSessionStub(username, userid, sessionName);
                             if (struct.publishTable) {
@@ -80,7 +100,9 @@ define(function() {
                             }
                         } else {
                             validateSessionCells();
+                            validateNotebookInUserFolder();
                         }
+                        updateLinks();
                         break;
                     case ("publishTable"):
                         appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
@@ -89,6 +111,11 @@ define(function() {
                         var stubName = struct.stubName;
                         appendStub(stubName, struct.args);
                         break;
+                    case ("newWorkbook"):
+                        createNewFolder(struct);
+                        break;
+                    case ("deleteWorkbook"):
+                        deleteFolder(struct);
                     default:
                         break;
                 }
@@ -459,9 +486,76 @@ define(function() {
                 return text;
             }
 
+            function createNewFolder(struct) {
+                Jupyter.contents.new_untitled("", {type: 'directory'})
+                .then(function(data) {
+                    renameFolder(struct, struct.folderName, data.path);
+                });
+            }
+
+            function renameFolder(struct, folderName, prevName, attemptNumber) {
+                    attemptNumber = attemptNumber || 0;
+                    attemptNumber++;
+                    Jupyter.contents.rename(prevName, utils.url_path_join("", folderName))
+                    .then(function(data) {
+                        var request = {
+                            action: "returnFolderName",
+                            originalName: struct.folderName,
+                            wkbkId: struct.wkbkId,
+                            newName: data.name
+                        };
+                        parent.postMessage(JSON.stringify(request), "*");
+                    })
+                    .catch(function(e) {
+                        if (e && typeof e.message === "string") {
+                            if (attemptNumber > 10) {
+                                return; // give up
+                            }
+                            if (e.message.indexOf("File already exists") === 0 &&
+                                attemptNumber < 10) {
+                                renameFolder(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber);
+                            } else { // last try
+                                renameFolder(struct, struct.folderName + "_" + Math.ceil(Math.random() * 10000), prevName, attemptNumber);
+                            }
+                        }
+                    });
+            }
+
+            function deleteFolder(struct) {
+                var folderName = struct.folderName;
+
+                Jupyter.contents.delete(folderName)
+                .then(function() {
+                    // deleted
+                });
+            }
+
+            // hijack the navigation so that the user goes to their folder
+            // when they leave the notebook
+            function updateLinks() {
+                var folderUrl = Jupyter.menubar.base_url + "tree/" + wkbkFolderName;
+                // the jupyter icon on the top left
+                $("#ipython_notebook").find("a").attr("href", folderUrl);
+                // the "open" list item on the file menu
+                $("#open_notebook").find("a").attr("href", folderUrl);
+                // the "New Notebook" list item on the file menu
+                $("#new-notebook-submenu-python3").find("a").off("click");
+                $("#new-notebook-submenu-python3").find("a").click(function() {
+                    Jupyter.notebook.contents.new_untitled(wkbkFolderName, {type: "notebook"})
+                    .then(function(data) {
+                        var url = Jupyter.menubar.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
+                        window.location.href = url;
+                    });
+                });
+
+                $("#kill_and_exit").click(function() {
+                    window.location.href = folderUrl;
+                });
+            }
+
             // listeners are found by $._data(element, "events" ); we turn off
             // listeners that cause navigation away from current window
-            function modifyElements() {
+            function overwriteElementsAndListeners() {
                 // hide the log out button on the upper right
                 $("#login_widget").remove();
 
@@ -496,19 +590,6 @@ define(function() {
                     window.location.href = Jupyter.menubar.base_url + "tree";
                 });
 
-                // lets xcalar know if rename occurs
-                $('#notebook_name').bind("DOMSubtreeModified",function(){
-                    if (!$(this).text()) {
-                        return; // gets triggered when blank sometimes
-                    }
-                    var request = {
-                        action: "updateLocation",
-                        location: "notebook",
-                        lastNotebook: Jupyter.notebook.get_notebook_name()
-                    };
-                    parent.postMessage(JSON.stringify(request), "*");
-                });
-
                 window.onbeforeunload = function() {
                     return; // removes "do you want to leave" warning
                 };
@@ -539,7 +620,25 @@ define(function() {
                     }
                 }
                 if (errors.length) {
+                    return;
+                    // XXX disabling
                     showSessionWarning(errors);
+                }
+            }
+
+            function validateNotebookInUserFolder() {
+                if (Jupyter.notebook.notebook_path !== Jupyter.notebook.notebook_name &&
+                    Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") !== 0) {
+                    Jupyter.notebook.writable = false;
+                    Jupyter.save_widget.set_save_status("(read only)");
+                    Jupyter.save_widget.set_save_status = function () {}; // disable
+                    $('#readonly-indicator').show(); // NotebookNoteificationArea
+                    Jupyter.notification_area.widget_dict.notebook.warning("Notebook is read-only");
+                    parent.postMessage(JSON.stringify({action: "toggleMenu", allow: false}), "*");
+                } else {
+                    // in root directory, users can modify any root files
+                    Jupyter.notebook.notebook_path === Jupyter.notebook.notebook_name;
+                    parent.postMessage(JSON.stringify({action: "toggleMenu", allow: true}), "*");
                 }
             }
 
@@ -564,8 +663,6 @@ define(function() {
                 }
                 return params;
             }
-
-            window.addEventListener("message", receiveMessage, false);
 
             function showSessionWarning(errors) {
                 var options = {
@@ -627,7 +724,7 @@ define(function() {
             // Those codes end up here
 
             // for new elements set up by XD
-            function addListeners() {
+            function addXDButtonListeners() {
                 $(document).on("click", ".udfToMapForm", function () {
                     var $btn = $(this);
                     if ($btn.hasClass("needsUpload")) {
@@ -667,7 +764,7 @@ define(function() {
 
             // bind functions to jupyter events so that they get executed
             // whenever Jupyter calls "events.trigger('action')"
-            function setupEvents() {
+            function setupJupyterEventListeners() {
                 // when a cell finishes execution
                 Jupyter.notebook.events.on("finished_execute.CodeCell", function(evt, data){
                     var cell = data.cell;
@@ -676,6 +773,15 @@ define(function() {
                     if (hasUploadUdf(lines)) {
                         refreshUploadedUdf(lines, cell);
                     }
+                });
+
+                Jupyter.notebook.events.on("notebook_renamed.Notebook", function(evt, data) {
+                    var request = {
+                        action: "updateLocation",
+                        location: "notebook",
+                        lastNotebook: Jupyter.notebook.get_notebook_name()
+                    };
+                    parent.postMessage(JSON.stringify(request), "*");
                 });
 
                 function hasUploadUdf(lines) {
