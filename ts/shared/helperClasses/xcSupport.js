@@ -340,9 +340,6 @@ window.XcSupport = (function(XcSupport, $) {
             isChecking = true;
             XcSupport.commitCheck(true)
             .then(function() {
-                // this one just commit tracker data
-                // can be paraell
-                xcTracker.commit();
                 return XcSupport.memoryCheck();
             })
             .then(function() {

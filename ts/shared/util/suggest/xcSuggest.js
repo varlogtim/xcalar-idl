@@ -63,20 +63,6 @@ window.xcSuggest = (function($, xcSuggest) {
         return mlInputData;
     };
 
-    xcSuggest.submitJoinKeyData = function(dataPerClause) {
-        var realSubmit = "locStor"; // Hardcoded flag, will change or remove
-        if (realSubmit === "xcTracker") {
-            xcTracker.track(XCTrackerCategory.SuggestJoinKey, dataPerClause);
-        } else if (realSubmit === "locStor") {
-            var d = new Date();
-            var curTime = String(d.getTime());
-            xcLocalStorage.setItem("MLDataTrain" + curTime,
-                JSON.stringify(dataPerClause));
-        } else {
-            console.log("DataSubSuccess: " + JSON.stringify(dataPerClause));
-        }
-    };
-
     function processJoinKeyInputs(inputs) {
         // For now this is a shallow cover, this will change once heuristic
         // and ML use different features

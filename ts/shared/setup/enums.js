@@ -360,11 +360,6 @@ MLSetting = {
     DetectDelim: "DetectDelim",
 };
 
-// Should be a superset of MLSetting
-XCTrackerCategory = {
-    SuggestJoinKey: "SuggestJoinKey",
-};
-
 // system Param
 systemParams = {
     "N": 0,

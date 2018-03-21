@@ -526,7 +526,7 @@ describe("xcSuggest", function() {
             });
         });
 
-        it("xcSuggest.submitJoinKeyData", function() {
+        it("xcSuggest.processJoinKeyData", function() {
             /* sample
             {
                 "features": [{

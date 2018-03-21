@@ -1716,7 +1716,7 @@ window.JoinView = (function($, JoinView) {
         return true;
     }
 
-    function proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit) {
+    function proceedWithJoin(lJoinInfo, rJoinInfo) {
         var deferred = PromiseHelper.deferred();
 
         var joinType = getJoinType();
@@ -1747,7 +1747,6 @@ window.JoinView = (function($, JoinView) {
         } else {
             xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
             .then(function(finalTableName) {
-                submitJoinKeyData(joinKeyDataToSubmit);
                 deferred.resolve(finalTableName);
             })
             .fail(function(error) {
@@ -1774,7 +1773,7 @@ window.JoinView = (function($, JoinView) {
         var rTableId = tableIds[1];
 
         // Must collect joinKey data here in case old tables not kept
-        var joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols);
+        prepJoinKeyDataSubmit(lCols, rCols);
         // set up "joining on" columns
         var lColNums = getColNumsFromName(lCols, lTable);
         var rColNums = getColNumsFromName(rCols, rTable);
@@ -1820,7 +1819,7 @@ window.JoinView = (function($, JoinView) {
             }
             lJoinInfo.rename = renameInfo.lRename;
             rJoinInfo.rename = renameInfo.rRename;
-            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
+            return proceedWithJoin(lJoinInfo, rJoinInfo);
         }
 
         // Split valueAttrs into fatPtrs and immediates
@@ -1858,7 +1857,7 @@ window.JoinView = (function($, JoinView) {
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
         if (!gTurnOnPrefix) {
-            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
+            return proceedWithJoin(lJoinInfo, rJoinInfo);
         }
 
         if (lImmediatesToRename.length > 0 || lFatPtrToRename.length > 0) {
@@ -1890,7 +1889,7 @@ window.JoinView = (function($, JoinView) {
             lJoinInfo.rename = leftAutoRenames;
             rJoinInfo.rename = rightAutoRenames;
 
-            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
+            return proceedWithJoin(lJoinInfo, rJoinInfo);
         }
 
         if (lImmediatesToRename.length > 0) {
@@ -2184,17 +2183,6 @@ window.JoinView = (function($, JoinView) {
         }
 
         return dataPerClause;
-    }
-
-    function submitJoinKeyData(joinKeyDataToSubmit) {
-        // Submit data for data collection
-        try {
-            if (joinKeyDataToSubmit) {
-                xcSuggest.submitJoinKeyData(joinKeyDataToSubmit);
-            }
-        } catch (err) {
-            console.log("Submit Join Key Data failed with error: " + err);
-        }
     }
 
     //show alert to go back to op view
