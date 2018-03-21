@@ -212,7 +212,7 @@
             this.usrCols = [];
             this.xcCols = [];
             this.sparkCols = [];
-            this.renamedColIds = [];
+            this.renamedCols = {};
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
                 var acc = {numOps: 0};
@@ -241,6 +241,13 @@
     // Options: extractAggregates -- change aggregate nodes to a different tree
     function secondTraverse(node, options, isRoot) {
         // The second traverse convert all substring, left, right stuff
+        function literalNullNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Literal",
+                "num-children": 0,
+                "value": "null"
+            })
+        }
         function literalNumberNode(num) {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.Literal",
@@ -520,11 +527,12 @@
                     // no else clause
                     // We need to create our own terminal condition
                     // XXX There's a backend bug here with if
-                    if (type === "string") {
-                        litNode = literalStringNode("");
-                    } else {
-                        litNode = literalNumberNode(0.1337);
-                    }
+                    // if (type === "string") {
+                    //     litNode = literalStringNode("");
+                    // } else {
+                    //     litNode = literalNumberNode(0.1337);
+                    // }
+                    litNode = literalNullNode();
                     lastNode.children[2] = litNode;
                 }
 
@@ -605,7 +613,9 @@
                 break;
             case ("expressions.ScalarSubquery"):
                 // The result of the subquery should be a single value
-                // So an Aggregate node should be the first in the plan
+                // XXX Currently, Aggregate node should be the first in the plan
+                // This assertion is NO longer valid when we move to TPCDS
+                // Will be fixed soon.
                 assert(node.value.plan[0].class ===
                        "org.apache.spark.sql.catalyst.plans.logical.Aggregate",
                        SQLTStr.SubqueryAggregate + node.value.plan[0].class);
@@ -833,8 +843,8 @@
         // Existence Join.
         // 3) "Expand" logical plan
 
-        // 4. renamedColIds: IDs(exprId) of those columns that are renamed due
-        // to collision. e.g.[123, 124, 125]
+        // 4. renamedCols: an object that contains all renamed columns where key
+        // is colId and value is renamedColName e.g.{"1": "col_1", "2": "col_2"}
         // They get updated in Project, Aggregate and Join.
 
         // Push cols names to its direct parent, except from Join
@@ -847,7 +857,8 @@
             node.parent.xcCols = jQuery.extend(true, [], node.xcCols);
             node.parent.sparkCols = jQuery.extend(true, [], node.sparkCols);
             // This is an array of renamed column IDs
-            node.parent.renamedColIds = node.renamedColIds.slice(0);
+            node.parent.renamedCols = jQuery.extend(true, {},
+                                                      node.renamedCols);
         }
     }
     SQLCompiler.genTree = function(parent, array) {
@@ -1111,23 +1122,23 @@
             var evalStrArray = [];
             var aggEvalStrArray = [];
             var subqueryArray = [];
-            var options = {renamedColIds: node.renamedColIds};
+            var options = {renamedCols: node.renamedCols};
             genMapArray(node.value.projectList, columns, evalStrArray,
                         aggEvalStrArray, options, subqueryArray);
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0,
                    SQLTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
 
-            // Change node.usrCols & node.renamedColIds
+            // Change node.usrCols & node.renamedCols
             node.usrCols = columns;
-            node.renamedColIds = [];
+            node.renamedCols = {};
             // Extract colNames from column structs
             // and check if it has renamed columns
             var colNames = [];
             for (var i = 0; i < columns.length; i++) {
                 if (columns[i].rename) {
                     colNames.push(columns[i].rename);
-                    node.renamedColIds.push(columns[i].colId);
+                    node.renamedCols[columns[i].colId] = columns[i].rename;
                 } else {
                     colNames.push(columns[i].colName);
                 }
@@ -1249,8 +1260,7 @@
 
             var aggEvalStrArray = [];
             var subqueryArray = [];
-            var options = {renamedColIds: node.renamedColIds,
-                           xcAggregate: true};
+            var options = {renamedCols: node.renamedCols, xcAggregate: true};
             var filterString = genEvalStringRecur(treeNode,
                                             {aggEvalStrArray: aggEvalStrArray,
                                              subqueryArray: subqueryArray},
@@ -1302,9 +1312,9 @@
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference");
                     var colName = cleanseColName(orderArray[i][1].name);
                     var id = orderArray[i][1].exprId.id;
-                    if (options && options.renamedColIds &&
-                        options.renamedColIds.indexOf(id) !== -1) {
-                        colName += "_E" + id;
+                    if (options && options.renamedCols &&
+                        options.renamedCols[id]) {
+                        colName = options.renamedCols[id];
                     }
 
                     var type = orderArray[i][1].dataType;
@@ -1327,7 +1337,6 @@
                             type = "string";
                             break;
                     }
-
                     if (!colNameSet.has(colName)) {
                         colNameSet.add(colName);
                         sortColsAndOrder.push({name: colName,
@@ -1337,7 +1346,7 @@
                 }
                 return sortColsAndOrder;
             }
-            var options = {renamedColIds: node.renamedColIds};
+            var options = {renamedCols: node.renamedCols};
             var sortColsAndOrder = genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
 
@@ -1352,24 +1361,22 @@
             assert(node.subqVarName);
             var edgeCase = false;
             // Edge case:
-            // SELECT DISTINCT col FROM tbl GROUP BY col1 WHERE col2 = XXX
+            // SELECT col FROM tbl GROUP BY col1
 
             // This is dangerous but Spark still compiles it to ScalarSubquery
             // It seems that Spark expects user to enforce the "single val" rule
             // In this case, col1 has a 1 to 1 mappping relation with col2.
-            // Thus we can give it any aggOperator, such as count.
-            if (node.value.groupingExpressions.length > 0) {
-                edgeCase = true;
-            }
-
-            var index = edgeCase ? 0 : 1;
+            // Thus we can give it an aggOperator, such as max.
+            var index = node.value.aggregateExpressions[0][0].class ===
+                      "org.apache.spark.sql.catalyst.expressions.Alias" ? 1 : 0;
             var tableName = node.children[0].newTableName;
             var treeNode = SQLCompiler.genExpressionTree(undefined,
                            node.value.aggregateExpressions[0].slice(index));
-            var options = {renamedColIds: node.renamedColIds};
-            var evalStr = genEvalStringRecur(treeNode, undefined, options);
-            if (edgeCase) {
-                evalStr = "count(" + evalStr + ")";
+            var options = {renamedCols: node.renamedCols, xcAggregate: true};
+            var acc = {};
+            var evalStr = genEvalStringRecur(treeNode, acc, options);
+            if (!acc.operator) {
+                evalStr = "max(" + evalStr + ")";
             }
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
@@ -1387,7 +1394,7 @@
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
-            var options = {renamedColIds: node.renamedColIds};
+            var options = {renamedCols: node.renamedCols};
             // Resolve group on clause
             var gbCols = [];
             var gbEvalStrArray = [];
@@ -1418,14 +1425,13 @@
             options.groupby = false;
             genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
                         aggEvalStrArray, options);
-
-            node.renamedColIds = [];
+            node.renamedCols = {};
             // Extract colNames from column structs
             var aggColNames = [];
             for (var i = 0; i < columns.length; i++) {
                 if (columns[i].rename) {
                     aggColNames.push(columns[i].rename);
-                    node.renamedColIds.push(columns[i].colId);
+                    node.renamedCols[columns[i].colId] = columns[i].rename;
                 } else {
                     aggColNames.push(columns[i].colName);
                 }
@@ -1689,6 +1695,17 @@
                 return (n.value.joinType.object ===
                         "org.apache.spark.sql.catalyst.plans.LeftAnti$");
             }
+            function isExistenceJoin(n) {
+                // We have different logic of handling ExistenceJoin. Ideally,
+                // an ExistenceJoin will be compiled into LeftSemi by Spark.
+                // But when the condition is complex it can return type of
+                // "ExistenceJoin". In that case, we compile it into a
+                // LeftSemi + LeftOuter + Project
+                return (n.value.joinType["product-class"] ===
+                    "org.apache.spark.sql.catalyst.plans.ExistenceJoin");
+            }
+
+
 
             // Special case for Anti Semi Joins
             // Check if root node is OR
@@ -1809,7 +1826,17 @@
                 }
             }
 
-            var retStruct;
+            if (isExistenceJoin(node)) {
+                var existColName = cleanseColName(node.value.joinType.exists[0]
+                                                                     .name);
+                var existColId = node.value.joinType.exists[0].exprId.id;
+                retStruct.existenceCol = {
+                    colName: existColName,
+                    colId: existColId,
+                    rename: existColName + "_E" + existColId
+                }
+            }
+
             if (optimize) {
                 var mapStruct = __getJoinMapArrays(node, eqSubtrees);
                 for (var prop in mapStruct) {
@@ -1831,13 +1858,11 @@
             // Start of flow. All branching decisions has been made
             if (optimize) {
                 var overwriteJoinType;
-                if (filterSubtrees.length > 0) {
-                    if (isSemiOrAntiJoin(node)) {
-                        overwriteJoinType = JoinOperatorT.InnerJoin;
-                        promise = promise.then(__generateRowNumber.bind(sqlObj,
-                                                                        retStruct,
-                                                                        node));
-                    }
+                if (filterSubtrees.length > 0 && isSemiOrAntiJoin(node)) {
+                    overwriteJoinType = JoinOperatorT.InnerJoin;
+                    promise = promise.then(__generateRowNumber.bind(sqlObj,
+                                                                    retStruct,
+                                                                    node));
                 }
 
                 promise = promise.then(__handleAndEqJoin.bind(sqlObj,
@@ -1866,7 +1891,7 @@
                     }
                 }
             } else {
-                if (isSemiOrAntiJoin(node)) {
+                if (isSemiOrAntiJoin(node) || isExistenceJoin(node)) {
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
                                                                     retStruct,
                                                                     node));
@@ -1889,6 +1914,15 @@
                                                                  retStruct,
                                                                  node));
                 }
+                if (isExistenceJoin(node)) {
+                    promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                    retStruct,
+                                                                    node,
+                                                                    false));
+                    promise = promise.then(__joinBackMap.bind(sqlObj,
+                                                                  retStruct,
+                                                                  node));
+                }
             }
 
             promise.fail(deferred.reject);
@@ -1900,11 +1934,9 @@
                                             .concat(node.children[0].xcCols));
                 node.sparkCols = jQuery.extend(true, [],
                                                node.children[0].sparkCols);
-                if (node.value.joinType.object !==
-                    "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
-                    node.value.joinType.object !==
-                    "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
-                    // XXX Think of existence joins and the new column created
+                if (!isSemiOrAntiJoin(node) && !isExistenceJoin(node)) {
+                    // Existence = LeftSemi join with right table then LeftOuter
+                    // join back with left table
                     node.usrCols = node.usrCols
                         .concat(jQuery.extend(true, [],
                                               node.children[1].usrCols));
@@ -1919,7 +1951,13 @@
                         .concat(jQuery.extend(true, [],
                                               node.children[1].usrCols
                                               .concat(node.children[1].xcCols)));
-                        // XXX Think about sparkcols
+                    // XXX Think about sparkcols
+                    if (isExistenceJoin(node)) {
+                        // If it's ExistenceJoin, don't forget existenceCol
+                        node.sparkCols.push(retStruct.existenceCol);
+                        node.renamedCols[retStruct.existenceCol.colId] =
+                                                  retStruct.existenceCol.rename;
+                    }
                 }
 
                 assertCheckCollision(node.usrCols);
@@ -2060,17 +2098,20 @@
                                         .concat(joinNode.children[1].xcCols)
                                         .concat(joinNode.children[1].sparkCols),
                                         lTableInfo.rename,
-                                        rTableInfo.rename
+                                        rTableInfo.rename,
+                                        lTableInfo.tableName,
+                                        rTableInfo.tableName
                                         );
-            joinNode.renamedColIds = newRenames
-                                    .concat(joinNode.children[0].renamedColIds);
+            joinNode.renamedCols = joinNode.children[0].renamedCols;
             if (joinNode.value.joinType.object !==
                 "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
                 joinNode.value.joinType.object !==
                 "org.apache.spark.sql.catalyst.plans.LeftAnti$") {
-                joinNode.renamedColIds = joinNode.renamedColIds
-                                    .concat(joinNode.children[1].renamedColIds);
+                joinNode.renamedCols = __combineRenameMaps(
+                    [joinNode.renamedCols, joinNode.children[1].renamedCols]);
             }
+            joinNode.renamedCols = __combineRenameMaps(
+                                        [joinNode.renamedCols, newRenames]);
 
             if (retLeft.cli) {
                 cliArray.push(retLeft.cli);
@@ -2081,8 +2122,13 @@
             }
 
             var joinType;
+            var options = {};
             if (overwriteJoinType !== undefined) {
                 joinType = overwriteJoinType;
+            } else if (globalStruct.existenceCol) {
+                // ExistenceJoin is not in joinNode.value.joinType.object
+                joinType = JoinCompoundOperatorTStr.ExistenceJoin;
+                options.existenceCol = globalStruct.existenceCol.rename;
             } else {
                 switch (joinNode.value.joinType.object) {
                     case ("org.apache.spark.sql.catalyst.plans.Inner$"):
@@ -2112,8 +2158,7 @@
                         break;
                 }
             }
-
-            return self.join(joinType, lTableInfo, rTableInfo);
+            return self.join(joinType, lTableInfo, rTableInfo, options);
         })
         .then(function(retJoin) {
             // Since we have the joined table now, we don't need the original
@@ -2163,7 +2208,9 @@
                                         .concat(joinNode.children[1].xcCols)
                                         .concat(joinNode.children[1].sparkCols),
                                         lTableInfo.rename,
-                                        rTableInfo.rename
+                                        rTableInfo.rename,
+                                        lTableInfo.tableName,
+                                        rTableInfo.tableName
                                         );
         // var newRenames = __resolveCollision(joinNode.children[0].usrCols,
         //                                     joinNode.children[1].usrCols,
@@ -2177,10 +2224,10 @@
         //                                                joinNode.children[1].sparkCols,
         //                                                lTableInfo.rename,
         //                                                rTableInfo.rename));
-        joinNode.renamedColIds = newRenames
-                             .concat(joinNode.children[0].renamedColIds)
-                             .concat(joinNode.children[1].renamedColIds);
-        var options = {renamedColIds: joinNode.renamedColIds};
+        joinNode.renamedCols = __combineRenameMaps(
+                            [joinNode.children[0].renamedCols,
+                            joinNode.children[1].renamedCols, newRenames]);
+        var options = {renamedCols: joinNode.renamedCols};
         var acc = {}; // for ScalarSubquery use case
         var filterEval = "";
         if (condTree) {
@@ -2232,6 +2279,61 @@
         })
         .fail(deferred.reject);
 
+        return deferred.promise();
+    }
+
+    function __joinBackMap(globalStruct, joinNode) {
+        var self = this;
+        var deferred = PromiseHelper.deferred();
+        // This is post join, so assert that left and right tables no longer
+        // exist
+        assert(!globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName);
+        assert(globalStruct.leftRowNumTableName);
+        assert(globalStruct.newTableName);
+        assert(globalStruct.leftRowNumCol);
+        assert(globalStruct.existenceCol);
+        // For this func to be called, the current table must only have 2 cols
+        // The rowNumCol and the countCol. Both are autogenerated
+        var lTableInfo = {
+            tableName: globalStruct.leftRowNumTableName,
+            columns: [globalStruct.leftRowNumCol],
+            pulledColumns: [],
+            rename: []
+        };
+        var newRowNumColName = "XC_ROWNUM_" +
+                               xcHelper.getTableId(globalStruct.newTableName);
+        // Record the renamed column
+        joinNode.xcCols.push({colName: newRowNumColName});
+        var rTableInfo = {
+            tableName: globalStruct.newTableName,
+            columns: [globalStruct.leftRowNumCol],
+            pulledColumns: [],
+            rename: [{
+                new: newRowNumColName,
+                orig: globalStruct.leftRowNumCol,
+                type: DfFieldTypeT.DfUnknown
+            }]
+        };
+
+        // var leftRDDCols = getAllCols(joinNode.children[0]);
+        // // ExistenceCol has to be already renamed
+        // leftRDDCols.push(globalStruct.existenceCol.rename);
+        self.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo)
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            // Now keep only the rows where the newRowNumColName does not exist
+            return self.map("and(" +
+                            "exists(" + globalStruct.leftRowNumCol + ")," +
+                            "exists(" + newRowNumColName + "))",
+                            ret.newTableName, globalStruct.existenceCol.rename);
+        })
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
         return deferred.promise();
     }
 
@@ -2297,7 +2399,7 @@
 
         for (var i = 0; i < filterSubtrees.length; i++) {
             var subtree = filterSubtrees[i];
-            var options = {renamedColIds: joinNode.renamedColIds};
+            var options = {renamedCols: joinNode.renamedCols};
 
             filterEvalStrArray.push(genEvalStringRecur(subtree, undefined,
                                                        options));
@@ -2345,8 +2447,8 @@
 
             var attributeReferencesOne = [];
             var attributeReferencesTwo = [];
-            var options = {renamedColIds: node.children[0].renamedColIds
-                                       .concat(node.children[1].renamedColIds)};
+            var options = {renamedCols: __combineRenameMaps(
+                [node.children[0].renamedCols, node.children[1].renamedCols])};
             var dontPush = false;
             getAttributeReferences(eqTree.children[0],
                                    attributeReferencesOne, options);
@@ -2354,8 +2456,8 @@
                                    attributeReferencesTwo, options);
             var leftAcc = {numOps: 0};
             var rightAcc = {numOps: 0};
-            var leftOptions = {renamedColIds: node.children[0].renamedColIds};
-            var rightOptions = {renamedColIds: node.children[1].renamedColIds};
+            var leftOptions = {renamedCols: node.children[0].renamedCols};
+            var rightOptions = {renamedCols: node.children[1].renamedCols};
             if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
                 xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
             {
@@ -2409,7 +2511,8 @@
         return retStruct;
     }
 
-    function __resolveCollision(leftCols, rightCols, leftRename, rightRename) {
+    function __resolveCollision(leftCols, rightCols, leftRename, rightRename,
+                                leftTableName, rightTableName) {
         // There could be three colliding cases:
 
         // 1. their xx their => keep the left and rename the right using the
@@ -2424,41 +2527,44 @@
         // do is to resolve the collision. No need to worry about other
         // references in genXXX() functions.
 
-        // 3. our xx their => rename their column using exprId because of
-        // reasons listed in case 1 & 2.
-        var newRenames = [];
+        // 3. our xx their => rename our column because it's only temp col and
+        // will not be visible to the user.
+        var newRenames = {};
+        var colSet = new Set();
+        var leftTableId = xcHelper.getTableId(leftTableName);
+        var rightTableId = xcHelper.getTableId(rightTableName);
         for (var i = 0; i < leftCols.length; i++) {
-            for (var j = 0; j < rightCols.length; j++) {
-                if (leftCols[i].colName === rightCols[j].colName) {
-                    var oldName = rightCols[j].colName;
-                    if (rightCols[j].colId) {
-                        // Right has ID, rename right
-                        var newName = oldName + "_E" + rightCols[j].colId;
-                        rightRename.push(xcHelper.getJoinRenameMap(oldName,
-                                         newName));
-                        rightCols[j].rename = newName;
-                        newRenames.push(rightCols[j].colId);
-                    } else if (leftCols[i].colId) {
-                        // Right has no ID and left has ID, rename left
-                        var newName = oldName + "_E" + leftCols[i].colId;
-                        leftRename.push(xcHelper.getJoinRenameMap(oldName,
-                                         newName));
-                        leftCols[i].rename = newName;
-                        newRenames.push(leftCols[i].colId);
-                    } else {
-                        // Neither has ID, append a random hash value
-                        // This is for case#2
-                        var newName = oldName + "_E" +
-                                      Authentication.getHashId().substring(1);
-                        rightRename.push(xcHelper.getJoinRenameMap(oldName,
-                                         newName));
-                        rightCols[j].rename = newName;
-                    }
-                    break;
+            var colName = leftCols[i].rename || leftCols[i].colName;
+            colSet.add(colName);
+        }
+        for (var i = 0; i < rightCols.length; i++) {
+            var colName = rightCols[i].rename || rightCols[i].colName;
+            if (colSet.has(colName)) {
+                var newName = colName + "_E" + rightTableId;
+                while (colSet.has(newName)) {
+                    newName = newName + "_E" + rightTableId;
                 }
+                rightRename.push(xcHelper.getJoinRenameMap(colName, newName));
+                rightCols[i].rename = newName;
+                colSet.add(newName);
+                if (rightCols[i].colId) {
+                    newRenames[rightCols[i].colId] = newName;
+                }
+            } else {
+                colSet.add(colName);
             }
         }
         return newRenames;
+    }
+
+    function __combineRenameMaps(renameMaps) {
+        var retMap = renameMaps[0];
+        for (var i = 1; i < renameMaps.length; i++) {
+            for (var attr in renameMaps[i]) {
+                retMap[attr] = renameMaps[i][attr];
+            }
+        }
+        return retMap;
     }
 
     function assertCheckCollision(cols) {
@@ -2502,6 +2608,7 @@
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
+            var hasLeftPar = false;
             if (opName.indexOf(".aggregate.") > -1) {
                 if (opName === "expressions.aggregate.AggregateExpression") {
                     if (acc) {
@@ -2540,11 +2647,17 @@
                         if (acc.noAssignOp) {
                             acc.numOps += 1;
                             outStr += opLookup[opName] + "(";
+                            hasLeftPar = true;
                         } else {
                             acc.operator = opLookup[opName];
+                            if (options.xcAggregate) {
+                                outStr += opLookup[opName] + "(";
+                                hasLeftPar = true;
+                            }
                         }
                     } else {
                         outStr += opLookup[opName] + "(";
+                        hasLeftPar = true;
                     }
                 }
             } else if (opName.indexOf(".ScalarSubquery") > -1) {
@@ -2564,10 +2677,12 @@
                 if (opName === "expressions.XCEPassThrough") {
                     assert(condTree.value.name !== undefined);
                     outStr += "sql:" + condTree.value.name + "(";
+                    hasLeftPar = true;
                     assert(acc.hasOwnProperty("udfs"));
                     acc.udfs.push(condTree.value.name.toUpperCase());
                 } else {
                     outStr += opLookup[opName] + "(";
+                    hasLeftPar = true;
                 }
             }
             for (var i = 0; i < condTree.value["num-children"]; i++) {
@@ -2577,10 +2692,7 @@
                     outStr += ",";
                 }
             }
-            if ((opName.indexOf(".aggregate.") === -1 &&
-                 opName.indexOf(".ScalarSubquery") === -1) ||
-                (opName !== "expressions.aggregate.AggregateExpression" &&
-                 (!acc || acc.noAssignOp))) {
+            if (hasLeftPar) {
                 outStr += ")";
             }
         } else {
@@ -2588,16 +2700,20 @@
             if (condTree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
+                var colName;
                 if (condTree.value.name.indexOf(tablePrefix) !== 0) {
-                    outStr += cleanseColName(condTree.value.name);
+                    colName = cleanseColName(condTree.value.name);
                 } else {
-                    outStr += condTree.value.name;
+                    colName = condTree.value.name;
                 }
                 var id = condTree.value.exprId.id;
-                if (options && options.renamedColIds &&
-                    options.renamedColIds.indexOf(id) !== -1) {
-                    outStr += "_E" + id;
+                if (options && options.renamedCols &&
+                    options.renamedCols[id]) {
+                    // XXX spark column not included here
+                    // not sure whether this AR could be spark column
+                    colName = options.renamedCols[id];
                 }
+                outStr += colName;
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string" ||
@@ -2680,14 +2796,15 @@
                 }
                 colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
-                if (options && options.renamedColIds &&
-                    options.renamedColIds.indexOf(colStruct.colId) !== -1) {
-                    colStruct.rename = colStruct.colName + "_E" + colStruct.colId;
+                if (options && options.renamedCols &&
+                    options.renamedCols[colStruct.colId]) {
+                    colStruct.rename = options.renamedCols[colStruct.colId];
                 }
             }
             columns.push(colStruct);
         }
     }
+
     function produceSubqueryCli(self, subqueryArray) {
         var deferred = PromiseHelper.deferred();
         if (subqueryArray.length === 0) {
@@ -2814,9 +2931,9 @@
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
             var attrName = treeNode.value.name;
             var id = treeNode.value.exprId.id;
-            if (options && options.renamedColIds &&
-                options.renamedColIds.indexOf(id) !== -1) {
-                attrName += "_E" + id;
+            if (options && options.renamedCols &&
+                options.renamedCols[id]) {
+                attrName = options.renamedCols[id];
             }
             if (arr.indexOf(attrName) === -1) {
                 arr.push(cleanseColName(attrName));

@@ -51,6 +51,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "joinOptimizeFilter": "select * from supplier, nation where s_nationkey = n_nationkey and s_suppkey > n_nationkey",
         "crossJoinNoFilter": "select * from nation cross join region",
         // "dateExpWithTS": "select year(timestamp(someTimestampCol)) from table",
+        "existenceJoin": "select * from tb t1 where exists(select * from tb t2 where t2.a_avg >= t1.r_regionkey_int) or exists(select * from region where region.r_regionkey >= t1.r_regionkey_int)",
+        "existenceJoinCatchAll": "select * from tb t1 where exists(select * from tb t2 where t2.a_avg = t1.r_regionkey_int) or exists(select * from region where region.r_regionkey = t1.r_regionkey_int)",
     };
     var tpchCases = {
         "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +

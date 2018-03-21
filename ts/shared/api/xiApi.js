@@ -506,6 +506,7 @@
         var deferred = PromiseHelper.deferred();
         var tempTables = [];
         var joinedCols;
+        var existenceCol = options.existenceCol;
 
         // var lIndexColNames;
         var rIndexColNames;
@@ -566,7 +567,7 @@
                                       rIndexColNames,
                                       newTableName, joinType, lRename, rRename,
                                       tempTables,
-                                      txId);
+                                      txId, existenceCol);
             } else if (joinType === JoinOperatorT.CrossJoin) {
                 var joinOptions;
                 if (options && options.evalString) {
@@ -806,7 +807,8 @@
                 tableNames.push(tableInfo.tableName);
                 colInfos.push(tableInfo.renames);
             });
-            return XcalarUnion(tableNames, newTableName, colInfos, dedup, txId);
+            // XXX here only pass empty string in
+            return XcalarUnion(tableNames, newTableName, colInfos, dedup, "", txId);
         })
         .then(function() {
             var finalTableCols = tableInfos[0].columns.map(function(col) {
@@ -1596,10 +1598,11 @@
 
     function semiJoinHelper(lIndexedTable, rIndexedTable, rIndexedColNames,
                             newTableName, joinType, lRename, rRename,
-                            tempTables, txId) {
+                            tempTables, txId, existenceCol) {
         var deferred = PromiseHelper.deferred();
         // TODO: switch left and right and support right semi joins
         var antiJoinTableName;
+        var existJoinTableName;
         var newColName = xcHelper.randName("XC_GB_COL");
         var newGbTableName = getNewTableName(rIndexedTable);
 
@@ -1609,6 +1612,12 @@
                 antiJoinTableName = getNewTableName(rIndexedTable);
                 return XcalarJoin(lIndexedTable, newGbTableName,
                                   antiJoinTableName,
+                                  JoinOperatorT.LeftOuterJoin,
+                                  lRename, rRename, undefined, txId);
+            } else if (joinType === JoinCompoundOperatorTStr.ExistenceJoin) {
+                existJoinTableName = getNewTableName(lIndexedTable);
+                return XcalarJoin(lIndexedTable, newGbTableName,
+                                  existJoinTableName,
                                   JoinOperatorT.LeftOuterJoin,
                                   lRename, rRename, undefined, txId);
             } else {
@@ -1631,6 +1640,11 @@
                 tempTables.push(antiJoinTableName);
                 return XcalarFilter("not(exists(" + newKeyFieldName + "))",
                        antiJoinTableName, newTableName, txId);
+            } else if (joinType === JoinCompoundOperatorTStr.ExistenceJoin) {
+                tempTables.push(existJoinTableName);
+                return XcalarMap(existenceCol,
+                                 "exists(" + newKeyFieldName + ")",
+                                 existJoinTableName, newTableName, txId);
             } else {
                 return PromiseHelper.resolve();
             }

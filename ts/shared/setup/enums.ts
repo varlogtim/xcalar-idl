@@ -341,6 +341,7 @@ enum JoinCompoundOperator {
     "Right Semi Join" = 11,
     "Left Anti Semi Join" = 12,
     "Right Anti Semi Join" = 13,
+    "Existence Join" = 14,
 }
 
 enum JoinCompoundOperatorTStr {
@@ -348,6 +349,7 @@ enum JoinCompoundOperatorTStr {
     RightSemiJoin = "Right Semi Join",
     LeftAntiSemiJoin = "Left Anti Semi Join",
     RightAntiSemiJoin = "Right Anti Semi Join",
+    ExistenceJoin = "Existence Join",
 }
 
 if (typeof global !== 'undefined') {
