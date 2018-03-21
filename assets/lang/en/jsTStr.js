@@ -773,6 +773,7 @@ WKBKTStr = {
     "ActivateInstr": "Activating a workbook will deactivate the currently active workbook. Do you still want to continue?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
+    "Download": "Download the Workbook to your local drive",
     "Duplicate": "Duplicate Workbook",
     "Delete": "Delete Workbook",
     "DelErr": "Error occurred in deleting workbook",

@@ -144,15 +144,24 @@
         .size(@height: 190px);
         .flex(1 0 300px);
         overflow: hidden;
+        padding: 2px;
 
         .innerBox {
             width: 100%;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            margin-top: 2px;
+            margin-left: 2px;
             box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
             .flex-display;
             background-color: @color-white;
             .transition(0.7s transform);
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: 0 0 0 2px @color-bg-bright-light-blue,
+                            0px 3px 5px 0px rgba(0,0,0,0.2);
+            }
         }
 
         &.new, &.removing {
@@ -327,12 +336,25 @@
         .leftBar {
             background-color: @color-bg-newWB-orange;
         }
-        input {
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-        .btn {
-            width: 100%;
+
+        .innerBox {
+            &:hover {
+                box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+                cursor: default;
+            }
+
+            input {
+                margin-top: 10px;
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                width: 100%;
+
+                .icon {
+                    font-size: 12px;
+                }
+            }
         }
     }
 
@@ -468,6 +490,7 @@
             background-color: @color-bg-white-three;
             overflow: hidden;
             width: @tabHeight;
+            box-shadow: -2px 0 2px 0 rgba(0, 0, 0, 0.23);
         }
 
         .vertBarBtn {

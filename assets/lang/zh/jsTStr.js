@@ -621,6 +621,7 @@ WKBKTStr = {
 "ActivateInstr": "激活工作簿会关闭当前激活的工作簿, 你确定要继续吗?",
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称和注释',
+"Download": "Download",
 "Duplicate": '复制工作簿',
 "Delete": '删除工作簿',
 "DelErr": '删除工作簿出错',

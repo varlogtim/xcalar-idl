@@ -449,6 +449,21 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.downloadWKBK = function(workbookName) {
+        var deferred = PromiseHelper.deferred();
+
+        XcalarDownloadWorkbook(workbookName)
+        .then(function(file) {
+            xcHelper.downloadAsFile(workbookName + ".tar.gz", file.sessionContent, true);
+            deferred.resolve();
+        })
+        .fail(function(err) {
+            deferred.reject(err);
+        });
+
+        return deferred.promise();
+    };
+
     WorkbookManager.pause = function(workbookId) {
         xcAssert(workbookId === activeWKBKId, WKBKTStr.PauseErr);
         var wkbk = wkbkSet.get(workbookId);

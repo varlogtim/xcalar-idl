@@ -1023,6 +1023,7 @@ module.exports = {
         "Wkbk": "工作簿",
         "Wkbkname": "工作簿名称",
         "createWKBK": "创建工作簿",
+        "browseWKBK": "BROWSE WORKBOOKS",
         "createWKBKdesc": "创建一个新的工作簿",
         "header": "浏览工作簿",
         "hello": "您好",

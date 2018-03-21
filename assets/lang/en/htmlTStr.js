@@ -1049,7 +1049,8 @@ module.exports = {
     },
 
     "workbook": {
-        "createWKBK": "CREATE WORKBOOK",
+        "createWKBK": "CREATE NEW WORKBOOK",
+        "browseWKBK": "BROWSE WORKBOOKS",
         "createWKBKdesc": "Create a new workbook with data and worksheets",
         "header": "Workbook Browser",
         "hello": "Hello",

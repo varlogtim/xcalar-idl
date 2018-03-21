@@ -276,7 +276,10 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // New Workbook card
-        $newWorkbookCard.on("click", "button", createNewWorkbook);
+        $("#createWKBKbtn").click(function() {
+            clearActives();
+            createNewWorkbook();
+        });
 
         $newWorkbookInput.on("focus", function() {
             clearActives();
@@ -290,7 +293,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         // Events for the actual workbooks
         // Play button
-        $workbookSection.on("click", ".activate", function() {
+        $workbookSection.on("click", ".activate", function(event) {
+            if ($(event.target).is('.preview')) {
+                return;
+            }
+
             clearActives();
             activateWorkbook($(this).closest(".workbookBox"));
         });
@@ -301,6 +308,26 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.attr("data-workbook-id");
             WorkbookInfoModal.show(workbookId);
+        });
+
+        //Download Button
+        $workbookSection.on("click", ".download", function() {
+            clearActives();
+            var $workbookBox = $(this).closest(".workbookBox");
+            var workbookId = $workbookBox.attr("data-workbook-id");
+            var workbook = WorkbookManager.getWorkbook(workbookId);
+            var workbookName = workbook.getName();
+            var $dlButton = $(this);
+
+            $dlButton.addClass("inActive");
+
+            WorkbookManager.downloadWKBK(workbookName)
+            .fail(function(err) {
+                StatusBox.show(err.error, $dlButton);
+            })
+            .always(function() {
+                $dlButton.removeClass("inActive");
+            });
         });
 
         // Duplicate button
@@ -732,7 +759,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 ' data-toggle="tooltip" data-container="body"' +
                 ' data-placement="auto right"' +
                 ' title="' + WKBKTStr.Pause + '">' +
-                    '<i class="icon xi-pause-circle"></i>' +
+                    '<i class="icon xi-stop-circle"></i>' +
                 '</div></div>';
         } else {
             activateTooltip = WKBKTStr.Activate;
@@ -786,7 +813,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                             '</div>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="content">' +
+                    '<div class="content activate">' +
                         '<div class="innerContent">' +
                             '<div class="subHeading tooltipOverflow" ' +
                             ' data-toggle="tooltip" data-container="body"' +
@@ -797,11 +824,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '<div class="description textOverflowOneLine">' +
                                     xcHelper.escapeHTMLSpecialChar(description) +
                                 '</div>' +
+                                '<div class ="preview">' +
                                 '<i class="preview icon xi-show xc-action" ' +
                                 ' data-toggle="tooltip" data-container="body"' +
                                 ' data-placement="top"' +
                                 ' data-title="' + CommonTxtTstr.Preview + '"' +
-                                '></i>' +
+                                '></i></div>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +
@@ -844,17 +872,17 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                         '</div>' +
                     '</div>' +
                     '<div class="rightBar vertBar">' +
-                        '<div class="vertBarBtn activate"><div class="tab btn btn-small"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="auto right"' +
-                        ' title="' + activateTooltip + '">' +
-                            '<i class="icon xi-play-circle"></i>' +
-                        '</div></div>' +
                         '<div class="vertBarBtn modify"><div class="tab btn btn-small"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="auto right"' +
                         ' title="' + WKBKTStr.EditName + '">' +
                             '<i class="icon xi-edit"></i>' +
+                        '</div></div>' +
+                        '<div class="vertBarBtn download"><div class="tab btn btn-small"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="auto right"' +
+                        ' title="' + WKBKTStr.Download + '">' +
+                            '<i class="icon xi-download"></i>' +
                         '</div></div>' +
                         '<div class="vertBarBtn duplicate"><div class="tab btn btn-small"' +
                         ' data-toggle="tooltip" data-container="body" ' +
