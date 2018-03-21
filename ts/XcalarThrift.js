@@ -4529,10 +4529,6 @@ XcalarUploadWorkbook = function(workbookName, workbookContent) {
     }
     var deferred = PromiseHelper.deferred();
 
-    setTimeout(function() {
-        deferred.resolve({jobStatus: 0, output: {}});
-    }, 1000);
-
     xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4549,11 +4545,7 @@ XcalarDownloadWorkbook = function(workbookName) {
     }
     var deferred = PromiseHelper.deferred();
 
-    setTimeout(function() {
-        deferred.resolve({content: "someWorkbookInfo"});
-    }, 1000);
-
-    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    xcalarApiSessionDownload(tHandle, workbookName)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);
