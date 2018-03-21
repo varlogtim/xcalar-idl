@@ -1744,7 +1744,8 @@ window.DagDraw = (function($, DagDraw) {
         info.taggedType = info.type;
 
         if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
-            node.value.tags.length === 1) {
+            node.value.tags.length === 1 &&
+            node.value.api !== XcalarApisT.XcalarApiSynthesize) {
             taggedInfo = setTaggedOpInfo(info, value, node, parentNames);
             if (node.value.display.hasTagGroup) {
                 isCollapsedTag = true;
