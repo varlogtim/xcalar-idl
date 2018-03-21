@@ -63,11 +63,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             var val = ramData[index];
             var rawVal = val;
             var sizeOption = {base2: true};
-            if (index === networkIndex) {
-                sizeOption = {base3: true};
-            }
-            val = xcHelper.sizeTranslator(val, true, null,
-                                                    sizeOption);
+            val = xcHelper.sizeTranslator(val, true, null, sizeOption);
             $monitorPanel.find(".donutLegendInfo").removeClass("xc-hidden");
             $monitorPanel.find(".donutLegendInfo .unitSize .num").text(val[0]);
             $monitorPanel.find(".donutLegendInfo .unitSize .unit").text(val[1]);
@@ -392,11 +388,16 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         return bars;
     }
 
-    // function sortStats(a, b) {
-    //     if (a.used > b.used) return 1;
-    //     if (a.used < b.used) return -1;
-    //     return 0;
-    // }
+     /* Unit Test Only */
+    if (window.unitTestMode) {
+        MonitorDonuts.__testOnly__ = {};
+        MonitorDonuts.__testOnly__setRamData = function(data) {
+            var prevData = ramData;
+            ramData = data;
+            return prevData;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return (MonitorDonuts);
 }(jQuery, {}));
