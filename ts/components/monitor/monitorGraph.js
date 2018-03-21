@@ -164,7 +164,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         })
         .then(function(apiTopResult) {
             $("#upTime").text(xcHelper.timeStampConvertSeconds(
-                apiTopResult.topOutputPerNode[0].uptimeInSeconds, {noZeros: true}));
+                apiTopResult.topOutputPerNode[0].uptimeInSeconds, true));
             if (prevIteration !== curIteration) {
                 return deferred.resolve();
             }

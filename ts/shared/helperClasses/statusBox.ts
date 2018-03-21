@@ -20,17 +20,17 @@ namespace StatusBox {
      *      detail: string, extra information text to display
      *      delayHide: number of milliseconds to delay ability to hide box
      */
-    interface StatusDisplayerOpions {
-        type: string;
-        highZindex: boolean;
-        side: string;
-        offsetX: number;
-        offsetY: number;
-        html: boolean;
-        preventImmediateHide: boolean;
-        persist: boolean;
-        detail: string;
-        delayHide: number;
+    export interface StatusDisplayerOpions {
+        type?: string;
+        highZindex?: boolean;
+        side?: string;
+        offsetX?: number;
+        offsetY?: number;
+        html?: boolean;
+        preventImmediateHide?: boolean;
+        persist?: boolean;
+        detail?: string;
+        delayHide?: number;
     }
 
     class StatusDisplayer {

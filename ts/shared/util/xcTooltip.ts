@@ -1,8 +1,8 @@
 namespace xcTooltip {
-    interface TooltipOptions {
+    export interface TooltipOptions {
         title: string;
-        container: string;
-        placement: string;
+        container?: string;
+        placement?: string;
         trigger?: string;
         animation?: boolean;
     }

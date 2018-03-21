@@ -3,7 +3,9 @@ namespace xcConsole {
     let showThrift: boolean = false;
     let logs: Object[] = [];
 
-    // xcConsole.log
+    /**
+     * xcConsole.log
+     */
     export function log(...args: any[]): string[] {
         if (window["isBrowserMicrosoft"] || window["isBrowserSafari"]) {
             return;
@@ -41,17 +43,24 @@ namespace xcConsole {
         return stack;
     };
 
-    // xcConsole.error
+    /**
+     * xcConsole.error
+     */
     export function error(): string[] {
         return xcConsole.log.apply({isError: true}, arguments);
     };
 
-    // xcConsole.getLogs
+    /**
+     * xcConsole.getLogs
+     */
     export function getLogs(): Object[] {
         return logs;
     };
 
-    // xcConsole.toggleThrift
+    /**
+     * xcConsole.toggleThrift
+     * @param show 
+     */
     export function toggleThrift(show: boolean = false): boolean {
         showThrift = show;
         return showThrift;
@@ -132,7 +141,7 @@ namespace xcConsole {
         return $alert;
     }
 
-    function showAlert(args: any[], stack: String[], isError:boolean=false): void {
+    function showAlert(args: any[], stack: string[], isError:boolean=false): void {
         let $alert: JQuery = setupAlert();
         $alert.show();
         let stackStr: string = "";

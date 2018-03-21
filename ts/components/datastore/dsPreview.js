@@ -4414,7 +4414,7 @@ window.DSPreview = (function($, DSPreview) {
             // is called after loadWithUdf been called. We need to add another
             // step in the preview if we want to enable this
             // if (data.substring(0, 4) == "PAR1" &&
-            //     !xcHelper.isAscii(data.substring(4, 100))) {
+            //     !isAscii(data.substring(4, 100))) {
             //     return formatMap.PARQUETFILE;
             // }
             var rows = lineSplitHelper(data, lineDelim, 0);
@@ -4435,6 +4435,10 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
     }
+
+    // function isAscii(string) {
+    //     return /^[\x00-\x7F]*$/.test(string);
+    // }
 
     function detectHeader(data, lineDelim, fieldDelim) {
         var rows = lineSplitHelper(data, lineDelim);

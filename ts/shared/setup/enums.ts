@@ -201,6 +201,25 @@ enum QueryStatus {
     RM = "removed"
 }
 
+enum PatternCategory {
+    Dataset = "dataset",
+    Export = "export",
+    Dataflow = "dataflow",
+    Folder = "folder",
+    Param = "param",
+    Prefix = "prefix",
+    UDF = "udf",
+    UDFFn = "udfFn",
+    Workbook = "workbook",
+    Target = "target"
+}
+
+enum PatternAction {
+    Fix = "fix",
+    Check = "check",
+    Get = "get"
+}
+
 enum SQLType {
     Fail = "fail handler",
     Error = "error",

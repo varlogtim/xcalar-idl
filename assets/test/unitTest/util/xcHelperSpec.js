@@ -133,12 +133,29 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("mixed");
     });
 
-    it("xcHelper.prefixRegExKey should work", function() {
-        var res = xcHelper.prefixRegExKey("test");
-        expect(res).to.equal("^test");
+    it("xcHelper.parseDSFormat should work", function() {
+        var ds = {
+            loadArgs: {
+                parseArgs: {
+                    parserFnName: "default:openExcel"
+                }
+            }
+        };
+
+        expect(xcHelper.parseDSFormat(ds)).to.equal("Excel");
         // case 2
-        res = xcHelper.prefixRegExKey("^test2");
-        expect(res).to.equal("^test2");
+        ds.loadArgs.parseArgs.parserFnName = "default:parseCsv";
+        expect(xcHelper.parseDSFormat(ds)).to.equal("CSV");
+        // case 3
+        ds.loadArgs.parseArgs.parserFnName = "default:parseJson";
+        expect(xcHelper.parseDSFormat(ds)).to.equal("JSON");
+        // error case
+        expect(xcHelper.parseDSFormat("")).to.equal("Unknown");
+    });
+
+    it("xcHelper.replaceInsideQuote should work", function() {
+        expect(xcHelper.replaceInsideQuote('a"b"c', '"')).to.equal("ac");
+        expect(xcHelper.replaceInsideQuote("e'd\nf'g", "'")).to.equal("eg");
     });
 
     it("xcHelper.fullTextRegExKey should work", function() {
@@ -226,6 +243,14 @@ describe("xcHelper Test", function() {
         expect(res.orig).to.equal("oldName2");
         expect(res.new).to.equal("newName2");
         expect(res.type).to.equal(DfFieldTypeT.DfString);
+    });
+
+    it("xcHelper.convertColTypeToFieldType should work", function() {
+        expect(xcHelper.convertColTypeToFieldType(ColumnType.string)).to.equal(DfFieldTypeT.DfString);
+        expect(xcHelper.convertColTypeToFieldType(ColumnType.integer)).to.equal(DfFieldTypeT.DfInt64);
+        expect(xcHelper.convertColTypeToFieldType(ColumnType.float)).to.equal(DfFieldTypeT.DfFloat64);
+        expect(xcHelper.convertColTypeToFieldType(ColumnType.boolean)).to.equal(DfFieldTypeT.DfBoolean);
+        expect(xcHelper.convertColTypeToFieldType(ColumnType.mixed)).to.equal(DfFieldTypeT.DfUnknown);
     });
 
     it("xcHelper.getFilterOptions should work", function() {
@@ -480,6 +505,41 @@ describe("xcHelper Test", function() {
         expect(res[0]).to.be.null;
     });
 
+    it("xcHelper.getTableKeyInfoFromMeta should work", function() {
+        var tableMeta = {
+            "keyAttr": [{
+                "name": "user::test",
+                "valueArrayIndex": 0,
+                "ordering": 1
+            }],
+            "valueAttrs": [{
+                "name": "user",
+                "type": DfFieldTypeT.DfFatptr
+            }]
+        };
+
+        var res = xcHelper.getTableKeyInfoFromMeta(tableMeta);
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.be.an("object");
+        expect(res[0].name).to.equal("user::test");
+        expect(res[0].ordering).to.equal(1);
+
+        // case 2
+        tableMeta = {
+            "keyAttr": [{
+                "name": "test",
+                "valueArrayIndex": -1
+            }],
+            "valueAttrs": [{
+                "name": "user",
+                "type": DfFieldTypeT.DfString
+            }]
+        };
+
+        res = xcHelper.getTableKeyInfoFromMeta(tableMeta);
+        expect(res.length).to.equal(0);
+    });
+
     it("xcHelper.deepCopy should work", function() {
         var obj = {"a": 1, "b": "test"};
         var res = xcHelper.deepCopy(obj);
@@ -537,7 +597,6 @@ describe("xcHelper Test", function() {
     });
 
     it("xcHelper.getDefaultColWidth should work", function() {
-        // case 1
         var testCases = [{
             "colName": "a",
             "prefix": "b",
@@ -564,6 +623,27 @@ describe("xcHelper Test", function() {
             var prefix = testCase.prefix;
             var res = xcHelper.getDefaultColWidth(colName, prefix);
             expect(res).to.equal(testCase.width);
+        });
+    });
+
+    it("xcHelper.listToEnglish should work", function() {
+        var testCases = [{
+            "list": ["a"],
+            "expect": "a"
+        }, {
+            "list": ["a", "b"],
+            "expect": "a and b",
+        }, {
+            "list": ["a", "b", "c"],
+            "expect": "a, b, and c",
+        }, {
+            "list": [],
+            "expect": ""
+        }];
+
+        testCases.forEach(function(testCase) {
+            var res = xcHelper.listToEnglish(testCase.list);
+            expect(res).to.equal(testCase.expect);
         });
     });
 
@@ -628,19 +708,20 @@ describe("xcHelper Test", function() {
         expect(res).to.be.undefined;
     });
 
-    it("xcHelper.isFloat should work", function() {
-        // case 1
-        var res = xcHelper.isFloat(1);
-        expect(res).to.be.false;
-        // case 2
-        res = xcHelper.isFloat(1.23);
-        expect(res).to.be.true;
+    it("xcHelper.arraySubset should work", function() {
+        expect(xcHelper.arraySubset([1, 2], [3, 1, 4, 2])).to.be.true;
+        expect(xcHelper.arraySubset([1, 2], [3, 1, 4])).to.be.false;
+    });
+
+    it("xcHelper.arrayUnion should work", function() {
+        var res = xcHelper.arrayUnion([1, 2], [1, 3, 4]);
+        expect([1,2,3,4]).to.deep.equal([1, 2, 3, 4]);
     });
 
     it("xcHelper.getDate should work", function() {
         // case 1
         var d = new Date("01/01/2001");
-        var res = xcHelper.getDate(null, d);
+        var res = xcHelper.getDate(undefined, d);
         expect(res).to.equal(d.toLocaleDateString().replace(/\//g, "-"));
         // case 2
         res = xcHelper.getDate("/", d);
@@ -665,6 +746,20 @@ describe("xcHelper Test", function() {
         var res = xcHelper.getCurrentTimeStamp();
         var d = new Date().getTime();
         expect((res - d) < 100).to.be.true;
+    });
+
+    it("xcHelper.timeStampConvertSeconds should work", function() {
+        expect(xcHelper.timeStampConvertSeconds(100000))
+        .to.equal("1 day, 3 hours, 46 minutes, 40 seconds");
+
+        expect(xcHelper.timeStampConvertSeconds(100000, true))
+        .to.equal("1 day, 3 hours, 46 minutes, 40 seconds");
+    
+        expect(xcHelper.timeStampConvertSeconds(10000))
+        .to.equal("0 days, 2 hours, 46 minutes, 40 seconds");
+
+        expect(xcHelper.timeStampConvertSeconds(10000, true))
+        .to.equal("2 hours, 46 minutes, 40 seconds");
     });
 
     it("xcHelper.downloadAsFile should work", function(done) {
@@ -756,6 +851,19 @@ describe("xcHelper Test", function() {
 
         res = xcHelper.textToBytesTranslator("1.0KB");
         expect(res).to.equal(1024);
+    });
+
+    it("xcHelper.getColTypeIcon should work", function() {
+        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfInt64))
+        .to.equal('xi-integer');
+        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfFloat64))
+        .to.equal('xi-integer');
+        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfString))
+        .to.equal('xi-string');
+        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfBoolean))
+        .to.equal('xi-boolean');
+        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfUnknown))
+        .to.equal('xi-mixed');
     });
 
     it("xcHelper.showSuccess should work", function(done) {
@@ -1013,11 +1121,6 @@ describe("xcHelper Test", function() {
         $("body").append($input);
 
         var onErrTrigger = false;
-        var oldFunc = xcHelper.checkDupTableName;
-        xcHelper.checkDupTableName = function(name) {
-            return name !== "testDupName";
-        };
-
         var testCases = [{
             "val": "testTable",
             "valid": true
@@ -1061,7 +1164,6 @@ describe("xcHelper Test", function() {
         });
 
         $input.remove();
-        xcHelper.checkDupTableName = oldFunc;
     });
 
     it("xcHelper.getTableName should work", function() {
@@ -1098,21 +1200,7 @@ describe("xcHelper Test", function() {
         });
     });
 
-    it("xcHelper.checkDupTableName should work", function() {
-        var tableName = xcHelper.randName("test-noConflict");
-        var res = xcHelper.checkDupTableName(tableName);
-        expect(res).to.equal(true);
-
-        gTables[tableName] = {
-            getType: function() { return TableType.Active; },
-            getName: function() { return tableName; }
-        };
-        res = xcHelper.checkDupTableName(tableName);
-        expect(res).to.equal(false);
-        delete gTables[tableName];
-    });
-
-    it("xcHelper.lockTable and  xcHelper.unlockTable should work", function() {
+    it("xcHelper.lockTable and xcHelper.unlockTable should work", function() {
         gTables["xcTest"] = new TableMeta({
             "tableId": "xcTest",
             "tableName": "test"
@@ -1164,33 +1252,46 @@ describe("xcHelper Test", function() {
 
         // case 5
         $input = $('<input type="text" value="a">');
-        xcHelper.insertText($input, "b", {append: true});
+        xcHelper.insertText($input, "b", true);
         expect($input.val()).to.be.equal("b, a");
 
         // case 6
         $input = $('<input type="text" value=", a">');
-        xcHelper.insertText($input, "b", {append: true});
+        xcHelper.insertText($input, "b", true);
         expect($input.val()).to.be.equal("b, a");
 
         // case 7
         $input = $('<input type="text">');
-        xcHelper.insertText($input, "a", {append: true});
+        xcHelper.insertText($input, "a", true);
         expect($input.val()).to.be.equal("a");
 
         // case 8
         $input = $('<input type="text" value="a">');
         // set cursor to end
         $input.focus().val("a").caret(1);
-        xcHelper.insertText($input, "b", {append: true});
+        xcHelper.insertText($input, "b", true);
         expect($input.val()).to.be.equal("a, b");
 
         // case 9
         $input = $('<input type="text" value="ab">');
         // set cursor to between a & b
         $input.focus().caret(1);
-        xcHelper.insertText($input, "c", {append: true});
+        xcHelper.insertText($input, "c", true);
         expect($input.val()).to.be.equal("ac, b");
+    });
 
+    it("xcHelper.getFocusedTable should work", function() {
+        var $oldTitle = $(".xcTableWrap .tblTitleSelected");
+        $oldTitle.removeClass("tblTitleSelected");
+
+        expect(xcHelper.getFocusedTable()).to.equal(null);
+
+        var $fakeTable = $('<div class="xcTableWrap" data-id="test"><div class="tblTitleSelected"></div></div>');
+        $("#container").append($fakeTable);
+        expect(xcHelper.getFocusedTable()).to.equal("test");
+
+        $fakeTable.remove();
+        $oldTitle.addClass("tblTitleSelected");
     });
 
     it("xcHelper.createNextName should work", function() {
@@ -1444,6 +1545,14 @@ describe("xcHelper Test", function() {
             var res = xcHelper.hasInvalidCharInCol(test.str);
             expect(res).to.equal(test.res);
         });
+    });
+
+    it("xcHelper.isColNameStartValid should work", function() {
+        expect(xcHelper.isColNameStartValid("")).to.be.false;
+        expect(xcHelper.isColNameStartValid(" ")).to.be.false;
+        expect(xcHelper.isColNameStartValid("1ab")).to.be.false;
+        expect(xcHelper.isColNameStartValid("_ab")).to.be.true;
+        expect(xcHelper.isColNameStartValid("abc")).to.be.true;
     });
 
     it("xcHelper.validateColName should work", function() {
@@ -1879,6 +1988,18 @@ describe("xcHelper Test", function() {
         expect(func("a7z3", "a6z5", desc)).to.equal(-1);
     });
 
+    it("xcHelper.sortHTML should work", function() {
+        var a = '<div>a</div>';
+        var b = '<div>b</div>';
+        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
+        expect(xcHelper.sortHTML(b, a)).to.equal(1);
+
+        // XXX case 2, it's actually weird
+        a = '<div>c</div>';
+        b = '<div>c</div>';
+        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
+    });
+
     it("xcHelper.parseQuery should work", function() {
         var firstPart = 'map --eval "concat(\\"1\\", \\"2\\")" --srctable "A#Vi5" ' +
                         '--fieldName "B" --dsttable "A#Vi25";';
@@ -2184,7 +2305,7 @@ describe("xcHelper Test", function() {
         $container.remove();
     });
 
-    it("xcHelper.hasValidColPrefix(str) should work", function() {
+    it("xcHelper.hasValidColPrefix should work", function() {
         var func = xcHelper.hasValidColPrefix;
         expect(func(gColPrefix)).to.equal(false);
         expect(func('\\' + gColPrefix)).to.equal(false);
@@ -2260,6 +2381,11 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a-b");
     });
 
+    it("xcHelper.stripCSVExt should work", function() {
+        expect(xcHelper.stripCSVExt("a.csv")).to.equal("a");
+        expect(xcHelper.stripCSVExt("b.json")).to.equal("b.json");
+    });
+
     it("xcHelper.parseUserStr should work", function() {
         var res = xcHelper.parseUserStr('"test" = someFunc ');
         expect(res).to.equal("someFunc");
@@ -2274,7 +2400,7 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("someFunc");
     });
 
-    it("xcHelper.getColNameMap", function() {
+    it("xcHelper.getColNameMap should work", function() {
         var progCol1 = ColManager.newCol({
             "backName": "Test",
             "name": "undfCol",
@@ -2307,6 +2433,53 @@ describe("xcHelper Test", function() {
         expect(colNameMap["test2"]).to.equal("test2");
 
         delete gTables["xc-Test"];
+    });
+
+    it("xcHelper.getColNameList should work", function() {
+        var progCol1 = ColManager.newCol({
+            "backName": "Test",
+            "name": "undfCol",
+            "isNewCol": false
+        });
+
+        var progCol2 = ColManager.newCol({
+            "backName": "test2",
+            "name": "stringCol",
+            "isNewCol": false
+        });
+
+        var progCol3 = ColManager.newCol({
+            "backName": "",
+            "name": "",
+            "isNewCol": false
+        });
+
+        var progCol4 = ColManager.newDATACol();
+
+        gTables["xc-Test"] = new TableMeta({
+            "tableId": "xc-Test",
+            "tableName": "test",
+            "tableCols": [progCol1, progCol2, progCol3, progCol4]
+        });
+
+        var colNameList = xcHelper.getColNameList("xc-Test");
+        expect(colNameList.length).to.equal(2);
+        expect(colNameList[0]).to.equal("Test");
+        expect(colNameList[1]).to.equal("test2");
+
+        delete gTables["xc-Test"];
+    });
+
+    it("xcHelper.disableMenuItem should work", function() {
+        var $li = $('<li></li>');
+        xcHelper.disableMenuItem($li);
+        expect($li.hasClass('unavailable')).to.be.true;
+    });
+
+    it("xcHelper.enableMenuItem should work", function() {
+        var $li = $('<li class="unavailable"></li>');
+        xcHelper.enableMenuItem($li);
+        expect($li.hasClass('unavailable')).to.be.false;
     });
 
     it("xcHelper.getPromiseWhenError should work", function() {
@@ -2460,7 +2633,7 @@ describe("xcHelper Test", function() {
             .then(function(res) {
                 expect(res.length).to.equal(1);
                 expect(res[0].type).to.equal(DfFieldTypeT.DfUnknown);
-                expect(res[0].keyFieldName).to.equal("");
+                expect(res[0].keyFieldName).to.equal("col");
                 expect(res[0].ordering).to.equal(5);
                 done();
             })
@@ -2471,6 +2644,11 @@ describe("xcHelper Test", function() {
                 XcalarGetTableMeta = oldFunc;
             });
         });
+    });
+
+    it("xcHelper.formatAsUrl should work", function() {
+        var res = xcHelper.formatAsUrl({"a": 1, "b": "c"});
+        expect(res).to.equal("?a=1&b=c");
     });
 
     describe('xcHelper.getElapsedTimeStr())', function() {
@@ -2516,7 +2694,12 @@ describe("xcHelper Test", function() {
             var fn = {name:"a", args:[{name:"b", args:[2, {name:"c", args:[3, 4]}]}, 1]};
             expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
         });
-    })
+    });
+
+    it("xcHelper.styleNewLineChar should work", function() {
+        expect(xcHelper.styleNewLineChar('\n\r'))
+        .to.equal('<span class="newLine lineChar">\\n</span><span class="carriageReturn lineChar">\\r</span>');
+    });
 
     describe("xcHelper.dropdownOpen", function() {
         describe("Basic Test", function() {
@@ -2569,7 +2752,7 @@ describe("xcHelper Test", function() {
             });
         });
 
-        describe("hasMixedCells() test", function() {
+        describe("hasMixedCells test", function() {
             var tableId = "ZZ1";
             var $table;
 
@@ -2642,7 +2825,7 @@ describe("xcHelper Test", function() {
                 cells.push({isMixed: true, type: "integer"});
 
                 $table.find("td").eq(0).append(hightlightBox);
-                expect(fn("mixed", cells)).to.be.true;
+                expect(fn("mixed", cells)).to.be.false;
 
                 cells.shift();
                 cells.push({isMixed: true, type: "integer"});
@@ -2782,6 +2965,11 @@ describe("xcHelper Test", function() {
                 });
             });
         });
+    });
+
+    it("xcHelper.roundToSignificantFigure should work", function() {
+        expect(xcHelper.roundToSignificantFigure(1234, 5, 100, 1))
+        .to.equal(1000);
     });
 
     after(function() {
