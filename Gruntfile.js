@@ -5860,10 +5860,10 @@ module.exports = function(grunt) {
             process.env[XLRDIR] = BACKENDBLDDIR;
         }
 
-        // for js minification - what depth to start minification at?  defaulst to 1
+        // for js minification - what depth to start minification at?  defaulst to 2
         // (meaning, files at the js src get minified in to their own files,
         // and any dirs in that js src all their contents concatted together).  they want to do all in future so give 0
-        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] || 1;
+        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] || 2;
         // make sure its a number
         if ( isNaN(JS_MINIFICATION_CONCAT_DEPTH) ) {
             grunt.fail.fatal("Value for js minification concat depth should be a number.  It is "
