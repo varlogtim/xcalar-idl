@@ -2489,9 +2489,10 @@ window.DSPreview = (function($, DSPreview) {
             } else {
                 error = (error.error ? error.error : "") +
                         (error.log ? error.log : "");
-                error = error || ErrTStr.Unknown;
             }
         }
+
+        error = error || ErrTStr.Unknown;
 
         $previewWrap.find(".waitSection").addClass("hidden")
                     .removeClass("hasUdf")
@@ -2504,7 +2505,7 @@ window.DSPreview = (function($, DSPreview) {
         var $errorSection = $previewWrap.find(".errorSection");
         var $bottomSection = $errorSection.find(".bottomSection");
 
-        if (error.startsWith("Error:")) {
+        if (error && error.startsWith("Error:")) {
             error = error.slice("Error:".length).trim();
         }
         if (isUDFError) {
@@ -2755,26 +2756,30 @@ window.DSPreview = (function($, DSPreview) {
                 "sql": sql
             });
 
+            if (!isValidPreviewId(curPreviewId)) {
+                // not in preview screen anymore
+                deferred.reject(error);
+                return;
+            }
+
             if (Transaction.checkCanceled(txId)) {
-                if (isValidPreviewId(curPreviewId)) {
-                    $visibleLoadHiddenSection.removeClass("hidden");
-                    if (isFirstTime) {
-                        // if first time, show error message since there's no
-                        // previous table to show
-                        errorHandler(error, false, true);
-                    } else {
-                    // if canceled and still has valid preview id, restore state
-                    // and show previous table
-                        $waitSection.addClass("hidden").removeClass("hasUdf")
-                            .find(".progressSection").empty();
-                        $previewWrap.find(".url").removeClass("xc-disabled");
-                    }
+                $visibleLoadHiddenSection.removeClass("hidden");
+                if (isFirstTime) {
+                    // if first time, show error message since there's no
+                    // previous table to show
+                    errorHandler(error, false, true);
+                } else {
+                // if canceled and still has valid preview id, restore state
+                // and show previous table
+                    $waitSection.addClass("hidden").removeClass("hasUdf")
+                        .find(".progressSection").empty();
+                    $previewWrap.find(".url").removeClass("xc-disabled");
                 }
                 deferred.reject(error);
                 return;
             }
 
-            if (isValidPreviewId(curPreviewId) && clearPreview && hasUDF) {
+            if (clearPreview && hasUDF) {
                 clearPreviewTable(cachedTableName); // async remove the old ds
             }
 
