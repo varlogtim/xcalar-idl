@@ -1,5 +1,10 @@
 window.xcManager = (function(xcManager, $) {
     var setupStatus;
+    var SetupStatus = {
+        "Success": "Success",
+        "Fail": "Fail",
+        "Setup": "Setup"
+    };
 
     xcManager.setup = function() {
         setupStatus = SetupStatus.Setup;
@@ -236,6 +241,10 @@ window.xcManager = (function(xcManager, $) {
 
     xcManager.getStatus = function() {
         return setupStatus;
+    };
+
+    xcManager.isStatusFail = function() {
+        return (setupStatus === SetupStatus.Fail);
     };
 
     xcManager.unload = function(isAsync, doNotLogout) {

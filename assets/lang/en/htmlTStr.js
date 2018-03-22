@@ -607,12 +607,7 @@ module.exports = {
 
     // keep in sync with the FileProtocol in enums.js
     "FileProtocol": {
-        "nfs": "file:///",
-        "hdfs": "hdfs://",
-        "file": "localfile:///",
-        "s3": "s3://",
-        "mapR": "mapr://",
-        "azblob": "azblob://"
+        "nfs": "file:///"
     },
 
     "dsView": {

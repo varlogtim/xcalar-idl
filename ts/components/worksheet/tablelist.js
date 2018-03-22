@@ -346,7 +346,7 @@ window.TableList = (function($, TableList) {
                 activeTables.push(table);
             }
         }
-        TableList.addTables(activeTables, IsActive.Active, {bulkAdd: true});
+        TableList.addTables(activeTables, true, {bulkAdd: true});
 
         generateOrphanList(gOrphanTables);
 
@@ -383,7 +383,7 @@ window.TableList = (function($, TableList) {
         $tableList.remove();
 
         var table = gTables[tableId];
-        TableList.addTables([table], IsActive.Active, {
+        TableList.addTables([table], true, {
             noAnimate: true,
             position: position
         });
@@ -622,7 +622,7 @@ window.TableList = (function($, TableList) {
     TableList.reorderTable = function(tableId) {
         // currently just reprinting whole list
         if ($("#activeTableListSection").hasClass("sortedByWS")) {
-            TableList.addTables([gTables[tableId]], IsActive.Active);
+            TableList.addTables([gTables[tableId]], true);
         }
     };
 

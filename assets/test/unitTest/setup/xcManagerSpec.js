@@ -222,7 +222,11 @@ describe("xcManager Test", function() {
         });
 
         it("xcManager.getStatus should work", function() {
-            expect(xcManager.getStatus()).to.equal(SetupStatus.Success);
+            expect(xcManager.getStatus()).to.equal("Success");
+        });
+
+        it("xcManager.isStatusFail should work", function() {
+            expect(xcManager.isStatusFail()).to.be.false;
         });
 
         it("xcManager.removeUnloadPrompt should work", function() {

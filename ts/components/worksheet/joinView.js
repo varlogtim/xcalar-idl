@@ -82,6 +82,11 @@ window.JoinView = (function($, JoinView) {
                     ' spellcheck="false" disabled />' +
             '</div>' +
         '</div>';
+    var JoinKeySuggestion = {
+        KeySuggested: 0,
+        KeyUnsure: 1,
+        KeyNotFound: 2
+    };
 
     JoinView.setup = function () {
         $joinView = $("#joinView");

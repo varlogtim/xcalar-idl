@@ -1,11 +1,6 @@
 module.exports = {
     "FileProtocol": {
-        "file": "file:///",
-        "hdfs": "hdfs://",
-        "nfs": "file:///",
-        "s3": "s3://",
-        "mapR": "mapr://",
-        "azblob": "azblob://"
+        "file": "file:///"
     },
     "MenuTStr": {
         "AddCol": "插入1列",

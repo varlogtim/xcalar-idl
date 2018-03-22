@@ -455,12 +455,11 @@ window.DSTable = (function($, DSTable) {
                 for (var i = startIndex; i <= endIndex; i++) {
                     var $th = $ths.eq(i);
                     if (isHighlighted === $th.hasClass('selectedCol')) {
-                        selectColumn($th.find(".editableHead"),
-                                            SelectUnit.Single);
+                        selectColumn($th.find(".editableHead"));
                     }
                 }
             } else {
-                selectColumn($input, SelectUnit.Single);
+                selectColumn($input);
             }
             previousColSelected = $input.closest('th');
         });
@@ -545,13 +544,13 @@ window.DSTable = (function($, DSTable) {
     }
 
     // select a column
-    function selectColumn($input, selectAll) {
+    function selectColumn($input) {
         var dsId = $("#dsTable").data("dsid");
         var $header = $input.closest(".header");
         var colNum = xcHelper.parseColNum($input);
         // unselect the column
-        if ($header.hasClass("colAdded") && !selectAll) {
-            highlightColumn($input, IsActive.Active);
+        if ($header.hasClass("colAdded")) {
+            highlightColumn($input, true);
             DSCart.removeItem(dsId, colNum);
         } else {
             highlightColumn($input);

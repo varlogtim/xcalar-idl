@@ -244,7 +244,7 @@ window.TblManager = (function($, TblManager) {
                                       .removeAttr('data-toggle data-container' +
                                                   'title data-original-title');
                 } else {
-                    TableList.addTables([table], IsActive.Active);
+                    TableList.addTables([table], true);
                 }
                 // in case table showed up in temp list during its formation
                 TableList.removeTable(table.getName(), TableType.Orphan);
@@ -1735,7 +1735,7 @@ window.TblManager = (function($, TblManager) {
                                   .removeClass('hiddenWS');
                 xcTooltip.remove($existingTableList.closest('.tableInfo'));
             } else {
-                TableList.addTables([gTables[newTableId]], IsActive.Active);
+                TableList.addTables([gTables[newTableId]], true);
             }
             // in case table showed up in temp list during its formation
             TableList.removeTable(newTableName, TableType.Orphan);
