@@ -1,6 +1,5 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
-    var globalArray = []; // Place to store all the lines of xccli
     var TreeNode = function(value) {
         this.value = value;
         this.parents = [];
@@ -440,16 +439,22 @@ window.DagFunction = (function($, DagFunction) {
 
     DagFunction.printDagCli = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
-        // var toPrint;
-        // var deferred = PromiseHelper.deferred();
         if (dagLineage[tableId]) {
-            getXcalarQueryCli(dagLineage[tableId].orderedPrintArray);
+            var queryStr = getXcalarQueryCli(dagLineage[tableId]
+                                            .orderedPrintArray);
+            return PromiseHelper.resolve(queryStr);
         } else {
+            var deferred = PromiseHelper.deferred();
             XcalarGetDag(tableName)
             .then(function(dagOutput) {
-                var outStruct = DagFunction.construct(dagOutput);
-                getXcalarQueryCli(outStruct.orderedPrintArray);
+                var outStruct = DagFunction.construct(dagOutput.node);
+                var queryStr = getXcalarQueryCli(outStruct.orderedPrintArray);
+                deferred.resolve(queryStr);
+            })
+            .fail(function(err) {
+                deferred.reject(err);
             });
+            return deferred.promise();
         }
     };
 
@@ -1321,24 +1326,17 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     function getXcalarQueryCli(orderedArray) {
-        globalArray = [];
+        var queryArray = [];
 
         for (var i = 0; i < orderedArray.length; i++) {
             var query = {
                 "operation": XcalarApisTStr[orderedArray[i].value.api],
                 "args": orderedArray[i].value.struct
             };
-            globalArray.push(query);
+            queryArray.push(query);
         }
-        return JSON.stringify(globalArray);
+        return JSON.stringify(queryArray);
     }
-
-    // function populateGlobalArray(workItem) {
-    //     return (XcalarGetQuery(workItem)
-    //         .then(function(queryStr) {
-    //             globalArray.push(queryStr);
-    //         }));
-    // }
 
     function getOrderedDedupedNodes(endPoints, type) {
         var queue = endPoints.slice();
