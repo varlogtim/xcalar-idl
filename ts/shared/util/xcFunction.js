@@ -1112,9 +1112,8 @@ window.xcFunction = (function($, xcFunction) {
             retName = "testing";
         }
         options = options || {};
-        // XXX GUI-5271
-        options.handleName = tableName.split("#")[0] +
-                             Authentication.getHashId();
+        // use timestap to guarantee unique name
+        options.handleName = tableName + ".export." + new Date().getTime();
         // now disable retName
         // var fileName = retName + ".csv";
         // var location = hostname + ":/var/tmp/xcalar/" + exportName;
