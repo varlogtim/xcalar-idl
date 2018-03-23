@@ -1050,7 +1050,7 @@ module.exports = {
 
     "workbook": {
         "createWKBK": "CREATE NEW WORKBOOK",
-        "browseWKBK": "BROWSE WORKBOOKS",
+        "browseWKBK": "BROWSE",
         "createWKBKdesc": "Create a new workbook with data and worksheets",
         "header": "Workbook Browser",
         "hello": "Hello",
@@ -1058,6 +1058,7 @@ module.exports = {
         "monitorClusterHealth": "Monitor Cluster Health",
         "news": "News",
         "newWKBK": "New Workbook",
+        "uploadWKBK": "Upload Workbook",
         "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about Xcalar Design",
         "relatedDocs": "Related Tutorials Help Docs",
@@ -1071,7 +1072,10 @@ module.exports = {
         "Edit": "Edit Workbook",
         "Description": "Workbook Description",
         "Preview": "Workbook Preview",
-        "TotalUsage": "Total Size"
+        "TotalUsage": "Total Size",
+        "optional": "optional",
+        "uploadFile": "Source File",
+        "uploadTip": "Open file browser"
     },
 
     "deleteTable": {

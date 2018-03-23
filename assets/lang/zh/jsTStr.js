@@ -603,8 +603,18 @@ WKBKTStr = {
 'NoMeta': '数据缺失',
 'Location': '工作簿',
 'NewWKBK': '新建工作簿',
-'NewWKBKInstr': '通过新建一个工作簿开始使用xcalar Design。给您的新工作簿一个名称，然后单击创建工作簿按钮。创建工作簿后，将鼠标悬停在其上，然后单击播放按钮开始使用新的工作簿。或者，从xcalar Design 的一个教程开始，以了解更多。',
-'CurWKBKInstr': '继续使用当前活动的工作簿，将其悬停在蓝色背景的卡上，然后单击播放按钮。您可以通过将鼠标悬停在其他工作簿上，然后单击播放按钮来切换到另一个工作簿。创建任何工作簿的副本，将鼠标悬停在工作簿卡上，然后单击重复按钮。',
+'NewWKBKInstr': 'To get started with Xcalar Design, you must first create ' +
+                 'a workbook to hold your worksheets. Either create a new ' +
+                 'workbook or upload an existing workbook from the ' +
+                 'Workbook card. After your workbook is created, ' +
+                 'start working with your data by clicking on its workbook ' +
+                 'card. To learn more about using Xcalar Design, check out ' +
+                 'the Xcalar Design tutorials. ',
+  'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
+                  'click on the workbook\'s card. ' +
+                  'To edit the name, add a description, or create a duplicate ' +
+                  'workbook, hover over the workbook\'s card and select the ' +
+                  'icon that is relevant for one of the aforementioned actions. ',
 'NoOldWKBK': '无法恢复旧工作簿',
 'NoOldWKBKInstr': '如果您在重新登录后仍然看到错误，请复制您的日志并重新启动服务器。',
 'NoOldWKBKMsg': '请使用新的工作簿或注销，然后重试！',
@@ -621,11 +631,15 @@ WKBKTStr = {
 "ActivateInstr": "激活工作簿会关闭当前激活的工作簿, 你确定要继续吗?",
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称和注释',
+"EditTitle": "Edit Workbook",
+"createTitle": "Create New Workbook",
+"UploadTitle": "Upload Workbook",
 "Download": "Download",
 "Duplicate": '复制工作簿',
 "Delete": '删除工作簿',
 "DelErr": '删除工作簿出错',
 "CreateErr": '创建工作簿出错',
+"FileError": "File to upload must be selected",
 "CancelTitle": "取消激活工作簿",
 "CancelMsg": "您确定要取消激活工作簿吗?",
 'Conflict': '相同名称的工作簿"<name>"已经存在，请选取其他名称。',
@@ -1178,7 +1192,6 @@ JupyterTStr = {
     "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "对象和数组类型的列无法重命名",
     "DSFormInactive": "From the Dataset panel, select a dataset and apply the Custom Format type.",
-    "NoSnippetOtherWkbk": "Cannot add snippets to a notebook belonging to another Xcalar workbook",
       // with replace
     "SampleNumError": "请选择1至<number>的行作为样本。"
 };

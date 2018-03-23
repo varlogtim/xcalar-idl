@@ -1023,7 +1023,7 @@ module.exports = {
         "Wkbk": "工作簿",
         "Wkbkname": "工作簿名称",
         "createWKBK": "创建工作簿",
-        "browseWKBK": "BROWSE WORKBOOKS",
+        "browseWKBK": "BROWSE",
         "createWKBKdesc": "创建一个新的工作簿",
         "header": "浏览工作簿",
         "hello": "您好",
@@ -1031,6 +1031,7 @@ module.exports = {
         "monitorClusterHealth": "监控群集健康状况",
         "monitorStatus": "监控Xcalar群集的状态",
         "newWKBK": "新的工作簿",
+        "uploadWKBK": "Upload Workbook",
         "news": "新闻",
         "noActive": "没有激活的工作簿。请先创建一个。",
         "relatedDocs": "相关教程和帮助文档",
@@ -1042,7 +1043,10 @@ module.exports = {
         "Edit": "编辑工作簿",
         "Description": "工作簿注释",
         "Preview": "工作簿预览",
-        "TotalUsage": "总大小"
+        "TotalUsage": "总大小",
+        "optional": "optional",
+        "uploadFile": "Source File",
+        "uploadTip": "Open file browser"
     },
     "workspaceBar": {
         "rowInput": "跳转行",

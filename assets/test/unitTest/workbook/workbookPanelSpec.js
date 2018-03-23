@@ -345,11 +345,12 @@ describe("Workbook- Workbook Pane Test", function() {
             var workbooks = WorkbookManager.getWorkbooks();
             var wkbkId = Object.keys(workbooks)[0];
             var name = workbooks[wkbkId].getName();
-            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+            var $newWorkbookButton = $("#createWKBKbtn");
+            var $workbookModal = $("#workbookInfoModal");
 
-            $newWorkbookBox.find("input").val(name)
-                    .end()
-                    .find(".btn").click();
+            $newWorkbookButton.click();
+            $workbookModal.find(".name").find("input").val(name);
+            $workbookModal.find(".confirm").click();
             var error = xcHelper.replaceMsg(WKBKTStr.Conflict, {
                 "name": name
             });
@@ -358,43 +359,34 @@ describe("Workbook- Workbook Pane Test", function() {
 
         it("should handle create workbook error case", function(done) {
             var name = xcHelper.randName("testWorkbook");
-            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
-            var $newWorkbookInput = $newWorkbookBox.find("input");
             var oldFunc = XcSupport.commitCheck;
 
             XcSupport.commitCheck = function() {
                 return PromiseHelper.reject();
             };
 
-            $newWorkbookInput.find("button").addClass("inActive");
+            var $newWorkbookButton = $("#createWKBKbtn");
+            var $workbookModal = $("#workbookInfoModal");
+            $newWorkbookButton.click();
+            $workbookModal.find(".name").find("input").val(name);
+            $workbookModal.find(".confirm").click();
 
-            $newWorkbookBox.find("input").val(name)
-                    .end()
-                    .find(".btn").click();
-            UnitTest.testFinish(function() {
-                return !$newWorkbookInput.find("button").hasClass("inActive");
-            })
-            .then(function() {
-                UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcSupport.commitCheck = oldFunc;
-            });
+            UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
+            done();
+
+            XcSupport.commitCheck = oldFunc;
         });
 
         it("Should create new workbook", function(done) {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
             var name = xcHelper.randName("testWorkbook");
-            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+            var $newWorkbookButton = $("#createWKBKbtn");
+            var $workbookModal = $("#workbookInfoModal");
 
-            $newWorkbookBox.find("input").val(name)
-                    .end()
-                    .find(".btn").click();
+            $newWorkbookButton.click();
+            $workbookModal.find(".name").find("input").val(name);
+            $workbookModal.find(".confirm").click();
             var checkFunc = function() {
                 var diff = $workbookPanel.find(selector).length - wkbkNum;
                 if (diff < 0) {

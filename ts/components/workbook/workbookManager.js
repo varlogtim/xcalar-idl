@@ -465,6 +465,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.uploadWKBK = function(workbookName, workbookContent) {
+        var deferred = PromiseHelper.deferred();
+
+        XcalarUploadWorkbook(workbookName, workbookContent)
+        .then(deferred.resolve)
+        .fail(function(err) {
+            deferred.reject(err);
+        });
+
+        return deferred.promise();
+    };
+
     WorkbookManager.pause = function(workbookId) {
         xcAssert(workbookId === activeWKBKId, WKBKTStr.PauseErr);
         var wkbk = wkbkSet.get(workbookId);

@@ -147,14 +147,16 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function createWorkbook() {
+        gMinModeOn = true;
         var deferred = PromiseHelper.deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
             if ($('#workbookPanel').is(':visible')) {
                 var num = Math.ceil(Math.random() * 1000);
                 var wbName = "WB" + num;
-                $('.newWorkbookBox input').val(wbName);
-                $('.newWorkbookBox button').click();
+                $("#createWKBKbtn").click();
+                $("#workbookInfoModal .name input").val(wbName);
+                $("#workbookInfoModal .confirm").click();
                 clearInterval(wbInterval);
 
                 activateWorkbook(wbName)

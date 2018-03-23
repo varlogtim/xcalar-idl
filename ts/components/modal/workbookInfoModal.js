@@ -2,6 +2,12 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
     var $modal; // $("#workbookInfoModal")
     var modalHelper;
     var activeWorkbookId;
+    var $title;
+    var $workbookName;
+    var $workbookDescription;
+    var $filePathWKBK;
+    var isUpload;
+    var $fileUpload;
 
     WorkbookInfoModal.setup = function() {
         $modal = $("#workbookInfoModal");
@@ -11,13 +17,25 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
             center: {verticalQuartile: true}
         });
 
+        $title = $modal.find(".modalHeader").find(".text");
+        $workbookName = $modal.find(".name input");
+        $workbookDescription = $modal.find(".description input");
+        $filePathWKBK = $modal.find("#filePathWKBK");
+        $fileUpload = $("#WKBK_uploads");
+
         addEvents();
     };
 
-    WorkbookInfoModal.show = function(workbookId) {
+    WorkbookInfoModal.show = function(workbookId, upload) {
         activeWorkbookId = workbookId;
+        isUpload = upload || false;
         modalHelper.setup();
-        showWorkbookInfo(workbookId);
+        showWorkbookInfo(workbookId, isUpload);
+        if (isUpload) {
+            $modal.find(".file").removeClass("xc-hidden");
+        } else {
+            $modal.find(".file").addClass("xc-hidden");
+        }
     };
 
     function addEvents() {
@@ -29,61 +47,91 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
             submitForm();
         });
 
-        $modal.on("input", ".name input", function() {
-            if ($(this).val() === "") {
-                showNameError();
-            } else {
-                hideNameError();
-            }
+        $filePathWKBK.click(function() {
+            $fileUpload.click();
+        });
+
+        $fileUpload.change(function() {
+            $filePathWKBK.val($(this).val().replace(/C:\\fakepath\\/i, '').trim());
+            $workbookName.val($filePathWKBK.val().replace(".tar", "").replace(".gz", "").trim());
         });
     }
 
     function closeModal() {
         modalHelper.clear();
         activeWorkbookId = null;
-        hideNameError();
-    }
-
-    function showNameError() {
-        $modal.find(".error").text(WKBKTStr.WkbkNameRequired);
-        $modal.find(".confirm").addClass("xc-disabled");
-    }
-
-    function hideNameError() {
-        $modal.find(".error").text("");
-        $modal.find(".confirm").removeClass("xc-disabled");
+        $workbookName.val("").select();
+        $workbookDescription.val("");
+        $fileUpload.val("");
+        $filePathWKBK.val("");
     }
 
     function showWorkbookInfo(workbookId) {
-        var workbook = WorkbookManager.getWorkbook(workbookId);
-        $modal.find(".name input").val(workbook.getName()).select();
-        $modal.find(".description input").val(workbook.getDescription() || "");
+        if (workbookId) {
+            $title.text(WKBKTStr.EditTitle);
+            var workbook = WorkbookManager.getWorkbook(workbookId);
+            $workbookName.val(workbook.getName()).select();
+            $workbookDescription.val(workbook.getDescription() || "");
+        } else {
+            if (!isUpload) {
+                $title.text(WKBKTStr.CreateTitle);
+            } else {
+                $title.text(WKBKTStr.UploadTitle);
+                //open download thingie
+                $fileUpload.click();
+            }
+        }
     }
 
     function submitForm() {
         var workbookId = activeWorkbookId;
+        var $submit = $modal.find(".confirm");
+        var name = $workbookName.val();
+        var description = $workbookDescription.val();
+
         if (!validate(workbookId)) {
             return;
         }
-        var name = $modal.find(".name input").val();
-        var description = $modal.find(".description input").val();
-        WorkbookPanel.edit(workbookId, name, description);
         closeModal();
+        if (workbookId) {
+            WorkbookPanel.edit(workbookId, name, description);
+        } else {
+            if (!isUpload) {
+                workbookPanel.createNewWorkbook(name, description)
+                .fail(function(error) {
+                    StatusBox.show(error || WKBKTStr.CreateErr, $("#createWKBKbtn"));
+                });
+            } else {
+                //XXX Placeholder, does not pass file yet
+                var file = $fileUpload[0].files[0];; //get file from input element?
+                WorkbookManager.uploadWKBK(name, file)
+                .then()
+                .fail(function(error) {
+                    StatusBox.show(error, $("#browseWKBKbtn"));
+                });
+            }
+        }
     }
 
     function validate(workbookId) {
-        var $input = $modal.find(".name input");
-        var workbookName = $input.val();
-        var isValid = xcHelper.validate([
+        var workbookName = $workbookName.val();
+        var validations = [
             {
-                "$ele": $input,
+                "$ele": $workbookName,
+                "error": WKBKTStr.WkbkNameRequired,
+                "check": function() {
+                    return $workbookName.val() === "";
+                }
+            },
+            {
+                "$ele": $workbookName,
                 "error": ErrTStr.InvalidWBName,
                 "check": function() {
                     return !xcHelper.checkNamePattern("workbook", "check", workbookName);
                 }
             },
             {
-                "$ele": $input,
+                "$ele": $workbookName,
                 "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
                     "name": workbookName
                 }),
@@ -97,8 +145,17 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
                     }
                     return false;
                 }
-            }
-        ]);
+            }];
+        if (isUpload) {
+            validations.unshift({
+                "$ele": $filePathWKBK,
+                "error": WKBKTStr.FileError,
+                "check": function() {
+                    return $filePathWKBK.val() === "";
+                }
+            });
+        }
+        var isValid = xcHelper.validate(validations);
         return isValid;
     }
 

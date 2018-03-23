@@ -743,20 +743,18 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
-    'NewWKBKInstr': 'Get started with Xcalar Design by creating a new ' +
-                    'workbook. Give your new workbook a name and click ' +
-                    'the Create Workbook Button. After the workbook is ' +
-                    'created, mouse over it and click the Play button to ' +
-                    'get started with your new Workbook. Alternatively, ' +
-                    'start with one of Xcalar Design\'s tutorials to learn ' +
-                    'more.',
-    'CurWKBKInstr': 'To continue with your currently active workbook, hover ' +
-                    'over the card with a blue background and click on the ' +
-                    'play button. You can switch to another workbook by ' +
-                    'hovering over the other workbook and click the ' +
-                    'play button. To create a duplicate of any of the ' +
-                    'workbooks, hover over the workbook card and click ' +
-                    'the duplicate button.',
+    'NewWKBKInstr': 'To get started with Xcalar Design, you must first create ' +
+                 'a workbook to hold your worksheets. Either create a new ' +
+                 'workbook or upload an existing workbook from the ' +
+                 'Workbook card. After your workbook is created, ' +
+                 'start working with your data by clicking on its workbook ' +
+                 'card. To learn more about using Xcalar Design, check out ' +
+                 'the Xcalar Design tutorials. ',
+  'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
+                  'click on the workbook\'s card. ' +
+                  'To edit the name, add a description, or create a duplicate ' +
+                  'workbook, hover over the workbook\'s card and select the ' +
+                  'icon that is relevant for one of the aforementioned actions. ',
     'NoOldWKBK': 'Cannot Retrieve Old Workbook',
     'NoOldWKBKInstr': 'If you still see the error after logging in again, ' +
                       'please copy your log and restart the server.',
@@ -773,11 +771,15 @@ WKBKTStr = {
     "ActivateInstr": "Activating a workbook will deactivate the currently active workbook. Do you still want to continue?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
+    "EditTitle": "Edit Workbook",
+    "CreateTitle": "Create New Workbook",
+    "UploadTitle": "Upload Workbook",
     "Download": "Download the Workbook to your local drive",
     "Duplicate": "Duplicate Workbook",
     "Delete": "Delete Workbook",
     "DelErr": "Error occurred in deleting workbook",
     "CreateErr": "Error occurred when creating workbook",
+    "FileError": "File to upload must be selected",
     "CancelTitle": "Cancel Workbook Activation",
     "CancelMsg": "Are you sure you want to cancel activating this workbook?",
     "WaitActivateFinish": "Please wait for workbook to activate.",

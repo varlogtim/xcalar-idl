@@ -278,7 +278,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         // New Workbook card
         $("#createWKBKbtn").click(function() {
             clearActives();
-            createNewWorkbook();
+            WorkbookInfoModal.show();
+        });
+
+        $("#browseWKBKbtn").click(function() {
+            clearActives();
+            WorkbookInfoModal.show(null, true);
         });
 
         $newWorkbookInput.on("focus", function() {
@@ -499,46 +504,8 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
-    function createNewWorkbook() {
-        var workbookName = $newWorkbookInput.val();
-        var isValid = xcHelper.validate([
-            {
-                "$ele": $newWorkbookInput,
-                "formMode": true
-            },
-            {
-                "$ele": $newWorkbookInput,
-                "formMode": true,
-                "error": ErrTStr.InvalidWBName,
-                "check": function() {
-                    return !xcHelper.checkNamePattern("workbook", "check", workbookName);
-                }
-            },
-            {
-                "$ele": $newWorkbookInput,
-                "formMode": true,
-                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
-                    "name": workbookName
-                }),
-                "check": function() {
-                    var workbooks = WorkbookManager.getWorkbooks();
-                    for (var wkbkId in workbooks) {
-                        if (workbooks[wkbkId].getName() === workbookName) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            }
-        ]);
-
-        if (!isValid) {
-            return;
-        }
-
-        $newWorkbookInput.blur();
-        var $buttons = $newWorkbookInput.find("button").addClass("inActive");
-
+    workbookPanel.createNewWorkbook = function(workbookName, description) {
+        var deferred = PromiseHelper.deferred();
         XcSupport.commitCheck()
         .then(function() {
             var deferred1 = WorkbookManager.newWKBK(workbookName);
@@ -547,19 +514,14 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         })
         .then(function(id, $fauxCard) {
             replaceLoadingCard($fauxCard, id);
-
-            $newWorkbookInput.val("");
-            $lastFocusedInput = "";
+            WorkbookPanel.edit(id, workbookName, description);
+            deferred.resolve();
         })
         .fail(function(error, $fauxCard) {
-            handleError(error || WKBKTStr.CreateErr, $newWorkbookInput);
             removeWorkbookBox($fauxCard);
-            $lastFocusedInput = $newWorkbookInput;
-            $newWorkbookInput.focus();
-        })
-        .always(function() {
-            $buttons.removeClass("inActive");
+            deferred.reject(error);
         });
+        return deferred.promise();
     }
 
     function createLoadingCard($sibling) {
@@ -822,12 +784,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '<div class="description textOverflowOneLine">' +
                                     xcHelper.escapeHTMLSpecialChar(description) +
                                 '</div>' +
-                                '<div class ="preview">' +
                                 '<i class="preview icon xi-show xc-action" ' +
                                 ' data-toggle="tooltip" data-container="body"' +
                                 ' data-placement="top"' +
                                 ' data-title="' + CommonTxtTstr.Preview + '"' +
-                                '></i></div>' +
+                                '></i>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +

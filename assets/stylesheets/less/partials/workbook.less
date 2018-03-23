@@ -78,7 +78,7 @@
     }
 
     .bottomSection {
-        padding-left: 10px;
+        padding-left: 8px;
     }
 
     .inActive {
@@ -144,7 +144,6 @@
         .size(@height: 190px);
         .flex(1 0 300px);
         overflow: hidden;
-        padding: 2px;
 
         .innerBox {
             width: 100%;
@@ -335,6 +334,7 @@
     .newWorkbookBox {
         .leftBar {
             background-color: @color-bg-newWB-orange;
+            width: 43px;
         }
 
         .innerBox {
@@ -343,16 +343,30 @@
                 cursor: default;
             }
 
-            input {
-                margin-top: 10px;
-                margin-bottom: 15px;
-            }
+            .content {
+                position: relative;
 
-            .btn {
-                width: 100%;
+                &::after {
+                    content:"";
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    width: 100%;
+                    border-bottom: 1px solid @color-profile-bar-extra;
+                }
 
-                .icon {
-                    font-size: 12px;
+                .innerContent {
+                    width: 220px;
+
+                    .btn {
+                        width: 100%;
+                        margin-top: 0px;
+                        margin-bottom: 16px;
+
+                        .icon {
+                            font-size: 12px;
+                        }
+                    }
                 }
             }
         }
