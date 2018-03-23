@@ -68,6 +68,11 @@ window.DS = (function ($, DS) {
 
     DS.toggleSharing = function(disable) {
         disableShare = disable || false;
+        if (disableShare) {
+            $gridView.addClass("disableShare");
+        } else {
+            $gridView.removeClass("disableShare");
+        }
     };
 
     // Get home folder
@@ -584,6 +589,9 @@ window.DS = (function ($, DS) {
     }
 
     function shareDS(dsId) {
+        if (disableShare) {
+            return;
+        }
         var dsObj = DS.getDSObj(dsId);
         var name = dsObj.getName();
         var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
